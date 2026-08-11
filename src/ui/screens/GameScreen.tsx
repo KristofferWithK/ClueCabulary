@@ -1,0 +1,154 @@
+import { useEffect } from 'react'
+import { currentClue } from '../../engine/game'
+import type { GameState } from '../../engine/types'
+import { useGame } from '../../stores/gameStore'
+import { useUi } from '../../stores/uiStore'
+import { AiTurnPanel } from '../components/AiTurnPanel'
+import { BoardGrid } from '../components/BoardGrid'
+import { ClueInput } from '../components/ClueInput'
+import { DebriefPanel } from '../components/DebriefPanel'
+import { useOpenDictionary } from '../components/DictionarySheet'
+import { RedemptionView } from '../components/RedemptionView'
+import { TurnTokens } from '../components/TurnTokens'
+
+const PHASE_CAPTION: Record<GameState['phase'], string> = {
+  playerClueInput: 'Give Klaus a clue',
+  aiGuessing: 'Klaus is guessing',
+  aiClueInput: 'Klaus prepares a clue',
+  playerGuessing: 'Your turn to guess',
+  redemption: 'Last chance',
+  finished: 'Round over',
+}
+
+export function GameScreen() {
+  const game = useGame((s) => s.game)
+  const { error, aiBusy, planForClueIndex, selectedWordId, clearError } = useGame()
+  const { translationsOn, toggleTranslations, goTo } = useUi()
+  const openDictionary = useOpenDictionary()
+
+  // Drive the AI side of the loop off the game phase. Guards inside the store
+  // actions make this safe under StrictMode double-invocation and reloads.
+  useEffect(() => {
+    if (!game) return
+    const s = useGame.getState()
+    if (
+      game.phase === 'aiGuessing' &&
+      s.planForClueIndex !== game.clueHistory.length &&
+      !s.aiBusy &&
+      !s.error
+    ) {
+      void s.runAiGuesses()
+    }
+    if (game.phase === 'aiClueInput' && !s.aiBusy && !s.error) void s.runAiClue()
+    if (game.phase === 'finished' && !s.roundRecorded) s.finishRound()
+  }, [game, error, aiBusy, planForClueIndex])
+
+  useEffect(() => {
+    if (!game) goTo('home')
+  }, [game, goTo])
+  if (!game) return null
+
+  const showBoard = game.phase !== 'redemption' && game.phase !== 'finished'
+
+  const handleTranslationsToggle = () => {
+    if (game.phase === 'redemption') return
+    if (!translationsOn) {
+      // Turning the overlay on counts as looking up every unsolved word.
+      const s = useGame.getState()
+      for (const w of game.words) {
+        if (game.reveals[w.wordId]!.kind === 'hidden') s.recordLookup(w.wordId)
+      }
+    }
+    toggleTranslations()
+  }
+
+  return (
+    <div className="screen game-screen">
+      <header className="game-header">
+        <button className="icon-btn" aria-label="Home" onClick={() => goTo('home')}>
+          ←
+        </button>
+        <div className="game-header-mid">
+          <TurnTokens total={game.config.turnTokens} left={game.turnsLeft} />
+          <p className="phase-caption">{PHASE_CAPTION[game.phase]}</p>
+        </div>
+        <button
+          className={`icon-btn ${translationsOn ? 'icon-btn-active' : ''}`}
+          aria-label="Toggle translations"
+          disabled={game.phase === 'redemption'}
+          onClick={handleTranslationsToggle}
+        >
+          Aa
+        </button>
+      </header>
+
+      {error && (
+        <div className="error-banner">
+          <p>{error}</p>
+          <button className="btn btn-small" onClick={clearError}>
+            Retry
+          </button>
+        </div>
+      )}
+
+      {showBoard && (
+        <BoardGrid
+          game={game}
+          translationsOn={translationsOn}
+          canGuess={game.phase === 'playerGuessing'}
+          selectedWordId={selectedWordId}
+          onCardTap={(id) => useGame.getState().selectWord(id)}
+          onInfoTap={openDictionary}
+          dictionaryLocked={false}
+        />
+      )}
+
+      {game.phase === 'playerClueInput' && (
+        <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
+      )}
+      {(game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && <AiTurnPanel game={game} />}
+      {game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
+      {game.phase === 'redemption' && (
+        <RedemptionView game={game} onSubmit={(a) => useGame.getState().submitRedemption(a)} />
+      )}
+      {game.phase === 'finished' && <DebriefPanel game={game} />}
+    </div>
+  )
+}
+
+function PlayerGuessBar({ game }: { game: GameState }) {
+  const { selectedWordId } = useGame()
+  const clue = currentClue(game)!
+  const made = clue.guesses.length
+  const left = clue.number + 1 - made
+  const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
+
+  return (
+    <div className="dock guess-bar">
+      <p className="dock-title">
+        Klaus's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
+        {left === 1 ? '' : 'es'}
+      </p>
+      {selected ? (
+        <div className="guess-confirm">
+          <button
+            className="btn btn-primary"
+            onClick={() => useGame.getState().playerGuess(selected.wordId)}
+          >
+            Guess «{selected.da}»
+          </button>
+          <button className="btn" onClick={() => useGame.getState().selectWord(null)}>
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <p className="dim">Tap a word you think Klaus means.</p>
+      )}
+      {made > 0 && (
+        <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
+          Stop guessing (keep what we have)
+        </button>
+      )}
+    </div>
+  )
+}

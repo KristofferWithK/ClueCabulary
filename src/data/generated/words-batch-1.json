@@ -1,0 +1,1525 @@
+[
+  {
+    "da": "hund",
+    "article": "en",
+    "en": [
+      "dog"
+    ],
+    "pos": "noun",
+    "exampleDa": "Hunden løber efter bolden.",
+    "exampleEn": "The dog runs after the ball.",
+    "order": 131,
+    "slice": "noun-1"
+  },
+  {
+    "da": "kat",
+    "article": "en",
+    "en": [
+      "cat"
+    ],
+    "pos": "noun",
+    "exampleDa": "Katten sover på sengen.",
+    "exampleEn": "The cat is sleeping on the bed.",
+    "order": 132,
+    "slice": "noun-1"
+  },
+  {
+    "da": "fugl",
+    "article": "en",
+    "en": [
+      "bird"
+    ],
+    "pos": "noun",
+    "exampleDa": "Fuglene synger tidligt om morgenen.",
+    "exampleEn": "The birds sing early in the morning.",
+    "order": 133,
+    "slice": "noun-1"
+  },
+  {
+    "da": "hest",
+    "article": "en",
+    "en": [
+      "horse"
+    ],
+    "pos": "noun",
+    "exampleDa": "Hun rider på en brun hest.",
+    "exampleEn": "She rides a brown horse.",
+    "order": 134,
+    "slice": "noun-1"
+  },
+  {
+    "da": "vejr",
+    "article": "et",
+    "en": [
+      "weather"
+    ],
+    "pos": "noun",
+    "exampleDa": "Vejret er dejligt i dag.",
+    "exampleEn": "The weather is lovely today.",
+    "order": 135,
+    "slice": "noun-1"
+  },
+  {
+    "da": "regn",
+    "article": "en",
+    "en": [
+      "rain"
+    ],
+    "pos": "noun",
+    "exampleDa": "Vi fik meget regn i går.",
+    "exampleEn": "We got a lot of rain yesterday.",
+    "order": 136,
+    "slice": "noun-1"
+  },
+  {
+    "da": "sne",
+    "article": "en",
+    "en": [
+      "snow"
+    ],
+    "pos": "noun",
+    "exampleDa": "Der ligger sne på vejen.",
+    "exampleEn": "There is snow on the road.",
+    "order": 137,
+    "slice": "noun-1"
+  },
+  {
+    "da": "vind",
+    "article": "en",
+    "en": [
+      "wind"
+    ],
+    "pos": "noun",
+    "exampleDa": "Vinden er stærk ved havet.",
+    "exampleEn": "The wind is strong by the sea.",
+    "order": 138,
+    "slice": "noun-1"
+  },
+  {
+    "da": "luft",
+    "article": "en",
+    "en": [
+      "air"
+    ],
+    "pos": "noun",
+    "exampleDa": "Luften er frisk om morgenen.",
+    "exampleEn": "The air is fresh in the morning.",
+    "order": 139,
+    "slice": "noun-1"
+  },
+  {
+    "da": "jord",
+    "article": "en",
+    "en": [
+      "earth",
+      "ground",
+      "soil"
+    ],
+    "pos": "noun",
+    "exampleDa": "Blomsterne vokser i den våde jord.",
+    "exampleEn": "The flowers grow in the wet soil.",
+    "order": 140,
+    "slice": "noun-1"
+  },
+  {
+    "da": "måne",
+    "article": "en",
+    "en": [
+      "moon"
+    ],
+    "pos": "noun",
+    "exampleDa": "Månen lyser klart i nat.",
+    "exampleEn": "The moon shines brightly tonight.",
+    "order": 141,
+    "slice": "noun-1"
+  },
+  {
+    "da": "stjerne",
+    "article": "en",
+    "en": [
+      "star"
+    ],
+    "pos": "noun",
+    "exampleDa": "Vi kan se mange stjerner i aften.",
+    "exampleEn": "We can see many stars tonight.",
+    "order": 142,
+    "slice": "noun-1"
+  },
+  {
+    "da": "ø",
+    "article": "en",
+    "en": [
+      "island"
+    ],
+    "pos": "noun",
+    "exampleDa": "De bor på en lille ø.",
+    "exampleEn": "They live on a small island.",
+    "order": 143,
+    "slice": "noun-1"
+  },
+  {
+    "da": "kirke",
+    "article": "en",
+    "en": [
+      "church"
+    ],
+    "pos": "noun",
+    "exampleDa": "Kirken ligger midt i byen.",
+    "exampleEn": "The church is in the middle of town.",
+    "order": 144,
+    "slice": "noun-1"
+  },
+  {
+    "da": "hospital",
+    "article": "et",
+    "en": [
+      "hospital"
+    ],
+    "pos": "noun",
+    "exampleDa": "Hun arbejder på et hospital.",
+    "exampleEn": "She works at a hospital.",
+    "order": 145,
+    "slice": "noun-1"
+  },
+  {
+    "da": "hotel",
+    "article": "et",
+    "en": [
+      "hotel"
+    ],
+    "pos": "noun",
+    "exampleDa": "Vi bor på et billigt hotel.",
+    "exampleEn": "We are staying at a cheap hotel.",
+    "order": 146,
+    "slice": "noun-1"
+  },
+  {
+    "da": "restaurant",
+    "article": "en",
+    "en": [
+      "restaurant"
+    ],
+    "pos": "noun",
+    "exampleDa": "De spiser på en god restaurant.",
+    "exampleEn": "They are eating at a good restaurant.",
+    "order": 147,
+    "slice": "noun-1"
+  },
+  {
+    "da": "park",
+    "article": "en",
+    "en": [
+      "park"
+    ],
+    "pos": "noun",
+    "exampleDa": "Vi mødes i parken klokken tre.",
+    "exampleEn": "We meet in the park at three o'clock.",
+    "order": 148,
+    "slice": "noun-1"
+  },
+  {
+    "da": "politi",
+    "article": "et",
+    "en": [
+      "police"
+    ],
+    "pos": "noun",
+    "exampleDa": "Politiet hjælper folk i byen.",
+    "exampleEn": "The police help people in the city.",
+    "order": 149,
+    "slice": "noun-1"
+  },
+  {
+    "da": "samfund",
+    "article": "et",
+    "en": [
+      "society",
+      "community"
+    ],
+    "pos": "noun",
+    "exampleDa": "Alle er en del af samfundet.",
+    "exampleEn": "Everyone is part of society.",
+    "order": 150,
+    "slice": "noun-1"
+  },
+  {
+    "da": "være",
+    "en": [
+      "be"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg er glad i dag.",
+    "exampleEn": "I am happy today.",
+    "order": 1,
+    "slice": "verb-1"
+  },
+  {
+    "da": "kunne",
+    "en": [
+      "can",
+      "be able to"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg kan tale lidt dansk.",
+    "exampleEn": "I can speak a little Danish.",
+    "order": 3,
+    "slice": "verb-1"
+  },
+  {
+    "da": "skulle",
+    "en": [
+      "must",
+      "have to",
+      "shall"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi skal i skole i morgen.",
+    "exampleEn": "We have to go to school tomorrow.",
+    "order": 4,
+    "slice": "verb-1"
+  },
+  {
+    "da": "blive",
+    "en": [
+      "become",
+      "get",
+      "stay"
+    ],
+    "pos": "verb",
+    "exampleDa": "Det bliver koldt i aften.",
+    "exampleEn": "It is getting cold tonight.",
+    "order": 5,
+    "slice": "verb-1"
+  },
+  {
+    "da": "få",
+    "en": [
+      "get",
+      "receive"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun får en gave i dag.",
+    "exampleEn": "She gets a present today.",
+    "order": 6,
+    "slice": "verb-1"
+  },
+  {
+    "da": "ville",
+    "en": [
+      "want",
+      "will"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg vil gerne have en kop kaffe.",
+    "exampleEn": "I would like a cup of coffee.",
+    "order": 7,
+    "slice": "verb-1"
+  },
+  {
+    "da": "komme",
+    "en": [
+      "come"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kommer du til festen i morgen?",
+    "exampleEn": "Are you coming to the party tomorrow?",
+    "order": 8,
+    "slice": "verb-1"
+  },
+  {
+    "da": "sige",
+    "en": [
+      "say",
+      "tell"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad siger du til det?",
+    "exampleEn": "What do you say to that?",
+    "order": 9,
+    "slice": "verb-1"
+  },
+  {
+    "da": "gøre",
+    "en": [
+      "do",
+      "make"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad gør du nu?",
+    "exampleEn": "What are you doing now?",
+    "order": 10,
+    "slice": "verb-1"
+  },
+  {
+    "da": "gå",
+    "en": [
+      "go",
+      "walk"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi går en tur i parken.",
+    "exampleEn": "We go for a walk in the park.",
+    "order": 11,
+    "slice": "verb-1"
+  },
+  {
+    "da": "se",
+    "en": [
+      "see",
+      "look",
+      "watch"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg ser en film i aften.",
+    "exampleEn": "I am watching a film tonight.",
+    "order": 12,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tage",
+    "en": [
+      "take"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun tager bussen til arbejde.",
+    "exampleEn": "She takes the bus to work.",
+    "order": 13,
+    "slice": "verb-1"
+  },
+  {
+    "da": "give",
+    "en": [
+      "give"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kan du give mig bogen?",
+    "exampleEn": "Can you give me the book?",
+    "order": 14,
+    "slice": "verb-1"
+  },
+  {
+    "da": "finde",
+    "en": [
+      "find"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg kan ikke finde mine nøgler.",
+    "exampleEn": "I cannot find my keys.",
+    "order": 15,
+    "slice": "verb-1"
+  },
+  {
+    "da": "måtte",
+    "en": [
+      "may",
+      "must"
+    ],
+    "pos": "verb",
+    "exampleDa": "Må jeg gå nu?",
+    "exampleEn": "May I go now?",
+    "order": 16,
+    "slice": "verb-1"
+  },
+  {
+    "da": "stå",
+    "en": [
+      "stand"
+    ],
+    "pos": "verb",
+    "exampleDa": "Han står ved døren.",
+    "exampleEn": "He is standing by the door.",
+    "order": 17,
+    "slice": "verb-1"
+  },
+  {
+    "da": "vide",
+    "en": [
+      "know"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg ved ikke, hvad klokken er.",
+    "exampleEn": "I do not know what time it is.",
+    "order": 18,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tro",
+    "en": [
+      "believe",
+      "think"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg tror, det bliver regn i morgen.",
+    "exampleEn": "I think it will rain tomorrow.",
+    "order": 19,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tænke",
+    "en": [
+      "think"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg tænker ofte på dig.",
+    "exampleEn": "I often think of you.",
+    "order": 20,
+    "slice": "verb-1"
+  },
+  {
+    "da": "holde",
+    "en": [
+      "hold",
+      "keep"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kan du holde min taske?",
+    "exampleEn": "Can you hold my bag?",
+    "order": 21,
+    "slice": "verb-1"
+  },
+  {
+    "da": "mene",
+    "en": [
+      "think",
+      "mean"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad mener du om filmen?",
+    "exampleEn": "What do you think about the film?",
+    "order": 22,
+    "slice": "verb-1"
+  },
+  {
+    "da": "bruge",
+    "en": [
+      "use",
+      "spend"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg bruger min telefon hver dag.",
+    "exampleEn": "I use my phone every day.",
+    "order": 23,
+    "slice": "verb-1"
+  },
+  {
+    "da": "lave",
+    "en": [
+      "make",
+      "do"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad laver du i weekenden?",
+    "exampleEn": "What are you doing at the weekend?",
+    "order": 24,
+    "slice": "verb-1"
+  },
+  {
+    "da": "sætte",
+    "en": [
+      "put",
+      "set",
+      "place"
+    ],
+    "pos": "verb",
+    "exampleDa": "Han sætter koppen på bordet.",
+    "exampleEn": "He puts the cup on the table.",
+    "order": 25,
+    "slice": "verb-1"
+  },
+  {
+    "da": "ligge",
+    "en": [
+      "lie"
+    ],
+    "pos": "verb",
+    "exampleDa": "Bogen ligger på bordet.",
+    "exampleEn": "The book is lying on the table.",
+    "order": 26,
+    "slice": "verb-1"
+  },
+  {
+    "da": "sidde",
+    "en": [
+      "sit"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi sidder i sofaen.",
+    "exampleEn": "We are sitting on the sofa.",
+    "order": 27,
+    "slice": "verb-1"
+  },
+  {
+    "da": "hedde",
+    "en": [
+      "be called",
+      "be named"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad hedder din nye lærer?",
+    "exampleEn": "What is your new teacher called?",
+    "order": 28,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tale",
+    "en": [
+      "speak",
+      "talk"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun taler dansk og engelsk.",
+    "exampleEn": "She speaks Danish and English.",
+    "order": 29,
+    "slice": "verb-1"
+  },
+  {
+    "da": "lade",
+    "en": [
+      "let",
+      "allow"
+    ],
+    "pos": "verb",
+    "exampleDa": "Lad mig hjælpe dig med det.",
+    "exampleEn": "Let me help you with that.",
+    "order": 30,
+    "slice": "verb-1"
+  },
+  {
+    "da": "høre",
+    "en": [
+      "hear"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg kan høre musik udenfor.",
+    "exampleEn": "I can hear music outside.",
+    "order": 31,
+    "slice": "verb-1"
+  },
+  {
+    "da": "spørge",
+    "en": [
+      "ask"
+    ],
+    "pos": "verb",
+    "exampleDa": "Må jeg spørge om noget?",
+    "exampleEn": "May I ask about something?",
+    "order": 32,
+    "slice": "verb-1"
+  },
+  {
+    "da": "følge",
+    "en": [
+      "follow"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hunden følger mig hjem hver dag.",
+    "exampleEn": "The dog follows me home every day.",
+    "order": 33,
+    "slice": "verb-1"
+  },
+  {
+    "da": "begynde",
+    "en": [
+      "begin",
+      "start"
+    ],
+    "pos": "verb",
+    "exampleDa": "Filmen begynder klokken otte.",
+    "exampleEn": "The film begins at eight o'clock.",
+    "order": 34,
+    "slice": "verb-1"
+  },
+  {
+    "da": "vise",
+    "en": [
+      "show"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kan du vise mig vejen?",
+    "exampleEn": "Can you show me the way?",
+    "order": 35,
+    "slice": "verb-1"
+  },
+  {
+    "da": "føle",
+    "en": [
+      "feel"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg føler mig træt i dag.",
+    "exampleEn": "I feel tired today.",
+    "order": 37,
+    "slice": "verb-1"
+  },
+  {
+    "da": "læse",
+    "en": [
+      "read"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun læser en god bog.",
+    "exampleEn": "She is reading a good book.",
+    "order": 39,
+    "slice": "verb-1"
+  },
+  {
+    "da": "skrive",
+    "en": [
+      "write"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg skriver et brev til min mor.",
+    "exampleEn": "I am writing a letter to my mother.",
+    "order": 40,
+    "slice": "verb-1"
+  },
+  {
+    "da": "lægge",
+    "en": [
+      "lay",
+      "put"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun lægger nøglerne i tasken.",
+    "exampleEn": "She puts the keys in the bag.",
+    "order": 41,
+    "slice": "verb-1"
+  },
+  {
+    "da": "betyde",
+    "en": [
+      "mean"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad betyder det ord?",
+    "exampleEn": "What does that word mean?",
+    "order": 42,
+    "slice": "verb-1"
+  },
+  {
+    "da": "leve",
+    "en": [
+      "live",
+      "be alive"
+    ],
+    "pos": "verb",
+    "exampleDa": "Min farmor lever stadig.",
+    "exampleEn": "My grandmother is still alive.",
+    "order": 43,
+    "slice": "verb-1"
+  },
+  {
+    "da": "bo",
+    "en": [
+      "live",
+      "reside"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi bor i en lille by.",
+    "exampleEn": "We live in a small town.",
+    "order": 44,
+    "slice": "verb-1"
+  },
+  {
+    "da": "købe",
+    "en": [
+      "buy"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg køber brød i supermarkedet.",
+    "exampleEn": "I buy bread at the supermarket.",
+    "order": 45,
+    "slice": "verb-1"
+  },
+  {
+    "da": "spille",
+    "en": [
+      "play"
+    ],
+    "pos": "verb",
+    "exampleDa": "Børnene spiller fodbold i haven.",
+    "exampleEn": "The children play football in the garden.",
+    "order": 46,
+    "slice": "verb-1"
+  },
+  {
+    "da": "kende",
+    "en": [
+      "know"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kender du den nye nabo?",
+    "exampleEn": "Do you know the new neighbour?",
+    "order": 47,
+    "slice": "verb-1"
+  },
+  {
+    "da": "synes",
+    "en": [
+      "think",
+      "find"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg synes, filmen var god.",
+    "exampleEn": "I think the film was good.",
+    "order": 48,
+    "slice": "verb-1"
+  },
+  {
+    "da": "prøve",
+    "en": [
+      "try"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vil du prøve min nye cykel?",
+    "exampleEn": "Do you want to try my new bike?",
+    "order": 49,
+    "slice": "verb-1"
+  },
+  {
+    "da": "fortælle",
+    "en": [
+      "tell"
+    ],
+    "pos": "verb",
+    "exampleDa": "Far fortæller en historie hver aften.",
+    "exampleEn": "Dad tells a story every evening.",
+    "order": 50,
+    "slice": "verb-1"
+  },
+  {
+    "da": "forstå",
+    "en": [
+      "understand"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg forstår ikke spørgsmålet.",
+    "exampleEn": "I do not understand the question.",
+    "order": 51,
+    "slice": "verb-1"
+  },
+  {
+    "da": "vente",
+    "en": [
+      "wait"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi venter på bussen.",
+    "exampleEn": "We are waiting for the bus.",
+    "order": 52,
+    "slice": "verb-1"
+  },
+  {
+    "da": "hjælpe",
+    "en": [
+      "help"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kan du hjælpe mig med maden?",
+    "exampleEn": "Can you help me with the food?",
+    "order": 53,
+    "slice": "verb-1"
+  },
+  {
+    "da": "elske",
+    "en": [
+      "love"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg elsker min familie.",
+    "exampleEn": "I love my family.",
+    "order": 54,
+    "slice": "verb-1"
+  },
+  {
+    "da": "huske",
+    "en": [
+      "remember"
+    ],
+    "pos": "verb",
+    "exampleDa": "Husk at købe mælk i dag.",
+    "exampleEn": "Remember to buy milk today.",
+    "order": 55,
+    "slice": "verb-1"
+  },
+  {
+    "da": "betale",
+    "en": [
+      "pay"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg betaler med kort.",
+    "exampleEn": "I pay by card.",
+    "order": 56,
+    "slice": "verb-1"
+  },
+  {
+    "da": "håbe",
+    "en": [
+      "hope"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg håber, det bliver godt vejr.",
+    "exampleEn": "I hope the weather will be nice.",
+    "order": 57,
+    "slice": "verb-1"
+  },
+  {
+    "da": "ønske",
+    "en": [
+      "wish",
+      "want"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun ønsker sig en ny cykel.",
+    "exampleEn": "She wishes for a new bike.",
+    "order": 58,
+    "slice": "verb-1"
+  },
+  {
+    "da": "kalde",
+    "en": [
+      "call"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad kalder du din kat?",
+    "exampleEn": "What do you call your cat?",
+    "order": 59,
+    "slice": "verb-1"
+  },
+  {
+    "da": "sende",
+    "en": [
+      "send"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg sender dig en besked senere.",
+    "exampleEn": "I will send you a message later.",
+    "order": 60,
+    "slice": "verb-1"
+  },
+  {
+    "da": "spise",
+    "en": [
+      "eat"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi spiser aftensmad klokken seks.",
+    "exampleEn": "We eat dinner at six o'clock.",
+    "order": 61,
+    "slice": "verb-1"
+  },
+  {
+    "da": "drikke",
+    "en": [
+      "drink"
+    ],
+    "pos": "verb",
+    "exampleDa": "Han drikker kaffe hver morgen.",
+    "exampleEn": "He drinks coffee every morning.",
+    "order": 62,
+    "slice": "verb-1"
+  },
+  {
+    "da": "sove",
+    "en": [
+      "sleep"
+    ],
+    "pos": "verb",
+    "exampleDa": "Barnet sover i sin seng.",
+    "exampleEn": "The child is sleeping in its bed.",
+    "order": 63,
+    "slice": "verb-1"
+  },
+  {
+    "da": "køre",
+    "en": [
+      "drive",
+      "ride",
+      "go"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi kører til stranden i bil.",
+    "exampleEn": "We drive to the beach in the car.",
+    "order": 64,
+    "slice": "verb-1"
+  },
+  {
+    "da": "løbe",
+    "en": [
+      "run"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg løber en tur hver morgen.",
+    "exampleEn": "I go for a run every morning.",
+    "order": 66,
+    "slice": "verb-1"
+  },
+  {
+    "da": "ske",
+    "en": [
+      "happen",
+      "occur"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hvad sker der her?",
+    "exampleEn": "What is happening here?",
+    "order": 67,
+    "slice": "verb-1"
+  },
+  {
+    "da": "søge",
+    "en": [
+      "search",
+      "seek",
+      "apply"
+    ],
+    "pos": "verb",
+    "exampleDa": "Han søger et nyt job.",
+    "exampleEn": "He is looking for a new job.",
+    "order": 68,
+    "slice": "verb-1"
+  },
+  {
+    "da": "svare",
+    "en": [
+      "answer",
+      "reply"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun svarer ikke på min besked.",
+    "exampleEn": "She does not answer my message.",
+    "order": 69,
+    "slice": "verb-1"
+  },
+  {
+    "da": "bede",
+    "en": [
+      "ask",
+      "request",
+      "pray"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg beder ham om hjælp.",
+    "exampleEn": "I ask him for help.",
+    "order": 70,
+    "slice": "verb-1"
+  },
+  {
+    "da": "vælge",
+    "en": [
+      "choose",
+      "pick",
+      "select"
+    ],
+    "pos": "verb",
+    "exampleDa": "Du kan vælge mellem te og kaffe.",
+    "exampleEn": "You can choose between tea and coffee.",
+    "order": 71,
+    "slice": "verb-1"
+  },
+  {
+    "da": "vinde",
+    "en": [
+      "win"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vores hold vinder kampen.",
+    "exampleEn": "Our team wins the match.",
+    "order": 72,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tabe",
+    "en": [
+      "lose",
+      "drop"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg taber altid i skak.",
+    "exampleEn": "I always lose at chess.",
+    "order": 73,
+    "slice": "verb-1"
+  },
+  {
+    "da": "glemme",
+    "en": [
+      "forget"
+    ],
+    "pos": "verb",
+    "exampleDa": "Glem ikke din jakke!",
+    "exampleEn": "Do not forget your jacket!",
+    "order": 74,
+    "slice": "verb-1"
+  },
+  {
+    "da": "lære",
+    "en": [
+      "learn",
+      "teach"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg lærer dansk i skolen.",
+    "exampleEn": "I am learning Danish at school.",
+    "order": 75,
+    "slice": "verb-1"
+  },
+  {
+    "da": "falde",
+    "en": [
+      "fall"
+    ],
+    "pos": "verb",
+    "exampleDa": "Pas på, du ikke falder på isen.",
+    "exampleEn": "Be careful you do not fall on the ice.",
+    "order": 76,
+    "slice": "verb-1"
+  },
+  {
+    "da": "dø",
+    "en": [
+      "die"
+    ],
+    "pos": "verb",
+    "exampleDa": "Blomsterne dør uden vand.",
+    "exampleEn": "The flowers die without water.",
+    "order": 77,
+    "slice": "verb-1"
+  },
+  {
+    "da": "åbne",
+    "en": [
+      "open"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kan du åbne vinduet?",
+    "exampleEn": "Can you open the window?",
+    "order": 78,
+    "slice": "verb-1"
+  },
+  {
+    "da": "lukke",
+    "en": [
+      "close",
+      "shut"
+    ],
+    "pos": "verb",
+    "exampleDa": "Luk døren, når du går.",
+    "exampleEn": "Close the door when you leave.",
+    "order": 79,
+    "slice": "verb-1"
+  },
+  {
+    "da": "starte",
+    "en": [
+      "start"
+    ],
+    "pos": "verb",
+    "exampleDa": "Bilen vil ikke starte i dag.",
+    "exampleEn": "The car will not start today.",
+    "order": 80,
+    "slice": "verb-1"
+  },
+  {
+    "da": "slutte",
+    "en": [
+      "end",
+      "finish"
+    ],
+    "pos": "verb",
+    "exampleDa": "Festen slutter ved midnat.",
+    "exampleEn": "The party ends at midnight.",
+    "order": 81,
+    "slice": "verb-1"
+  },
+  {
+    "da": "stoppe",
+    "en": [
+      "stop"
+    ],
+    "pos": "verb",
+    "exampleDa": "Bussen stopper ved skolen.",
+    "exampleEn": "The bus stops at the school.",
+    "order": 82,
+    "slice": "verb-1"
+  },
+  {
+    "da": "fortsætte",
+    "en": [
+      "continue",
+      "go on"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi fortsætter arbejdet efter frokost.",
+    "exampleEn": "We continue the work after lunch.",
+    "order": 83,
+    "slice": "verb-1"
+  },
+  {
+    "da": "burde",
+    "en": [
+      "ought to",
+      "should"
+    ],
+    "pos": "verb",
+    "exampleDa": "Du burde gå i seng nu.",
+    "exampleEn": "You ought to go to bed now.",
+    "order": 84,
+    "slice": "verb-1"
+  },
+  {
+    "da": "turde",
+    "en": [
+      "dare"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg tør ikke svømme i havet.",
+    "exampleEn": "I do not dare to swim in the sea.",
+    "order": 85,
+    "slice": "verb-1"
+  },
+  {
+    "da": "nå",
+    "en": [
+      "reach",
+      "make it",
+      "catch"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi når ikke toget.",
+    "exampleEn": "We will not make the train.",
+    "order": 86,
+    "slice": "verb-1"
+  },
+  {
+    "da": "slå",
+    "en": [
+      "hit",
+      "beat",
+      "strike"
+    ],
+    "pos": "verb",
+    "exampleDa": "Han slår bolden hårdt.",
+    "exampleEn": "He hits the ball hard.",
+    "order": 87,
+    "slice": "verb-1"
+  },
+  {
+    "da": "bære",
+    "en": [
+      "carry",
+      "wear"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kan du bære min kuffert?",
+    "exampleEn": "Can you carry my suitcase?",
+    "order": 88,
+    "slice": "verb-1"
+  },
+  {
+    "da": "trække",
+    "en": [
+      "pull",
+      "draw"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hesten trækker den tunge vogn.",
+    "exampleEn": "The horse pulls the heavy cart.",
+    "order": 89,
+    "slice": "verb-1"
+  },
+  {
+    "da": "kaste",
+    "en": [
+      "throw"
+    ],
+    "pos": "verb",
+    "exampleDa": "Drengen kaster bolden til hunden.",
+    "exampleEn": "The boy throws the ball to the dog.",
+    "order": 90,
+    "slice": "verb-1"
+  },
+  {
+    "da": "gribe",
+    "en": [
+      "catch",
+      "grab"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun griber bolden med én hånd.",
+    "exampleEn": "She catches the ball with one hand.",
+    "order": 91,
+    "slice": "verb-1"
+  },
+  {
+    "da": "springe",
+    "en": [
+      "jump",
+      "leap"
+    ],
+    "pos": "verb",
+    "exampleDa": "Katten springer op på bordet.",
+    "exampleEn": "The cat jumps up on the table.",
+    "order": 92,
+    "slice": "verb-1"
+  },
+  {
+    "da": "flyve",
+    "en": [
+      "fly"
+    ],
+    "pos": "verb",
+    "exampleDa": "Fuglene flyver mod syd om efteråret.",
+    "exampleEn": "The birds fly south in autumn.",
+    "order": 93,
+    "slice": "verb-1"
+  },
+  {
+    "da": "svømme",
+    "en": [
+      "swim"
+    ],
+    "pos": "verb",
+    "exampleDa": "Børnene svømmer i søen om sommeren.",
+    "exampleEn": "The children swim in the lake in summer.",
+    "order": 94,
+    "slice": "verb-1"
+  },
+  {
+    "da": "hænge",
+    "en": [
+      "hang"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jakken hænger i skabet.",
+    "exampleEn": "The jacket is hanging in the wardrobe.",
+    "order": 95,
+    "slice": "verb-1"
+  },
+  {
+    "da": "vende",
+    "en": [
+      "turn",
+      "flip"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vend pandekagen efter to minutter.",
+    "exampleEn": "Turn the pancake after two minutes.",
+    "order": 96,
+    "slice": "verb-1"
+  },
+  {
+    "da": "dreje",
+    "en": [
+      "turn"
+    ],
+    "pos": "verb",
+    "exampleDa": "Drej til højre ved kirken.",
+    "exampleEn": "Turn right at the church.",
+    "order": 97,
+    "slice": "verb-1"
+  },
+  {
+    "da": "flytte",
+    "en": [
+      "move"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi flytter til en ny lejlighed.",
+    "exampleEn": "We are moving to a new flat.",
+    "order": 98,
+    "slice": "verb-1"
+  },
+  {
+    "da": "ligne",
+    "en": [
+      "resemble",
+      "look like"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun ligner sin mor meget.",
+    "exampleEn": "She looks a lot like her mother.",
+    "order": 99,
+    "slice": "verb-1"
+  },
+  {
+    "da": "mangle",
+    "en": [
+      "lack",
+      "be missing",
+      "miss"
+    ],
+    "pos": "verb",
+    "exampleDa": "Der mangler en stol ved bordet.",
+    "exampleEn": "There is a chair missing at the table.",
+    "order": 100,
+    "slice": "verb-1"
+  },
+  {
+    "da": "virke",
+    "en": [
+      "work",
+      "seem",
+      "function"
+    ],
+    "pos": "verb",
+    "exampleDa": "Min computer virker ikke i dag.",
+    "exampleEn": "My computer is not working today.",
+    "order": 101,
+    "slice": "verb-1"
+  },
+  {
+    "da": "gælde",
+    "en": [
+      "apply",
+      "be valid",
+      "count"
+    ],
+    "pos": "verb",
+    "exampleDa": "Billetten gælder hele dagen.",
+    "exampleEn": "The ticket is valid all day.",
+    "order": 102,
+    "slice": "verb-1"
+  },
+  {
+    "da": "klare",
+    "en": [
+      "manage",
+      "handle",
+      "cope"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun klarer opgaven helt selv.",
+    "exampleEn": "She manages the task all by herself.",
+    "order": 103,
+    "slice": "verb-1"
+  },
+  {
+    "da": "passe",
+    "en": [
+      "fit",
+      "suit",
+      "look after"
+    ],
+    "pos": "verb",
+    "exampleDa": "Trøjen passer mig perfekt.",
+    "exampleEn": "The sweater fits me perfectly.",
+    "order": 104,
+    "slice": "verb-1"
+  },
+  {
+    "da": "ændre",
+    "en": [
+      "change",
+      "alter"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi ændrer planen i morgen.",
+    "exampleEn": "We are changing the plan tomorrow.",
+    "order": 105,
+    "slice": "verb-1"
+  },
+  {
+    "da": "ringe",
+    "en": [
+      "call",
+      "phone",
+      "ring"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg ringer til dig i aften.",
+    "exampleEn": "I will call you tonight.",
+    "order": 106,
+    "slice": "verb-1"
+  },
+  {
+    "da": "besøge",
+    "en": [
+      "visit"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi besøger mormor på søndag.",
+    "exampleEn": "We visit grandma on Sunday.",
+    "order": 107,
+    "slice": "verb-1"
+  },
+  {
+    "da": "smile",
+    "en": [
+      "smile"
+    ],
+    "pos": "verb",
+    "exampleDa": "Babyen smiler til sin far.",
+    "exampleEn": "The baby smiles at its dad.",
+    "order": 108,
+    "slice": "verb-1"
+  },
+  {
+    "da": "grine",
+    "en": [
+      "laugh"
+    ],
+    "pos": "verb",
+    "exampleDa": "Vi griner meget sammen.",
+    "exampleEn": "We laugh a lot together.",
+    "order": 109,
+    "slice": "verb-1"
+  },
+  {
+    "da": "græde",
+    "en": [
+      "cry",
+      "weep"
+    ],
+    "pos": "verb",
+    "exampleDa": "Barnet græder, fordi det er træt.",
+    "exampleEn": "The child is crying because it is tired.",
+    "order": 110,
+    "slice": "verb-1"
+  },
+  {
+    "da": "synge",
+    "en": [
+      "sing"
+    ],
+    "pos": "verb",
+    "exampleDa": "Hun synger en sang for os.",
+    "exampleEn": "She sings a song for us.",
+    "order": 111,
+    "slice": "verb-1"
+  },
+  {
+    "da": "danse",
+    "en": [
+      "dance"
+    ],
+    "pos": "verb",
+    "exampleDa": "De danser hele natten.",
+    "exampleEn": "They dance all night.",
+    "order": 112,
+    "slice": "verb-1"
+  },
+  {
+    "da": "lytte",
+    "en": [
+      "listen"
+    ],
+    "pos": "verb",
+    "exampleDa": "Jeg lytter til musik i bussen.",
+    "exampleEn": "I listen to music on the bus.",
+    "order": 113,
+    "slice": "verb-1"
+  },
+  {
+    "da": "kigge",
+    "en": [
+      "look",
+      "peek"
+    ],
+    "pos": "verb",
+    "exampleDa": "Kig på det smukke vejr!",
+    "exampleEn": "Look at the beautiful weather!",
+    "order": 114,
+    "slice": "verb-1"
+  }
+]

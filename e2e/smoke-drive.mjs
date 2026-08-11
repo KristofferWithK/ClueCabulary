@@ -1,0 +1,78 @@
+// Manual-style smoke drive of the built app with the mock companion.
+import { chromium } from 'playwright'
+import { spawn } from 'node:child_process'
+import { setTimeout as sleep } from 'node:timers/promises'
+
+const SHOT_DIR = process.env.SHOT_DIR ?? '.'
+const preview = spawn('npx', ['vite', 'preview', '--port', '4173', '--strictPort'], {
+  cwd: '/home/user/ClueCabulary',
+  stdio: 'ignore',
+})
+await sleep(1500)
+
+const browser = await chromium.launch({
+  executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
+})
+const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+page.on('console', (m) => m.type() === 'error' && console.log('PAGE ERROR:', m.text()))
+page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
+
+try {
+  await page.goto('http://localhost:4173/ClueCabulary/?mock=1&seed=5')
+  await page.waitForSelector('h1:has-text("ClueCabulary")')
+  await page.screenshot({ path: `${SHOT_DIR}/01-home.png` })
+
+  await page.click('.grid-card:first-child') // beginner 3x4
+  await page.waitForSelector('.board-grid')
+  await page.screenshot({ path: `${SHOT_DIR}/02-board.png` })
+  const cards = await page.locator('.word-card .card-da').allTextContents()
+  console.log('BOARD:', cards.join(', '))
+
+  // Player clue round
+  await page.fill('.clue-input input', 'huskeliste')
+  await page.click('.clue-input .btn-primary')
+  console.log('clue submitted; waiting for AI guesses…')
+  // Wait until phase leaves aiGuessing (AI finishes its guesses)
+  await page.waitForFunction(
+    () => !document.querySelector('.phase-caption')?.textContent?.includes('Klaus is guessing'),
+    undefined,
+    { timeout: 20000 },
+  )
+  await page.screenshot({ path: `${SHOT_DIR}/03-after-ai-guess.png` })
+  console.log('phase now:', await page.locator('.phase-caption').textContent())
+
+  // If it's now the player's guessing turn (AI gave a clue), make one guess then stop.
+  const caption = await page.locator('.phase-caption').textContent()
+  if (caption?.includes('Your turn')) {
+    console.log('AI clue:', await page.locator('.guess-bar .dock-title').textContent())
+    await page.locator('.word-card.card-guessable').first().click()
+    await page.locator('.guess-confirm .btn-primary').click()
+    await sleep(400)
+    await page.screenshot({ path: `${SHOT_DIR}/04-player-guessed.png` })
+    console.log('after player guess phase:', await page.locator('.phase-caption').textContent())
+    const stop = page.locator('.btn-ghost')
+    if (await stop.isVisible().catch(() => false)) await stop.click()
+  }
+
+  // Dictionary sheet
+  const info = page.locator('.card-info').first()
+  if (await info.isVisible().catch(() => false)) {
+    await info.click()
+    await page.waitForSelector('.sheet')
+    await page.screenshot({ path: `${SHOT_DIR}/05-dictionary.png` })
+    console.log('dictionary shows:', await page.locator('.sheet h2').textContent())
+    await page.click('.sheet .btn')
+  }
+
+  // Translations toggle
+  await page.click('.game-header .icon-btn:last-child')
+  await page.screenshot({ path: `${SHOT_DIR}/06-translations.png` })
+
+  console.log('SMOKE OK')
+} catch (e) {
+  await page.screenshot({ path: `${SHOT_DIR}/99-failure.png` }).catch(() => {})
+  console.log('SMOKE FAILED:', e.message)
+} finally {
+  await browser.close()
+  preview.kill()
+}
