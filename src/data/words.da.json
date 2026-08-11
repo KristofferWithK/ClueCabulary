@@ -1,6 +1,6 @@
 [
  {
-  "id": "da-0001",
+  "id": "da:år",
   "da": "år",
   "en": [
    "year"
@@ -12,7 +12,7 @@
   "freqRank": 1
  },
  {
-  "id": "da-0002",
+  "id": "da:ikke",
   "da": "ikke",
   "en": [
    "not"
@@ -23,7 +23,7 @@
   "freqRank": 2
  },
  {
-  "id": "da-0003",
+  "id": "da:være",
   "da": "være",
   "en": [
    "be"
@@ -34,7 +34,7 @@
   "freqRank": 3
  },
  {
-  "id": "da-0004",
+  "id": "da:dag",
   "da": "dag",
   "en": [
    "day"
@@ -46,7 +46,7 @@
   "freqRank": 4
  },
  {
-  "id": "da-0005",
+  "id": "da:god",
   "da": "god",
   "en": [
    "good"
@@ -57,7 +57,7 @@
   "freqRank": 5
  },
  {
-  "id": "da-0006",
+  "id": "da:der",
   "da": "der",
   "en": [
    "there"
@@ -68,7 +68,7 @@
   "freqRank": 6
  },
  {
-  "id": "da-0007",
+  "id": "da:gang",
   "da": "gang",
   "en": [
    "time",
@@ -81,7 +81,7 @@
   "freqRank": 7
  },
  {
-  "id": "da-0008",
+  "id": "da:tid",
   "da": "tid",
   "en": [
    "time"
@@ -93,7 +93,7 @@
   "freqRank": 8
  },
  {
-  "id": "da-0009",
+  "id": "da:så",
   "da": "så",
   "en": [
    "then",
@@ -105,7 +105,7 @@
   "freqRank": 9
  },
  {
-  "id": "da-0010",
+  "id": "da:stor",
   "da": "stor",
   "en": [
    "big",
@@ -117,7 +117,7 @@
   "freqRank": 10
  },
  {
-  "id": "da-0011",
+  "id": "da:mand",
   "da": "mand",
   "en": [
    "man",
@@ -130,7 +130,7 @@
   "freqRank": 11
  },
  {
-  "id": "da-0012",
+  "id": "da:kunne",
   "da": "kunne",
   "en": [
    "can",
@@ -142,7 +142,7 @@
   "freqRank": 12
  },
  {
-  "id": "da-0013",
+  "id": "da:også",
   "da": "også",
   "en": [
    "also",
@@ -155,7 +155,7 @@
   "freqRank": 13
  },
  {
-  "id": "da-0014",
+  "id": "da:barn",
   "da": "barn",
   "en": [
    "child",
@@ -168,7 +168,7 @@
   "freqRank": 14
  },
  {
-  "id": "da-0015",
+  "id": "da:nu",
   "da": "nu",
   "en": [
    "now"
@@ -179,7 +179,7 @@
   "freqRank": 15
  },
  {
-  "id": "da-0016",
+  "id": "da:ny",
   "da": "ny",
   "en": [
    "new"
@@ -190,7 +190,7 @@
   "freqRank": 16
  },
  {
-  "id": "da-0017",
+  "id": "da:menneske",
   "da": "menneske",
   "en": [
    "human",
@@ -204,7 +204,7 @@
   "freqRank": 17
  },
  {
-  "id": "da-0018",
+  "id": "da:skulle",
   "da": "skulle",
   "en": [
    "must",
@@ -217,7 +217,7 @@
   "freqRank": 18
  },
  {
-  "id": "da-0019",
+  "id": "da:land",
   "da": "land",
   "en": [
    "country",
@@ -230,7 +230,7 @@
   "freqRank": 19
  },
  {
-  "id": "da-0020",
+  "id": "da:her",
   "da": "her",
   "en": [
    "here"
@@ -241,7 +241,7 @@
   "freqRank": 20
  },
  {
-  "id": "da-0021",
+  "id": "da:sted",
   "da": "sted",
   "en": [
    "place",
@@ -254,7 +254,7 @@
   "freqRank": 21
  },
  {
-  "id": "da-0022",
+  "id": "da:blive",
   "da": "blive",
   "en": [
    "become",
@@ -267,7 +267,7 @@
   "freqRank": 22
  },
  {
-  "id": "da-0023",
+  "id": "da:lille",
   "da": "lille",
   "en": [
    "small",
@@ -279,7 +279,7 @@
   "freqRank": 23
  },
  {
-  "id": "da-0024",
+  "id": "da:meget",
   "da": "meget",
   "en": [
    "very",
@@ -292,7 +292,7 @@
   "freqRank": 24
  },
  {
-  "id": "da-0025",
+  "id": "da:liv",
   "da": "liv",
   "en": [
    "life"
@@ -304,7 +304,7 @@
   "freqRank": 25
  },
  {
-  "id": "da-0026",
+  "id": "da:få",
   "da": "få",
   "en": [
    "get",
@@ -316,7 +316,7 @@
   "freqRank": 26
  },
  {
-  "id": "da-0027",
+  "id": "da:ja",
   "da": "ja",
   "en": [
    "yes"
@@ -327,7 +327,7 @@
   "freqRank": 27
  },
  {
-  "id": "da-0028",
+  "id": "da:by",
   "da": "by",
   "en": [
    "city",
@@ -340,7 +340,7 @@
   "freqRank": 28
  },
  {
-  "id": "da-0029",
+  "id": "da:gammel",
   "da": "gammel",
   "en": [
    "old"
@@ -351,7 +351,7 @@
   "freqRank": 29
  },
  {
-  "id": "da-0030",
+  "id": "da:hus",
   "da": "hus",
   "en": [
    "house"
@@ -363,7 +363,7 @@
   "freqRank": 30
  },
  {
-  "id": "da-0031",
+  "id": "da:nej",
   "da": "nej",
   "en": [
    "no"
@@ -374,7 +374,7 @@
   "freqRank": 31
  },
  {
-  "id": "da-0032",
+  "id": "da:ville",
   "da": "ville",
   "en": [
    "want",
@@ -386,7 +386,7 @@
   "freqRank": 32
  },
  {
-  "id": "da-0033",
+  "id": "da:kvinde",
   "da": "kvinde",
   "en": [
    "woman"
@@ -398,7 +398,7 @@
   "freqRank": 33
  },
  {
-  "id": "da-0034",
+  "id": "da:hel",
   "da": "hel",
   "en": [
    "whole",
@@ -410,7 +410,7 @@
   "freqRank": 34
  },
  {
-  "id": "da-0035",
+  "id": "da:kun",
   "da": "kun",
   "en": [
    "only",
@@ -422,7 +422,7 @@
   "freqRank": 35
  },
  {
-  "id": "da-0036",
+  "id": "da:arbejde",
   "da": "arbejde",
   "en": [
    "work",
@@ -435,7 +435,7 @@
   "freqRank": 36
  },
  {
-  "id": "da-0037",
+  "id": "da:komme",
   "da": "komme",
   "en": [
    "come"
@@ -446,7 +446,7 @@
   "freqRank": 37
  },
  {
-  "id": "da-0038",
+  "id": "da:lige",
   "da": "lige",
   "en": [
    "just",
@@ -459,7 +459,7 @@
   "freqRank": 38
  },
  {
-  "id": "da-0039",
+  "id": "da:verden",
   "da": "verden",
   "en": [
    "world"
@@ -471,7 +471,7 @@
   "freqRank": 39
  },
  {
-  "id": "da-0040",
+  "id": "da:lang",
   "da": "lang",
   "en": [
    "long"
@@ -482,7 +482,7 @@
   "freqRank": 40
  },
  {
-  "id": "da-0041",
+  "id": "da:uge",
   "da": "uge",
   "en": [
    "week"
@@ -494,7 +494,7 @@
   "freqRank": 41
  },
  {
-  "id": "da-0042",
+  "id": "da:godt",
   "da": "godt",
   "en": [
    "well"
@@ -505,7 +505,7 @@
   "freqRank": 42
  },
  {
-  "id": "da-0043",
+  "id": "da:sige",
   "da": "sige",
   "en": [
    "say",
@@ -517,7 +517,7 @@
   "freqRank": 43
  },
  {
-  "id": "da-0044",
+  "id": "da:side",
   "da": "side",
   "en": [
    "side",
@@ -530,7 +530,7 @@
   "freqRank": 44
  },
  {
-  "id": "da-0045",
+  "id": "da:bare",
   "da": "bare",
   "en": [
    "just",
@@ -542,7 +542,7 @@
   "freqRank": 45
  },
  {
-  "id": "da-0046",
+  "id": "da:vej",
   "da": "vej",
   "en": [
    "road",
@@ -555,7 +555,7 @@
   "freqRank": 46
  },
  {
-  "id": "da-0047",
+  "id": "da:dansk",
   "da": "dansk",
   "en": [
    "Danish"
@@ -566,7 +566,7 @@
   "freqRank": 47
  },
  {
-  "id": "da-0048",
+  "id": "da:gøre",
   "da": "gøre",
   "en": [
    "do",
@@ -578,7 +578,7 @@
   "freqRank": 48
  },
  {
-  "id": "da-0049",
+  "id": "da:skole",
   "da": "skole",
   "en": [
    "school"
@@ -590,7 +590,7 @@
   "freqRank": 49
  },
  {
-  "id": "da-0050",
+  "id": "da:op",
   "da": "op",
   "en": [
    "up"
@@ -601,7 +601,7 @@
   "freqRank": 50
  },
  {
-  "id": "da-0051",
+  "id": "da:gå",
   "da": "gå",
   "en": [
    "go",
@@ -613,7 +613,7 @@
   "freqRank": 51
  },
  {
-  "id": "da-0052",
+  "id": "da:spørgsmål",
   "da": "spørgsmål",
   "en": [
    "question"
@@ -625,7 +625,7 @@
   "freqRank": 52
  },
  {
-  "id": "da-0053",
+  "id": "da:sidste",
   "da": "sidste",
   "en": [
    "last",
@@ -637,7 +637,7 @@
   "freqRank": 53
  },
  {
-  "id": "da-0054",
+  "id": "da:ud",
   "da": "ud",
   "en": [
    "out"
@@ -648,7 +648,7 @@
   "freqRank": 54
  },
  {
-  "id": "da-0055",
+  "id": "da:time",
   "da": "time",
   "en": [
    "hour",
@@ -661,7 +661,7 @@
   "freqRank": 55
  },
  {
-  "id": "da-0056",
+  "id": "da:ind",
   "da": "ind",
   "en": [
    "in",
@@ -673,7 +673,7 @@
   "freqRank": 56
  },
  {
-  "id": "da-0057",
+  "id": "da:se",
   "da": "se",
   "en": [
    "see",
@@ -686,7 +686,7 @@
   "freqRank": 57
  },
  {
-  "id": "da-0058",
+  "id": "da:hånd",
   "da": "hånd",
   "en": [
    "hand"
@@ -698,7 +698,7 @@
   "freqRank": 58
  },
  {
-  "id": "da-0059",
+  "id": "da:høj",
   "da": "høj",
   "en": [
    "tall",
@@ -711,7 +711,7 @@
   "freqRank": 59
  },
  {
-  "id": "da-0060",
+  "id": "da:hoved",
   "da": "hoved",
   "en": [
    "head"
@@ -723,7 +723,7 @@
   "freqRank": 60
  },
  {
-  "id": "da-0061",
+  "id": "da:ned",
   "da": "ned",
   "en": [
    "down"
@@ -734,7 +734,7 @@
   "freqRank": 61
  },
  {
-  "id": "da-0062",
+  "id": "da:tage",
   "da": "tage",
   "en": [
    "take"
@@ -745,7 +745,7 @@
   "freqRank": 62
  },
  {
-  "id": "da-0063",
+  "id": "da:øje",
   "da": "øje",
   "en": [
    "eye"
@@ -757,7 +757,7 @@
   "freqRank": 63
  },
  {
-  "id": "da-0064",
+  "id": "da:igen",
   "da": "igen",
   "en": [
    "again"
@@ -768,7 +768,7 @@
   "freqRank": 64
  },
  {
-  "id": "da-0065",
+  "id": "da:rigtig",
   "da": "rigtig",
   "en": [
    "right",
@@ -781,7 +781,7 @@
   "freqRank": 65
  },
  {
-  "id": "da-0066",
+  "id": "da:ord",
   "da": "ord",
   "en": [
    "word"
@@ -793,7 +793,7 @@
   "freqRank": 66
  },
  {
-  "id": "da-0067",
+  "id": "da:give",
   "da": "give",
   "en": [
    "give"
@@ -804,7 +804,7 @@
   "freqRank": 67
  },
  {
-  "id": "da-0068",
+  "id": "da:tilbage",
   "da": "tilbage",
   "en": [
    "back"
@@ -815,7 +815,7 @@
   "freqRank": 68
  },
  {
-  "id": "da-0069",
+  "id": "da:familie",
   "da": "familie",
   "en": [
    "family"
@@ -827,7 +827,7 @@
   "freqRank": 69
  },
  {
-  "id": "da-0070",
+  "id": "da:mor",
   "da": "mor",
   "en": [
    "mother",
@@ -840,7 +840,7 @@
   "freqRank": 70
  },
  {
-  "id": "da-0071",
+  "id": "da:altid",
   "da": "altid",
   "en": [
    "always"
@@ -851,7 +851,7 @@
   "freqRank": 71
  },
  {
-  "id": "da-0072",
+  "id": "da:finde",
   "da": "finde",
   "en": [
    "find"
@@ -862,7 +862,7 @@
   "freqRank": 72
  },
  {
-  "id": "da-0073",
+  "id": "da:vigtig",
   "da": "vigtig",
   "en": [
    "important"
@@ -873,7 +873,7 @@
   "freqRank": 73
  },
  {
-  "id": "da-0074",
+  "id": "da:far",
   "da": "far",
   "en": [
    "father",
@@ -886,7 +886,7 @@
   "freqRank": 74
  },
  {
-  "id": "da-0075",
+  "id": "da:aldrig",
   "da": "aldrig",
   "en": [
    "never"
@@ -897,7 +897,7 @@
   "freqRank": 75
  },
  {
-  "id": "da-0076",
+  "id": "da:ven",
   "da": "ven",
   "en": [
    "friend"
@@ -909,7 +909,7 @@
   "freqRank": 76
  },
  {
-  "id": "da-0077",
+  "id": "da:måtte",
   "da": "måtte",
   "en": [
    "may",
@@ -921,7 +921,7 @@
   "freqRank": 77
  },
  {
-  "id": "da-0078",
+  "id": "da:ung",
   "da": "ung",
   "en": [
    "young"
@@ -932,7 +932,7 @@
   "freqRank": 78
  },
  {
-  "id": "da-0079",
+  "id": "da:måske",
   "da": "måske",
   "en": [
    "maybe",
@@ -944,7 +944,7 @@
   "freqRank": 79
  },
  {
-  "id": "da-0080",
+  "id": "da:penge",
   "da": "penge",
   "en": [
    "money"
@@ -955,7 +955,7 @@
   "freqRank": 80
  },
  {
-  "id": "da-0081",
+  "id": "da:stå",
   "da": "stå",
   "en": [
    "stand"
@@ -966,7 +966,7 @@
   "freqRank": 81
  },
  {
-  "id": "da-0082",
+  "id": "da:vand",
   "da": "vand",
   "en": [
    "water"
@@ -978,7 +978,7 @@
   "freqRank": 82
  },
  {
-  "id": "da-0083",
+  "id": "da:lidt",
   "da": "lidt",
   "en": [
    "a little",
@@ -990,7 +990,7 @@
   "freqRank": 83
  },
  {
-  "id": "da-0084",
+  "id": "da:fin",
   "da": "fin",
   "en": [
    "fine",
@@ -1002,7 +1002,7 @@
   "freqRank": 84
  },
  {
-  "id": "da-0085",
+  "id": "da:mad",
   "da": "mad",
   "en": [
    "food"
@@ -1014,7 +1014,7 @@
   "freqRank": 85
  },
  {
-  "id": "da-0086",
+  "id": "da:mere",
   "da": "mere",
   "en": [
    "more"
@@ -1025,7 +1025,7 @@
   "freqRank": 86
  },
  {
-  "id": "da-0087",
+  "id": "da:vide",
   "da": "vide",
   "en": [
    "know"
@@ -1036,7 +1036,7 @@
   "freqRank": 87
  },
  {
-  "id": "da-0088",
+  "id": "da:bil",
   "da": "bil",
   "en": [
    "car"
@@ -1048,7 +1048,7 @@
   "freqRank": 88
  },
  {
-  "id": "da-0089",
+  "id": "da:nat",
   "da": "nat",
   "en": [
    "night"
@@ -1060,7 +1060,7 @@
   "freqRank": 89
  },
  {
-  "id": "da-0090",
+  "id": "da:hvor",
   "da": "hvor",
   "en": [
    "where",
@@ -1072,7 +1072,7 @@
   "freqRank": 90
  },
  {
-  "id": "da-0091",
+  "id": "da:klar",
   "da": "klar",
   "en": [
    "ready",
@@ -1084,7 +1084,7 @@
   "freqRank": 91
  },
  {
-  "id": "da-0092",
+  "id": "da:tro",
   "da": "tro",
   "en": [
    "believe",
@@ -1096,7 +1096,7 @@
   "freqRank": 92
  },
  {
-  "id": "da-0093",
+  "id": "da:morgen",
   "da": "morgen",
   "en": [
    "morning"
@@ -1108,7 +1108,7 @@
   "freqRank": 93
  },
  {
-  "id": "da-0094",
+  "id": "da:hvordan",
   "da": "hvordan",
   "en": [
    "how"
@@ -1119,7 +1119,7 @@
   "freqRank": 94
  },
  {
-  "id": "da-0095",
+  "id": "da:aften",
   "da": "aften",
   "en": [
    "evening"
@@ -1131,7 +1131,7 @@
   "freqRank": 95
  },
  {
-  "id": "da-0096",
+  "id": "da:samme",
   "da": "samme",
   "en": [
    "same"
@@ -1142,7 +1142,7 @@
   "freqRank": 96
  },
  {
-  "id": "da-0097",
+  "id": "da:tænke",
   "da": "tænke",
   "en": [
    "think"
@@ -1153,7 +1153,7 @@
   "freqRank": 97
  },
  {
-  "id": "da-0098",
+  "id": "da:hvorfor",
   "da": "hvorfor",
   "en": [
    "why"
@@ -1164,7 +1164,7 @@
   "freqRank": 98
  },
  {
-  "id": "da-0099",
+  "id": "da:måned",
   "da": "måned",
   "en": [
    "month"
@@ -1176,7 +1176,7 @@
   "freqRank": 99
  },
  {
-  "id": "da-0100",
+  "id": "da:dør",
   "da": "dør",
   "en": [
    "door"
@@ -1188,7 +1188,7 @@
   "freqRank": 100
  },
  {
-  "id": "da-0101",
+  "id": "da:holde",
   "da": "holde",
   "en": [
    "hold",
@@ -1200,7 +1200,7 @@
   "freqRank": 101
  },
  {
-  "id": "da-0102",
+  "id": "da:hvornår",
   "da": "hvornår",
   "en": [
    "when"
@@ -1211,7 +1211,7 @@
   "freqRank": 102
  },
  {
-  "id": "da-0103",
+  "id": "da:næste",
   "da": "næste",
   "en": [
    "next"
@@ -1222,7 +1222,7 @@
   "freqRank": 103
  },
  {
-  "id": "da-0104",
+  "id": "da:bog",
   "da": "bog",
   "en": [
    "book"
@@ -1234,7 +1234,7 @@
   "freqRank": 104
  },
  {
-  "id": "da-0105",
+  "id": "da:tak",
   "da": "tak",
   "en": [
    "thanks",
@@ -1246,7 +1246,7 @@
   "freqRank": 105
  },
  {
-  "id": "da-0106",
+  "id": "da:mene",
   "da": "mene",
   "en": [
    "think",
@@ -1258,7 +1258,7 @@
   "freqRank": 106
  },
  {
-  "id": "da-0107",
+  "id": "da:navn",
   "da": "navn",
   "en": [
    "name"
@@ -1270,7 +1270,7 @@
   "freqRank": 107
  },
  {
-  "id": "da-0108",
+  "id": "da:fri",
   "da": "fri",
   "en": [
    "free",
@@ -1282,7 +1282,7 @@
   "freqRank": 108
  },
  {
-  "id": "da-0109",
+  "id": "da:hej",
   "da": "hej",
   "en": [
    "hi",
@@ -1294,7 +1294,7 @@
   "freqRank": 109
  },
  {
-  "id": "da-0110",
+  "id": "da:plads",
   "da": "plads",
   "en": [
    "place",
@@ -1309,7 +1309,7 @@
   "freqRank": 110
  },
  {
-  "id": "da-0111",
+  "id": "da:bruge",
   "da": "bruge",
   "en": [
    "use",
@@ -1321,7 +1321,7 @@
   "freqRank": 111
  },
  {
-  "id": "da-0112",
+  "id": "da:hjem",
   "da": "hjem",
   "en": [
    "home"
@@ -1333,7 +1333,7 @@
   "freqRank": 112
  },
  {
-  "id": "da-0113",
+  "id": "da:en",
   "da": "en",
   "en": [
    "one"
@@ -1344,7 +1344,7 @@
   "freqRank": 113
  },
  {
-  "id": "da-0114",
+  "id": "da:dreng",
   "da": "dreng",
   "en": [
    "boy"
@@ -1356,7 +1356,7 @@
   "freqRank": 114
  },
  {
-  "id": "da-0115",
+  "id": "da:kort",
   "da": "kort",
   "en": [
    "short"
@@ -1367,7 +1367,7 @@
   "freqRank": 115
  },
  {
-  "id": "da-0116",
+  "id": "da:lave",
   "da": "lave",
   "en": [
    "make",
@@ -1379,7 +1379,7 @@
   "freqRank": 116
  },
  {
-  "id": "da-0117",
+  "id": "da:to",
   "da": "to",
   "en": [
    "two"
@@ -1390,7 +1390,7 @@
   "freqRank": 117
  },
  {
-  "id": "da-0118",
+  "id": "da:pige",
   "da": "pige",
   "en": [
    "girl"
@@ -1402,7 +1402,7 @@
   "freqRank": 118
  },
  {
-  "id": "da-0119",
+  "id": "da:tre",
   "da": "tre",
   "en": [
    "three"
@@ -1413,7 +1413,7 @@
   "freqRank": 119
  },
  {
-  "id": "da-0120",
+  "id": "da:person",
   "da": "person",
   "en": [
    "person"
@@ -1425,7 +1425,7 @@
   "freqRank": 120
  },
  {
-  "id": "da-0121",
+  "id": "da:sikker",
   "da": "sikker",
   "en": [
    "sure",
@@ -1438,7 +1438,7 @@
   "freqRank": 121
  },
  {
-  "id": "da-0122",
+  "id": "da:sætte",
   "da": "sætte",
   "en": [
    "put",
@@ -1451,7 +1451,7 @@
   "freqRank": 122
  },
  {
-  "id": "da-0123",
+  "id": "da:job",
   "da": "job",
   "en": [
    "job"
@@ -1463,7 +1463,7 @@
   "freqRank": 123
  },
  {
-  "id": "da-0124",
+  "id": "da:minut",
   "da": "minut",
   "en": [
    "minute"
@@ -1475,7 +1475,7 @@
   "freqRank": 124
  },
  {
-  "id": "da-0125",
+  "id": "da:ligge",
   "da": "ligge",
   "en": [
    "lie"
@@ -1486,7 +1486,7 @@
   "freqRank": 125
  },
  {
-  "id": "da-0126",
+  "id": "da:hjemme",
   "da": "hjemme",
   "en": [
    "at home",
@@ -1498,7 +1498,7 @@
   "freqRank": 126
  },
  {
-  "id": "da-0127",
+  "id": "da:stærk",
   "da": "stærk",
   "en": [
    "strong"
@@ -1509,7 +1509,7 @@
   "freqRank": 127
  },
  {
-  "id": "da-0128",
+  "id": "da:weekend",
   "da": "weekend",
   "en": [
    "weekend"
@@ -1521,7 +1521,7 @@
   "freqRank": 128
  },
  {
-  "id": "da-0129",
+  "id": "da:søn",
   "da": "søn",
   "en": [
    "son"
@@ -1533,7 +1533,7 @@
   "freqRank": 129
  },
  {
-  "id": "da-0130",
+  "id": "da:sidde",
   "da": "sidde",
   "en": [
    "sit"
@@ -1544,7 +1544,7 @@
   "freqRank": 130
  },
  {
-  "id": "da-0131",
+  "id": "da:væk",
   "da": "væk",
   "en": [
    "away",
@@ -1556,7 +1556,7 @@
   "freqRank": 131
  },
  {
-  "id": "da-0132",
+  "id": "da:dårlig",
   "da": "dårlig",
   "en": [
    "bad",
@@ -1568,7 +1568,7 @@
   "freqRank": 132
  },
  {
-  "id": "da-0133",
+  "id": "da:datter",
   "da": "datter",
   "en": [
    "daughter"
@@ -1580,7 +1580,7 @@
   "freqRank": 133
  },
  {
-  "id": "da-0134",
+  "id": "da:ude",
   "da": "ude",
   "en": [
    "outside",
@@ -1592,7 +1592,7 @@
   "freqRank": 134
  },
  {
-  "id": "da-0135",
+  "id": "da:hedde",
   "da": "hedde",
   "en": [
    "be called",
@@ -1604,7 +1604,7 @@
   "freqRank": 135
  },
  {
-  "id": "da-0136",
+  "id": "da:bror",
   "da": "bror",
   "en": [
    "brother"
@@ -1616,7 +1616,7 @@
   "freqRank": 136
  },
  {
-  "id": "da-0137",
+  "id": "da:inde",
   "da": "inde",
   "en": [
    "inside",
@@ -1628,7 +1628,7 @@
   "freqRank": 137
  },
  {
-  "id": "da-0138",
+  "id": "da:søster",
   "da": "søster",
   "en": [
    "sister"
@@ -1640,7 +1640,7 @@
   "freqRank": 138
  },
  {
-  "id": "da-0139",
+  "id": "da:svær",
   "da": "svær",
   "en": [
    "difficult",
@@ -1652,7 +1652,7 @@
   "freqRank": 139
  },
  {
-  "id": "da-0140",
+  "id": "da:tale",
   "da": "tale",
   "en": [
    "speak",
@@ -1664,7 +1664,7 @@
   "freqRank": 140
  },
  {
-  "id": "da-0141",
+  "id": "da:værelse",
   "da": "værelse",
   "en": [
    "room"
@@ -1676,7 +1676,7 @@
   "freqRank": 141
  },
  {
-  "id": "da-0142",
+  "id": "da:oppe",
   "da": "oppe",
   "en": [
    "up"
@@ -1687,7 +1687,7 @@
   "freqRank": 142
  },
  {
-  "id": "da-0143",
+  "id": "da:lejlighed",
   "da": "lejlighed",
   "en": [
    "apartment",
@@ -1700,7 +1700,7 @@
   "freqRank": 143
  },
  {
-  "id": "da-0144",
+  "id": "da:lade",
   "da": "lade",
   "en": [
    "let",
@@ -1712,7 +1712,7 @@
   "freqRank": 144
  },
  {
-  "id": "da-0145",
+  "id": "da:let",
   "da": "let",
   "en": [
    "easy",
@@ -1724,7 +1724,7 @@
   "freqRank": 145
  },
  {
-  "id": "da-0146",
+  "id": "da:nede",
   "da": "nede",
   "en": [
    "down",
@@ -1736,7 +1736,7 @@
   "freqRank": 146
  },
  {
-  "id": "da-0147",
+  "id": "da:seng",
   "da": "seng",
   "en": [
    "bed"
@@ -1748,7 +1748,7 @@
   "freqRank": 147
  },
  {
-  "id": "da-0148",
+  "id": "da:frem",
   "da": "frem",
   "en": [
    "forward",
@@ -1760,7 +1760,7 @@
   "freqRank": 148
  },
  {
-  "id": "da-0149",
+  "id": "da:bord",
   "da": "bord",
   "en": [
    "table"
@@ -1772,7 +1772,7 @@
   "freqRank": 149
  },
  {
-  "id": "da-0150",
+  "id": "da:høre",
   "da": "høre",
   "en": [
    "hear"
@@ -1783,7 +1783,7 @@
   "freqRank": 150
  },
  {
-  "id": "da-0151",
+  "id": "da:glad",
   "da": "glad",
   "en": [
    "happy",
@@ -1795,7 +1795,7 @@
   "freqRank": 151
  },
  {
-  "id": "da-0152",
+  "id": "da:stol",
   "da": "stol",
   "en": [
    "chair"
@@ -1807,7 +1807,7 @@
   "freqRank": 152
  },
  {
-  "id": "da-0153",
+  "id": "da:sammen",
   "da": "sammen",
   "en": [
    "together"
@@ -1818,7 +1818,7 @@
   "freqRank": 153
  },
  {
-  "id": "da-0154",
+  "id": "da:vindue",
   "da": "vindue",
   "en": [
    "window"
@@ -1830,7 +1830,7 @@
   "freqRank": 154
  },
  {
-  "id": "da-0155",
+  "id": "da:spørge",
   "da": "spørge",
   "en": [
    "ask"
@@ -1841,7 +1841,7 @@
   "freqRank": 155
  },
  {
-  "id": "da-0156",
+  "id": "da:alene",
   "da": "alene",
   "en": [
    "alone"
@@ -1852,7 +1852,7 @@
   "freqRank": 156
  },
  {
-  "id": "da-0157",
+  "id": "da:køkken",
   "da": "køkken",
   "en": [
    "kitchen"
@@ -1864,7 +1864,7 @@
   "freqRank": 157
  },
  {
-  "id": "da-0158",
+  "id": "da:hvid",
   "da": "hvid",
   "en": [
    "white"
@@ -1875,7 +1875,7 @@
   "freqRank": 158
  },
  {
-  "id": "da-0159",
+  "id": "da:følge",
   "da": "følge",
   "en": [
    "follow"
@@ -1886,7 +1886,7 @@
   "freqRank": 159
  },
  {
-  "id": "da-0160",
+  "id": "da:have",
   "da": "have",
   "en": [
    "garden",
@@ -1899,7 +1899,7 @@
   "freqRank": 160
  },
  {
-  "id": "da-0161",
+  "id": "da:ofte",
   "da": "ofte",
   "en": [
    "often",
@@ -1911,7 +1911,7 @@
   "freqRank": 161
  },
  {
-  "id": "da-0162",
+  "id": "da:nøgle",
   "da": "nøgle",
   "en": [
    "key"
@@ -1923,7 +1923,7 @@
   "freqRank": 162
  },
  {
-  "id": "da-0163",
+  "id": "da:sort",
   "da": "sort",
   "en": [
    "black"
@@ -1934,7 +1934,7 @@
   "freqRank": 163
  },
  {
-  "id": "da-0164",
+  "id": "da:tit",
   "da": "tit",
   "en": [
    "often",
@@ -1946,7 +1946,7 @@
   "freqRank": 164
  },
  {
-  "id": "da-0165",
+  "id": "da:begynde",
   "da": "begynde",
   "en": [
    "begin",
@@ -1958,7 +1958,7 @@
   "freqRank": 165
  },
  {
-  "id": "da-0166",
+  "id": "da:lampe",
   "da": "lampe",
   "en": [
    "lamp"
@@ -1970,7 +1970,7 @@
   "freqRank": 166
  },
  {
-  "id": "da-0167",
+  "id": "da:snart",
   "da": "snart",
   "en": [
    "soon"
@@ -1981,7 +1981,7 @@
   "freqRank": 167
  },
  {
-  "id": "da-0168",
+  "id": "da:brød",
   "da": "brød",
   "en": [
    "bread"
@@ -1993,7 +1993,7 @@
   "freqRank": 168
  },
  {
-  "id": "da-0169",
+  "id": "da:rød",
   "da": "rød",
   "en": [
    "red"
@@ -2004,7 +2004,7 @@
   "freqRank": 169
  },
  {
-  "id": "da-0170",
+  "id": "da:vise",
   "da": "vise",
   "en": [
    "show"
@@ -2015,7 +2015,7 @@
   "freqRank": 170
  },
  {
-  "id": "da-0171",
+  "id": "da:kaffe",
   "da": "kaffe",
   "en": [
    "coffee"
@@ -2027,7 +2027,7 @@
   "freqRank": 171
  },
  {
-  "id": "da-0172",
+  "id": "da:allerede",
   "da": "allerede",
   "en": [
    "already"
@@ -2038,7 +2038,7 @@
   "freqRank": 172
  },
  {
-  "id": "da-0173",
+  "id": "da:te",
   "da": "te",
   "en": [
    "tea"
@@ -2050,7 +2050,7 @@
   "freqRank": 173
  },
  {
-  "id": "da-0174",
+  "id": "da:stadig",
   "da": "stadig",
   "en": [
    "still"
@@ -2061,7 +2061,7 @@
   "freqRank": 174
  },
  {
-  "id": "da-0175",
+  "id": "da:åben",
   "da": "åben",
   "en": [
    "open"
@@ -2072,7 +2072,7 @@
   "freqRank": 175
  },
  {
-  "id": "da-0176",
+  "id": "da:øl",
   "da": "øl",
   "en": [
    "beer"
@@ -2084,7 +2084,7 @@
   "freqRank": 176
  },
  {
-  "id": "da-0177",
+  "id": "da:endnu",
   "da": "endnu",
   "en": [
    "yet",
@@ -2096,7 +2096,7 @@
   "freqRank": 177
  },
  {
-  "id": "da-0178",
+  "id": "da:vin",
   "da": "vin",
   "en": [
    "wine"
@@ -2108,7 +2108,7 @@
   "freqRank": 178
  },
  {
-  "id": "da-0179",
+  "id": "da:føle",
   "da": "føle",
   "en": [
    "feel"
@@ -2119,7 +2119,7 @@
   "freqRank": 179
  },
  {
-  "id": "da-0180",
+  "id": "da:mælk",
   "da": "mælk",
   "en": [
    "milk"
@@ -2131,7 +2131,7 @@
   "freqRank": 180
  },
  {
-  "id": "da-0181",
+  "id": "da:helt",
   "da": "helt",
   "en": [
    "completely",
@@ -2144,7 +2144,7 @@
   "freqRank": 181
  },
  {
-  "id": "da-0182",
+  "id": "da:mulig",
   "da": "mulig",
   "en": [
    "possible"
@@ -2155,7 +2155,7 @@
   "freqRank": 182
  },
  {
-  "id": "da-0183",
+  "id": "da:ost",
   "da": "ost",
   "en": [
    "cheese"
@@ -2167,7 +2167,7 @@
   "freqRank": 183
  },
  {
-  "id": "da-0184",
+  "id": "da:næsten",
   "da": "næsten",
   "en": [
    "almost",
@@ -2179,7 +2179,7 @@
   "freqRank": 184
  },
  {
-  "id": "da-0185",
+  "id": "da:kød",
   "da": "kød",
   "en": [
    "meat"
@@ -2191,7 +2191,7 @@
   "freqRank": 185
  },
  {
-  "id": "da-0186",
+  "id": "da:forskellig",
   "da": "forskellig",
   "en": [
    "different"
@@ -2202,7 +2202,7 @@
   "freqRank": 186
  },
  {
-  "id": "da-0187",
+  "id": "da:læse",
   "da": "læse",
   "en": [
    "read"
@@ -2213,7 +2213,7 @@
   "freqRank": 187
  },
  {
-  "id": "da-0188",
+  "id": "da:nok",
   "da": "nok",
   "en": [
    "probably",
@@ -2225,7 +2225,7 @@
   "freqRank": 188
  },
  {
-  "id": "da-0189",
+  "id": "da:fisk",
   "da": "fisk",
   "en": [
    "fish"
@@ -2237,7 +2237,7 @@
   "freqRank": 189
  },
  {
-  "id": "da-0190",
+  "id": "da:æg",
   "da": "æg",
   "en": [
    "egg"
@@ -2249,7 +2249,7 @@
   "freqRank": 190
  },
  {
-  "id": "da-0191",
+  "id": "da:sådan",
   "da": "sådan",
   "en": [
    "like this",
@@ -2262,7 +2262,7 @@
   "freqRank": 191
  },
  {
-  "id": "da-0192",
+  "id": "da:alvorlig",
   "da": "alvorlig",
   "en": [
    "serious"
@@ -2273,7 +2273,7 @@
   "freqRank": 192
  },
  {
-  "id": "da-0193",
+  "id": "da:skrive",
   "da": "skrive",
   "en": [
    "write"
@@ -2284,7 +2284,7 @@
   "freqRank": 193
  },
  {
-  "id": "da-0194",
+  "id": "da:æble",
   "da": "æble",
   "en": [
    "apple"
@@ -2296,7 +2296,7 @@
   "freqRank": 194
  },
  {
-  "id": "da-0195",
+  "id": "da:gerne",
   "da": "gerne",
   "en": [
    "gladly",
@@ -2309,7 +2309,7 @@
   "freqRank": 195
  },
  {
-  "id": "da-0196",
+  "id": "da:kage",
   "da": "kage",
   "en": [
    "cake"
@@ -2321,7 +2321,7 @@
   "freqRank": 196
  },
  {
-  "id": "da-0197",
+  "id": "da:lægge",
   "da": "lægge",
   "en": [
    "lay",
@@ -2333,7 +2333,7 @@
   "freqRank": 197
  },
  {
-  "id": "da-0198",
+  "id": "da:almindelig",
   "da": "almindelig",
   "en": [
    "ordinary",
@@ -2346,7 +2346,7 @@
   "freqRank": 198
  },
  {
-  "id": "da-0199",
+  "id": "da:hellere",
   "da": "hellere",
   "en": [
    "rather",
@@ -2358,7 +2358,7 @@
   "freqRank": 199
  },
  {
-  "id": "da-0200",
+  "id": "da:sukker",
   "da": "sukker",
   "en": [
    "sugar"
@@ -2370,7 +2370,7 @@
   "freqRank": 200
  },
  {
-  "id": "da-0201",
+  "id": "da:salt",
   "da": "salt",
   "en": [
    "salt"
@@ -2382,7 +2382,7 @@
   "freqRank": 201
  },
  {
-  "id": "da-0202",
+  "id": "da:betyde",
   "da": "betyde",
   "en": [
    "mean"
@@ -2393,7 +2393,7 @@
   "freqRank": 202
  },
  {
-  "id": "da-0203",
+  "id": "da:virkelig",
   "da": "virkelig",
   "en": [
    "really",
@@ -2405,7 +2405,7 @@
   "freqRank": 203
  },
  {
-  "id": "da-0204",
+  "id": "da:smør",
   "da": "smør",
   "en": [
    "butter"
@@ -2417,7 +2417,7 @@
   "freqRank": 204
  },
  {
-  "id": "da-0205",
+  "id": "da:nødvendig",
   "da": "nødvendig",
   "en": [
    "necessary"
@@ -2428,7 +2428,7 @@
   "freqRank": 205
  },
  {
-  "id": "da-0206",
+  "id": "da:faktisk",
   "da": "faktisk",
   "en": [
    "actually",
@@ -2440,7 +2440,7 @@
   "freqRank": 206
  },
  {
-  "id": "da-0207",
+  "id": "da:kartoffel",
   "da": "kartoffel",
   "en": [
    "potato"
@@ -2452,7 +2452,7 @@
   "freqRank": 207
  },
  {
-  "id": "da-0208",
+  "id": "da:leve",
   "da": "leve",
   "en": [
    "live",
@@ -2464,7 +2464,7 @@
   "freqRank": 208
  },
  {
-  "id": "da-0209",
+  "id": "da:grøntsag",
   "da": "grøntsag",
   "en": [
    "vegetable"
@@ -2476,7 +2476,7 @@
   "freqRank": 209
  },
  {
-  "id": "da-0210",
+  "id": "da:egentlig",
   "da": "egentlig",
   "en": [
    "actually",
@@ -2488,7 +2488,7 @@
   "freqRank": 210
  },
  {
-  "id": "da-0211",
+  "id": "da:offentlig",
   "da": "offentlig",
   "en": [
    "public"
@@ -2499,7 +2499,7 @@
   "freqRank": 211
  },
  {
-  "id": "da-0212",
+  "id": "da:bo",
   "da": "bo",
   "en": [
    "live",
@@ -2511,7 +2511,7 @@
   "freqRank": 212
  },
  {
-  "id": "da-0213",
+  "id": "da:frokost",
   "da": "frokost",
   "en": [
    "lunch"
@@ -2523,7 +2523,7 @@
   "freqRank": 213
  },
  {
-  "id": "da-0214",
+  "id": "da:selvfølgelig",
   "da": "selvfølgelig",
   "en": [
    "of course",
@@ -2535,7 +2535,7 @@
   "freqRank": 214
  },
  {
-  "id": "da-0215",
+  "id": "da:morgenmad",
   "da": "morgenmad",
   "en": [
    "breakfast"
@@ -2547,7 +2547,7 @@
   "freqRank": 215
  },
  {
-  "id": "da-0216",
+  "id": "da:desværre",
   "da": "desværre",
   "en": [
    "unfortunately",
@@ -2559,7 +2559,7 @@
   "freqRank": 216
  },
  {
-  "id": "da-0217",
+  "id": "da:købe",
   "da": "købe",
   "en": [
    "buy"
@@ -2570,7 +2570,7 @@
   "freqRank": 217
  },
  {
-  "id": "da-0218",
+  "id": "da:politisk",
   "da": "politisk",
   "en": [
    "political"
@@ -2581,7 +2581,7 @@
   "freqRank": 218
  },
  {
-  "id": "da-0219",
+  "id": "da:aftensmad",
   "da": "aftensmad",
   "en": [
    "dinner",
@@ -2594,7 +2594,7 @@
   "freqRank": 219
  },
  {
-  "id": "da-0220",
+  "id": "da:krop",
   "da": "krop",
   "en": [
    "body"
@@ -2606,7 +2606,7 @@
   "freqRank": 220
  },
  {
-  "id": "da-0221",
+  "id": "da:hurtigt",
   "da": "hurtigt",
   "en": [
    "quickly",
@@ -2618,7 +2618,7 @@
   "freqRank": 221
  },
  {
-  "id": "da-0222",
+  "id": "da:spille",
   "da": "spille",
   "en": [
    "play"
@@ -2629,7 +2629,7 @@
   "freqRank": 222
  },
  {
-  "id": "da-0223",
+  "id": "da:mund",
   "da": "mund",
   "en": [
    "mouth"
@@ -2641,7 +2641,7 @@
   "freqRank": 223
  },
  {
-  "id": "da-0224",
+  "id": "da:økonomisk",
   "da": "økonomisk",
   "en": [
    "economic",
@@ -2653,7 +2653,7 @@
   "freqRank": 224
  },
  {
-  "id": "da-0225",
+  "id": "da:langsomt",
   "da": "langsomt",
   "en": [
    "slowly"
@@ -2664,7 +2664,7 @@
   "freqRank": 225
  },
  {
-  "id": "da-0226",
+  "id": "da:næse",
   "da": "næse",
   "en": [
    "nose"
@@ -2676,7 +2676,7 @@
   "freqRank": 226
  },
  {
-  "id": "da-0227",
+  "id": "da:kende",
   "da": "kende",
   "en": [
    "know"
@@ -2687,7 +2687,7 @@
   "freqRank": 227
  },
  {
-  "id": "da-0228",
+  "id": "da:først",
   "da": "først",
   "en": [
    "first",
@@ -2699,7 +2699,7 @@
   "freqRank": 228
  },
  {
-  "id": "da-0229",
+  "id": "da:øre",
   "da": "øre",
   "en": [
    "ear"
@@ -2711,7 +2711,7 @@
   "freqRank": 229
  },
  {
-  "id": "da-0230",
+  "id": "da:international",
   "da": "international",
   "en": [
    "international"
@@ -2722,7 +2722,7 @@
   "freqRank": 230
  },
  {
-  "id": "da-0231",
+  "id": "da:tand",
   "da": "tand",
   "en": [
    "tooth"
@@ -2734,7 +2734,7 @@
   "freqRank": 231
  },
  {
-  "id": "da-0232",
+  "id": "da:fire",
   "da": "fire",
   "en": [
    "four"
@@ -2745,7 +2745,7 @@
   "freqRank": 232
  },
  {
-  "id": "da-0233",
+  "id": "da:synes",
   "da": "synes",
   "en": [
    "think",
@@ -2757,7 +2757,7 @@
   "freqRank": 233
  },
  {
-  "id": "da-0234",
+  "id": "da:hår",
   "da": "hår",
   "en": [
    "hair"
@@ -2769,7 +2769,7 @@
   "freqRank": 234
  },
  {
-  "id": "da-0235",
+  "id": "da:fem",
   "da": "fem",
   "en": [
    "five"
@@ -2780,7 +2780,7 @@
   "freqRank": 235
  },
  {
-  "id": "da-0236",
+  "id": "da:privat",
   "da": "privat",
   "en": [
    "private"
@@ -2791,7 +2791,7 @@
   "freqRank": 236
  },
  {
-  "id": "da-0237",
+  "id": "da:arm",
   "da": "arm",
   "en": [
    "arm"
@@ -2803,7 +2803,7 @@
   "freqRank": 237
  },
  {
-  "id": "da-0238",
+  "id": "da:prøve",
   "da": "prøve",
   "en": [
    "try"
@@ -2814,7 +2814,7 @@
   "freqRank": 238
  },
  {
-  "id": "da-0239",
+  "id": "da:seks",
   "da": "seks",
   "en": [
    "six"
@@ -2825,7 +2825,7 @@
   "freqRank": 239
  },
  {
-  "id": "da-0240",
+  "id": "da:finger",
   "da": "finger",
   "en": [
    "finger"
@@ -2837,7 +2837,7 @@
   "freqRank": 240
  },
  {
-  "id": "da-0241",
+  "id": "da:fortælle",
   "da": "fortælle",
   "en": [
    "tell"
@@ -2848,7 +2848,7 @@
   "freqRank": 241
  },
  {
-  "id": "da-0242",
+  "id": "da:lokal",
   "da": "lokal",
   "en": [
    "local"
@@ -2859,7 +2859,7 @@
   "freqRank": 242
  },
  {
-  "id": "da-0243",
+  "id": "da:ben",
   "da": "ben",
   "en": [
    "leg",
@@ -2872,7 +2872,7 @@
   "freqRank": 243
  },
  {
-  "id": "da-0244",
+  "id": "da:syv",
   "da": "syv",
   "en": [
    "seven"
@@ -2883,7 +2883,7 @@
   "freqRank": 244
  },
  {
-  "id": "da-0245",
+  "id": "da:fod",
   "da": "fod",
   "en": [
    "foot"
@@ -2895,7 +2895,7 @@
   "freqRank": 245
  },
  {
-  "id": "da-0246",
+  "id": "da:forstå",
   "da": "forstå",
   "en": [
    "understand"
@@ -2906,7 +2906,7 @@
   "freqRank": 246
  },
  {
-  "id": "da-0247",
+  "id": "da:otte",
   "da": "otte",
   "en": [
    "eight"
@@ -2917,7 +2917,7 @@
   "freqRank": 247
  },
  {
-  "id": "da-0248",
+  "id": "da:hjerte",
   "da": "hjerte",
   "en": [
    "heart"
@@ -2929,7 +2929,7 @@
   "freqRank": 248
  },
  {
-  "id": "da-0249",
+  "id": "da:national",
   "da": "national",
   "en": [
    "national"
@@ -2940,7 +2940,7 @@
   "freqRank": 249
  },
  {
-  "id": "da-0250",
+  "id": "da:mave",
   "da": "mave",
   "en": [
    "stomach",
@@ -2954,7 +2954,7 @@
   "freqRank": 250
  },
  {
-  "id": "da-0251",
+  "id": "da:ni",
   "da": "ni",
   "en": [
    "nine"
@@ -2965,7 +2965,7 @@
   "freqRank": 251
  },
  {
-  "id": "da-0252",
+  "id": "da:vente",
   "da": "vente",
   "en": [
    "wait"
@@ -2976,7 +2976,7 @@
   "freqRank": 252
  },
  {
-  "id": "da-0253",
+  "id": "da:ryg",
   "da": "ryg",
   "en": [
    "back"
@@ -2988,7 +2988,7 @@
   "freqRank": 253
  },
  {
-  "id": "da-0254",
+  "id": "da:engelsk",
   "da": "engelsk",
   "en": [
    "English"
@@ -2999,7 +2999,7 @@
   "freqRank": 254
  },
  {
-  "id": "da-0255",
+  "id": "da:ti",
   "da": "ti",
   "en": [
    "ten"
@@ -3010,7 +3010,7 @@
   "freqRank": 255
  },
  {
-  "id": "da-0256",
+  "id": "da:læge",
   "da": "læge",
   "en": [
    "doctor",
@@ -3023,7 +3023,7 @@
   "freqRank": 256
  },
  {
-  "id": "da-0257",
+  "id": "da:hjælpe",
   "da": "hjælpe",
   "en": [
    "help"
@@ -3034,7 +3034,7 @@
   "freqRank": 257
  },
  {
-  "id": "da-0258",
+  "id": "da:mest",
   "da": "mest",
   "en": [
    "most",
@@ -3046,7 +3046,7 @@
   "freqRank": 258
  },
  {
-  "id": "da-0259",
+  "id": "da:lærer",
   "da": "lærer",
   "en": [
    "teacher"
@@ -3058,7 +3058,7 @@
   "freqRank": 259
  },
  {
-  "id": "da-0260",
+  "id": "da:amerikansk",
   "da": "amerikansk",
   "en": [
    "American"
@@ -3069,7 +3069,7 @@
   "freqRank": 260
  },
  {
-  "id": "da-0261",
+  "id": "da:elev",
   "da": "elev",
   "en": [
    "pupil",
@@ -3082,7 +3082,7 @@
   "freqRank": 261
  },
  {
-  "id": "da-0262",
+  "id": "da:elske",
   "da": "elske",
   "en": [
    "love"
@@ -3093,7 +3093,7 @@
   "freqRank": 262
  },
  {
-  "id": "da-0263",
+  "id": "da:mindre",
   "da": "mindre",
   "en": [
    "less"
@@ -3104,7 +3104,7 @@
   "freqRank": 263
  },
  {
-  "id": "da-0264",
+  "id": "da:klasse",
   "da": "klasse",
   "en": [
    "class",
@@ -3117,7 +3117,7 @@
   "freqRank": 264
  },
  {
-  "id": "da-0265",
+  "id": "da:mindst",
   "da": "mindst",
   "en": [
    "at least",
@@ -3129,7 +3129,7 @@
   "freqRank": 265
  },
  {
-  "id": "da-0266",
+  "id": "da:huske",
   "da": "huske",
   "en": [
    "remember"
@@ -3140,7 +3140,7 @@
   "freqRank": 266
  },
  {
-  "id": "da-0267",
+  "id": "da:tysk",
   "da": "tysk",
   "en": [
    "German"
@@ -3151,7 +3151,7 @@
   "freqRank": 267
  },
  {
-  "id": "da-0268",
+  "id": "da:universitet",
   "da": "universitet",
   "en": [
    "university",
@@ -3164,7 +3164,7 @@
   "freqRank": 268
  },
  {
-  "id": "da-0269",
+  "id": "da:ret",
   "da": "ret",
   "en": [
    "quite",
@@ -3177,7 +3177,7 @@
   "freqRank": 269
  },
  {
-  "id": "da-0270",
+  "id": "da:opgave",
   "da": "opgave",
   "en": [
    "task",
@@ -3191,7 +3191,7 @@
   "freqRank": 270
  },
  {
-  "id": "da-0271",
+  "id": "da:betale",
   "da": "betale",
   "en": [
    "pay"
@@ -3202,7 +3202,7 @@
   "freqRank": 271
  },
  {
-  "id": "da-0272",
+  "id": "da:eksamen",
   "da": "eksamen",
   "en": [
    "exam",
@@ -3215,7 +3215,7 @@
   "freqRank": 272
  },
  {
-  "id": "da-0273",
+  "id": "da:derfor",
   "da": "derfor",
   "en": [
    "therefore",
@@ -3227,7 +3227,7 @@
   "freqRank": 273
  },
  {
-  "id": "da-0274",
+  "id": "da:europæisk",
   "da": "europæisk",
   "en": [
    "European"
@@ -3238,7 +3238,7 @@
   "freqRank": 274
  },
  {
-  "id": "da-0275",
+  "id": "da:møde",
   "da": "møde",
   "en": [
    "meeting"
@@ -3250,7 +3250,7 @@
   "freqRank": 275
  },
  {
-  "id": "da-0276",
+  "id": "da:alligevel",
   "da": "alligevel",
   "en": [
    "anyway",
@@ -3263,7 +3263,7 @@
   "freqRank": 276
  },
  {
-  "id": "da-0277",
+  "id": "da:håbe",
   "da": "håbe",
   "en": [
    "hope"
@@ -3274,7 +3274,7 @@
   "freqRank": 277
  },
  {
-  "id": "da-0278",
+  "id": "da:kontor",
   "da": "kontor",
   "en": [
    "office"
@@ -3286,7 +3286,7 @@
   "freqRank": 278
  },
  {
-  "id": "da-0279",
+  "id": "da:svensk",
   "da": "svensk",
   "en": [
    "Swedish"
@@ -3297,7 +3297,7 @@
   "freqRank": 279
  },
  {
-  "id": "da-0280",
+  "id": "da:ellers",
   "da": "ellers",
   "en": [
    "otherwise",
@@ -3309,7 +3309,7 @@
   "freqRank": 280
  },
  {
-  "id": "da-0281",
+  "id": "da:chef",
   "da": "chef",
   "en": [
    "boss",
@@ -3322,7 +3322,7 @@
   "freqRank": 281
  },
  {
-  "id": "da-0282",
+  "id": "da:ønske",
   "da": "ønske",
   "en": [
    "wish",
@@ -3334,7 +3334,7 @@
   "freqRank": 282
  },
  {
-  "id": "da-0283",
+  "id": "da:kollega",
   "da": "kollega",
   "en": [
    "colleague",
@@ -3347,7 +3347,7 @@
   "freqRank": 283
  },
  {
-  "id": "da-0284",
+  "id": "da:altså",
   "da": "altså",
   "en": [
    "so",
@@ -3360,7 +3360,7 @@
   "freqRank": 284
  },
  {
-  "id": "da-0285",
+  "id": "da:norsk",
   "da": "norsk",
   "en": [
    "Norwegian"
@@ -3371,7 +3371,7 @@
   "freqRank": 285
  },
  {
-  "id": "da-0286",
+  "id": "da:firma",
   "da": "firma",
   "en": [
    "company",
@@ -3384,7 +3384,7 @@
   "freqRank": 286
  },
  {
-  "id": "da-0287",
+  "id": "da:kalde",
   "da": "kalde",
   "en": [
    "call"
@@ -3395,7 +3395,7 @@
   "freqRank": 287
  },
  {
-  "id": "da-0288",
+  "id": "da:nemlig",
   "da": "nemlig",
   "en": [
    "namely",
@@ -3407,7 +3407,7 @@
   "freqRank": 288
  },
  {
-  "id": "da-0289",
+  "id": "da:løn",
   "da": "løn",
   "en": [
    "salary",
@@ -3421,7 +3421,7 @@
   "freqRank": 289
  },
  {
-  "id": "da-0290",
+  "id": "da:pris",
   "da": "pris",
   "en": [
    "price"
@@ -3433,7 +3433,7 @@
   "freqRank": 290
  },
  {
-  "id": "da-0291",
+  "id": "da:fransk",
   "da": "fransk",
   "en": [
    "French"
@@ -3444,7 +3444,7 @@
   "freqRank": 291
  },
  {
-  "id": "da-0292",
+  "id": "da:heldigvis",
   "da": "heldigvis",
   "en": [
    "fortunately",
@@ -3456,7 +3456,7 @@
   "freqRank": 292
  },
  {
-  "id": "da-0293",
+  "id": "da:sende",
   "da": "sende",
   "en": [
    "send"
@@ -3467,7 +3467,7 @@
   "freqRank": 293
  },
  {
-  "id": "da-0294",
+  "id": "da:krone",
   "da": "krone",
   "en": [
    "krone",
@@ -3480,7 +3480,7 @@
   "freqRank": 294
  },
  {
-  "id": "da-0295",
+  "id": "da:pludselig",
   "da": "pludselig",
   "en": [
    "suddenly"
@@ -3491,7 +3491,7 @@
   "freqRank": 295
  },
  {
-  "id": "da-0296",
+  "id": "da:spise",
   "da": "spise",
   "en": [
    "eat"
@@ -3502,7 +3502,7 @@
   "freqRank": 296
  },
  {
-  "id": "da-0297",
+  "id": "da:bank",
   "da": "bank",
   "en": [
    "bank"
@@ -3514,7 +3514,7 @@
   "freqRank": 297
  },
  {
-  "id": "da-0298",
+  "id": "da:spansk",
   "da": "spansk",
   "en": [
    "Spanish"
@@ -3525,7 +3525,7 @@
   "freqRank": 298
  },
  {
-  "id": "da-0299",
+  "id": "da:tidligt",
   "da": "tidligt",
   "en": [
    "early"
@@ -3536,7 +3536,7 @@
   "freqRank": 299
  },
  {
-  "id": "da-0300",
+  "id": "da:butik",
   "da": "butik",
   "en": [
    "shop",
@@ -3549,7 +3549,7 @@
   "freqRank": 300
  },
  {
-  "id": "da-0301",
+  "id": "da:drikke",
   "da": "drikke",
   "en": [
    "drink"
@@ -3560,7 +3560,7 @@
   "freqRank": 301
  },
  {
-  "id": "da-0302",
+  "id": "da:tog",
   "da": "tog",
   "en": [
    "train"
@@ -3572,7 +3572,7 @@
   "freqRank": 302
  },
  {
-  "id": "da-0303",
+  "id": "da:sent",
   "da": "sent",
   "en": [
    "late"
@@ -3583,7 +3583,7 @@
   "freqRank": 303
  },
  {
-  "id": "da-0304",
+  "id": "da:italiensk",
   "da": "italiensk",
   "en": [
    "Italian"
@@ -3594,7 +3594,7 @@
   "freqRank": 304
  },
  {
-  "id": "da-0305",
+  "id": "da:bus",
   "da": "bus",
   "en": [
    "bus"
@@ -3606,7 +3606,7 @@
   "freqRank": 305
  },
  {
-  "id": "da-0306",
+  "id": "da:længe",
   "da": "længe",
   "en": [
    "long",
@@ -3618,7 +3618,7 @@
   "freqRank": 306
  },
  {
-  "id": "da-0307",
+  "id": "da:sove",
   "da": "sove",
   "en": [
    "sleep"
@@ -3629,7 +3629,7 @@
   "freqRank": 307
  },
  {
-  "id": "da-0308",
+  "id": "da:cykel",
   "da": "cykel",
   "en": [
    "bicycle",
@@ -3642,7 +3642,7 @@
   "freqRank": 308
  },
  {
-  "id": "da-0309",
+  "id": "da:kinesisk",
   "da": "kinesisk",
   "en": [
    "Chinese"
@@ -3653,7 +3653,7 @@
   "freqRank": 309
  },
  {
-  "id": "da-0310",
+  "id": "da:sjældent",
   "da": "sjældent",
   "en": [
    "rarely",
@@ -3665,7 +3665,7 @@
   "freqRank": 310
  },
  {
-  "id": "da-0311",
+  "id": "da:fly",
   "da": "fly",
   "en": [
    "plane",
@@ -3679,7 +3679,7 @@
   "freqRank": 311
  },
  {
-  "id": "da-0312",
+  "id": "da:køre",
   "da": "køre",
   "en": [
    "drive",
@@ -3692,7 +3692,7 @@
   "freqRank": 312
  },
  {
-  "id": "da-0313",
+  "id": "da:billet",
   "da": "billet",
   "en": [
    "ticket"
@@ -3704,7 +3704,7 @@
   "freqRank": 313
  },
  {
-  "id": "da-0314",
+  "id": "da:engang",
   "da": "engang",
   "en": [
    "once"
@@ -3715,7 +3715,7 @@
   "freqRank": 314
  },
  {
-  "id": "da-0315",
+  "id": "da:rejse",
   "da": "rejse",
   "en": [
    "trip",
@@ -3729,7 +3729,7 @@
   "freqRank": 315
  },
  {
-  "id": "da-0316",
+  "id": "da:russisk",
   "da": "russisk",
   "en": [
    "Russian"
@@ -3740,7 +3740,7 @@
   "freqRank": 316
  },
  {
-  "id": "da-0317",
+  "id": "da:nogensinde",
   "da": "nogensinde",
   "en": [
    "ever"
@@ -3751,7 +3751,7 @@
   "freqRank": 317
  },
  {
-  "id": "da-0318",
+  "id": "da:gade",
   "da": "gade",
   "en": [
    "street"
@@ -3763,7 +3763,7 @@
   "freqRank": 318
  },
  {
-  "id": "da-0319",
+  "id": "da:løbe",
   "da": "løbe",
   "en": [
    "run"
@@ -3774,7 +3774,7 @@
   "freqRank": 319
  },
  {
-  "id": "da-0320",
+  "id": "da:sommetider",
   "da": "sommetider",
   "en": [
    "sometimes"
@@ -3785,7 +3785,7 @@
   "freqRank": 320
  },
  {
-  "id": "da-0321",
+  "id": "da:station",
   "da": "station",
   "en": [
    "station"
@@ -3797,7 +3797,7 @@
   "freqRank": 321
  },
  {
-  "id": "da-0322",
+  "id": "da:udenlandsk",
   "da": "udenlandsk",
   "en": [
    "foreign"
@@ -3808,7 +3808,7 @@
   "freqRank": 322
  },
  {
-  "id": "da-0323",
+  "id": "da:natur",
   "da": "natur",
   "en": [
    "nature"
@@ -3820,7 +3820,7 @@
   "freqRank": 323
  },
  {
-  "id": "da-0324",
+  "id": "da:straks",
   "da": "straks",
   "en": [
    "immediately",
@@ -3833,7 +3833,7 @@
   "freqRank": 324
  },
  {
-  "id": "da-0325",
+  "id": "da:ske",
   "da": "ske",
   "en": [
    "happen",
@@ -3845,7 +3845,7 @@
   "freqRank": 325
  },
  {
-  "id": "da-0326",
+  "id": "da:sol",
   "da": "sol",
   "en": [
    "sun"
@@ -3857,7 +3857,7 @@
   "freqRank": 326
  },
  {
-  "id": "da-0327",
+  "id": "da:bagefter",
   "da": "bagefter",
   "en": [
    "afterwards",
@@ -3869,7 +3869,7 @@
   "freqRank": 327
  },
  {
-  "id": "da-0328",
+  "id": "da:fremmed",
   "da": "fremmed",
   "en": [
    "foreign",
@@ -3882,7 +3882,7 @@
   "freqRank": 328
  },
  {
-  "id": "da-0329",
+  "id": "da:himmel",
   "da": "himmel",
   "en": [
    "sky",
@@ -3895,7 +3895,7 @@
   "freqRank": 329
  },
  {
-  "id": "da-0330",
+  "id": "da:søge",
   "da": "søge",
   "en": [
    "search",
@@ -3908,7 +3908,7 @@
   "freqRank": 330
  },
  {
-  "id": "da-0331",
+  "id": "da:hav",
   "da": "hav",
   "en": [
    "sea",
@@ -3921,7 +3921,7 @@
   "freqRank": 331
  },
  {
-  "id": "da-0332",
+  "id": "da:tidligere",
   "da": "tidligere",
   "en": [
    "earlier",
@@ -3934,7 +3934,7 @@
   "freqRank": 332
  },
  {
-  "id": "da-0333",
+  "id": "da:kendt",
   "da": "kendt",
   "en": [
    "well-known",
@@ -3946,7 +3946,7 @@
   "freqRank": 333
  },
  {
-  "id": "da-0334",
+  "id": "da:sø",
   "da": "sø",
   "en": [
    "lake"
@@ -3958,7 +3958,7 @@
   "freqRank": 334
  },
  {
-  "id": "da-0335",
+  "id": "da:senere",
   "da": "senere",
   "en": [
    "later"
@@ -3969,7 +3969,7 @@
   "freqRank": 335
  },
  {
-  "id": "da-0336",
+  "id": "da:svare",
   "da": "svare",
   "en": [
    "answer",
@@ -3981,7 +3981,7 @@
   "freqRank": 336
  },
  {
-  "id": "da-0337",
+  "id": "da:strand",
   "da": "strand",
   "en": [
    "beach"
@@ -3993,7 +3993,7 @@
   "freqRank": 337
  },
  {
-  "id": "da-0338",
+  "id": "da:dårligt",
   "da": "dårligt",
   "en": [
    "badly",
@@ -4005,7 +4005,7 @@
   "freqRank": 338
  },
  {
-  "id": "da-0339",
+  "id": "da:skov",
   "da": "skov",
   "en": [
    "forest",
@@ -4019,7 +4019,7 @@
   "freqRank": 339
  },
  {
-  "id": "da-0340",
+  "id": "da:bede",
   "da": "bede",
   "en": [
    "ask",
@@ -4032,7 +4032,7 @@
   "freqRank": 340
  },
  {
-  "id": "da-0341",
+  "id": "da:populær",
   "da": "populær",
   "en": [
    "popular"
@@ -4043,7 +4043,7 @@
   "freqRank": 341
  },
  {
-  "id": "da-0342",
+  "id": "da:træ",
   "da": "træ",
   "en": [
    "tree",
@@ -4056,7 +4056,7 @@
   "freqRank": 342
  },
  {
-  "id": "da-0343",
+  "id": "da:endelig",
   "da": "endelig",
   "en": [
    "finally",
@@ -4068,7 +4068,7 @@
   "freqRank": 343
  },
  {
-  "id": "da-0344",
+  "id": "da:blomst",
   "da": "blomst",
   "en": [
    "flower"
@@ -4080,7 +4080,7 @@
   "freqRank": 344
  },
  {
-  "id": "da-0345",
+  "id": "da:vælge",
   "da": "vælge",
   "en": [
    "choose",
@@ -4093,7 +4093,7 @@
   "freqRank": 345
  },
  {
-  "id": "da-0346",
+  "id": "da:moderne",
   "da": "moderne",
   "en": [
    "modern"
@@ -4104,7 +4104,7 @@
   "freqRank": 346
  },
  {
-  "id": "da-0347",
+  "id": "da:overalt",
   "da": "overalt",
   "en": [
    "everywhere"
@@ -4115,7 +4115,7 @@
   "freqRank": 347
  },
  {
-  "id": "da-0348",
+  "id": "da:dyr",
   "da": "dyr",
   "en": [
    "animal"
@@ -4127,7 +4127,7 @@
   "freqRank": 348
  },
  {
-  "id": "da-0349",
+  "id": "da:udenfor",
   "da": "udenfor",
   "en": [
    "outside",
@@ -4139,7 +4139,7 @@
   "freqRank": 349
  },
  {
-  "id": "da-0350",
+  "id": "da:vinde",
   "da": "vinde",
   "en": [
    "win"
@@ -4150,7 +4150,7 @@
   "freqRank": 350
  },
  {
-  "id": "da-0351",
+  "id": "da:hund",
   "da": "hund",
   "en": [
    "dog"
@@ -4162,7 +4162,7 @@
   "freqRank": 351
  },
  {
-  "id": "da-0352",
+  "id": "da:normal",
   "da": "normal",
   "en": [
    "normal"
@@ -4173,7 +4173,7 @@
   "freqRank": 352
  },
  {
-  "id": "da-0353",
+  "id": "da:kat",
   "da": "kat",
   "en": [
    "cat"
@@ -4185,7 +4185,7 @@
   "freqRank": 353
  },
  {
-  "id": "da-0354",
+  "id": "da:indenfor",
   "da": "indenfor",
   "en": [
    "inside",
@@ -4197,7 +4197,7 @@
   "freqRank": 354
  },
  {
-  "id": "da-0355",
+  "id": "da:tabe",
   "da": "tabe",
   "en": [
    "lose",
@@ -4209,7 +4209,7 @@
   "freqRank": 355
  },
  {
-  "id": "da-0356",
+  "id": "da:fugl",
   "da": "fugl",
   "en": [
    "bird"
@@ -4221,7 +4221,7 @@
   "freqRank": 356
  },
  {
-  "id": "da-0357",
+  "id": "da:cirka",
   "da": "cirka",
   "en": [
    "about",
@@ -4234,7 +4234,7 @@
   "freqRank": 357
  },
  {
-  "id": "da-0358",
+  "id": "da:hest",
   "da": "hest",
   "en": [
    "horse"
@@ -4246,7 +4246,7 @@
   "freqRank": 358
  },
  {
-  "id": "da-0359",
+  "id": "da:særlig",
   "da": "særlig",
   "en": [
    "special",
@@ -4258,7 +4258,7 @@
   "freqRank": 359
  },
  {
-  "id": "da-0360",
+  "id": "da:glemme",
   "da": "glemme",
   "en": [
    "forget"
@@ -4269,7 +4269,7 @@
   "freqRank": 360
  },
  {
-  "id": "da-0361",
+  "id": "da:især",
   "da": "især",
   "en": [
    "especially",
@@ -4281,7 +4281,7 @@
   "freqRank": 361
  },
  {
-  "id": "da-0362",
+  "id": "da:vejr",
   "da": "vejr",
   "en": [
    "weather"
@@ -4293,7 +4293,7 @@
   "freqRank": 362
  },
  {
-  "id": "da-0363",
+  "id": "da:regn",
   "da": "regn",
   "en": [
    "rain"
@@ -4305,7 +4305,7 @@
   "freqRank": 363
  },
  {
-  "id": "da-0364",
+  "id": "da:lære",
   "da": "lære",
   "en": [
    "learn",
@@ -4317,7 +4317,7 @@
   "freqRank": 364
  },
  {
-  "id": "da-0365",
+  "id": "da:speciel",
   "da": "speciel",
   "en": [
    "special"
@@ -4328,7 +4328,7 @@
   "freqRank": 365
  },
  {
-  "id": "da-0366",
+  "id": "da:undskyld",
   "da": "undskyld",
   "en": [
    "sorry",
@@ -4340,7 +4340,7 @@
   "freqRank": 366
  },
  {
-  "id": "da-0367",
+  "id": "da:sne",
   "da": "sne",
   "en": [
    "snow"
@@ -4352,7 +4352,7 @@
   "freqRank": 367
  },
  {
-  "id": "da-0368",
+  "id": "da:okay",
   "da": "okay",
   "en": [
    "okay",
@@ -4365,7 +4365,7 @@
   "freqRank": 368
  },
  {
-  "id": "da-0369",
+  "id": "da:vind",
   "da": "vind",
   "en": [
    "wind"
@@ -4377,7 +4377,7 @@
   "freqRank": 369
  },
  {
-  "id": "da-0370",
+  "id": "da:falde",
   "da": "falde",
   "en": [
    "fall"
@@ -4388,7 +4388,7 @@
   "freqRank": 370
  },
  {
-  "id": "da-0371",
+  "id": "da:umulig",
   "da": "umulig",
   "en": [
    "impossible"
@@ -4399,7 +4399,7 @@
   "freqRank": 371
  },
  {
-  "id": "da-0372",
+  "id": "da:luft",
   "da": "luft",
   "en": [
    "air"
@@ -4411,7 +4411,7 @@
   "freqRank": 372
  },
  {
-  "id": "da-0373",
+  "id": "da:hallo",
   "da": "hallo",
   "en": [
    "hello",
@@ -4423,7 +4423,7 @@
   "freqRank": 373
  },
  {
-  "id": "da-0374",
+  "id": "da:dø",
   "da": "dø",
   "en": [
    "die"
@@ -4434,7 +4434,7 @@
   "freqRank": 374
  },
  {
-  "id": "da-0375",
+  "id": "da:jord",
   "da": "jord",
   "en": [
    "earth",
@@ -4448,7 +4448,7 @@
   "freqRank": 375
  },
  {
-  "id": "da-0376",
+  "id": "da:farvel",
   "da": "farvel",
   "en": [
    "goodbye",
@@ -4460,7 +4460,7 @@
   "freqRank": 376
  },
  {
-  "id": "da-0377",
+  "id": "da:nem",
   "da": "nem",
   "en": [
    "easy",
@@ -4472,7 +4472,7 @@
   "freqRank": 377
  },
  {
-  "id": "da-0378",
+  "id": "da:måne",
   "da": "måne",
   "en": [
    "moon"
@@ -4484,7 +4484,7 @@
   "freqRank": 378
  },
  {
-  "id": "da-0379",
+  "id": "da:velkommen",
   "da": "velkommen",
   "en": [
    "welcome"
@@ -4495,7 +4495,7 @@
   "freqRank": 379
  },
  {
-  "id": "da-0380",
+  "id": "da:åbne",
   "da": "åbne",
   "en": [
    "open"
@@ -4506,7 +4506,7 @@
   "freqRank": 380
  },
  {
-  "id": "da-0381",
+  "id": "da:stjerne",
   "da": "stjerne",
   "en": [
    "star"
@@ -4518,7 +4518,7 @@
   "freqRank": 381
  },
  {
-  "id": "da-0382",
+  "id": "da:ø",
   "da": "ø",
   "en": [
    "island"
@@ -4530,7 +4530,7 @@
   "freqRank": 382
  },
  {
-  "id": "da-0383",
+  "id": "da:flot",
   "da": "flot",
   "en": [
    "good-looking",
@@ -4543,7 +4543,7 @@
   "freqRank": 383
  },
  {
-  "id": "da-0384",
+  "id": "da:jo",
   "da": "jo",
   "en": [
    "yes",
@@ -4555,7 +4555,7 @@
   "freqRank": 384
  },
  {
-  "id": "da-0385",
+  "id": "da:lukke",
   "da": "lukke",
   "en": [
    "close",
@@ -4567,7 +4567,7 @@
   "freqRank": 385
  },
  {
-  "id": "da-0386",
+  "id": "da:kirke",
   "da": "kirke",
   "en": [
    "church"
@@ -4579,7 +4579,7 @@
   "freqRank": 386
  },
  {
-  "id": "da-0387",
+  "id": "da:goddag",
   "da": "goddag",
   "en": [
    "good day",
@@ -4591,7 +4591,7 @@
   "freqRank": 387
  },
  {
-  "id": "da-0388",
+  "id": "da:hospital",
   "da": "hospital",
   "en": [
    "hospital"
@@ -4603,7 +4603,7 @@
   "freqRank": 388
  },
  {
-  "id": "da-0389",
+  "id": "da:dejlig",
   "da": "dejlig",
   "en": [
    "lovely",
@@ -4616,7 +4616,7 @@
   "freqRank": 389
  },
  {
-  "id": "da-0390",
+  "id": "da:starte",
   "da": "starte",
   "en": [
    "start"
@@ -4627,7 +4627,7 @@
   "freqRank": 390
  },
  {
-  "id": "da-0391",
+  "id": "da:godmorgen",
   "da": "godmorgen",
   "en": [
    "good morning"
@@ -4638,7 +4638,7 @@
   "freqRank": 391
  },
  {
-  "id": "da-0392",
+  "id": "da:hotel",
   "da": "hotel",
   "en": [
    "hotel"
@@ -4650,7 +4650,7 @@
   "freqRank": 392
  },
  {
-  "id": "da-0393",
+  "id": "da:restaurant",
   "da": "restaurant",
   "en": [
    "restaurant"
@@ -4662,7 +4662,7 @@
   "freqRank": 393
  },
  {
-  "id": "da-0394",
+  "id": "da:godnat",
   "da": "godnat",
   "en": [
    "good night",
@@ -4674,7 +4674,7 @@
   "freqRank": 394
  },
  {
-  "id": "da-0395",
+  "id": "da:slutte",
   "da": "slutte",
   "en": [
    "end",
@@ -4686,7 +4686,7 @@
   "freqRank": 395
  },
  {
-  "id": "da-0396",
+  "id": "da:færdig",
   "da": "færdig",
   "en": [
    "finished",
@@ -4699,7 +4699,7 @@
   "freqRank": 396
  },
  {
-  "id": "da-0397",
+  "id": "da:park",
   "da": "park",
   "en": [
    "park"
@@ -4711,7 +4711,7 @@
   "freqRank": 397
  },
  {
-  "id": "da-0398",
+  "id": "da:skål",
   "da": "skål",
   "en": [
    "cheers"
@@ -4722,7 +4722,7 @@
   "freqRank": 398
  },
  {
-  "id": "da-0399",
+  "id": "da:politi",
   "da": "politi",
   "en": [
    "police"
@@ -4734,7 +4734,7 @@
   "freqRank": 399
  },
  {
-  "id": "da-0400",
+  "id": "da:stoppe",
   "da": "stoppe",
   "en": [
    "stop"
@@ -4745,7 +4745,7 @@
   "freqRank": 400
  },
  {
-  "id": "da-0401",
+  "id": "da:av",
   "da": "av",
   "en": [
    "ouch",
@@ -4757,7 +4757,7 @@
   "freqRank": 401
  },
  {
-  "id": "da-0402",
+  "id": "da:kold",
   "da": "kold",
   "en": [
    "cold"
@@ -4768,7 +4768,7 @@
   "freqRank": 402
  },
  {
-  "id": "da-0403",
+  "id": "da:samfund",
   "da": "samfund",
   "en": [
    "society",
@@ -4781,7 +4781,7 @@
   "freqRank": 403
  },
  {
-  "id": "da-0404",
+  "id": "da:fortsætte",
   "da": "fortsætte",
   "en": [
    "continue",
@@ -4793,7 +4793,7 @@
   "freqRank": 404
  },
  {
-  "id": "da-0405",
+  "id": "da:grund",
   "da": "grund",
   "en": [
    "reason",
@@ -4807,7 +4807,7 @@
   "freqRank": 405
  },
  {
-  "id": "da-0406",
+  "id": "da:første",
   "da": "første",
   "en": [
    "first"
@@ -4818,7 +4818,7 @@
   "freqRank": 406
  },
  {
-  "id": "da-0407",
+  "id": "da:måde",
   "da": "måde",
   "en": [
    "way",
@@ -4831,7 +4831,7 @@
   "freqRank": 407
  },
  {
-  "id": "da-0408",
+  "id": "da:varm",
   "da": "varm",
   "en": [
    "warm",
@@ -4843,7 +4843,7 @@
   "freqRank": 408
  },
  {
-  "id": "da-0409",
+  "id": "da:anden",
   "da": "anden",
   "en": [
    "second",
@@ -4855,7 +4855,7 @@
   "freqRank": 409
  },
  {
-  "id": "da-0410",
+  "id": "da:burde",
   "da": "burde",
   "en": [
    "ought to",
@@ -4867,7 +4867,7 @@
   "freqRank": 410
  },
  {
-  "id": "da-0411",
+  "id": "da:hjælp",
   "da": "hjælp",
   "en": [
    "help",
@@ -4880,7 +4880,7 @@
   "freqRank": 411
  },
  {
-  "id": "da-0412",
+  "id": "da:tredje",
   "da": "tredje",
   "en": [
    "third"
@@ -4891,7 +4891,7 @@
   "freqRank": 412
  },
  {
-  "id": "da-0413",
+  "id": "da:hurtig",
   "da": "hurtig",
   "en": [
    "fast",
@@ -4903,7 +4903,7 @@
   "freqRank": 413
  },
  {
-  "id": "da-0414",
+  "id": "da:turde",
   "da": "turde",
   "en": [
    "dare"
@@ -4914,7 +4914,7 @@
   "freqRank": 414
  },
  {
-  "id": "da-0415",
+  "id": "da:tyve",
   "da": "tyve",
   "en": [
    "twenty"
@@ -4925,7 +4925,7 @@
   "freqRank": 415
  },
  {
-  "id": "da-0416",
+  "id": "da:svar",
   "da": "svar",
   "en": [
    "answer",
@@ -4939,7 +4939,7 @@
   "freqRank": 416
  },
  {
-  "id": "da-0417",
+  "id": "da:nå",
   "da": "nå",
   "en": [
    "reach",
@@ -4952,7 +4952,7 @@
   "freqRank": 417
  },
  {
-  "id": "da-0418",
+  "id": "da:hundrede",
   "da": "hundrede",
   "en": [
    "hundred",
@@ -4964,7 +4964,7 @@
   "freqRank": 418
  },
  {
-  "id": "da-0419",
+  "id": "da:langsom",
   "da": "langsom",
   "en": [
    "slow"
@@ -4975,7 +4975,7 @@
   "freqRank": 419
  },
  {
-  "id": "da-0420",
+  "id": "da:stemme",
   "da": "stemme",
   "en": [
    "voice",
@@ -4988,7 +4988,7 @@
   "freqRank": 420
  },
  {
-  "id": "da-0421",
+  "id": "da:sag",
   "da": "sag",
   "en": [
    "case",
@@ -5002,7 +5002,7 @@
   "freqRank": 421
  },
  {
-  "id": "da-0422",
+  "id": "da:slå",
   "da": "slå",
   "en": [
    "hit",
@@ -5015,7 +5015,7 @@
   "freqRank": 422
  },
  {
-  "id": "da-0423",
+  "id": "da:tusind",
   "da": "tusind",
   "en": [
    "thousand",
@@ -5027,7 +5027,7 @@
   "freqRank": 423
  },
  {
-  "id": "da-0424",
+  "id": "da:billede",
   "da": "billede",
   "en": [
    "picture",
@@ -5041,7 +5041,7 @@
   "freqRank": 424
  },
  {
-  "id": "da-0425",
+  "id": "da:billig",
   "da": "billig",
   "en": [
    "cheap",
@@ -5053,7 +5053,7 @@
   "freqRank": 425
  },
  {
-  "id": "da-0426",
+  "id": "da:tredive",
   "da": "tredive",
   "en": [
    "thirty"
@@ -5064,7 +5064,7 @@
   "freqRank": 426
  },
  {
-  "id": "da-0427",
+  "id": "da:bære",
   "da": "bære",
   "en": [
    "carry",
@@ -5076,7 +5076,7 @@
   "freqRank": 427
  },
  {
-  "id": "da-0428",
+  "id": "da:historie",
   "da": "historie",
   "en": [
    "story",
@@ -5089,7 +5089,7 @@
   "freqRank": 428
  },
  {
-  "id": "da-0429",
+  "id": "da:fyrre",
   "da": "fyrre",
   "en": [
    "forty"
@@ -5100,7 +5100,7 @@
   "freqRank": 429
  },
  {
-  "id": "da-0430",
+  "id": "da:plan",
   "da": "plan",
   "en": [
    "plan"
@@ -5112,7 +5112,7 @@
   "freqRank": 430
  },
  {
-  "id": "da-0431",
+  "id": "da:trække",
   "da": "trække",
   "en": [
    "pull",
@@ -5124,7 +5124,7 @@
   "freqRank": 431
  },
  {
-  "id": "da-0432",
+  "id": "da:halvtreds",
   "da": "halvtreds",
   "en": [
    "fifty"
@@ -5135,7 +5135,7 @@
   "freqRank": 432
  },
  {
-  "id": "da-0433",
+  "id": "da:gratis",
   "da": "gratis",
   "en": [
    "free"
@@ -5146,7 +5146,7 @@
   "freqRank": 433
  },
  {
-  "id": "da-0434",
+  "id": "da:kaste",
   "da": "kaste",
   "en": [
    "throw"
@@ -5157,7 +5157,7 @@
   "freqRank": 434
  },
  {
-  "id": "da-0435",
+  "id": "da:nul",
   "da": "nul",
   "en": [
    "zero"
@@ -5168,7 +5168,7 @@
   "freqRank": 435
  },
  {
-  "id": "da-0436",
+  "id": "da:nummer",
   "da": "nummer",
   "en": [
    "number"
@@ -5180,7 +5180,7 @@
   "freqRank": 436
  },
  {
-  "id": "da-0437",
+  "id": "da:valg",
   "da": "valg",
   "en": [
    "choice",
@@ -5193,7 +5193,7 @@
   "freqRank": 437
  },
  {
-  "id": "da-0438",
+  "id": "da:gribe",
   "da": "gribe",
   "en": [
    "catch",
@@ -5205,7 +5205,7 @@
   "freqRank": 438
  },
  {
-  "id": "da-0439",
+  "id": "da:træt",
   "da": "træt",
   "en": [
    "tired"
@@ -5216,7 +5216,7 @@
   "freqRank": 439
  },
  {
-  "id": "da-0440",
+  "id": "da:fejl",
   "da": "fejl",
   "en": [
    "mistake",
@@ -5230,7 +5230,7 @@
   "freqRank": 440
  },
  {
-  "id": "da-0441",
+  "id": "da:lyst",
   "da": "lyst",
   "en": [
    "desire",
@@ -5244,7 +5244,7 @@
   "freqRank": 441
  },
  {
-  "id": "da-0442",
+  "id": "da:springe",
   "da": "springe",
   "en": [
    "jump",
@@ -5256,7 +5256,7 @@
   "freqRank": 442
  },
  {
-  "id": "da-0443",
+  "id": "da:tanke",
   "da": "tanke",
   "en": [
    "thought",
@@ -5269,7 +5269,7 @@
   "freqRank": 443
  },
  {
-  "id": "da-0444",
+  "id": "da:sjov",
   "da": "sjov",
   "en": [
    "fun",
@@ -5281,7 +5281,7 @@
   "freqRank": 444
  },
  {
-  "id": "da-0445",
+  "id": "da:idé",
   "da": "idé",
   "en": [
    "idea"
@@ -5293,7 +5293,7 @@
   "freqRank": 445
  },
  {
-  "id": "da-0446",
+  "id": "da:flyve",
   "da": "flyve",
   "en": [
    "fly"
@@ -5304,7 +5304,7 @@
   "freqRank": 446
  },
  {
-  "id": "da-0447",
+  "id": "da:drøm",
   "da": "drøm",
   "en": [
    "dream"
@@ -5316,7 +5316,7 @@
   "freqRank": 447
  },
  {
-  "id": "da-0448",
+  "id": "da:kedelig",
   "da": "kedelig",
   "en": [
    "boring",
@@ -5328,7 +5328,7 @@
   "freqRank": 448
  },
  {
-  "id": "da-0449",
+  "id": "da:svømme",
   "da": "svømme",
   "en": [
    "swim"
@@ -5339,7 +5339,7 @@
   "freqRank": 449
  },
  {
-  "id": "da-0450",
+  "id": "da:håb",
   "da": "håb",
   "en": [
    "hope"
@@ -5351,7 +5351,7 @@
   "freqRank": 450
  },
  {
-  "id": "da-0451",
+  "id": "da:følelse",
   "da": "følelse",
   "en": [
    "feeling",
@@ -5364,7 +5364,7 @@
   "freqRank": 451
  },
  {
-  "id": "da-0452",
+  "id": "da:hænge",
   "da": "hænge",
   "en": [
    "hang"
@@ -5375,7 +5375,7 @@
   "freqRank": 452
  },
  {
-  "id": "da-0453",
+  "id": "da:interessant",
   "da": "interessant",
   "en": [
    "interesting"
@@ -5386,7 +5386,7 @@
   "freqRank": 453
  },
  {
-  "id": "da-0454",
+  "id": "da:glæde",
   "da": "glæde",
   "en": [
    "joy",
@@ -5400,7 +5400,7 @@
   "freqRank": 454
  },
  {
-  "id": "da-0455",
+  "id": "da:kærlighed",
   "da": "kærlighed",
   "en": [
    "love"
@@ -5412,7 +5412,7 @@
   "freqRank": 455
  },
  {
-  "id": "da-0456",
+  "id": "da:vende",
   "da": "vende",
   "en": [
    "turn",
@@ -5424,7 +5424,7 @@
   "freqRank": 456
  },
  {
-  "id": "da-0457",
+  "id": "da:spændende",
   "da": "spændende",
   "en": [
    "exciting",
@@ -5436,7 +5436,7 @@
   "freqRank": 457
  },
  {
-  "id": "da-0458",
+  "id": "da:lykke",
   "da": "lykke",
   "en": [
    "happiness",
@@ -5449,7 +5449,7 @@
   "freqRank": 458
  },
  {
-  "id": "da-0459",
+  "id": "da:fred",
   "da": "fred",
   "en": [
    "peace"
@@ -5461,7 +5461,7 @@
   "freqRank": 459
  },
  {
-  "id": "da-0460",
+  "id": "da:dreje",
   "da": "dreje",
   "en": [
    "turn"
@@ -5472,7 +5472,7 @@
   "freqRank": 460
  },
  {
-  "id": "da-0461",
+  "id": "da:krig",
   "da": "krig",
   "en": [
    "war"
@@ -5484,7 +5484,7 @@
   "freqRank": 461
  },
  {
-  "id": "da-0462",
+  "id": "da:mærkelig",
   "da": "mærkelig",
   "en": [
    "strange",
@@ -5497,7 +5497,7 @@
   "freqRank": 462
  },
  {
-  "id": "da-0463",
+  "id": "da:flytte",
   "da": "flytte",
   "en": [
    "move"
@@ -5508,7 +5508,7 @@
   "freqRank": 463
  },
  {
-  "id": "da-0464",
+  "id": "da:sandhed",
   "da": "sandhed",
   "en": [
    "truth"
@@ -5520,7 +5520,7 @@
   "freqRank": 464
  },
  {
-  "id": "da-0465",
+  "id": "da:fantastisk",
   "da": "fantastisk",
   "en": [
    "fantastic",
@@ -5533,7 +5533,7 @@
   "freqRank": 465
  },
  {
-  "id": "da-0466",
+  "id": "da:ligne",
   "da": "ligne",
   "en": [
    "resemble",
@@ -5545,7 +5545,7 @@
   "freqRank": 466
  },
  {
-  "id": "da-0467",
+  "id": "da:viden",
   "da": "viden",
   "en": [
    "knowledge"
@@ -5557,7 +5557,7 @@
   "freqRank": 467
  },
  {
-  "id": "da-0468",
+  "id": "da:sprog",
   "da": "sprog",
   "en": [
    "language"
@@ -5569,7 +5569,7 @@
   "freqRank": 468
  },
  {
-  "id": "da-0469",
+  "id": "da:forfærdelig",
   "da": "forfærdelig",
   "en": [
    "terrible",
@@ -5581,7 +5581,7 @@
   "freqRank": 469
  },
  {
-  "id": "da-0470",
+  "id": "da:mangle",
   "da": "mangle",
   "en": [
    "lack",
@@ -5594,7 +5594,7 @@
   "freqRank": 470
  },
  {
-  "id": "da-0471",
+  "id": "da:besked",
   "da": "besked",
   "en": [
    "message"
@@ -5606,7 +5606,7 @@
   "freqRank": 471
  },
  {
-  "id": "da-0472",
+  "id": "da:nyhed",
   "da": "nyhed",
   "en": [
    "news"
@@ -5618,7 +5618,7 @@
   "freqRank": 472
  },
  {
-  "id": "da-0473",
+  "id": "da:virke",
   "da": "virke",
   "en": [
    "work",
@@ -5631,7 +5631,7 @@
   "freqRank": 473
  },
  {
-  "id": "da-0474",
+  "id": "da:avis",
   "da": "avis",
   "en": [
    "newspaper",
@@ -5644,7 +5644,7 @@
   "freqRank": 474
  },
  {
-  "id": "da-0475",
+  "id": "da:perfekt",
   "da": "perfekt",
   "en": [
    "perfect"
@@ -5655,7 +5655,7 @@
   "freqRank": 475
  },
  {
-  "id": "da-0476",
+  "id": "da:brev",
   "da": "brev",
   "en": [
    "letter"
@@ -5667,7 +5667,7 @@
   "freqRank": 476
  },
  {
-  "id": "da-0477",
+  "id": "da:gælde",
   "da": "gælde",
   "en": [
    "apply",
@@ -5680,7 +5680,7 @@
   "freqRank": 477
  },
  {
-  "id": "da-0478",
+  "id": "da:papir",
   "da": "papir",
   "en": [
    "paper"
@@ -5692,7 +5692,7 @@
   "freqRank": 478
  },
  {
-  "id": "da-0479",
+  "id": "da:forkert",
   "da": "forkert",
   "en": [
    "wrong",
@@ -5704,7 +5704,7 @@
   "freqRank": 479
  },
  {
-  "id": "da-0480",
+  "id": "da:tekst",
   "da": "tekst",
   "en": [
    "text"
@@ -5716,7 +5716,7 @@
   "freqRank": 480
  },
  {
-  "id": "da-0481",
+  "id": "da:klare",
   "da": "klare",
   "en": [
    "manage",
@@ -5729,7 +5729,7 @@
   "freqRank": 481
  },
  {
-  "id": "da-0482",
+  "id": "da:eksempel",
   "da": "eksempel",
   "en": [
    "example"
@@ -5741,7 +5741,7 @@
   "freqRank": 482
  },
  {
-  "id": "da-0483",
+  "id": "da:ægte",
   "da": "ægte",
   "en": [
    "real",
@@ -5753,7 +5753,7 @@
   "freqRank": 483
  },
  {
-  "id": "da-0484",
+  "id": "da:passe",
   "da": "passe",
   "en": [
    "fit",
@@ -5766,7 +5766,7 @@
   "freqRank": 484
  },
  {
-  "id": "da-0485",
+  "id": "da:tidlig",
   "da": "tidlig",
   "en": [
    "early"
@@ -5777,7 +5777,7 @@
   "freqRank": 485
  },
  {
-  "id": "da-0486",
+  "id": "da:ændre",
   "da": "ændre",
   "en": [
    "change",
@@ -5789,7 +5789,7 @@
   "freqRank": 486
  },
  {
-  "id": "da-0487",
+  "id": "da:ringe",
   "da": "ringe",
   "en": [
    "call",
@@ -5802,7 +5802,7 @@
   "freqRank": 487
  },
  {
-  "id": "da-0488",
+  "id": "da:sen",
   "da": "sen",
   "en": [
    "late"
@@ -5813,7 +5813,7 @@
   "freqRank": 488
  },
  {
-  "id": "da-0489",
+  "id": "da:besøge",
   "da": "besøge",
   "en": [
    "visit"
@@ -5824,7 +5824,7 @@
   "freqRank": 489
  },
  {
-  "id": "da-0490",
+  "id": "da:blå",
   "da": "blå",
   "en": [
    "blue"
@@ -5835,7 +5835,7 @@
   "freqRank": 490
  },
  {
-  "id": "da-0491",
+  "id": "da:nabo",
   "da": "nabo",
   "en": [
    "neighbor",
@@ -5848,7 +5848,7 @@
   "freqRank": 491
  },
  {
-  "id": "da-0492",
+  "id": "da:smile",
   "da": "smile",
   "en": [
    "smile"
@@ -5859,7 +5859,7 @@
   "freqRank": 492
  },
  {
-  "id": "da-0493",
+  "id": "da:gæst",
   "da": "gæst",
   "en": [
    "guest",
@@ -5872,7 +5872,7 @@
   "freqRank": 493
  },
  {
-  "id": "da-0494",
+  "id": "da:grøn",
   "da": "grøn",
   "en": [
    "green"
@@ -5883,7 +5883,7 @@
   "freqRank": 494
  },
  {
-  "id": "da-0495",
+  "id": "da:grine",
   "da": "grine",
   "en": [
    "laugh"
@@ -5894,7 +5894,7 @@
   "freqRank": 495
  },
  {
-  "id": "da-0496",
+  "id": "da:græde",
   "da": "græde",
   "en": [
    "cry",
@@ -5906,7 +5906,7 @@
   "freqRank": 496
  },
  {
-  "id": "da-0497",
+  "id": "da:gul",
   "da": "gul",
   "en": [
    "yellow"
@@ -5917,7 +5917,7 @@
   "freqRank": 497
  },
  {
-  "id": "da-0498",
+  "id": "da:synge",
   "da": "synge",
   "en": [
    "sing"
@@ -5928,7 +5928,7 @@
   "freqRank": 498
  },
  {
-  "id": "da-0499",
+  "id": "da:grå",
   "da": "grå",
   "en": [
    "grey",
@@ -5940,7 +5940,7 @@
   "freqRank": 499
  },
  {
-  "id": "da-0500",
+  "id": "da:danse",
   "da": "danse",
   "en": [
    "dance"
@@ -5951,7 +5951,7 @@
   "freqRank": 500
  },
  {
-  "id": "da-0501",
+  "id": "da:kæreste",
   "da": "kæreste",
   "en": [
    "boyfriend",
@@ -5965,7 +5965,7 @@
   "freqRank": 501
  },
  {
-  "id": "da-0502",
+  "id": "da:brun",
   "da": "brun",
   "en": [
    "brown"
@@ -5976,7 +5976,7 @@
   "freqRank": 502
  },
  {
-  "id": "da-0503",
+  "id": "da:kone",
   "da": "kone",
   "en": [
    "wife"
@@ -5988,7 +5988,7 @@
   "freqRank": 503
  },
  {
-  "id": "da-0504",
+  "id": "da:lytte",
   "da": "lytte",
   "en": [
    "listen"
@@ -5999,7 +5999,7 @@
   "freqRank": 504
  },
  {
-  "id": "da-0505",
+  "id": "da:gruppe",
   "da": "gruppe",
   "en": [
    "group"
@@ -6011,7 +6011,7 @@
   "freqRank": 505
  },
  {
-  "id": "da-0506",
+  "id": "da:lyserød",
   "da": "lyserød",
   "en": [
    "pink"
@@ -6022,7 +6022,7 @@
   "freqRank": 506
  },
  {
-  "id": "da-0507",
+  "id": "da:hold",
   "da": "hold",
   "en": [
    "team"
@@ -6034,7 +6034,7 @@
   "freqRank": 507
  },
  {
-  "id": "da-0508",
+  "id": "da:kigge",
   "da": "kigge",
   "en": [
    "look",
@@ -6046,7 +6046,7 @@
   "freqRank": 508
  },
  {
-  "id": "da-0509",
+  "id": "da:lilla",
   "da": "lilla",
   "en": [
    "purple"
@@ -6057,7 +6057,7 @@
   "freqRank": 509
  },
  {
-  "id": "da-0510",
+  "id": "da:smage",
   "da": "smage",
   "en": [
    "taste"
@@ -6068,7 +6068,7 @@
   "freqRank": 510
  },
  {
-  "id": "da-0511",
+  "id": "da:lugte",
   "da": "lugte",
   "en": [
    "smell"
@@ -6079,7 +6079,7 @@
   "freqRank": 511
  },
  {
-  "id": "da-0512",
+  "id": "da:orange",
   "da": "orange",
   "en": [
    "orange"
@@ -6090,7 +6090,7 @@
   "freqRank": 512
  },
  {
-  "id": "da-0513",
+  "id": "da:røre",
   "da": "røre",
   "en": [
    "touch",
@@ -6103,7 +6103,7 @@
   "freqRank": 513
  },
  {
-  "id": "da-0514",
+  "id": "da:marked",
   "da": "marked",
   "en": [
    "market"
@@ -6115,7 +6115,7 @@
   "freqRank": 514
  },
  {
-  "id": "da-0515",
+  "id": "da:lys",
   "da": "lys",
   "en": [
    "light",
@@ -6127,7 +6127,7 @@
   "freqRank": 515
  },
  {
-  "id": "da-0516",
+  "id": "da:tælle",
   "da": "tælle",
   "en": [
    "count"
@@ -6138,7 +6138,7 @@
   "freqRank": 516
  },
  {
-  "id": "da-0517",
+  "id": "da:mørk",
   "da": "mørk",
   "en": [
    "dark"
@@ -6149,7 +6149,7 @@
   "freqRank": 517
  },
  {
-  "id": "da-0518",
+  "id": "da:koste",
   "da": "koste",
   "en": [
    "cost"
@@ -6160,7 +6160,7 @@
   "freqRank": 518
  },
  {
-  "id": "da-0519",
+  "id": "da:bibliotek",
   "da": "bibliotek",
   "en": [
    "library"
@@ -6172,7 +6172,7 @@
   "freqRank": 519
  },
  {
-  "id": "da-0520",
+  "id": "da:museum",
   "da": "museum",
   "en": [
    "museum"
@@ -6184,7 +6184,7 @@
   "freqRank": 520
  },
  {
-  "id": "da-0521",
+  "id": "da:smuk",
   "da": "smuk",
   "en": [
    "beautiful"
@@ -6195,7 +6195,7 @@
   "freqRank": 521
  },
  {
-  "id": "da-0522",
+  "id": "da:tegne",
   "da": "tegne",
   "en": [
    "draw"
@@ -6206,7 +6206,7 @@
   "freqRank": 522
  },
  {
-  "id": "da-0523",
+  "id": "da:male",
   "da": "male",
   "en": [
    "paint"
@@ -6217,7 +6217,7 @@
   "freqRank": 523
  },
  {
-  "id": "da-0524",
+  "id": "da:pæn",
   "da": "pæn",
   "en": [
    "nice",
@@ -6230,7 +6230,7 @@
   "freqRank": 524
  },
  {
-  "id": "da-0525",
+  "id": "da:vaske",
   "da": "vaske",
   "en": [
    "wash"
@@ -6241,7 +6241,7 @@
   "freqRank": 525
  },
  {
-  "id": "da-0526",
+  "id": "da:lufthavn",
   "da": "lufthavn",
   "en": [
    "airport"
@@ -6253,7 +6253,7 @@
   "freqRank": 526
  },
  {
-  "id": "da-0527",
+  "id": "da:grim",
   "da": "grim",
   "en": [
    "ugly"
@@ -6264,7 +6264,7 @@
   "freqRank": 527
  },
  {
-  "id": "da-0528",
+  "id": "da:hente",
   "da": "hente",
   "en": [
    "fetch",
@@ -6277,7 +6277,7 @@
   "freqRank": 528
  },
  {
-  "id": "da-0529",
+  "id": "da:bro",
   "da": "bro",
   "en": [
    "bridge"
@@ -6289,7 +6289,7 @@
   "freqRank": 529
  },
  {
-  "id": "da-0530",
+  "id": "da:sød",
   "da": "sød",
   "en": [
    "sweet",
@@ -6302,7 +6302,7 @@
   "freqRank": 530
  },
  {
-  "id": "da-0531",
+  "id": "da:bygning",
   "da": "bygning",
   "en": [
    "building"
@@ -6314,7 +6314,7 @@
   "freqRank": 531
  },
  {
-  "id": "da-0532",
+  "id": "da:sælge",
   "da": "sælge",
   "en": [
    "sell"
@@ -6325,7 +6325,7 @@
   "freqRank": 532
  },
  {
-  "id": "da-0533",
+  "id": "da:lækker",
   "da": "lækker",
   "en": [
    "delicious",
@@ -6337,7 +6337,7 @@
   "freqRank": 533
  },
  {
-  "id": "da-0534",
+  "id": "da:låne",
   "da": "låne",
   "en": [
    "borrow",
@@ -6349,7 +6349,7 @@
   "freqRank": 534
  },
  {
-  "id": "da-0535",
+  "id": "da:stue",
   "da": "stue",
   "en": [
    "living room"
@@ -6361,7 +6361,7 @@
   "freqRank": 535
  },
  {
-  "id": "da-0536",
+  "id": "da:gemme",
   "da": "gemme",
   "en": [
    "hide",
@@ -6373,7 +6373,7 @@
   "freqRank": 536
  },
  {
-  "id": "da-0537",
+  "id": "da:frisk",
   "da": "frisk",
   "en": [
    "fresh"
@@ -6384,7 +6384,7 @@
   "freqRank": 537
  },
  {
-  "id": "da-0538",
+  "id": "da:badeværelse",
   "da": "badeværelse",
   "en": [
    "bathroom"
@@ -6396,7 +6396,7 @@
   "freqRank": 538
  },
  {
-  "id": "da-0539",
+  "id": "da:smide",
   "da": "smide",
   "en": [
    "throw",
@@ -6409,7 +6409,7 @@
   "freqRank": 539
  },
  {
-  "id": "da-0540",
+  "id": "da:sund",
   "da": "sund",
   "en": [
    "healthy"
@@ -6420,7 +6420,7 @@
   "freqRank": 540
  },
  {
-  "id": "da-0541",
+  "id": "da:opleve",
   "da": "opleve",
   "en": [
    "experience"
@@ -6431,7 +6431,7 @@
   "freqRank": 541
  },
  {
-  "id": "da-0542",
+  "id": "da:syg",
   "da": "syg",
   "en": [
    "sick",
@@ -6443,7 +6443,7 @@
   "freqRank": 542
  },
  {
-  "id": "da-0543",
+  "id": "da:nyde",
   "da": "nyde",
   "en": [
    "enjoy"
@@ -6454,7 +6454,7 @@
   "freqRank": 543
  },
  {
-  "id": "da-0544",
+  "id": "da:væg",
   "da": "væg",
   "en": [
    "wall"
@@ -6466,7 +6466,7 @@
   "freqRank": 544
  },
  {
-  "id": "da-0545",
+  "id": "da:gulv",
   "da": "gulv",
   "en": [
    "floor"
@@ -6478,7 +6478,7 @@
   "freqRank": 545
  },
  {
-  "id": "da-0546",
+  "id": "da:behøve",
   "da": "behøve",
   "en": [
    "need"
@@ -6489,7 +6489,7 @@
   "freqRank": 546
  },
  {
-  "id": "da-0547",
+  "id": "da:rask",
   "da": "rask",
   "en": [
    "well",
@@ -6501,7 +6501,7 @@
   "freqRank": 547
  },
  {
-  "id": "da-0548",
+  "id": "da:tag",
   "da": "tag",
   "en": [
    "roof"
@@ -6513,7 +6513,7 @@
   "freqRank": 548
  },
  {
-  "id": "da-0549",
+  "id": "da:trappe",
   "da": "trappe",
   "en": [
    "staircase",
@@ -6526,7 +6526,7 @@
   "freqRank": 549
  },
  {
-  "id": "da-0550",
+  "id": "da:savne",
   "da": "savne",
   "en": [
    "miss"
@@ -6537,7 +6537,7 @@
   "freqRank": 550
  },
  {
-  "id": "da-0551",
+  "id": "da:sulten",
   "da": "sulten",
   "en": [
    "hungry"
@@ -6548,7 +6548,7 @@
   "freqRank": 551
  },
  {
-  "id": "da-0552",
+  "id": "da:forsøge",
   "da": "forsøge",
   "en": [
    "try",
@@ -6560,7 +6560,7 @@
   "freqRank": 552
  },
  {
-  "id": "da-0553",
+  "id": "da:tørstig",
   "da": "tørstig",
   "en": [
    "thirsty"
@@ -6571,7 +6571,7 @@
   "freqRank": 553
  },
  {
-  "id": "da-0554",
+  "id": "da:spejl",
   "da": "spejl",
   "en": [
    "mirror"
@@ -6583,7 +6583,7 @@
   "freqRank": 554
  },
  {
-  "id": "da-0555",
+  "id": "da:undgå",
   "da": "undgå",
   "en": [
    "avoid"
@@ -6594,7 +6594,7 @@
   "freqRank": 555
  },
  {
-  "id": "da-0556",
+  "id": "da:skab",
   "da": "skab",
   "en": [
    "cupboard",
@@ -6608,7 +6608,7 @@
   "freqRank": 556
  },
  {
-  "id": "da-0557",
+  "id": "da:sofa",
   "da": "sofa",
   "en": [
    "sofa",
@@ -6621,7 +6621,7 @@
   "freqRank": 557
  },
  {
-  "id": "da-0558",
+  "id": "da:tung",
   "da": "tung",
   "en": [
    "heavy"
@@ -6632,7 +6632,7 @@
   "freqRank": 558
  },
  {
-  "id": "da-0559",
+  "id": "da:opdage",
   "da": "opdage",
   "en": [
    "discover",
@@ -6644,7 +6644,7 @@
   "freqRank": 559
  },
  {
-  "id": "da-0560",
+  "id": "da:tæppe",
   "da": "tæppe",
   "en": [
    "carpet",
@@ -6658,7 +6658,7 @@
   "freqRank": 560
  },
  {
-  "id": "da-0561",
+  "id": "da:beslutte",
   "da": "beslutte",
   "en": [
    "decide"
@@ -6669,7 +6669,7 @@
   "freqRank": 561
  },
  {
-  "id": "da-0562",
+  "id": "da:blød",
   "da": "blød",
   "en": [
    "soft"
@@ -6680,7 +6680,7 @@
   "freqRank": 562
  },
  {
-  "id": "da-0563",
+  "id": "da:taske",
   "da": "taske",
   "en": [
    "bag",
@@ -6693,7 +6693,7 @@
   "freqRank": 563
  },
  {
-  "id": "da-0564",
+  "id": "da:lomme",
   "da": "lomme",
   "en": [
    "pocket"
@@ -6705,7 +6705,7 @@
   "freqRank": 564
  },
  {
-  "id": "da-0565",
+  "id": "da:bestille",
   "da": "bestille",
   "en": [
    "order",
@@ -6717,7 +6717,7 @@
   "freqRank": 565
  },
  {
-  "id": "da-0566",
+  "id": "da:hård",
   "da": "hård",
   "en": [
    "hard",
@@ -6729,7 +6729,7 @@
   "freqRank": 566
  },
  {
-  "id": "da-0567",
+  "id": "da:telefon",
   "da": "telefon",
   "en": [
    "phone",
@@ -6742,7 +6742,7 @@
   "freqRank": 567
  },
  {
-  "id": "da-0568",
+  "id": "da:computer",
   "da": "computer",
   "en": [
    "computer"
@@ -6754,7 +6754,7 @@
   "freqRank": 568
  },
  {
-  "id": "da-0569",
+  "id": "da:tilbyde",
   "da": "tilbyde",
   "en": [
    "offer"
@@ -6765,7 +6765,7 @@
   "freqRank": 569
  },
  {
-  "id": "da-0570",
+  "id": "da:maskine",
   "da": "maskine",
   "en": [
    "machine"
@@ -6777,7 +6777,7 @@
   "freqRank": 570
  },
  {
-  "id": "da-0571",
+  "id": "da:tyk",
   "da": "tyk",
   "en": [
    "thick",
@@ -6789,7 +6789,7 @@
   "freqRank": 571
  },
  {
-  "id": "da-0572",
+  "id": "da:forlade",
   "da": "forlade",
   "en": [
    "leave"
@@ -6800,7 +6800,7 @@
   "freqRank": 572
  },
  {
-  "id": "da-0573",
+  "id": "da:tynd",
   "da": "tynd",
   "en": [
    "thin"
@@ -6811,7 +6811,7 @@
   "freqRank": 573
  },
  {
-  "id": "da-0574",
+  "id": "da:bygge",
   "da": "bygge",
   "en": [
    "build"
@@ -6822,7 +6822,7 @@
   "freqRank": 574
  },
  {
-  "id": "da-0575",
+  "id": "da:bred",
   "da": "bred",
   "en": [
    "wide",
@@ -6834,7 +6834,7 @@
   "freqRank": 575
  },
  {
-  "id": "da-0576",
+  "id": "da:drømme",
   "da": "drømme",
   "en": [
    "dream"
@@ -6845,7 +6845,7 @@
   "freqRank": 576
  },
  {
-  "id": "da-0577",
+  "id": "da:skib",
   "da": "skib",
   "en": [
    "ship"
@@ -6857,7 +6857,7 @@
   "freqRank": 577
  },
  {
-  "id": "da-0578",
+  "id": "da:båd",
   "da": "båd",
   "en": [
    "boat"
@@ -6869,7 +6869,7 @@
   "freqRank": 578
  },
  {
-  "id": "da-0579",
+  "id": "da:smal",
   "da": "smal",
   "en": [
    "narrow"
@@ -6880,7 +6880,7 @@
   "freqRank": 579
  },
  {
-  "id": "da-0580",
+  "id": "da:ferie",
   "da": "ferie",
   "en": [
    "holiday",
@@ -6893,7 +6893,7 @@
   "freqRank": 580
  },
  {
-  "id": "da-0581",
+  "id": "da:dyb",
   "da": "dyb",
   "en": [
    "deep"
@@ -6904,7 +6904,7 @@
   "freqRank": 581
  },
  {
-  "id": "da-0582",
+  "id": "da:skifte",
   "da": "skifte",
   "en": [
    "change",
@@ -6917,7 +6917,7 @@
   "freqRank": 582
  },
  {
-  "id": "da-0583",
+  "id": "da:lav",
   "da": "lav",
   "en": [
    "low"
@@ -6928,7 +6928,7 @@
   "freqRank": 583
  },
  {
-  "id": "da-0584",
+  "id": "da:rund",
   "da": "rund",
   "en": [
    "round"
@@ -6939,7 +6939,7 @@
   "freqRank": 584
  },
  {
-  "id": "da-0585",
+  "id": "da:ren",
   "da": "ren",
   "en": [
    "clean",
@@ -6951,7 +6951,7 @@
   "freqRank": 585
  },
  {
-  "id": "da-0586",
+  "id": "da:beskidt",
   "da": "beskidt",
   "en": [
    "dirty"
@@ -6962,7 +6962,7 @@
   "freqRank": 586
  },
  {
-  "id": "da-0587",
+  "id": "da:sommer",
   "da": "sommer",
   "en": [
    "summer"
@@ -6974,7 +6974,7 @@
   "freqRank": 587
  },
  {
-  "id": "da-0588",
+  "id": "da:vinter",
   "da": "vinter",
   "en": [
    "winter"
@@ -6986,7 +6986,7 @@
   "freqRank": 588
  },
  {
-  "id": "da-0589",
+  "id": "da:våd",
   "da": "våd",
   "en": [
    "wet"
@@ -6997,7 +6997,7 @@
   "freqRank": 589
  },
  {
-  "id": "da-0590",
+  "id": "da:kræve",
   "da": "kræve",
   "en": [
    "require",
@@ -7009,7 +7009,7 @@
   "freqRank": 590
  },
  {
-  "id": "da-0591",
+  "id": "da:forår",
   "da": "forår",
   "en": [
    "spring"
@@ -7021,7 +7021,7 @@
   "freqRank": 591
  },
  {
-  "id": "da-0592",
+  "id": "da:efterår",
   "da": "efterår",
   "en": [
    "autumn",
@@ -7034,7 +7034,7 @@
   "freqRank": 592
  },
  {
-  "id": "da-0593",
+  "id": "da:miste",
   "da": "miste",
   "en": [
    "lose"
@@ -7045,7 +7045,7 @@
   "freqRank": 593
  },
  {
-  "id": "da-0594",
+  "id": "da:tør",
   "da": "tør",
   "en": [
    "dry"
@@ -7056,7 +7056,7 @@
   "freqRank": 594
  },
  {
-  "id": "da-0595",
+  "id": "da:tom",
   "da": "tom",
   "en": [
    "empty"
@@ -7067,7 +7067,7 @@
   "freqRank": 595
  },
  {
-  "id": "da-0596",
+  "id": "da:fuld",
   "da": "fuld",
   "en": [
    "full",
@@ -7079,7 +7079,7 @@
   "freqRank": 596
  },
  {
-  "id": "da-0597",
+  "id": "da:halv",
   "da": "halv",
   "en": [
    "half"
@@ -7090,7 +7090,7 @@
   "freqRank": 597
  },
  {
-  "id": "da-0598",
+  "id": "da:pleje",
   "da": "pleje",
   "en": [
    "usually do",
@@ -7103,7 +7103,7 @@
   "freqRank": 598
  },
  {
-  "id": "da-0599",
+  "id": "da:ild",
   "da": "ild",
   "en": [
    "fire"
@@ -7115,7 +7115,7 @@
   "freqRank": 599
  },
  {
-  "id": "da-0600",
+  "id": "da:lukket",
   "da": "lukket",
   "en": [
    "closed",
@@ -7127,7 +7127,7 @@
   "freqRank": 600
  },
  {
-  "id": "da-0601",
+  "id": "da:vare",
   "da": "vare",
   "en": [
    "last",
@@ -7139,7 +7139,7 @@
   "freqRank": 601
  },
  {
-  "id": "da-0602",
+  "id": "da:sten",
   "da": "sten",
   "en": [
    "stone",
@@ -7152,7 +7152,7 @@
   "freqRank": 602
  },
  {
-  "id": "da-0603",
+  "id": "da:lykkes",
   "da": "lykkes",
   "en": [
    "succeed",
@@ -7164,7 +7164,7 @@
   "freqRank": 603
  },
  {
-  "id": "da-0604",
+  "id": "da:travl",
   "da": "travl",
   "en": [
    "busy"
@@ -7175,7 +7175,7 @@
   "freqRank": 604
  },
  {
-  "id": "da-0605",
+  "id": "da:rolig",
   "da": "rolig",
   "en": [
    "calm",
@@ -7187,7 +7187,7 @@
   "freqRank": 605
  },
  {
-  "id": "da-0606",
+  "id": "da:stille",
   "da": "stille",
   "en": [
    "quiet",
@@ -7200,7 +7200,7 @@
   "freqRank": 606
  },
  {
-  "id": "da-0607",
+  "id": "da:bestemme",
   "da": "bestemme",
   "en": [
    "decide",
@@ -7212,7 +7212,7 @@
   "freqRank": 607
  },
  {
-  "id": "da-0608",
+  "id": "da:undersøge",
   "da": "undersøge",
   "en": [
    "examine",
@@ -7225,7 +7225,7 @@
   "freqRank": 608
  },
  {
-  "id": "da-0609",
+  "id": "da:vild",
   "da": "vild",
   "en": [
    "wild",
@@ -7237,7 +7237,7 @@
   "freqRank": 609
  },
  {
-  "id": "da-0610",
+  "id": "da:ansigt",
   "da": "ansigt",
   "en": [
    "face"
@@ -7249,7 +7249,7 @@
   "freqRank": 610
  },
  {
-  "id": "da-0611",
+  "id": "da:forklare",
   "da": "forklare",
   "en": [
    "explain"
@@ -7260,7 +7260,7 @@
   "freqRank": 611
  },
  {
-  "id": "da-0612",
+  "id": "da:farlig",
   "da": "farlig",
   "en": [
    "dangerous"
@@ -7271,7 +7271,7 @@
   "freqRank": 612
  },
  {
-  "id": "da-0613",
+  "id": "da:overveje",
   "da": "overveje",
   "en": [
    "consider",
@@ -7283,7 +7283,7 @@
   "freqRank": 613
  },
  {
-  "id": "da-0614",
+  "id": "da:bange",
   "da": "bange",
   "en": [
    "afraid",
@@ -7295,7 +7295,7 @@
   "freqRank": 614
  },
  {
-  "id": "da-0615",
+  "id": "da:vurdere",
   "da": "vurdere",
   "en": [
    "assess",
@@ -7308,7 +7308,7 @@
   "freqRank": 615
  },
  {
-  "id": "da-0616",
+  "id": "da:vred",
   "da": "vred",
   "en": [
    "angry",
@@ -7320,7 +7320,7 @@
   "freqRank": 616
  },
  {
-  "id": "da-0617",
+  "id": "da:behandle",
   "da": "behandle",
   "en": [
    "treat",
@@ -7333,7 +7333,7 @@
   "freqRank": 617
  },
  {
-  "id": "da-0618",
+  "id": "da:indeholde",
   "da": "indeholde",
   "en": [
    "contain"
@@ -7344,7 +7344,7 @@
   "freqRank": 618
  },
  {
-  "id": "da-0619",
+  "id": "da:sur",
   "da": "sur",
   "en": [
    "grumpy",
@@ -7357,7 +7357,7 @@
   "freqRank": 619
  },
  {
-  "id": "da-0620",
+  "id": "da:opnå",
   "da": "opnå",
   "en": [
    "achieve",
@@ -7370,7 +7370,7 @@
   "freqRank": 620
  },
  {
-  "id": "da-0621",
+  "id": "da:blod",
   "da": "blod",
   "en": [
    "blood"
@@ -7382,7 +7382,7 @@
   "freqRank": 621
  },
  {
-  "id": "da-0622",
+  "id": "da:ond",
   "da": "ond",
   "en": [
    "evil",
@@ -7395,7 +7395,7 @@
   "freqRank": 622
  },
  {
-  "id": "da-0623",
+  "id": "da:kæmpe",
   "da": "kæmpe",
   "en": [
    "fight",
@@ -7407,7 +7407,7 @@
   "freqRank": 623
  },
  {
-  "id": "da-0624",
+  "id": "da:venlig",
   "da": "venlig",
   "en": [
    "friendly",
@@ -7419,7 +7419,7 @@
   "freqRank": 624
  },
  {
-  "id": "da-0625",
+  "id": "da:støtte",
   "da": "støtte",
   "en": [
    "support"
@@ -7430,7 +7430,7 @@
   "freqRank": 625
  },
  {
-  "id": "da-0626",
+  "id": "da:rar",
   "da": "rar",
   "en": [
    "nice",
@@ -7443,7 +7443,7 @@
   "freqRank": 626
  },
  {
-  "id": "da-0627",
+  "id": "da:styre",
   "da": "styre",
   "en": [
    "steer",
@@ -7456,7 +7456,7 @@
   "freqRank": 627
  },
  {
-  "id": "da-0628",
+  "id": "da:klog",
   "da": "klog",
   "en": [
    "wise",
@@ -7469,7 +7469,7 @@
   "freqRank": 628
  },
  {
-  "id": "da-0629",
+  "id": "da:lede",
   "da": "lede",
   "en": [
    "lead",
@@ -7482,7 +7482,7 @@
   "freqRank": 629
  },
  {
-  "id": "da-0630",
+  "id": "da:deltage",
   "da": "deltage",
   "en": [
    "participate",
@@ -7494,7 +7494,7 @@
   "freqRank": 630
  },
  {
-  "id": "da-0631",
+  "id": "da:kop",
   "da": "kop",
   "en": [
    "cup"
@@ -7506,7 +7506,7 @@
   "freqRank": 631
  },
  {
-  "id": "da-0632",
+  "id": "da:dum",
   "da": "dum",
   "en": [
    "stupid",
@@ -7519,7 +7519,7 @@
   "freqRank": 632
  },
  {
-  "id": "da-0633",
+  "id": "da:glas",
   "da": "glas",
   "en": [
    "glass"
@@ -7531,7 +7531,7 @@
   "freqRank": 633
  },
  {
-  "id": "da-0634",
+  "id": "da:opstå",
   "da": "opstå",
   "en": [
    "arise",
@@ -7544,7 +7544,7 @@
   "freqRank": 634
  },
  {
-  "id": "da-0635",
+  "id": "da:flaske",
   "da": "flaske",
   "en": [
    "bottle"
@@ -7556,7 +7556,7 @@
   "freqRank": 635
  },
  {
-  "id": "da-0636",
+  "id": "da:dygtig",
   "da": "dygtig",
   "en": [
    "skilled",
@@ -7569,7 +7569,7 @@
   "freqRank": 636
  },
  {
-  "id": "da-0637",
+  "id": "da:regne",
   "da": "regne",
   "en": [
    "rain",
@@ -7581,7 +7581,7 @@
   "freqRank": 637
  },
  {
-  "id": "da-0638",
+  "id": "da:doven",
   "da": "doven",
   "en": [
    "lazy"
@@ -7592,7 +7592,7 @@
   "freqRank": 638
  },
  {
-  "id": "da-0639",
+  "id": "da:nævne",
   "da": "nævne",
   "en": [
    "mention"
@@ -7603,7 +7603,7 @@
   "freqRank": 639
  },
  {
-  "id": "da-0640",
+  "id": "da:fest",
   "da": "fest",
   "en": [
    "party",
@@ -7616,7 +7616,7 @@
   "freqRank": 640
  },
  {
-  "id": "da-0641",
+  "id": "da:gave",
   "da": "gave",
   "en": [
    "gift",
@@ -7629,7 +7629,7 @@
   "freqRank": 641
  },
  {
-  "id": "da-0642",
+  "id": "da:beskrive",
   "da": "beskrive",
   "en": [
    "describe"
@@ -7640,7 +7640,7 @@
   "freqRank": 642
  },
  {
-  "id": "da-0643",
+  "id": "da:modig",
   "da": "modig",
   "en": [
    "brave",
@@ -7652,7 +7652,7 @@
   "freqRank": 643
  },
  {
-  "id": "da-0644",
+  "id": "da:foreslå",
   "da": "foreslå",
   "en": [
    "suggest",
@@ -7664,7 +7664,7 @@
   "freqRank": 644
  },
  {
-  "id": "da-0645",
+  "id": "da:genert",
   "da": "genert",
   "en": [
    "shy"
@@ -7675,7 +7675,7 @@
   "freqRank": 645
  },
  {
-  "id": "da-0646",
+  "id": "da:nervøs",
   "da": "nervøs",
   "en": [
    "nervous"
@@ -7686,7 +7686,7 @@
   "freqRank": 646
  },
  {
-  "id": "da-0647",
+  "id": "da:sang",
   "da": "sang",
   "en": [
    "song"
@@ -7698,7 +7698,7 @@
   "freqRank": 647
  },
  {
-  "id": "da-0648",
+  "id": "da:acceptere",
   "da": "acceptere",
   "en": [
    "accept"
@@ -7709,7 +7709,7 @@
   "freqRank": 648
  },
  {
-  "id": "da-0649",
+  "id": "da:kamp",
   "da": "kamp",
   "en": [
    "match",
@@ -7723,7 +7723,7 @@
   "freqRank": 649
  },
  {
-  "id": "da-0650",
+  "id": "da:stolt",
   "da": "stolt",
   "en": [
    "proud"
@@ -7734,7 +7734,7 @@
   "freqRank": 650
  },
  {
-  "id": "da-0651",
+  "id": "da:tillade",
   "da": "tillade",
   "en": [
    "allow",
@@ -7746,7 +7746,7 @@
   "freqRank": 651
  },
  {
-  "id": "da-0652",
+  "id": "da:afvise",
   "da": "afvise",
   "en": [
    "reject",
@@ -7759,7 +7759,7 @@
   "freqRank": 652
  },
  {
-  "id": "da-0653",
+  "id": "da:lykkelig",
   "da": "lykkelig",
   "en": [
    "happy"
@@ -7770,7 +7770,7 @@
   "freqRank": 653
  },
  {
-  "id": "da-0654",
+  "id": "da:nægte",
   "da": "nægte",
   "en": [
    "refuse",
@@ -7782,7 +7782,7 @@
   "freqRank": 654
  },
  {
-  "id": "da-0655",
+  "id": "da:trist",
   "da": "trist",
   "en": [
    "sad",
@@ -7794,7 +7794,7 @@
   "freqRank": 655
  },
  {
-  "id": "da-0656",
+  "id": "da:påstå",
   "da": "påstå",
   "en": [
    "claim",
@@ -7807,7 +7807,7 @@
   "freqRank": 656
  },
  {
-  "id": "da-0657",
+  "id": "da:ked",
   "da": "ked",
   "en": [
    "sad",
@@ -7820,7 +7820,7 @@
   "freqRank": 657
  },
  {
-  "id": "da-0658",
+  "id": "da:indrømme",
   "da": "indrømme",
   "en": [
    "admit",
@@ -7832,7 +7832,7 @@
   "freqRank": 658
  },
  {
-  "id": "da-0659",
+  "id": "da:sky",
   "da": "sky",
   "en": [
    "cloud"
@@ -7844,7 +7844,7 @@
   "freqRank": 659
  },
  {
-  "id": "da-0660",
+  "id": "da:ensom",
   "da": "ensom",
   "en": [
    "lonely"
@@ -7855,7 +7855,7 @@
   "freqRank": 660
  },
  {
-  "id": "da-0661",
+  "id": "da:påvirke",
   "da": "påvirke",
   "en": [
    "affect",
@@ -7867,7 +7867,7 @@
   "freqRank": 661
  },
  {
-  "id": "da-0662",
+  "id": "da:storm",
   "da": "storm",
   "en": [
    "storm"
@@ -7879,7 +7879,7 @@
   "freqRank": 662
  },
  {
-  "id": "da-0663",
+  "id": "da:temperatur",
   "da": "temperatur",
   "en": [
    "temperature"
@@ -7891,7 +7891,7 @@
   "freqRank": 663
  },
  {
-  "id": "da-0664",
+  "id": "da:bekymret",
   "da": "bekymret",
   "en": [
    "worried",
@@ -7903,7 +7903,7 @@
   "freqRank": 664
  },
  {
-  "id": "da-0665",
+  "id": "da:samle",
   "da": "samle",
   "en": [
    "collect",
@@ -7915,7 +7915,7 @@
   "freqRank": 665
  },
  {
-  "id": "da-0666",
+  "id": "da:grad",
   "da": "grad",
   "en": [
    "degree"
@@ -7927,7 +7927,7 @@
   "freqRank": 666
  },
  {
-  "id": "da-0667",
+  "id": "da:varme",
   "da": "varme",
   "en": [
    "heat",
@@ -7940,7 +7940,7 @@
   "freqRank": 667
  },
  {
-  "id": "da-0668",
+  "id": "da:dele",
   "da": "dele",
   "en": [
    "share",
@@ -7953,7 +7953,7 @@
   "freqRank": 668
  },
  {
-  "id": "da-0669",
+  "id": "da:skuffet",
   "da": "skuffet",
   "en": [
    "disappointed"
@@ -7964,7 +7964,7 @@
   "freqRank": 669
  },
  {
-  "id": "da-0670",
+  "id": "da:kulde",
   "da": "kulde",
   "en": [
    "cold"
@@ -7976,7 +7976,7 @@
   "freqRank": 670
  },
  {
-  "id": "da-0671",
+  "id": "da:fjerne",
   "da": "fjerne",
   "en": [
    "remove"
@@ -7987,7 +7987,7 @@
   "freqRank": 671
  },
  {
-  "id": "da-0672",
+  "id": "da:solskin",
   "da": "solskin",
   "en": [
    "sunshine"
@@ -7999,7 +7999,7 @@
   "freqRank": 672
  },
  {
-  "id": "da-0673",
+  "id": "da:overrasket",
   "da": "overrasket",
   "en": [
    "surprised"
@@ -8010,7 +8010,7 @@
   "freqRank": 673
  },
  {
-  "id": "da-0674",
+  "id": "da:jakke",
   "da": "jakke",
   "en": [
    "jacket"
@@ -8022,7 +8022,7 @@
   "freqRank": 674
  },
  {
-  "id": "da-0675",
+  "id": "da:tilføje",
   "da": "tilføje",
   "en": [
    "add"
@@ -8033,7 +8033,7 @@
   "freqRank": 675
  },
  {
-  "id": "da-0676",
+  "id": "da:kjole",
   "da": "kjole",
   "en": [
    "dress"
@@ -8045,7 +8045,7 @@
   "freqRank": 676
  },
  {
-  "id": "da-0677",
+  "id": "da:skjorte",
   "da": "skjorte",
   "en": [
    "shirt"
@@ -8057,7 +8057,7 @@
   "freqRank": 677
  },
  {
-  "id": "da-0678",
+  "id": "da:spændt",
   "da": "spændt",
   "en": [
    "excited",
@@ -8069,7 +8069,7 @@
   "freqRank": 678
  },
  {
-  "id": "da-0679",
+  "id": "da:trøje",
   "da": "trøje",
   "en": [
    "sweater",
@@ -8083,7 +8083,7 @@
   "freqRank": 679
  },
  {
-  "id": "da-0680",
+  "id": "da:frakke",
   "da": "frakke",
   "en": [
    "coat"
@@ -8095,7 +8095,7 @@
   "freqRank": 680
  },
  {
-  "id": "da-0681",
+  "id": "da:heldig",
   "da": "heldig",
   "en": [
    "lucky",
@@ -8107,7 +8107,7 @@
   "freqRank": 681
  },
  {
-  "id": "da-0682",
+  "id": "da:nederdel",
   "da": "nederdel",
   "en": [
    "skirt"
@@ -8119,7 +8119,7 @@
   "freqRank": 682
  },
  {
-  "id": "da-0683",
+  "id": "da:hue",
   "da": "hue",
   "en": [
    "beanie",
@@ -8133,7 +8133,7 @@
   "freqRank": 683
  },
  {
-  "id": "da-0684",
+  "id": "da:rig",
   "da": "rig",
   "en": [
    "rich",
@@ -8145,7 +8145,7 @@
   "freqRank": 684
  },
  {
-  "id": "da-0685",
+  "id": "da:hat",
   "da": "hat",
   "en": [
    "hat"
@@ -8157,7 +8157,7 @@
   "freqRank": 685
  },
  {
-  "id": "da-0686",
+  "id": "da:handske",
   "da": "handske",
   "en": [
    "glove"
@@ -8169,7 +8169,7 @@
   "freqRank": 686
  },
  {
-  "id": "da-0687",
+  "id": "da:tjene",
   "da": "tjene",
   "en": [
    "earn",
@@ -8181,7 +8181,7 @@
   "freqRank": 687
  },
  {
-  "id": "da-0688",
+  "id": "da:fattig",
   "da": "fattig",
   "en": [
    "poor"
@@ -8192,7 +8192,7 @@
   "freqRank": 688
  },
  {
-  "id": "da-0689",
+  "id": "da:støvle",
   "da": "støvle",
   "en": [
    "boot"
@@ -8204,7 +8204,7 @@
   "freqRank": 689
  },
  {
-  "id": "da-0690",
+  "id": "da:spare",
   "da": "spare",
   "en": [
    "save"
@@ -8215,7 +8215,7 @@
   "freqRank": 690
  },
  {
-  "id": "da-0691",
+  "id": "da:sok",
   "da": "sok",
   "en": [
    "sock"
@@ -8227,7 +8227,7 @@
   "freqRank": 691
  },
  {
-  "id": "da-0692",
+  "id": "da:tørklæde",
   "da": "tørklæde",
   "en": [
    "scarf"
@@ -8239,7 +8239,7 @@
   "freqRank": 692
  },
  {
-  "id": "da-0693",
+  "id": "da:hyggelig",
   "da": "hyggelig",
   "en": [
    "cozy",
@@ -8252,7 +8252,7 @@
   "freqRank": 693
  },
  {
-  "id": "da-0694",
+  "id": "da:skylde",
   "da": "skylde",
   "en": [
    "owe"
@@ -8263,7 +8263,7 @@
   "freqRank": 694
  },
  {
-  "id": "da-0695",
+  "id": "da:bælte",
   "da": "bælte",
   "en": [
    "belt"
@@ -8275,7 +8275,7 @@
   "freqRank": 695
  },
  {
-  "id": "da-0696",
+  "id": "da:eje",
   "da": "eje",
   "en": [
    "own",
@@ -8287,7 +8287,7 @@
   "freqRank": 696
  },
  {
-  "id": "da-0697",
+  "id": "da:voksen",
   "da": "voksen",
   "en": [
    "adult",
@@ -8299,7 +8299,7 @@
   "freqRank": 697
  },
  {
-  "id": "da-0698",
+  "id": "da:knap",
   "da": "knap",
   "en": [
    "button"
@@ -8311,7 +8311,7 @@
   "freqRank": 698
  },
  {
-  "id": "da-0699",
+  "id": "da:undertøj",
   "da": "undertøj",
   "en": [
    "underwear"
@@ -8323,7 +8323,7 @@
   "freqRank": 699
  },
  {
-  "id": "da-0700",
+  "id": "da:tilhøre",
   "da": "tilhøre",
   "en": [
    "belong to",
@@ -8335,7 +8335,7 @@
   "freqRank": 700
  },
  {
-  "id": "da-0701",
+  "id": "da:gift",
   "da": "gift",
   "en": [
    "married"
@@ -8346,7 +8346,7 @@
   "freqRank": 701
  },
  {
-  "id": "da-0702",
+  "id": "da:sorg",
   "da": "sorg",
   "en": [
    "sorrow",
@@ -8359,7 +8359,7 @@
   "freqRank": 702
  },
  {
-  "id": "da-0703",
+  "id": "da:vrede",
   "da": "vrede",
   "en": [
    "anger"
@@ -8371,7 +8371,7 @@
   "freqRank": 703
  },
  {
-  "id": "da-0704",
+  "id": "da:død",
   "da": "død",
   "en": [
    "dead"
@@ -8382,7 +8382,7 @@
   "freqRank": 704
  },
  {
-  "id": "da-0705",
+  "id": "da:leje",
   "da": "leje",
   "en": [
    "rent",
@@ -8394,7 +8394,7 @@
   "freqRank": 705
  },
  {
-  "id": "da-0706",
+  "id": "da:frygt",
   "da": "frygt",
   "en": [
    "fear"
@@ -8406,7 +8406,7 @@
   "freqRank": 706
  },
  {
-  "id": "da-0707",
+  "id": "da:levende",
   "da": "levende",
   "en": [
    "alive",
@@ -8419,7 +8419,7 @@
   "freqRank": 707
  },
  {
-  "id": "da-0708",
+  "id": "da:smerte",
   "da": "smerte",
   "en": [
    "pain",
@@ -8432,7 +8432,7 @@
   "freqRank": 708
  },
  {
-  "id": "da-0709",
+  "id": "da:forsigtig",
   "da": "forsigtig",
   "en": [
    "careful",
@@ -8444,7 +8444,7 @@
   "freqRank": 709
  },
  {
-  "id": "da-0710",
+  "id": "da:levere",
   "da": "levere",
   "en": [
    "deliver",
@@ -8456,7 +8456,7 @@
   "freqRank": 710
  },
  {
-  "id": "da-0711",
+  "id": "da:angst",
   "da": "angst",
   "en": [
    "anxiety",
@@ -8469,7 +8469,7 @@
   "freqRank": 711
  },
  {
-  "id": "da-0712",
+  "id": "da:humør",
   "da": "humør",
   "en": [
    "mood",
@@ -8482,7 +8482,7 @@
   "freqRank": 712
  },
  {
-  "id": "da-0713",
+  "id": "da:tænde",
   "da": "tænde",
   "en": [
    "turn on",
@@ -8494,7 +8494,19 @@
   "freqRank": 713
  },
  {
-  "id": "da-0714",
+  "id": "da:svag",
+  "da": "svag",
+  "en": [
+   "weak",
+   "faint"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kaffen er for svag i dag.",
+  "exampleEn": "The coffee is too weak today.",
+  "freqRank": 714
+ },
+ {
+  "id": "da:bekymring",
   "da": "bekymring",
   "en": [
    "worry",
@@ -8504,10 +8516,10 @@
   "article": "en",
   "exampleDa": "Hun har mange bekymringer om fremtiden.",
   "exampleEn": "She has many worries about the future.",
-  "freqRank": 714
+  "freqRank": 715
  },
  {
-  "id": "da-0715",
+  "id": "da:overraskelse",
   "da": "overraskelse",
   "en": [
    "surprise"
@@ -8516,10 +8528,10 @@
   "article": "en",
   "exampleDa": "Festen var en stor overraskelse for hende.",
   "exampleEn": "The party was a big surprise for her.",
-  "freqRank": 715
+  "freqRank": 716
  },
  {
-  "id": "da-0716",
+  "id": "da:afhænge",
   "da": "afhænge",
   "en": [
    "depend"
@@ -8527,10 +8539,10 @@
   "pos": "verb",
   "exampleDa": "Turen afhænger helt af vejret.",
   "exampleEn": "The trip depends entirely on the weather.",
-  "freqRank": 716
+  "freqRank": 717
  },
  {
-  "id": "da-0717",
+  "id": "da:skuffelse",
   "da": "skuffelse",
   "en": [
    "disappointment"
@@ -8539,10 +8551,24 @@
   "article": "en",
   "exampleDa": "Det var en stor skuffelse for holdet.",
   "exampleEn": "It was a big disappointment for the team.",
-  "freqRank": 717
+  "freqRank": 718
  },
  {
-  "id": "da-0718",
+  "id": "da:fast",
+  "da": "fast",
+  "en": [
+   "firm",
+   "fixed",
+   "permanent",
+   "solid"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han har et fast job nu.",
+  "exampleEn": "He has a permanent job now.",
+  "freqRank": 719
+ },
+ {
+  "id": "da:stolthed",
   "da": "stolthed",
   "en": [
    "pride"
@@ -8551,10 +8577,10 @@
   "article": "en",
   "exampleDa": "Hun viste sit arbejde frem med stolthed.",
   "exampleEn": "She showed her work with pride.",
-  "freqRank": 718
+  "freqRank": 720
  },
  {
-  "id": "da-0719",
+  "id": "da:skam",
   "da": "skam",
   "en": [
    "shame"
@@ -8563,10 +8589,21 @@
   "article": "en",
   "exampleDa": "Han følte skam over sin fejl.",
   "exampleEn": "He felt shame about his mistake.",
-  "freqRank": 719
+  "freqRank": 721
  },
  {
-  "id": "da-0720",
+  "id": "da:skarp",
+  "da": "skarp",
+  "en": [
+   "sharp"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kniven er meget skarp.",
+  "exampleEn": "The knife is very sharp.",
+  "freqRank": 722
+ },
+ {
+  "id": "da:anbefale",
   "da": "anbefale",
   "en": [
    "recommend"
@@ -8574,10 +8611,10 @@
   "pos": "verb",
   "exampleDa": "Kan du anbefale en god restaurant?",
   "exampleEn": "Can you recommend a good restaurant?",
-  "freqRank": 720
+  "freqRank": 723
  },
  {
-  "id": "da-0721",
+  "id": "da:ensomhed",
   "da": "ensomhed",
   "en": [
    "loneliness"
@@ -8586,10 +8623,10 @@
   "article": "en",
   "exampleDa": "Mange ældre oplever ensomhed.",
   "exampleEn": "Many elderly people experience loneliness.",
-  "freqRank": 721
+  "freqRank": 724
  },
  {
-  "id": "da-0722",
+  "id": "da:tillid",
   "da": "tillid",
   "en": [
    "trust",
@@ -8599,10 +8636,22 @@
   "article": "en",
   "exampleDa": "Jeg har fuld tillid til min læge.",
   "exampleEn": "I have full trust in my doctor.",
-  "freqRank": 722
+  "freqRank": 725
  },
  {
-  "id": "da-0723",
+  "id": "da:enkel",
+  "da": "enkel",
+  "en": [
+   "simple",
+   "plain"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Opskriften er enkel og hurtig.",
+  "exampleEn": "The recipe is simple and quick.",
+  "freqRank": 726
+ },
+ {
+  "id": "da:planlægge",
   "da": "planlægge",
   "en": [
    "plan"
@@ -8610,10 +8659,10 @@
   "pos": "verb",
   "exampleDa": "Vi planlægger en stor fest til sommer.",
   "exampleEn": "We are planning a big party for the summer.",
-  "freqRank": 723
+  "freqRank": 727
  },
  {
-  "id": "da-0724",
+  "id": "da:tvivl",
   "da": "tvivl",
   "en": [
    "doubt"
@@ -8622,10 +8671,10 @@
   "article": "en",
   "exampleDa": "Der er ingen tvivl om svaret.",
   "exampleEn": "There is no doubt about the answer.",
-  "freqRank": 724
+  "freqRank": 728
  },
  {
-  "id": "da-0725",
+  "id": "da:mod",
   "da": "mod",
   "en": [
    "courage",
@@ -8635,10 +8684,10 @@
   "article": "et",
   "exampleDa": "Det kræver mod at tale foran mange mennesker.",
   "exampleEn": "It takes courage to speak in front of many people.",
-  "freqRank": 725
+  "freqRank": 729
  },
  {
-  "id": "da-0726",
+  "id": "da:forberede",
   "da": "forberede",
   "en": [
    "prepare"
@@ -8646,10 +8695,22 @@
   "pos": "verb",
   "exampleDa": "Hun forbereder sig til den svære eksamen.",
   "exampleEn": "She is preparing for the difficult exam.",
-  "freqRank": 726
+  "freqRank": 730
  },
  {
-  "id": "da-0727",
+  "id": "da:praktisk",
+  "da": "praktisk",
+  "en": [
+   "practical",
+   "handy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Tasken er praktisk til rejser.",
+  "exampleEn": "The bag is practical for travel.",
+  "freqRank": 731
+ },
+ {
+  "id": "da:ro",
   "da": "ro",
   "en": [
    "calm",
@@ -8660,10 +8721,10 @@
   "article": "en",
   "exampleDa": "Jeg har brug for fred og ro.",
   "exampleEn": "I need peace and quiet.",
-  "freqRank": 727
+  "freqRank": 732
  },
  {
-  "id": "da-0728",
+  "id": "da:sundhed",
   "da": "sundhed",
   "en": [
    "health"
@@ -8672,10 +8733,10 @@
   "article": "en",
   "exampleDa": "Motion er godt for din sundhed.",
   "exampleEn": "Exercise is good for your health.",
-  "freqRank": 728
+  "freqRank": 733
  },
  {
-  "id": "da-0729",
+  "id": "da:arrangere",
   "da": "arrangere",
   "en": [
    "arrange",
@@ -8684,10 +8745,10 @@
   "pos": "verb",
   "exampleDa": "Skolen arrangerer en tur til museet.",
   "exampleEn": "The school is organizing a trip to the museum.",
-  "freqRank": 729
+  "freqRank": 734
  },
  {
-  "id": "da-0730",
+  "id": "da:feber",
   "da": "feber",
   "en": [
    "fever"
@@ -8696,10 +8757,23 @@
   "article": "en",
   "exampleDa": "Barnet har feber og skal blive hjemme.",
   "exampleEn": "The child has a fever and must stay home.",
-  "freqRank": 730
+  "freqRank": 735
  },
  {
-  "id": "da-0731",
+  "id": "da:tydelig",
+  "da": "tydelig",
+  "en": [
+   "clear",
+   "distinct",
+   "obvious"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hendes stemme er klar og tydelig.",
+  "exampleEn": "Her voice is clear and distinct.",
+  "freqRank": 736
+ },
+ {
+  "id": "da:forkølelse",
   "da": "forkølelse",
   "en": [
    "cold"
@@ -8708,10 +8782,10 @@
   "article": "en",
   "exampleDa": "Jeg har en slem forkølelse lige nu.",
   "exampleEn": "I have a bad cold right now.",
-  "freqRank": 731
+  "freqRank": 737
  },
  {
-  "id": "da-0732",
+  "id": "da:invitere",
   "da": "invitere",
   "en": [
    "invite"
@@ -8719,10 +8793,10 @@
   "pos": "verb",
   "exampleDa": "De inviterede os til middag på fredag.",
   "exampleEn": "They invited us to dinner on Friday.",
-  "freqRank": 732
+  "freqRank": 738
  },
  {
-  "id": "da-0733",
+  "id": "da:hoste",
   "da": "hoste",
   "en": [
    "cough"
@@ -8731,10 +8805,22 @@
   "article": "en",
   "exampleDa": "Han har haft hoste i tre dage.",
   "exampleEn": "He has had a cough for three days.",
-  "freqRank": 733
+  "freqRank": 739
  },
  {
-  "id": "da-0734",
+  "id": "da:rimelig",
+  "da": "rimelig",
+  "en": [
+   "reasonable",
+   "fair"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Prisen er rimelig for et hotel.",
+  "exampleEn": "The price is reasonable for a hotel.",
+  "freqRank": 740
+ },
+ {
+  "id": "da:aflyse",
   "da": "aflyse",
   "en": [
    "cancel"
@@ -8742,10 +8828,10 @@
   "pos": "verb",
   "exampleDa": "Vi må desværre aflyse festen.",
   "exampleEn": "Unfortunately we have to cancel the party.",
-  "freqRank": 734
+  "freqRank": 741
  },
  {
-  "id": "da-0735",
+  "id": "da:hovedpine",
   "da": "hovedpine",
   "en": [
    "headache"
@@ -8754,10 +8840,10 @@
   "article": "en",
   "exampleDa": "Jeg har hovedpine og går tidligt i seng.",
   "exampleEn": "I have a headache and am going to bed early.",
-  "freqRank": 735
+  "freqRank": 742
  },
  {
-  "id": "da-0736",
+  "id": "da:influenza",
   "da": "influenza",
   "en": [
    "flu",
@@ -8767,10 +8853,10 @@
   "article": "en",
   "exampleDa": "Hun ligger i sengen med influenza.",
   "exampleEn": "She is in bed with the flu.",
-  "freqRank": 736
+  "freqRank": 743
  },
  {
-  "id": "da-0737",
+  "id": "da:afslutte",
   "da": "afslutte",
   "en": [
    "finish",
@@ -8780,10 +8866,21 @@
   "pos": "verb",
   "exampleDa": "Han afsluttede sin uddannelse i juni.",
   "exampleEn": "He finished his education in June.",
-  "freqRank": 737
+  "freqRank": 744
  },
  {
-  "id": "da-0738",
+  "id": "da:berømt",
+  "da": "berømt",
+  "en": [
+   "famous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Byen er berømt for sin gamle kirke.",
+  "exampleEn": "The city is famous for its old church.",
+  "freqRank": 745
+ },
+ {
+  "id": "da:medicin",
   "da": "medicin",
   "en": [
    "medicine",
@@ -8793,10 +8890,10 @@
   "article": "en",
   "exampleDa": "Husk at tage din medicin hver morgen.",
   "exampleEn": "Remember to take your medicine every morning.",
-  "freqRank": 738
+  "freqRank": 746
  },
  {
-  "id": "da-0739",
+  "id": "da:pille",
   "da": "pille",
   "en": [
    "pill",
@@ -8806,10 +8903,10 @@
   "article": "en",
   "exampleDa": "Tag en pille mod smerten.",
   "exampleEn": "Take a pill for the pain.",
-  "freqRank": 739
+  "freqRank": 747
  },
  {
-  "id": "da-0740",
+  "id": "da:recept",
   "da": "recept",
   "en": [
    "prescription"
@@ -8818,10 +8915,22 @@
   "article": "en",
   "exampleDa": "Du skal have en recept på denne medicin.",
   "exampleEn": "You need a prescription for this medicine.",
-  "freqRank": 740
+  "freqRank": 748
  },
  {
-  "id": "da-0741",
+  "id": "da:ærlig",
+  "da": "ærlig",
+  "en": [
+   "honest",
+   "sincere"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er altid ærlig over for mig.",
+  "exampleEn": "He is always honest with me.",
+  "freqRank": 749
+ },
+ {
+  "id": "da:apotek",
   "da": "apotek",
   "en": [
    "pharmacy",
@@ -8831,10 +8940,10 @@
   "article": "et",
   "exampleDa": "Jeg henter medicinen på apoteket.",
   "exampleEn": "I pick up the medicine at the pharmacy.",
-  "freqRank": 741
+  "freqRank": 750
  },
  {
-  "id": "da-0742",
+  "id": "da:forsvinde",
   "da": "forsvinde",
   "en": [
    "disappear",
@@ -8843,10 +8952,10 @@
   "pos": "verb",
   "exampleDa": "Solen forsvandt bag de mørke skyer.",
   "exampleEn": "The sun disappeared behind the dark clouds.",
-  "freqRank": 742
+  "freqRank": 751
  },
  {
-  "id": "da-0743",
+  "id": "da:tandlæge",
   "da": "tandlæge",
   "en": [
    "dentist"
@@ -8855,10 +8964,23 @@
   "article": "en",
   "exampleDa": "Jeg skal til tandlæge på torsdag.",
   "exampleEn": "I am going to the dentist on Thursday.",
-  "freqRank": 743
+  "freqRank": 752
  },
  {
-  "id": "da-0744",
+  "id": "da:tilfreds",
+  "da": "tilfreds",
+  "en": [
+   "satisfied",
+   "content",
+   "pleased"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er tilfreds med mit nye job.",
+  "exampleEn": "I am satisfied with my new job.",
+  "freqRank": 753
+ },
+ {
+  "id": "da:sygeplejerske",
   "da": "sygeplejerske",
   "en": [
    "nurse"
@@ -8867,10 +8989,10 @@
   "article": "en",
   "exampleDa": "Sygeplejersken hjælper patienten med medicinen.",
   "exampleEn": "The nurse helps the patient with the medicine.",
-  "freqRank": 744
+  "freqRank": 754
  },
  {
-  "id": "da-0745",
+  "id": "da:ankomme",
   "da": "ankomme",
   "en": [
    "arrive"
@@ -8878,10 +9000,10 @@
   "pos": "verb",
   "exampleDa": "Toget ankommer klokken ti.",
   "exampleEn": "The train arrives at ten o'clock.",
-  "freqRank": 745
+  "freqRank": 755
  },
  {
-  "id": "da-0746",
+  "id": "da:ambulance",
   "da": "ambulance",
   "en": [
    "ambulance"
@@ -8890,10 +9012,23 @@
   "article": "en",
   "exampleDa": "Ambulancen kom efter fem minutter.",
   "exampleEn": "The ambulance came after five minutes.",
-  "freqRank": 746
+  "freqRank": 756
  },
  {
-  "id": "da-0747",
+  "id": "da:streng",
+  "da": "streng",
+  "en": [
+   "strict",
+   "severe",
+   "harsh"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vores lærer er streng men venlig.",
+  "exampleEn": "Our teacher is strict but kind.",
+  "freqRank": 757
+ },
+ {
+  "id": "da:skade",
   "da": "skade",
   "en": [
    "injury",
@@ -8903,10 +9038,10 @@
   "article": "en",
   "exampleDa": "Han fik en skade i knæet under kampen.",
   "exampleEn": "He got an injury to his knee during the match.",
-  "freqRank": 747
+  "freqRank": 758
  },
  {
-  "id": "da-0748",
+  "id": "da:sår",
   "da": "sår",
   "en": [
    "wound",
@@ -8916,10 +9051,22 @@
   "article": "et",
   "exampleDa": "Hun har et lille sår på hånden.",
   "exampleEn": "She has a small wound on her hand.",
-  "freqRank": 748
+  "freqRank": 759
  },
  {
-  "id": "da-0749",
+  "id": "da:mild",
+  "da": "mild",
+  "en": [
+   "mild",
+   "gentle"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vinteren er mild i år.",
+  "exampleEn": "The winter is mild this year.",
+  "freqRank": 760
+ },
+ {
+  "id": "da:hade",
   "da": "hade",
   "en": [
    "hate"
@@ -8927,10 +9074,10 @@
   "pos": "verb",
   "exampleDa": "Han hader at vente på bussen.",
   "exampleEn": "He hates waiting for the bus.",
-  "freqRank": 749
+  "freqRank": 761
  },
  {
-  "id": "da-0750",
+  "id": "da:hals",
   "da": "hals",
   "en": [
    "throat",
@@ -8940,10 +9087,22 @@
   "article": "en",
   "exampleDa": "Jeg har ondt i halsen i dag.",
   "exampleEn": "I have a sore throat today.",
-  "freqRank": 750
+  "freqRank": 762
  },
  {
-  "id": "da-0751",
+  "id": "da:nyttig",
+  "da": "nyttig",
+  "en": [
+   "useful",
+   "helpful"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kortet er meget nyttigt på rejsen.",
+  "exampleEn": "The map is very useful on the trip.",
+  "freqRank": 763
+ },
+ {
+  "id": "da:skulder",
   "da": "skulder",
   "en": [
    "shoulder"
@@ -8952,10 +9111,10 @@
   "article": "en",
   "exampleDa": "Min skulder gør ondt, når jeg svømmer.",
   "exampleEn": "My shoulder hurts when I swim.",
-  "freqRank": 751
+  "freqRank": 764
  },
  {
-  "id": "da-0752",
+  "id": "da:frygte",
   "da": "frygte",
   "en": [
    "fear",
@@ -8964,10 +9123,10 @@
   "pos": "verb",
   "exampleDa": "Mange mennesker frygter slanger.",
   "exampleEn": "Many people fear snakes.",
-  "freqRank": 752
+  "freqRank": 765
  },
  {
-  "id": "da-0753",
+  "id": "da:knæ",
   "da": "knæ",
   "en": [
    "knee"
@@ -8976,10 +9135,23 @@
   "article": "et",
   "exampleDa": "Hun slog sit knæ på trappen.",
   "exampleEn": "She hit her knee on the stairs.",
-  "freqRank": 753
+  "freqRank": 766
  },
  {
-  "id": "da-0754",
+  "id": "da:behagelig",
+  "da": "behagelig",
+  "en": [
+   "pleasant",
+   "comfortable",
+   "agreeable"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Stolen er meget behagelig at sidde i.",
+  "exampleEn": "The chair is very comfortable to sit in.",
+  "freqRank": 767
+ },
+ {
+  "id": "da:redde",
   "da": "redde",
   "en": [
    "save",
@@ -8988,10 +9160,23 @@
   "pos": "verb",
   "exampleDa": "Manden reddede hunden fra det kolde vand.",
   "exampleEn": "The man saved the dog from the cold water.",
-  "freqRank": 754
+  "freqRank": 768
  },
  {
-  "id": "da-0755",
+  "id": "da:underlig",
+  "da": "underlig",
+  "en": [
+   "strange",
+   "odd",
+   "weird"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Der er en underlig lyd i huset.",
+  "exampleEn": "There is a strange sound in the house.",
+  "freqRank": 769
+ },
+ {
+  "id": "da:beskytte",
   "da": "beskytte",
   "en": [
    "protect"
@@ -8999,10 +9184,10 @@
   "pos": "verb",
   "exampleDa": "Solcreme beskytter din hud mod solen.",
   "exampleEn": "Sunscreen protects your skin from the sun.",
-  "freqRank": 755
+  "freqRank": 770
  },
  {
-  "id": "da-0756",
+  "id": "da:advare",
   "da": "advare",
   "en": [
    "warn"
@@ -9010,10 +9195,23 @@
   "pos": "verb",
   "exampleDa": "Politiet advarer mod glatte veje.",
   "exampleEn": "The police warn against slippery roads.",
-  "freqRank": 756
+  "freqRank": 771
  },
  {
-  "id": "da-0757",
+  "id": "da:flink",
+  "da": "flink",
+  "en": [
+   "nice",
+   "kind",
+   "good-natured"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min nabo er altid flink mod os.",
+  "exampleEn": "My neighbor is always nice to us.",
+  "freqRank": 772
+ },
+ {
+  "id": "da:hud",
   "da": "hud",
   "en": [
    "skin"
@@ -9022,10 +9220,10 @@
   "article": "en",
   "exampleDa": "Hendes hud bliver tør om vinteren.",
   "exampleEn": "Her skin gets dry in the winter.",
-  "freqRank": 757
+  "freqRank": 773
  },
  {
-  "id": "da-0758",
+  "id": "da:muskel",
   "da": "muskel",
   "en": [
    "muscle"
@@ -9034,10 +9232,10 @@
   "article": "en",
   "exampleDa": "Jeg har en øm muskel i benet.",
   "exampleEn": "I have a sore muscle in my leg.",
-  "freqRank": 758
+  "freqRank": 774
  },
  {
-  "id": "da-0759",
+  "id": "da:slukke",
   "da": "slukke",
   "en": [
    "turn off",
@@ -9047,10 +9245,10 @@
   "pos": "verb",
   "exampleDa": "Husk at slukke lyset, når du går.",
   "exampleEn": "Remember to turn off the light when you leave.",
-  "freqRank": 759
+  "freqRank": 775
  },
  {
-  "id": "da-0760",
+  "id": "da:motion",
   "da": "motion",
   "en": [
    "exercise"
@@ -9059,10 +9257,22 @@
   "article": "en",
   "exampleDa": "Jeg får motion, når jeg cykler til arbejde.",
   "exampleEn": "I get exercise when I bike to work.",
-  "freqRank": 760
+  "freqRank": 776
  },
  {
-  "id": "da-0761",
+  "id": "da:høflig",
+  "da": "høflig",
+  "en": [
+   "polite",
+   "courteous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Drengen er altid høflig mod gamle mennesker.",
+  "exampleEn": "The boy is always polite to old people.",
+  "freqRank": 777
+ },
+ {
+  "id": "da:træning",
   "da": "træning",
   "en": [
    "training",
@@ -9073,10 +9283,10 @@
   "article": "en",
   "exampleDa": "Vi har træning to gange om ugen.",
   "exampleEn": "We have training twice a week.",
-  "freqRank": 761
+  "freqRank": 778
  },
  {
-  "id": "da-0762",
+  "id": "da:lyve",
   "da": "lyve",
   "en": [
    "lie",
@@ -9085,10 +9295,22 @@
   "pos": "verb",
   "exampleDa": "Du må aldrig lyve for mig.",
   "exampleEn": "You must never lie to me.",
-  "freqRank": 762
+  "freqRank": 779
  },
  {
-  "id": "da-0763",
+  "id": "da:glat",
+  "da": "glat",
+  "en": [
+   "slippery",
+   "smooth"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vejen er glat om vinteren.",
+  "exampleEn": "The road is slippery in winter.",
+  "freqRank": 780
+ },
+ {
+  "id": "da:stjæle",
   "da": "stjæle",
   "en": [
    "steal"
@@ -9096,10 +9318,22 @@
   "pos": "verb",
   "exampleDa": "Nogen har stjålet min nye cykel.",
   "exampleEn": "Someone has stolen my new bike.",
-  "freqRank": 763
+  "freqRank": 781
  },
  {
-  "id": "da-0764",
+  "id": "da:kølig",
+  "da": "kølig",
+  "en": [
+   "cool",
+   "chilly"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Luften er kølig i aften.",
+  "exampleEn": "The air is cool tonight.",
+  "freqRank": 782
+ },
+ {
+  "id": "da:børnehave",
   "da": "børnehave",
   "en": [
    "kindergarten",
@@ -9110,10 +9344,10 @@
   "article": "en",
   "exampleDa": "Min datter går i børnehave.",
   "exampleEn": "My daughter goes to kindergarten.",
-  "freqRank": 764
+  "freqRank": 783
  },
  {
-  "id": "da-0765",
+  "id": "da:snyde",
   "da": "snyde",
   "en": [
    "cheat",
@@ -9122,10 +9356,10 @@
   "pos": "verb",
   "exampleDa": "Han snyder altid i kortspil.",
   "exampleEn": "He always cheats at card games.",
-  "freqRank": 765
+  "freqRank": 784
  },
  {
-  "id": "da-0766",
+  "id": "da:politistation",
   "da": "politistation",
   "en": [
    "police station"
@@ -9134,10 +9368,10 @@
   "article": "en",
   "exampleDa": "Politistationen ligger ved siden af banken.",
   "exampleEn": "The police station is next to the bank.",
-  "freqRank": 766
+  "freqRank": 785
  },
  {
-  "id": "da-0767",
+  "id": "da:rådhus",
   "da": "rådhus",
   "en": [
    "city hall",
@@ -9147,10 +9381,23 @@
   "article": "et",
   "exampleDa": "Rådhuset ligger på det store torv.",
   "exampleEn": "The city hall is on the big square.",
-  "freqRank": 767
+  "freqRank": 786
  },
  {
-  "id": "da-0768",
+  "id": "da:fugtig",
+  "da": "fugtig",
+  "en": [
+   "damp",
+   "moist",
+   "humid"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Håndklædet er stadig fugtigt.",
+  "exampleEn": "The towel is still damp.",
+  "freqRank": 787
+ },
+ {
+  "id": "da:love",
   "da": "love",
   "en": [
    "promise"
@@ -9158,10 +9405,10 @@
   "pos": "verb",
   "exampleDa": "Jeg lover at komme tidligt hjem.",
   "exampleEn": "I promise to come home early.",
-  "freqRank": 768
+  "freqRank": 788
  },
  {
-  "id": "da-0769",
+  "id": "da:fængsel",
   "da": "fængsel",
   "en": [
    "prison",
@@ -9171,10 +9418,10 @@
   "article": "et",
   "exampleDa": "Tyven kom i fængsel i to år.",
   "exampleEn": "The thief went to prison for two years.",
-  "freqRank": 769
+  "freqRank": 789
  },
  {
-  "id": "da-0770",
+  "id": "da:takke",
   "da": "takke",
   "en": [
    "thank"
@@ -9182,10 +9429,22 @@
   "pos": "verb",
   "exampleDa": "Vi takkede dem for den gode mad.",
   "exampleEn": "We thanked them for the good food.",
-  "freqRank": 770
+  "freqRank": 790
  },
  {
-  "id": "da-0771",
+  "id": "da:stiv",
+  "da": "stiv",
+  "en": [
+   "stiff",
+   "rigid"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min nakke er stiv i dag.",
+  "exampleEn": "My neck is stiff today.",
+  "freqRank": 791
+ },
+ {
+  "id": "da:forsikring",
   "da": "forsikring",
   "en": [
    "insurance"
@@ -9194,10 +9453,10 @@
   "article": "en",
   "exampleDa": "Har du en forsikring til din cykel?",
   "exampleEn": "Do you have insurance for your bicycle?",
-  "freqRank": 771
+  "freqRank": 792
  },
  {
-  "id": "da-0772",
+  "id": "da:hilse",
   "da": "hilse",
   "en": [
    "greet",
@@ -9206,10 +9465,10 @@
   "pos": "verb",
   "exampleDa": "Husk at hilse på din nye nabo.",
   "exampleEn": "Remember to say hello to your new neighbor.",
-  "freqRank": 772
+  "freqRank": 793
  },
  {
-  "id": "da-0773",
+  "id": "da:fabrik",
   "da": "fabrik",
   "en": [
    "factory"
@@ -9218,10 +9477,21 @@
   "article": "en",
   "exampleDa": "Min farfar arbejdede på en fabrik.",
   "exampleEn": "My grandfather worked in a factory.",
-  "freqRank": 773
+  "freqRank": 794
  },
  {
-  "id": "da-0774",
+  "id": "da:løs",
+  "da": "løs",
+  "en": [
+   "loose"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Knappen på jakken er løs.",
+  "exampleEn": "The button on the jacket is loose.",
+  "freqRank": 795
+ },
+ {
+  "id": "da:supermarked",
   "da": "supermarked",
   "en": [
    "supermarket"
@@ -9230,10 +9500,10 @@
   "article": "et",
   "exampleDa": "Jeg køber ind i supermarkedet om fredagen.",
   "exampleEn": "I shop at the supermarket on Fridays.",
-  "freqRank": 774
+  "freqRank": 796
  },
  {
-  "id": "da-0775",
+  "id": "da:undskylde",
   "da": "undskylde",
   "en": [
    "apologize",
@@ -9242,10 +9512,10 @@
   "pos": "verb",
   "exampleDa": "Han undskyldte for at komme for sent.",
   "exampleEn": "He apologized for being late.",
-  "freqRank": 775
+  "freqRank": 797
  },
  {
-  "id": "da-0776",
+  "id": "da:bageri",
   "da": "bageri",
   "en": [
    "bakery"
@@ -9254,10 +9524,21 @@
   "article": "et",
   "exampleDa": "Bageriet åbner klokken seks om morgenen.",
   "exampleEn": "The bakery opens at six in the morning.",
-  "freqRank": 776
+  "freqRank": 798
  },
  {
-  "id": "da-0777",
+  "id": "da:tålmodig",
+  "da": "tålmodig",
+  "en": [
+   "patient"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Læreren er tålmodig med børnene.",
+  "exampleEn": "The teacher is patient with the children.",
+  "freqRank": 799
+ },
+ {
+  "id": "da:klage",
   "da": "klage",
   "en": [
    "complain"
@@ -9265,10 +9546,10 @@
   "pos": "verb",
   "exampleDa": "Gæsten klagede over den kolde suppe.",
   "exampleEn": "The guest complained about the cold soup.",
-  "freqRank": 777
+  "freqRank": 800
  },
  {
-  "id": "da-0778",
+  "id": "da:forening",
   "da": "forening",
   "en": [
    "association",
@@ -9279,10 +9560,10 @@
   "article": "en",
   "exampleDa": "Han er medlem af en lokal forening.",
   "exampleEn": "He is a member of a local association.",
-  "freqRank": 778
+  "freqRank": 801
  },
  {
-  "id": "da-0779",
+  "id": "da:klub",
   "da": "klub",
   "en": [
    "club"
@@ -9291,10 +9572,23 @@
   "article": "en",
   "exampleDa": "Min søn spiller fodbold i en klub.",
   "exampleEn": "My son plays football in a club.",
-  "freqRank": 779
+  "freqRank": 802
  },
  {
-  "id": "da-0780",
+  "id": "da:skøn",
+  "da": "skøn",
+  "en": [
+   "lovely",
+   "wonderful",
+   "delightful"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi havde en skøn dag på stranden.",
+  "exampleEn": "We had a lovely day at the beach.",
+  "freqRank": 803
+ },
+ {
+  "id": "da:gætte",
   "da": "gætte",
   "en": [
    "guess"
@@ -9302,10 +9596,22 @@
   "pos": "verb",
   "exampleDa": "Kan du gætte, hvor gammel jeg er?",
   "exampleEn": "Can you guess how old I am?",
-  "freqRank": 780
+  "freqRank": 804
  },
  {
-  "id": "da-0781",
+  "id": "da:sprød",
+  "da": "sprød",
+  "en": [
+   "crispy",
+   "crunchy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Brødet er sprødt og varmt.",
+  "exampleEn": "The bread is crispy and warm.",
+  "freqRank": 805
+ },
+ {
+  "id": "da:pung",
   "da": "pung",
   "en": [
    "wallet",
@@ -9315,10 +9621,10 @@
   "article": "en",
   "exampleDa": "Min pung ligger i tasken.",
   "exampleEn": "My wallet is in the bag.",
-  "freqRank": 781
+  "freqRank": 806
  },
  {
-  "id": "da-0782",
+  "id": "da:tvivle",
   "da": "tvivle",
   "en": [
    "doubt"
@@ -9326,10 +9632,10 @@
   "pos": "verb",
   "exampleDa": "Jeg tvivler på, at det er sandt.",
   "exampleEn": "I doubt that it is true.",
-  "freqRank": 782
+  "freqRank": 807
  },
  {
-  "id": "da-0783",
+  "id": "da:paraply",
   "da": "paraply",
   "en": [
    "umbrella"
@@ -9338,10 +9644,10 @@
   "article": "en",
   "exampleDa": "Tag en paraply med, det regner.",
   "exampleEn": "Bring an umbrella, it is raining.",
-  "freqRank": 783
+  "freqRank": 808
  },
  {
-  "id": "da-0784",
+  "id": "da:ur",
   "da": "ur",
   "en": [
    "watch",
@@ -9351,10 +9657,10 @@
   "article": "et",
   "exampleDa": "Mit ur viser ti minutter i to.",
   "exampleEn": "My watch shows ten minutes to two.",
-  "freqRank": 784
+  "freqRank": 809
  },
  {
-  "id": "da-0785",
+  "id": "da:stole",
   "da": "stole",
   "en": [
    "trust",
@@ -9363,10 +9669,10 @@
   "pos": "verb",
   "exampleDa": "Du kan altid stole på mig.",
   "exampleEn": "You can always trust me.",
-  "freqRank": 785
+  "freqRank": 810
  },
  {
-  "id": "da-0786",
+  "id": "da:håndklæde",
   "da": "håndklæde",
   "en": [
    "towel"
@@ -9375,10 +9681,10 @@
   "article": "et",
   "exampleDa": "Tag et rent håndklæde til badet.",
   "exampleEn": "Take a clean towel for the bath.",
-  "freqRank": 786
+  "freqRank": 811
  },
  {
-  "id": "da-0787",
+  "id": "da:minde",
   "da": "minde",
   "en": [
    "remind"
@@ -9386,10 +9692,10 @@
   "pos": "verb",
   "exampleDa": "Vil du minde mig om mødet?",
   "exampleEn": "Will you remind me about the meeting?",
-  "freqRank": 787
+  "freqRank": 812
  },
  {
-  "id": "da-0788",
+  "id": "da:sæbe",
   "da": "sæbe",
   "en": [
    "soap"
@@ -9398,10 +9704,10 @@
   "article": "en",
   "exampleDa": "Vask hænderne med vand og sæbe.",
   "exampleEn": "Wash your hands with water and soap.",
-  "freqRank": 788
+  "freqRank": 813
  },
  {
-  "id": "da-0789",
+  "id": "da:tandbørste",
   "da": "tandbørste",
   "en": [
    "toothbrush"
@@ -9410,10 +9716,10 @@
   "article": "en",
   "exampleDa": "Jeg har glemt min tandbørste derhjemme.",
   "exampleEn": "I have forgotten my toothbrush at home.",
-  "freqRank": 789
+  "freqRank": 814
  },
  {
-  "id": "da-0790",
+  "id": "da:genkende",
   "da": "genkende",
   "en": [
    "recognize"
@@ -9421,10 +9727,10 @@
   "pos": "verb",
   "exampleDa": "Jeg genkendte hende ikke med det samme.",
   "exampleEn": "I did not recognize her right away.",
-  "freqRank": 790
+  "freqRank": 815
  },
  {
-  "id": "da-0791",
+  "id": "da:kuffert",
   "da": "kuffert",
   "en": [
    "suitcase"
@@ -9433,10 +9739,10 @@
   "article": "en",
   "exampleDa": "Min kuffert er tung, fordi den er fuld.",
   "exampleEn": "My suitcase is heavy because it is full.",
-  "freqRank": 791
+  "freqRank": 816
  },
  {
-  "id": "da-0792",
+  "id": "da:rygsæk",
   "da": "rygsæk",
   "en": [
    "backpack",
@@ -9446,10 +9752,10 @@
   "article": "en",
   "exampleDa": "Han bærer sin rygsæk på turen.",
   "exampleEn": "He carries his backpack on the trip.",
-  "freqRank": 792
+  "freqRank": 817
  },
  {
-  "id": "da-0793",
+  "id": "da:overraske",
   "da": "overraske",
   "en": [
    "surprise"
@@ -9457,10 +9763,10 @@
   "pos": "verb",
   "exampleDa": "Vi vil overraske far på hans fødselsdag.",
   "exampleEn": "We want to surprise dad on his birthday.",
-  "freqRank": 793
+  "freqRank": 818
  },
  {
-  "id": "da-0794",
+  "id": "da:tallerken",
   "da": "tallerken",
   "en": [
    "plate"
@@ -9469,10 +9775,10 @@
   "article": "en",
   "exampleDa": "Sæt tallerkenerne på bordet, tak.",
   "exampleEn": "Put the plates on the table, please.",
-  "freqRank": 794
+  "freqRank": 819
  },
  {
-  "id": "da-0795",
+  "id": "da:fejre",
   "da": "fejre",
   "en": [
    "celebrate"
@@ -9480,10 +9786,10 @@
   "pos": "verb",
   "exampleDa": "Vi fejrer min fødselsdag på lørdag.",
   "exampleEn": "We are celebrating my birthday on Saturday.",
-  "freqRank": 795
+  "freqRank": 820
  },
  {
-  "id": "da-0796",
+  "id": "da:kniv",
   "da": "kniv",
   "en": [
    "knife"
@@ -9492,10 +9798,10 @@
   "article": "en",
   "exampleDa": "Jeg skærer brødet med en skarp kniv.",
   "exampleEn": "I cut the bread with a sharp knife.",
-  "freqRank": 796
+  "freqRank": 821
  },
  {
-  "id": "da-0797",
+  "id": "da:gaffel",
   "da": "gaffel",
   "en": [
    "fork"
@@ -9504,10 +9810,10 @@
   "article": "en",
   "exampleDa": "Vi spiser kagen med en gaffel.",
   "exampleEn": "We eat the cake with a fork.",
-  "freqRank": 797
+  "freqRank": 822
  },
  {
-  "id": "da-0798",
+  "id": "da:gifte",
   "da": "gifte",
   "en": [
    "marry",
@@ -9516,10 +9822,10 @@
   "pos": "verb",
   "exampleDa": "De gifter sig til sommer.",
   "exampleEn": "They are getting married this summer.",
-  "freqRank": 798
+  "freqRank": 823
  },
  {
-  "id": "da-0799",
+  "id": "da:gryde",
   "da": "gryde",
   "en": [
    "pot",
@@ -9529,10 +9835,10 @@
   "article": "en",
   "exampleDa": "Suppen står i gryden på komfuret.",
   "exampleEn": "The soup is in the pot on the stove.",
-  "freqRank": 799
+  "freqRank": 824
  },
  {
-  "id": "da-0800",
+  "id": "da:kysse",
   "da": "kysse",
   "en": [
    "kiss"
@@ -9540,10 +9846,10 @@
   "pos": "verb",
   "exampleDa": "Han kyssede hende blidt på kinden.",
   "exampleEn": "He kissed her gently on the cheek.",
-  "freqRank": 800
+  "freqRank": 825
  },
  {
-  "id": "da-0801",
+  "id": "da:ovn",
   "da": "ovn",
   "en": [
    "oven"
@@ -9552,10 +9858,10 @@
   "article": "en",
   "exampleDa": "Kagen skal i ovnen i fyrre minutter.",
   "exampleEn": "The cake goes in the oven for forty minutes.",
-  "freqRank": 801
+  "freqRank": 826
  },
  {
-  "id": "da-0802",
+  "id": "da:køleskab",
   "da": "køleskab",
   "en": [
    "fridge",
@@ -9565,10 +9871,10 @@
   "article": "et",
   "exampleDa": "Mælken står i køleskabet.",
   "exampleEn": "The milk is in the fridge.",
-  "freqRank": 802
+  "freqRank": 827
  },
  {
-  "id": "da-0803",
+  "id": "da:vaskemaskine",
   "da": "vaskemaskine",
   "en": [
    "washing machine"
@@ -9577,10 +9883,10 @@
   "article": "en",
   "exampleDa": "Vores vaskemaskine er gået i stykker.",
   "exampleEn": "Our washing machine has broken.",
-  "freqRank": 803
+  "freqRank": 828
  },
  {
-  "id": "da-0804",
+  "id": "da:støvsuger",
   "da": "støvsuger",
   "en": [
    "vacuum cleaner",
@@ -9590,10 +9896,10 @@
   "article": "en",
   "exampleDa": "Jeg bruger støvsugeren hver søndag.",
   "exampleEn": "I use the vacuum cleaner every Sunday.",
-  "freqRank": 804
+  "freqRank": 829
  },
  {
-  "id": "da-0805",
+  "id": "da:vågne",
   "da": "vågne",
   "en": [
    "wake up",
@@ -9602,10 +9908,10 @@
   "pos": "verb",
   "exampleDa": "Jeg vågner klokken seks hver morgen.",
   "exampleEn": "I wake up at six every morning.",
-  "freqRank": 805
+  "freqRank": 830
  },
  {
-  "id": "da-0806",
+  "id": "da:pude",
   "da": "pude",
   "en": [
    "pillow",
@@ -9615,10 +9921,10 @@
   "article": "en",
   "exampleDa": "Jeg sover altid med to puder.",
   "exampleEn": "I always sleep with two pillows.",
-  "freqRank": 806
+  "freqRank": 831
  },
  {
-  "id": "da-0807",
+  "id": "da:vække",
   "da": "vække",
   "en": [
    "wake",
@@ -9627,10 +9933,10 @@
   "pos": "verb",
   "exampleDa": "Kan du vække mig klokken syv?",
   "exampleEn": "Can you wake me up at seven?",
-  "freqRank": 807
+  "freqRank": 832
  },
  {
-  "id": "da-0808",
+  "id": "da:dyne",
   "da": "dyne",
   "en": [
    "duvet",
@@ -9640,10 +9946,10 @@
   "article": "en",
   "exampleDa": "Om vinteren bruger jeg en tyk dyne.",
   "exampleEn": "In the winter I use a thick duvet.",
-  "freqRank": 808
+  "freqRank": 833
  },
  {
-  "id": "da-0809",
+  "id": "da:hvile",
   "da": "hvile",
   "en": [
    "rest"
@@ -9651,10 +9957,10 @@
   "pos": "verb",
   "exampleDa": "Farfar hviler sig efter frokost.",
   "exampleEn": "Grandpa rests after lunch.",
-  "freqRank": 809
+  "freqRank": 834
  },
  {
-  "id": "da-0810",
+  "id": "da:gardin",
   "da": "gardin",
   "en": [
    "curtain"
@@ -9663,10 +9969,10 @@
   "article": "et",
   "exampleDa": "Hun trækker gardinerne for om aftenen.",
   "exampleEn": "She draws the curtains in the evening.",
-  "freqRank": 810
+  "freqRank": 835
  },
  {
-  "id": "da-0811",
+  "id": "da:slappe",
   "da": "slappe",
   "en": [
    "relax",
@@ -9675,10 +9981,10 @@
   "pos": "verb",
   "exampleDa": "Vi slapper af foran fjernsynet.",
   "exampleEn": "We relax in front of the TV.",
-  "freqRank": 811
+  "freqRank": 836
  },
  {
-  "id": "da-0812",
+  "id": "da:kælder",
   "da": "kælder",
   "en": [
    "basement",
@@ -9688,10 +9994,10 @@
   "article": "en",
   "exampleDa": "Cyklerne står nede i kælderen.",
   "exampleEn": "The bicycles are down in the basement.",
-  "freqRank": 812
+  "freqRank": 837
  },
  {
-  "id": "da-0813",
+  "id": "da:fodbold",
   "da": "fodbold",
   "en": [
    "football",
@@ -9701,10 +10007,10 @@
   "article": "en",
   "exampleDa": "Drengene spiller fodbold i parken.",
   "exampleEn": "The boys play football in the park.",
-  "freqRank": 813
+  "freqRank": 838
  },
  {
-  "id": "da-0814",
+  "id": "da:kede",
   "da": "kede",
   "en": [
    "bore",
@@ -9713,10 +10019,10 @@
   "pos": "verb",
   "exampleDa": "Børnene keder sig, når det regner.",
   "exampleEn": "The children get bored when it rains.",
-  "freqRank": 814
+  "freqRank": 839
  },
  {
-  "id": "da-0815",
+  "id": "da:svømning",
   "da": "svømning",
   "en": [
    "swimming"
@@ -9725,10 +10031,10 @@
   "article": "en",
   "exampleDa": "Min datter går til svømning om onsdagen.",
   "exampleEn": "My daughter goes to swimming on Wednesdays.",
-  "freqRank": 815
+  "freqRank": 840
  },
  {
-  "id": "da-0816",
+  "id": "da:koncert",
   "da": "koncert",
   "en": [
    "concert"
@@ -9737,10 +10043,10 @@
   "article": "en",
   "exampleDa": "Vi skal til koncert på fredag.",
   "exampleEn": "We are going to a concert on Friday.",
-  "freqRank": 816
+  "freqRank": 841
  },
  {
-  "id": "da-0817",
+  "id": "da:skynde",
   "da": "skynde",
   "en": [
    "hurry",
@@ -9749,10 +10055,10 @@
   "pos": "verb",
   "exampleDa": "Skynd dig, bussen kommer nu!",
   "exampleEn": "Hurry up, the bus is coming now!",
-  "freqRank": 817
+  "freqRank": 842
  },
  {
-  "id": "da-0818",
+  "id": "da:biograf",
   "da": "biograf",
   "en": [
    "cinema",
@@ -9762,10 +10068,37 @@
   "article": "en",
   "exampleDa": "Skal vi gå i biografen i aften?",
   "exampleEn": "Shall we go to the cinema tonight?",
-  "freqRank": 818
+  "freqRank": 843
  },
  {
-  "id": "da-0819",
+  "id": "da:tur",
+  "da": "tur",
+  "en": [
+   "trip",
+   "walk",
+   "ride"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Skal vi gå en tur i skoven?",
+  "exampleEn": "Shall we go for a walk in the forest?",
+  "freqRank": 844
+ },
+ {
+  "id": "da:film",
+  "da": "film",
+  "en": [
+   "film",
+   "movie"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Filmen var lang, men rigtig god.",
+  "exampleEn": "The film was long but really good.",
+  "freqRank": 845
+ },
+ {
+  "id": "da:gide",
   "da": "gide",
   "en": [
    "feel like",
@@ -9774,10 +10107,35 @@
   "pos": "verb",
   "exampleDa": "Jeg gider ikke lave mad i aften.",
   "exampleEn": "I don't feel like cooking tonight.",
-  "freqRank": 819
+  "freqRank": 846
  },
  {
-  "id": "da-0820",
+  "id": "da:tøj",
+  "da": "tøj",
+  "en": [
+   "clothes",
+   "clothing"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg køber nyt tøj i weekenden.",
+  "exampleEn": "I am buying new clothes this weekend.",
+  "freqRank": 847
+ },
+ {
+  "id": "da:musik",
+  "da": "musik",
+  "en": [
+   "music"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun hører musik hver morgen.",
+  "exampleEn": "She listens to music every morning.",
+  "freqRank": 848
+ },
+ {
+  "id": "da:fortryde",
   "da": "fortryde",
   "en": [
    "regret"
@@ -9785,10 +10143,36 @@
   "pos": "verb",
   "exampleDa": "Han fortrød, at han solgte bilen.",
   "exampleEn": "He regretted selling the car.",
-  "freqRank": 820
+  "freqRank": 849
  },
  {
-  "id": "da-0821",
+  "id": "da:middag",
+  "da": "middag",
+  "en": [
+   "dinner",
+   "midday"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser middag klokken seks.",
+  "exampleEn": "We eat dinner at six o'clock.",
+  "freqRank": 850
+ },
+ {
+  "id": "da:øjeblik",
+  "da": "øjeblik",
+  "en": [
+   "moment",
+   "instant"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vent et øjeblik, jeg kommer nu.",
+  "exampleEn": "Wait a moment, I am coming now.",
+  "freqRank": 851
+ },
+ {
+  "id": "da:øve",
   "da": "øve",
   "en": [
    "practice",
@@ -9798,10 +10182,36 @@
   "pos": "verb",
   "exampleDa": "Hun øver sig på klaveret hver dag.",
   "exampleEn": "She practices the piano every day.",
-  "freqRank": 821
+  "freqRank": 852
  },
  {
-  "id": "da-0822",
+  "id": "da:mening",
+  "da": "mening",
+  "en": [
+   "opinion",
+   "meaning"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad er din mening om filmen?",
+  "exampleEn": "What is your opinion about the film?",
+  "freqRank": 853
+ },
+ {
+  "id": "da:klokke",
+  "da": "klokke",
+  "en": [
+   "clock",
+   "bell"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Klokken er ti om aftenen.",
+  "exampleEn": "It is ten o'clock in the evening.",
+  "freqRank": 854
+ },
+ {
+  "id": "da:træne",
   "da": "træne",
   "en": [
    "train",
@@ -9811,10 +10221,22 @@
   "pos": "verb",
   "exampleDa": "Jeg træner tre gange om ugen.",
   "exampleEn": "I work out three times a week.",
-  "freqRank": 822
+  "freqRank": 855
  },
  {
-  "id": "da-0823",
+  "id": "da:sko",
+  "da": "sko",
+  "en": [
+   "shoe"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Mine nye sko er meget flotte.",
+  "exampleEn": "My new shoes are very nice.",
+  "freqRank": 856
+ },
+ {
+  "id": "da:studere",
   "da": "studere",
   "en": [
    "study"
@@ -9822,10 +10244,34 @@
   "pos": "verb",
   "exampleDa": "Min søster studerer på universitetet.",
   "exampleEn": "My sister studies at the university.",
-  "freqRank": 823
+  "freqRank": 857
  },
  {
-  "id": "da-0824",
+  "id": "da:alder",
+  "da": "alder",
+  "en": [
+   "age"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun er i samme alder som mig.",
+  "exampleEn": "She is the same age as me.",
+  "freqRank": 858
+ },
+ {
+  "id": "da:adresse",
+  "da": "adresse",
+  "en": [
+   "address"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad er din nye adresse?",
+  "exampleEn": "What is your new address?",
+  "freqRank": 859
+ },
+ {
+  "id": "da:undervise",
   "da": "undervise",
   "en": [
    "teach"
@@ -9833,10 +10279,36 @@
   "pos": "verb",
   "exampleDa": "Hun underviser børn i musik.",
   "exampleEn": "She teaches children music.",
-  "freqRank": 824
+  "freqRank": 860
  },
  {
-  "id": "da-0825",
+  "id": "da:lov",
+  "da": "lov",
+  "en": [
+   "law",
+   "permission"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er en ny lov i landet.",
+  "exampleEn": "There is a new law in the country.",
+  "freqRank": 861
+ },
+ {
+  "id": "da:pause",
+  "da": "pause",
+  "en": [
+   "break",
+   "pause"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi holder en pause klokken tolv.",
+  "exampleEn": "We take a break at twelve o'clock.",
+  "freqRank": 862
+ },
+ {
+  "id": "da:oversætte",
   "da": "oversætte",
   "en": [
    "translate"
@@ -9844,10 +10316,34 @@
   "pos": "verb",
   "exampleDa": "Kan du oversætte denne sætning for mig?",
   "exampleEn": "Can you translate this sentence for me?",
-  "freqRank": 825
+  "freqRank": 863
  },
  {
-  "id": "da-0826",
+  "id": "da:frugt",
+  "da": "frugt",
+  "en": [
+   "fruit"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg spiser frugt hver dag.",
+  "exampleEn": "I eat fruit every day.",
+  "freqRank": 864
+ },
+ {
+  "id": "da:fødselsdag",
+  "da": "fødselsdag",
+  "en": [
+   "birthday"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min søster har fødselsdag i morgen.",
+  "exampleEn": "It is my sister's birthday tomorrow.",
+  "freqRank": 865
+ },
+ {
+  "id": "da:gentage",
   "da": "gentage",
   "en": [
    "repeat"
@@ -9855,10 +10351,35 @@
   "pos": "verb",
   "exampleDa": "Vil du gentage spørgsmålet, tak?",
   "exampleEn": "Will you repeat the question, please?",
-  "freqRank": 826
+  "freqRank": 866
  },
  {
-  "id": "da-0827",
+  "id": "da:smil",
+  "da": "smil",
+  "en": [
+   "smile"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun har et smukt smil.",
+  "exampleEn": "She has a beautiful smile.",
+  "freqRank": 867
+ },
+ {
+  "id": "da:interesse",
+  "da": "interesse",
+  "en": [
+   "interest",
+   "hobby"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Musik er hans store interesse.",
+  "exampleEn": "Music is his great interest.",
+  "freqRank": 868
+ },
+ {
+  "id": "da:rette",
   "da": "rette",
   "en": [
    "correct",
@@ -9867,10 +10388,99 @@
   "pos": "verb",
   "exampleDa": "Læreren retter vores opgaver i weekenden.",
   "exampleEn": "The teacher corrects our assignments at the weekend.",
-  "freqRank": 827
+  "freqRank": 869
  },
  {
-  "id": "da-0828",
+  "id": "da:internet",
+  "da": "internet",
+  "en": [
+   "internet"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Internettet virker ikke i dag.",
+  "exampleEn": "The internet is not working today.",
+  "freqRank": 870
+ },
+ {
+  "id": "da:mail",
+  "da": "mail",
+  "en": [
+   "email",
+   "mail"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg sender dig en mail i morgen.",
+  "exampleEn": "I will send you an email tomorrow.",
+  "freqRank": 871
+ },
+ {
+  "id": "da:program",
+  "da": "program",
+  "en": [
+   "program",
+   "show",
+   "programme"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi ser et program om dyr.",
+  "exampleEn": "We are watching a program about animals.",
+  "freqRank": 872
+ },
+ {
+  "id": "da:fjernsyn",
+  "da": "fjernsyn",
+  "en": [
+   "television",
+   "TV"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Børnene ser fjernsyn om aftenen.",
+  "exampleEn": "The children watch television in the evening.",
+  "freqRank": 873
+ },
+ {
+  "id": "da:kommune",
+  "da": "kommune",
+  "en": [
+   "municipality"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi bor i en lille kommune.",
+  "exampleEn": "We live in a small municipality.",
+  "freqRank": 874
+ },
+ {
+  "id": "da:kultur",
+  "da": "kultur",
+  "en": [
+   "culture"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg lærer om dansk kultur.",
+  "exampleEn": "I am learning about Danish culture.",
+  "freqRank": 875
+ },
+ {
+  "id": "da:skat",
+  "da": "skat",
+  "en": [
+   "tax",
+   "treasure"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi betaler skat hver måned.",
+  "exampleEn": "We pay tax every month.",
+  "freqRank": 876
+ },
+ {
+  "id": "da:lege",
   "da": "lege",
   "en": [
    "play"
@@ -9878,10 +10488,62 @@
   "pos": "verb",
   "exampleDa": "Børnene leger ude i haven.",
   "exampleEn": "The children are playing out in the garden.",
-  "freqRank": 828
+  "freqRank": 877
  },
  {
-  "id": "da-0829",
+  "id": "da:regering",
+  "da": "regering",
+  "en": [
+   "government"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Landet har fået en ny regering.",
+  "exampleEn": "The country has gotten a new government.",
+  "freqRank": 878
+ },
+ {
+  "id": "da:sygdom",
+  "da": "sygdom",
+  "en": [
+   "illness",
+   "disease",
+   "sickness"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en alvorlig sygdom.",
+  "exampleEn": "She has a serious illness.",
+  "freqRank": 879
+ },
+ {
+  "id": "da:ulykke",
+  "da": "ulykke",
+  "en": [
+   "accident",
+   "misfortune"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der var en ulykke på vejen.",
+  "exampleEn": "There was an accident on the road.",
+  "freqRank": 880
+ },
+ {
+  "id": "da:pakke",
+  "da": "pakke",
+  "en": [
+   "package",
+   "parcel"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er en pakke til dig.",
+  "exampleEn": "There is a package for you.",
+  "freqRank": 881
+ },
+ {
+  "id": "da:cykle",
   "da": "cykle",
   "en": [
    "cycle",
@@ -9891,10 +10553,124 @@
   "pos": "verb",
   "exampleDa": "Jeg cykler til arbejde hver dag.",
   "exampleEn": "I cycle to work every day.",
-  "freqRank": 829
+  "freqRank": 882
  },
  {
-  "id": "da-0830",
+  "id": "da:kunde",
+  "da": "kunde",
+  "en": [
+   "customer",
+   "client"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Butikken har mange glade kunder.",
+  "exampleEn": "The shop has many happy customers.",
+  "freqRank": 883
+ },
+ {
+  "id": "da:regning",
+  "da": "regning",
+  "en": [
+   "bill",
+   "invoice"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kan jeg få regningen, tak?",
+  "exampleEn": "Can I have the bill, please?",
+  "freqRank": 884
+ },
+ {
+  "id": "da:fritid",
+  "da": "fritid",
+  "en": [
+   "free time",
+   "spare time",
+   "leisure"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad laver du i din fritid?",
+  "exampleEn": "What do you do in your free time?",
+  "freqRank": 885
+ },
+ {
+  "id": "da:politiker",
+  "da": "politiker",
+  "en": [
+   "politician"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Politikeren svarer på mange spørgsmål.",
+  "exampleEn": "The politician answers many questions.",
+  "freqRank": 886
+ },
+ {
+  "id": "da:måltid",
+  "da": "måltid",
+  "en": [
+   "meal"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Morgenmad er dagens vigtigste måltid.",
+  "exampleEn": "Breakfast is the most important meal of the day.",
+  "freqRank": 887
+ },
+ {
+  "id": "da:suppe",
+  "da": "suppe",
+  "en": [
+   "soup"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser varm suppe om vinteren.",
+  "exampleEn": "We eat hot soup in the winter.",
+  "freqRank": 888
+ },
+ {
+  "id": "da:salat",
+  "da": "salat",
+  "en": [
+   "salad",
+   "lettuce"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg laver en salat til frokost.",
+  "exampleEn": "I am making a salad for lunch.",
+  "freqRank": 889
+ },
+ {
+  "id": "da:is",
+  "da": "is",
+  "en": [
+   "ice cream",
+   "ice"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene spiser is på stranden.",
+  "exampleEn": "The children eat ice cream on the beach.",
+  "freqRank": 890
+ },
+ {
+  "id": "da:kylling",
+  "da": "kylling",
+  "en": [
+   "chicken"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser kylling med ris i aften.",
+  "exampleEn": "We are eating chicken with rice tonight.",
+  "freqRank": 891
+ },
+ {
+  "id": "da:fange",
   "da": "fange",
   "en": [
    "catch",
@@ -9903,10 +10679,35 @@
   "pos": "verb",
   "exampleDa": "Vi fangede tre fisk i søen.",
   "exampleEn": "We caught three fish in the lake.",
-  "freqRank": 830
+  "freqRank": 892
  },
  {
-  "id": "da-0831",
+  "id": "da:pizza",
+  "da": "pizza",
+  "en": [
+   "pizza"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Skal vi bestille en pizza i aften?",
+  "exampleEn": "Shall we order a pizza tonight?",
+  "freqRank": 893
+ },
+ {
+  "id": "da:pølse",
+  "da": "pølse",
+  "en": [
+   "sausage",
+   "hot dog"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han køber en pølse på stationen.",
+  "exampleEn": "He buys a sausage at the station.",
+  "freqRank": 894
+ },
+ {
+  "id": "da:løfte",
   "da": "løfte",
   "en": [
    "lift",
@@ -9915,10 +10716,22 @@
   "pos": "verb",
   "exampleDa": "Kan du løfte den tunge kasse?",
   "exampleEn": "Can you lift the heavy box?",
-  "freqRank": 831
+  "freqRank": 895
  },
  {
-  "id": "da-0832",
+  "id": "da:tomat",
+  "da": "tomat",
+  "en": [
+   "tomato"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er tomater i min salat.",
+  "exampleEn": "There are tomatoes in my salad.",
+  "freqRank": 896
+ },
+ {
+  "id": "da:skubbe",
   "da": "skubbe",
   "en": [
    "push",
@@ -9927,10 +10740,83 @@
   "pos": "verb",
   "exampleDa": "Du skal skubbe døren, ikke trække.",
   "exampleEn": "You have to push the door, not pull.",
-  "freqRank": 832
+  "freqRank": 897
  },
  {
-  "id": "da-0833",
+  "id": "da:banan",
+  "da": "banan",
+  "en": [
+   "banana"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun spiser en banan hver morgen.",
+  "exampleEn": "She eats a banana every morning.",
+  "freqRank": 898
+ },
+ {
+  "id": "da:pasta",
+  "da": "pasta",
+  "en": [
+   "pasta"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene elsker pasta med ost.",
+  "exampleEn": "The children love pasta with cheese.",
+  "freqRank": 899
+ },
+ {
+  "id": "da:chokolade",
+  "da": "chokolade",
+  "en": [
+   "chocolate"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg elsker chokolade og kager.",
+  "exampleEn": "I love chocolate and cakes.",
+  "freqRank": 900
+ },
+ {
+  "id": "da:appelsin",
+  "da": "appelsin",
+  "en": [
+   "orange"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vil du have en appelsin?",
+  "exampleEn": "Would you like an orange?",
+  "freqRank": 901
+ },
+ {
+  "id": "da:pære",
+  "da": "pære",
+  "en": [
+   "pear",
+   "light bulb"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg spiser en pære til frokost.",
+  "exampleEn": "I eat a pear for lunch.",
+  "freqRank": 902
+ },
+ {
+  "id": "da:citron",
+  "da": "citron",
+  "en": [
+   "lemon"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun drikker te med citron.",
+  "exampleEn": "She drinks tea with lemon.",
+  "freqRank": 903
+ },
+ {
+  "id": "da:reparere",
   "da": "reparere",
   "en": [
    "repair",
@@ -9939,10 +10825,34 @@
   "pos": "verb",
   "exampleDa": "Min far reparerer den gamle cykel.",
   "exampleEn": "My dad is repairing the old bike.",
-  "freqRank": 833
+  "freqRank": 904
  },
  {
-  "id": "da-0834",
+  "id": "da:jordbær",
+  "da": "jordbær",
+  "en": [
+   "strawberry"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi spiser jordbær om sommeren.",
+  "exampleEn": "We eat strawberries in the summer.",
+  "freqRank": 905
+ },
+ {
+  "id": "da:agurk",
+  "da": "agurk",
+  "en": [
+   "cucumber"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg køber en agurk og to tomater.",
+  "exampleEn": "I buy a cucumber and two tomatoes.",
+  "freqRank": 906
+ },
+ {
+  "id": "da:ødelægge",
   "da": "ødelægge",
   "en": [
    "destroy",
@@ -9952,10 +10862,71 @@
   "pos": "verb",
   "exampleDa": "Regnen ødelagde vores tur til stranden.",
   "exampleEn": "The rain ruined our trip to the beach.",
-  "freqRank": 834
+  "freqRank": 907
  },
  {
-  "id": "da-0835",
+  "id": "da:gulerod",
+  "da": "gulerod",
+  "en": [
+   "carrot"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hesten spiser en stor gulerod.",
+  "exampleEn": "The horse eats a big carrot.",
+  "freqRank": 908
+ },
+ {
+  "id": "da:løg",
+  "da": "løg",
+  "en": [
+   "onion"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der er løg i suppen.",
+  "exampleEn": "There are onions in the soup.",
+  "freqRank": 909
+ },
+ {
+  "id": "da:skinke",
+  "da": "skinke",
+  "en": [
+   "ham"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg vil gerne have brød med skinke.",
+  "exampleEn": "I would like bread with ham.",
+  "freqRank": 910
+ },
+ {
+  "id": "da:peber",
+  "da": "peber",
+  "en": [
+   "pepper"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Maden mangler salt og peber.",
+  "exampleEn": "The food needs salt and pepper.",
+  "freqRank": 911
+ },
+ {
+  "id": "da:slik",
+  "da": "slik",
+  "en": [
+   "candy",
+   "sweets"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Børnene får slik om fredagen.",
+  "exampleEn": "The children get candy on Fridays.",
+  "freqRank": 912
+ },
+ {
+  "id": "da:bage",
   "da": "bage",
   "en": [
    "bake"
@@ -9963,10 +10934,35 @@
   "pos": "verb",
   "exampleDa": "Min mor bager boller hver søndag.",
   "exampleEn": "My mother bakes buns every Sunday.",
-  "freqRank": 835
+  "freqRank": 913
  },
  {
-  "id": "da-0836",
+  "id": "da:sodavand",
+  "da": "sodavand",
+  "en": [
+   "soda",
+   "soft drink"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han drikker en kold sodavand.",
+  "exampleEn": "He drinks a cold soda.",
+  "freqRank": 914
+ },
+ {
+  "id": "da:bukser",
+  "da": "bukser",
+  "en": [
+   "trousers",
+   "pants"
+  ],
+  "pos": "noun",
+  "exampleDa": "Mine bukser er for lange.",
+  "exampleEn": "My trousers are too long.",
+  "freqRank": 915
+ },
+ {
+  "id": "da:koge",
   "da": "koge",
   "en": [
    "boil",
@@ -9975,10 +10971,60 @@
   "pos": "verb",
   "exampleDa": "Vandet koger om to minutter.",
   "exampleEn": "The water will boil in two minutes.",
-  "freqRank": 836
+  "freqRank": 916
  },
  {
-  "id": "da-0837",
+  "id": "da:briller",
+  "da": "briller",
+  "en": [
+   "glasses",
+   "spectacles"
+  ],
+  "pos": "noun",
+  "exampleDa": "Jeg kan ikke finde mine briller.",
+  "exampleEn": "I cannot find my glasses.",
+  "freqRank": 917
+ },
+ {
+  "id": "da:sweater",
+  "da": "sweater",
+  "en": [
+   "sweater",
+   "jumper"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en varm sweater på.",
+  "exampleEn": "She is wearing a warm sweater.",
+  "freqRank": 918
+ },
+ {
+  "id": "da:bluse",
+  "da": "bluse",
+  "en": [
+   "blouse",
+   "top"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Din nye bluse er meget flot.",
+  "exampleEn": "Your new blouse is very nice.",
+  "freqRank": 919
+ },
+ {
+  "id": "da:ring",
+  "da": "ring",
+  "en": [
+   "ring"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han giver hende en smuk ring.",
+  "exampleEn": "He gives her a beautiful ring.",
+  "freqRank": 920
+ },
+ {
+  "id": "da:rydde",
   "da": "rydde",
   "en": [
    "clear",
@@ -9988,6 +11034,977 @@
   "pos": "verb",
   "exampleDa": "Ryd op på dit værelse nu!",
   "exampleEn": "Tidy up your room now!",
-  "freqRank": 837
+  "freqRank": 921
+ },
+ {
+  "id": "da:radio",
+  "da": "radio",
+  "en": [
+   "radio"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi hører radio i bilen.",
+  "exampleEn": "We listen to the radio in the car.",
+  "freqRank": 922
+ },
+ {
+  "id": "da:snakke",
+  "da": "snakke",
+  "en": [
+   "talk",
+   "chat"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi snakker om vores ferie.",
+  "exampleEn": "We are talking about our holiday.",
+  "freqRank": 923
+ },
+ {
+  "id": "da:skærm",
+  "da": "skærm",
+  "en": [
+   "screen",
+   "monitor"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min computer har en stor skærm.",
+  "exampleEn": "My computer has a big screen.",
+  "freqRank": 924
+ },
+ {
+  "id": "da:kamera",
+  "da": "kamera",
+  "en": [
+   "camera"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun tager billeder med sit kamera.",
+  "exampleEn": "She takes pictures with her camera.",
+  "freqRank": 925
+ },
+ {
+  "id": "da:trykke",
+  "da": "trykke",
+  "en": [
+   "press",
+   "push"
+  ],
+  "pos": "verb",
+  "exampleDa": "Tryk på knappen ved døren.",
+  "exampleEn": "Press the button by the door.",
+  "freqRank": 926
+ },
+ {
+  "id": "da:batteri",
+  "da": "batteri",
+  "en": [
+   "battery"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Min telefon har ikke mere batteri.",
+  "exampleEn": "My phone has no more battery.",
+  "freqRank": 927
+ },
+ {
+  "id": "da:hjemmeside",
+  "da": "hjemmeside",
+  "en": [
+   "website",
+   "homepage"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Firmaet har en ny hjemmeside.",
+  "exampleEn": "The company has a new website.",
+  "freqRank": 928
+ },
+ {
+  "id": "da:fylde",
+  "da": "fylde",
+  "en": [
+   "fill"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun fylder flasken med vand.",
+  "exampleEn": "She fills the bottle with water.",
+  "freqRank": 929
+ },
+ {
+  "id": "da:app",
+  "da": "app",
+  "en": [
+   "app",
+   "application"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg bruger en app til dansk.",
+  "exampleEn": "I use an app for Danish.",
+  "freqRank": 930
+ },
+ {
+  "id": "da:toilet",
+  "da": "toilet",
+  "en": [
+   "toilet",
+   "bathroom"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Undskyld, hvor er toilettet?",
+  "exampleEn": "Excuse me, where is the toilet?",
+  "freqRank": 931
+ },
+ {
+  "id": "da:skære",
+  "da": "skære",
+  "en": [
+   "cut",
+   "slice"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han skærer brødet i tynde skiver.",
+  "exampleEn": "He cuts the bread into thin slices.",
+  "freqRank": 932
+ },
+ {
+  "id": "da:bad",
+  "da": "bad",
+  "en": [
+   "bath",
+   "shower"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg tager et bad hver morgen.",
+  "exampleEn": "I take a bath every morning.",
+  "freqRank": 933
+ },
+ {
+  "id": "da:pande",
+  "da": "pande",
+  "en": [
+   "frying pan",
+   "pan",
+   "forehead"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun steger fisk på en pande.",
+  "exampleEn": "She fries fish in a pan.",
+  "freqRank": 934
+ },
+ {
+  "id": "da:råbe",
+  "da": "råbe",
+  "en": [
+   "shout",
+   "yell",
+   "call out"
+  ],
+  "pos": "verb",
+  "exampleDa": "Manden råber højt på gaden.",
+  "exampleEn": "The man shouts loudly in the street.",
+  "freqRank": 935
+ },
+ {
+  "id": "da:pose",
+  "da": "pose",
+  "en": [
+   "bag",
+   "sack"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en pose med æbler.",
+  "exampleEn": "I have a bag of apples.",
+  "freqRank": 936
+ },
+ {
+  "id": "da:hylde",
+  "da": "hylde",
+  "en": [
+   "shelf"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Koppen står på hylden i køkkenet.",
+  "exampleEn": "The cup is on the shelf in the kitchen.",
+  "freqRank": 937
+ },
+ {
+  "id": "da:ryge",
+  "da": "ryge",
+  "en": [
+   "smoke"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han ryger ikke mere.",
+  "exampleEn": "He does not smoke anymore.",
+  "freqRank": 938
+ },
+ {
+  "id": "da:skuffe",
+  "da": "skuffe",
+  "en": [
+   "drawer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Knivene ligger i skuffen.",
+  "exampleEn": "The knives are in the drawer.",
+  "freqRank": 939
+ },
+ {
+  "id": "da:tørre",
+  "da": "tørre",
+  "en": [
+   "dry",
+   "wipe"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg tørrer hænderne i håndklædet.",
+  "exampleEn": "I dry my hands on the towel.",
+  "freqRank": 940
+ },
+ {
+  "id": "da:saks",
+  "da": "saks",
+  "en": [
+   "scissors",
+   "pair of scissors"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kan jeg låne din saks?",
+  "exampleEn": "Can I borrow your scissors?",
+  "freqRank": 941
+ },
+ {
+  "id": "da:fryser",
+  "da": "fryser",
+  "en": [
+   "freezer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Isen ligger i fryseren.",
+  "exampleEn": "The ice cream is in the freezer.",
+  "freqRank": 942
+ },
+ {
+  "id": "da:blande",
+  "da": "blande",
+  "en": [
+   "mix",
+   "blend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Bland mælk og æg i skålen.",
+  "exampleEn": "Mix milk and eggs in the bowl.",
+  "freqRank": 943
+ },
+ {
+  "id": "da:blyant",
+  "da": "blyant",
+  "en": [
+   "pencil"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Eleven skriver med en blyant.",
+  "exampleEn": "The pupil writes with a pencil.",
+  "freqRank": 944
+ },
+ {
+  "id": "da:pen",
+  "da": "pen",
+  "en": [
+   "pen"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Har du en pen, jeg kan låne?",
+  "exampleEn": "Do you have a pen I can borrow?",
+  "freqRank": 945
+ },
+ {
+  "id": "da:ordne",
+  "da": "ordne",
+  "en": [
+   "fix",
+   "arrange",
+   "tidy",
+   "sort out"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg skal ordne mit værelse i dag.",
+  "exampleEn": "I have to tidy my room today.",
+  "freqRank": 946
+ },
+ {
+  "id": "da:ordbog",
+  "da": "ordbog",
+  "en": [
+   "dictionary"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg bruger en ordbog, når jeg læser.",
+  "exampleEn": "I use a dictionary when I read.",
+  "freqRank": 947
+ },
+ {
+  "id": "da:lektie",
+  "da": "lektie",
+  "en": [
+   "homework",
+   "lesson"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene laver lektier efter skole.",
+  "exampleEn": "The children do homework after school.",
+  "freqRank": 948
+ },
+ {
+  "id": "da:hoppe",
+  "da": "hoppe",
+  "en": [
+   "jump",
+   "hop"
+  ],
+  "pos": "verb",
+  "exampleDa": "Børnene hopper på sengen.",
+  "exampleEn": "The children are jumping on the bed.",
+  "freqRank": 949
+ },
+ {
+  "id": "da:kursus",
+  "da": "kursus",
+  "en": [
+   "course",
+   "class"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun tager et kursus i dansk.",
+  "exampleEn": "She is taking a course in Danish.",
+  "freqRank": 950
+ },
+ {
+  "id": "da:pas",
+  "da": "pas",
+  "en": [
+   "passport"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Husk dit pas, når du rejser.",
+  "exampleEn": "Remember your passport when you travel.",
+  "freqRank": 951
+ },
+ {
+  "id": "da:rulle",
+  "da": "rulle",
+  "en": [
+   "roll"
+  ],
+  "pos": "verb",
+  "exampleDa": "Bolden ruller ned ad vejen.",
+  "exampleEn": "The ball rolls down the road.",
+  "freqRank": 952
+ },
+ {
+  "id": "da:kørekort",
+  "da": "kørekort",
+  "en": [
+   "driving license",
+   "driver's license"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han fik sit kørekort sidste år.",
+  "exampleEn": "He got his driving license last year.",
+  "freqRank": 953
+ },
+ {
+  "id": "da:bade",
+  "da": "bade",
+  "en": [
+   "bathe",
+   "swim",
+   "take a bath"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi bader i havet om sommeren.",
+  "exampleEn": "We bathe in the sea in the summer.",
+  "freqRank": 954
+ },
+ {
+  "id": "da:bagage",
+  "da": "bagage",
+  "en": [
+   "luggage",
+   "baggage"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min bagage er meget tung.",
+  "exampleEn": "My luggage is very heavy.",
+  "freqRank": 955
+ },
+ {
+  "id": "da:grænse",
+  "da": "grænse",
+  "en": [
+   "border",
+   "limit"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kører over grænsen i morgen.",
+  "exampleEn": "We are driving across the border tomorrow.",
+  "freqRank": 956
+ },
+ {
+  "id": "da:færge",
+  "da": "færge",
+  "en": [
+   "ferry"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Færgen sejler til øen hver time.",
+  "exampleEn": "The ferry sails to the island every hour.",
+  "freqRank": 957
+ },
+ {
+  "id": "da:turist",
+  "da": "turist",
+  "en": [
+   "tourist"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Byen har mange turister om sommeren.",
+  "exampleEn": "The city has many tourists in the summer.",
+  "freqRank": 958
+ },
+ {
+  "id": "da:binde",
+  "da": "binde",
+  "en": [
+   "tie",
+   "bind"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han binder sine sko hver morgen.",
+  "exampleEn": "He ties his shoes every morning.",
+  "freqRank": 959
+ },
+ {
+  "id": "da:ko",
+  "da": "ko",
+  "en": [
+   "cow"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Koen spiser græs på marken.",
+  "exampleEn": "The cow eats grass in the field.",
+  "freqRank": 960
+ },
+ {
+  "id": "da:gris",
+  "da": "gris",
+  "en": [
+   "pig"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Grisen er stor og lyserød.",
+  "exampleEn": "The pig is big and pink.",
+  "freqRank": 961
+ },
+ {
+  "id": "da:klippe",
+  "da": "klippe",
+  "en": [
+   "cut",
+   "clip",
+   "trim"
+  ],
+  "pos": "verb",
+  "exampleDa": "Frisøren klipper mit hår i dag.",
+  "exampleEn": "The hairdresser cuts my hair today.",
+  "freqRank": 962
+ },
+ {
+  "id": "da:får",
+  "da": "får",
+  "en": [
+   "sheep"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der går mange får på marken.",
+  "exampleEn": "There are many sheep in the field.",
+  "freqRank": 963
+ },
+ {
+  "id": "da:mus",
+  "da": "mus",
+  "en": [
+   "mouse"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Katten fanger en lille mus.",
+  "exampleEn": "The cat catches a little mouse.",
+  "freqRank": 964
+ },
+ {
+  "id": "da:stege",
+  "da": "stege",
+  "en": [
+   "fry",
+   "roast"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg steger fisken på panden.",
+  "exampleEn": "I fry the fish in the pan.",
+  "freqRank": 965
+ },
+ {
+  "id": "da:and",
+  "da": "and",
+  "en": [
+   "duck"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Anden svømmer i søen.",
+  "exampleEn": "The duck swims in the lake.",
+  "freqRank": 966
+ },
+ {
+  "id": "da:hælde",
+  "da": "hælde",
+  "en": [
+   "pour"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun hælder kaffe i koppen.",
+  "exampleEn": "She pours coffee into the cup.",
+  "freqRank": 967
+ },
+ {
+  "id": "da:tå",
+  "da": "tå",
+  "en": [
+   "toe"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har slået min tå.",
+  "exampleEn": "I have stubbed my toe.",
+  "freqRank": 968
+ },
+ {
+  "id": "da:kind",
+  "da": "kind",
+  "en": [
+   "cheek"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Barnet har røde kinder om vinteren.",
+  "exampleEn": "The child has red cheeks in the winter.",
+  "freqRank": 969
+ },
+ {
+  "id": "da:smøre",
+  "da": "smøre",
+  "en": [
+   "spread",
+   "butter",
+   "grease"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han smører smør på brødet.",
+  "exampleEn": "He spreads butter on the bread.",
+  "freqRank": 970
+ },
+ {
+  "id": "da:læbe",
+  "da": "læbe",
+  "en": [
+   "lip"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hendes læber er meget tørre.",
+  "exampleEn": "Her lips are very dry.",
+  "freqRank": 971
+ },
+ {
+  "id": "da:hjerne",
+  "da": "hjerne",
+  "en": [
+   "brain"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hjernen har brug for søvn.",
+  "exampleEn": "The brain needs sleep.",
+  "freqRank": 972
+ },
+ {
+  "id": "da:servere",
+  "da": "servere",
+  "en": [
+   "serve"
+  ],
+  "pos": "verb",
+  "exampleDa": "De serverer aftensmad klokken seks.",
+  "exampleEn": "They serve dinner at six o'clock.",
+  "freqRank": 973
+ },
+ {
+  "id": "da:græs",
+  "da": "græs",
+  "en": [
+   "grass"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Græsset er grønt og vådt.",
+  "exampleEn": "The grass is green and wet.",
+  "freqRank": 974
+ },
+ {
+  "id": "da:bjerg",
+  "da": "bjerg",
+  "en": [
+   "mountain"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Bjerget er meget højt.",
+  "exampleEn": "The mountain is very high.",
+  "freqRank": 975
+ },
+ {
+  "id": "da:diskutere",
+  "da": "diskutere",
+  "en": [
+   "discuss",
+   "debate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi diskuterer planen i morgen.",
+  "exampleEn": "We will discuss the plan tomorrow.",
+  "freqRank": 976
+ },
+ {
+  "id": "da:flod",
+  "da": "flod",
+  "en": [
+   "river"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Floden løber gennem byen.",
+  "exampleEn": "The river runs through the city.",
+  "freqRank": 977
+ },
+ {
+  "id": "da:plante",
+  "da": "plante",
+  "en": [
+   "plant"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Planten skal have vand hver dag.",
+  "exampleEn": "The plant needs water every day.",
+  "freqRank": 978
+ },
+ {
+  "id": "da:ryste",
+  "da": "ryste",
+  "en": [
+   "shake",
+   "tremble"
+  ],
+  "pos": "verb",
+  "exampleDa": "Ryst flasken, før du åbner den.",
+  "exampleEn": "Shake the bottle before you open it.",
+  "freqRank": 979
+ },
+ {
+  "id": "da:blad",
+  "da": "blad",
+  "en": [
+   "leaf",
+   "magazine"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Bladene falder om efteråret.",
+  "exampleEn": "The leaves fall in the autumn.",
+  "freqRank": 980
+ },
+ {
+  "id": "da:torden",
+  "da": "torden",
+  "en": [
+   "thunder"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg kan høre torden langt væk.",
+  "exampleEn": "I can hear thunder far away.",
+  "freqRank": 981
+ },
+ {
+  "id": "da:skrige",
+  "da": "skrige",
+  "en": [
+   "scream",
+   "shriek",
+   "cry out"
+  ],
+  "pos": "verb",
+  "exampleDa": "Barnet skriger meget højt.",
+  "exampleEn": "The child screams very loudly.",
+  "freqRank": 982
+ },
+ {
+  "id": "da:lyn",
+  "da": "lyn",
+  "en": [
+   "lightning",
+   "flash"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi så et lyn på himlen.",
+  "exampleEn": "We saw a flash of lightning in the sky.",
+  "freqRank": 983
+ },
+ {
+  "id": "da:hviske",
+  "da": "hviske",
+  "en": [
+   "whisper"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun hvisker noget til sin ven.",
+  "exampleEn": "She whispers something to her friend.",
+  "freqRank": 984
+ },
+ {
+  "id": "da:tåge",
+  "da": "tåge",
+  "en": [
+   "fog",
+   "mist"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er tæt tåge i dag.",
+  "exampleEn": "There is thick fog today.",
+  "freqRank": 985
+ },
+ {
+  "id": "da:kok",
+  "da": "kok",
+  "en": [
+   "cook",
+   "chef"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kokken laver mad på restauranten.",
+  "exampleEn": "The chef cooks at the restaurant.",
+  "freqRank": 986
+ },
+ {
+  "id": "da:glide",
+  "da": "glide",
+  "en": [
+   "slide",
+   "glide",
+   "slip"
+  ],
+  "pos": "verb",
+  "exampleDa": "Pas på, du kan glide på isen.",
+  "exampleEn": "Watch out, you can slip on the ice.",
+  "freqRank": 987
+ },
+ {
+  "id": "da:tjener",
+  "da": "tjener",
+  "en": [
+   "waiter",
+   "server"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tjeneren kommer med vores mad.",
+  "exampleEn": "The waiter brings our food.",
+  "freqRank": 988
+ },
+ {
+  "id": "da:frisør",
+  "da": "frisør",
+  "en": [
+   "hairdresser",
+   "barber"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg skal til frisøren i morgen.",
+  "exampleEn": "I am going to the hairdresser tomorrow.",
+  "freqRank": 989
+ },
+ {
+  "id": "da:klatre",
+  "da": "klatre",
+  "en": [
+   "climb"
+  ],
+  "pos": "verb",
+  "exampleDa": "Drengen klatrer op i træet.",
+  "exampleEn": "The boy climbs up the tree.",
+  "freqRank": 990
+ },
+ {
+  "id": "da:landmand",
+  "da": "landmand",
+  "en": [
+   "farmer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Landmanden arbejder tidligt om morgenen.",
+  "exampleEn": "The farmer works early in the morning.",
+  "freqRank": 991
+ },
+ {
+  "id": "da:journalist",
+  "da": "journalist",
+  "en": [
+   "journalist",
+   "reporter"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Journalisten skriver en artikel til avisen.",
+  "exampleEn": "The journalist writes an article for the newspaper.",
+  "freqRank": 992
+ },
+ {
+  "id": "da:bekymre",
+  "da": "bekymre",
+  "en": [
+   "worry",
+   "concern"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du skal ikke bekymre dig om mig.",
+  "exampleEn": "You should not worry about me.",
+  "freqRank": 993
+ },
+ {
+  "id": "da:håndværker",
+  "da": "håndværker",
+  "en": [
+   "craftsman",
+   "tradesman"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Håndværkeren reparerer vores tag.",
+  "exampleEn": "The craftsman repairs our roof.",
+  "freqRank": 994
+ },
+ {
+  "id": "da:politibetjent",
+  "da": "politibetjent",
+  "en": [
+   "police officer",
+   "policeman"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Politibetjenten stopper bilen på vejen.",
+  "exampleEn": "The police officer stops the car on the road.",
+  "freqRank": 995
+ },
+ {
+  "id": "da:irritere",
+  "da": "irritere",
+  "en": [
+   "annoy",
+   "irritate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Støjen irriterer mig meget.",
+  "exampleEn": "The noise annoys me a lot.",
+  "freqRank": 996
+ },
+ {
+  "id": "da:venskab",
+  "da": "venskab",
+  "en": [
+   "friendship"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vores venskab er meget vigtigt for mig.",
+  "exampleEn": "Our friendship is very important to me.",
+  "freqRank": 997
+ },
+ {
+  "id": "da:ægteskab",
+  "da": "ægteskab",
+  "en": [
+   "marriage"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "De har et godt og langt ægteskab.",
+  "exampleEn": "They have a good and long marriage.",
+  "freqRank": 998
+ },
+ {
+  "id": "da:kramme",
+  "da": "kramme",
+  "en": [
+   "hug"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun krammer sin lille søster.",
+  "exampleEn": "She hugs her little sister.",
+  "freqRank": 999
+ },
+ {
+  "id": "da:trøste",
+  "da": "trøste",
+  "en": [
+   "comfort",
+   "console"
+  ],
+  "pos": "verb",
+  "exampleDa": "Moren trøster det lille barn.",
+  "exampleEn": "The mother comforts the little child.",
+  "freqRank": 1000
  }
 ]

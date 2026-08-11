@@ -1,0 +1,1032 @@
+[
+ {
+  "da": "tur",
+  "en": [
+   "trip",
+   "walk",
+   "ride"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Skal vi gå en tur i skoven?",
+  "exampleEn": "Shall we go for a walk in the forest?",
+  "order": 1,
+  "slice": "noun-4"
+ },
+ {
+  "da": "film",
+  "en": [
+   "film",
+   "movie"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Filmen var lang, men rigtig god.",
+  "exampleEn": "The film was long but really good.",
+  "order": 2,
+  "slice": "noun-4"
+ },
+ {
+  "da": "tøj",
+  "en": [
+   "clothes",
+   "clothing"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg køber nyt tøj i weekenden.",
+  "exampleEn": "I am buying new clothes this weekend.",
+  "order": 3,
+  "slice": "noun-4"
+ },
+ {
+  "da": "musik",
+  "en": [
+   "music"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun hører musik hver morgen.",
+  "exampleEn": "She listens to music every morning.",
+  "order": 4,
+  "slice": "noun-4"
+ },
+ {
+  "da": "middag",
+  "en": [
+   "dinner",
+   "midday"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser middag klokken seks.",
+  "exampleEn": "We eat dinner at six o'clock.",
+  "order": 5,
+  "slice": "noun-4"
+ },
+ {
+  "da": "øjeblik",
+  "en": [
+   "moment",
+   "instant"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vent et øjeblik, jeg kommer nu.",
+  "exampleEn": "Wait a moment, I am coming now.",
+  "order": 6,
+  "slice": "noun-4"
+ },
+ {
+  "da": "mening",
+  "en": [
+   "opinion",
+   "meaning"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad er din mening om filmen?",
+  "exampleEn": "What is your opinion about the film?",
+  "order": 7,
+  "slice": "noun-4"
+ },
+ {
+  "da": "klokke",
+  "en": [
+   "clock",
+   "bell"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Klokken er ti om aftenen.",
+  "exampleEn": "It is ten o'clock in the evening.",
+  "order": 8,
+  "slice": "noun-4"
+ },
+ {
+  "da": "sko",
+  "en": [
+   "shoe"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Mine nye sko er meget flotte.",
+  "exampleEn": "My new shoes are very nice.",
+  "order": 9,
+  "slice": "noun-4"
+ },
+ {
+  "da": "alder",
+  "en": [
+   "age"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun er i samme alder som mig.",
+  "exampleEn": "She is the same age as me.",
+  "order": 10,
+  "slice": "noun-4"
+ },
+ {
+  "da": "adresse",
+  "en": [
+   "address"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad er din nye adresse?",
+  "exampleEn": "What is your new address?",
+  "order": 11,
+  "slice": "noun-4"
+ },
+ {
+  "da": "lov",
+  "en": [
+   "law",
+   "permission"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er en ny lov i landet.",
+  "exampleEn": "There is a new law in the country.",
+  "order": 12,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pause",
+  "en": [
+   "break",
+   "pause"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi holder en pause klokken tolv.",
+  "exampleEn": "We take a break at twelve o'clock.",
+  "order": 13,
+  "slice": "noun-4"
+ },
+ {
+  "da": "frugt",
+  "en": [
+   "fruit"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg spiser frugt hver dag.",
+  "exampleEn": "I eat fruit every day.",
+  "order": 14,
+  "slice": "noun-4"
+ },
+ {
+  "da": "fødselsdag",
+  "en": [
+   "birthday"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min søster har fødselsdag i morgen.",
+  "exampleEn": "It is my sister's birthday tomorrow.",
+  "order": 15,
+  "slice": "noun-4"
+ },
+ {
+  "da": "smil",
+  "en": [
+   "smile"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun har et smukt smil.",
+  "exampleEn": "She has a beautiful smile.",
+  "order": 16,
+  "slice": "noun-4"
+ },
+ {
+  "da": "interesse",
+  "en": [
+   "interest",
+   "hobby"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Musik er hans store interesse.",
+  "exampleEn": "Music is his great interest.",
+  "order": 17,
+  "slice": "noun-4"
+ },
+ {
+  "da": "internet",
+  "en": [
+   "internet"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Internettet virker ikke i dag.",
+  "exampleEn": "The internet is not working today.",
+  "order": 18,
+  "slice": "noun-4"
+ },
+ {
+  "da": "mail",
+  "en": [
+   "email",
+   "mail"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg sender dig en mail i morgen.",
+  "exampleEn": "I will send you an email tomorrow.",
+  "order": 19,
+  "slice": "noun-4"
+ },
+ {
+  "da": "program",
+  "en": [
+   "program",
+   "show",
+   "programme"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi ser et program om dyr.",
+  "exampleEn": "We are watching a program about animals.",
+  "order": 20,
+  "slice": "noun-4"
+ },
+ {
+  "da": "fjernsyn",
+  "en": [
+   "television",
+   "TV"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Børnene ser fjernsyn om aftenen.",
+  "exampleEn": "The children watch television in the evening.",
+  "order": 21,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kommune",
+  "en": [
+   "municipality"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi bor i en lille kommune.",
+  "exampleEn": "We live in a small municipality.",
+  "order": 22,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kultur",
+  "en": [
+   "culture"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg lærer om dansk kultur.",
+  "exampleEn": "I am learning about Danish culture.",
+  "order": 23,
+  "slice": "noun-4"
+ },
+ {
+  "da": "skat",
+  "en": [
+   "tax",
+   "treasure"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi betaler skat hver måned.",
+  "exampleEn": "We pay tax every month.",
+  "order": 24,
+  "slice": "noun-4"
+ },
+ {
+  "da": "regering",
+  "en": [
+   "government"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Landet har fået en ny regering.",
+  "exampleEn": "The country has gotten a new government.",
+  "order": 25,
+  "slice": "noun-4"
+ },
+ {
+  "da": "sygdom",
+  "en": [
+   "illness",
+   "disease",
+   "sickness"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en alvorlig sygdom.",
+  "exampleEn": "She has a serious illness.",
+  "order": 26,
+  "slice": "noun-4"
+ },
+ {
+  "da": "ulykke",
+  "en": [
+   "accident",
+   "misfortune"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der var en ulykke på vejen.",
+  "exampleEn": "There was an accident on the road.",
+  "order": 27,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pakke",
+  "en": [
+   "package",
+   "parcel"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er en pakke til dig.",
+  "exampleEn": "There is a package for you.",
+  "order": 28,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kunde",
+  "en": [
+   "customer",
+   "client"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Butikken har mange glade kunder.",
+  "exampleEn": "The shop has many happy customers.",
+  "order": 29,
+  "slice": "noun-4"
+ },
+ {
+  "da": "regning",
+  "en": [
+   "bill",
+   "invoice"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kan jeg få regningen, tak?",
+  "exampleEn": "Can I have the bill, please?",
+  "order": 30,
+  "slice": "noun-4"
+ },
+ {
+  "da": "fritid",
+  "en": [
+   "free time",
+   "spare time",
+   "leisure"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad laver du i din fritid?",
+  "exampleEn": "What do you do in your free time?",
+  "order": 31,
+  "slice": "noun-4"
+ },
+ {
+  "da": "politiker",
+  "en": [
+   "politician"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Politikeren svarer på mange spørgsmål.",
+  "exampleEn": "The politician answers many questions.",
+  "order": 32,
+  "slice": "noun-4"
+ },
+ {
+  "da": "måltid",
+  "en": [
+   "meal"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Morgenmad er dagens vigtigste måltid.",
+  "exampleEn": "Breakfast is the most important meal of the day.",
+  "order": 33,
+  "slice": "noun-4"
+ },
+ {
+  "da": "suppe",
+  "en": [
+   "soup"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser varm suppe om vinteren.",
+  "exampleEn": "We eat hot soup in the winter.",
+  "order": 34,
+  "slice": "noun-4"
+ },
+ {
+  "da": "salat",
+  "en": [
+   "salad",
+   "lettuce"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg laver en salat til frokost.",
+  "exampleEn": "I am making a salad for lunch.",
+  "order": 35,
+  "slice": "noun-4"
+ },
+ {
+  "da": "is",
+  "en": [
+   "ice cream",
+   "ice"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene spiser is på stranden.",
+  "exampleEn": "The children eat ice cream on the beach.",
+  "order": 36,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kylling",
+  "en": [
+   "chicken"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser kylling med ris i aften.",
+  "exampleEn": "We are eating chicken with rice tonight.",
+  "order": 37,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pizza",
+  "en": [
+   "pizza"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Skal vi bestille en pizza i aften?",
+  "exampleEn": "Shall we order a pizza tonight?",
+  "order": 38,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pølse",
+  "en": [
+   "sausage",
+   "hot dog"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han køber en pølse på stationen.",
+  "exampleEn": "He buys a sausage at the station.",
+  "order": 39,
+  "slice": "noun-4"
+ },
+ {
+  "da": "tomat",
+  "en": [
+   "tomato"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er tomater i min salat.",
+  "exampleEn": "There are tomatoes in my salad.",
+  "order": 40,
+  "slice": "noun-4"
+ },
+ {
+  "da": "banan",
+  "en": [
+   "banana"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun spiser en banan hver morgen.",
+  "exampleEn": "She eats a banana every morning.",
+  "order": 41,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pasta",
+  "en": [
+   "pasta"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene elsker pasta med ost.",
+  "exampleEn": "The children love pasta with cheese.",
+  "order": 42,
+  "slice": "noun-4"
+ },
+ {
+  "da": "chokolade",
+  "en": [
+   "chocolate"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg elsker chokolade og kager.",
+  "exampleEn": "I love chocolate and cakes.",
+  "order": 43,
+  "slice": "noun-4"
+ },
+ {
+  "da": "appelsin",
+  "en": [
+   "orange"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vil du have en appelsin?",
+  "exampleEn": "Would you like an orange?",
+  "order": 44,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pære",
+  "en": [
+   "pear",
+   "light bulb"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg spiser en pære til frokost.",
+  "exampleEn": "I eat a pear for lunch.",
+  "order": 45,
+  "slice": "noun-4"
+ },
+ {
+  "da": "citron",
+  "en": [
+   "lemon"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun drikker te med citron.",
+  "exampleEn": "She drinks tea with lemon.",
+  "order": 46,
+  "slice": "noun-4"
+ },
+ {
+  "da": "jordbær",
+  "en": [
+   "strawberry"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi spiser jordbær om sommeren.",
+  "exampleEn": "We eat strawberries in the summer.",
+  "order": 47,
+  "slice": "noun-4"
+ },
+ {
+  "da": "agurk",
+  "en": [
+   "cucumber"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg køber en agurk og to tomater.",
+  "exampleEn": "I buy a cucumber and two tomatoes.",
+  "order": 48,
+  "slice": "noun-4"
+ },
+ {
+  "da": "gulerod",
+  "en": [
+   "carrot"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hesten spiser en stor gulerod.",
+  "exampleEn": "The horse eats a big carrot.",
+  "order": 49,
+  "slice": "noun-4"
+ },
+ {
+  "da": "løg",
+  "en": [
+   "onion"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der er løg i suppen.",
+  "exampleEn": "There are onions in the soup.",
+  "order": 50,
+  "slice": "noun-4"
+ },
+ {
+  "da": "skinke",
+  "en": [
+   "ham"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg vil gerne have brød med skinke.",
+  "exampleEn": "I would like bread with ham.",
+  "order": 51,
+  "slice": "noun-4"
+ },
+ {
+  "da": "peber",
+  "en": [
+   "pepper"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Maden mangler salt og peber.",
+  "exampleEn": "The food needs salt and pepper.",
+  "order": 52,
+  "slice": "noun-4"
+ },
+ {
+  "da": "slik",
+  "en": [
+   "candy",
+   "sweets"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Børnene får slik om fredagen.",
+  "exampleEn": "The children get candy on Fridays.",
+  "order": 53,
+  "slice": "noun-4"
+ },
+ {
+  "da": "sodavand",
+  "en": [
+   "soda",
+   "soft drink"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han drikker en kold sodavand.",
+  "exampleEn": "He drinks a cold soda.",
+  "order": 54,
+  "slice": "noun-4"
+ },
+ {
+  "da": "bukser",
+  "en": [
+   "trousers",
+   "pants"
+  ],
+  "pos": "noun",
+  "exampleDa": "Mine bukser er for lange.",
+  "exampleEn": "My trousers are too long.",
+  "order": 55,
+  "slice": "noun-4"
+ },
+ {
+  "da": "briller",
+  "en": [
+   "glasses",
+   "spectacles"
+  ],
+  "pos": "noun",
+  "exampleDa": "Jeg kan ikke finde mine briller.",
+  "exampleEn": "I cannot find my glasses.",
+  "order": 56,
+  "slice": "noun-4"
+ },
+ {
+  "da": "sweater",
+  "en": [
+   "sweater",
+   "jumper"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en varm sweater på.",
+  "exampleEn": "She is wearing a warm sweater.",
+  "order": 57,
+  "slice": "noun-4"
+ },
+ {
+  "da": "bluse",
+  "en": [
+   "blouse",
+   "top"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Din nye bluse er meget flot.",
+  "exampleEn": "Your new blouse is very nice.",
+  "order": 58,
+  "slice": "noun-4"
+ },
+ {
+  "da": "ring",
+  "en": [
+   "ring"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han giver hende en smuk ring.",
+  "exampleEn": "He gives her a beautiful ring.",
+  "order": 59,
+  "slice": "noun-4"
+ },
+ {
+  "da": "radio",
+  "en": [
+   "radio"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi hører radio i bilen.",
+  "exampleEn": "We listen to the radio in the car.",
+  "order": 60,
+  "slice": "noun-4"
+ },
+ {
+  "da": "skærm",
+  "en": [
+   "screen",
+   "monitor"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min computer har en stor skærm.",
+  "exampleEn": "My computer has a big screen.",
+  "order": 61,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kamera",
+  "en": [
+   "camera"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun tager billeder med sit kamera.",
+  "exampleEn": "She takes pictures with her camera.",
+  "order": 62,
+  "slice": "noun-4"
+ },
+ {
+  "da": "batteri",
+  "en": [
+   "battery"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Min telefon har ikke mere batteri.",
+  "exampleEn": "My phone has no more battery.",
+  "order": 63,
+  "slice": "noun-4"
+ },
+ {
+  "da": "hjemmeside",
+  "en": [
+   "website",
+   "homepage"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Firmaet har en ny hjemmeside.",
+  "exampleEn": "The company has a new website.",
+  "order": 64,
+  "slice": "noun-4"
+ },
+ {
+  "da": "app",
+  "en": [
+   "app",
+   "application"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg bruger en app til dansk.",
+  "exampleEn": "I use an app for Danish.",
+  "order": 65,
+  "slice": "noun-4"
+ },
+ {
+  "da": "toilet",
+  "en": [
+   "toilet",
+   "bathroom"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Undskyld, hvor er toilettet?",
+  "exampleEn": "Excuse me, where is the toilet?",
+  "order": 66,
+  "slice": "noun-4"
+ },
+ {
+  "da": "bad",
+  "en": [
+   "bath",
+   "shower"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg tager et bad hver morgen.",
+  "exampleEn": "I take a bath every morning.",
+  "order": 67,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pande",
+  "en": [
+   "frying pan",
+   "pan",
+   "forehead"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun steger fisk på en pande.",
+  "exampleEn": "She fries fish in a pan.",
+  "order": 68,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pose",
+  "en": [
+   "bag",
+   "sack"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en pose med æbler.",
+  "exampleEn": "I have a bag of apples.",
+  "order": 69,
+  "slice": "noun-4"
+ },
+ {
+  "da": "hylde",
+  "en": [
+   "shelf"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Koppen står på hylden i køkkenet.",
+  "exampleEn": "The cup is on the shelf in the kitchen.",
+  "order": 70,
+  "slice": "noun-4"
+ },
+ {
+  "da": "skuffe",
+  "en": [
+   "drawer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Knivene ligger i skuffen.",
+  "exampleEn": "The knives are in the drawer.",
+  "order": 71,
+  "slice": "noun-4"
+ },
+ {
+  "da": "saks",
+  "en": [
+   "scissors",
+   "pair of scissors"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kan jeg låne din saks?",
+  "exampleEn": "Can I borrow your scissors?",
+  "order": 72,
+  "slice": "noun-4"
+ },
+ {
+  "da": "fryser",
+  "en": [
+   "freezer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Isen ligger i fryseren.",
+  "exampleEn": "The ice cream is in the freezer.",
+  "order": 73,
+  "slice": "noun-4"
+ },
+ {
+  "da": "blyant",
+  "en": [
+   "pencil"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Eleven skriver med en blyant.",
+  "exampleEn": "The pupil writes with a pencil.",
+  "order": 74,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pen",
+  "en": [
+   "pen"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Har du en pen, jeg kan låne?",
+  "exampleEn": "Do you have a pen I can borrow?",
+  "order": 75,
+  "slice": "noun-4"
+ },
+ {
+  "da": "ordbog",
+  "en": [
+   "dictionary"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg bruger en ordbog, når jeg læser.",
+  "exampleEn": "I use a dictionary when I read.",
+  "order": 76,
+  "slice": "noun-4"
+ },
+ {
+  "da": "lektie",
+  "en": [
+   "homework",
+   "lesson"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene laver lektier efter skole.",
+  "exampleEn": "The children do homework after school.",
+  "order": 77,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kursus",
+  "en": [
+   "course",
+   "class"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun tager et kursus i dansk.",
+  "exampleEn": "She is taking a course in Danish.",
+  "order": 78,
+  "slice": "noun-4"
+ },
+ {
+  "da": "pas",
+  "en": [
+   "passport"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Husk dit pas, når du rejser.",
+  "exampleEn": "Remember your passport when you travel.",
+  "order": 79,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kørekort",
+  "en": [
+   "driving license",
+   "driver's license"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han fik sit kørekort sidste år.",
+  "exampleEn": "He got his driving license last year.",
+  "order": 80,
+  "slice": "noun-4"
+ },
+ {
+  "da": "bagage",
+  "en": [
+   "luggage",
+   "baggage"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min bagage er meget tung.",
+  "exampleEn": "My luggage is very heavy.",
+  "order": 81,
+  "slice": "noun-4"
+ },
+ {
+  "da": "grænse",
+  "en": [
+   "border",
+   "limit"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kører over grænsen i morgen.",
+  "exampleEn": "We are driving across the border tomorrow.",
+  "order": 82,
+  "slice": "noun-4"
+ }
+]

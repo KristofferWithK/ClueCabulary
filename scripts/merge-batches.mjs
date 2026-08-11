@@ -47,7 +47,8 @@ scored.sort((a, b) => a.score - b.score || a.entry.da.localeCompare(b.entry.da, 
 
 const final = scored.slice(0, 1000).map(({ entry }, i) => {
   const out = {
-    id: `da-${String(i + 1).padStart(4, '0')}`,
+    // Stable, word-derived id: SRS progress survives future dataset revisions.
+    id: `da:${entry.da.trim().toLowerCase()}`,
     da: entry.da.trim(),
     en: entry.en.map((g) => g.trim()).filter(Boolean),
     pos: entry.pos,
