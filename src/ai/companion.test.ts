@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AiError, type AiSettings } from './client'
 import { OllamaCompanion, planGuessExecution } from './companion'
 import type { AiClueView, AiGuessView } from './projections'
@@ -93,6 +93,40 @@ describe('OllamaCompanion.getClue', () => {
       respondWith({ nope: true }, { still: 'wrong' }),
     )
     await expect(companion.getClue(clueView)).rejects.toThrowError(AiError)
+  })
+
+  it('dedupes duplicate target ids and fixes the announced number', async () => {
+    const companion = new OllamaCompanion(
+      settings,
+      respondWith({ clue: 'dyreliv', number: 2, targetWordIds: ['w0', 'w0'], rationale: 'x' }),
+    )
+    const clue = await companion.getClue(clueView)
+    expect(clue.targetWordIds).toEqual(['w0'])
+    expect(clue.number).toBe(1)
+  })
+
+  it('refuses to call the model when nothing is targetable', async () => {
+    const noTargets = {
+      ...clueView,
+      words: clueView.words.map((w) => ({ ...w, roleOnMyKey: 'bystander' as const })),
+    }
+    const chat = vi.fn()
+    await expect(new OllamaCompanion(settings, chat).getClue(noTargets)).rejects.toThrowError(
+      AiError,
+    )
+    expect(chat).not.toHaveBeenCalled()
+  })
+
+  it('retries after a non-JSON first reply instead of failing the turn', async () => {
+    let calls = 0
+    const chat = async () => {
+      calls++
+      if (calls === 1) throw new AiError('invalid-response', 'not json')
+      return { clue: 'dyreliv', number: 1, targetWordIds: ['w0'], rationale: 'x' }
+    }
+    const clue = await new OllamaCompanion(settings, chat).getClue(clueView)
+    expect(clue.clue).toBe('dyreliv')
+    expect(calls).toBe(2)
   })
 })
 

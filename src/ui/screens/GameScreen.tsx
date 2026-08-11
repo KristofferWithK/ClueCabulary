@@ -53,10 +53,12 @@ export function GameScreen() {
   const handleTranslationsToggle = () => {
     if (game.phase === 'redemption') return
     if (!translationsOn) {
-      // Turning the overlay on counts as looking up every unsolved word.
+      // Turning the overlay on counts as looking up every word that is not
+      // already solved green — bystander-revealed words can still be guessed
+      // (and quizzed in redemption), so they count too.
       const s = useGame.getState()
       for (const w of game.words) {
-        if (game.reveals[w.wordId]!.kind === 'hidden') s.recordLookup(w.wordId)
+        if (game.reveals[w.wordId]!.kind !== 'green') s.recordLookup(w.wordId)
       }
     }
     toggleTranslations()

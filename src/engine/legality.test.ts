@@ -38,3 +38,35 @@ describe('checkClueLegality', () => {
     expect(verdict.conflictWord).toBe('hund')
   })
 })
+
+describe('short board words (≤3 letters) — general guards all skip them', () => {
+  const shortBoard: BoardWord[] = [
+    { wordId: 's1', da: 'gå', en: ['go', 'walk'], pos: 'verb' },
+    { wordId: 's2', da: 'år', en: ['year'], pos: 'noun' },
+    { wordId: 's3', da: 'by', en: ['city', 'town'], pos: 'noun' },
+    { wordId: 's4', da: 'øl', en: ['beer'], pos: 'noun' },
+    { wordId: 's5', da: 'æg', en: ['egg'], pos: 'noun' },
+    { wordId: 's6', da: 'se', en: ['see'], pos: 'verb' },
+    { wordId: 's7', da: 'ny', en: ['new'], pos: 'adjective' },
+  ]
+
+  it.each([
+    ['går', false, 'present tense of gå'],
+    ['gået', false, 'past participle of gå'],
+    ['året', false, 'definite of år'],
+    ['byen', false, 'definite of by'],
+    ['byer', false, 'plural of by'],
+    ['øllet', false, 'definite of øl (gemination)'],
+    ['ægget', false, 'definite of æg (gemination)'],
+    ['ser', false, 'present tense of se'],
+    ['nyt', false, 'neuter of ny'],
+    ['nye', false, 'plural of ny'],
+    ['nyhed', false, 'derived from ny'],
+    ['seng', true, 'starts with se but not an inflection'],
+    ['bord', true, 'unrelated word'],
+    ['sol', true, 'unrelated word'],
+    ['gårdhave', true, 'starts with gå but not an inflection'],
+  ])('clue "%s" → legal=%s (%s)', (clueText, legal) => {
+    expect(checkClueLegality(clueText, shortBoard).legal).toBe(legal)
+  })
+})

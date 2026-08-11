@@ -14,6 +14,7 @@ interface UiState {
   openSheet: (wordId: string) => void
   closeSheet: () => void
   toggleTranslations: () => void
+  resetTranslations: () => void
   openHowTo: () => void
   closeHowTo: () => void
 }
@@ -30,6 +31,7 @@ export const useUi = create<UiState>((set) => ({
   openSheet: (wordId) => set({ sheetWordId: wordId }),
   closeSheet: () => set({ sheetWordId: null }),
   toggleTranslations: () => set((s) => ({ translationsOn: !s.translationsOn })),
+  resetTranslations: () => set({ translationsOn: false }),
   openHowTo: () => set({ howToOpen: true }),
   closeHowTo: () => {
     localStorage.setItem(HOWTO_KEY, 'seen')

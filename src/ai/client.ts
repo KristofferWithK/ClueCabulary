@@ -96,6 +96,16 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
   try {
     return JSON.parse(stripped) as unknown
   } catch {
+    // Models sometimes wrap the object in prose; salvage the outermost braces.
+    const start = stripped.indexOf('{')
+    const end = stripped.lastIndexOf('}')
+    if (start >= 0 && end > start) {
+      try {
+        return JSON.parse(stripped.slice(start, end + 1)) as unknown
+      } catch {
+        // fall through
+      }
+    }
     throw new AiError('invalid-response', 'The AI reply was not valid JSON.')
   }
 }

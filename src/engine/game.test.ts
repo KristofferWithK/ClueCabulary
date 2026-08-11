@@ -7,6 +7,7 @@ import {
   createGame,
   isGuessable,
   remainingGreenIds,
+  targetableGreenIds,
 } from './game'
 import type { BoardWord, CardRole, GameState, Side } from './types'
 
@@ -127,6 +128,27 @@ describe('full game flows', () => {
     expect(s.reveals[blocked]).toEqual({ kind: 'bystander', against: ['ai', 'player'] })
     s = clue(s, 'ai', 1)
     expect(isGuessable(s, blocked)).toBe(false) // now blocked in both directions
+  })
+
+  it('keeps the same giver when the other side has nothing left to clue', () => {
+    let s = newGame()
+    // Turn 1: player clue, AI hits a bystander → normal rotation to the AI.
+    s = clue(s, 'player', 1)
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'bystander') })
+    expect(s.phase).toBe('aiClueInput')
+    // Turn 2: under the AI's clue the player finds ALL 5 AI-key greens (cap 4+1).
+    s = clue(s, 'ai', 4)
+    for (let i = 0; i < 5; i++) {
+      s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'ai', 'green') })
+    }
+    expect(targetableGreenIds(s, 'ai')).toEqual([])
+    expect(s.phase).toBe('playerClueInput')
+    // Turn 3: player clues, AI banks one green and stops. The AI side has
+    // nothing to clue, so the player must clue again — no aiClueInput dead-end.
+    s = clue(s, 'player', 1)
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'green') })
+    s = applyEvent(s, { type: 'STOP_GUESSING' })
+    expect(s.phase).toBe('playerClueInput')
   })
 
   it('caps guesses at number + 1', () => {

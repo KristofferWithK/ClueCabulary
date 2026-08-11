@@ -52,16 +52,28 @@ async function askValidated<T>(
   parse: (raw: unknown) => { ok: true; value: T } | { ok: false; problem: string },
   temperature: number,
 ): Promise<T> {
-  const first = await chat(settings, messages, { temperature })
-  const parsed = parse(first)
-  if (parsed.ok) return parsed.value
+  // A non-JSON reply (prose around the object) deserves the same corrective
+  // retry as a schema-invalid one — both are fixed by "reply with only JSON".
+  let first: unknown
+  let problem: string
+  try {
+    first = await chat(settings, messages, { temperature })
+    const parsed = parse(first)
+    if (parsed.ok) return parsed.value
+    problem = parsed.problem
+  } catch (e) {
+    if (!(e instanceof AiError) || e.kind !== 'invalid-response') throw e
+    problem = 'the reply was not a single valid JSON object'
+  }
 
   const retryMessages: ChatMessage[] = [
     ...messages,
-    { role: 'assistant', content: JSON.stringify(first) },
+    ...(first !== undefined
+      ? [{ role: 'assistant' as const, content: JSON.stringify(first) }]
+      : []),
     {
       role: 'user',
-      content: `That response was invalid: ${parsed.problem}. Reply again with ONLY a corrected JSON object.`,
+      content: `That response was invalid: ${problem}. Reply again with ONLY a corrected JSON object.`,
     },
   ]
   const second = await chat(settings, retryMessages, { temperature })
@@ -78,6 +90,10 @@ export class OllamaCompanion implements Companion {
 
   async getClue(view: AiClueView): Promise<ClueResponse> {
     const targetable = new Set(aiTargetableIds(view))
+    if (targetable.size === 0) {
+      // The engine's turn rotation prevents this; guard against a doomed call.
+      throw new AiError('invalid-response', 'Klaus has no words left to clue this round.')
+    }
     const boardWords: BoardWord[] = view.words.map((w) => ({
       wordId: w.id,
       da: w.da,
@@ -94,7 +110,9 @@ export class OllamaCompanion implements Companion {
         if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
         const verdict = checkClueLegality(parsed.data.clue, boardWords)
         if (!verdict.legal) return { ok: false, problem: `illegal clue: ${verdict.reason}` }
-        const targets = parsed.data.targetWordIds.filter((id) => targetable.has(id)).slice(0, 4)
+        const targets = [...new Set(parsed.data.targetWordIds)]
+          .filter((id) => targetable.has(id))
+          .slice(0, 4)
         if (targets.length === 0) {
           return { ok: false, problem: 'targetWordIds must be unrevealed GREEN words from your key' }
         }

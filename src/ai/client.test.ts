@@ -62,6 +62,18 @@ describe('chatJson error taxonomy', () => {
     expect(await chatJson(settings, messages)).toEqual({ b: 2 })
   })
 
+  it('salvages JSON wrapped in prose', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse('Sure! Here is my clue:\n```json\n{"c":3}\n```\nGood luck!'),
+        ),
+    )
+    expect(await chatJson(settings, messages)).toEqual({ c: 3 })
+  })
+
   it('flags non-JSON replies', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse('sorry, I cannot')))
     expect(await kindOf(chatJson(settings, messages))).toBe('invalid-response')

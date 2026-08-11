@@ -71,8 +71,10 @@ function iconPixel(size) {
   }
 }
 
-mkdirSync('public/icons', { recursive: true })
+// Anchor to the repo, not the cwd, so regeneration works from anywhere.
+const OUT_DIR = new URL('../public/icons/', import.meta.url)
+mkdirSync(OUT_DIR, { recursive: true })
 for (const size of [192, 512]) {
-  writeFileSync(`public/icons/icon-${size}.png`, png(size, iconPixel(size)))
+  writeFileSync(new URL(`icon-${size}.png`, OUT_DIR), png(size, iconPixel(size)))
   console.log(`public/icons/icon-${size}.png`)
 }

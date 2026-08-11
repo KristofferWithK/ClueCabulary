@@ -23,7 +23,8 @@ export const GuessResponseSchema = z.object({
 export type GuessResponse = z.infer<typeof GuessResponseSchema>
 
 export const DebriefResponseSchema = z.object({
-  summary: z.string(),
-  takeaways: z.array(z.string()).min(1).max(6),
+  // Empty strings are "valid but blank" — force the retry flow instead.
+  summary: z.string().trim().min(1),
+  takeaways: z.array(z.string().trim().min(1)).min(1).max(6),
 })
 export type DebriefResponse = z.infer<typeof DebriefResponseSchema>

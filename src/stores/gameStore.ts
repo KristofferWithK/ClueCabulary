@@ -18,6 +18,7 @@ import type { RoundWordResult } from '../srs/types'
 import { WORDS } from '../data/words'
 import { useSettings } from './settingsStore'
 import { useSrs } from './srsStore'
+import { useUi } from './uiStore'
 
 type PlannedGuess = GuessResponse['guesses'][number]
 
@@ -99,6 +100,9 @@ export const useGame = create<GameStore>()(
           words: entries.map((w) => ({ wordId: w.id, da: w.da, en: w.en, pos: w.pos })),
           seed: actualSeed,
         })
+        // A translation overlay left on would show answers from second one
+        // without ever counting as lookups — every round starts covered.
+        useUi.getState().resetTranslations()
         set({
           game,
           lookedUp: [],
@@ -114,7 +118,8 @@ export const useGame = create<GameStore>()(
         })
       },
 
-      abandonGame: () =>
+      abandonGame: () => {
+        useUi.getState().resetTranslations()
         set({
           game: null,
           lookedUp: [],
@@ -126,7 +131,8 @@ export const useGame = create<GameStore>()(
           lastAiGuess: null,
           error: null,
           selectedWordId: null,
-        }),
+        })
+      },
 
       submitPlayerClue: (text, number) => {
         const { game } = get()
@@ -175,11 +181,15 @@ export const useGame = create<GameStore>()(
         try {
           const view = buildAiGuessView(game, useSettings.getState().clueLanguage)
           const res = await companion().getGuesses(view)
-          const clue = currentClue(get().game!)
-          const plan = planGuessExecution(res.guesses, clue?.number ?? 1)
+          // Any event replaces the game object, so reference equality proves
+          // this response still belongs to the current game and clue. A stale
+          // response (user abandoned or started a new game mid-flight) is
+          // dropped without touching state — the new game manages its own.
+          if (get().game !== game) return
+          const plan = planGuessExecution(res.guesses, currentClue(game)?.number ?? 1)
           set({ aiBusy: false, aiGuessQueue: plan, planForClueIndex: game.clueHistory.length })
         } catch (e) {
-          set({ aiBusy: false, error: aiMessage(e) })
+          if (get().game === game) set({ aiBusy: false, error: aiMessage(e) })
         }
       },
 
@@ -193,8 +203,19 @@ export const useGame = create<GameStore>()(
         if (planForClueIndex !== game.clueHistory.length) return // plan is stale or missing
         const [next, ...rest] = aiGuessQueue
         if (!next) {
-          const after = applyEvent(game, { type: 'STOP_GUESSING' })
-          set({ game: after, lastAiGuess: null })
+          const clue = currentClue(game)
+          if (!clue || clue.guesses.length === 0) {
+            // The plan produced no executable guess (e.g. every id was stale):
+            // stopping now would be an illegal event — request a fresh plan.
+            set({ planForClueIndex: null, lastAiGuess: null })
+            return
+          }
+          try {
+            const after = applyEvent(game, { type: 'STOP_GUESSING' })
+            set({ game: after, lastAiGuess: null })
+          } catch {
+            set({ planForClueIndex: null, lastAiGuess: null })
+          }
           return
         }
         try {
@@ -217,8 +238,9 @@ export const useGame = create<GameStore>()(
         try {
           const view = buildAiClueView(game, useSettings.getState().clueLanguage)
           const res = await companion().getClue(view)
+          // Reference check: never apply a clue composed for a previous game.
           const current = get().game
-          if (!current || current.phase !== 'aiClueInput') return
+          if (current !== game || current.phase !== 'aiClueInput') return
           const after = applyEvent(current, {
             type: 'SUBMIT_CLUE',
             by: 'ai',
@@ -229,7 +251,7 @@ export const useGame = create<GameStore>()(
           })
           set({ aiBusy: false, game: after })
         } catch (e) {
-          set({ aiBusy: false, error: aiMessage(e) })
+          if (get().game === game) set({ aiBusy: false, error: aiMessage(e) })
         }
       },
 
@@ -240,9 +262,10 @@ export const useGame = create<GameStore>()(
         try {
           const view = buildDebriefView(game, lookedUp)
           const res = await companion().getDebrief(view)
+          if (get().game !== game) return // user already started the next round
           set({ aiBusy: false, debrief: res, debriefFailed: false })
         } catch {
-          set({ aiBusy: false, debriefFailed: true })
+          if (get().game === game) set({ aiBusy: false, debriefFailed: true })
         }
       },
 

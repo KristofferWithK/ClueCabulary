@@ -1,4 +1,5 @@
 import { checkClueLegality } from '../../engine/legality'
+import { AiError } from '../client'
 import type { Companion } from '../companion'
 import {
   aiGuessableIds,
@@ -24,7 +25,9 @@ function hash(s: string): number {
 export class MockCompanion implements Companion {
   async getClue(view: AiClueView): Promise<ClueResponse> {
     const targetable = aiTargetableIds(view).sort()
-    if (targetable.length === 0) throw new Error('mock: no targetable greens left')
+    if (targetable.length === 0) {
+      throw new AiError('invalid-response', 'Klaus has no words left to clue this round.')
+    }
     const targets = targetable.slice(0, Math.min(2, targetable.length))
 
     const boardWords = view.words.map((w) => ({ wordId: w.id, da: w.da, en: w.en, pos: w.pos }))

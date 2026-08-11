@@ -1,11 +1,21 @@
+import { useEffect } from 'react'
 import { wordById } from '../../data/words'
 import { useGame } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
 
 export function DictionarySheet() {
   const { sheetWordId, closeSheet } = useUi()
+  const phase = useGame((s) => s.game?.phase)
+
+  // An open sheet must not survive into the translation challenge — it would
+  // display the answer to a prompted word while the dictionary is "locked".
+  const locked = phase === 'redemption'
+  useEffect(() => {
+    if (locked && sheetWordId) closeSheet()
+  }, [locked, sheetWordId, closeSheet])
+
   const entry = sheetWordId ? wordById(sheetWordId) : undefined
-  if (!entry) return null
+  if (!entry || locked) return null
 
   return (
     <div className="sheet-backdrop" onClick={closeSheet}>

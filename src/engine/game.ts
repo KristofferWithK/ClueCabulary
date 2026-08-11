@@ -66,13 +66,32 @@ export function remainingGreenIds(state: GameState): string[] {
   )
 }
 
+/** Greens a side could still legitimately target with a clue of its own. */
+export function targetableGreenIds(state: GameState, side: Side): string[] {
+  const key = side === 'player' ? state.playerKey : state.aiKey
+  return state.words
+    .map((w) => w.wordId)
+    .filter((id) => {
+      if (key[id] !== 'green') return false
+      const reveal = state.reveals[id]!
+      if (reveal.kind === 'hidden') return true
+      return reveal.kind === 'bystander' && !reveal.against.includes(side)
+    })
+}
+
 function endTurn(s: GameState, giver: Side): GameState {
   s.turnsLeft -= 1
   if (s.turnsLeft <= 0) {
     s.phase = 'finished'
     s.outcome = { result: 'lost', reason: 'timeout' }
   } else {
-    s.phase = giver === 'player' ? 'aiClueInput' : 'playerClueInput'
+    // The other side normally clues next — but a side whose greens are all
+    // found has nothing to clue, so the same giver continues (Duet lets the
+    // team choose clue order). Every remaining green is targetable by the
+    // side that holds it, so at least one side can always clue.
+    const other: Side = giver === 'player' ? 'ai' : 'player'
+    const nextGiver = targetableGreenIds(s, other).length > 0 ? other : giver
+    s.phase = nextGiver === 'player' ? 'playerClueInput' : 'aiClueInput'
   }
   return s
 }

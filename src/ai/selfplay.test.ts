@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { GRID_CONFIGS } from '../engine/config'
-import { applyEvent, createGame, currentClue, isGuessable } from '../engine/game'
+import {
+  applyEvent,
+  createGame,
+  currentClue,
+  isGuessable,
+  targetableGreenIds,
+} from '../engine/game'
 import { checkClueLegality } from '../engine/legality'
 import type { BoardWord, GameState } from '../engine/types'
 import { MockCompanion } from './mock/mockCompanion'
@@ -38,6 +44,7 @@ async function playOneGame(seed: number, grid: 'beginner' | 'standard'): Promise
   while (s.phase !== 'finished' && safety-- > 0) {
     switch (s.phase) {
       case 'playerClueInput': {
+        expect(targetableGreenIds(s, 'player').length).toBeGreaterThan(0)
         s = applyEvent(s, {
           type: 'SUBMIT_CLUE',
           by: 'player',
@@ -58,6 +65,8 @@ async function playOneGame(seed: number, grid: 'beginner' | 'standard'): Promise
         break
       }
       case 'aiClueInput': {
+        // Engine invariant: a side is only asked to clue while it can.
+        expect(targetableGreenIds(s, 'ai').length).toBeGreaterThan(0)
         const clue = await companion.getClue(buildAiClueView(s, 'en'))
         s = applyEvent(s, {
           type: 'SUBMIT_CLUE',
