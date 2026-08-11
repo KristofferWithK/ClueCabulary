@@ -1802,7 +1802,7 @@
   ],
   "pos": "noun",
   "article": "en",
-  "exampleDa": "Sid ned på denne stol.",
+  "exampleDa": "Sæt dig på den her stol.",
   "exampleEn": "Sit down on this chair.",
   "freqRank": 152
  },
@@ -3181,8 +3181,7 @@
   "da": "opgave",
   "en": [
    "task",
-   "assignment",
-   "homework"
+   "assignment"
   ],
   "pos": "noun",
   "article": "en",
@@ -3900,6 +3899,7 @@
   "en": [
    "search",
    "seek",
+   "look for",
    "apply"
   ],
   "pos": "verb",
@@ -5961,7 +5961,7 @@
   "pos": "noun",
   "article": "en",
   "exampleDa": "Han bor sammen med sin kæreste.",
-  "exampleEn": "He lives together with his girlfriend.",
+  "exampleEn": "He lives with his girlfriend.",
   "freqRank": 501
  },
  {
@@ -6041,8 +6041,8 @@
    "peek"
   ],
   "pos": "verb",
-  "exampleDa": "Kig på det smukke vejr!",
-  "exampleEn": "Look at the beautiful weather!",
+  "exampleDa": "Hun kigger ud ad vinduet.",
+  "exampleEn": "She looks out of the window.",
   "freqRank": 508
  },
  {
@@ -7807,16 +7807,15 @@
   "freqRank": 656
  },
  {
-  "id": "da:ked",
-  "da": "ked",
+  "id": "da:sommerfugl",
+  "da": "sommerfugl",
   "en": [
-   "sad",
-   "sorry",
-   "upset"
+   "butterfly"
   ],
-  "pos": "adjective",
-  "exampleDa": "Hun er ked af det i dag.",
-  "exampleEn": "She is sad today.",
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der sidder en smuk sommerfugl på blomsten.",
+  "exampleEn": "A beautiful butterfly is sitting on the flower.",
   "freqRank": 657
  },
  {
@@ -8427,8 +8426,8 @@
   ],
   "pos": "noun",
   "article": "en",
-  "exampleDa": "Jeg har en smerte i ryggen.",
-  "exampleEn": "I have a pain in my back.",
+  "exampleDa": "Jeg har smerter i ryggen.",
+  "exampleEn": "I have pain in my back.",
   "freqRank": 708
  },
  {
@@ -9023,7 +9022,7 @@
    "harsh"
   ],
   "pos": "adjective",
-  "exampleDa": "Vores lærer er streng men venlig.",
+  "exampleDa": "Vores lærer er streng, men venlig.",
   "exampleEn": "Our teacher is strict but kind.",
   "freqRank": 757
  },
@@ -10349,8 +10348,8 @@
    "repeat"
   ],
   "pos": "verb",
-  "exampleDa": "Vil du gentage spørgsmålet, tak?",
-  "exampleEn": "Will you repeat the question, please?",
+  "exampleDa": "Kan du gentage spørgsmålet?",
+  "exampleEn": "Can you repeat the question?",
   "freqRank": 866
  },
  {
