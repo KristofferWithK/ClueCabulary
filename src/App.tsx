@@ -22,6 +22,23 @@ export default function App() {
     if (shouldShowHowTo() && params.get('howto') !== '0') useUi.getState().openHowTo()
   }, [])
 
+  // Android back gesture / browser back: close the top-most layer, then fall
+  // back to home — never straight out of the installed PWA.
+  useEffect(() => {
+    const onPop = () => {
+      const ui = useUi.getState()
+      if (ui.sheetWordId) {
+        useUi.setState({ sheetWordId: null })
+      } else if (ui.howToOpen) {
+        ui.closeHowTo()
+      } else if (ui.screen !== 'home') {
+        useUi.setState({ screen: 'home', sheetWordId: null })
+      }
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
   return (
     <main className="app-shell">
       {screen === 'home' && <HomeScreen />}

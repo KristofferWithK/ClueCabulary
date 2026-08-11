@@ -5,7 +5,9 @@
   --line-soft: #e6e6e6;
   --text: #121212;
   --text-dim: #6e6e6e;
-  --green: #6aaa64;
+  --green: #6aaa64; /* decorative only — fails 4.5:1 with white text */
+  --green-tile: #4e8449; /* dark enough for white tile text (~4.6:1) */
+  --green-deep: #3a7a34; /* green text on white surfaces */
   --green-soft: #eaf3e9;
   --beige: #e3dfd3;
   --beige-deep: #c9c3b2;
@@ -55,6 +57,8 @@ button {
   border: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  /* Suppress iOS double-tap zoom on rapid gameplay taps (stepper, cards). */
+  touch-action: manipulation;
 }
 
 input,
@@ -81,7 +85,10 @@ select:focus {
 .app-shell {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100dvh;
+  /* 100% of the body's content box — the body's safe-area padding is already
+     subtracted; 100dvh here would double-count the notch insets and force a
+     permanent overflow scroll in standalone mode. */
+  min-height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -290,7 +297,7 @@ select:focus {
   right: 14px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .home-nav {
@@ -431,18 +438,40 @@ select:focus {
 }
 
 .card-en {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   color: var(--text-dim);
+}
+
+/* Disabled cards must keep full-contrast text (UA gray would dim the board
+   whenever it is not the player's guessing turn). */
+.word-card:disabled {
+  color: var(--text);
+  opacity: 1;
+  cursor: default;
 }
 
 .card-info {
   position: absolute;
   top: 0;
   right: 0;
-  font-size: 0.85rem;
-  color: #9b9b9b;
-  padding: 5px 7px;
+  font-size: 1rem;
+  color: #565758;
+  padding: 10px 12px;
   z-index: 2;
+}
+
+.wrap-green .card-info,
+.wrap-forbidden .card-info {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Non-color marker so revealed-neutral tiles are distinguishable by shape. */
+.card-mark {
+  position: absolute;
+  bottom: 3px;
+  left: 6px;
+  font-size: 0.7rem;
+  color: #8a8471;
 }
 
 .card-guessable {
@@ -459,8 +488,8 @@ select:focus {
 }
 
 .card-green {
-  background: var(--green);
-  border-color: var(--green);
+  background: var(--green-tile);
+  border-color: var(--green-tile);
 }
 
 .card-green .card-da {
@@ -468,7 +497,7 @@ select:focus {
 }
 
 .card-green .card-en {
-  color: rgba(255, 255, 255, 0.85);
+  color: #fff;
 }
 
 .card-forbidden {
@@ -596,7 +625,7 @@ select:focus {
 }
 
 .result-green strong {
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .result-bystander strong {
@@ -704,8 +733,8 @@ select:focus {
 }
 
 .demo-green {
-  background: var(--green);
-  border-color: var(--green);
+  background: var(--green-tile);
+  border-color: var(--green-tile);
   color: #fff;
 }
 
@@ -1046,7 +1075,7 @@ select:focus {
 }
 
 .test-ok {
-  color: var(--green);
+  color: var(--green-deep);
   font-weight: 600;
 }
 
@@ -1173,4 +1202,21 @@ select:focus {
   margin-left: auto;
   color: var(--red);
   font-size: 0.8rem;
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+
+  .dots::after,
+  .sheet,
+  .howto,
+  .word-card,
+  .confetti-piece {
+    animation: none !important;
+    transition: none !important;
+  }
 }

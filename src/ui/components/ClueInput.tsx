@@ -23,9 +23,15 @@ export function ClueInput({ game, onSubmit }: Props) {
       {last && (
         <p className="last-turn">
           Last turn — {last.by === 'player' ? 'you' : 'Klaus'} clued «{last.text}»:{' '}
-          {last.guesses
-            .map((g) => `${game.words.find((w) => w.wordId === g.wordId)?.da} ${mark[g.result]}`)
-            .join('  ') || 'no guesses'}
+          {last.guesses.length === 0
+            ? 'no guesses'
+            : last.guesses.map((g, i) => (
+                <span key={g.wordId}>
+                  {i > 0 && '  '}
+                  <span lang="da">{game.words.find((w) => w.wordId === g.wordId)?.da}</span>{' '}
+                  {mark[g.result]}
+                </span>
+              ))}
         </p>
       )}
       <p className="dock-title">Your clue — one word for Klaus to guess by</p>
@@ -33,7 +39,7 @@ export function ClueInput({ game, onSubmit }: Props) {
         <input
           type="text"
           value={text}
-          placeholder="fx: dyreliv"
+          placeholder="e.g. dyreliv"
           autoCapitalize="off"
           autoComplete="off"
           enterKeyHint="done"

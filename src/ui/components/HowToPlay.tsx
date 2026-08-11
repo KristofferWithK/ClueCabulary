@@ -1,14 +1,24 @@
 import { useUi } from '../../stores/uiStore'
+import { useDialog } from '../useDialog'
 
 export function HowToPlay() {
   const open = useUi((s) => s.howToOpen)
   const close = useUi((s) => s.closeHowTo)
+  const dialogRef = useDialog(open, close)
   if (!open) return null
 
   return (
     <div className="howto-backdrop" onClick={close}>
-      <div className="howto" onClick={(e) => e.stopPropagation()}>
-        <h2>How to Play</h2>
+      <div
+        className="howto"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="howto-title"
+        tabIndex={-1}
+        ref={dialogRef}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="howto-title">How to Play</h2>
         <p className="howto-sub">
           Find every green word with Klaus, your AI partner — and learn Danish on the way.
         </p>
@@ -31,8 +41,9 @@ export function HowToPlay() {
             peek at yours.
           </li>
           <li>
-            Green guesses keep the turn going. A neutral word ends the turn and spends one of the
-            shared clue tokens shown at the top.
+            A clue comes with a number: the guesser gets at most that many guesses plus one bonus.
+            Green guesses keep the turn alive up to that cap; a neutral word ends it at once.
+            Every clue spends one shared token (the dots at the top), however the turn ends.
           </li>
           <li>
             Hit a <strong>forbidden</strong> word and one chance remains: translate every unsolved

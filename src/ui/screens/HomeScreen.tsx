@@ -96,7 +96,9 @@ export function HomeScreen() {
       </div>
 
       <button className="daily-card" onClick={startDaily}>
-        <span className="daily-card-name">Dagens udfordring</span>
+        <span className="daily-card-name" lang="da">
+          Dagens udfordring
+        </span>
         <span className="daily-card-desc">
           Daily challenge — one shared 4×5 board per day
         </span>
@@ -104,7 +106,9 @@ export function HomeScreen() {
       </button>
 
       <button className="wotd" onClick={() => openSheet(wotd.id)}>
-        <span className="wotd-label">Dagens ord · word of the day</span>
+        <span className="wotd-label">
+          <span lang="da">Dagens ord</span> · word of the day
+        </span>
         <span className="wotd-da" lang="da">
           {wotd.pos === 'noun' && wotd.article ? `${wotd.article} ` : ''}
           {wotd.da}

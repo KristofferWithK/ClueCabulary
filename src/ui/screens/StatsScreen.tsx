@@ -44,9 +44,10 @@ export function StatsScreen() {
           </span>
           <span>
             <strong>{games.won}</strong> won
+            {games.redeemed > 0 ? ` (${games.redeemed} 🔥)` : ''}
           </span>
           <span>
-            <strong>{games.redeemed}</strong> redeemed 🔥
+            <strong>{games.lost}</strong> lost
           </span>
         </p>
       )}

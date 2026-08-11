@@ -107,10 +107,13 @@ export function DebriefPanel({ game }: { game: GameState }) {
               {c.by === 'ai' && c.targets && (
                 <span className="dim">
                   {' '}
-                  meant {c.targets.map((t) => game.words.find((w) => w.wordId === t)?.da).join(', ')}
+                  meant{' '}
+                  <span lang="da">
+                    {c.targets.map((t) => game.words.find((w) => w.wordId === t)?.da).join(', ')}
+                  </span>
                 </span>
               )}
-              <span className="clue-log-guesses">
+              <span className="clue-log-guesses" lang="da">
                 {c.guesses
                   .map((g) => {
                     const da = game.words.find((w) => w.wordId === g.wordId)?.da

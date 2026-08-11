@@ -3,6 +3,7 @@ import { wordById } from '../../data/words'
 import { useGame } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
 import { canSpeak, speakDanish } from '../speak'
+import { useDialog } from '../useDialog'
 
 export function DictionarySheet() {
   const { sheetWordId, closeSheet } = useUi()
@@ -16,14 +17,24 @@ export function DictionarySheet() {
   }, [locked, sheetWordId, closeSheet])
 
   const entry = sheetWordId ? wordById(sheetWordId) : undefined
-  if (!entry || locked) return null
+  const open = !!entry && !locked
+  const dialogRef = useDialog(open, closeSheet)
+  if (!open || !entry) return null
 
   return (
     <div className="sheet-backdrop" onClick={closeSheet}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sheet-title"
+        tabIndex={-1}
+        ref={dialogRef}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="sheet-handle" />
         <div className="sheet-head">
-          <h2>
+          <h2 id="sheet-title" lang="da">
             {entry.pos === 'noun' && entry.article ? `${entry.article} ` : ''}
             {entry.da}
           </h2>

@@ -21,18 +21,40 @@ interface UiState {
 
 const HOWTO_KEY = 'cluecab-howto-v1'
 
-export const useUi = create<UiState>((set) => ({
+/**
+ * Each screen/overlay pushes a history entry so the Android back gesture (and
+ * browser back) closes the sheet or returns home instead of quitting the
+ * installed PWA. App.tsx handles popstate.
+ */
+const pushHistory = () => {
+  try {
+    history.pushState({ cluecab: true }, '')
+  } catch {
+    // History can be unavailable in exotic embeds — navigation still works.
+  }
+}
+
+export const useUi = create<UiState>((set, get) => ({
   screen: 'home',
   sheetWordId: null,
   translationsOn: false,
   pendingSeed: null,
   howToOpen: false,
-  goTo: (screen) => set({ screen, sheetWordId: null }),
-  openSheet: (wordId) => set({ sheetWordId: wordId }),
+  goTo: (screen) => {
+    if (screen !== 'home' && screen !== get().screen) pushHistory()
+    set({ screen, sheetWordId: null })
+  },
+  openSheet: (wordId) => {
+    if (!get().sheetWordId) pushHistory()
+    set({ sheetWordId: wordId })
+  },
   closeSheet: () => set({ sheetWordId: null }),
   toggleTranslations: () => set((s) => ({ translationsOn: !s.translationsOn })),
   resetTranslations: () => set({ translationsOn: false }),
-  openHowTo: () => set({ howToOpen: true }),
+  openHowTo: () => {
+    if (!get().howToOpen) pushHistory()
+    set({ howToOpen: true })
+  },
   closeHowTo: () => {
     localStorage.setItem(HOWTO_KEY, 'seen')
     set({ howToOpen: false })
