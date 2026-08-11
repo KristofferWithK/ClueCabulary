@@ -1,0 +1,1172 @@
+[
+  {
+    "da": "smage",
+    "en": ["taste"],
+    "pos": "verb",
+    "exampleDa": "Suppen smager rigtig godt.",
+    "exampleEn": "The soup tastes really good.",
+    "order": 115,
+    "slice": "verb-1"
+  },
+  {
+    "da": "lugte",
+    "en": ["smell"],
+    "pos": "verb",
+    "exampleDa": "Der lugter godt i køkkenet.",
+    "exampleEn": "It smells good in the kitchen.",
+    "order": 116,
+    "slice": "verb-1"
+  },
+  {
+    "da": "røre",
+    "en": ["touch", "stir", "move"],
+    "pos": "verb",
+    "exampleDa": "Rør ikke ved den varme ovn!",
+    "exampleEn": "Do not touch the hot oven!",
+    "order": 117,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tælle",
+    "en": ["count"],
+    "pos": "verb",
+    "exampleDa": "Barnet kan tælle til ti.",
+    "exampleEn": "The child can count to ten.",
+    "order": 118,
+    "slice": "verb-1"
+  },
+  {
+    "da": "koste",
+    "en": ["cost"],
+    "pos": "verb",
+    "exampleDa": "Hvad koster de røde æbler?",
+    "exampleEn": "How much do the red apples cost?",
+    "order": 119,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tegne",
+    "en": ["draw"],
+    "pos": "verb",
+    "exampleDa": "Pigen tegner et stort hus.",
+    "exampleEn": "The girl draws a big house.",
+    "order": 120,
+    "slice": "verb-1"
+  },
+  {
+    "da": "male",
+    "en": ["paint"],
+    "pos": "verb",
+    "exampleDa": "Vi maler væggen hvid.",
+    "exampleEn": "We are painting the wall white.",
+    "order": 121,
+    "slice": "verb-1"
+  },
+  {
+    "da": "vaske",
+    "en": ["wash"],
+    "pos": "verb",
+    "exampleDa": "Jeg vasker hænder før maden.",
+    "exampleEn": "I wash my hands before the meal.",
+    "order": 122,
+    "slice": "verb-1"
+  },
+  {
+    "da": "hente",
+    "en": ["fetch", "pick up", "get"],
+    "pos": "verb",
+    "exampleDa": "Kan du hente børnene i skolen?",
+    "exampleEn": "Can you pick up the children from school?",
+    "order": 123,
+    "slice": "verb-1"
+  },
+  {
+    "da": "sælge",
+    "en": ["sell"],
+    "pos": "verb",
+    "exampleDa": "De sælger frisk frugt på torvet.",
+    "exampleEn": "They sell fresh fruit at the market.",
+    "order": 124,
+    "slice": "verb-1"
+  },
+  {
+    "da": "låne",
+    "en": ["borrow", "lend"],
+    "pos": "verb",
+    "exampleDa": "Må jeg låne en blyant?",
+    "exampleEn": "May I borrow a pencil?",
+    "order": 125,
+    "slice": "verb-1"
+  },
+  {
+    "da": "gemme",
+    "en": ["hide", "save"],
+    "pos": "verb",
+    "exampleDa": "Hunden gemmer sit ben i haven.",
+    "exampleEn": "The dog hides its bone in the garden.",
+    "order": 126,
+    "slice": "verb-1"
+  },
+  {
+    "da": "smide",
+    "en": ["throw", "toss", "throw away"],
+    "pos": "verb",
+    "exampleDa": "Smid ikke papir på gaden.",
+    "exampleEn": "Do not throw paper on the street.",
+    "order": 127,
+    "slice": "verb-1"
+  },
+  {
+    "da": "opleve",
+    "en": ["experience"],
+    "pos": "verb",
+    "exampleDa": "Vi oplever mange nye ting på rejsen.",
+    "exampleEn": "We experience many new things on the trip.",
+    "order": 128,
+    "slice": "verb-1"
+  },
+  {
+    "da": "nyde",
+    "en": ["enjoy"],
+    "pos": "verb",
+    "exampleDa": "Jeg nyder min kaffe i solen.",
+    "exampleEn": "I enjoy my coffee in the sun.",
+    "order": 129,
+    "slice": "verb-1"
+  },
+  {
+    "da": "behøve",
+    "en": ["need"],
+    "pos": "verb",
+    "exampleDa": "Du behøver ikke at komme tidligt.",
+    "exampleEn": "You do not need to come early.",
+    "order": 130,
+    "slice": "verb-1"
+  },
+  {
+    "da": "savne",
+    "en": ["miss"],
+    "pos": "verb",
+    "exampleDa": "Jeg savner mine venner derhjemme.",
+    "exampleEn": "I miss my friends back home.",
+    "order": 131,
+    "slice": "verb-1"
+  },
+  {
+    "da": "forsøge",
+    "en": ["try", "attempt"],
+    "pos": "verb",
+    "exampleDa": "Han forsøger at åbne døren.",
+    "exampleEn": "He tries to open the door.",
+    "order": 132,
+    "slice": "verb-1"
+  },
+  {
+    "da": "undgå",
+    "en": ["avoid"],
+    "pos": "verb",
+    "exampleDa": "Vi undgår den travle vej.",
+    "exampleEn": "We avoid the busy road.",
+    "order": 133,
+    "slice": "verb-1"
+  },
+  {
+    "da": "opdage",
+    "en": ["discover", "notice"],
+    "pos": "verb",
+    "exampleDa": "Hun opdager en fejl i brevet.",
+    "exampleEn": "She discovers a mistake in the letter.",
+    "order": 134,
+    "slice": "verb-1"
+  },
+  {
+    "da": "beslutte",
+    "en": ["decide"],
+    "pos": "verb",
+    "exampleDa": "Vi beslutter os i morgen.",
+    "exampleEn": "We will decide tomorrow.",
+    "order": 135,
+    "slice": "verb-1"
+  },
+  {
+    "da": "bestille",
+    "en": ["order", "book"],
+    "pos": "verb",
+    "exampleDa": "Jeg bestiller et bord til to.",
+    "exampleEn": "I book a table for two.",
+    "order": 136,
+    "slice": "verb-1"
+  },
+  {
+    "da": "tilbyde",
+    "en": ["offer"],
+    "pos": "verb",
+    "exampleDa": "Han tilbyder mig en kop te.",
+    "exampleEn": "He offers me a cup of tea.",
+    "order": 137,
+    "slice": "verb-1"
+  },
+  {
+    "da": "forlade",
+    "en": ["leave"],
+    "pos": "verb",
+    "exampleDa": "Vi forlader huset klokken syv.",
+    "exampleEn": "We leave the house at seven o'clock.",
+    "order": 138,
+    "slice": "verb-1"
+  },
+  {
+    "da": "bygge",
+    "en": ["build"],
+    "pos": "verb",
+    "exampleDa": "De bygger et nyt hus ved søen.",
+    "exampleEn": "They are building a new house by the lake.",
+    "order": 139,
+    "slice": "verb-1"
+  },
+  {
+    "da": "drømme",
+    "en": ["dream"],
+    "pos": "verb",
+    "exampleDa": "Jeg drømmer om at bo ved havet.",
+    "exampleEn": "I dream of living by the sea.",
+    "order": 140,
+    "slice": "verb-1"
+  },
+  {
+    "da": "god",
+    "en": ["good"],
+    "pos": "adjective",
+    "exampleDa": "Maden er rigtig god i dag.",
+    "exampleEn": "The food is really good today.",
+    "order": 1,
+    "slice": "adj-1"
+  },
+  {
+    "da": "stor",
+    "en": ["big", "large"],
+    "pos": "adjective",
+    "exampleDa": "De bor i et stort hus.",
+    "exampleEn": "They live in a big house.",
+    "order": 2,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ny",
+    "en": ["new"],
+    "pos": "adjective",
+    "exampleDa": "Jeg har købt en ny bil.",
+    "exampleEn": "I have bought a new car.",
+    "order": 3,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lille",
+    "en": ["small", "little"],
+    "pos": "adjective",
+    "exampleDa": "De har en lille hund.",
+    "exampleEn": "They have a small dog.",
+    "order": 4,
+    "slice": "adj-1"
+  },
+  {
+    "da": "gammel",
+    "en": ["old"],
+    "pos": "adjective",
+    "exampleDa": "Min farfar er meget gammel.",
+    "exampleEn": "My grandfather is very old.",
+    "order": 5,
+    "slice": "adj-1"
+  },
+  {
+    "da": "hel",
+    "en": ["whole", "entire"],
+    "pos": "adjective",
+    "exampleDa": "Jeg har ventet en hel time.",
+    "exampleEn": "I have waited a whole hour.",
+    "order": 6,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lang",
+    "en": ["long"],
+    "pos": "adjective",
+    "exampleDa": "Vejen til skolen er meget lang.",
+    "exampleEn": "The road to school is very long.",
+    "order": 7,
+    "slice": "adj-1"
+  },
+  {
+    "da": "dansk",
+    "en": ["Danish"],
+    "pos": "adjective",
+    "exampleDa": "Vi læser en dansk bog.",
+    "exampleEn": "We are reading a Danish book.",
+    "order": 8,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sidste",
+    "en": ["last", "final"],
+    "pos": "adjective",
+    "exampleDa": "Det er den sidste dag i ferien.",
+    "exampleEn": "It is the last day of the holiday.",
+    "order": 9,
+    "slice": "adj-1"
+  },
+  {
+    "da": "høj",
+    "en": ["tall", "high", "loud"],
+    "pos": "adjective",
+    "exampleDa": "Min bror er meget høj.",
+    "exampleEn": "My brother is very tall.",
+    "order": 10,
+    "slice": "adj-1"
+  },
+  {
+    "da": "rigtig",
+    "en": ["right", "correct", "real"],
+    "pos": "adjective",
+    "exampleDa": "Det er det rigtige svar.",
+    "exampleEn": "That is the correct answer.",
+    "order": 11,
+    "slice": "adj-1"
+  },
+  {
+    "da": "vigtig",
+    "en": ["important"],
+    "pos": "adjective",
+    "exampleDa": "Det er en vigtig dag for os.",
+    "exampleEn": "It is an important day for us.",
+    "order": 12,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ung",
+    "en": ["young"],
+    "pos": "adjective",
+    "exampleDa": "Hun er for ung til at køre bil.",
+    "exampleEn": "She is too young to drive a car.",
+    "order": 13,
+    "slice": "adj-1"
+  },
+  {
+    "da": "fin",
+    "en": ["fine", "nice"],
+    "pos": "adjective",
+    "exampleDa": "Du har en fin jakke på.",
+    "exampleEn": "You are wearing a nice jacket.",
+    "order": 14,
+    "slice": "adj-1"
+  },
+  {
+    "da": "klar",
+    "en": ["ready", "clear"],
+    "pos": "adjective",
+    "exampleDa": "Er du klar til at gå?",
+    "exampleEn": "Are you ready to go?",
+    "order": 15,
+    "slice": "adj-1"
+  },
+  {
+    "da": "samme",
+    "en": ["same"],
+    "pos": "adjective",
+    "exampleDa": "Vi arbejder i den samme by.",
+    "exampleEn": "We work in the same city.",
+    "order": 16,
+    "slice": "adj-1"
+  },
+  {
+    "da": "næste",
+    "en": ["next"],
+    "pos": "adjective",
+    "exampleDa": "Vi ses igen næste uge.",
+    "exampleEn": "See you again next week.",
+    "order": 17,
+    "slice": "adj-1"
+  },
+  {
+    "da": "fri",
+    "en": ["free", "off"],
+    "pos": "adjective",
+    "exampleDa": "Jeg har fri i morgen.",
+    "exampleEn": "I have the day off tomorrow.",
+    "order": 18,
+    "slice": "adj-1"
+  },
+  {
+    "da": "kort",
+    "en": ["short"],
+    "pos": "adjective",
+    "exampleDa": "Hun har kort hår nu.",
+    "exampleEn": "She has short hair now.",
+    "order": 19,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sikker",
+    "en": ["sure", "safe", "certain"],
+    "pos": "adjective",
+    "exampleDa": "Er du sikker på det?",
+    "exampleEn": "Are you sure about that?",
+    "order": 20,
+    "slice": "adj-1"
+  },
+  {
+    "da": "stærk",
+    "en": ["strong"],
+    "pos": "adjective",
+    "exampleDa": "Kaffen er meget stærk.",
+    "exampleEn": "The coffee is very strong.",
+    "order": 21,
+    "slice": "adj-1"
+  },
+  {
+    "da": "dårlig",
+    "en": ["bad", "poor"],
+    "pos": "adjective",
+    "exampleDa": "Vejret er dårligt i dag.",
+    "exampleEn": "The weather is bad today.",
+    "order": 22,
+    "slice": "adj-1"
+  },
+  {
+    "da": "svær",
+    "en": ["difficult", "hard"],
+    "pos": "adjective",
+    "exampleDa": "Opgaven er svær for mig.",
+    "exampleEn": "The task is difficult for me.",
+    "order": 23,
+    "slice": "adj-1"
+  },
+  {
+    "da": "let",
+    "en": ["easy", "light"],
+    "pos": "adjective",
+    "exampleDa": "Tasken er let at bære.",
+    "exampleEn": "The bag is easy to carry.",
+    "order": 24,
+    "slice": "adj-1"
+  },
+  {
+    "da": "glad",
+    "en": ["happy", "glad"],
+    "pos": "adjective",
+    "exampleDa": "Jeg er glad for min nye cykel.",
+    "exampleEn": "I am happy about my new bike.",
+    "order": 25,
+    "slice": "adj-1"
+  },
+  {
+    "da": "hvid",
+    "en": ["white"],
+    "pos": "adjective",
+    "exampleDa": "Sneen er hvid og kold.",
+    "exampleEn": "The snow is white and cold.",
+    "order": 26,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sort",
+    "en": ["black"],
+    "pos": "adjective",
+    "exampleDa": "Han har en sort kat.",
+    "exampleEn": "He has a black cat.",
+    "order": 27,
+    "slice": "adj-1"
+  },
+  {
+    "da": "rød",
+    "en": ["red"],
+    "pos": "adjective",
+    "exampleDa": "Hun har en rød kjole på.",
+    "exampleEn": "She is wearing a red dress.",
+    "order": 28,
+    "slice": "adj-1"
+  },
+  {
+    "da": "åben",
+    "en": ["open"],
+    "pos": "adjective",
+    "exampleDa": "Caféen er åben hele dagen.",
+    "exampleEn": "The café is open all day.",
+    "order": 29,
+    "slice": "adj-1"
+  },
+  {
+    "da": "mulig",
+    "en": ["possible"],
+    "pos": "adjective",
+    "exampleDa": "Det er muligt at komme i morgen.",
+    "exampleEn": "It is possible to come tomorrow.",
+    "order": 30,
+    "slice": "adj-1"
+  },
+  {
+    "da": "forskellig",
+    "en": ["different"],
+    "pos": "adjective",
+    "exampleDa": "Vi kan lide forskellige ting.",
+    "exampleEn": "We like different things.",
+    "order": 31,
+    "slice": "adj-1"
+  },
+  {
+    "da": "alvorlig",
+    "en": ["serious"],
+    "pos": "adjective",
+    "exampleDa": "Det er en alvorlig sag.",
+    "exampleEn": "It is a serious matter.",
+    "order": 32,
+    "slice": "adj-1"
+  },
+  {
+    "da": "almindelig",
+    "en": ["ordinary", "common", "normal"],
+    "pos": "adjective",
+    "exampleDa": "Det er en helt almindelig dag.",
+    "exampleEn": "It is a completely ordinary day.",
+    "order": 33,
+    "slice": "adj-1"
+  },
+  {
+    "da": "nødvendig",
+    "en": ["necessary"],
+    "pos": "adjective",
+    "exampleDa": "Det er ikke nødvendigt at vente.",
+    "exampleEn": "It is not necessary to wait.",
+    "order": 34,
+    "slice": "adj-1"
+  },
+  {
+    "da": "offentlig",
+    "en": ["public"],
+    "pos": "adjective",
+    "exampleDa": "Vi tager offentlig transport til arbejde.",
+    "exampleEn": "We take public transport to work.",
+    "order": 35,
+    "slice": "adj-1"
+  },
+  {
+    "da": "politisk",
+    "en": ["political"],
+    "pos": "adjective",
+    "exampleDa": "Det er et politisk spørgsmål.",
+    "exampleEn": "It is a political question.",
+    "order": 36,
+    "slice": "adj-1"
+  },
+  {
+    "da": "økonomisk",
+    "en": ["economic", "financial"],
+    "pos": "adjective",
+    "exampleDa": "Familien har økonomiske problemer.",
+    "exampleEn": "The family has financial problems.",
+    "order": 37,
+    "slice": "adj-1"
+  },
+  {
+    "da": "international",
+    "en": ["international"],
+    "pos": "adjective",
+    "exampleDa": "Det er en international skole.",
+    "exampleEn": "It is an international school.",
+    "order": 38,
+    "slice": "adj-1"
+  },
+  {
+    "da": "privat",
+    "en": ["private"],
+    "pos": "adjective",
+    "exampleDa": "Det er et privat spørgsmål.",
+    "exampleEn": "That is a private question.",
+    "order": 39,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lokal",
+    "en": ["local"],
+    "pos": "adjective",
+    "exampleDa": "Vi køber ind i den lokale butik.",
+    "exampleEn": "We shop in the local store.",
+    "order": 40,
+    "slice": "adj-1"
+  },
+  {
+    "da": "national",
+    "en": ["national"],
+    "pos": "adjective",
+    "exampleDa": "Det er en national helligdag i dag.",
+    "exampleEn": "It is a national holiday today.",
+    "order": 41,
+    "slice": "adj-1"
+  },
+  {
+    "da": "engelsk",
+    "en": ["English"],
+    "pos": "adjective",
+    "exampleDa": "Hun læser en engelsk avis.",
+    "exampleEn": "She is reading an English newspaper.",
+    "order": 42,
+    "slice": "adj-1"
+  },
+  {
+    "da": "amerikansk",
+    "en": ["American"],
+    "pos": "adjective",
+    "exampleDa": "Vi ser en amerikansk film i aften.",
+    "exampleEn": "We are watching an American film tonight.",
+    "order": 43,
+    "slice": "adj-1"
+  },
+  {
+    "da": "tysk",
+    "en": ["German"],
+    "pos": "adjective",
+    "exampleDa": "Han har en tysk bil.",
+    "exampleEn": "He has a German car.",
+    "order": 44,
+    "slice": "adj-1"
+  },
+  {
+    "da": "europæisk",
+    "en": ["European"],
+    "pos": "adjective",
+    "exampleDa": "Vi bor i et europæisk land.",
+    "exampleEn": "We live in a European country.",
+    "order": 45,
+    "slice": "adj-1"
+  },
+  {
+    "da": "svensk",
+    "en": ["Swedish"],
+    "pos": "adjective",
+    "exampleDa": "De ser en svensk film.",
+    "exampleEn": "They are watching a Swedish film.",
+    "order": 46,
+    "slice": "adj-1"
+  },
+  {
+    "da": "norsk",
+    "en": ["Norwegian"],
+    "pos": "adjective",
+    "exampleDa": "Vi hører en norsk sang.",
+    "exampleEn": "We are listening to a Norwegian song.",
+    "order": 47,
+    "slice": "adj-1"
+  },
+  {
+    "da": "fransk",
+    "en": ["French"],
+    "pos": "adjective",
+    "exampleDa": "Jeg kan lide fransk mad.",
+    "exampleEn": "I like French food.",
+    "order": 48,
+    "slice": "adj-1"
+  },
+  {
+    "da": "spansk",
+    "en": ["Spanish"],
+    "pos": "adjective",
+    "exampleDa": "Hun læser en spansk bog.",
+    "exampleEn": "She is reading a Spanish book.",
+    "order": 49,
+    "slice": "adj-1"
+  },
+  {
+    "da": "italiensk",
+    "en": ["Italian"],
+    "pos": "adjective",
+    "exampleDa": "Vi spiser på en italiensk restaurant.",
+    "exampleEn": "We are eating at an Italian restaurant.",
+    "order": 50,
+    "slice": "adj-1"
+  },
+  {
+    "da": "kinesisk",
+    "en": ["Chinese"],
+    "pos": "adjective",
+    "exampleDa": "Han laver kinesisk mad i aften.",
+    "exampleEn": "He is making Chinese food tonight.",
+    "order": 51,
+    "slice": "adj-1"
+  },
+  {
+    "da": "russisk",
+    "en": ["Russian"],
+    "pos": "adjective",
+    "exampleDa": "De hører russisk musik.",
+    "exampleEn": "They are listening to Russian music.",
+    "order": 52,
+    "slice": "adj-1"
+  },
+  {
+    "da": "udenlandsk",
+    "en": ["foreign"],
+    "pos": "adjective",
+    "exampleDa": "Han arbejder for et udenlandsk firma.",
+    "exampleEn": "He works for a foreign company.",
+    "order": 53,
+    "slice": "adj-1"
+  },
+  {
+    "da": "fremmed",
+    "en": ["foreign", "strange", "unfamiliar"],
+    "pos": "adjective",
+    "exampleDa": "Vi er i et fremmed land.",
+    "exampleEn": "We are in a foreign country.",
+    "order": 54,
+    "slice": "adj-1"
+  },
+  {
+    "da": "kendt",
+    "en": ["well-known", "famous"],
+    "pos": "adjective",
+    "exampleDa": "Han er en kendt kok i byen.",
+    "exampleEn": "He is a well-known chef in the city.",
+    "order": 55,
+    "slice": "adj-1"
+  },
+  {
+    "da": "populær",
+    "en": ["popular"],
+    "pos": "adjective",
+    "exampleDa": "Sangen er meget populær nu.",
+    "exampleEn": "The song is very popular now.",
+    "order": 56,
+    "slice": "adj-1"
+  },
+  {
+    "da": "moderne",
+    "en": ["modern"],
+    "pos": "adjective",
+    "exampleDa": "De bor i en moderne lejlighed.",
+    "exampleEn": "They live in a modern apartment.",
+    "order": 57,
+    "slice": "adj-1"
+  },
+  {
+    "da": "normal",
+    "en": ["normal"],
+    "pos": "adjective",
+    "exampleDa": "Det er en helt normal uge.",
+    "exampleEn": "It is a completely normal week.",
+    "order": 58,
+    "slice": "adj-1"
+  },
+  {
+    "da": "særlig",
+    "en": ["special", "particular"],
+    "pos": "adjective",
+    "exampleDa": "I dag er en særlig dag.",
+    "exampleEn": "Today is a special day.",
+    "order": 59,
+    "slice": "adj-1"
+  },
+  {
+    "da": "speciel",
+    "en": ["special"],
+    "pos": "adjective",
+    "exampleDa": "Det er en speciel gave til dig.",
+    "exampleEn": "It is a special gift for you.",
+    "order": 60,
+    "slice": "adj-1"
+  },
+  {
+    "da": "umulig",
+    "en": ["impossible"],
+    "pos": "adjective",
+    "exampleDa": "Det er umuligt at sove her.",
+    "exampleEn": "It is impossible to sleep here.",
+    "order": 61,
+    "slice": "adj-1"
+  },
+  {
+    "da": "nem",
+    "en": ["easy", "simple"],
+    "pos": "adjective",
+    "exampleDa": "Kagen er nem at lave.",
+    "exampleEn": "The cake is easy to make.",
+    "order": 62,
+    "slice": "adj-1"
+  },
+  {
+    "da": "flot",
+    "en": ["good-looking", "handsome", "nice"],
+    "pos": "adjective",
+    "exampleDa": "Han er en flot mand.",
+    "exampleEn": "He is a handsome man.",
+    "order": 63,
+    "slice": "adj-1"
+  },
+  {
+    "da": "dejlig",
+    "en": ["lovely", "wonderful", "nice"],
+    "pos": "adjective",
+    "exampleDa": "Det er dejligt vejr i dag.",
+    "exampleEn": "It is lovely weather today.",
+    "order": 64,
+    "slice": "adj-1"
+  },
+  {
+    "da": "færdig",
+    "en": ["finished", "done", "ready"],
+    "pos": "adjective",
+    "exampleDa": "Jeg er færdig med mit arbejde.",
+    "exampleEn": "I am done with my work.",
+    "order": 65,
+    "slice": "adj-1"
+  },
+  {
+    "da": "kold",
+    "en": ["cold"],
+    "pos": "adjective",
+    "exampleDa": "Vandet i søen er meget koldt.",
+    "exampleEn": "The water in the lake is very cold.",
+    "order": 66,
+    "slice": "adj-1"
+  },
+  {
+    "da": "varm",
+    "en": ["warm", "hot"],
+    "pos": "adjective",
+    "exampleDa": "Suppen er stadig varm.",
+    "exampleEn": "The soup is still warm.",
+    "order": 67,
+    "slice": "adj-1"
+  },
+  {
+    "da": "hurtig",
+    "en": ["fast", "quick"],
+    "pos": "adjective",
+    "exampleDa": "Han har en hurtig bil.",
+    "exampleEn": "He has a fast car.",
+    "order": 68,
+    "slice": "adj-1"
+  },
+  {
+    "da": "langsom",
+    "en": ["slow"],
+    "pos": "adjective",
+    "exampleDa": "Bussen er langsom om morgenen.",
+    "exampleEn": "The bus is slow in the morning.",
+    "order": 69,
+    "slice": "adj-1"
+  },
+  {
+    "da": "billig",
+    "en": ["cheap", "inexpensive"],
+    "pos": "adjective",
+    "exampleDa": "Kaffen er billig her.",
+    "exampleEn": "The coffee is cheap here.",
+    "order": 70,
+    "slice": "adj-1"
+  },
+  {
+    "da": "gratis",
+    "en": ["free"],
+    "pos": "adjective",
+    "exampleDa": "Museet er gratis om søndagen.",
+    "exampleEn": "The museum is free on Sundays.",
+    "order": 72,
+    "slice": "adj-1"
+  },
+  {
+    "da": "træt",
+    "en": ["tired"],
+    "pos": "adjective",
+    "exampleDa": "Jeg er træt efter arbejde.",
+    "exampleEn": "I am tired after work.",
+    "order": 73,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sjov",
+    "en": ["fun", "funny"],
+    "pos": "adjective",
+    "exampleDa": "Filmen var rigtig sjov.",
+    "exampleEn": "The film was really funny.",
+    "order": 74,
+    "slice": "adj-1"
+  },
+  {
+    "da": "kedelig",
+    "en": ["boring", "dull"],
+    "pos": "adjective",
+    "exampleDa": "Bogen er lidt kedelig.",
+    "exampleEn": "The book is a bit boring.",
+    "order": 75,
+    "slice": "adj-1"
+  },
+  {
+    "da": "interessant",
+    "en": ["interesting"],
+    "pos": "adjective",
+    "exampleDa": "Det var en interessant historie.",
+    "exampleEn": "It was an interesting story.",
+    "order": 76,
+    "slice": "adj-1"
+  },
+  {
+    "da": "spændende",
+    "en": ["exciting", "thrilling"],
+    "pos": "adjective",
+    "exampleDa": "Kampen var meget spændende.",
+    "exampleEn": "The match was very exciting.",
+    "order": 77,
+    "slice": "adj-1"
+  },
+  {
+    "da": "mærkelig",
+    "en": ["strange", "weird", "odd"],
+    "pos": "adjective",
+    "exampleDa": "Der er en mærkelig lyd i huset.",
+    "exampleEn": "There is a strange sound in the house.",
+    "order": 78,
+    "slice": "adj-1"
+  },
+  {
+    "da": "fantastisk",
+    "en": ["fantastic", "amazing", "wonderful"],
+    "pos": "adjective",
+    "exampleDa": "Vi havde en fantastisk ferie.",
+    "exampleEn": "We had a fantastic holiday.",
+    "order": 79,
+    "slice": "adj-1"
+  },
+  {
+    "da": "forfærdelig",
+    "en": ["terrible", "awful"],
+    "pos": "adjective",
+    "exampleDa": "Vejret var forfærdeligt i går.",
+    "exampleEn": "The weather was terrible yesterday.",
+    "order": 80,
+    "slice": "adj-1"
+  },
+  {
+    "da": "perfekt",
+    "en": ["perfect"],
+    "pos": "adjective",
+    "exampleDa": "Dagen var helt perfekt.",
+    "exampleEn": "The day was absolutely perfect.",
+    "order": 81,
+    "slice": "adj-1"
+  },
+  {
+    "da": "forkert",
+    "en": ["wrong", "incorrect"],
+    "pos": "adjective",
+    "exampleDa": "Vi tog den forkerte bus.",
+    "exampleEn": "We took the wrong bus.",
+    "order": 82,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ægte",
+    "en": ["real", "genuine"],
+    "pos": "adjective",
+    "exampleDa": "Ringen er lavet af ægte guld.",
+    "exampleEn": "The ring is made of real gold.",
+    "order": 83,
+    "slice": "adj-1"
+  },
+  {
+    "da": "tidlig",
+    "en": ["early"],
+    "pos": "adjective",
+    "exampleDa": "Vi spiser en tidlig middag i dag.",
+    "exampleEn": "We are having an early dinner today.",
+    "order": 84,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sen",
+    "en": ["late"],
+    "pos": "adjective",
+    "exampleDa": "Vi fik en sen morgenmad.",
+    "exampleEn": "We had a late breakfast.",
+    "order": 85,
+    "slice": "adj-1"
+  },
+  {
+    "da": "blå",
+    "en": ["blue"],
+    "pos": "adjective",
+    "exampleDa": "Himlen er blå i dag.",
+    "exampleEn": "The sky is blue today.",
+    "order": 86,
+    "slice": "adj-1"
+  },
+  {
+    "da": "grøn",
+    "en": ["green"],
+    "pos": "adjective",
+    "exampleDa": "Græsset er grønt om sommeren.",
+    "exampleEn": "The grass is green in the summer.",
+    "order": 87,
+    "slice": "adj-1"
+  },
+  {
+    "da": "gul",
+    "en": ["yellow"],
+    "pos": "adjective",
+    "exampleDa": "Hun har en gul regnjakke.",
+    "exampleEn": "She has a yellow raincoat.",
+    "order": 88,
+    "slice": "adj-1"
+  },
+  {
+    "da": "grå",
+    "en": ["grey", "gray"],
+    "pos": "adjective",
+    "exampleDa": "Himlen er grå i november.",
+    "exampleEn": "The sky is grey in November.",
+    "order": 89,
+    "slice": "adj-1"
+  },
+  {
+    "da": "brun",
+    "en": ["brown"],
+    "pos": "adjective",
+    "exampleDa": "Han har brune sko på.",
+    "exampleEn": "He is wearing brown shoes.",
+    "order": 90,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lyserød",
+    "en": ["pink"],
+    "pos": "adjective",
+    "exampleDa": "Pigen har en lyserød hue.",
+    "exampleEn": "The girl has a pink hat.",
+    "order": 91,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lilla",
+    "en": ["purple"],
+    "pos": "adjective",
+    "exampleDa": "Blomsterne i haven er lilla.",
+    "exampleEn": "The flowers in the garden are purple.",
+    "order": 92,
+    "slice": "adj-1"
+  },
+  {
+    "da": "orange",
+    "en": ["orange"],
+    "pos": "adjective",
+    "exampleDa": "Hun drikker af en orange kop.",
+    "exampleEn": "She is drinking from an orange cup.",
+    "order": 93,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lys",
+    "en": ["light", "bright"],
+    "pos": "adjective",
+    "exampleDa": "Værelset er stort og lyst.",
+    "exampleEn": "The room is big and bright.",
+    "order": 94,
+    "slice": "adj-1"
+  },
+  {
+    "da": "mørk",
+    "en": ["dark"],
+    "pos": "adjective",
+    "exampleDa": "Det bliver mørkt tidligt om vinteren.",
+    "exampleEn": "It gets dark early in the winter.",
+    "order": 95,
+    "slice": "adj-1"
+  },
+  {
+    "da": "smuk",
+    "en": ["beautiful"],
+    "pos": "adjective",
+    "exampleDa": "Udsigten over havet er smuk.",
+    "exampleEn": "The view over the sea is beautiful.",
+    "order": 96,
+    "slice": "adj-1"
+  },
+  {
+    "da": "pæn",
+    "en": ["nice", "pretty", "neat"],
+    "pos": "adjective",
+    "exampleDa": "Det er en pæn skjorte.",
+    "exampleEn": "That is a nice shirt.",
+    "order": 97,
+    "slice": "adj-1"
+  },
+  {
+    "da": "grim",
+    "en": ["ugly"],
+    "pos": "adjective",
+    "exampleDa": "Huset er gammelt og grimt.",
+    "exampleEn": "The house is old and ugly.",
+    "order": 98,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sød",
+    "en": ["sweet", "cute", "kind"],
+    "pos": "adjective",
+    "exampleDa": "Kagen er meget sød.",
+    "exampleEn": "The cake is very sweet.",
+    "order": 99,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lækker",
+    "en": ["delicious", "tasty"],
+    "pos": "adjective",
+    "exampleDa": "Middagen var virkelig lækker.",
+    "exampleEn": "The dinner was really delicious.",
+    "order": 100,
+    "slice": "adj-1"
+  },
+  {
+    "da": "frisk",
+    "en": ["fresh"],
+    "pos": "adjective",
+    "exampleDa": "Vi køber friskt brød hver morgen.",
+    "exampleEn": "We buy fresh bread every morning.",
+    "order": 101,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sund",
+    "en": ["healthy"],
+    "pos": "adjective",
+    "exampleDa": "Det er sundt at spise frugt.",
+    "exampleEn": "It is healthy to eat fruit.",
+    "order": 102,
+    "slice": "adj-1"
+  },
+  {
+    "da": "syg",
+    "en": ["sick", "ill"],
+    "pos": "adjective",
+    "exampleDa": "Hun er syg og bliver hjemme i dag.",
+    "exampleEn": "She is ill and staying home today.",
+    "order": 103,
+    "slice": "adj-1"
+  },
+  {
+    "da": "rask",
+    "en": ["well", "healthy"],
+    "pos": "adjective",
+    "exampleDa": "Han er rask igen nu.",
+    "exampleEn": "He is well again now.",
+    "order": 104,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sulten",
+    "en": ["hungry"],
+    "pos": "adjective",
+    "exampleDa": "Jeg er sulten efter skole.",
+    "exampleEn": "I am hungry after school.",
+    "order": 105,
+    "slice": "adj-1"
+  }
+]

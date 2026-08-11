@@ -1,0 +1,714 @@
+[
+  {
+    "da": "ro",
+    "en": [
+      "calm",
+      "peace",
+      "quiet"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg har brug for fred og ro.",
+    "exampleEn": "I need peace and quiet.",
+    "order": 75,
+    "slice": "noun-3"
+  },
+  {
+    "da": "sundhed",
+    "en": [
+      "health"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Motion er godt for din sundhed.",
+    "exampleEn": "Exercise is good for your health.",
+    "order": 76,
+    "slice": "noun-3"
+  },
+  {
+    "da": "feber",
+    "en": [
+      "fever"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Barnet har feber og skal blive hjemme.",
+    "exampleEn": "The child has a fever and must stay home.",
+    "order": 77,
+    "slice": "noun-3"
+  },
+  {
+    "da": "forkølelse",
+    "en": [
+      "cold"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg har en slem forkølelse lige nu.",
+    "exampleEn": "I have a bad cold right now.",
+    "order": 78,
+    "slice": "noun-3"
+  },
+  {
+    "da": "hoste",
+    "en": [
+      "cough"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Han har haft hoste i tre dage.",
+    "exampleEn": "He has had a cough for three days.",
+    "order": 79,
+    "slice": "noun-3"
+  },
+  {
+    "da": "hovedpine",
+    "en": [
+      "headache"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg har hovedpine og går tidligt i seng.",
+    "exampleEn": "I have a headache and am going to bed early.",
+    "order": 80,
+    "slice": "noun-3"
+  },
+  {
+    "da": "influenza",
+    "en": [
+      "flu",
+      "influenza"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Hun ligger i sengen med influenza.",
+    "exampleEn": "She is in bed with the flu.",
+    "order": 81,
+    "slice": "noun-3"
+  },
+  {
+    "da": "medicin",
+    "en": [
+      "medicine",
+      "medication"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Husk at tage din medicin hver morgen.",
+    "exampleEn": "Remember to take your medicine every morning.",
+    "order": 82,
+    "slice": "noun-3"
+  },
+  {
+    "da": "pille",
+    "en": [
+      "pill",
+      "tablet"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Tag en pille mod smerten.",
+    "exampleEn": "Take a pill for the pain.",
+    "order": 83,
+    "slice": "noun-3"
+  },
+  {
+    "da": "recept",
+    "en": [
+      "prescription"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Du skal have en recept på denne medicin.",
+    "exampleEn": "You need a prescription for this medicine.",
+    "order": 84,
+    "slice": "noun-3"
+  },
+  {
+    "da": "apotek",
+    "en": [
+      "pharmacy",
+      "chemist"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Jeg henter medicinen på apoteket.",
+    "exampleEn": "I pick up the medicine at the pharmacy.",
+    "order": 85,
+    "slice": "noun-3"
+  },
+  {
+    "da": "tandlæge",
+    "en": [
+      "dentist"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg skal til tandlæge på torsdag.",
+    "exampleEn": "I am going to the dentist on Thursday.",
+    "order": 86,
+    "slice": "noun-3"
+  },
+  {
+    "da": "sygeplejerske",
+    "en": [
+      "nurse"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Sygeplejersken hjælper patienten med medicinen.",
+    "exampleEn": "The nurse helps the patient with the medicine.",
+    "order": 87,
+    "slice": "noun-3"
+  },
+  {
+    "da": "ambulance",
+    "en": [
+      "ambulance"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Ambulancen kom efter fem minutter.",
+    "exampleEn": "The ambulance came after five minutes.",
+    "order": 88,
+    "slice": "noun-3"
+  },
+  {
+    "da": "skade",
+    "en": [
+      "injury",
+      "damage"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Han fik en skade i knæet under kampen.",
+    "exampleEn": "He got an injury to his knee during the match.",
+    "order": 89,
+    "slice": "noun-3"
+  },
+  {
+    "da": "sår",
+    "en": [
+      "wound",
+      "sore"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Hun har et lille sår på hånden.",
+    "exampleEn": "She has a small wound on her hand.",
+    "order": 90,
+    "slice": "noun-3"
+  },
+  {
+    "da": "hals",
+    "en": [
+      "throat",
+      "neck"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg har ondt i halsen i dag.",
+    "exampleEn": "I have a sore throat today.",
+    "order": 93,
+    "slice": "noun-3"
+  },
+  {
+    "da": "skulder",
+    "en": [
+      "shoulder"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Min skulder gør ondt, når jeg svømmer.",
+    "exampleEn": "My shoulder hurts when I swim.",
+    "order": 94,
+    "slice": "noun-3"
+  },
+  {
+    "da": "knæ",
+    "en": [
+      "knee"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Hun slog sit knæ på trappen.",
+    "exampleEn": "She hit her knee on the stairs.",
+    "order": 95,
+    "slice": "noun-3"
+  },
+  {
+    "da": "hud",
+    "en": [
+      "skin"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Hendes hud bliver tør om vinteren.",
+    "exampleEn": "Her skin gets dry in the winter.",
+    "order": 100,
+    "slice": "noun-3"
+  },
+  {
+    "da": "muskel",
+    "en": [
+      "muscle"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg har en øm muskel i benet.",
+    "exampleEn": "I have a sore muscle in my leg.",
+    "order": 101,
+    "slice": "noun-3"
+  },
+  {
+    "da": "motion",
+    "en": [
+      "exercise"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg får motion, når jeg cykler til arbejde.",
+    "exampleEn": "I get exercise when I bike to work.",
+    "order": 102,
+    "slice": "noun-3"
+  },
+  {
+    "da": "træning",
+    "en": [
+      "training",
+      "practice",
+      "workout"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Vi har træning to gange om ugen.",
+    "exampleEn": "We have training twice a week.",
+    "order": 103,
+    "slice": "noun-3"
+  },
+  {
+    "da": "børnehave",
+    "en": [
+      "kindergarten",
+      "nursery",
+      "preschool"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Min datter går i børnehave.",
+    "exampleEn": "My daughter goes to kindergarten.",
+    "order": 107,
+    "slice": "noun-3"
+  },
+  {
+    "da": "politistation",
+    "en": [
+      "police station"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Politistationen ligger ved siden af banken.",
+    "exampleEn": "The police station is next to the bank.",
+    "order": 108,
+    "slice": "noun-3"
+  },
+  {
+    "da": "rådhus",
+    "en": [
+      "city hall",
+      "town hall"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Rådhuset ligger på det store torv.",
+    "exampleEn": "The city hall is on the big square.",
+    "order": 109,
+    "slice": "noun-3"
+  },
+  {
+    "da": "fængsel",
+    "en": [
+      "prison",
+      "jail"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Tyven kom i fængsel i to år.",
+    "exampleEn": "The thief went to prison for two years.",
+    "order": 110,
+    "slice": "noun-3"
+  },
+  {
+    "da": "forsikring",
+    "en": [
+      "insurance"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Har du en forsikring til din cykel?",
+    "exampleEn": "Do you have insurance for your bicycle?",
+    "order": 112,
+    "slice": "noun-3"
+  },
+  {
+    "da": "fabrik",
+    "en": [
+      "factory"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Min farfar arbejdede på en fabrik.",
+    "exampleEn": "My grandfather worked in a factory.",
+    "order": 113,
+    "slice": "noun-3"
+  },
+  {
+    "da": "supermarked",
+    "en": [
+      "supermarket"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Jeg køber ind i supermarkedet om fredagen.",
+    "exampleEn": "I shop at the supermarket on Fridays.",
+    "order": 114,
+    "slice": "noun-3"
+  },
+  {
+    "da": "bageri",
+    "en": [
+      "bakery"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Bageriet åbner klokken seks om morgenen.",
+    "exampleEn": "The bakery opens at six in the morning.",
+    "order": 115,
+    "slice": "noun-3"
+  },
+  {
+    "da": "forening",
+    "en": [
+      "association",
+      "club",
+      "society"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Han er medlem af en lokal forening.",
+    "exampleEn": "He is a member of a local association.",
+    "order": 117,
+    "slice": "noun-3"
+  },
+  {
+    "da": "klub",
+    "en": [
+      "club"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Min søn spiller fodbold i en klub.",
+    "exampleEn": "My son plays football in a club.",
+    "order": 118,
+    "slice": "noun-3"
+  },
+  {
+    "da": "pung",
+    "en": [
+      "wallet",
+      "purse"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Min pung ligger i tasken.",
+    "exampleEn": "My wallet is in the bag.",
+    "order": 121,
+    "slice": "noun-3"
+  },
+  {
+    "da": "paraply",
+    "en": [
+      "umbrella"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Tag en paraply med, det regner.",
+    "exampleEn": "Bring an umbrella, it is raining.",
+    "order": 122,
+    "slice": "noun-3"
+  },
+  {
+    "da": "ur",
+    "en": [
+      "watch",
+      "clock"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Mit ur viser ti minutter i to.",
+    "exampleEn": "My watch shows ten minutes to two.",
+    "order": 123,
+    "slice": "noun-3"
+  },
+  {
+    "da": "håndklæde",
+    "en": [
+      "towel"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Tag et rent håndklæde til badet.",
+    "exampleEn": "Take a clean towel for the bath.",
+    "order": 125,
+    "slice": "noun-3"
+  },
+  {
+    "da": "sæbe",
+    "en": [
+      "soap"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Vask hænderne med vand og sæbe.",
+    "exampleEn": "Wash your hands with water and soap.",
+    "order": 126,
+    "slice": "noun-3"
+  },
+  {
+    "da": "tandbørste",
+    "en": [
+      "toothbrush"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg har glemt min tandbørste derhjemme.",
+    "exampleEn": "I have forgotten my toothbrush at home.",
+    "order": 127,
+    "slice": "noun-3"
+  },
+  {
+    "da": "kuffert",
+    "en": [
+      "suitcase"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Min kuffert er tung, fordi den er fuld.",
+    "exampleEn": "My suitcase is heavy because it is full.",
+    "order": 128,
+    "slice": "noun-3"
+  },
+  {
+    "da": "rygsæk",
+    "en": [
+      "backpack",
+      "rucksack"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Han bærer sin rygsæk på turen.",
+    "exampleEn": "He carries his backpack on the trip.",
+    "order": 129,
+    "slice": "noun-3"
+  },
+  {
+    "da": "tallerken",
+    "en": [
+      "plate"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Sæt tallerkenerne på bordet, tak.",
+    "exampleEn": "Put the plates on the table, please.",
+    "order": 130,
+    "slice": "noun-3"
+  },
+  {
+    "da": "kniv",
+    "en": [
+      "knife"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg skærer brødet med en skarp kniv.",
+    "exampleEn": "I cut the bread with a sharp knife.",
+    "order": 131,
+    "slice": "noun-3"
+  },
+  {
+    "da": "gaffel",
+    "en": [
+      "fork"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Vi spiser kagen med en gaffel.",
+    "exampleEn": "We eat the cake with a fork.",
+    "order": 132,
+    "slice": "noun-3"
+  },
+  {
+    "da": "gryde",
+    "en": [
+      "pot",
+      "saucepan"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Suppen står i gryden på komfuret.",
+    "exampleEn": "The soup is in the pot on the stove.",
+    "order": 134,
+    "slice": "noun-3"
+  },
+  {
+    "da": "ovn",
+    "en": [
+      "oven"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Kagen skal i ovnen i fyrre minutter.",
+    "exampleEn": "The cake goes in the oven for forty minutes.",
+    "order": 135,
+    "slice": "noun-3"
+  },
+  {
+    "da": "køleskab",
+    "en": [
+      "fridge",
+      "refrigerator"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Mælken står i køleskabet.",
+    "exampleEn": "The milk is in the fridge.",
+    "order": 136,
+    "slice": "noun-3"
+  },
+  {
+    "da": "vaskemaskine",
+    "en": [
+      "washing machine"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Vores vaskemaskine er gået i stykker.",
+    "exampleEn": "Our washing machine has broken.",
+    "order": 137,
+    "slice": "noun-3"
+  },
+  {
+    "da": "støvsuger",
+    "en": [
+      "vacuum cleaner",
+      "hoover"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg bruger støvsugeren hver søndag.",
+    "exampleEn": "I use the vacuum cleaner every Sunday.",
+    "order": 138,
+    "slice": "noun-3"
+  },
+  {
+    "da": "pude",
+    "en": [
+      "pillow",
+      "cushion"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Jeg sover altid med to puder.",
+    "exampleEn": "I always sleep with two pillows.",
+    "order": 141,
+    "slice": "noun-3"
+  },
+  {
+    "da": "dyne",
+    "en": [
+      "duvet",
+      "comforter"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Om vinteren bruger jeg en tyk dyne.",
+    "exampleEn": "In the winter I use a thick duvet.",
+    "order": 142,
+    "slice": "noun-3"
+  },
+  {
+    "da": "gardin",
+    "en": [
+      "curtain"
+    ],
+    "pos": "noun",
+    "article": "et",
+    "exampleDa": "Hun trækker gardinerne for om aftenen.",
+    "exampleEn": "She draws the curtains in the evening.",
+    "order": 144,
+    "slice": "noun-3"
+  },
+  {
+    "da": "kælder",
+    "en": [
+      "basement",
+      "cellar"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Cyklerne står nede i kælderen.",
+    "exampleEn": "The bicycles are down in the basement.",
+    "order": 146,
+    "slice": "noun-3"
+  },
+  {
+    "da": "fodbold",
+    "en": [
+      "football",
+      "soccer"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Drengene spiller fodbold i parken.",
+    "exampleEn": "The boys play football in the park.",
+    "order": 147,
+    "slice": "noun-3"
+  },
+  {
+    "da": "svømning",
+    "en": [
+      "swimming"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Min datter går til svømning om onsdagen.",
+    "exampleEn": "My daughter goes to swimming on Wednesdays.",
+    "order": 148,
+    "slice": "noun-3"
+  },
+  {
+    "da": "koncert",
+    "en": [
+      "concert"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Vi skal til koncert på fredag.",
+    "exampleEn": "We are going to a concert on Friday.",
+    "order": 149,
+    "slice": "noun-3"
+  },
+  {
+    "da": "biograf",
+    "en": [
+      "cinema",
+      "movie theater"
+    ],
+    "pos": "noun",
+    "article": "en",
+    "exampleDa": "Skal vi gå i biografen i aften?",
+    "exampleEn": "Shall we go to the cinema tonight?",
+    "order": 150,
+    "slice": "noun-3"
+  }
+]

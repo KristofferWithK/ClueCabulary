@@ -1,0 +1,989 @@
+[
+ {
+  "da": "færge",
+  "en": [
+   "ferry"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Færgen sejler til øen hver time.",
+  "exampleEn": "The ferry sails to the island every hour.",
+  "order": 83,
+  "slice": "noun-4"
+ },
+ {
+  "da": "turist",
+  "en": [
+   "tourist"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Byen har mange turister om sommeren.",
+  "exampleEn": "The city has many tourists in the summer.",
+  "order": 84,
+  "slice": "noun-4"
+ },
+ {
+  "da": "ko",
+  "en": [
+   "cow"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Koen spiser græs på marken.",
+  "exampleEn": "The cow eats grass in the field.",
+  "order": 85,
+  "slice": "noun-4"
+ },
+ {
+  "da": "gris",
+  "en": [
+   "pig"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Grisen er stor og lyserød.",
+  "exampleEn": "The pig is big and pink.",
+  "order": 86,
+  "slice": "noun-4"
+ },
+ {
+  "da": "får",
+  "en": [
+   "sheep"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der går mange får på marken.",
+  "exampleEn": "There are many sheep in the field.",
+  "order": 87,
+  "slice": "noun-4"
+ },
+ {
+  "da": "mus",
+  "en": [
+   "mouse"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Katten fanger en lille mus.",
+  "exampleEn": "The cat catches a little mouse.",
+  "order": 88,
+  "slice": "noun-4"
+ },
+ {
+  "da": "and",
+  "en": [
+   "duck"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Anden svømmer i søen.",
+  "exampleEn": "The duck swims in the lake.",
+  "order": 89,
+  "slice": "noun-4"
+ },
+ {
+  "da": "tå",
+  "en": [
+   "toe"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har slået min tå.",
+  "exampleEn": "I have stubbed my toe.",
+  "order": 90,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kind",
+  "en": [
+   "cheek"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Barnet har røde kinder om vinteren.",
+  "exampleEn": "The child has red cheeks in the winter.",
+  "order": 91,
+  "slice": "noun-4"
+ },
+ {
+  "da": "læbe",
+  "en": [
+   "lip"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hendes læber er meget tørre.",
+  "exampleEn": "Her lips are very dry.",
+  "order": 92,
+  "slice": "noun-4"
+ },
+ {
+  "da": "hjerne",
+  "en": [
+   "brain"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hjernen har brug for søvn.",
+  "exampleEn": "The brain needs sleep.",
+  "order": 93,
+  "slice": "noun-4"
+ },
+ {
+  "da": "græs",
+  "en": [
+   "grass"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Græsset er grønt og vådt.",
+  "exampleEn": "The grass is green and wet.",
+  "order": 94,
+  "slice": "noun-4"
+ },
+ {
+  "da": "bjerg",
+  "en": [
+   "mountain"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Bjerget er meget højt.",
+  "exampleEn": "The mountain is very high.",
+  "order": 95,
+  "slice": "noun-4"
+ },
+ {
+  "da": "flod",
+  "en": [
+   "river"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Floden løber gennem byen.",
+  "exampleEn": "The river runs through the city.",
+  "order": 96,
+  "slice": "noun-4"
+ },
+ {
+  "da": "plante",
+  "en": [
+   "plant"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Planten skal have vand hver dag.",
+  "exampleEn": "The plant needs water every day.",
+  "order": 97,
+  "slice": "noun-4"
+ },
+ {
+  "da": "blad",
+  "en": [
+   "leaf",
+   "magazine"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Bladene falder om efteråret.",
+  "exampleEn": "The leaves fall in the autumn.",
+  "order": 98,
+  "slice": "noun-4"
+ },
+ {
+  "da": "torden",
+  "en": [
+   "thunder"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg kan høre torden langt væk.",
+  "exampleEn": "I can hear thunder far away.",
+  "order": 99,
+  "slice": "noun-4"
+ },
+ {
+  "da": "lyn",
+  "en": [
+   "lightning",
+   "flash"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi så et lyn på himlen.",
+  "exampleEn": "We saw a flash of lightning in the sky.",
+  "order": 100,
+  "slice": "noun-4"
+ },
+ {
+  "da": "tåge",
+  "en": [
+   "fog",
+   "mist"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er tæt tåge i dag.",
+  "exampleEn": "There is thick fog today.",
+  "order": 101,
+  "slice": "noun-4"
+ },
+ {
+  "da": "kok",
+  "en": [
+   "cook",
+   "chef"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kokken laver mad på restauranten.",
+  "exampleEn": "The chef cooks at the restaurant.",
+  "order": 102,
+  "slice": "noun-4"
+ },
+ {
+  "da": "tjener",
+  "en": [
+   "waiter",
+   "server"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tjeneren kommer med vores mad.",
+  "exampleEn": "The waiter brings our food.",
+  "order": 103,
+  "slice": "noun-4"
+ },
+ {
+  "da": "frisør",
+  "en": [
+   "hairdresser",
+   "barber"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg skal til frisøren i morgen.",
+  "exampleEn": "I am going to the hairdresser tomorrow.",
+  "order": 104,
+  "slice": "noun-4"
+ },
+ {
+  "da": "landmand",
+  "en": [
+   "farmer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Landmanden arbejder tidligt om morgenen.",
+  "exampleEn": "The farmer works early in the morning.",
+  "order": 105,
+  "slice": "noun-4"
+ },
+ {
+  "da": "journalist",
+  "en": [
+   "journalist",
+   "reporter"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Journalisten skriver en artikel til avisen.",
+  "exampleEn": "The journalist writes an article for the newspaper.",
+  "order": 106,
+  "slice": "noun-4"
+ },
+ {
+  "da": "håndværker",
+  "en": [
+   "craftsman",
+   "tradesman"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Håndværkeren reparerer vores tag.",
+  "exampleEn": "The craftsman repairs our roof.",
+  "order": 107,
+  "slice": "noun-4"
+ },
+ {
+  "da": "politibetjent",
+  "en": [
+   "police officer",
+   "policeman"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Politibetjenten stopper bilen på vejen.",
+  "exampleEn": "The police officer stops the car on the road.",
+  "order": 108,
+  "slice": "noun-4"
+ },
+ {
+  "da": "venskab",
+  "en": [
+   "friendship"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vores venskab er meget vigtigt for mig.",
+  "exampleEn": "Our friendship is very important to me.",
+  "order": 109,
+  "slice": "noun-4"
+ },
+ {
+  "da": "ægteskab",
+  "en": [
+   "marriage"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "De har et godt og langt ægteskab.",
+  "exampleEn": "They have a good and long marriage.",
+  "order": 110,
+  "slice": "noun-4"
+ },
+ {
+  "da": "snakke",
+  "en": [
+   "talk",
+   "chat"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi snakker om vores ferie.",
+  "exampleEn": "We are talking about our holiday.",
+  "order": 1,
+  "slice": "verb-3"
+ },
+ {
+  "da": "trykke",
+  "en": [
+   "press",
+   "push"
+  ],
+  "pos": "verb",
+  "exampleDa": "Tryk på knappen ved døren.",
+  "exampleEn": "Press the button by the door.",
+  "order": 2,
+  "slice": "verb-3"
+ },
+ {
+  "da": "fylde",
+  "en": [
+   "fill"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun fylder flasken med vand.",
+  "exampleEn": "She fills the bottle with water.",
+  "order": 3,
+  "slice": "verb-3"
+ },
+ {
+  "da": "skære",
+  "en": [
+   "cut",
+   "slice"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han skærer brødet i tynde skiver.",
+  "exampleEn": "He cuts the bread into thin slices.",
+  "order": 4,
+  "slice": "verb-3"
+ },
+ {
+  "da": "råbe",
+  "en": [
+   "shout",
+   "yell",
+   "call out"
+  ],
+  "pos": "verb",
+  "exampleDa": "Manden råber højt på gaden.",
+  "exampleEn": "The man shouts loudly in the street.",
+  "order": 5,
+  "slice": "verb-3"
+ },
+ {
+  "da": "ryge",
+  "en": [
+   "smoke"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han ryger ikke mere.",
+  "exampleEn": "He does not smoke anymore.",
+  "order": 6,
+  "slice": "verb-3"
+ },
+ {
+  "da": "tørre",
+  "en": [
+   "dry",
+   "wipe"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg tørrer hænderne i håndklædet.",
+  "exampleEn": "I dry my hands on the towel.",
+  "order": 7,
+  "slice": "verb-3"
+ },
+ {
+  "da": "blande",
+  "en": [
+   "mix",
+   "blend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Bland mælk og æg i skålen.",
+  "exampleEn": "Mix milk and eggs in the bowl.",
+  "order": 8,
+  "slice": "verb-3"
+ },
+ {
+  "da": "ordne",
+  "en": [
+   "fix",
+   "arrange",
+   "tidy",
+   "sort out"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg skal ordne mit værelse i dag.",
+  "exampleEn": "I have to tidy my room today.",
+  "order": 9,
+  "slice": "verb-3"
+ },
+ {
+  "da": "hoppe",
+  "en": [
+   "jump",
+   "hop"
+  ],
+  "pos": "verb",
+  "exampleDa": "Børnene hopper på sengen.",
+  "exampleEn": "The children are jumping on the bed.",
+  "order": 10,
+  "slice": "verb-3"
+ },
+ {
+  "da": "rulle",
+  "en": [
+   "roll"
+  ],
+  "pos": "verb",
+  "exampleDa": "Bolden ruller ned ad vejen.",
+  "exampleEn": "The ball rolls down the road.",
+  "order": 11,
+  "slice": "verb-3"
+ },
+ {
+  "da": "bade",
+  "en": [
+   "bathe",
+   "swim",
+   "take a bath"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi bader i havet om sommeren.",
+  "exampleEn": "We bathe in the sea in the summer.",
+  "order": 12,
+  "slice": "verb-3"
+ },
+ {
+  "da": "binde",
+  "en": [
+   "tie",
+   "bind"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han binder sine sko hver morgen.",
+  "exampleEn": "He ties his shoes every morning.",
+  "order": 14,
+  "slice": "verb-3"
+ },
+ {
+  "da": "klippe",
+  "en": [
+   "cut",
+   "clip",
+   "trim"
+  ],
+  "pos": "verb",
+  "exampleDa": "Frisøren klipper mit hår i dag.",
+  "exampleEn": "The hairdresser cuts my hair today.",
+  "order": 15,
+  "slice": "verb-3"
+ },
+ {
+  "da": "stege",
+  "en": [
+   "fry",
+   "roast"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg steger fisken på panden.",
+  "exampleEn": "I fry the fish in the pan.",
+  "order": 16,
+  "slice": "verb-3"
+ },
+ {
+  "da": "hælde",
+  "en": [
+   "pour"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun hælder kaffe i koppen.",
+  "exampleEn": "She pours coffee into the cup.",
+  "order": 17,
+  "slice": "verb-3"
+ },
+ {
+  "da": "smøre",
+  "en": [
+   "spread",
+   "butter",
+   "grease"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han smører smør på brødet.",
+  "exampleEn": "He spreads butter on the bread.",
+  "order": 18,
+  "slice": "verb-3"
+ },
+ {
+  "da": "servere",
+  "en": [
+   "serve"
+  ],
+  "pos": "verb",
+  "exampleDa": "De serverer aftensmad klokken seks.",
+  "exampleEn": "They serve dinner at six o'clock.",
+  "order": 19,
+  "slice": "verb-3"
+ },
+ {
+  "da": "diskutere",
+  "en": [
+   "discuss",
+   "debate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi diskuterer planen i morgen.",
+  "exampleEn": "We will discuss the plan tomorrow.",
+  "order": 20,
+  "slice": "verb-3"
+ },
+ {
+  "da": "ryste",
+  "en": [
+   "shake",
+   "tremble"
+  ],
+  "pos": "verb",
+  "exampleDa": "Ryst flasken, før du åbner den.",
+  "exampleEn": "Shake the bottle before you open it.",
+  "order": 21,
+  "slice": "verb-3"
+ },
+ {
+  "da": "skrige",
+  "en": [
+   "scream",
+   "shriek",
+   "cry out"
+  ],
+  "pos": "verb",
+  "exampleDa": "Barnet skriger meget højt.",
+  "exampleEn": "The child screams very loudly.",
+  "order": 22,
+  "slice": "verb-3"
+ },
+ {
+  "da": "hviske",
+  "en": [
+   "whisper"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun hvisker noget til sin ven.",
+  "exampleEn": "She whispers something to her friend.",
+  "order": 23,
+  "slice": "verb-3"
+ },
+ {
+  "da": "glide",
+  "en": [
+   "slide",
+   "glide",
+   "slip"
+  ],
+  "pos": "verb",
+  "exampleDa": "Pas på, du kan glide på isen.",
+  "exampleEn": "Watch out, you can slip on the ice.",
+  "order": 24,
+  "slice": "verb-3"
+ },
+ {
+  "da": "klatre",
+  "en": [
+   "climb"
+  ],
+  "pos": "verb",
+  "exampleDa": "Drengen klatrer op i træet.",
+  "exampleEn": "The boy climbs up the tree.",
+  "order": 25,
+  "slice": "verb-3"
+ },
+ {
+  "da": "bekymre",
+  "en": [
+   "worry",
+   "concern"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du skal ikke bekymre dig om mig.",
+  "exampleEn": "You should not worry about me.",
+  "order": 26,
+  "slice": "verb-3"
+ },
+ {
+  "da": "irritere",
+  "en": [
+   "annoy",
+   "irritate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Støjen irriterer mig meget.",
+  "exampleEn": "The noise annoys me a lot.",
+  "order": 27,
+  "slice": "verb-3"
+ },
+ {
+  "da": "kramme",
+  "en": [
+   "hug"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun krammer sin lille søster.",
+  "exampleEn": "She hugs her little sister.",
+  "order": 29,
+  "slice": "verb-3"
+ },
+ {
+  "da": "trøste",
+  "en": [
+   "comfort",
+   "console"
+  ],
+  "pos": "verb",
+  "exampleDa": "Moren trøster det lille barn.",
+  "exampleEn": "The mother comforts the little child.",
+  "order": 30,
+  "slice": "verb-3"
+ },
+ {
+  "da": "svag",
+  "en": [
+   "weak",
+   "faint"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kaffen er for svag i dag.",
+  "exampleEn": "The coffee is too weak today.",
+  "order": 1,
+  "slice": "adj-2"
+ },
+ {
+  "da": "fast",
+  "en": [
+   "firm",
+   "fixed",
+   "permanent",
+   "solid"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han har et fast job nu.",
+  "exampleEn": "He has a permanent job now.",
+  "order": 2,
+  "slice": "adj-2"
+ },
+ {
+  "da": "skarp",
+  "en": [
+   "sharp"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kniven er meget skarp.",
+  "exampleEn": "The knife is very sharp.",
+  "order": 3,
+  "slice": "adj-2"
+ },
+ {
+  "da": "enkel",
+  "en": [
+   "simple",
+   "plain"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Opskriften er enkel og hurtig.",
+  "exampleEn": "The recipe is simple and quick.",
+  "order": 4,
+  "slice": "adj-2"
+ },
+ {
+  "da": "praktisk",
+  "en": [
+   "practical",
+   "handy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Tasken er praktisk til rejser.",
+  "exampleEn": "The bag is practical for travel.",
+  "order": 5,
+  "slice": "adj-2"
+ },
+ {
+  "da": "tydelig",
+  "en": [
+   "clear",
+   "distinct",
+   "obvious"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hendes stemme er klar og tydelig.",
+  "exampleEn": "Her voice is clear and distinct.",
+  "order": 6,
+  "slice": "adj-2"
+ },
+ {
+  "da": "rimelig",
+  "en": [
+   "reasonable",
+   "fair"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Prisen er rimelig for et hotel.",
+  "exampleEn": "The price is reasonable for a hotel.",
+  "order": 7,
+  "slice": "adj-2"
+ },
+ {
+  "da": "berømt",
+  "en": [
+   "famous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Byen er berømt for sin gamle kirke.",
+  "exampleEn": "The city is famous for its old church.",
+  "order": 8,
+  "slice": "adj-2"
+ },
+ {
+  "da": "ærlig",
+  "en": [
+   "honest",
+   "sincere"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er altid ærlig over for mig.",
+  "exampleEn": "He is always honest with me.",
+  "order": 9,
+  "slice": "adj-2"
+ },
+ {
+  "da": "tilfreds",
+  "en": [
+   "satisfied",
+   "content",
+   "pleased"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er tilfreds med mit nye job.",
+  "exampleEn": "I am satisfied with my new job.",
+  "order": 10,
+  "slice": "adj-2"
+ },
+ {
+  "da": "streng",
+  "en": [
+   "strict",
+   "severe",
+   "harsh"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vores lærer er streng men venlig.",
+  "exampleEn": "Our teacher is strict but kind.",
+  "order": 11,
+  "slice": "adj-2"
+ },
+ {
+  "da": "mild",
+  "en": [
+   "mild",
+   "gentle"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vinteren er mild i år.",
+  "exampleEn": "The winter is mild this year.",
+  "order": 12,
+  "slice": "adj-2"
+ },
+ {
+  "da": "nyttig",
+  "en": [
+   "useful",
+   "helpful"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kortet er meget nyttigt på rejsen.",
+  "exampleEn": "The map is very useful on the trip.",
+  "order": 13,
+  "slice": "adj-2"
+ },
+ {
+  "da": "behagelig",
+  "en": [
+   "pleasant",
+   "comfortable",
+   "agreeable"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Stolen er meget behagelig at sidde i.",
+  "exampleEn": "The chair is very comfortable to sit in.",
+  "order": 14,
+  "slice": "adj-2"
+ },
+ {
+  "da": "underlig",
+  "en": [
+   "strange",
+   "odd",
+   "weird"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Der er en underlig lyd i huset.",
+  "exampleEn": "There is a strange sound in the house.",
+  "order": 15,
+  "slice": "adj-2"
+ },
+ {
+  "da": "flink",
+  "en": [
+   "nice",
+   "kind",
+   "good-natured"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min nabo er altid flink mod os.",
+  "exampleEn": "My neighbor is always nice to us.",
+  "order": 16,
+  "slice": "adj-2"
+ },
+ {
+  "da": "høflig",
+  "en": [
+   "polite",
+   "courteous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Drengen er altid høflig mod gamle mennesker.",
+  "exampleEn": "The boy is always polite to old people.",
+  "order": 17,
+  "slice": "adj-2"
+ },
+ {
+  "da": "glat",
+  "en": [
+   "slippery",
+   "smooth"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vejen er glat om vinteren.",
+  "exampleEn": "The road is slippery in winter.",
+  "order": 18,
+  "slice": "adj-2"
+ },
+ {
+  "da": "kølig",
+  "en": [
+   "cool",
+   "chilly"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Luften er kølig i aften.",
+  "exampleEn": "The air is cool tonight.",
+  "order": 19,
+  "slice": "adj-2"
+ },
+ {
+  "da": "fugtig",
+  "en": [
+   "damp",
+   "moist",
+   "humid"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Håndklædet er stadig fugtigt.",
+  "exampleEn": "The towel is still damp.",
+  "order": 20,
+  "slice": "adj-2"
+ },
+ {
+  "da": "stiv",
+  "en": [
+   "stiff",
+   "rigid"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min nakke er stiv i dag.",
+  "exampleEn": "My neck is stiff today.",
+  "order": 21,
+  "slice": "adj-2"
+ },
+ {
+  "da": "løs",
+  "en": [
+   "loose"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Knappen på jakken er løs.",
+  "exampleEn": "The button on the jacket is loose.",
+  "order": 22,
+  "slice": "adj-2"
+ },
+ {
+  "da": "tålmodig",
+  "en": [
+   "patient"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Læreren er tålmodig med børnene.",
+  "exampleEn": "The teacher is patient with the children.",
+  "order": 23,
+  "slice": "adj-2"
+ },
+ {
+  "da": "skøn",
+  "en": [
+   "lovely",
+   "wonderful",
+   "delightful"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi havde en skøn dag på stranden.",
+  "exampleEn": "We had a lovely day at the beach.",
+  "order": 24,
+  "slice": "adj-2"
+ },
+ {
+  "da": "sprød",
+  "en": [
+   "crispy",
+   "crunchy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Brødet er sprødt og varmt.",
+  "exampleEn": "The bread is crispy and warm.",
+  "order": 25,
+  "slice": "adj-2"
+ }
+]
