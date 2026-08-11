@@ -1,0 +1,1518 @@
+[
+  {
+    "da": "tørstig",
+    "en": [
+      "thirsty"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Han er tørstig efter løbeturen.",
+    "exampleEn": "He is thirsty after the run.",
+    "order": 106,
+    "slice": "adj-1"
+  },
+  {
+    "da": "tung",
+    "en": [
+      "heavy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Kufferten er alt for tung.",
+    "exampleEn": "The suitcase is much too heavy.",
+    "order": 107,
+    "slice": "adj-1"
+  },
+  {
+    "da": "blød",
+    "en": [
+      "soft"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Sengen er dejlig blød.",
+    "exampleEn": "The bed is nice and soft.",
+    "order": 108,
+    "slice": "adj-1"
+  },
+  {
+    "da": "hård",
+    "en": [
+      "hard",
+      "tough"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Stolen er hård at sidde på.",
+    "exampleEn": "The chair is hard to sit on.",
+    "order": 109,
+    "slice": "adj-1"
+  },
+  {
+    "da": "tyk",
+    "en": [
+      "thick",
+      "fat"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Han læser en tyk bog.",
+    "exampleEn": "He is reading a thick book.",
+    "order": 110,
+    "slice": "adj-1"
+  },
+  {
+    "da": "tynd",
+    "en": [
+      "thin"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Jakken er for tynd til vinteren.",
+    "exampleEn": "The jacket is too thin for winter.",
+    "order": 111,
+    "slice": "adj-1"
+  },
+  {
+    "da": "bred",
+    "en": [
+      "wide",
+      "broad"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Floden er bred her.",
+    "exampleEn": "The river is wide here.",
+    "order": 112,
+    "slice": "adj-1"
+  },
+  {
+    "da": "smal",
+    "en": [
+      "narrow"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Gaden er meget smal.",
+    "exampleEn": "The street is very narrow.",
+    "order": 113,
+    "slice": "adj-1"
+  },
+  {
+    "da": "dyb",
+    "en": [
+      "deep"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Søen er dyb og kold.",
+    "exampleEn": "The lake is deep and cold.",
+    "order": 114,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lav",
+    "en": [
+      "low"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Prisen er lav i dag.",
+    "exampleEn": "The price is low today.",
+    "order": 115,
+    "slice": "adj-1"
+  },
+  {
+    "da": "rund",
+    "en": [
+      "round"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vi sidder ved et rundt bord.",
+    "exampleEn": "We are sitting at a round table.",
+    "order": 116,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ren",
+    "en": [
+      "clean",
+      "pure"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Køkkenet er rent nu.",
+    "exampleEn": "The kitchen is clean now.",
+    "order": 117,
+    "slice": "adj-1"
+  },
+  {
+    "da": "beskidt",
+    "en": [
+      "dirty"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Dine sko er meget beskidte.",
+    "exampleEn": "Your shoes are very dirty.",
+    "order": 118,
+    "slice": "adj-1"
+  },
+  {
+    "da": "våd",
+    "en": [
+      "wet"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Mit tøj er vådt efter regnen.",
+    "exampleEn": "My clothes are wet after the rain.",
+    "order": 119,
+    "slice": "adj-1"
+  },
+  {
+    "da": "tør",
+    "en": [
+      "dry"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Håndklædet er tørt igen.",
+    "exampleEn": "The towel is dry again.",
+    "order": 120,
+    "slice": "adj-1"
+  },
+  {
+    "da": "tom",
+    "en": [
+      "empty"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Mælkekartonen er helt tom.",
+    "exampleEn": "The milk carton is completely empty.",
+    "order": 121,
+    "slice": "adj-1"
+  },
+  {
+    "da": "fuld",
+    "en": [
+      "full",
+      "drunk"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Bussen er fuld af mennesker.",
+    "exampleEn": "The bus is full of people.",
+    "order": 122,
+    "slice": "adj-1"
+  },
+  {
+    "da": "halv",
+    "en": [
+      "half"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vi venter en halv time.",
+    "exampleEn": "We wait for half an hour.",
+    "order": 123,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lukket",
+    "en": [
+      "closed",
+      "shut"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Butikken er lukket om søndagen.",
+    "exampleEn": "The shop is closed on Sundays.",
+    "order": 124,
+    "slice": "adj-1"
+  },
+  {
+    "da": "travl",
+    "en": [
+      "busy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Min mor har en travl dag.",
+    "exampleEn": "My mother has a busy day.",
+    "order": 125,
+    "slice": "adj-1"
+  },
+  {
+    "da": "rolig",
+    "en": [
+      "calm",
+      "quiet"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Gaden er rolig om natten.",
+    "exampleEn": "The street is calm at night.",
+    "order": 126,
+    "slice": "adj-1"
+  },
+  {
+    "da": "stille",
+    "en": [
+      "quiet",
+      "silent",
+      "still"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vær stille, babyen sover.",
+    "exampleEn": "Be quiet, the baby is sleeping.",
+    "order": 127,
+    "slice": "adj-1"
+  },
+  {
+    "da": "vild",
+    "en": [
+      "wild",
+      "crazy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Der bor vilde dyr i skoven.",
+    "exampleEn": "Wild animals live in the forest.",
+    "order": 128,
+    "slice": "adj-1"
+  },
+  {
+    "da": "farlig",
+    "en": [
+      "dangerous"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vejen er farlig om vinteren.",
+    "exampleEn": "The road is dangerous in winter.",
+    "order": 129,
+    "slice": "adj-1"
+  },
+  {
+    "da": "bange",
+    "en": [
+      "afraid",
+      "scared"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Hun er bange for hunde.",
+    "exampleEn": "She is afraid of dogs.",
+    "order": 130,
+    "slice": "adj-1"
+  },
+  {
+    "da": "vred",
+    "en": [
+      "angry",
+      "mad"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Han er vred på sin bror.",
+    "exampleEn": "He is angry with his brother.",
+    "order": 131,
+    "slice": "adj-1"
+  },
+  {
+    "da": "sur",
+    "en": [
+      "grumpy",
+      "sour",
+      "cross"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Chefen er sur i dag.",
+    "exampleEn": "The boss is grumpy today.",
+    "order": 132,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ond",
+    "en": [
+      "evil",
+      "mean",
+      "wicked"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Heksen i historien er ond.",
+    "exampleEn": "The witch in the story is evil.",
+    "order": 133,
+    "slice": "adj-1"
+  },
+  {
+    "da": "venlig",
+    "en": [
+      "friendly",
+      "kind"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Naboen er altid venlig.",
+    "exampleEn": "The neighbour is always friendly.",
+    "order": 134,
+    "slice": "adj-1"
+  },
+  {
+    "da": "rar",
+    "en": [
+      "nice",
+      "kind",
+      "pleasant"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vores lærer er meget rar.",
+    "exampleEn": "Our teacher is very nice.",
+    "order": 135,
+    "slice": "adj-1"
+  },
+  {
+    "da": "klog",
+    "en": [
+      "wise",
+      "smart",
+      "clever"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Min mormor er en klog kvinde.",
+    "exampleEn": "My grandmother is a wise woman.",
+    "order": 136,
+    "slice": "adj-1"
+  },
+  {
+    "da": "dum",
+    "en": [
+      "stupid",
+      "dumb",
+      "silly"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Det var en dum idé.",
+    "exampleEn": "That was a stupid idea.",
+    "order": 137,
+    "slice": "adj-1"
+  },
+  {
+    "da": "dygtig",
+    "en": [
+      "skilled",
+      "clever",
+      "talented"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Hun er en dygtig læge.",
+    "exampleEn": "She is a skilled doctor.",
+    "order": 138,
+    "slice": "adj-1"
+  },
+  {
+    "da": "doven",
+    "en": [
+      "lazy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Katten er doven og sover hele dagen.",
+    "exampleEn": "The cat is lazy and sleeps all day.",
+    "order": 139,
+    "slice": "adj-1"
+  },
+  {
+    "da": "modig",
+    "en": [
+      "brave",
+      "courageous"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Drengen var modig hos tandlægen.",
+    "exampleEn": "The boy was brave at the dentist.",
+    "order": 140,
+    "slice": "adj-1"
+  },
+  {
+    "da": "genert",
+    "en": [
+      "shy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Pigen er genert over for nye mennesker.",
+    "exampleEn": "The girl is shy around new people.",
+    "order": 141,
+    "slice": "adj-1"
+  },
+  {
+    "da": "nervøs",
+    "en": [
+      "nervous"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Jeg er nervøs før prøven.",
+    "exampleEn": "I am nervous before the test.",
+    "order": 142,
+    "slice": "adj-1"
+  },
+  {
+    "da": "stolt",
+    "en": [
+      "proud"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vi er stolte af dig.",
+    "exampleEn": "We are proud of you.",
+    "order": 143,
+    "slice": "adj-1"
+  },
+  {
+    "da": "lykkelig",
+    "en": [
+      "happy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "De er lykkelige sammen.",
+    "exampleEn": "They are happy together.",
+    "order": 144,
+    "slice": "adj-1"
+  },
+  {
+    "da": "trist",
+    "en": [
+      "sad",
+      "gloomy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Han er trist i dag.",
+    "exampleEn": "He is sad today.",
+    "order": 145,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ked",
+    "en": [
+      "sad",
+      "sorry",
+      "upset"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Hun er ked af det i dag.",
+    "exampleEn": "She is sad today.",
+    "order": 146,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ensom",
+    "en": [
+      "lonely"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Den gamle mand føler sig ensom.",
+    "exampleEn": "The old man feels lonely.",
+    "order": 147,
+    "slice": "adj-1"
+  },
+  {
+    "da": "bekymret",
+    "en": [
+      "worried",
+      "concerned"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Mor er bekymret for os.",
+    "exampleEn": "Mum is worried about us.",
+    "order": 148,
+    "slice": "adj-1"
+  },
+  {
+    "da": "skuffet",
+    "en": [
+      "disappointed"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Han var skuffet over resultatet.",
+    "exampleEn": "He was disappointed with the result.",
+    "order": 149,
+    "slice": "adj-1"
+  },
+  {
+    "da": "overrasket",
+    "en": [
+      "surprised"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vi var overraskede over gaven.",
+    "exampleEn": "We were surprised by the gift.",
+    "order": 150,
+    "slice": "adj-1"
+  },
+  {
+    "da": "spændt",
+    "en": [
+      "excited",
+      "tense"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Jeg er spændt på i morgen.",
+    "exampleEn": "I am excited about tomorrow.",
+    "order": 151,
+    "slice": "adj-1"
+  },
+  {
+    "da": "heldig",
+    "en": [
+      "lucky",
+      "fortunate"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Du er heldig med vejret.",
+    "exampleEn": "You are lucky with the weather.",
+    "order": 152,
+    "slice": "adj-1"
+  },
+  {
+    "da": "rig",
+    "en": [
+      "rich",
+      "wealthy"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Familien er meget rig.",
+    "exampleEn": "The family is very rich.",
+    "order": 153,
+    "slice": "adj-1"
+  },
+  {
+    "da": "fattig",
+    "en": [
+      "poor"
+    ],
+    "pos": "adjective",
+    "exampleDa": "De var fattige for mange år siden.",
+    "exampleEn": "They were poor many years ago.",
+    "order": 154,
+    "slice": "adj-1"
+  },
+  {
+    "da": "hyggelig",
+    "en": [
+      "cozy",
+      "nice",
+      "pleasant"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vi havde en hyggelig aften sammen.",
+    "exampleEn": "We had a cozy evening together.",
+    "order": 155,
+    "slice": "adj-1"
+  },
+  {
+    "da": "voksen",
+    "en": [
+      "adult",
+      "grown-up"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Hun er voksen nu og bor alene.",
+    "exampleEn": "She is grown up now and lives alone.",
+    "order": 156,
+    "slice": "adj-1"
+  },
+  {
+    "da": "gift",
+    "en": [
+      "married"
+    ],
+    "pos": "adjective",
+    "exampleDa": "De har været gift i ti år.",
+    "exampleEn": "They have been married for ten years.",
+    "order": 157,
+    "slice": "adj-1"
+  },
+  {
+    "da": "død",
+    "en": [
+      "dead"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Planten i vinduet er død.",
+    "exampleEn": "The plant in the window is dead.",
+    "order": 158,
+    "slice": "adj-1"
+  },
+  {
+    "da": "levende",
+    "en": [
+      "alive",
+      "living",
+      "lively"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Fisken er stadig levende.",
+    "exampleEn": "The fish is still alive.",
+    "order": 159,
+    "slice": "adj-1"
+  },
+  {
+    "da": "forsigtig",
+    "en": [
+      "careful",
+      "cautious"
+    ],
+    "pos": "adjective",
+    "exampleDa": "Vær forsigtig på den våde vej!",
+    "exampleEn": "Be careful on the wet road!",
+    "order": 160,
+    "slice": "adj-1"
+  },
+  {
+    "da": "ikke",
+    "en": [
+      "not"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Jeg kan ikke finde mine nøgler.",
+    "exampleEn": "I cannot find my keys.",
+    "order": 1,
+    "slice": "misc-1"
+  },
+  {
+    "da": "der",
+    "en": [
+      "there"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Din taske ligger der på bordet.",
+    "exampleEn": "Your bag is lying there on the table.",
+    "order": 2,
+    "slice": "misc-1"
+  },
+  {
+    "da": "så",
+    "en": [
+      "then",
+      "so"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi spiser først, og så går vi.",
+    "exampleEn": "We eat first, and then we go.",
+    "order": 3,
+    "slice": "misc-1"
+  },
+  {
+    "da": "også",
+    "en": [
+      "also",
+      "too",
+      "as well"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Min bror kommer også i morgen.",
+    "exampleEn": "My brother is also coming tomorrow.",
+    "order": 4,
+    "slice": "misc-1"
+  },
+  {
+    "da": "nu",
+    "en": [
+      "now"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi skal gå nu.",
+    "exampleEn": "We have to go now.",
+    "order": 5,
+    "slice": "misc-1"
+  },
+  {
+    "da": "her",
+    "en": [
+      "here"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Kom her, jeg vil vise dig noget.",
+    "exampleEn": "Come here, I want to show you something.",
+    "order": 6,
+    "slice": "misc-1"
+  },
+  {
+    "da": "meget",
+    "en": [
+      "very",
+      "much",
+      "a lot"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Huset er meget stort og gammelt.",
+    "exampleEn": "The house is very big and old.",
+    "order": 7,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ja",
+    "en": [
+      "yes"
+    ],
+    "pos": "interjection",
+    "exampleDa": "Ja, jeg vil gerne have kaffe.",
+    "exampleEn": "Yes, I would like some coffee.",
+    "order": 8,
+    "slice": "misc-1"
+  },
+  {
+    "da": "nej",
+    "en": [
+      "no"
+    ],
+    "pos": "interjection",
+    "exampleDa": "Nej, jeg har ikke tid i dag.",
+    "exampleEn": "No, I do not have time today.",
+    "order": 9,
+    "slice": "misc-1"
+  },
+  {
+    "da": "kun",
+    "en": [
+      "only",
+      "just"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Billetten koster kun ti kroner.",
+    "exampleEn": "The ticket costs only ten kroner.",
+    "order": 10,
+    "slice": "misc-1"
+  },
+  {
+    "da": "lige",
+    "en": [
+      "just",
+      "right",
+      "exactly"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Toget er lige kørt fra stationen.",
+    "exampleEn": "The train has just left the station.",
+    "order": 11,
+    "slice": "misc-1"
+  },
+  {
+    "da": "godt",
+    "en": [
+      "well"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hun taler godt dansk nu.",
+    "exampleEn": "She speaks Danish well now.",
+    "order": 12,
+    "slice": "misc-1"
+  },
+  {
+    "da": "bare",
+    "en": [
+      "just",
+      "only"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Du kan bare ringe til mig.",
+    "exampleEn": "You can just call me.",
+    "order": 13,
+    "slice": "misc-1"
+  },
+  {
+    "da": "op",
+    "en": [
+      "up"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Han står op klokken syv.",
+    "exampleEn": "He gets up at seven o'clock.",
+    "order": 14,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ud",
+    "en": [
+      "out"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Skal vi gå ud i aften?",
+    "exampleEn": "Shall we go out tonight?",
+    "order": 15,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ind",
+    "en": [
+      "in",
+      "inside"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Kom ind og sæt dig ned.",
+    "exampleEn": "Come in and sit down.",
+    "order": 16,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ned",
+    "en": [
+      "down"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hun går ned ad trappen.",
+    "exampleEn": "She walks down the stairs.",
+    "order": 17,
+    "slice": "misc-1"
+  },
+  {
+    "da": "igen",
+    "en": [
+      "again"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Kan du sige det igen?",
+    "exampleEn": "Can you say that again?",
+    "order": 18,
+    "slice": "misc-1"
+  },
+  {
+    "da": "tilbage",
+    "en": [
+      "back"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi kommer tilbage i morgen.",
+    "exampleEn": "We are coming back tomorrow.",
+    "order": 19,
+    "slice": "misc-1"
+  },
+  {
+    "da": "altid",
+    "en": [
+      "always"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hun drikker altid te om morgenen.",
+    "exampleEn": "She always drinks tea in the morning.",
+    "order": 20,
+    "slice": "misc-1"
+  },
+  {
+    "da": "aldrig",
+    "en": [
+      "never"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Han spiser aldrig morgenmad.",
+    "exampleEn": "He never eats breakfast.",
+    "order": 21,
+    "slice": "misc-1"
+  },
+  {
+    "da": "måske",
+    "en": [
+      "maybe",
+      "perhaps"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Måske kommer han senere i dag.",
+    "exampleEn": "Maybe he will come later today.",
+    "order": 22,
+    "slice": "misc-1"
+  },
+  {
+    "da": "lidt",
+    "en": [
+      "a little",
+      "a bit"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Jeg taler kun lidt dansk.",
+    "exampleEn": "I only speak a little Danish.",
+    "order": 23,
+    "slice": "misc-1"
+  },
+  {
+    "da": "mere",
+    "en": [
+      "more"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vil du have mere kaffe?",
+    "exampleEn": "Would you like more coffee?",
+    "order": 24,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hvor",
+    "en": [
+      "where",
+      "how"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hvor bor du henne?",
+    "exampleEn": "Where do you live?",
+    "order": 25,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hvordan",
+    "en": [
+      "how"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hvordan har du det i dag?",
+    "exampleEn": "How are you today?",
+    "order": 26,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hvorfor",
+    "en": [
+      "why"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hvorfor kommer du så sent?",
+    "exampleEn": "Why are you coming so late?",
+    "order": 27,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hvornår",
+    "en": [
+      "when"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hvornår begynder filmen i aften?",
+    "exampleEn": "When does the movie start tonight?",
+    "order": 28,
+    "slice": "misc-1"
+  },
+  {
+    "da": "tak",
+    "en": [
+      "thanks",
+      "thank you"
+    ],
+    "pos": "interjection",
+    "exampleDa": "Tusind tak for hjælpen!",
+    "exampleEn": "Thank you so much for the help!",
+    "order": 29,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hej",
+    "en": [
+      "hi",
+      "hello"
+    ],
+    "pos": "interjection",
+    "exampleDa": "Hej, hvordan går det med dig?",
+    "exampleEn": "Hi, how are you doing?",
+    "order": 30,
+    "slice": "misc-1"
+  },
+  {
+    "da": "en",
+    "en": [
+      "one"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Jeg har kun en bror.",
+    "exampleEn": "I have only one brother.",
+    "order": 31,
+    "slice": "misc-1"
+  },
+  {
+    "da": "to",
+    "en": [
+      "two"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Vi har to katte og en hund.",
+    "exampleEn": "We have two cats and a dog.",
+    "order": 32,
+    "slice": "misc-1"
+  },
+  {
+    "da": "tre",
+    "en": [
+      "three"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Der er tre æbler i skålen.",
+    "exampleEn": "There are three apples in the bowl.",
+    "order": 33,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hjemme",
+    "en": [
+      "at home",
+      "home"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Jeg bliver hjemme i weekenden.",
+    "exampleEn": "I am staying at home this weekend.",
+    "order": 35,
+    "slice": "misc-1"
+  },
+  {
+    "da": "væk",
+    "en": [
+      "away",
+      "gone"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Katten løb væk fra hunden.",
+    "exampleEn": "The cat ran away from the dog.",
+    "order": 36,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ude",
+    "en": [
+      "outside",
+      "out"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Børnene leger ude i haven.",
+    "exampleEn": "The children are playing outside in the garden.",
+    "order": 37,
+    "slice": "misc-1"
+  },
+  {
+    "da": "inde",
+    "en": [
+      "inside",
+      "in"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi sidder inde i stuen.",
+    "exampleEn": "We are sitting inside in the living room.",
+    "order": 38,
+    "slice": "misc-1"
+  },
+  {
+    "da": "oppe",
+    "en": [
+      "up"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Er du stadig oppe så sent?",
+    "exampleEn": "Are you still up this late?",
+    "order": 39,
+    "slice": "misc-1"
+  },
+  {
+    "da": "nede",
+    "en": [
+      "down",
+      "below"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Han venter nede på gaden.",
+    "exampleEn": "He is waiting down on the street.",
+    "order": 40,
+    "slice": "misc-1"
+  },
+  {
+    "da": "frem",
+    "en": [
+      "forward",
+      "ahead"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Bussen kører langsomt frem.",
+    "exampleEn": "The bus moves forward slowly.",
+    "order": 41,
+    "slice": "misc-1"
+  },
+  {
+    "da": "sammen",
+    "en": [
+      "together"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi laver mad sammen hver aften.",
+    "exampleEn": "We cook together every evening.",
+    "order": 42,
+    "slice": "misc-1"
+  },
+  {
+    "da": "alene",
+    "en": [
+      "alone"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hun bor alene i en lille lejlighed.",
+    "exampleEn": "She lives alone in a small apartment.",
+    "order": 43,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ofte",
+    "en": [
+      "often",
+      "frequently"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi går ofte tur i parken.",
+    "exampleEn": "We often go for a walk in the park.",
+    "order": 44,
+    "slice": "misc-1"
+  },
+  {
+    "da": "tit",
+    "en": [
+      "often",
+      "frequently"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Han besøger tit sin mormor.",
+    "exampleEn": "He often visits his grandmother.",
+    "order": 45,
+    "slice": "misc-1"
+  },
+  {
+    "da": "snart",
+    "en": [
+      "soon"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Det bliver snart sommer igen.",
+    "exampleEn": "It will soon be summer again.",
+    "order": 46,
+    "slice": "misc-1"
+  },
+  {
+    "da": "allerede",
+    "en": [
+      "already"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Er du allerede færdig med maden?",
+    "exampleEn": "Are you already finished with the food?",
+    "order": 47,
+    "slice": "misc-1"
+  },
+  {
+    "da": "stadig",
+    "en": [
+      "still"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hun arbejder stadig på hospitalet.",
+    "exampleEn": "She still works at the hospital.",
+    "order": 48,
+    "slice": "misc-1"
+  },
+  {
+    "da": "endnu",
+    "en": [
+      "yet",
+      "still"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Toget er ikke kommet endnu.",
+    "exampleEn": "The train has not arrived yet.",
+    "order": 49,
+    "slice": "misc-1"
+  },
+  {
+    "da": "helt",
+    "en": [
+      "completely",
+      "totally",
+      "quite"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Jeg er helt enig med dig.",
+    "exampleEn": "I completely agree with you.",
+    "order": 50,
+    "slice": "misc-1"
+  },
+  {
+    "da": "næsten",
+    "en": [
+      "almost",
+      "nearly"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi er næsten hjemme nu.",
+    "exampleEn": "We are almost home now.",
+    "order": 51,
+    "slice": "misc-1"
+  },
+  {
+    "da": "nok",
+    "en": [
+      "probably",
+      "enough"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Han kommer nok i morgen.",
+    "exampleEn": "He will probably come tomorrow.",
+    "order": 52,
+    "slice": "misc-1"
+  },
+  {
+    "da": "sådan",
+    "en": [
+      "like this",
+      "like that",
+      "so"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Man gør det sådan her.",
+    "exampleEn": "You do it like this.",
+    "order": 53,
+    "slice": "misc-1"
+  },
+  {
+    "da": "gerne",
+    "en": [
+      "gladly",
+      "willingly",
+      "happily"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Jeg vil gerne have en øl.",
+    "exampleEn": "I would like a beer.",
+    "order": 54,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hellere",
+    "en": [
+      "rather",
+      "preferably"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Jeg vil hellere have te end kaffe.",
+    "exampleEn": "I would rather have tea than coffee.",
+    "order": 55,
+    "slice": "misc-1"
+  },
+  {
+    "da": "virkelig",
+    "en": [
+      "really",
+      "truly"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Filmen var virkelig god.",
+    "exampleEn": "The movie was really good.",
+    "order": 56,
+    "slice": "misc-1"
+  },
+  {
+    "da": "faktisk",
+    "en": [
+      "actually",
+      "in fact"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Jeg er faktisk ret træt nu.",
+    "exampleEn": "I am actually quite tired now.",
+    "order": 57,
+    "slice": "misc-1"
+  },
+  {
+    "da": "egentlig",
+    "en": [
+      "actually",
+      "really"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hvad laver du egentlig i weekenden?",
+    "exampleEn": "What are you actually doing this weekend?",
+    "order": 58,
+    "slice": "misc-1"
+  },
+  {
+    "da": "selvfølgelig",
+    "en": [
+      "of course",
+      "naturally"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Selvfølgelig må du komme med.",
+    "exampleEn": "Of course you can come along.",
+    "order": 59,
+    "slice": "misc-1"
+  },
+  {
+    "da": "desværre",
+    "en": [
+      "unfortunately",
+      "sadly"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Desværre har vi ikke flere billetter.",
+    "exampleEn": "Unfortunately we have no more tickets.",
+    "order": 60,
+    "slice": "misc-1"
+  },
+  {
+    "da": "hurtigt",
+    "en": [
+      "quickly",
+      "fast"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Han løber meget hurtigt.",
+    "exampleEn": "He runs very fast.",
+    "order": 61,
+    "slice": "misc-1"
+  },
+  {
+    "da": "langsomt",
+    "en": [
+      "slowly"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Kan du tale lidt mere langsomt?",
+    "exampleEn": "Can you speak a little more slowly?",
+    "order": 62,
+    "slice": "misc-1"
+  },
+  {
+    "da": "først",
+    "en": [
+      "first",
+      "at first"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Vi spiser først og ser fjernsyn bagefter.",
+    "exampleEn": "We eat first and watch TV afterwards.",
+    "order": 63,
+    "slice": "misc-1"
+  },
+  {
+    "da": "fire",
+    "en": [
+      "four"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Familien har fire små børn.",
+    "exampleEn": "The family has four small children.",
+    "order": 64,
+    "slice": "misc-1"
+  },
+  {
+    "da": "fem",
+    "en": [
+      "five"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Butikken lukker klokken fem i dag.",
+    "exampleEn": "The shop closes at five o'clock today.",
+    "order": 65,
+    "slice": "misc-1"
+  },
+  {
+    "da": "seks",
+    "en": [
+      "six"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Vi står op klokken seks.",
+    "exampleEn": "We get up at six o'clock.",
+    "order": 66,
+    "slice": "misc-1"
+  },
+  {
+    "da": "syv",
+    "en": [
+      "seven"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Der er syv dage i en uge.",
+    "exampleEn": "There are seven days in a week.",
+    "order": 67,
+    "slice": "misc-1"
+  },
+  {
+    "da": "otte",
+    "en": [
+      "eight"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Mødet begynder klokken otte i morgen.",
+    "exampleEn": "The meeting starts at eight o'clock tomorrow.",
+    "order": 68,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ni",
+    "en": [
+      "nine"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Min søn er ni år gammel.",
+    "exampleEn": "My son is nine years old.",
+    "order": 69,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ti",
+    "en": [
+      "ten"
+    ],
+    "pos": "numeral",
+    "exampleDa": "Bussen kommer om ti minutter.",
+    "exampleEn": "The bus comes in ten minutes.",
+    "order": 70,
+    "slice": "misc-1"
+  },
+  {
+    "da": "mest",
+    "en": [
+      "most",
+      "mostly"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Hun arbejder mest om aftenen.",
+    "exampleEn": "She works mostly in the evening.",
+    "order": 71,
+    "slice": "misc-1"
+  },
+  {
+    "da": "mindre",
+    "en": [
+      "less"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Han arbejder mindre nu end før.",
+    "exampleEn": "He works less now than before.",
+    "order": 72,
+    "slice": "misc-1"
+  },
+  {
+    "da": "mindst",
+    "en": [
+      "at least",
+      "least"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Rejsen tager mindst to timer.",
+    "exampleEn": "The trip takes at least two hours.",
+    "order": 73,
+    "slice": "misc-1"
+  },
+  {
+    "da": "ret",
+    "en": [
+      "quite",
+      "rather",
+      "pretty"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Det er ret koldt i dag.",
+    "exampleEn": "It is quite cold today.",
+    "order": 74,
+    "slice": "misc-1"
+  },
+  {
+    "da": "derfor",
+    "en": [
+      "therefore",
+      "so"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Det regner, og derfor bliver vi hjemme.",
+    "exampleEn": "It is raining, and therefore we are staying home.",
+    "order": 75,
+    "slice": "misc-1"
+  },
+  {
+    "da": "alligevel",
+    "en": [
+      "anyway",
+      "nevertheless",
+      "still"
+    ],
+    "pos": "adverb",
+    "exampleDa": "Det regnede, men vi gik alligevel.",
+    "exampleEn": "It was raining, but we went anyway.",
+    "order": 76,
+    "slice": "misc-1"
+  }
+]
