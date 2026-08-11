@@ -3,10 +3,10 @@
 import { deflateSync, crc32 } from 'node:zlib'
 import { mkdirSync, writeFileSync } from 'node:fs'
 
-const BG = [0x1a, 0x1d, 0x29]
-const SLATE = [0x2f, 0x34, 0x47]
-const TEAL = [0x14, 0xb8, 0xa6]
-const RED = [0xdc, 0x62, 0x62]
+const BG = [0xff, 0xff, 0xff]
+const SLATE = [0xe3, 0xdf, 0xd3] // beige neutral tile
+const TEAL = [0x6a, 0xaa, 0x64] // green target tile
+const RED = [0x12, 0x12, 0x12] // black forbidden tile
 
 function chunk(type, data) {
   const len = Buffer.alloc(4)

@@ -20,6 +20,11 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 try {
   await page.goto('http://localhost:4173/ClueCabulary/?mock=1&seed=5')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
+
+  // First visit shows the How-to-play overlay — read it like a new player would.
+  await page.waitForSelector('.howto', { timeout: 5000 })
+  await page.screenshot({ path: `${SHOT_DIR}/00-howto.png` })
+  await page.click('.howto .btn-primary')
   await page.screenshot({ path: `${SHOT_DIR}/01-home.png` })
 
   await page.click('.grid-card:first-child') // beginner 3x4

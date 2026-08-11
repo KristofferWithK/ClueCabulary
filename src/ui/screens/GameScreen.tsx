@@ -73,6 +73,13 @@ export function GameScreen() {
           <p className="phase-caption">{PHASE_CAPTION[game.phase]}</p>
         </div>
         <button
+          className="icon-btn"
+          aria-label="How to play"
+          onClick={() => useUi.getState().openHowTo()}
+        >
+          ?
+        </button>
+        <button
           className={`icon-btn ${translationsOn ? 'icon-btn-active' : ''}`}
           aria-label="Toggle translations"
           disabled={game.phase === 'redemption'}
@@ -92,15 +99,17 @@ export function GameScreen() {
       )}
 
       {showBoard && (
-        <BoardGrid
-          game={game}
-          translationsOn={translationsOn}
-          canGuess={game.phase === 'playerGuessing'}
-          selectedWordId={selectedWordId}
-          onCardTap={(id) => useGame.getState().selectWord(id)}
-          onInfoTap={openDictionary}
-          dictionaryLocked={false}
-        />
+        <div className="board-area">
+          <BoardGrid
+            game={game}
+            translationsOn={translationsOn}
+            canGuess={game.phase === 'playerGuessing'}
+            selectedWordId={selectedWordId}
+            onCardTap={(id) => useGame.getState().selectWord(id)}
+            onInfoTap={openDictionary}
+            dictionaryLocked={false}
+          />
+        </div>
       )}
 
       {game.phase === 'playerClueInput' && (

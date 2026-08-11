@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { useSettings } from './stores/settingsStore'
-import { useUi } from './stores/uiStore'
+import { shouldShowHowTo, useUi } from './stores/uiStore'
 import { DictionarySheet } from './ui/components/DictionarySheet'
+import { HowToPlay } from './ui/components/HowToPlay'
 import { GameScreen } from './ui/screens/GameScreen'
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { SettingsScreen } from './ui/screens/SettingsScreen'
@@ -18,6 +19,7 @@ export default function App() {
     if (seed && /^\d+$/.test(seed)) {
       useUi.setState({ pendingSeed: Number(seed) })
     }
+    if (shouldShowHowTo() && params.get('howto') !== '0') useUi.getState().openHowTo()
   }, [])
 
   return (
@@ -27,6 +29,7 @@ export default function App() {
       {screen === 'settings' && <SettingsScreen />}
       {screen === 'stats' && <StatsScreen />}
       <DictionarySheet />
+      <HowToPlay />
     </main>
   )
 }

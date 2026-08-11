@@ -5,6 +5,13 @@ import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 
+/** Deterministic pick that changes daily — a small NYT-style ritual. */
+function wordOfTheDay() {
+  const now = new Date()
+  const dayKey = now.getFullYear() * 372 + now.getMonth() * 31 + now.getDate()
+  return WORDS[(dayKey * 2654435761) % WORDS.length]!
+}
+
 export function HomeScreen() {
   const goTo = useUi((s) => s.goTo)
   const pendingSeed = useUi((s) => s.pendingSeed)
@@ -12,6 +19,9 @@ export function HomeScreen() {
   const newGame = useGame((s) => s.newGame)
   const settings = useSettings()
   const seenCount = useSrs((s) => Object.keys(s.stats).length)
+
+  const openSheet = useUi((s) => s.openSheet)
+  const wotd = wordOfTheDay()
 
   const start = (gridSize: GridSize) => {
     settings.set({ gridSize })
@@ -61,6 +71,19 @@ export function HomeScreen() {
           </span>
         </button>
       </div>
+
+      <button className="wotd" onClick={() => openSheet(wotd.id)}>
+        <span className="wotd-label">Dagens ord · word of the day</span>
+        <span className="wotd-da" lang="da">
+          {wotd.pos === 'noun' && wotd.article ? `${wotd.article} ` : ''}
+          {wotd.da}
+        </span>
+        <span className="wotd-en">{wotd.en[0]}</span>
+      </button>
+
+      <button className="howto-link" onClick={() => useUi.getState().openHowTo()}>
+        How to play
+      </button>
 
       <nav className="home-nav">
         <button className="btn" onClick={() => goTo('stats')}>

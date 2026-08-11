@@ -1,0 +1,1589 @@
+[
+ {
+  "da": "ellers",
+  "en": [
+   "otherwise",
+   "else"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Skynd dig, ellers kommer vi for sent.",
+  "exampleEn": "Hurry up, otherwise we will be late.",
+  "order": 77,
+  "slice": "misc-1"
+ },
+ {
+  "da": "altså",
+  "en": [
+   "so",
+   "you know",
+   "therefore"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi ses altså klokken otte i morgen.",
+  "exampleEn": "So we will see each other at eight tomorrow.",
+  "order": 78,
+  "slice": "misc-1"
+ },
+ {
+  "da": "nemlig",
+  "en": [
+   "namely",
+   "you see"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han er glad, han har nemlig fødselsdag.",
+  "exampleEn": "He is happy - it is his birthday, you see.",
+  "order": 79,
+  "slice": "misc-1"
+ },
+ {
+  "da": "heldigvis",
+  "en": [
+   "fortunately",
+   "luckily"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Heldigvis kom bussen til tiden.",
+  "exampleEn": "Fortunately the bus came on time.",
+  "order": 80,
+  "slice": "misc-1"
+ },
+ {
+  "da": "pludselig",
+  "en": [
+   "suddenly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Pludselig begyndte det at regne.",
+  "exampleEn": "Suddenly it started to rain.",
+  "order": 81,
+  "slice": "misc-1"
+ },
+ {
+  "da": "tidligt",
+  "en": [
+   "early"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi står tidligt op i morgen.",
+  "exampleEn": "We are getting up early tomorrow.",
+  "order": 82,
+  "slice": "misc-1"
+ },
+ {
+  "da": "sent",
+  "en": [
+   "late"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han kom sent hjem i går.",
+  "exampleEn": "He came home late yesterday.",
+  "order": 83,
+  "slice": "misc-1"
+ },
+ {
+  "da": "længe",
+  "en": [
+   "long",
+   "a long time"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg har ventet længe på dig.",
+  "exampleEn": "I have waited a long time for you.",
+  "order": 84,
+  "slice": "misc-1"
+ },
+ {
+  "da": "sjældent",
+  "en": [
+   "rarely",
+   "seldom"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi ser sjældent fjernsyn om morgenen.",
+  "exampleEn": "We rarely watch TV in the morning.",
+  "order": 85,
+  "slice": "misc-1"
+ },
+ {
+  "da": "engang",
+  "en": [
+   "once"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi boede engang i en lille by.",
+  "exampleEn": "We once lived in a small town.",
+  "order": 86,
+  "slice": "misc-1"
+ },
+ {
+  "da": "nogensinde",
+  "en": [
+   "ever"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Har du nogensinde været i udlandet?",
+  "exampleEn": "Have you ever been abroad?",
+  "order": 87,
+  "slice": "misc-1"
+ },
+ {
+  "da": "sommetider",
+  "en": [
+   "sometimes"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Sommetider cykler jeg på arbejde.",
+  "exampleEn": "Sometimes I bike to work.",
+  "order": 88,
+  "slice": "misc-1"
+ },
+ {
+  "da": "straks",
+  "en": [
+   "immediately",
+   "at once",
+   "right away"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg kommer straks tilbage.",
+  "exampleEn": "I will be right back.",
+  "order": 89,
+  "slice": "misc-1"
+ },
+ {
+  "da": "bagefter",
+  "en": [
+   "afterwards",
+   "after"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi går en tur bagefter.",
+  "exampleEn": "We are taking a walk afterwards.",
+  "order": 90,
+  "slice": "misc-1"
+ },
+ {
+  "da": "tidligere",
+  "en": [
+   "earlier",
+   "previously",
+   "before"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun boede tidligere i en anden by.",
+  "exampleEn": "She previously lived in another town.",
+  "order": 91,
+  "slice": "misc-1"
+ },
+ {
+  "da": "senere",
+  "en": [
+   "later"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi ses senere i dag.",
+  "exampleEn": "See you later today.",
+  "order": 92,
+  "slice": "misc-1"
+ },
+ {
+  "da": "dårligt",
+  "en": [
+   "badly",
+   "poorly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg sov dårligt i nat.",
+  "exampleEn": "I slept badly last night.",
+  "order": 93,
+  "slice": "misc-1"
+ },
+ {
+  "da": "endelig",
+  "en": [
+   "finally",
+   "at last"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Endelig er det weekend igen!",
+  "exampleEn": "Finally it is the weekend again!",
+  "order": 94,
+  "slice": "misc-1"
+ },
+ {
+  "da": "overalt",
+  "en": [
+   "everywhere"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Der er blomster overalt i byen.",
+  "exampleEn": "There are flowers everywhere in the city.",
+  "order": 95,
+  "slice": "misc-1"
+ },
+ {
+  "da": "udenfor",
+  "en": [
+   "outside",
+   "outdoors"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hunden sover udenfor om sommeren.",
+  "exampleEn": "The dog sleeps outside in the summer.",
+  "order": 96,
+  "slice": "misc-1"
+ },
+ {
+  "da": "indenfor",
+  "en": [
+   "inside",
+   "indoors"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Kom indenfor og få varmen.",
+  "exampleEn": "Come inside and warm up.",
+  "order": 97,
+  "slice": "misc-1"
+ },
+ {
+  "da": "cirka",
+  "en": [
+   "about",
+   "approximately",
+   "roughly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Turen tager cirka en time.",
+  "exampleEn": "The trip takes about an hour.",
+  "order": 98,
+  "slice": "misc-1"
+ },
+ {
+  "da": "især",
+  "en": [
+   "especially",
+   "particularly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg kan især godt lide sommeren.",
+  "exampleEn": "I especially like the summer.",
+  "order": 99,
+  "slice": "misc-1"
+ },
+ {
+  "da": "undskyld",
+  "en": [
+   "sorry",
+   "excuse me"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Undskyld, hvor er toilettet henne?",
+  "exampleEn": "Excuse me, where is the toilet?",
+  "order": 100,
+  "slice": "misc-1"
+ },
+ {
+  "da": "okay",
+  "en": [
+   "okay",
+   "OK",
+   "alright"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Okay, vi mødes klokken syv.",
+  "exampleEn": "Okay, we meet at seven o'clock.",
+  "order": 101,
+  "slice": "misc-1"
+ },
+ {
+  "da": "hallo",
+  "en": [
+   "hello",
+   "hey"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Hallo, er der nogen hjemme?",
+  "exampleEn": "Hello, is anyone home?",
+  "order": 102,
+  "slice": "misc-1"
+ },
+ {
+  "da": "farvel",
+  "en": [
+   "goodbye",
+   "bye"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Farvel, vi ses i morgen!",
+  "exampleEn": "Goodbye, see you tomorrow!",
+  "order": 103,
+  "slice": "misc-1"
+ },
+ {
+  "da": "velkommen",
+  "en": [
+   "welcome"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Velkommen til vores nye hus!",
+  "exampleEn": "Welcome to our new house!",
+  "order": 104,
+  "slice": "misc-1"
+ },
+ {
+  "da": "jo",
+  "en": [
+   "yes",
+   "oh yes"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Jo, jeg kan godt lide fisk.",
+  "exampleEn": "Yes, I do like fish.",
+  "order": 105,
+  "slice": "misc-1"
+ },
+ {
+  "da": "goddag",
+  "en": [
+   "good day",
+   "hello"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Goddag, hvordan kan jeg hjælpe dig?",
+  "exampleEn": "Good day, how can I help you?",
+  "order": 106,
+  "slice": "misc-1"
+ },
+ {
+  "da": "godmorgen",
+  "en": [
+   "good morning"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Godmorgen, har du sovet godt?",
+  "exampleEn": "Good morning, did you sleep well?",
+  "order": 107,
+  "slice": "misc-1"
+ },
+ {
+  "da": "godnat",
+  "en": [
+   "good night",
+   "goodnight"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Godnat, sov godt, min ven.",
+  "exampleEn": "Good night, sleep well, my friend.",
+  "order": 108,
+  "slice": "misc-1"
+ },
+ {
+  "da": "skål",
+  "en": [
+   "cheers"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Skål og tillykke med fødselsdagen!",
+  "exampleEn": "Cheers and happy birthday!",
+  "order": 109,
+  "slice": "misc-1"
+ },
+ {
+  "da": "av",
+  "en": [
+   "ouch",
+   "ow"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Av, jeg slog min finger!",
+  "exampleEn": "Ouch, I hit my finger!",
+  "order": 110,
+  "slice": "misc-1"
+ },
+ {
+  "da": "første",
+  "en": [
+   "first"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Det er min første dag på arbejdet.",
+  "exampleEn": "It is my first day at work.",
+  "order": 111,
+  "slice": "misc-1"
+ },
+ {
+  "da": "anden",
+  "en": [
+   "second",
+   "other"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Han bor på anden sal.",
+  "exampleEn": "He lives on the second floor.",
+  "order": 112,
+  "slice": "misc-1"
+ },
+ {
+  "da": "tredje",
+  "en": [
+   "third"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Det er tredje gang, jeg ringer.",
+  "exampleEn": "It is the third time I am calling.",
+  "order": 113,
+  "slice": "misc-1"
+ },
+ {
+  "da": "tyve",
+  "en": [
+   "twenty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Bogen koster tyve kroner.",
+  "exampleEn": "The book costs twenty kroner.",
+  "order": 114,
+  "slice": "misc-1"
+ },
+ {
+  "da": "hundrede",
+  "en": [
+   "hundred",
+   "one hundred"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Jakken kostede hundrede kroner.",
+  "exampleEn": "The jacket cost a hundred kroner.",
+  "order": 115,
+  "slice": "misc-1"
+ },
+ {
+  "da": "tusind",
+  "en": [
+   "thousand",
+   "one thousand"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Der bor tusind mennesker i byen.",
+  "exampleEn": "A thousand people live in the town.",
+  "order": 116,
+  "slice": "misc-1"
+ },
+ {
+  "da": "tredive",
+  "en": [
+   "thirty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Min bror er tredive år gammel.",
+  "exampleEn": "My brother is thirty years old.",
+  "order": 117,
+  "slice": "misc-1"
+ },
+ {
+  "da": "fyrre",
+  "en": [
+   "forty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Der er fyrre elever på skolen.",
+  "exampleEn": "There are forty students at the school.",
+  "order": 118,
+  "slice": "misc-1"
+ },
+ {
+  "da": "halvtreds",
+  "en": [
+   "fifty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Min mor fylder halvtreds i maj.",
+  "exampleEn": "My mother turns fifty in May.",
+  "order": 119,
+  "slice": "misc-1"
+ },
+ {
+  "da": "nul",
+  "en": [
+   "zero"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Temperaturen er nul grader i dag.",
+  "exampleEn": "The temperature is zero degrees today.",
+  "order": 120,
+  "slice": "misc-1"
+ },
+ {
+  "da": "grund",
+  "en": [
+   "reason",
+   "ground",
+   "cause"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er en god grund til det.",
+  "exampleEn": "There is a good reason for it.",
+  "order": 1,
+  "slice": "noun-2"
+ },
+ {
+  "da": "måde",
+  "en": [
+   "way",
+   "manner"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kan gøre det på en anden måde.",
+  "exampleEn": "We can do it in another way.",
+  "order": 2,
+  "slice": "noun-2"
+ },
+ {
+  "da": "hjælp",
+  "en": [
+   "help",
+   "aid"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tak for din hjælp i dag.",
+  "exampleEn": "Thanks for your help today.",
+  "order": 4,
+  "slice": "noun-2"
+ },
+ {
+  "da": "svar",
+  "en": [
+   "answer",
+   "reply",
+   "response"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg venter stadig på et svar.",
+  "exampleEn": "I am still waiting for an answer.",
+  "order": 6,
+  "slice": "noun-2"
+ },
+ {
+  "da": "stemme",
+  "en": [
+   "voice",
+   "vote"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en smuk stemme.",
+  "exampleEn": "She has a beautiful voice.",
+  "order": 7,
+  "slice": "noun-2"
+ },
+ {
+  "da": "sag",
+  "en": [
+   "case",
+   "matter",
+   "cause"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Det er en vigtig sag for os.",
+  "exampleEn": "It is an important matter for us.",
+  "order": 8,
+  "slice": "noun-2"
+ },
+ {
+  "da": "billede",
+  "en": [
+   "picture",
+   "image",
+   "photo"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg tager et billede af dig.",
+  "exampleEn": "I am taking a picture of you.",
+  "order": 9,
+  "slice": "noun-2"
+ },
+ {
+  "da": "historie",
+  "en": [
+   "story",
+   "history"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Far læser en historie for børnene.",
+  "exampleEn": "Dad reads a story to the children.",
+  "order": 10,
+  "slice": "noun-2"
+ },
+ {
+  "da": "plan",
+  "en": [
+   "plan"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Har du en plan for i morgen?",
+  "exampleEn": "Do you have a plan for tomorrow?",
+  "order": 11,
+  "slice": "noun-2"
+ },
+ {
+  "da": "nummer",
+  "en": [
+   "number"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Må jeg få dit nummer?",
+  "exampleEn": "May I have your number?",
+  "order": 14,
+  "slice": "noun-2"
+ },
+ {
+  "da": "valg",
+  "en": [
+   "choice",
+   "election"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det var et godt valg.",
+  "exampleEn": "It was a good choice.",
+  "order": 15,
+  "slice": "noun-2"
+ },
+ {
+  "da": "fejl",
+  "en": [
+   "mistake",
+   "error",
+   "fault"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg lavede en lille fejl.",
+  "exampleEn": "I made a small mistake.",
+  "order": 16,
+  "slice": "noun-2"
+ },
+ {
+  "da": "lyst",
+  "en": [
+   "desire",
+   "urge",
+   "inclination"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har lyst til en kop kaffe.",
+  "exampleEn": "I feel like a cup of coffee.",
+  "order": 17,
+  "slice": "noun-2"
+ },
+ {
+  "da": "tanke",
+  "en": [
+   "thought",
+   "idea"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Det var en god tanke.",
+  "exampleEn": "That was a good thought.",
+  "order": 18,
+  "slice": "noun-2"
+ },
+ {
+  "da": "idé",
+  "en": [
+   "idea"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har altid en god idé.",
+  "exampleEn": "She always has a good idea.",
+  "order": 19,
+  "slice": "noun-2"
+ },
+ {
+  "da": "drøm",
+  "en": [
+   "dream"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg havde en mærkelig drøm i nat.",
+  "exampleEn": "I had a strange dream last night.",
+  "order": 20,
+  "slice": "noun-2"
+ },
+ {
+  "da": "håb",
+  "en": [
+   "hope"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der er altid håb.",
+  "exampleEn": "There is always hope.",
+  "order": 21,
+  "slice": "noun-2"
+ },
+ {
+  "da": "følelse",
+  "en": [
+   "feeling",
+   "emotion"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en god følelse i dag.",
+  "exampleEn": "I have a good feeling today.",
+  "order": 22,
+  "slice": "noun-2"
+ },
+ {
+  "da": "glæde",
+  "en": [
+   "joy",
+   "pleasure",
+   "happiness"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene synger med stor glæde.",
+  "exampleEn": "The children sing with great joy.",
+  "order": 23,
+  "slice": "noun-2"
+ },
+ {
+  "da": "kærlighed",
+  "en": [
+   "love"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kærlighed er vigtig i livet.",
+  "exampleEn": "Love is important in life.",
+  "order": 24,
+  "slice": "noun-2"
+ },
+ {
+  "da": "lykke",
+  "en": [
+   "happiness",
+   "luck"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Penge giver ikke altid lykke.",
+  "exampleEn": "Money does not always bring happiness.",
+  "order": 25,
+  "slice": "noun-2"
+ },
+ {
+  "da": "fred",
+  "en": [
+   "peace"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Alle mennesker ønsker fred.",
+  "exampleEn": "All people want peace.",
+  "order": 26,
+  "slice": "noun-2"
+ },
+ {
+  "da": "krig",
+  "en": [
+   "war"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Landet var i krig i mange år.",
+  "exampleEn": "The country was at war for many years.",
+  "order": 27,
+  "slice": "noun-2"
+ },
+ {
+  "da": "sandhed",
+  "en": [
+   "truth"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Du skal altid sige sandheden.",
+  "exampleEn": "You must always tell the truth.",
+  "order": 29,
+  "slice": "noun-2"
+ },
+ {
+  "da": "viden",
+  "en": [
+   "knowledge"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har stor viden om planter.",
+  "exampleEn": "She has great knowledge about plants.",
+  "order": 30,
+  "slice": "noun-2"
+ },
+ {
+  "da": "sprog",
+  "en": [
+   "language"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Dansk er et svært sprog.",
+  "exampleEn": "Danish is a difficult language.",
+  "order": 31,
+  "slice": "noun-2"
+ },
+ {
+  "da": "besked",
+  "en": [
+   "message"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg sender dig en besked senere.",
+  "exampleEn": "I will send you a message later.",
+  "order": 32,
+  "slice": "noun-2"
+ },
+ {
+  "da": "nyhed",
+  "en": [
+   "news"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en god nyhed til dig.",
+  "exampleEn": "I have good news for you.",
+  "order": 33,
+  "slice": "noun-2"
+ },
+ {
+  "da": "avis",
+  "en": [
+   "newspaper",
+   "paper"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min far læser avisen hver morgen.",
+  "exampleEn": "My father reads the newspaper every morning.",
+  "order": 34,
+  "slice": "noun-2"
+ },
+ {
+  "da": "brev",
+  "en": [
+   "letter"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg skriver et brev til min ven.",
+  "exampleEn": "I am writing a letter to my friend.",
+  "order": 35,
+  "slice": "noun-2"
+ },
+ {
+  "da": "papir",
+  "en": [
+   "paper"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Har du et stykke papir?",
+  "exampleEn": "Do you have a piece of paper?",
+  "order": 36,
+  "slice": "noun-2"
+ },
+ {
+  "da": "tekst",
+  "en": [
+   "text"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Læs teksten på side ti.",
+  "exampleEn": "Read the text on page ten.",
+  "order": 37,
+  "slice": "noun-2"
+ },
+ {
+  "da": "eksempel",
+  "en": [
+   "example"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Kan du give mig et eksempel?",
+  "exampleEn": "Can you give me an example?",
+  "order": 38,
+  "slice": "noun-2"
+ },
+ {
+  "da": "nabo",
+  "en": [
+   "neighbor",
+   "neighbour"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vores nabo har en stor hund.",
+  "exampleEn": "Our neighbor has a big dog.",
+  "order": 46,
+  "slice": "noun-2"
+ },
+ {
+  "da": "gæst",
+  "en": [
+   "guest",
+   "visitor"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi får gæster på lørdag.",
+  "exampleEn": "We are having guests on Saturday.",
+  "order": 47,
+  "slice": "noun-2"
+ },
+ {
+  "da": "kæreste",
+  "en": [
+   "boyfriend",
+   "girlfriend",
+   "partner"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han bor sammen med sin kæreste.",
+  "exampleEn": "He lives together with his girlfriend.",
+  "order": 54,
+  "slice": "noun-2"
+ },
+ {
+  "da": "kone",
+  "en": [
+   "wife"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hans kone arbejder på et hospital.",
+  "exampleEn": "His wife works at a hospital.",
+  "order": 55,
+  "slice": "noun-2"
+ },
+ {
+  "da": "gruppe",
+  "en": [
+   "group"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi arbejder sammen i en lille gruppe.",
+  "exampleEn": "We work together in a small group.",
+  "order": 56,
+  "slice": "noun-2"
+ },
+ {
+  "da": "hold",
+  "en": [
+   "team"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vores hold vandt kampen i går.",
+  "exampleEn": "Our team won the match yesterday.",
+  "order": 57,
+  "slice": "noun-2"
+ },
+ {
+  "da": "marked",
+  "en": [
+   "market"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi køber frugt på markedet.",
+  "exampleEn": "We buy fruit at the market.",
+  "order": 63,
+  "slice": "noun-2"
+ },
+ {
+  "da": "bibliotek",
+  "en": [
+   "library"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg låner bøger på biblioteket.",
+  "exampleEn": "I borrow books at the library.",
+  "order": 67,
+  "slice": "noun-2"
+ },
+ {
+  "da": "museum",
+  "en": [
+   "museum"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Museet er lukket om mandagen.",
+  "exampleEn": "The museum is closed on Mondays.",
+  "order": 68,
+  "slice": "noun-2"
+ },
+ {
+  "da": "lufthavn",
+  "en": [
+   "airport"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kører til lufthavnen klokken seks.",
+  "exampleEn": "We drive to the airport at six o'clock.",
+  "order": 72,
+  "slice": "noun-2"
+ },
+ {
+  "da": "bro",
+  "en": [
+   "bridge"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi går over den gamle bro.",
+  "exampleEn": "We walk across the old bridge.",
+  "order": 74,
+  "slice": "noun-2"
+ },
+ {
+  "da": "bygning",
+  "en": [
+   "building"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Skolen er en gammel bygning.",
+  "exampleEn": "The school is an old building.",
+  "order": 75,
+  "slice": "noun-2"
+ },
+ {
+  "da": "stue",
+  "en": [
+   "living room"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi ser fjernsyn i stuen.",
+  "exampleEn": "We watch TV in the living room.",
+  "order": 79,
+  "slice": "noun-2"
+ },
+ {
+  "da": "badeværelse",
+  "en": [
+   "bathroom"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Badeværelset er ved siden af køkkenet.",
+  "exampleEn": "The bathroom is next to the kitchen.",
+  "order": 80,
+  "slice": "noun-2"
+ },
+ {
+  "da": "væg",
+  "en": [
+   "wall"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der hænger et billede på væggen.",
+  "exampleEn": "A picture hangs on the wall.",
+  "order": 85,
+  "slice": "noun-2"
+ },
+ {
+  "da": "gulv",
+  "en": [
+   "floor"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der ligger legetøj på gulvet.",
+  "exampleEn": "There are toys on the floor.",
+  "order": 86,
+  "slice": "noun-2"
+ },
+ {
+  "da": "tag",
+  "en": [
+   "roof"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der ligger sne på taget.",
+  "exampleEn": "There is snow on the roof.",
+  "order": 87,
+  "slice": "noun-2"
+ },
+ {
+  "da": "trappe",
+  "en": [
+   "staircase",
+   "stairs"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi går op ad trappen.",
+  "exampleEn": "We walk up the stairs.",
+  "order": 88,
+  "slice": "noun-2"
+ },
+ {
+  "da": "spejl",
+  "en": [
+   "mirror"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun ser sig i spejlet.",
+  "exampleEn": "She looks at herself in the mirror.",
+  "order": 91,
+  "slice": "noun-2"
+ },
+ {
+  "da": "skab",
+  "en": [
+   "cupboard",
+   "closet",
+   "cabinet"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Kopperne står i skabet.",
+  "exampleEn": "The cups are in the cupboard.",
+  "order": 92,
+  "slice": "noun-2"
+ },
+ {
+  "da": "sofa",
+  "en": [
+   "sofa",
+   "couch"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi sidder i sofaen og ser film.",
+  "exampleEn": "We sit on the sofa and watch films.",
+  "order": 93,
+  "slice": "noun-2"
+ },
+ {
+  "da": "tæppe",
+  "en": [
+   "carpet",
+   "rug",
+   "blanket"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der ligger et blødt tæppe på gulvet.",
+  "exampleEn": "There is a soft carpet on the floor.",
+  "order": 94,
+  "slice": "noun-2"
+ },
+ {
+  "da": "taske",
+  "en": [
+   "bag",
+   "handbag"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min taske er meget tung.",
+  "exampleEn": "My bag is very heavy.",
+  "order": 96,
+  "slice": "noun-2"
+ },
+ {
+  "da": "lomme",
+  "en": [
+   "pocket"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han har penge i lommen.",
+  "exampleEn": "He has money in his pocket.",
+  "order": 97,
+  "slice": "noun-2"
+ },
+ {
+  "da": "telefon",
+  "en": [
+   "phone",
+   "telephone"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min telefon er helt ny.",
+  "exampleEn": "My phone is brand new.",
+  "order": 98,
+  "slice": "noun-2"
+ },
+ {
+  "da": "computer",
+  "en": [
+   "computer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg arbejder på min computer.",
+  "exampleEn": "I work on my computer.",
+  "order": 99,
+  "slice": "noun-2"
+ },
+ {
+  "da": "maskine",
+  "en": [
+   "machine"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Maskinen laver kaffe på et minut.",
+  "exampleEn": "The machine makes coffee in one minute.",
+  "order": 100,
+  "slice": "noun-2"
+ },
+ {
+  "da": "skib",
+  "en": [
+   "ship"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det store skib sejler i dag.",
+  "exampleEn": "The big ship sails today.",
+  "order": 105,
+  "slice": "noun-2"
+ },
+ {
+  "da": "båd",
+  "en": [
+   "boat"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi sejler i en lille båd.",
+  "exampleEn": "We sail in a small boat.",
+  "order": 106,
+  "slice": "noun-2"
+ },
+ {
+  "da": "ferie",
+  "en": [
+   "holiday",
+   "vacation"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi holder ferie i juli.",
+  "exampleEn": "We take a holiday in July.",
+  "order": 109,
+  "slice": "noun-2"
+ },
+ {
+  "da": "sommer",
+  "en": [
+   "summer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi svømmer meget om sommeren.",
+  "exampleEn": "We swim a lot in the summer.",
+  "order": 119,
+  "slice": "noun-2"
+ },
+ {
+  "da": "vinter",
+  "en": [
+   "winter"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vinteren her er lang og kold.",
+  "exampleEn": "The winter here is long and cold.",
+  "order": 120,
+  "slice": "noun-2"
+ },
+ {
+  "da": "forår",
+  "en": [
+   "spring"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Blomsterne kommer om foråret.",
+  "exampleEn": "The flowers come in the spring.",
+  "order": 121,
+  "slice": "noun-2"
+ },
+ {
+  "da": "efterår",
+  "en": [
+   "autumn",
+   "fall"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det regner meget om efteråret.",
+  "exampleEn": "It rains a lot in the autumn.",
+  "order": 122,
+  "slice": "noun-2"
+ },
+ {
+  "da": "ild",
+  "en": [
+   "fire"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi sidder rundt om ilden.",
+  "exampleEn": "We sit around the fire.",
+  "order": 131,
+  "slice": "noun-2"
+ },
+ {
+  "da": "sten",
+  "en": [
+   "stone",
+   "rock"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der ligger store sten på stranden.",
+  "exampleEn": "There are big stones on the beach.",
+  "order": 132,
+  "slice": "noun-2"
+ },
+ {
+  "da": "ansigt",
+  "en": [
+   "face"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun vasker sit ansigt hver morgen.",
+  "exampleEn": "She washes her face every morning.",
+  "order": 141,
+  "slice": "noun-2"
+ },
+ {
+  "da": "skifte",
+  "en": [
+   "change",
+   "switch",
+   "shift"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg skal skifte tøj før festen.",
+  "exampleEn": "I have to change clothes before the party.",
+  "order": 3,
+  "slice": "verb-2"
+ },
+ {
+  "da": "kræve",
+  "en": [
+   "require",
+   "demand"
+  ],
+  "pos": "verb",
+  "exampleDa": "Arbejdet kræver meget tid.",
+  "exampleEn": "The work requires a lot of time.",
+  "order": 9,
+  "slice": "verb-2"
+ },
+ {
+  "da": "miste",
+  "en": [
+   "lose"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg vil ikke miste mine nøgler.",
+  "exampleEn": "I do not want to lose my keys.",
+  "order": 10,
+  "slice": "verb-2"
+ },
+ {
+  "da": "pleje",
+  "en": [
+   "usually do",
+   "care for",
+   "tend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg plejer at stå op klokken syv.",
+  "exampleEn": "I usually get up at seven o'clock.",
+  "order": 14,
+  "slice": "verb-2"
+ },
+ {
+  "da": "vare",
+  "en": [
+   "last",
+   "take"
+  ],
+  "pos": "verb",
+  "exampleDa": "Filmen varer to timer.",
+  "exampleEn": "The film lasts two hours.",
+  "order": 15,
+  "slice": "verb-2"
+ },
+ {
+  "da": "lykkes",
+  "en": [
+   "succeed",
+   "manage"
+  ],
+  "pos": "verb",
+  "exampleDa": "Det lykkedes hende at finde nøglen.",
+  "exampleEn": "She managed to find the key.",
+  "order": 16,
+  "slice": "verb-2"
+ },
+ {
+  "da": "bestemme",
+  "en": [
+   "decide",
+   "determine"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du må bestemme, hvad vi spiser.",
+  "exampleEn": "You can decide what we eat.",
+  "order": 19,
+  "slice": "verb-2"
+ },
+ {
+  "da": "undersøge",
+  "en": [
+   "examine",
+   "investigate",
+   "check"
+  ],
+  "pos": "verb",
+  "exampleDa": "Lægen undersøger den syge dreng.",
+  "exampleEn": "The doctor examines the sick boy.",
+  "order": 20,
+  "slice": "verb-2"
+ },
+ {
+  "da": "forklare",
+  "en": [
+   "explain"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du forklare reglerne igen?",
+  "exampleEn": "Can you explain the rules again?",
+  "order": 21,
+  "slice": "verb-2"
+ },
+ {
+  "da": "overveje",
+  "en": [
+   "consider",
+   "think about"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi overvejer at flytte til byen.",
+  "exampleEn": "We are considering moving to the city.",
+  "order": 22,
+  "slice": "verb-2"
+ },
+ {
+  "da": "vurdere",
+  "en": [
+   "assess",
+   "evaluate",
+   "judge"
+  ],
+  "pos": "verb",
+  "exampleDa": "Læreren vurderer alle vores opgaver.",
+  "exampleEn": "The teacher evaluates all our assignments.",
+  "order": 23,
+  "slice": "verb-2"
+ },
+ {
+  "da": "behandle",
+  "en": [
+   "treat",
+   "handle",
+   "process"
+  ],
+  "pos": "verb",
+  "exampleDa": "Lægen behandler mange patienter hver dag.",
+  "exampleEn": "The doctor treats many patients every day.",
+  "order": 24,
+  "slice": "verb-2"
+ },
+ {
+  "da": "indeholde",
+  "en": [
+   "contain"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kagen indeholder nødder og chokolade.",
+  "exampleEn": "The cake contains nuts and chocolate.",
+  "order": 25,
+  "slice": "verb-2"
+ },
+ {
+  "da": "opnå",
+  "en": [
+   "achieve",
+   "obtain",
+   "attain"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun opnåede et rigtig godt resultat.",
+  "exampleEn": "She achieved a really good result.",
+  "order": 26,
+  "slice": "verb-2"
+ },
+ {
+  "da": "kæmpe",
+  "en": [
+   "fight",
+   "struggle"
+  ],
+  "pos": "verb",
+  "exampleDa": "Holdet kæmper for at vinde kampen.",
+  "exampleEn": "The team is fighting to win the match.",
+  "order": 27,
+  "slice": "verb-2"
+ },
+ {
+  "da": "støtte",
+  "en": [
+   "support"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi støtter det lokale fodboldhold.",
+  "exampleEn": "We support the local football team.",
+  "order": 28,
+  "slice": "verb-2"
+ }
+]

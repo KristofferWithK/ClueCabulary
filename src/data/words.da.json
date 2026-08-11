@@ -1,42 +1,9993 @@
 [
-  { "id": "da-0001", "da": "dag", "en": ["day"], "pos": "noun", "article": "en", "exampleDa": "Det er en god dag i dag.", "exampleEn": "It is a good day today.", "freqRank": 1 },
-  { "id": "da-0002", "da": "tid", "en": ["time"], "pos": "noun", "article": "en", "exampleDa": "Vi har ikke mere tid.", "exampleEn": "We do not have more time.", "freqRank": 2 },
-  { "id": "da-0003", "da": "år", "en": ["year"], "pos": "noun", "article": "et", "exampleDa": "Hun er ti år gammel.", "exampleEn": "She is ten years old.", "freqRank": 3 },
-  { "id": "da-0004", "da": "mand", "en": ["man", "husband"], "pos": "noun", "article": "en", "exampleDa": "Manden køber en avis.", "exampleEn": "The man buys a newspaper.", "freqRank": 4 },
-  { "id": "da-0005", "da": "barn", "en": ["child", "kid"], "pos": "noun", "article": "et", "exampleDa": "Barnet leger i haven.", "exampleEn": "The child plays in the garden.", "freqRank": 5 },
-  { "id": "da-0006", "da": "hus", "en": ["house"], "pos": "noun", "article": "et", "exampleDa": "De bor i et gult hus.", "exampleEn": "They live in a yellow house.", "freqRank": 6 },
-  { "id": "da-0007", "da": "vand", "en": ["water"], "pos": "noun", "article": "et", "exampleDa": "Jeg drikker et glas vand.", "exampleEn": "I drink a glass of water.", "freqRank": 7 },
-  { "id": "da-0008", "da": "mad", "en": ["food"], "pos": "noun", "article": "en", "exampleDa": "Maden smager rigtig godt.", "exampleEn": "The food tastes really good.", "freqRank": 8 },
-  { "id": "da-0009", "da": "by", "en": ["city", "town"], "pos": "noun", "article": "en", "exampleDa": "København er en stor by.", "exampleEn": "Copenhagen is a big city.", "freqRank": 9 },
-  { "id": "da-0010", "da": "vej", "en": ["road", "way"], "pos": "noun", "article": "en", "exampleDa": "Vejen til skolen er lang.", "exampleEn": "The road to school is long.", "freqRank": 10 },
-  { "id": "da-0011", "da": "hånd", "en": ["hand"], "pos": "noun", "article": "en", "exampleDa": "Hun holder barnet i hånden.", "exampleEn": "She holds the child by the hand.", "freqRank": 11 },
-  { "id": "da-0012", "da": "hoved", "en": ["head"], "pos": "noun", "article": "et", "exampleDa": "Jeg har ondt i hovedet.", "exampleEn": "I have a headache.", "freqRank": 12 },
-  { "id": "da-0013", "da": "ven", "en": ["friend"], "pos": "noun", "article": "en", "exampleDa": "Min ven kommer i morgen.", "exampleEn": "My friend is coming tomorrow.", "freqRank": 13 },
-  { "id": "da-0014", "da": "arbejde", "en": ["work", "job"], "pos": "noun", "article": "et", "exampleDa": "Hun cykler til sit arbejde.", "exampleEn": "She bikes to her work.", "freqRank": 14 },
-  { "id": "da-0015", "da": "skole", "en": ["school"], "pos": "noun", "article": "en", "exampleDa": "Børnene går i skole nu.", "exampleEn": "The children go to school now.", "freqRank": 15 },
-  { "id": "da-0016", "da": "bog", "en": ["book"], "pos": "noun", "article": "en", "exampleDa": "Jeg læser en spændende bog.", "exampleEn": "I am reading an exciting book.", "freqRank": 16 },
-  { "id": "da-0017", "da": "bil", "en": ["car"], "pos": "noun", "article": "en", "exampleDa": "Bilen holder foran huset.", "exampleEn": "The car is parked in front of the house.", "freqRank": 17 },
-  { "id": "da-0018", "da": "dør", "en": ["door"], "pos": "noun", "article": "en", "exampleDa": "Luk venligst døren efter dig.", "exampleEn": "Please close the door behind you.", "freqRank": 18 },
-  { "id": "da-0019", "da": "nat", "en": ["night"], "pos": "noun", "article": "en", "exampleDa": "Om natten sover byen.", "exampleEn": "At night the city sleeps.", "freqRank": 19 },
-  { "id": "da-0020", "da": "morgen", "en": ["morning"], "pos": "noun", "article": "en", "exampleDa": "Jeg drikker kaffe hver morgen.", "exampleEn": "I drink coffee every morning.", "freqRank": 20 },
-  { "id": "da-0021", "da": "være", "en": ["be"], "pos": "verb", "exampleDa": "Det kan være svært at vente.", "exampleEn": "It can be hard to wait.", "freqRank": 21 },
-  { "id": "da-0022", "da": "have", "en": ["have"], "pos": "verb", "exampleDa": "Vi har to katte derhjemme.", "exampleEn": "We have two cats at home.", "freqRank": 22 },
-  { "id": "da-0023", "da": "gøre", "en": ["do", "make"], "pos": "verb", "exampleDa": "Hvad gør du i weekenden?", "exampleEn": "What do you do on the weekend?", "freqRank": 23 },
-  { "id": "da-0024", "da": "sige", "en": ["say", "tell"], "pos": "verb", "exampleDa": "Hvad siger du til det?", "exampleEn": "What do you say to that?", "freqRank": 24 },
-  { "id": "da-0025", "da": "komme", "en": ["come", "arrive"], "pos": "verb", "exampleDa": "Toget kommer om fem minutter.", "exampleEn": "The train comes in five minutes.", "freqRank": 25 },
-  { "id": "da-0026", "da": "se", "en": ["see", "watch"], "pos": "verb", "exampleDa": "Vi ser en film i aften.", "exampleEn": "We are watching a movie tonight.", "freqRank": 26 },
-  { "id": "da-0027", "da": "spise", "en": ["eat"], "pos": "verb", "exampleDa": "Vi spiser aftensmad klokken seks.", "exampleEn": "We eat dinner at six o'clock.", "freqRank": 27 },
-  { "id": "da-0028", "da": "drikke", "en": ["drink"], "pos": "verb", "exampleDa": "Hun drikker te uden sukker.", "exampleEn": "She drinks tea without sugar.", "freqRank": 28 },
-  { "id": "da-0029", "da": "købe", "en": ["buy"], "pos": "verb", "exampleDa": "Han køber brød hos bageren.", "exampleEn": "He buys bread at the bakery.", "freqRank": 29 },
-  { "id": "da-0030", "da": "elske", "en": ["love"], "pos": "verb", "exampleDa": "Jeg elsker den danske sommer.", "exampleEn": "I love the Danish summer.", "freqRank": 30 },
-  { "id": "da-0031", "da": "god", "en": ["good"], "pos": "adjective", "exampleDa": "Det var en god idé.", "exampleEn": "That was a good idea.", "freqRank": 31 },
-  { "id": "da-0032", "da": "stor", "en": ["big", "large"], "pos": "adjective", "exampleDa": "De har en stor hund.", "exampleEn": "They have a big dog.", "freqRank": 32 },
-  { "id": "da-0033", "da": "lille", "en": ["small", "little"], "pos": "adjective", "exampleDa": "Byen har en lille havn.", "exampleEn": "The town has a small harbor.", "freqRank": 33 },
-  { "id": "da-0034", "da": "ny", "en": ["new"], "pos": "adjective", "exampleDa": "Hun har fået et nyt job.", "exampleEn": "She has gotten a new job.", "freqRank": 34 },
-  { "id": "da-0035", "da": "gammel", "en": ["old"], "pos": "adjective", "exampleDa": "Det gamle hus er smukt.", "exampleEn": "The old house is beautiful.", "freqRank": 35 },
-  { "id": "da-0036", "da": "glad", "en": ["happy", "glad"], "pos": "adjective", "exampleDa": "Hun er glad for sin cykel.", "exampleEn": "She is happy about her bike.", "freqRank": 36 },
-  { "id": "da-0037", "da": "træt", "en": ["tired"], "pos": "adjective", "exampleDa": "Jeg er træt efter arbejde.", "exampleEn": "I am tired after work.", "freqRank": 37 },
-  { "id": "da-0038", "da": "nu", "en": ["now"], "pos": "adverb", "exampleDa": "Vi skal gå nu.", "exampleEn": "We have to go now.", "freqRank": 38 },
-  { "id": "da-0039", "da": "altid", "en": ["always"], "pos": "adverb", "exampleDa": "Han kommer altid for sent.", "exampleEn": "He always arrives late.", "freqRank": 39 },
-  { "id": "da-0040", "da": "aldrig", "en": ["never"], "pos": "adverb", "exampleDa": "Hun spiser aldrig kød.", "exampleEn": "She never eats meat.", "freqRank": 40 }
+ {
+  "id": "da-0001",
+  "da": "år",
+  "en": [
+   "year"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg er tredive år gammel.",
+  "exampleEn": "I am thirty years old.",
+  "freqRank": 1
+ },
+ {
+  "id": "da-0002",
+  "da": "ikke",
+  "en": [
+   "not"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg kan ikke finde mine nøgler.",
+  "exampleEn": "I cannot find my keys.",
+  "freqRank": 2
+ },
+ {
+  "id": "da-0003",
+  "da": "være",
+  "en": [
+   "be"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg er glad i dag.",
+  "exampleEn": "I am happy today.",
+  "freqRank": 3
+ },
+ {
+  "id": "da-0004",
+  "da": "dag",
+  "en": [
+   "day"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "I dag er en god dag.",
+  "exampleEn": "Today is a good day.",
+  "freqRank": 4
+ },
+ {
+  "id": "da-0005",
+  "da": "god",
+  "en": [
+   "good"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Maden er rigtig god i dag.",
+  "exampleEn": "The food is really good today.",
+  "freqRank": 5
+ },
+ {
+  "id": "da-0006",
+  "da": "der",
+  "en": [
+   "there"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Din taske ligger der på bordet.",
+  "exampleEn": "Your bag is lying there on the table.",
+  "freqRank": 6
+ },
+ {
+  "id": "da-0007",
+  "da": "gang",
+  "en": [
+   "time",
+   "occasion"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har set filmen tre gange.",
+  "exampleEn": "I have seen the movie three times.",
+  "freqRank": 7
+ },
+ {
+  "id": "da-0008",
+  "da": "tid",
+  "en": [
+   "time"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Har du tid i morgen?",
+  "exampleEn": "Do you have time tomorrow?",
+  "freqRank": 8
+ },
+ {
+  "id": "da-0009",
+  "da": "så",
+  "en": [
+   "then",
+   "so"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi spiser først, og så går vi.",
+  "exampleEn": "We eat first, and then we go.",
+  "freqRank": 9
+ },
+ {
+  "id": "da-0010",
+  "da": "stor",
+  "en": [
+   "big",
+   "large"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De bor i et stort hus.",
+  "exampleEn": "They live in a big house.",
+  "freqRank": 10
+ },
+ {
+  "id": "da-0011",
+  "da": "mand",
+  "en": [
+   "man",
+   "husband"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der står en mand ved døren.",
+  "exampleEn": "A man is standing at the door.",
+  "freqRank": 11
+ },
+ {
+  "id": "da-0012",
+  "da": "kunne",
+  "en": [
+   "can",
+   "be able to"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg kan tale lidt dansk.",
+  "exampleEn": "I can speak a little Danish.",
+  "freqRank": 12
+ },
+ {
+  "id": "da-0013",
+  "da": "også",
+  "en": [
+   "also",
+   "too",
+   "as well"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Min bror kommer også i morgen.",
+  "exampleEn": "My brother is also coming tomorrow.",
+  "freqRank": 13
+ },
+ {
+  "id": "da-0014",
+  "da": "barn",
+  "en": [
+   "child",
+   "kid"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "De har to børn sammen.",
+  "exampleEn": "They have two children together.",
+  "freqRank": 14
+ },
+ {
+  "id": "da-0015",
+  "da": "nu",
+  "en": [
+   "now"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi skal gå nu.",
+  "exampleEn": "We have to go now.",
+  "freqRank": 15
+ },
+ {
+  "id": "da-0016",
+  "da": "ny",
+  "en": [
+   "new"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg har købt en ny bil.",
+  "exampleEn": "I have bought a new car.",
+  "freqRank": 16
+ },
+ {
+  "id": "da-0017",
+  "da": "menneske",
+  "en": [
+   "human",
+   "person",
+   "human being"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der bor mange mennesker i byen.",
+  "exampleEn": "Many people live in the city.",
+  "freqRank": 17
+ },
+ {
+  "id": "da-0018",
+  "da": "skulle",
+  "en": [
+   "must",
+   "have to",
+   "shall"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi skal i skole i morgen.",
+  "exampleEn": "We have to go to school tomorrow.",
+  "freqRank": 18
+ },
+ {
+  "id": "da-0019",
+  "da": "land",
+  "en": [
+   "country",
+   "land"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun kommer fra et andet land.",
+  "exampleEn": "She comes from another country.",
+  "freqRank": 19
+ },
+ {
+  "id": "da-0020",
+  "da": "her",
+  "en": [
+   "here"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Kom her, jeg vil vise dig noget.",
+  "exampleEn": "Come here, I want to show you something.",
+  "freqRank": 20
+ },
+ {
+  "id": "da-0021",
+  "da": "sted",
+  "en": [
+   "place",
+   "spot"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det er et godt sted at bo.",
+  "exampleEn": "It is a good place to live.",
+  "freqRank": 21
+ },
+ {
+  "id": "da-0022",
+  "da": "blive",
+  "en": [
+   "become",
+   "get",
+   "stay"
+  ],
+  "pos": "verb",
+  "exampleDa": "Det bliver koldt i aften.",
+  "exampleEn": "It is getting cold tonight.",
+  "freqRank": 22
+ },
+ {
+  "id": "da-0023",
+  "da": "lille",
+  "en": [
+   "small",
+   "little"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De har en lille hund.",
+  "exampleEn": "They have a small dog.",
+  "freqRank": 23
+ },
+ {
+  "id": "da-0024",
+  "da": "meget",
+  "en": [
+   "very",
+   "much",
+   "a lot"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Huset er meget stort og gammelt.",
+  "exampleEn": "The house is very big and old.",
+  "freqRank": 24
+ },
+ {
+  "id": "da-0025",
+  "da": "liv",
+  "en": [
+   "life"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun har et godt liv.",
+  "exampleEn": "She has a good life.",
+  "freqRank": 25
+ },
+ {
+  "id": "da-0026",
+  "da": "få",
+  "en": [
+   "get",
+   "receive"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun får en gave i dag.",
+  "exampleEn": "She gets a present today.",
+  "freqRank": 26
+ },
+ {
+  "id": "da-0027",
+  "da": "ja",
+  "en": [
+   "yes"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Ja, jeg vil gerne have kaffe.",
+  "exampleEn": "Yes, I would like some coffee.",
+  "freqRank": 27
+ },
+ {
+  "id": "da-0028",
+  "da": "by",
+  "en": [
+   "city",
+   "town"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi bor i en lille by.",
+  "exampleEn": "We live in a small town.",
+  "freqRank": 28
+ },
+ {
+  "id": "da-0029",
+  "da": "gammel",
+  "en": [
+   "old"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min farfar er meget gammel.",
+  "exampleEn": "My grandfather is very old.",
+  "freqRank": 29
+ },
+ {
+  "id": "da-0030",
+  "da": "hus",
+  "en": [
+   "house"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Huset har en stor have.",
+  "exampleEn": "The house has a big garden.",
+  "freqRank": 30
+ },
+ {
+  "id": "da-0031",
+  "da": "nej",
+  "en": [
+   "no"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Nej, jeg har ikke tid i dag.",
+  "exampleEn": "No, I do not have time today.",
+  "freqRank": 31
+ },
+ {
+  "id": "da-0032",
+  "da": "ville",
+  "en": [
+   "want",
+   "will"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg vil gerne have en kop kaffe.",
+  "exampleEn": "I would like a cup of coffee.",
+  "freqRank": 32
+ },
+ {
+  "id": "da-0033",
+  "da": "kvinde",
+  "en": [
+   "woman"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kvinden læser en bog.",
+  "exampleEn": "The woman is reading a book.",
+  "freqRank": 33
+ },
+ {
+  "id": "da-0034",
+  "da": "hel",
+  "en": [
+   "whole",
+   "entire"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg har ventet en hel time.",
+  "exampleEn": "I have waited a whole hour.",
+  "freqRank": 34
+ },
+ {
+  "id": "da-0035",
+  "da": "kun",
+  "en": [
+   "only",
+   "just"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Billetten koster kun ti kroner.",
+  "exampleEn": "The ticket costs only ten kroner.",
+  "freqRank": 35
+ },
+ {
+  "id": "da-0036",
+  "da": "arbejde",
+  "en": [
+   "work",
+   "job"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han tager på arbejde klokken otte.",
+  "exampleEn": "He goes to work at eight o'clock.",
+  "freqRank": 36
+ },
+ {
+  "id": "da-0037",
+  "da": "komme",
+  "en": [
+   "come"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kommer du til festen i morgen?",
+  "exampleEn": "Are you coming to the party tomorrow?",
+  "freqRank": 37
+ },
+ {
+  "id": "da-0038",
+  "da": "lige",
+  "en": [
+   "just",
+   "right",
+   "exactly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Toget er lige kørt fra stationen.",
+  "exampleEn": "The train has just left the station.",
+  "freqRank": 38
+ },
+ {
+  "id": "da-0039",
+  "da": "verden",
+  "en": [
+   "world"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Verden er stor og smuk.",
+  "exampleEn": "The world is big and beautiful.",
+  "freqRank": 39
+ },
+ {
+  "id": "da-0040",
+  "da": "lang",
+  "en": [
+   "long"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vejen til skolen er meget lang.",
+  "exampleEn": "The road to school is very long.",
+  "freqRank": 40
+ },
+ {
+  "id": "da-0041",
+  "da": "uge",
+  "en": [
+   "week"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi ses igen i næste uge.",
+  "exampleEn": "See you again next week.",
+  "freqRank": 41
+ },
+ {
+  "id": "da-0042",
+  "da": "godt",
+  "en": [
+   "well"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun taler godt dansk nu.",
+  "exampleEn": "She speaks Danish well now.",
+  "freqRank": 42
+ },
+ {
+  "id": "da-0043",
+  "da": "sige",
+  "en": [
+   "say",
+   "tell"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad siger du til det?",
+  "exampleEn": "What do you say to that?",
+  "freqRank": 43
+ },
+ {
+  "id": "da-0044",
+  "da": "side",
+  "en": [
+   "side",
+   "page"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Læs side ti i bogen.",
+  "exampleEn": "Read page ten in the book.",
+  "freqRank": 44
+ },
+ {
+  "id": "da-0045",
+  "da": "bare",
+  "en": [
+   "just",
+   "only"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Du kan bare ringe til mig.",
+  "exampleEn": "You can just call me.",
+  "freqRank": 45
+ },
+ {
+  "id": "da-0046",
+  "da": "vej",
+  "en": [
+   "road",
+   "way"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvilken vej skal vi gå?",
+  "exampleEn": "Which way should we go?",
+  "freqRank": 46
+ },
+ {
+  "id": "da-0047",
+  "da": "dansk",
+  "en": [
+   "Danish"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi læser en dansk bog.",
+  "exampleEn": "We are reading a Danish book.",
+  "freqRank": 47
+ },
+ {
+  "id": "da-0048",
+  "da": "gøre",
+  "en": [
+   "do",
+   "make"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad gør du nu?",
+  "exampleEn": "What are you doing now?",
+  "freqRank": 48
+ },
+ {
+  "id": "da-0049",
+  "da": "skole",
+  "en": [
+   "school"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene går i skole hver dag.",
+  "exampleEn": "The children go to school every day.",
+  "freqRank": 49
+ },
+ {
+  "id": "da-0050",
+  "da": "op",
+  "en": [
+   "up"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han står op klokken syv.",
+  "exampleEn": "He gets up at seven o'clock.",
+  "freqRank": 50
+ },
+ {
+  "id": "da-0051",
+  "da": "gå",
+  "en": [
+   "go",
+   "walk"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi går en tur i parken.",
+  "exampleEn": "We go for a walk in the park.",
+  "freqRank": 51
+ },
+ {
+  "id": "da-0052",
+  "da": "spørgsmål",
+  "en": [
+   "question"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Må jeg stille et spørgsmål?",
+  "exampleEn": "May I ask a question?",
+  "freqRank": 52
+ },
+ {
+  "id": "da-0053",
+  "da": "sidste",
+  "en": [
+   "last",
+   "final"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er den sidste dag i ferien.",
+  "exampleEn": "It is the last day of the holiday.",
+  "freqRank": 53
+ },
+ {
+  "id": "da-0054",
+  "da": "ud",
+  "en": [
+   "out"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Skal vi gå ud i aften?",
+  "exampleEn": "Shall we go out tonight?",
+  "freqRank": 54
+ },
+ {
+  "id": "da-0055",
+  "da": "time",
+  "en": [
+   "hour",
+   "lesson"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Filmen varer to timer.",
+  "exampleEn": "The movie lasts two hours.",
+  "freqRank": 55
+ },
+ {
+  "id": "da-0056",
+  "da": "ind",
+  "en": [
+   "in",
+   "inside"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Kom ind og sæt dig ned.",
+  "exampleEn": "Come in and sit down.",
+  "freqRank": 56
+ },
+ {
+  "id": "da-0057",
+  "da": "se",
+  "en": [
+   "see",
+   "look",
+   "watch"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg ser en film i aften.",
+  "exampleEn": "I am watching a film tonight.",
+  "freqRank": 57
+ },
+ {
+  "id": "da-0058",
+  "da": "hånd",
+  "en": [
+   "hand"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun holder barnet i hånden.",
+  "exampleEn": "She holds the child by the hand.",
+  "freqRank": 58
+ },
+ {
+  "id": "da-0059",
+  "da": "høj",
+  "en": [
+   "tall",
+   "high",
+   "loud"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min bror er meget høj.",
+  "exampleEn": "My brother is very tall.",
+  "freqRank": 59
+ },
+ {
+  "id": "da-0060",
+  "da": "hoved",
+  "en": [
+   "head"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg har ondt i hovedet.",
+  "exampleEn": "I have a headache.",
+  "freqRank": 60
+ },
+ {
+  "id": "da-0061",
+  "da": "ned",
+  "en": [
+   "down"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun går ned ad trappen.",
+  "exampleEn": "She walks down the stairs.",
+  "freqRank": 61
+ },
+ {
+  "id": "da-0062",
+  "da": "tage",
+  "en": [
+   "take"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun tager bussen til arbejde.",
+  "exampleEn": "She takes the bus to work.",
+  "freqRank": 62
+ },
+ {
+  "id": "da-0063",
+  "da": "øje",
+  "en": [
+   "eye"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun har smukke blå øjne.",
+  "exampleEn": "She has beautiful blue eyes.",
+  "freqRank": 63
+ },
+ {
+  "id": "da-0064",
+  "da": "igen",
+  "en": [
+   "again"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Kan du sige det igen?",
+  "exampleEn": "Can you say that again?",
+  "freqRank": 64
+ },
+ {
+  "id": "da-0065",
+  "da": "rigtig",
+  "en": [
+   "right",
+   "correct",
+   "real"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er det rigtige svar.",
+  "exampleEn": "That is the correct answer.",
+  "freqRank": 65
+ },
+ {
+  "id": "da-0066",
+  "da": "ord",
+  "en": [
+   "word"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg lærer ti nye ord hver dag.",
+  "exampleEn": "I learn ten new words every day.",
+  "freqRank": 66
+ },
+ {
+  "id": "da-0067",
+  "da": "give",
+  "en": [
+   "give"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du give mig bogen?",
+  "exampleEn": "Can you give me the book?",
+  "freqRank": 67
+ },
+ {
+  "id": "da-0068",
+  "da": "tilbage",
+  "en": [
+   "back"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi kommer tilbage i morgen.",
+  "exampleEn": "We are coming back tomorrow.",
+  "freqRank": 68
+ },
+ {
+  "id": "da-0069",
+  "da": "familie",
+  "en": [
+   "family"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg besøger min familie hver weekend.",
+  "exampleEn": "I visit my family every weekend.",
+  "freqRank": 69
+ },
+ {
+  "id": "da-0070",
+  "da": "mor",
+  "en": [
+   "mother",
+   "mom"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min mor laver god mad.",
+  "exampleEn": "My mother makes good food.",
+  "freqRank": 70
+ },
+ {
+  "id": "da-0071",
+  "da": "altid",
+  "en": [
+   "always"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun drikker altid te om morgenen.",
+  "exampleEn": "She always drinks tea in the morning.",
+  "freqRank": 71
+ },
+ {
+  "id": "da-0072",
+  "da": "finde",
+  "en": [
+   "find"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg kan ikke finde mine nøgler.",
+  "exampleEn": "I cannot find my keys.",
+  "freqRank": 72
+ },
+ {
+  "id": "da-0073",
+  "da": "vigtig",
+  "en": [
+   "important"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en vigtig dag for os.",
+  "exampleEn": "It is an important day for us.",
+  "freqRank": 73
+ },
+ {
+  "id": "da-0074",
+  "da": "far",
+  "en": [
+   "father",
+   "dad"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min far arbejder på et kontor.",
+  "exampleEn": "My father works in an office.",
+  "freqRank": 74
+ },
+ {
+  "id": "da-0075",
+  "da": "aldrig",
+  "en": [
+   "never"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han spiser aldrig morgenmad.",
+  "exampleEn": "He never eats breakfast.",
+  "freqRank": 75
+ },
+ {
+  "id": "da-0076",
+  "da": "ven",
+  "en": [
+   "friend"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han er min bedste ven.",
+  "exampleEn": "He is my best friend.",
+  "freqRank": 76
+ },
+ {
+  "id": "da-0077",
+  "da": "måtte",
+  "en": [
+   "may",
+   "must"
+  ],
+  "pos": "verb",
+  "exampleDa": "Må jeg gå nu?",
+  "exampleEn": "May I go now?",
+  "freqRank": 77
+ },
+ {
+  "id": "da-0078",
+  "da": "ung",
+  "en": [
+   "young"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun er for ung til at køre bil.",
+  "exampleEn": "She is too young to drive a car.",
+  "freqRank": 78
+ },
+ {
+  "id": "da-0079",
+  "da": "måske",
+  "en": [
+   "maybe",
+   "perhaps"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Måske kommer han senere i dag.",
+  "exampleEn": "Maybe he will come later today.",
+  "freqRank": 79
+ },
+ {
+  "id": "da-0080",
+  "da": "penge",
+  "en": [
+   "money"
+  ],
+  "pos": "noun",
+  "exampleDa": "Jeg har ikke mange penge.",
+  "exampleEn": "I do not have much money.",
+  "freqRank": 80
+ },
+ {
+  "id": "da-0081",
+  "da": "stå",
+  "en": [
+   "stand"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han står ved døren.",
+  "exampleEn": "He is standing by the door.",
+  "freqRank": 81
+ },
+ {
+  "id": "da-0082",
+  "da": "vand",
+  "en": [
+   "water"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Kan jeg få et glas vand?",
+  "exampleEn": "Can I have a glass of water?",
+  "freqRank": 82
+ },
+ {
+  "id": "da-0083",
+  "da": "lidt",
+  "en": [
+   "a little",
+   "a bit"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg taler kun lidt dansk.",
+  "exampleEn": "I only speak a little Danish.",
+  "freqRank": 83
+ },
+ {
+  "id": "da-0084",
+  "da": "fin",
+  "en": [
+   "fine",
+   "nice"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Du har en fin jakke på.",
+  "exampleEn": "You are wearing a nice jacket.",
+  "freqRank": 84
+ },
+ {
+  "id": "da-0085",
+  "da": "mad",
+  "en": [
+   "food"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Maden smager rigtig godt.",
+  "exampleEn": "The food tastes really good.",
+  "freqRank": 85
+ },
+ {
+  "id": "da-0086",
+  "da": "mere",
+  "en": [
+   "more"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vil du have mere kaffe?",
+  "exampleEn": "Would you like more coffee?",
+  "freqRank": 86
+ },
+ {
+  "id": "da-0087",
+  "da": "vide",
+  "en": [
+   "know"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg ved ikke, hvad klokken er.",
+  "exampleEn": "I do not know what time it is.",
+  "freqRank": 87
+ },
+ {
+  "id": "da-0088",
+  "da": "bil",
+  "en": [
+   "car"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kører i bil til arbejde.",
+  "exampleEn": "We drive to work by car.",
+  "freqRank": 88
+ },
+ {
+  "id": "da-0089",
+  "da": "nat",
+  "en": [
+   "night"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg sov godt i nat.",
+  "exampleEn": "I slept well last night.",
+  "freqRank": 89
+ },
+ {
+  "id": "da-0090",
+  "da": "hvor",
+  "en": [
+   "where",
+   "how"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hvor bor du henne?",
+  "exampleEn": "Where do you live?",
+  "freqRank": 90
+ },
+ {
+  "id": "da-0091",
+  "da": "klar",
+  "en": [
+   "ready",
+   "clear"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Er du klar til at gå?",
+  "exampleEn": "Are you ready to go?",
+  "freqRank": 91
+ },
+ {
+  "id": "da-0092",
+  "da": "tro",
+  "en": [
+   "believe",
+   "think"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg tror, det bliver regn i morgen.",
+  "exampleEn": "I think it will rain tomorrow.",
+  "freqRank": 92
+ },
+ {
+  "id": "da-0093",
+  "da": "morgen",
+  "en": [
+   "morning"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg drikker kaffe hver morgen.",
+  "exampleEn": "I drink coffee every morning.",
+  "freqRank": 93
+ },
+ {
+  "id": "da-0094",
+  "da": "hvordan",
+  "en": [
+   "how"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hvordan har du det i dag?",
+  "exampleEn": "How are you today?",
+  "freqRank": 94
+ },
+ {
+  "id": "da-0095",
+  "da": "aften",
+  "en": [
+   "evening"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser sammen i aften.",
+  "exampleEn": "We are eating together tonight.",
+  "freqRank": 95
+ },
+ {
+  "id": "da-0096",
+  "da": "samme",
+  "en": [
+   "same"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi arbejder i den samme by.",
+  "exampleEn": "We work in the same city.",
+  "freqRank": 96
+ },
+ {
+  "id": "da-0097",
+  "da": "tænke",
+  "en": [
+   "think"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg tænker ofte på dig.",
+  "exampleEn": "I often think of you.",
+  "freqRank": 97
+ },
+ {
+  "id": "da-0098",
+  "da": "hvorfor",
+  "en": [
+   "why"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hvorfor kommer du så sent?",
+  "exampleEn": "Why are you coming so late?",
+  "freqRank": 98
+ },
+ {
+  "id": "da-0099",
+  "da": "måned",
+  "en": [
+   "month"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er tolv måneder i et år.",
+  "exampleEn": "There are twelve months in a year.",
+  "freqRank": 99
+ },
+ {
+  "id": "da-0100",
+  "da": "dør",
+  "en": [
+   "door"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Luk venligst døren efter dig.",
+  "exampleEn": "Please close the door behind you.",
+  "freqRank": 100
+ },
+ {
+  "id": "da-0101",
+  "da": "holde",
+  "en": [
+   "hold",
+   "keep"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du holde min taske?",
+  "exampleEn": "Can you hold my bag?",
+  "freqRank": 101
+ },
+ {
+  "id": "da-0102",
+  "da": "hvornår",
+  "en": [
+   "when"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hvornår begynder filmen i aften?",
+  "exampleEn": "When does the movie start tonight?",
+  "freqRank": 102
+ },
+ {
+  "id": "da-0103",
+  "da": "næste",
+  "en": [
+   "next"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi ses igen næste uge.",
+  "exampleEn": "See you again next week.",
+  "freqRank": 103
+ },
+ {
+  "id": "da-0104",
+  "da": "bog",
+  "en": [
+   "book"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg læser en god bog nu.",
+  "exampleEn": "I am reading a good book now.",
+  "freqRank": 104
+ },
+ {
+  "id": "da-0105",
+  "da": "tak",
+  "en": [
+   "thanks",
+   "thank you"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Tusind tak for hjælpen!",
+  "exampleEn": "Thank you so much for the help!",
+  "freqRank": 105
+ },
+ {
+  "id": "da-0106",
+  "da": "mene",
+  "en": [
+   "think",
+   "mean"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad mener du om filmen?",
+  "exampleEn": "What do you think about the film?",
+  "freqRank": 106
+ },
+ {
+  "id": "da-0107",
+  "da": "navn",
+  "en": [
+   "name"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hvad er dit navn?",
+  "exampleEn": "What is your name?",
+  "freqRank": 107
+ },
+ {
+  "id": "da-0108",
+  "da": "fri",
+  "en": [
+   "free",
+   "off"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg har fri i morgen.",
+  "exampleEn": "I have the day off tomorrow.",
+  "freqRank": 108
+ },
+ {
+  "id": "da-0109",
+  "da": "hej",
+  "en": [
+   "hi",
+   "hello"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Hej, hvordan går det med dig?",
+  "exampleEn": "Hi, how are you doing?",
+  "freqRank": 109
+ },
+ {
+  "id": "da-0110",
+  "da": "plads",
+  "en": [
+   "place",
+   "space",
+   "seat",
+   "square"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Er der en ledig plads her?",
+  "exampleEn": "Is there a free seat here?",
+  "freqRank": 110
+ },
+ {
+  "id": "da-0111",
+  "da": "bruge",
+  "en": [
+   "use",
+   "spend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg bruger min telefon hver dag.",
+  "exampleEn": "I use my phone every day.",
+  "freqRank": 111
+ },
+ {
+  "id": "da-0112",
+  "da": "hjem",
+  "en": [
+   "home"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vores hjem er lille men hyggeligt.",
+  "exampleEn": "Our home is small but cozy.",
+  "freqRank": 112
+ },
+ {
+  "id": "da-0113",
+  "da": "en",
+  "en": [
+   "one"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Jeg har kun en bror.",
+  "exampleEn": "I have only one brother.",
+  "freqRank": 113
+ },
+ {
+  "id": "da-0114",
+  "da": "dreng",
+  "en": [
+   "boy"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Drengen spiller fodbold i parken.",
+  "exampleEn": "The boy plays football in the park.",
+  "freqRank": 114
+ },
+ {
+  "id": "da-0115",
+  "da": "kort",
+  "en": [
+   "short"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun har kort hår nu.",
+  "exampleEn": "She has short hair now.",
+  "freqRank": 115
+ },
+ {
+  "id": "da-0116",
+  "da": "lave",
+  "en": [
+   "make",
+   "do"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad laver du i weekenden?",
+  "exampleEn": "What are you doing at the weekend?",
+  "freqRank": 116
+ },
+ {
+  "id": "da-0117",
+  "da": "to",
+  "en": [
+   "two"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Vi har to katte og en hund.",
+  "exampleEn": "We have two cats and a dog.",
+  "freqRank": 117
+ },
+ {
+  "id": "da-0118",
+  "da": "pige",
+  "en": [
+   "girl"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Pigen synger en lille sang.",
+  "exampleEn": "The girl sings a little song.",
+  "freqRank": 118
+ },
+ {
+  "id": "da-0119",
+  "da": "tre",
+  "en": [
+   "three"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Der er tre æbler i skålen.",
+  "exampleEn": "There are three apples in the bowl.",
+  "freqRank": 119
+ },
+ {
+  "id": "da-0120",
+  "da": "person",
+  "en": [
+   "person"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun er en meget venlig person.",
+  "exampleEn": "She is a very friendly person.",
+  "freqRank": 120
+ },
+ {
+  "id": "da-0121",
+  "da": "sikker",
+  "en": [
+   "sure",
+   "safe",
+   "certain"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Er du sikker på det?",
+  "exampleEn": "Are you sure about that?",
+  "freqRank": 121
+ },
+ {
+  "id": "da-0122",
+  "da": "sætte",
+  "en": [
+   "put",
+   "set",
+   "place"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han sætter koppen på bordet.",
+  "exampleEn": "He puts the cup on the table.",
+  "freqRank": 122
+ },
+ {
+  "id": "da-0123",
+  "da": "job",
+  "en": [
+   "job"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han har fået et nyt job.",
+  "exampleEn": "He has gotten a new job.",
+  "freqRank": 123
+ },
+ {
+  "id": "da-0124",
+  "da": "minut",
+  "en": [
+   "minute"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Toget kommer om fem minutter.",
+  "exampleEn": "The train arrives in five minutes.",
+  "freqRank": 124
+ },
+ {
+  "id": "da-0125",
+  "da": "ligge",
+  "en": [
+   "lie"
+  ],
+  "pos": "verb",
+  "exampleDa": "Bogen ligger på bordet.",
+  "exampleEn": "The book is lying on the table.",
+  "freqRank": 125
+ },
+ {
+  "id": "da-0126",
+  "da": "hjemme",
+  "en": [
+   "at home",
+   "home"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg bliver hjemme i weekenden.",
+  "exampleEn": "I am staying at home this weekend.",
+  "freqRank": 126
+ },
+ {
+  "id": "da-0127",
+  "da": "stærk",
+  "en": [
+   "strong"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kaffen er meget stærk.",
+  "exampleEn": "The coffee is very strong.",
+  "freqRank": 127
+ },
+ {
+  "id": "da-0128",
+  "da": "weekend",
+  "en": [
+   "weekend"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad skal du lave i weekenden?",
+  "exampleEn": "What are you doing this weekend?",
+  "freqRank": 128
+ },
+ {
+  "id": "da-0129",
+  "da": "søn",
+  "en": [
+   "son"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "De har en søn og en datter.",
+  "exampleEn": "They have a son and a daughter.",
+  "freqRank": 129
+ },
+ {
+  "id": "da-0130",
+  "da": "sidde",
+  "en": [
+   "sit"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi sidder i sofaen.",
+  "exampleEn": "We are sitting on the sofa.",
+  "freqRank": 130
+ },
+ {
+  "id": "da-0131",
+  "da": "væk",
+  "en": [
+   "away",
+   "gone"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Katten løb væk fra hunden.",
+  "exampleEn": "The cat ran away from the dog.",
+  "freqRank": 131
+ },
+ {
+  "id": "da-0132",
+  "da": "dårlig",
+  "en": [
+   "bad",
+   "poor"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vejret er dårligt i dag.",
+  "exampleEn": "The weather is bad today.",
+  "freqRank": 132
+ },
+ {
+  "id": "da-0133",
+  "da": "datter",
+  "en": [
+   "daughter"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hendes datter er fem år gammel.",
+  "exampleEn": "Her daughter is five years old.",
+  "freqRank": 133
+ },
+ {
+  "id": "da-0134",
+  "da": "ude",
+  "en": [
+   "outside",
+   "out"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Børnene leger ude i haven.",
+  "exampleEn": "The children are playing outside in the garden.",
+  "freqRank": 134
+ },
+ {
+  "id": "da-0135",
+  "da": "hedde",
+  "en": [
+   "be called",
+   "be named"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad hedder din nye lærer?",
+  "exampleEn": "What is your new teacher called?",
+  "freqRank": 135
+ },
+ {
+  "id": "da-0136",
+  "da": "bror",
+  "en": [
+   "brother"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min bror er ældre end mig.",
+  "exampleEn": "My brother is older than me.",
+  "freqRank": 136
+ },
+ {
+  "id": "da-0137",
+  "da": "inde",
+  "en": [
+   "inside",
+   "in"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi sidder inde i stuen.",
+  "exampleEn": "We are sitting inside in the living room.",
+  "freqRank": 137
+ },
+ {
+  "id": "da-0138",
+  "da": "søster",
+  "en": [
+   "sister"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har to søstre.",
+  "exampleEn": "I have two sisters.",
+  "freqRank": 138
+ },
+ {
+  "id": "da-0139",
+  "da": "svær",
+  "en": [
+   "difficult",
+   "hard"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Opgaven er svær for mig.",
+  "exampleEn": "The task is difficult for me.",
+  "freqRank": 139
+ },
+ {
+  "id": "da-0140",
+  "da": "tale",
+  "en": [
+   "speak",
+   "talk"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun taler dansk og engelsk.",
+  "exampleEn": "She speaks Danish and English.",
+  "freqRank": 140
+ },
+ {
+  "id": "da-0141",
+  "da": "værelse",
+  "en": [
+   "room"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Mit værelse har to store vinduer.",
+  "exampleEn": "My room has two big windows.",
+  "freqRank": 141
+ },
+ {
+  "id": "da-0142",
+  "da": "oppe",
+  "en": [
+   "up"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Er du stadig oppe så sent?",
+  "exampleEn": "Are you still up this late?",
+  "freqRank": 142
+ },
+ {
+  "id": "da-0143",
+  "da": "lejlighed",
+  "en": [
+   "apartment",
+   "flat"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "De bor i en lille lejlighed.",
+  "exampleEn": "They live in a small apartment.",
+  "freqRank": 143
+ },
+ {
+  "id": "da-0144",
+  "da": "lade",
+  "en": [
+   "let",
+   "allow"
+  ],
+  "pos": "verb",
+  "exampleDa": "Lad mig hjælpe dig med det.",
+  "exampleEn": "Let me help you with that.",
+  "freqRank": 144
+ },
+ {
+  "id": "da-0145",
+  "da": "let",
+  "en": [
+   "easy",
+   "light"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Tasken er let at bære.",
+  "exampleEn": "The bag is easy to carry.",
+  "freqRank": 145
+ },
+ {
+  "id": "da-0146",
+  "da": "nede",
+  "en": [
+   "down",
+   "below"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han venter nede på gaden.",
+  "exampleEn": "He is waiting down on the street.",
+  "freqRank": 146
+ },
+ {
+  "id": "da-0147",
+  "da": "seng",
+  "en": [
+   "bed"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg går i seng klokken ti.",
+  "exampleEn": "I go to bed at ten o'clock.",
+  "freqRank": 147
+ },
+ {
+  "id": "da-0148",
+  "da": "frem",
+  "en": [
+   "forward",
+   "ahead"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Bussen kører langsomt frem.",
+  "exampleEn": "The bus moves forward slowly.",
+  "freqRank": 148
+ },
+ {
+  "id": "da-0149",
+  "da": "bord",
+  "en": [
+   "table"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Maden står på bordet.",
+  "exampleEn": "The food is on the table.",
+  "freqRank": 149
+ },
+ {
+  "id": "da-0150",
+  "da": "høre",
+  "en": [
+   "hear"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg kan høre musik udenfor.",
+  "exampleEn": "I can hear music outside.",
+  "freqRank": 150
+ },
+ {
+  "id": "da-0151",
+  "da": "glad",
+  "en": [
+   "happy",
+   "glad"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er glad for min nye cykel.",
+  "exampleEn": "I am happy about my new bike.",
+  "freqRank": 151
+ },
+ {
+  "id": "da-0152",
+  "da": "stol",
+  "en": [
+   "chair"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Sid ned på denne stol.",
+  "exampleEn": "Sit down on this chair.",
+  "freqRank": 152
+ },
+ {
+  "id": "da-0153",
+  "da": "sammen",
+  "en": [
+   "together"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi laver mad sammen hver aften.",
+  "exampleEn": "We cook together every evening.",
+  "freqRank": 153
+ },
+ {
+  "id": "da-0154",
+  "da": "vindue",
+  "en": [
+   "window"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Åbn vinduet, der er varmt herinde.",
+  "exampleEn": "Open the window, it is warm in here.",
+  "freqRank": 154
+ },
+ {
+  "id": "da-0155",
+  "da": "spørge",
+  "en": [
+   "ask"
+  ],
+  "pos": "verb",
+  "exampleDa": "Må jeg spørge om noget?",
+  "exampleEn": "May I ask about something?",
+  "freqRank": 155
+ },
+ {
+  "id": "da-0156",
+  "da": "alene",
+  "en": [
+   "alone"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun bor alene i en lille lejlighed.",
+  "exampleEn": "She lives alone in a small apartment.",
+  "freqRank": 156
+ },
+ {
+  "id": "da-0157",
+  "da": "køkken",
+  "en": [
+   "kitchen"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun laver mad i køkkenet.",
+  "exampleEn": "She cooks in the kitchen.",
+  "freqRank": 157
+ },
+ {
+  "id": "da-0158",
+  "da": "hvid",
+  "en": [
+   "white"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Sneen er hvid og kold.",
+  "exampleEn": "The snow is white and cold.",
+  "freqRank": 158
+ },
+ {
+  "id": "da-0159",
+  "da": "følge",
+  "en": [
+   "follow"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hunden følger mig hjem hver dag.",
+  "exampleEn": "The dog follows me home every day.",
+  "freqRank": 159
+ },
+ {
+  "id": "da-0160",
+  "da": "have",
+  "en": [
+   "garden",
+   "yard"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi har æbletræer i haven.",
+  "exampleEn": "We have apple trees in the garden.",
+  "freqRank": 160
+ },
+ {
+  "id": "da-0161",
+  "da": "ofte",
+  "en": [
+   "often",
+   "frequently"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi går ofte tur i parken.",
+  "exampleEn": "We often go for a walk in the park.",
+  "freqRank": 161
+ },
+ {
+  "id": "da-0162",
+  "da": "nøgle",
+  "en": [
+   "key"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg kan ikke finde mine nøgler.",
+  "exampleEn": "I cannot find my keys.",
+  "freqRank": 162
+ },
+ {
+  "id": "da-0163",
+  "da": "sort",
+  "en": [
+   "black"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han har en sort kat.",
+  "exampleEn": "He has a black cat.",
+  "freqRank": 163
+ },
+ {
+  "id": "da-0164",
+  "da": "tit",
+  "en": [
+   "often",
+   "frequently"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han besøger tit sin mormor.",
+  "exampleEn": "He often visits his grandmother.",
+  "freqRank": 164
+ },
+ {
+  "id": "da-0165",
+  "da": "begynde",
+  "en": [
+   "begin",
+   "start"
+  ],
+  "pos": "verb",
+  "exampleDa": "Filmen begynder klokken otte.",
+  "exampleEn": "The film begins at eight o'clock.",
+  "freqRank": 165
+ },
+ {
+  "id": "da-0166",
+  "da": "lampe",
+  "en": [
+   "lamp"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tænd lampen, det er mørkt.",
+  "exampleEn": "Turn on the lamp, it is dark.",
+  "freqRank": 166
+ },
+ {
+  "id": "da-0167",
+  "da": "snart",
+  "en": [
+   "soon"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Det bliver snart sommer igen.",
+  "exampleEn": "It will soon be summer again.",
+  "freqRank": 167
+ },
+ {
+  "id": "da-0168",
+  "da": "brød",
+  "en": [
+   "bread"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi køber friskt brød hver morgen.",
+  "exampleEn": "We buy fresh bread every morning.",
+  "freqRank": 168
+ },
+ {
+  "id": "da-0169",
+  "da": "rød",
+  "en": [
+   "red"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun har en rød kjole på.",
+  "exampleEn": "She is wearing a red dress.",
+  "freqRank": 169
+ },
+ {
+  "id": "da-0170",
+  "da": "vise",
+  "en": [
+   "show"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du vise mig vejen?",
+  "exampleEn": "Can you show me the way?",
+  "freqRank": 170
+ },
+ {
+  "id": "da-0171",
+  "da": "kaffe",
+  "en": [
+   "coffee"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vil du have en kop kaffe?",
+  "exampleEn": "Would you like a cup of coffee?",
+  "freqRank": 171
+ },
+ {
+  "id": "da-0172",
+  "da": "allerede",
+  "en": [
+   "already"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Er du allerede færdig med maden?",
+  "exampleEn": "Are you already finished with the food?",
+  "freqRank": 172
+ },
+ {
+  "id": "da-0173",
+  "da": "te",
+  "en": [
+   "tea"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun drikker te med sukker.",
+  "exampleEn": "She drinks tea with sugar.",
+  "freqRank": 173
+ },
+ {
+  "id": "da-0174",
+  "da": "stadig",
+  "en": [
+   "still"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun arbejder stadig på hospitalet.",
+  "exampleEn": "She still works at the hospital.",
+  "freqRank": 174
+ },
+ {
+  "id": "da-0175",
+  "da": "åben",
+  "en": [
+   "open"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Caféen er åben hele dagen.",
+  "exampleEn": "The café is open all day.",
+  "freqRank": 175
+ },
+ {
+  "id": "da-0176",
+  "da": "øl",
+  "en": [
+   "beer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han bestiller en kold øl.",
+  "exampleEn": "He orders a cold beer.",
+  "freqRank": 176
+ },
+ {
+  "id": "da-0177",
+  "da": "endnu",
+  "en": [
+   "yet",
+   "still"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Toget er ikke kommet endnu.",
+  "exampleEn": "The train has not arrived yet.",
+  "freqRank": 177
+ },
+ {
+  "id": "da-0178",
+  "da": "vin",
+  "en": [
+   "wine"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vil du have et glas vin?",
+  "exampleEn": "Would you like a glass of wine?",
+  "freqRank": 178
+ },
+ {
+  "id": "da-0179",
+  "da": "føle",
+  "en": [
+   "feel"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg føler mig træt i dag.",
+  "exampleEn": "I feel tired today.",
+  "freqRank": 179
+ },
+ {
+  "id": "da-0180",
+  "da": "mælk",
+  "en": [
+   "milk"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vil du have mælk i kaffen?",
+  "exampleEn": "Do you want milk in your coffee?",
+  "freqRank": 180
+ },
+ {
+  "id": "da-0181",
+  "da": "helt",
+  "en": [
+   "completely",
+   "totally",
+   "quite"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg er helt enig med dig.",
+  "exampleEn": "I completely agree with you.",
+  "freqRank": 181
+ },
+ {
+  "id": "da-0182",
+  "da": "mulig",
+  "en": [
+   "possible"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er muligt at komme i morgen.",
+  "exampleEn": "It is possible to come tomorrow.",
+  "freqRank": 182
+ },
+ {
+  "id": "da-0183",
+  "da": "ost",
+  "en": [
+   "cheese"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg spiser brød med ost.",
+  "exampleEn": "I eat bread with cheese.",
+  "freqRank": 183
+ },
+ {
+  "id": "da-0184",
+  "da": "næsten",
+  "en": [
+   "almost",
+   "nearly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi er næsten hjemme nu.",
+  "exampleEn": "We are almost home now.",
+  "freqRank": 184
+ },
+ {
+  "id": "da-0185",
+  "da": "kød",
+  "en": [
+   "meat"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han spiser ikke kød.",
+  "exampleEn": "He does not eat meat.",
+  "freqRank": 185
+ },
+ {
+  "id": "da-0186",
+  "da": "forskellig",
+  "en": [
+   "different"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi kan lide forskellige ting.",
+  "exampleEn": "We like different things.",
+  "freqRank": 186
+ },
+ {
+  "id": "da-0187",
+  "da": "læse",
+  "en": [
+   "read"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun læser en god bog.",
+  "exampleEn": "She is reading a good book.",
+  "freqRank": 187
+ },
+ {
+  "id": "da-0188",
+  "da": "nok",
+  "en": [
+   "probably",
+   "enough"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han kommer nok i morgen.",
+  "exampleEn": "He will probably come tomorrow.",
+  "freqRank": 188
+ },
+ {
+  "id": "da-0189",
+  "da": "fisk",
+  "en": [
+   "fish"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser fisk hver fredag.",
+  "exampleEn": "We eat fish every Friday.",
+  "freqRank": 189
+ },
+ {
+  "id": "da-0190",
+  "da": "æg",
+  "en": [
+   "egg"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg spiser et æg til morgenmad.",
+  "exampleEn": "I eat an egg for breakfast.",
+  "freqRank": 190
+ },
+ {
+  "id": "da-0191",
+  "da": "sådan",
+  "en": [
+   "like this",
+   "like that",
+   "so"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Man gør det sådan her.",
+  "exampleEn": "You do it like this.",
+  "freqRank": 191
+ },
+ {
+  "id": "da-0192",
+  "da": "alvorlig",
+  "en": [
+   "serious"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en alvorlig sag.",
+  "exampleEn": "It is a serious matter.",
+  "freqRank": 192
+ },
+ {
+  "id": "da-0193",
+  "da": "skrive",
+  "en": [
+   "write"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg skriver et brev til min mor.",
+  "exampleEn": "I am writing a letter to my mother.",
+  "freqRank": 193
+ },
+ {
+  "id": "da-0194",
+  "da": "æble",
+  "en": [
+   "apple"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun spiser et æble hver dag.",
+  "exampleEn": "She eats an apple every day.",
+  "freqRank": 194
+ },
+ {
+  "id": "da-0195",
+  "da": "gerne",
+  "en": [
+   "gladly",
+   "willingly",
+   "happily"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg vil gerne have en øl.",
+  "exampleEn": "I would like a beer.",
+  "freqRank": 195
+ },
+ {
+  "id": "da-0196",
+  "da": "kage",
+  "en": [
+   "cake"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi bager en kage til festen.",
+  "exampleEn": "We are baking a cake for the party.",
+  "freqRank": 196
+ },
+ {
+  "id": "da-0197",
+  "da": "lægge",
+  "en": [
+   "lay",
+   "put"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun lægger nøglerne i tasken.",
+  "exampleEn": "She puts the keys in the bag.",
+  "freqRank": 197
+ },
+ {
+  "id": "da-0198",
+  "da": "almindelig",
+  "en": [
+   "ordinary",
+   "common",
+   "normal"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en helt almindelig dag.",
+  "exampleEn": "It is a completely ordinary day.",
+  "freqRank": 198
+ },
+ {
+  "id": "da-0199",
+  "da": "hellere",
+  "en": [
+   "rather",
+   "preferably"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg vil hellere have te end kaffe.",
+  "exampleEn": "I would rather have tea than coffee.",
+  "freqRank": 199
+ },
+ {
+  "id": "da-0200",
+  "da": "sukker",
+  "en": [
+   "sugar"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg tager ikke sukker i min te.",
+  "exampleEn": "I do not take sugar in my tea.",
+  "freqRank": 200
+ },
+ {
+  "id": "da-0201",
+  "da": "salt",
+  "en": [
+   "salt"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Maden mangler lidt salt.",
+  "exampleEn": "The food needs a little salt.",
+  "freqRank": 201
+ },
+ {
+  "id": "da-0202",
+  "da": "betyde",
+  "en": [
+   "mean"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad betyder det ord?",
+  "exampleEn": "What does that word mean?",
+  "freqRank": 202
+ },
+ {
+  "id": "da-0203",
+  "da": "virkelig",
+  "en": [
+   "really",
+   "truly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Filmen var virkelig god.",
+  "exampleEn": "The movie was really good.",
+  "freqRank": 203
+ },
+ {
+  "id": "da-0204",
+  "da": "smør",
+  "en": [
+   "butter"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han smører smør på brødet.",
+  "exampleEn": "He spreads butter on the bread.",
+  "freqRank": 204
+ },
+ {
+  "id": "da-0205",
+  "da": "nødvendig",
+  "en": [
+   "necessary"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er ikke nødvendigt at vente.",
+  "exampleEn": "It is not necessary to wait.",
+  "freqRank": 205
+ },
+ {
+  "id": "da-0206",
+  "da": "faktisk",
+  "en": [
+   "actually",
+   "in fact"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg er faktisk ret træt nu.",
+  "exampleEn": "I am actually quite tired now.",
+  "freqRank": 206
+ },
+ {
+  "id": "da-0207",
+  "da": "kartoffel",
+  "en": [
+   "potato"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser kartofler til aftensmad.",
+  "exampleEn": "We eat potatoes for dinner.",
+  "freqRank": 207
+ },
+ {
+  "id": "da-0208",
+  "da": "leve",
+  "en": [
+   "live",
+   "be alive"
+  ],
+  "pos": "verb",
+  "exampleDa": "Min farmor lever stadig.",
+  "exampleEn": "My grandmother is still alive.",
+  "freqRank": 208
+ },
+ {
+  "id": "da-0209",
+  "da": "grøntsag",
+  "en": [
+   "vegetable"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Grøntsager er sunde for kroppen.",
+  "exampleEn": "Vegetables are healthy for the body.",
+  "freqRank": 209
+ },
+ {
+  "id": "da-0210",
+  "da": "egentlig",
+  "en": [
+   "actually",
+   "really"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hvad laver du egentlig i weekenden?",
+  "exampleEn": "What are you actually doing this weekend?",
+  "freqRank": 210
+ },
+ {
+  "id": "da-0211",
+  "da": "offentlig",
+  "en": [
+   "public"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi tager offentlig transport til arbejde.",
+  "exampleEn": "We take public transport to work.",
+  "freqRank": 211
+ },
+ {
+  "id": "da-0212",
+  "da": "bo",
+  "en": [
+   "live",
+   "reside"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi bor i en lille by.",
+  "exampleEn": "We live in a small town.",
+  "freqRank": 212
+ },
+ {
+  "id": "da-0213",
+  "da": "frokost",
+  "en": [
+   "lunch"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser frokost klokken tolv.",
+  "exampleEn": "We eat lunch at twelve o'clock.",
+  "freqRank": 213
+ },
+ {
+  "id": "da-0214",
+  "da": "selvfølgelig",
+  "en": [
+   "of course",
+   "naturally"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Selvfølgelig må du komme med.",
+  "exampleEn": "Of course you can come along.",
+  "freqRank": 214
+ },
+ {
+  "id": "da-0215",
+  "da": "morgenmad",
+  "en": [
+   "breakfast"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg laver morgenmad til børnene.",
+  "exampleEn": "I make breakfast for the children.",
+  "freqRank": 215
+ },
+ {
+  "id": "da-0216",
+  "da": "desværre",
+  "en": [
+   "unfortunately",
+   "sadly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Desværre har vi ikke flere billetter.",
+  "exampleEn": "Unfortunately we have no more tickets.",
+  "freqRank": 216
+ },
+ {
+  "id": "da-0217",
+  "da": "købe",
+  "en": [
+   "buy"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg køber brød i supermarkedet.",
+  "exampleEn": "I buy bread at the supermarket.",
+  "freqRank": 217
+ },
+ {
+  "id": "da-0218",
+  "da": "politisk",
+  "en": [
+   "political"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er et politisk spørgsmål.",
+  "exampleEn": "It is a political question.",
+  "freqRank": 218
+ },
+ {
+  "id": "da-0219",
+  "da": "aftensmad",
+  "en": [
+   "dinner",
+   "supper"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad skal vi have til aftensmad?",
+  "exampleEn": "What are we having for dinner?",
+  "freqRank": 219
+ },
+ {
+  "id": "da-0220",
+  "da": "krop",
+  "en": [
+   "body"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Motion er godt for kroppen.",
+  "exampleEn": "Exercise is good for the body.",
+  "freqRank": 220
+ },
+ {
+  "id": "da-0221",
+  "da": "hurtigt",
+  "en": [
+   "quickly",
+   "fast"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han løber meget hurtigt.",
+  "exampleEn": "He runs very fast.",
+  "freqRank": 221
+ },
+ {
+  "id": "da-0222",
+  "da": "spille",
+  "en": [
+   "play"
+  ],
+  "pos": "verb",
+  "exampleDa": "Børnene spiller fodbold i haven.",
+  "exampleEn": "The children play football in the garden.",
+  "freqRank": 222
+ },
+ {
+  "id": "da-0223",
+  "da": "mund",
+  "en": [
+   "mouth"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Det lille barn åbner munden.",
+  "exampleEn": "The little child opens its mouth.",
+  "freqRank": 223
+ },
+ {
+  "id": "da-0224",
+  "da": "økonomisk",
+  "en": [
+   "economic",
+   "financial"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Familien har økonomiske problemer.",
+  "exampleEn": "The family has financial problems.",
+  "freqRank": 224
+ },
+ {
+  "id": "da-0225",
+  "da": "langsomt",
+  "en": [
+   "slowly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Kan du tale lidt mere langsomt?",
+  "exampleEn": "Can you speak a little more slowly?",
+  "freqRank": 225
+ },
+ {
+  "id": "da-0226",
+  "da": "næse",
+  "en": [
+   "nose"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min næse løber, jeg er forkølet.",
+  "exampleEn": "My nose is running, I have a cold.",
+  "freqRank": 226
+ },
+ {
+  "id": "da-0227",
+  "da": "kende",
+  "en": [
+   "know"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kender du den nye nabo?",
+  "exampleEn": "Do you know the new neighbour?",
+  "freqRank": 227
+ },
+ {
+  "id": "da-0228",
+  "da": "først",
+  "en": [
+   "first",
+   "at first"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi spiser først og ser fjernsyn bagefter.",
+  "exampleEn": "We eat first and watch TV afterwards.",
+  "freqRank": 228
+ },
+ {
+  "id": "da-0229",
+  "da": "øre",
+  "en": [
+   "ear"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Kaninen har lange ører.",
+  "exampleEn": "The rabbit has long ears.",
+  "freqRank": 229
+ },
+ {
+  "id": "da-0230",
+  "da": "international",
+  "en": [
+   "international"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en international skole.",
+  "exampleEn": "It is an international school.",
+  "freqRank": 230
+ },
+ {
+  "id": "da-0231",
+  "da": "tand",
+  "en": [
+   "tooth"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Barnet har fået en ny tand.",
+  "exampleEn": "The child has gotten a new tooth.",
+  "freqRank": 231
+ },
+ {
+  "id": "da-0232",
+  "da": "fire",
+  "en": [
+   "four"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Familien har fire små børn.",
+  "exampleEn": "The family has four small children.",
+  "freqRank": 232
+ },
+ {
+  "id": "da-0233",
+  "da": "synes",
+  "en": [
+   "think",
+   "find"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg synes, filmen var god.",
+  "exampleEn": "I think the film was good.",
+  "freqRank": 233
+ },
+ {
+  "id": "da-0234",
+  "da": "hår",
+  "en": [
+   "hair"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun har langt lyst hår.",
+  "exampleEn": "She has long blond hair.",
+  "freqRank": 234
+ },
+ {
+  "id": "da-0235",
+  "da": "fem",
+  "en": [
+   "five"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Butikken lukker klokken fem i dag.",
+  "exampleEn": "The shop closes at five o'clock today.",
+  "freqRank": 235
+ },
+ {
+  "id": "da-0236",
+  "da": "privat",
+  "en": [
+   "private"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er et privat spørgsmål.",
+  "exampleEn": "That is a private question.",
+  "freqRank": 236
+ },
+ {
+  "id": "da-0237",
+  "da": "arm",
+  "en": [
+   "arm"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han bærer barnet på armen.",
+  "exampleEn": "He carries the child on his arm.",
+  "freqRank": 237
+ },
+ {
+  "id": "da-0238",
+  "da": "prøve",
+  "en": [
+   "try"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vil du prøve min nye cykel?",
+  "exampleEn": "Do you want to try my new bike?",
+  "freqRank": 238
+ },
+ {
+  "id": "da-0239",
+  "da": "seks",
+  "en": [
+   "six"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Vi står op klokken seks.",
+  "exampleEn": "We get up at six o'clock.",
+  "freqRank": 239
+ },
+ {
+  "id": "da-0240",
+  "da": "finger",
+  "en": [
+   "finger"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har skåret mig i fingeren.",
+  "exampleEn": "I have cut my finger.",
+  "freqRank": 240
+ },
+ {
+  "id": "da-0241",
+  "da": "fortælle",
+  "en": [
+   "tell"
+  ],
+  "pos": "verb",
+  "exampleDa": "Far fortæller en historie hver aften.",
+  "exampleEn": "Dad tells a story every evening.",
+  "freqRank": 241
+ },
+ {
+  "id": "da-0242",
+  "da": "lokal",
+  "en": [
+   "local"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi køber ind i den lokale butik.",
+  "exampleEn": "We shop in the local store.",
+  "freqRank": 242
+ },
+ {
+  "id": "da-0243",
+  "da": "ben",
+  "en": [
+   "leg",
+   "bone"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han brækkede benet i vinter.",
+  "exampleEn": "He broke his leg this winter.",
+  "freqRank": 243
+ },
+ {
+  "id": "da-0244",
+  "da": "syv",
+  "en": [
+   "seven"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Der er syv dage i en uge.",
+  "exampleEn": "There are seven days in a week.",
+  "freqRank": 244
+ },
+ {
+  "id": "da-0245",
+  "da": "fod",
+  "en": [
+   "foot"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Mine fødder er kolde.",
+  "exampleEn": "My feet are cold.",
+  "freqRank": 245
+ },
+ {
+  "id": "da-0246",
+  "da": "forstå",
+  "en": [
+   "understand"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg forstår ikke spørgsmålet.",
+  "exampleEn": "I do not understand the question.",
+  "freqRank": 246
+ },
+ {
+  "id": "da-0247",
+  "da": "otte",
+  "en": [
+   "eight"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Mødet begynder klokken otte i morgen.",
+  "exampleEn": "The meeting starts at eight o'clock tomorrow.",
+  "freqRank": 247
+ },
+ {
+  "id": "da-0248",
+  "da": "hjerte",
+  "en": [
+   "heart"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Mit hjerte banker hurtigt.",
+  "exampleEn": "My heart is beating fast.",
+  "freqRank": 248
+ },
+ {
+  "id": "da-0249",
+  "da": "national",
+  "en": [
+   "national"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en national helligdag i dag.",
+  "exampleEn": "It is a national holiday today.",
+  "freqRank": 249
+ },
+ {
+  "id": "da-0250",
+  "da": "mave",
+  "en": [
+   "stomach",
+   "belly",
+   "tummy"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har ondt i maven.",
+  "exampleEn": "I have a stomachache.",
+  "freqRank": 250
+ },
+ {
+  "id": "da-0251",
+  "da": "ni",
+  "en": [
+   "nine"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Min søn er ni år gammel.",
+  "exampleEn": "My son is nine years old.",
+  "freqRank": 251
+ },
+ {
+  "id": "da-0252",
+  "da": "vente",
+  "en": [
+   "wait"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi venter på bussen.",
+  "exampleEn": "We are waiting for the bus.",
+  "freqRank": 252
+ },
+ {
+  "id": "da-0253",
+  "da": "ryg",
+  "en": [
+   "back"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min ryg gør ondt i dag.",
+  "exampleEn": "My back hurts today.",
+  "freqRank": 253
+ },
+ {
+  "id": "da-0254",
+  "da": "engelsk",
+  "en": [
+   "English"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun læser en engelsk avis.",
+  "exampleEn": "She is reading an English newspaper.",
+  "freqRank": 254
+ },
+ {
+  "id": "da-0255",
+  "da": "ti",
+  "en": [
+   "ten"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Bussen kommer om ti minutter.",
+  "exampleEn": "The bus comes in ten minutes.",
+  "freqRank": 255
+ },
+ {
+  "id": "da-0256",
+  "da": "læge",
+  "en": [
+   "doctor",
+   "physician"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg skal til lægen i morgen.",
+  "exampleEn": "I am going to the doctor tomorrow.",
+  "freqRank": 256
+ },
+ {
+  "id": "da-0257",
+  "da": "hjælpe",
+  "en": [
+   "help"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du hjælpe mig med maden?",
+  "exampleEn": "Can you help me with the food?",
+  "freqRank": 257
+ },
+ {
+  "id": "da-0258",
+  "da": "mest",
+  "en": [
+   "most",
+   "mostly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun arbejder mest om aftenen.",
+  "exampleEn": "She works mostly in the evening.",
+  "freqRank": 258
+ },
+ {
+  "id": "da-0259",
+  "da": "lærer",
+  "en": [
+   "teacher"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vores lærer er sød og dygtig.",
+  "exampleEn": "Our teacher is nice and skilled.",
+  "freqRank": 259
+ },
+ {
+  "id": "da-0260",
+  "da": "amerikansk",
+  "en": [
+   "American"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi ser en amerikansk film i aften.",
+  "exampleEn": "We are watching an American film tonight.",
+  "freqRank": 260
+ },
+ {
+  "id": "da-0261",
+  "da": "elev",
+  "en": [
+   "pupil",
+   "student"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er tyve elever i klassen.",
+  "exampleEn": "There are twenty pupils in the class.",
+  "freqRank": 261
+ },
+ {
+  "id": "da-0262",
+  "da": "elske",
+  "en": [
+   "love"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg elsker min familie.",
+  "exampleEn": "I love my family.",
+  "freqRank": 262
+ },
+ {
+  "id": "da-0263",
+  "da": "mindre",
+  "en": [
+   "less"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han arbejder mindre nu end før.",
+  "exampleEn": "He works less now than before.",
+  "freqRank": 263
+ },
+ {
+  "id": "da-0264",
+  "da": "klasse",
+  "en": [
+   "class",
+   "grade"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min datter går i tredje klasse.",
+  "exampleEn": "My daughter is in third grade.",
+  "freqRank": 264
+ },
+ {
+  "id": "da-0265",
+  "da": "mindst",
+  "en": [
+   "at least",
+   "least"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Rejsen tager mindst to timer.",
+  "exampleEn": "The trip takes at least two hours.",
+  "freqRank": 265
+ },
+ {
+  "id": "da-0266",
+  "da": "huske",
+  "en": [
+   "remember"
+  ],
+  "pos": "verb",
+  "exampleDa": "Husk at købe mælk i dag.",
+  "exampleEn": "Remember to buy milk today.",
+  "freqRank": 266
+ },
+ {
+  "id": "da-0267",
+  "da": "tysk",
+  "en": [
+   "German"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han har en tysk bil.",
+  "exampleEn": "He has a German car.",
+  "freqRank": 267
+ },
+ {
+  "id": "da-0268",
+  "da": "universitet",
+  "en": [
+   "university",
+   "college"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun læser på universitetet i byen.",
+  "exampleEn": "She studies at the university in the city.",
+  "freqRank": 268
+ },
+ {
+  "id": "da-0269",
+  "da": "ret",
+  "en": [
+   "quite",
+   "rather",
+   "pretty"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Det er ret koldt i dag.",
+  "exampleEn": "It is quite cold today.",
+  "freqRank": 269
+ },
+ {
+  "id": "da-0270",
+  "da": "opgave",
+  "en": [
+   "task",
+   "assignment",
+   "homework"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg skal lave mine opgaver nu.",
+  "exampleEn": "I have to do my assignments now.",
+  "freqRank": 270
+ },
+ {
+  "id": "da-0271",
+  "da": "betale",
+  "en": [
+   "pay"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg betaler med kort.",
+  "exampleEn": "I pay by card.",
+  "freqRank": 271
+ },
+ {
+  "id": "da-0272",
+  "da": "eksamen",
+  "en": [
+   "exam",
+   "examination"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han læser til sin eksamen.",
+  "exampleEn": "He is studying for his exam.",
+  "freqRank": 272
+ },
+ {
+  "id": "da-0273",
+  "da": "derfor",
+  "en": [
+   "therefore",
+   "so"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Det regner, og derfor bliver vi hjemme.",
+  "exampleEn": "It is raining, and therefore we are staying home.",
+  "freqRank": 273
+ },
+ {
+  "id": "da-0274",
+  "da": "europæisk",
+  "en": [
+   "European"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi bor i et europæisk land.",
+  "exampleEn": "We live in a European country.",
+  "freqRank": 274
+ },
+ {
+  "id": "da-0275",
+  "da": "møde",
+  "en": [
+   "meeting"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi har et møde klokken ni.",
+  "exampleEn": "We have a meeting at nine o'clock.",
+  "freqRank": 275
+ },
+ {
+  "id": "da-0276",
+  "da": "alligevel",
+  "en": [
+   "anyway",
+   "nevertheless",
+   "still"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Det regnede, men vi gik alligevel.",
+  "exampleEn": "It was raining, but we went anyway.",
+  "freqRank": 276
+ },
+ {
+  "id": "da-0277",
+  "da": "håbe",
+  "en": [
+   "hope"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg håber, det bliver godt vejr.",
+  "exampleEn": "I hope the weather will be nice.",
+  "freqRank": 277
+ },
+ {
+  "id": "da-0278",
+  "da": "kontor",
+  "en": [
+   "office"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun sidder på sit kontor.",
+  "exampleEn": "She is sitting in her office.",
+  "freqRank": 278
+ },
+ {
+  "id": "da-0279",
+  "da": "svensk",
+  "en": [
+   "Swedish"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De ser en svensk film.",
+  "exampleEn": "They are watching a Swedish film.",
+  "freqRank": 279
+ },
+ {
+  "id": "da-0280",
+  "da": "ellers",
+  "en": [
+   "otherwise",
+   "else"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Skynd dig, ellers kommer vi for sent.",
+  "exampleEn": "Hurry up, otherwise we will be late.",
+  "freqRank": 280
+ },
+ {
+  "id": "da-0281",
+  "da": "chef",
+  "en": [
+   "boss",
+   "manager"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min chef er meget flink.",
+  "exampleEn": "My boss is very nice.",
+  "freqRank": 281
+ },
+ {
+  "id": "da-0282",
+  "da": "ønske",
+  "en": [
+   "wish",
+   "want"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun ønsker sig en ny cykel.",
+  "exampleEn": "She wishes for a new bike.",
+  "freqRank": 282
+ },
+ {
+  "id": "da-0283",
+  "da": "kollega",
+  "en": [
+   "colleague",
+   "coworker"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg spiser frokost med mine kolleger.",
+  "exampleEn": "I eat lunch with my colleagues.",
+  "freqRank": 283
+ },
+ {
+  "id": "da-0284",
+  "da": "altså",
+  "en": [
+   "so",
+   "you know",
+   "therefore"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi ses altså klokken otte i morgen.",
+  "exampleEn": "So we will see each other at eight tomorrow.",
+  "freqRank": 284
+ },
+ {
+  "id": "da-0285",
+  "da": "norsk",
+  "en": [
+   "Norwegian"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi hører en norsk sang.",
+  "exampleEn": "We are listening to a Norwegian song.",
+  "freqRank": 285
+ },
+ {
+  "id": "da-0286",
+  "da": "firma",
+  "en": [
+   "company",
+   "firm"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han arbejder i et stort firma.",
+  "exampleEn": "He works at a big company.",
+  "freqRank": 286
+ },
+ {
+  "id": "da-0287",
+  "da": "kalde",
+  "en": [
+   "call"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad kalder du din kat?",
+  "exampleEn": "What do you call your cat?",
+  "freqRank": 287
+ },
+ {
+  "id": "da-0288",
+  "da": "nemlig",
+  "en": [
+   "namely",
+   "you see"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han er glad, han har nemlig fødselsdag.",
+  "exampleEn": "He is happy - it is his birthday, you see.",
+  "freqRank": 288
+ },
+ {
+  "id": "da-0289",
+  "da": "løn",
+  "en": [
+   "salary",
+   "pay",
+   "wages"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun får sin løn hver måned.",
+  "exampleEn": "She gets her salary every month.",
+  "freqRank": 289
+ },
+ {
+  "id": "da-0290",
+  "da": "pris",
+  "en": [
+   "price"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hvad er prisen på denne cykel?",
+  "exampleEn": "What is the price of this bicycle?",
+  "freqRank": 290
+ },
+ {
+  "id": "da-0291",
+  "da": "fransk",
+  "en": [
+   "French"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg kan lide fransk mad.",
+  "exampleEn": "I like French food.",
+  "freqRank": 291
+ },
+ {
+  "id": "da-0292",
+  "da": "heldigvis",
+  "en": [
+   "fortunately",
+   "luckily"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Heldigvis kom bussen til tiden.",
+  "exampleEn": "Fortunately the bus came on time.",
+  "freqRank": 292
+ },
+ {
+  "id": "da-0293",
+  "da": "sende",
+  "en": [
+   "send"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg sender dig en besked senere.",
+  "exampleEn": "I will send you a message later.",
+  "freqRank": 293
+ },
+ {
+  "id": "da-0294",
+  "da": "krone",
+  "en": [
+   "krone",
+   "crown"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kaffen koster tredive kroner.",
+  "exampleEn": "The coffee costs thirty kroner.",
+  "freqRank": 294
+ },
+ {
+  "id": "da-0295",
+  "da": "pludselig",
+  "en": [
+   "suddenly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Pludselig begyndte det at regne.",
+  "exampleEn": "Suddenly it started to rain.",
+  "freqRank": 295
+ },
+ {
+  "id": "da-0296",
+  "da": "spise",
+  "en": [
+   "eat"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi spiser aftensmad klokken seks.",
+  "exampleEn": "We eat dinner at six o'clock.",
+  "freqRank": 296
+ },
+ {
+  "id": "da-0297",
+  "da": "bank",
+  "en": [
+   "bank"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg skal i banken i dag.",
+  "exampleEn": "I have to go to the bank today.",
+  "freqRank": 297
+ },
+ {
+  "id": "da-0298",
+  "da": "spansk",
+  "en": [
+   "Spanish"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun læser en spansk bog.",
+  "exampleEn": "She is reading a Spanish book.",
+  "freqRank": 298
+ },
+ {
+  "id": "da-0299",
+  "da": "tidligt",
+  "en": [
+   "early"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi står tidligt op i morgen.",
+  "exampleEn": "We are getting up early tomorrow.",
+  "freqRank": 299
+ },
+ {
+  "id": "da-0300",
+  "da": "butik",
+  "en": [
+   "shop",
+   "store"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Butikken åbner klokken ti.",
+  "exampleEn": "The shop opens at ten o'clock.",
+  "freqRank": 300
+ },
+ {
+  "id": "da-0301",
+  "da": "drikke",
+  "en": [
+   "drink"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han drikker kaffe hver morgen.",
+  "exampleEn": "He drinks coffee every morning.",
+  "freqRank": 301
+ },
+ {
+  "id": "da-0302",
+  "da": "tog",
+  "en": [
+   "train"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi tager toget til byen.",
+  "exampleEn": "We take the train to the city.",
+  "freqRank": 302
+ },
+ {
+  "id": "da-0303",
+  "da": "sent",
+  "en": [
+   "late"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Han kom sent hjem i går.",
+  "exampleEn": "He came home late yesterday.",
+  "freqRank": 303
+ },
+ {
+  "id": "da-0304",
+  "da": "italiensk",
+  "en": [
+   "Italian"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi spiser på en italiensk restaurant.",
+  "exampleEn": "We are eating at an Italian restaurant.",
+  "freqRank": 304
+ },
+ {
+  "id": "da-0305",
+  "da": "bus",
+  "en": [
+   "bus"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg tager bussen til arbejde.",
+  "exampleEn": "I take the bus to work.",
+  "freqRank": 305
+ },
+ {
+  "id": "da-0306",
+  "da": "længe",
+  "en": [
+   "long",
+   "a long time"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg har ventet længe på dig.",
+  "exampleEn": "I have waited a long time for you.",
+  "freqRank": 306
+ },
+ {
+  "id": "da-0307",
+  "da": "sove",
+  "en": [
+   "sleep"
+  ],
+  "pos": "verb",
+  "exampleDa": "Barnet sover i sin seng.",
+  "exampleEn": "The child is sleeping in its bed.",
+  "freqRank": 307
+ },
+ {
+  "id": "da-0308",
+  "da": "cykel",
+  "en": [
+   "bicycle",
+   "bike"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun kører på cykel hver dag.",
+  "exampleEn": "She rides her bike every day.",
+  "freqRank": 308
+ },
+ {
+  "id": "da-0309",
+  "da": "kinesisk",
+  "en": [
+   "Chinese"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han laver kinesisk mad i aften.",
+  "exampleEn": "He is making Chinese food tonight.",
+  "freqRank": 309
+ },
+ {
+  "id": "da-0310",
+  "da": "sjældent",
+  "en": [
+   "rarely",
+   "seldom"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi ser sjældent fjernsyn om morgenen.",
+  "exampleEn": "We rarely watch TV in the morning.",
+  "freqRank": 310
+ },
+ {
+  "id": "da-0311",
+  "da": "fly",
+  "en": [
+   "plane",
+   "airplane",
+   "aircraft"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Flyet letter klokken syv.",
+  "exampleEn": "The plane takes off at seven o'clock.",
+  "freqRank": 311
+ },
+ {
+  "id": "da-0312",
+  "da": "køre",
+  "en": [
+   "drive",
+   "ride",
+   "go"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi kører til stranden i bil.",
+  "exampleEn": "We drive to the beach in the car.",
+  "freqRank": 312
+ },
+ {
+  "id": "da-0313",
+  "da": "billet",
+  "en": [
+   "ticket"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg køber en billet til toget.",
+  "exampleEn": "I am buying a ticket for the train.",
+  "freqRank": 313
+ },
+ {
+  "id": "da-0314",
+  "da": "engang",
+  "en": [
+   "once"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi boede engang i en lille by.",
+  "exampleEn": "We once lived in a small town.",
+  "freqRank": 314
+ },
+ {
+  "id": "da-0315",
+  "da": "rejse",
+  "en": [
+   "trip",
+   "journey",
+   "travel"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi planlægger en lang rejse.",
+  "exampleEn": "We are planning a long trip.",
+  "freqRank": 315
+ },
+ {
+  "id": "da-0316",
+  "da": "russisk",
+  "en": [
+   "Russian"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De hører russisk musik.",
+  "exampleEn": "They are listening to Russian music.",
+  "freqRank": 316
+ },
+ {
+  "id": "da-0317",
+  "da": "nogensinde",
+  "en": [
+   "ever"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Har du nogensinde været i udlandet?",
+  "exampleEn": "Have you ever been abroad?",
+  "freqRank": 317
+ },
+ {
+  "id": "da-0318",
+  "da": "gade",
+  "en": [
+   "street"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er mange butikker i denne gade.",
+  "exampleEn": "There are many shops on this street.",
+  "freqRank": 318
+ },
+ {
+  "id": "da-0319",
+  "da": "løbe",
+  "en": [
+   "run"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg løber en tur hver morgen.",
+  "exampleEn": "I go for a run every morning.",
+  "freqRank": 319
+ },
+ {
+  "id": "da-0320",
+  "da": "sommetider",
+  "en": [
+   "sometimes"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Sommetider cykler jeg på arbejde.",
+  "exampleEn": "Sometimes I bike to work.",
+  "freqRank": 320
+ },
+ {
+  "id": "da-0321",
+  "da": "station",
+  "en": [
+   "station"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg venter på stationen.",
+  "exampleEn": "I am waiting at the station.",
+  "freqRank": 321
+ },
+ {
+  "id": "da-0322",
+  "da": "udenlandsk",
+  "en": [
+   "foreign"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han arbejder for et udenlandsk firma.",
+  "exampleEn": "He works for a foreign company.",
+  "freqRank": 322
+ },
+ {
+  "id": "da-0323",
+  "da": "natur",
+  "en": [
+   "nature"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Naturen er smuk om efteråret.",
+  "exampleEn": "Nature is beautiful in the autumn.",
+  "freqRank": 323
+ },
+ {
+  "id": "da-0324",
+  "da": "straks",
+  "en": [
+   "immediately",
+   "at once",
+   "right away"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg kommer straks tilbage.",
+  "exampleEn": "I will be right back.",
+  "freqRank": 324
+ },
+ {
+  "id": "da-0325",
+  "da": "ske",
+  "en": [
+   "happen",
+   "occur"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad sker der her?",
+  "exampleEn": "What is happening here?",
+  "freqRank": 325
+ },
+ {
+  "id": "da-0326",
+  "da": "sol",
+  "en": [
+   "sun"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Solen skinner i dag.",
+  "exampleEn": "The sun is shining today.",
+  "freqRank": 326
+ },
+ {
+  "id": "da-0327",
+  "da": "bagefter",
+  "en": [
+   "afterwards",
+   "after"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi går en tur bagefter.",
+  "exampleEn": "We are taking a walk afterwards.",
+  "freqRank": 327
+ },
+ {
+  "id": "da-0328",
+  "da": "fremmed",
+  "en": [
+   "foreign",
+   "strange",
+   "unfamiliar"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi er i et fremmed land.",
+  "exampleEn": "We are in a foreign country.",
+  "freqRank": 328
+ },
+ {
+  "id": "da-0329",
+  "da": "himmel",
+  "en": [
+   "sky",
+   "heaven"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Himlen er blå og klar.",
+  "exampleEn": "The sky is blue and clear.",
+  "freqRank": 329
+ },
+ {
+  "id": "da-0330",
+  "da": "søge",
+  "en": [
+   "search",
+   "seek",
+   "apply"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han søger et nyt job.",
+  "exampleEn": "He is looking for a new job.",
+  "freqRank": 330
+ },
+ {
+  "id": "da-0331",
+  "da": "hav",
+  "en": [
+   "sea",
+   "ocean"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi svømmer i havet om sommeren.",
+  "exampleEn": "We swim in the sea in the summer.",
+  "freqRank": 331
+ },
+ {
+  "id": "da-0332",
+  "da": "tidligere",
+  "en": [
+   "earlier",
+   "previously",
+   "before"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hun boede tidligere i en anden by.",
+  "exampleEn": "She previously lived in another town.",
+  "freqRank": 332
+ },
+ {
+  "id": "da-0333",
+  "da": "kendt",
+  "en": [
+   "well-known",
+   "famous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er en kendt kok i byen.",
+  "exampleEn": "He is a well-known chef in the city.",
+  "freqRank": 333
+ },
+ {
+  "id": "da-0334",
+  "da": "sø",
+  "en": [
+   "lake"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der ligger en lille sø i skoven.",
+  "exampleEn": "There is a small lake in the forest.",
+  "freqRank": 334
+ },
+ {
+  "id": "da-0335",
+  "da": "senere",
+  "en": [
+   "later"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Vi ses senere i dag.",
+  "exampleEn": "See you later today.",
+  "freqRank": 335
+ },
+ {
+  "id": "da-0336",
+  "da": "svare",
+  "en": [
+   "answer",
+   "reply"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun svarer ikke på min besked.",
+  "exampleEn": "She does not answer my message.",
+  "freqRank": 336
+ },
+ {
+  "id": "da-0337",
+  "da": "strand",
+  "en": [
+   "beach"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene leger på stranden.",
+  "exampleEn": "The children are playing on the beach.",
+  "freqRank": 337
+ },
+ {
+  "id": "da-0338",
+  "da": "dårligt",
+  "en": [
+   "badly",
+   "poorly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg sov dårligt i nat.",
+  "exampleEn": "I slept badly last night.",
+  "freqRank": 338
+ },
+ {
+  "id": "da-0339",
+  "da": "skov",
+  "en": [
+   "forest",
+   "wood",
+   "woods"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi går en tur i skoven.",
+  "exampleEn": "We take a walk in the forest.",
+  "freqRank": 339
+ },
+ {
+  "id": "da-0340",
+  "da": "bede",
+  "en": [
+   "ask",
+   "request",
+   "pray"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg beder ham om hjælp.",
+  "exampleEn": "I ask him for help.",
+  "freqRank": 340
+ },
+ {
+  "id": "da-0341",
+  "da": "populær",
+  "en": [
+   "popular"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Sangen er meget populær nu.",
+  "exampleEn": "The song is very popular now.",
+  "freqRank": 341
+ },
+ {
+  "id": "da-0342",
+  "da": "træ",
+  "en": [
+   "tree",
+   "wood"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der står et gammelt træ i haven.",
+  "exampleEn": "There is an old tree in the garden.",
+  "freqRank": 342
+ },
+ {
+  "id": "da-0343",
+  "da": "endelig",
+  "en": [
+   "finally",
+   "at last"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Endelig er det weekend igen!",
+  "exampleEn": "Finally it is the weekend again!",
+  "freqRank": 343
+ },
+ {
+  "id": "da-0344",
+  "da": "blomst",
+  "en": [
+   "flower"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han giver hende røde blomster.",
+  "exampleEn": "He gives her red flowers.",
+  "freqRank": 344
+ },
+ {
+  "id": "da-0345",
+  "da": "vælge",
+  "en": [
+   "choose",
+   "pick",
+   "select"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du kan vælge mellem te og kaffe.",
+  "exampleEn": "You can choose between tea and coffee.",
+  "freqRank": 345
+ },
+ {
+  "id": "da-0346",
+  "da": "moderne",
+  "en": [
+   "modern"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De bor i en moderne lejlighed.",
+  "exampleEn": "They live in a modern apartment.",
+  "freqRank": 346
+ },
+ {
+  "id": "da-0347",
+  "da": "overalt",
+  "en": [
+   "everywhere"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Der er blomster overalt i byen.",
+  "exampleEn": "There are flowers everywhere in the city.",
+  "freqRank": 347
+ },
+ {
+  "id": "da-0348",
+  "da": "dyr",
+  "en": [
+   "animal"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hvilket dyr kan du bedst lide?",
+  "exampleEn": "Which animal do you like best?",
+  "freqRank": 348
+ },
+ {
+  "id": "da-0349",
+  "da": "udenfor",
+  "en": [
+   "outside",
+   "outdoors"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Hunden sover udenfor om sommeren.",
+  "exampleEn": "The dog sleeps outside in the summer.",
+  "freqRank": 349
+ },
+ {
+  "id": "da-0350",
+  "da": "vinde",
+  "en": [
+   "win"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vores hold vinder kampen.",
+  "exampleEn": "Our team wins the match.",
+  "freqRank": 350
+ },
+ {
+  "id": "da-0351",
+  "da": "hund",
+  "en": [
+   "dog"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hunden løber efter bolden.",
+  "exampleEn": "The dog runs after the ball.",
+  "freqRank": 351
+ },
+ {
+  "id": "da-0352",
+  "da": "normal",
+  "en": [
+   "normal"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en helt normal uge.",
+  "exampleEn": "It is a completely normal week.",
+  "freqRank": 352
+ },
+ {
+  "id": "da-0353",
+  "da": "kat",
+  "en": [
+   "cat"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Katten sover på sengen.",
+  "exampleEn": "The cat is sleeping on the bed.",
+  "freqRank": 353
+ },
+ {
+  "id": "da-0354",
+  "da": "indenfor",
+  "en": [
+   "inside",
+   "indoors"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Kom indenfor og få varmen.",
+  "exampleEn": "Come inside and warm up.",
+  "freqRank": 354
+ },
+ {
+  "id": "da-0355",
+  "da": "tabe",
+  "en": [
+   "lose",
+   "drop"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg taber altid i skak.",
+  "exampleEn": "I always lose at chess.",
+  "freqRank": 355
+ },
+ {
+  "id": "da-0356",
+  "da": "fugl",
+  "en": [
+   "bird"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Fuglene synger tidligt om morgenen.",
+  "exampleEn": "The birds sing early in the morning.",
+  "freqRank": 356
+ },
+ {
+  "id": "da-0357",
+  "da": "cirka",
+  "en": [
+   "about",
+   "approximately",
+   "roughly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Turen tager cirka en time.",
+  "exampleEn": "The trip takes about an hour.",
+  "freqRank": 357
+ },
+ {
+  "id": "da-0358",
+  "da": "hest",
+  "en": [
+   "horse"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun rider på en brun hest.",
+  "exampleEn": "She rides a brown horse.",
+  "freqRank": 358
+ },
+ {
+  "id": "da-0359",
+  "da": "særlig",
+  "en": [
+   "special",
+   "particular"
+  ],
+  "pos": "adjective",
+  "exampleDa": "I dag er en særlig dag.",
+  "exampleEn": "Today is a special day.",
+  "freqRank": 359
+ },
+ {
+  "id": "da-0360",
+  "da": "glemme",
+  "en": [
+   "forget"
+  ],
+  "pos": "verb",
+  "exampleDa": "Glem ikke din jakke!",
+  "exampleEn": "Do not forget your jacket!",
+  "freqRank": 360
+ },
+ {
+  "id": "da-0361",
+  "da": "især",
+  "en": [
+   "especially",
+   "particularly"
+  ],
+  "pos": "adverb",
+  "exampleDa": "Jeg kan især godt lide sommeren.",
+  "exampleEn": "I especially like the summer.",
+  "freqRank": 361
+ },
+ {
+  "id": "da-0362",
+  "da": "vejr",
+  "en": [
+   "weather"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vejret er dejligt i dag.",
+  "exampleEn": "The weather is lovely today.",
+  "freqRank": 362
+ },
+ {
+  "id": "da-0363",
+  "da": "regn",
+  "en": [
+   "rain"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi fik meget regn i går.",
+  "exampleEn": "We got a lot of rain yesterday.",
+  "freqRank": 363
+ },
+ {
+  "id": "da-0364",
+  "da": "lære",
+  "en": [
+   "learn",
+   "teach"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg lærer dansk i skolen.",
+  "exampleEn": "I am learning Danish at school.",
+  "freqRank": 364
+ },
+ {
+  "id": "da-0365",
+  "da": "speciel",
+  "en": [
+   "special"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en speciel gave til dig.",
+  "exampleEn": "It is a special gift for you.",
+  "freqRank": 365
+ },
+ {
+  "id": "da-0366",
+  "da": "undskyld",
+  "en": [
+   "sorry",
+   "excuse me"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Undskyld, hvor er toilettet henne?",
+  "exampleEn": "Excuse me, where is the toilet?",
+  "freqRank": 366
+ },
+ {
+  "id": "da-0367",
+  "da": "sne",
+  "en": [
+   "snow"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der ligger sne på vejen.",
+  "exampleEn": "There is snow on the road.",
+  "freqRank": 367
+ },
+ {
+  "id": "da-0368",
+  "da": "okay",
+  "en": [
+   "okay",
+   "OK",
+   "alright"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Okay, vi mødes klokken syv.",
+  "exampleEn": "Okay, we meet at seven o'clock.",
+  "freqRank": 368
+ },
+ {
+  "id": "da-0369",
+  "da": "vind",
+  "en": [
+   "wind"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vinden er stærk ved havet.",
+  "exampleEn": "The wind is strong by the sea.",
+  "freqRank": 369
+ },
+ {
+  "id": "da-0370",
+  "da": "falde",
+  "en": [
+   "fall"
+  ],
+  "pos": "verb",
+  "exampleDa": "Pas på, du ikke falder på isen.",
+  "exampleEn": "Be careful you do not fall on the ice.",
+  "freqRank": 370
+ },
+ {
+  "id": "da-0371",
+  "da": "umulig",
+  "en": [
+   "impossible"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er umuligt at sove her.",
+  "exampleEn": "It is impossible to sleep here.",
+  "freqRank": 371
+ },
+ {
+  "id": "da-0372",
+  "da": "luft",
+  "en": [
+   "air"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Luften er frisk om morgenen.",
+  "exampleEn": "The air is fresh in the morning.",
+  "freqRank": 372
+ },
+ {
+  "id": "da-0373",
+  "da": "hallo",
+  "en": [
+   "hello",
+   "hey"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Hallo, er der nogen hjemme?",
+  "exampleEn": "Hello, is anyone home?",
+  "freqRank": 373
+ },
+ {
+  "id": "da-0374",
+  "da": "dø",
+  "en": [
+   "die"
+  ],
+  "pos": "verb",
+  "exampleDa": "Blomsterne dør uden vand.",
+  "exampleEn": "The flowers die without water.",
+  "freqRank": 374
+ },
+ {
+  "id": "da-0375",
+  "da": "jord",
+  "en": [
+   "earth",
+   "ground",
+   "soil"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Blomsterne vokser i den våde jord.",
+  "exampleEn": "The flowers grow in the wet soil.",
+  "freqRank": 375
+ },
+ {
+  "id": "da-0376",
+  "da": "farvel",
+  "en": [
+   "goodbye",
+   "bye"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Farvel, vi ses i morgen!",
+  "exampleEn": "Goodbye, see you tomorrow!",
+  "freqRank": 376
+ },
+ {
+  "id": "da-0377",
+  "da": "nem",
+  "en": [
+   "easy",
+   "simple"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kagen er nem at lave.",
+  "exampleEn": "The cake is easy to make.",
+  "freqRank": 377
+ },
+ {
+  "id": "da-0378",
+  "da": "måne",
+  "en": [
+   "moon"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Månen lyser klart i nat.",
+  "exampleEn": "The moon shines brightly tonight.",
+  "freqRank": 378
+ },
+ {
+  "id": "da-0379",
+  "da": "velkommen",
+  "en": [
+   "welcome"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Velkommen til vores nye hus!",
+  "exampleEn": "Welcome to our new house!",
+  "freqRank": 379
+ },
+ {
+  "id": "da-0380",
+  "da": "åbne",
+  "en": [
+   "open"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du åbne vinduet?",
+  "exampleEn": "Can you open the window?",
+  "freqRank": 380
+ },
+ {
+  "id": "da-0381",
+  "da": "stjerne",
+  "en": [
+   "star"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kan se mange stjerner i aften.",
+  "exampleEn": "We can see many stars tonight.",
+  "freqRank": 381
+ },
+ {
+  "id": "da-0382",
+  "da": "ø",
+  "en": [
+   "island"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "De bor på en lille ø.",
+  "exampleEn": "They live on a small island.",
+  "freqRank": 382
+ },
+ {
+  "id": "da-0383",
+  "da": "flot",
+  "en": [
+   "good-looking",
+   "handsome",
+   "nice"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er en flot mand.",
+  "exampleEn": "He is a handsome man.",
+  "freqRank": 383
+ },
+ {
+  "id": "da-0384",
+  "da": "jo",
+  "en": [
+   "yes",
+   "oh yes"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Jo, jeg kan godt lide fisk.",
+  "exampleEn": "Yes, I do like fish.",
+  "freqRank": 384
+ },
+ {
+  "id": "da-0385",
+  "da": "lukke",
+  "en": [
+   "close",
+   "shut"
+  ],
+  "pos": "verb",
+  "exampleDa": "Luk døren, når du går.",
+  "exampleEn": "Close the door when you leave.",
+  "freqRank": 385
+ },
+ {
+  "id": "da-0386",
+  "da": "kirke",
+  "en": [
+   "church"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kirken ligger midt i byen.",
+  "exampleEn": "The church is in the middle of town.",
+  "freqRank": 386
+ },
+ {
+  "id": "da-0387",
+  "da": "goddag",
+  "en": [
+   "good day",
+   "hello"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Goddag, hvordan kan jeg hjælpe dig?",
+  "exampleEn": "Good day, how can I help you?",
+  "freqRank": 387
+ },
+ {
+  "id": "da-0388",
+  "da": "hospital",
+  "en": [
+   "hospital"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun arbejder på et hospital.",
+  "exampleEn": "She works at a hospital.",
+  "freqRank": 388
+ },
+ {
+  "id": "da-0389",
+  "da": "dejlig",
+  "en": [
+   "lovely",
+   "wonderful",
+   "nice"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er dejligt vejr i dag.",
+  "exampleEn": "It is lovely weather today.",
+  "freqRank": 389
+ },
+ {
+  "id": "da-0390",
+  "da": "starte",
+  "en": [
+   "start"
+  ],
+  "pos": "verb",
+  "exampleDa": "Bilen vil ikke starte i dag.",
+  "exampleEn": "The car will not start today.",
+  "freqRank": 390
+ },
+ {
+  "id": "da-0391",
+  "da": "godmorgen",
+  "en": [
+   "good morning"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Godmorgen, har du sovet godt?",
+  "exampleEn": "Good morning, did you sleep well?",
+  "freqRank": 391
+ },
+ {
+  "id": "da-0392",
+  "da": "hotel",
+  "en": [
+   "hotel"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi bor på et billigt hotel.",
+  "exampleEn": "We are staying at a cheap hotel.",
+  "freqRank": 392
+ },
+ {
+  "id": "da-0393",
+  "da": "restaurant",
+  "en": [
+   "restaurant"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "De spiser på en god restaurant.",
+  "exampleEn": "They are eating at a good restaurant.",
+  "freqRank": 393
+ },
+ {
+  "id": "da-0394",
+  "da": "godnat",
+  "en": [
+   "good night",
+   "goodnight"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Godnat, sov godt, min ven.",
+  "exampleEn": "Good night, sleep well, my friend.",
+  "freqRank": 394
+ },
+ {
+  "id": "da-0395",
+  "da": "slutte",
+  "en": [
+   "end",
+   "finish"
+  ],
+  "pos": "verb",
+  "exampleDa": "Festen slutter ved midnat.",
+  "exampleEn": "The party ends at midnight.",
+  "freqRank": 395
+ },
+ {
+  "id": "da-0396",
+  "da": "færdig",
+  "en": [
+   "finished",
+   "done",
+   "ready"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er færdig med mit arbejde.",
+  "exampleEn": "I am done with my work.",
+  "freqRank": 396
+ },
+ {
+  "id": "da-0397",
+  "da": "park",
+  "en": [
+   "park"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi mødes i parken klokken tre.",
+  "exampleEn": "We meet in the park at three o'clock.",
+  "freqRank": 397
+ },
+ {
+  "id": "da-0398",
+  "da": "skål",
+  "en": [
+   "cheers"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Skål og tillykke med fødselsdagen!",
+  "exampleEn": "Cheers and happy birthday!",
+  "freqRank": 398
+ },
+ {
+  "id": "da-0399",
+  "da": "politi",
+  "en": [
+   "police"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Politiet hjælper folk i byen.",
+  "exampleEn": "The police help people in the city.",
+  "freqRank": 399
+ },
+ {
+  "id": "da-0400",
+  "da": "stoppe",
+  "en": [
+   "stop"
+  ],
+  "pos": "verb",
+  "exampleDa": "Bussen stopper ved skolen.",
+  "exampleEn": "The bus stops at the school.",
+  "freqRank": 400
+ },
+ {
+  "id": "da-0401",
+  "da": "av",
+  "en": [
+   "ouch",
+   "ow"
+  ],
+  "pos": "interjection",
+  "exampleDa": "Av, jeg slog min finger!",
+  "exampleEn": "Ouch, I hit my finger!",
+  "freqRank": 401
+ },
+ {
+  "id": "da-0402",
+  "da": "kold",
+  "en": [
+   "cold"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vandet i søen er meget koldt.",
+  "exampleEn": "The water in the lake is very cold.",
+  "freqRank": 402
+ },
+ {
+  "id": "da-0403",
+  "da": "samfund",
+  "en": [
+   "society",
+   "community"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Alle er en del af samfundet.",
+  "exampleEn": "Everyone is part of society.",
+  "freqRank": 403
+ },
+ {
+  "id": "da-0404",
+  "da": "fortsætte",
+  "en": [
+   "continue",
+   "go on"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi fortsætter arbejdet efter frokost.",
+  "exampleEn": "We continue the work after lunch.",
+  "freqRank": 404
+ },
+ {
+  "id": "da-0405",
+  "da": "grund",
+  "en": [
+   "reason",
+   "ground",
+   "cause"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er en god grund til det.",
+  "exampleEn": "There is a good reason for it.",
+  "freqRank": 405
+ },
+ {
+  "id": "da-0406",
+  "da": "første",
+  "en": [
+   "first"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Det er min første dag på arbejdet.",
+  "exampleEn": "It is my first day at work.",
+  "freqRank": 406
+ },
+ {
+  "id": "da-0407",
+  "da": "måde",
+  "en": [
+   "way",
+   "manner"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kan gøre det på en anden måde.",
+  "exampleEn": "We can do it in another way.",
+  "freqRank": 407
+ },
+ {
+  "id": "da-0408",
+  "da": "varm",
+  "en": [
+   "warm",
+   "hot"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Suppen er stadig varm.",
+  "exampleEn": "The soup is still warm.",
+  "freqRank": 408
+ },
+ {
+  "id": "da-0409",
+  "da": "anden",
+  "en": [
+   "second",
+   "other"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Han bor på anden sal.",
+  "exampleEn": "He lives on the second floor.",
+  "freqRank": 409
+ },
+ {
+  "id": "da-0410",
+  "da": "burde",
+  "en": [
+   "ought to",
+   "should"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du burde gå i seng nu.",
+  "exampleEn": "You ought to go to bed now.",
+  "freqRank": 410
+ },
+ {
+  "id": "da-0411",
+  "da": "hjælp",
+  "en": [
+   "help",
+   "aid"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tak for din hjælp i dag.",
+  "exampleEn": "Thanks for your help today.",
+  "freqRank": 411
+ },
+ {
+  "id": "da-0412",
+  "da": "tredje",
+  "en": [
+   "third"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Det er tredje gang, jeg ringer.",
+  "exampleEn": "It is the third time I am calling.",
+  "freqRank": 412
+ },
+ {
+  "id": "da-0413",
+  "da": "hurtig",
+  "en": [
+   "fast",
+   "quick"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han har en hurtig bil.",
+  "exampleEn": "He has a fast car.",
+  "freqRank": 413
+ },
+ {
+  "id": "da-0414",
+  "da": "turde",
+  "en": [
+   "dare"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg tør ikke svømme i havet.",
+  "exampleEn": "I do not dare to swim in the sea.",
+  "freqRank": 414
+ },
+ {
+  "id": "da-0415",
+  "da": "tyve",
+  "en": [
+   "twenty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Bogen koster tyve kroner.",
+  "exampleEn": "The book costs twenty kroner.",
+  "freqRank": 415
+ },
+ {
+  "id": "da-0416",
+  "da": "svar",
+  "en": [
+   "answer",
+   "reply",
+   "response"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg venter stadig på et svar.",
+  "exampleEn": "I am still waiting for an answer.",
+  "freqRank": 416
+ },
+ {
+  "id": "da-0417",
+  "da": "nå",
+  "en": [
+   "reach",
+   "make it",
+   "catch"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi når ikke toget.",
+  "exampleEn": "We will not make the train.",
+  "freqRank": 417
+ },
+ {
+  "id": "da-0418",
+  "da": "hundrede",
+  "en": [
+   "hundred",
+   "one hundred"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Jakken kostede hundrede kroner.",
+  "exampleEn": "The jacket cost a hundred kroner.",
+  "freqRank": 418
+ },
+ {
+  "id": "da-0419",
+  "da": "langsom",
+  "en": [
+   "slow"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Bussen er langsom om morgenen.",
+  "exampleEn": "The bus is slow in the morning.",
+  "freqRank": 419
+ },
+ {
+  "id": "da-0420",
+  "da": "stemme",
+  "en": [
+   "voice",
+   "vote"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en smuk stemme.",
+  "exampleEn": "She has a beautiful voice.",
+  "freqRank": 420
+ },
+ {
+  "id": "da-0421",
+  "da": "sag",
+  "en": [
+   "case",
+   "matter",
+   "cause"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Det er en vigtig sag for os.",
+  "exampleEn": "It is an important matter for us.",
+  "freqRank": 421
+ },
+ {
+  "id": "da-0422",
+  "da": "slå",
+  "en": [
+   "hit",
+   "beat",
+   "strike"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han slår bolden hårdt.",
+  "exampleEn": "He hits the ball hard.",
+  "freqRank": 422
+ },
+ {
+  "id": "da-0423",
+  "da": "tusind",
+  "en": [
+   "thousand",
+   "one thousand"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Der bor tusind mennesker i byen.",
+  "exampleEn": "A thousand people live in the town.",
+  "freqRank": 423
+ },
+ {
+  "id": "da-0424",
+  "da": "billede",
+  "en": [
+   "picture",
+   "image",
+   "photo"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg tager et billede af dig.",
+  "exampleEn": "I am taking a picture of you.",
+  "freqRank": 424
+ },
+ {
+  "id": "da-0425",
+  "da": "billig",
+  "en": [
+   "cheap",
+   "inexpensive"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kaffen er billig her.",
+  "exampleEn": "The coffee is cheap here.",
+  "freqRank": 425
+ },
+ {
+  "id": "da-0426",
+  "da": "tredive",
+  "en": [
+   "thirty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Min bror er tredive år gammel.",
+  "exampleEn": "My brother is thirty years old.",
+  "freqRank": 426
+ },
+ {
+  "id": "da-0427",
+  "da": "bære",
+  "en": [
+   "carry",
+   "wear"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du bære min kuffert?",
+  "exampleEn": "Can you carry my suitcase?",
+  "freqRank": 427
+ },
+ {
+  "id": "da-0428",
+  "da": "historie",
+  "en": [
+   "story",
+   "history"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Far læser en historie for børnene.",
+  "exampleEn": "Dad reads a story to the children.",
+  "freqRank": 428
+ },
+ {
+  "id": "da-0429",
+  "da": "fyrre",
+  "en": [
+   "forty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Der er fyrre elever på skolen.",
+  "exampleEn": "There are forty students at the school.",
+  "freqRank": 429
+ },
+ {
+  "id": "da-0430",
+  "da": "plan",
+  "en": [
+   "plan"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Har du en plan for i morgen?",
+  "exampleEn": "Do you have a plan for tomorrow?",
+  "freqRank": 430
+ },
+ {
+  "id": "da-0431",
+  "da": "trække",
+  "en": [
+   "pull",
+   "draw"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hesten trækker den tunge vogn.",
+  "exampleEn": "The horse pulls the heavy cart.",
+  "freqRank": 431
+ },
+ {
+  "id": "da-0432",
+  "da": "halvtreds",
+  "en": [
+   "fifty"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Min mor fylder halvtreds i maj.",
+  "exampleEn": "My mother turns fifty in May.",
+  "freqRank": 432
+ },
+ {
+  "id": "da-0433",
+  "da": "gratis",
+  "en": [
+   "free"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Museet er gratis om søndagen.",
+  "exampleEn": "The museum is free on Sundays.",
+  "freqRank": 433
+ },
+ {
+  "id": "da-0434",
+  "da": "kaste",
+  "en": [
+   "throw"
+  ],
+  "pos": "verb",
+  "exampleDa": "Drengen kaster bolden til hunden.",
+  "exampleEn": "The boy throws the ball to the dog.",
+  "freqRank": 434
+ },
+ {
+  "id": "da-0435",
+  "da": "nul",
+  "en": [
+   "zero"
+  ],
+  "pos": "numeral",
+  "exampleDa": "Temperaturen er nul grader i dag.",
+  "exampleEn": "The temperature is zero degrees today.",
+  "freqRank": 435
+ },
+ {
+  "id": "da-0436",
+  "da": "nummer",
+  "en": [
+   "number"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Må jeg få dit nummer?",
+  "exampleEn": "May I have your number?",
+  "freqRank": 436
+ },
+ {
+  "id": "da-0437",
+  "da": "valg",
+  "en": [
+   "choice",
+   "election"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det var et godt valg.",
+  "exampleEn": "It was a good choice.",
+  "freqRank": 437
+ },
+ {
+  "id": "da-0438",
+  "da": "gribe",
+  "en": [
+   "catch",
+   "grab"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun griber bolden med én hånd.",
+  "exampleEn": "She catches the ball with one hand.",
+  "freqRank": 438
+ },
+ {
+  "id": "da-0439",
+  "da": "træt",
+  "en": [
+   "tired"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er træt efter arbejde.",
+  "exampleEn": "I am tired after work.",
+  "freqRank": 439
+ },
+ {
+  "id": "da-0440",
+  "da": "fejl",
+  "en": [
+   "mistake",
+   "error",
+   "fault"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg lavede en lille fejl.",
+  "exampleEn": "I made a small mistake.",
+  "freqRank": 440
+ },
+ {
+  "id": "da-0441",
+  "da": "lyst",
+  "en": [
+   "desire",
+   "urge",
+   "inclination"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har lyst til en kop kaffe.",
+  "exampleEn": "I feel like a cup of coffee.",
+  "freqRank": 441
+ },
+ {
+  "id": "da-0442",
+  "da": "springe",
+  "en": [
+   "jump",
+   "leap"
+  ],
+  "pos": "verb",
+  "exampleDa": "Katten springer op på bordet.",
+  "exampleEn": "The cat jumps up on the table.",
+  "freqRank": 442
+ },
+ {
+  "id": "da-0443",
+  "da": "tanke",
+  "en": [
+   "thought",
+   "idea"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Det var en god tanke.",
+  "exampleEn": "That was a good thought.",
+  "freqRank": 443
+ },
+ {
+  "id": "da-0444",
+  "da": "sjov",
+  "en": [
+   "fun",
+   "funny"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Filmen var rigtig sjov.",
+  "exampleEn": "The film was really funny.",
+  "freqRank": 444
+ },
+ {
+  "id": "da-0445",
+  "da": "idé",
+  "en": [
+   "idea"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har altid en god idé.",
+  "exampleEn": "She always has a good idea.",
+  "freqRank": 445
+ },
+ {
+  "id": "da-0446",
+  "da": "flyve",
+  "en": [
+   "fly"
+  ],
+  "pos": "verb",
+  "exampleDa": "Fuglene flyver mod syd om efteråret.",
+  "exampleEn": "The birds fly south in autumn.",
+  "freqRank": 446
+ },
+ {
+  "id": "da-0447",
+  "da": "drøm",
+  "en": [
+   "dream"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg havde en mærkelig drøm i nat.",
+  "exampleEn": "I had a strange dream last night.",
+  "freqRank": 447
+ },
+ {
+  "id": "da-0448",
+  "da": "kedelig",
+  "en": [
+   "boring",
+   "dull"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Bogen er lidt kedelig.",
+  "exampleEn": "The book is a bit boring.",
+  "freqRank": 448
+ },
+ {
+  "id": "da-0449",
+  "da": "svømme",
+  "en": [
+   "swim"
+  ],
+  "pos": "verb",
+  "exampleDa": "Børnene svømmer i søen om sommeren.",
+  "exampleEn": "The children swim in the lake in summer.",
+  "freqRank": 449
+ },
+ {
+  "id": "da-0450",
+  "da": "håb",
+  "en": [
+   "hope"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der er altid håb.",
+  "exampleEn": "There is always hope.",
+  "freqRank": 450
+ },
+ {
+  "id": "da-0451",
+  "da": "følelse",
+  "en": [
+   "feeling",
+   "emotion"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en god følelse i dag.",
+  "exampleEn": "I have a good feeling today.",
+  "freqRank": 451
+ },
+ {
+  "id": "da-0452",
+  "da": "hænge",
+  "en": [
+   "hang"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jakken hænger i skabet.",
+  "exampleEn": "The jacket is hanging in the wardrobe.",
+  "freqRank": 452
+ },
+ {
+  "id": "da-0453",
+  "da": "interessant",
+  "en": [
+   "interesting"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det var en interessant historie.",
+  "exampleEn": "It was an interesting story.",
+  "freqRank": 453
+ },
+ {
+  "id": "da-0454",
+  "da": "glæde",
+  "en": [
+   "joy",
+   "pleasure",
+   "happiness"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Børnene synger med stor glæde.",
+  "exampleEn": "The children sing with great joy.",
+  "freqRank": 454
+ },
+ {
+  "id": "da-0455",
+  "da": "kærlighed",
+  "en": [
+   "love"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kærlighed er vigtig i livet.",
+  "exampleEn": "Love is important in life.",
+  "freqRank": 455
+ },
+ {
+  "id": "da-0456",
+  "da": "vende",
+  "en": [
+   "turn",
+   "flip"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vend pandekagen efter to minutter.",
+  "exampleEn": "Turn the pancake after two minutes.",
+  "freqRank": 456
+ },
+ {
+  "id": "da-0457",
+  "da": "spændende",
+  "en": [
+   "exciting",
+   "thrilling"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kampen var meget spændende.",
+  "exampleEn": "The match was very exciting.",
+  "freqRank": 457
+ },
+ {
+  "id": "da-0458",
+  "da": "lykke",
+  "en": [
+   "happiness",
+   "luck"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Penge giver ikke altid lykke.",
+  "exampleEn": "Money does not always bring happiness.",
+  "freqRank": 458
+ },
+ {
+  "id": "da-0459",
+  "da": "fred",
+  "en": [
+   "peace"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Alle mennesker ønsker fred.",
+  "exampleEn": "All people want peace.",
+  "freqRank": 459
+ },
+ {
+  "id": "da-0460",
+  "da": "dreje",
+  "en": [
+   "turn"
+  ],
+  "pos": "verb",
+  "exampleDa": "Drej til højre ved kirken.",
+  "exampleEn": "Turn right at the church.",
+  "freqRank": 460
+ },
+ {
+  "id": "da-0461",
+  "da": "krig",
+  "en": [
+   "war"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Landet var i krig i mange år.",
+  "exampleEn": "The country was at war for many years.",
+  "freqRank": 461
+ },
+ {
+  "id": "da-0462",
+  "da": "mærkelig",
+  "en": [
+   "strange",
+   "weird",
+   "odd"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Der er en mærkelig lyd i huset.",
+  "exampleEn": "There is a strange sound in the house.",
+  "freqRank": 462
+ },
+ {
+  "id": "da-0463",
+  "da": "flytte",
+  "en": [
+   "move"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi flytter til en ny lejlighed.",
+  "exampleEn": "We are moving to a new flat.",
+  "freqRank": 463
+ },
+ {
+  "id": "da-0464",
+  "da": "sandhed",
+  "en": [
+   "truth"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Du skal altid sige sandheden.",
+  "exampleEn": "You must always tell the truth.",
+  "freqRank": 464
+ },
+ {
+  "id": "da-0465",
+  "da": "fantastisk",
+  "en": [
+   "fantastic",
+   "amazing",
+   "wonderful"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi havde en fantastisk ferie.",
+  "exampleEn": "We had a fantastic holiday.",
+  "freqRank": 465
+ },
+ {
+  "id": "da-0466",
+  "da": "ligne",
+  "en": [
+   "resemble",
+   "look like"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun ligner sin mor meget.",
+  "exampleEn": "She looks a lot like her mother.",
+  "freqRank": 466
+ },
+ {
+  "id": "da-0467",
+  "da": "viden",
+  "en": [
+   "knowledge"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har stor viden om planter.",
+  "exampleEn": "She has great knowledge about plants.",
+  "freqRank": 467
+ },
+ {
+  "id": "da-0468",
+  "da": "sprog",
+  "en": [
+   "language"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Dansk er et svært sprog.",
+  "exampleEn": "Danish is a difficult language.",
+  "freqRank": 468
+ },
+ {
+  "id": "da-0469",
+  "da": "forfærdelig",
+  "en": [
+   "terrible",
+   "awful"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vejret var forfærdeligt i går.",
+  "exampleEn": "The weather was terrible yesterday.",
+  "freqRank": 469
+ },
+ {
+  "id": "da-0470",
+  "da": "mangle",
+  "en": [
+   "lack",
+   "be missing",
+   "miss"
+  ],
+  "pos": "verb",
+  "exampleDa": "Der mangler en stol ved bordet.",
+  "exampleEn": "There is a chair missing at the table.",
+  "freqRank": 470
+ },
+ {
+  "id": "da-0471",
+  "da": "besked",
+  "en": [
+   "message"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg sender dig en besked senere.",
+  "exampleEn": "I will send you a message later.",
+  "freqRank": 471
+ },
+ {
+  "id": "da-0472",
+  "da": "nyhed",
+  "en": [
+   "news"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en god nyhed til dig.",
+  "exampleEn": "I have good news for you.",
+  "freqRank": 472
+ },
+ {
+  "id": "da-0473",
+  "da": "virke",
+  "en": [
+   "work",
+   "seem",
+   "function"
+  ],
+  "pos": "verb",
+  "exampleDa": "Min computer virker ikke i dag.",
+  "exampleEn": "My computer is not working today.",
+  "freqRank": 473
+ },
+ {
+  "id": "da-0474",
+  "da": "avis",
+  "en": [
+   "newspaper",
+   "paper"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min far læser avisen hver morgen.",
+  "exampleEn": "My father reads the newspaper every morning.",
+  "freqRank": 474
+ },
+ {
+  "id": "da-0475",
+  "da": "perfekt",
+  "en": [
+   "perfect"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Dagen var helt perfekt.",
+  "exampleEn": "The day was absolutely perfect.",
+  "freqRank": 475
+ },
+ {
+  "id": "da-0476",
+  "da": "brev",
+  "en": [
+   "letter"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg skriver et brev til min ven.",
+  "exampleEn": "I am writing a letter to my friend.",
+  "freqRank": 476
+ },
+ {
+  "id": "da-0477",
+  "da": "gælde",
+  "en": [
+   "apply",
+   "be valid",
+   "count"
+  ],
+  "pos": "verb",
+  "exampleDa": "Billetten gælder hele dagen.",
+  "exampleEn": "The ticket is valid all day.",
+  "freqRank": 477
+ },
+ {
+  "id": "da-0478",
+  "da": "papir",
+  "en": [
+   "paper"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Har du et stykke papir?",
+  "exampleEn": "Do you have a piece of paper?",
+  "freqRank": 478
+ },
+ {
+  "id": "da-0479",
+  "da": "forkert",
+  "en": [
+   "wrong",
+   "incorrect"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi tog den forkerte bus.",
+  "exampleEn": "We took the wrong bus.",
+  "freqRank": 479
+ },
+ {
+  "id": "da-0480",
+  "da": "tekst",
+  "en": [
+   "text"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Læs teksten på side ti.",
+  "exampleEn": "Read the text on page ten.",
+  "freqRank": 480
+ },
+ {
+  "id": "da-0481",
+  "da": "klare",
+  "en": [
+   "manage",
+   "handle",
+   "cope"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun klarer opgaven helt selv.",
+  "exampleEn": "She manages the task all by herself.",
+  "freqRank": 481
+ },
+ {
+  "id": "da-0482",
+  "da": "eksempel",
+  "en": [
+   "example"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Kan du give mig et eksempel?",
+  "exampleEn": "Can you give me an example?",
+  "freqRank": 482
+ },
+ {
+  "id": "da-0483",
+  "da": "ægte",
+  "en": [
+   "real",
+   "genuine"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Ringen er lavet af ægte guld.",
+  "exampleEn": "The ring is made of real gold.",
+  "freqRank": 483
+ },
+ {
+  "id": "da-0484",
+  "da": "passe",
+  "en": [
+   "fit",
+   "suit",
+   "look after"
+  ],
+  "pos": "verb",
+  "exampleDa": "Trøjen passer mig perfekt.",
+  "exampleEn": "The sweater fits me perfectly.",
+  "freqRank": 484
+ },
+ {
+  "id": "da-0485",
+  "da": "tidlig",
+  "en": [
+   "early"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi spiser en tidlig middag i dag.",
+  "exampleEn": "We are having an early dinner today.",
+  "freqRank": 485
+ },
+ {
+  "id": "da-0486",
+  "da": "ændre",
+  "en": [
+   "change",
+   "alter"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi ændrer planen i morgen.",
+  "exampleEn": "We are changing the plan tomorrow.",
+  "freqRank": 486
+ },
+ {
+  "id": "da-0487",
+  "da": "ringe",
+  "en": [
+   "call",
+   "phone",
+   "ring"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg ringer til dig i aften.",
+  "exampleEn": "I will call you tonight.",
+  "freqRank": 487
+ },
+ {
+  "id": "da-0488",
+  "da": "sen",
+  "en": [
+   "late"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi fik en sen morgenmad.",
+  "exampleEn": "We had a late breakfast.",
+  "freqRank": 488
+ },
+ {
+  "id": "da-0489",
+  "da": "besøge",
+  "en": [
+   "visit"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi besøger mormor på søndag.",
+  "exampleEn": "We visit grandma on Sunday.",
+  "freqRank": 489
+ },
+ {
+  "id": "da-0490",
+  "da": "blå",
+  "en": [
+   "blue"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Himlen er blå i dag.",
+  "exampleEn": "The sky is blue today.",
+  "freqRank": 490
+ },
+ {
+  "id": "da-0491",
+  "da": "nabo",
+  "en": [
+   "neighbor",
+   "neighbour"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vores nabo har en stor hund.",
+  "exampleEn": "Our neighbor has a big dog.",
+  "freqRank": 491
+ },
+ {
+  "id": "da-0492",
+  "da": "smile",
+  "en": [
+   "smile"
+  ],
+  "pos": "verb",
+  "exampleDa": "Babyen smiler til sin far.",
+  "exampleEn": "The baby smiles at its dad.",
+  "freqRank": 492
+ },
+ {
+  "id": "da-0493",
+  "da": "gæst",
+  "en": [
+   "guest",
+   "visitor"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi får gæster på lørdag.",
+  "exampleEn": "We are having guests on Saturday.",
+  "freqRank": 493
+ },
+ {
+  "id": "da-0494",
+  "da": "grøn",
+  "en": [
+   "green"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Græsset er grønt om sommeren.",
+  "exampleEn": "The grass is green in the summer.",
+  "freqRank": 494
+ },
+ {
+  "id": "da-0495",
+  "da": "grine",
+  "en": [
+   "laugh"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi griner meget sammen.",
+  "exampleEn": "We laugh a lot together.",
+  "freqRank": 495
+ },
+ {
+  "id": "da-0496",
+  "da": "græde",
+  "en": [
+   "cry",
+   "weep"
+  ],
+  "pos": "verb",
+  "exampleDa": "Barnet græder, fordi det er træt.",
+  "exampleEn": "The child is crying because it is tired.",
+  "freqRank": 496
+ },
+ {
+  "id": "da-0497",
+  "da": "gul",
+  "en": [
+   "yellow"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun har en gul regnjakke.",
+  "exampleEn": "She has a yellow raincoat.",
+  "freqRank": 497
+ },
+ {
+  "id": "da-0498",
+  "da": "synge",
+  "en": [
+   "sing"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun synger en sang for os.",
+  "exampleEn": "She sings a song for us.",
+  "freqRank": 498
+ },
+ {
+  "id": "da-0499",
+  "da": "grå",
+  "en": [
+   "grey",
+   "gray"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Himlen er grå i november.",
+  "exampleEn": "The sky is grey in November.",
+  "freqRank": 499
+ },
+ {
+  "id": "da-0500",
+  "da": "danse",
+  "en": [
+   "dance"
+  ],
+  "pos": "verb",
+  "exampleDa": "De danser hele natten.",
+  "exampleEn": "They dance all night.",
+  "freqRank": 500
+ },
+ {
+  "id": "da-0501",
+  "da": "kæreste",
+  "en": [
+   "boyfriend",
+   "girlfriend",
+   "partner"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han bor sammen med sin kæreste.",
+  "exampleEn": "He lives together with his girlfriend.",
+  "freqRank": 501
+ },
+ {
+  "id": "da-0502",
+  "da": "brun",
+  "en": [
+   "brown"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han har brune sko på.",
+  "exampleEn": "He is wearing brown shoes.",
+  "freqRank": 502
+ },
+ {
+  "id": "da-0503",
+  "da": "kone",
+  "en": [
+   "wife"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hans kone arbejder på et hospital.",
+  "exampleEn": "His wife works at a hospital.",
+  "freqRank": 503
+ },
+ {
+  "id": "da-0504",
+  "da": "lytte",
+  "en": [
+   "listen"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg lytter til musik i bussen.",
+  "exampleEn": "I listen to music on the bus.",
+  "freqRank": 504
+ },
+ {
+  "id": "da-0505",
+  "da": "gruppe",
+  "en": [
+   "group"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi arbejder sammen i en lille gruppe.",
+  "exampleEn": "We work together in a small group.",
+  "freqRank": 505
+ },
+ {
+  "id": "da-0506",
+  "da": "lyserød",
+  "en": [
+   "pink"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Pigen har en lyserød hue.",
+  "exampleEn": "The girl has a pink hat.",
+  "freqRank": 506
+ },
+ {
+  "id": "da-0507",
+  "da": "hold",
+  "en": [
+   "team"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vores hold vandt kampen i går.",
+  "exampleEn": "Our team won the match yesterday.",
+  "freqRank": 507
+ },
+ {
+  "id": "da-0508",
+  "da": "kigge",
+  "en": [
+   "look",
+   "peek"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kig på det smukke vejr!",
+  "exampleEn": "Look at the beautiful weather!",
+  "freqRank": 508
+ },
+ {
+  "id": "da-0509",
+  "da": "lilla",
+  "en": [
+   "purple"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Blomsterne i haven er lilla.",
+  "exampleEn": "The flowers in the garden are purple.",
+  "freqRank": 509
+ },
+ {
+  "id": "da-0510",
+  "da": "smage",
+  "en": [
+   "taste"
+  ],
+  "pos": "verb",
+  "exampleDa": "Suppen smager rigtig godt.",
+  "exampleEn": "The soup tastes really good.",
+  "freqRank": 510
+ },
+ {
+  "id": "da-0511",
+  "da": "lugte",
+  "en": [
+   "smell"
+  ],
+  "pos": "verb",
+  "exampleDa": "Der lugter godt i køkkenet.",
+  "exampleEn": "It smells good in the kitchen.",
+  "freqRank": 511
+ },
+ {
+  "id": "da-0512",
+  "da": "orange",
+  "en": [
+   "orange"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun drikker af en orange kop.",
+  "exampleEn": "She is drinking from an orange cup.",
+  "freqRank": 512
+ },
+ {
+  "id": "da-0513",
+  "da": "røre",
+  "en": [
+   "touch",
+   "stir",
+   "move"
+  ],
+  "pos": "verb",
+  "exampleDa": "Rør ikke ved den varme ovn!",
+  "exampleEn": "Do not touch the hot oven!",
+  "freqRank": 513
+ },
+ {
+  "id": "da-0514",
+  "da": "marked",
+  "en": [
+   "market"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi køber frugt på markedet.",
+  "exampleEn": "We buy fruit at the market.",
+  "freqRank": 514
+ },
+ {
+  "id": "da-0515",
+  "da": "lys",
+  "en": [
+   "light",
+   "bright"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Værelset er stort og lyst.",
+  "exampleEn": "The room is big and bright.",
+  "freqRank": 515
+ },
+ {
+  "id": "da-0516",
+  "da": "tælle",
+  "en": [
+   "count"
+  ],
+  "pos": "verb",
+  "exampleDa": "Barnet kan tælle til ti.",
+  "exampleEn": "The child can count to ten.",
+  "freqRank": 516
+ },
+ {
+  "id": "da-0517",
+  "da": "mørk",
+  "en": [
+   "dark"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det bliver mørkt tidligt om vinteren.",
+  "exampleEn": "It gets dark early in the winter.",
+  "freqRank": 517
+ },
+ {
+  "id": "da-0518",
+  "da": "koste",
+  "en": [
+   "cost"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hvad koster de røde æbler?",
+  "exampleEn": "How much do the red apples cost?",
+  "freqRank": 518
+ },
+ {
+  "id": "da-0519",
+  "da": "bibliotek",
+  "en": [
+   "library"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg låner bøger på biblioteket.",
+  "exampleEn": "I borrow books at the library.",
+  "freqRank": 519
+ },
+ {
+  "id": "da-0520",
+  "da": "museum",
+  "en": [
+   "museum"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Museet er lukket om mandagen.",
+  "exampleEn": "The museum is closed on Mondays.",
+  "freqRank": 520
+ },
+ {
+  "id": "da-0521",
+  "da": "smuk",
+  "en": [
+   "beautiful"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Udsigten over havet er smuk.",
+  "exampleEn": "The view over the sea is beautiful.",
+  "freqRank": 521
+ },
+ {
+  "id": "da-0522",
+  "da": "tegne",
+  "en": [
+   "draw"
+  ],
+  "pos": "verb",
+  "exampleDa": "Pigen tegner et stort hus.",
+  "exampleEn": "The girl draws a big house.",
+  "freqRank": 522
+ },
+ {
+  "id": "da-0523",
+  "da": "male",
+  "en": [
+   "paint"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi maler væggen hvid.",
+  "exampleEn": "We are painting the wall white.",
+  "freqRank": 523
+ },
+ {
+  "id": "da-0524",
+  "da": "pæn",
+  "en": [
+   "nice",
+   "pretty",
+   "neat"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er en pæn skjorte.",
+  "exampleEn": "That is a nice shirt.",
+  "freqRank": 524
+ },
+ {
+  "id": "da-0525",
+  "da": "vaske",
+  "en": [
+   "wash"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg vasker hænder før maden.",
+  "exampleEn": "I wash my hands before the meal.",
+  "freqRank": 525
+ },
+ {
+  "id": "da-0526",
+  "da": "lufthavn",
+  "en": [
+   "airport"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi kører til lufthavnen klokken seks.",
+  "exampleEn": "We drive to the airport at six o'clock.",
+  "freqRank": 526
+ },
+ {
+  "id": "da-0527",
+  "da": "grim",
+  "en": [
+   "ugly"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Huset er gammelt og grimt.",
+  "exampleEn": "The house is old and ugly.",
+  "freqRank": 527
+ },
+ {
+  "id": "da-0528",
+  "da": "hente",
+  "en": [
+   "fetch",
+   "pick up",
+   "get"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du hente børnene i skolen?",
+  "exampleEn": "Can you pick up the children from school?",
+  "freqRank": 528
+ },
+ {
+  "id": "da-0529",
+  "da": "bro",
+  "en": [
+   "bridge"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi går over den gamle bro.",
+  "exampleEn": "We walk across the old bridge.",
+  "freqRank": 529
+ },
+ {
+  "id": "da-0530",
+  "da": "sød",
+  "en": [
+   "sweet",
+   "cute",
+   "kind"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kagen er meget sød.",
+  "exampleEn": "The cake is very sweet.",
+  "freqRank": 530
+ },
+ {
+  "id": "da-0531",
+  "da": "bygning",
+  "en": [
+   "building"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Skolen er en gammel bygning.",
+  "exampleEn": "The school is an old building.",
+  "freqRank": 531
+ },
+ {
+  "id": "da-0532",
+  "da": "sælge",
+  "en": [
+   "sell"
+  ],
+  "pos": "verb",
+  "exampleDa": "De sælger frisk frugt på torvet.",
+  "exampleEn": "They sell fresh fruit at the market.",
+  "freqRank": 532
+ },
+ {
+  "id": "da-0533",
+  "da": "lækker",
+  "en": [
+   "delicious",
+   "tasty"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Middagen var virkelig lækker.",
+  "exampleEn": "The dinner was really delicious.",
+  "freqRank": 533
+ },
+ {
+  "id": "da-0534",
+  "da": "låne",
+  "en": [
+   "borrow",
+   "lend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Må jeg låne en blyant?",
+  "exampleEn": "May I borrow a pencil?",
+  "freqRank": 534
+ },
+ {
+  "id": "da-0535",
+  "da": "stue",
+  "en": [
+   "living room"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi ser fjernsyn i stuen.",
+  "exampleEn": "We watch TV in the living room.",
+  "freqRank": 535
+ },
+ {
+  "id": "da-0536",
+  "da": "gemme",
+  "en": [
+   "hide",
+   "save"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hunden gemmer sit ben i haven.",
+  "exampleEn": "The dog hides its bone in the garden.",
+  "freqRank": 536
+ },
+ {
+  "id": "da-0537",
+  "da": "frisk",
+  "en": [
+   "fresh"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi køber friskt brød hver morgen.",
+  "exampleEn": "We buy fresh bread every morning.",
+  "freqRank": 537
+ },
+ {
+  "id": "da-0538",
+  "da": "badeværelse",
+  "en": [
+   "bathroom"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Badeværelset er ved siden af køkkenet.",
+  "exampleEn": "The bathroom is next to the kitchen.",
+  "freqRank": 538
+ },
+ {
+  "id": "da-0539",
+  "da": "smide",
+  "en": [
+   "throw",
+   "toss",
+   "throw away"
+  ],
+  "pos": "verb",
+  "exampleDa": "Smid ikke papir på gaden.",
+  "exampleEn": "Do not throw paper on the street.",
+  "freqRank": 539
+ },
+ {
+  "id": "da-0540",
+  "da": "sund",
+  "en": [
+   "healthy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det er sundt at spise frugt.",
+  "exampleEn": "It is healthy to eat fruit.",
+  "freqRank": 540
+ },
+ {
+  "id": "da-0541",
+  "da": "opleve",
+  "en": [
+   "experience"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi oplever mange nye ting på rejsen.",
+  "exampleEn": "We experience many new things on the trip.",
+  "freqRank": 541
+ },
+ {
+  "id": "da-0542",
+  "da": "syg",
+  "en": [
+   "sick",
+   "ill"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun er syg og bliver hjemme i dag.",
+  "exampleEn": "She is ill and staying home today.",
+  "freqRank": 542
+ },
+ {
+  "id": "da-0543",
+  "da": "nyde",
+  "en": [
+   "enjoy"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg nyder min kaffe i solen.",
+  "exampleEn": "I enjoy my coffee in the sun.",
+  "freqRank": 543
+ },
+ {
+  "id": "da-0544",
+  "da": "væg",
+  "en": [
+   "wall"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der hænger et billede på væggen.",
+  "exampleEn": "A picture hangs on the wall.",
+  "freqRank": 544
+ },
+ {
+  "id": "da-0545",
+  "da": "gulv",
+  "en": [
+   "floor"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der ligger legetøj på gulvet.",
+  "exampleEn": "There are toys on the floor.",
+  "freqRank": 545
+ },
+ {
+  "id": "da-0546",
+  "da": "behøve",
+  "en": [
+   "need"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du behøver ikke at komme tidligt.",
+  "exampleEn": "You do not need to come early.",
+  "freqRank": 546
+ },
+ {
+  "id": "da-0547",
+  "da": "rask",
+  "en": [
+   "well",
+   "healthy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er rask igen nu.",
+  "exampleEn": "He is well again now.",
+  "freqRank": 547
+ },
+ {
+  "id": "da-0548",
+  "da": "tag",
+  "en": [
+   "roof"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der ligger sne på taget.",
+  "exampleEn": "There is snow on the roof.",
+  "freqRank": 548
+ },
+ {
+  "id": "da-0549",
+  "da": "trappe",
+  "en": [
+   "staircase",
+   "stairs"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi går op ad trappen.",
+  "exampleEn": "We walk up the stairs.",
+  "freqRank": 549
+ },
+ {
+  "id": "da-0550",
+  "da": "savne",
+  "en": [
+   "miss"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg savner mine venner derhjemme.",
+  "exampleEn": "I miss my friends back home.",
+  "freqRank": 550
+ },
+ {
+  "id": "da-0551",
+  "da": "sulten",
+  "en": [
+   "hungry"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er sulten efter skole.",
+  "exampleEn": "I am hungry after school.",
+  "freqRank": 551
+ },
+ {
+  "id": "da-0552",
+  "da": "forsøge",
+  "en": [
+   "try",
+   "attempt"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han forsøger at åbne døren.",
+  "exampleEn": "He tries to open the door.",
+  "freqRank": 552
+ },
+ {
+  "id": "da-0553",
+  "da": "tørstig",
+  "en": [
+   "thirsty"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er tørstig efter løbeturen.",
+  "exampleEn": "He is thirsty after the run.",
+  "freqRank": 553
+ },
+ {
+  "id": "da-0554",
+  "da": "spejl",
+  "en": [
+   "mirror"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun ser sig i spejlet.",
+  "exampleEn": "She looks at herself in the mirror.",
+  "freqRank": 554
+ },
+ {
+  "id": "da-0555",
+  "da": "undgå",
+  "en": [
+   "avoid"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi undgår den travle vej.",
+  "exampleEn": "We avoid the busy road.",
+  "freqRank": 555
+ },
+ {
+  "id": "da-0556",
+  "da": "skab",
+  "en": [
+   "cupboard",
+   "closet",
+   "cabinet"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Kopperne står i skabet.",
+  "exampleEn": "The cups are in the cupboard.",
+  "freqRank": 556
+ },
+ {
+  "id": "da-0557",
+  "da": "sofa",
+  "en": [
+   "sofa",
+   "couch"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi sidder i sofaen og ser film.",
+  "exampleEn": "We sit on the sofa and watch films.",
+  "freqRank": 557
+ },
+ {
+  "id": "da-0558",
+  "da": "tung",
+  "en": [
+   "heavy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Kufferten er alt for tung.",
+  "exampleEn": "The suitcase is much too heavy.",
+  "freqRank": 558
+ },
+ {
+  "id": "da-0559",
+  "da": "opdage",
+  "en": [
+   "discover",
+   "notice"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun opdager en fejl i brevet.",
+  "exampleEn": "She discovers a mistake in the letter.",
+  "freqRank": 559
+ },
+ {
+  "id": "da-0560",
+  "da": "tæppe",
+  "en": [
+   "carpet",
+   "rug",
+   "blanket"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der ligger et blødt tæppe på gulvet.",
+  "exampleEn": "There is a soft carpet on the floor.",
+  "freqRank": 560
+ },
+ {
+  "id": "da-0561",
+  "da": "beslutte",
+  "en": [
+   "decide"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi beslutter os i morgen.",
+  "exampleEn": "We will decide tomorrow.",
+  "freqRank": 561
+ },
+ {
+  "id": "da-0562",
+  "da": "blød",
+  "en": [
+   "soft"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Sengen er dejlig blød.",
+  "exampleEn": "The bed is nice and soft.",
+  "freqRank": 562
+ },
+ {
+  "id": "da-0563",
+  "da": "taske",
+  "en": [
+   "bag",
+   "handbag"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min taske er meget tung.",
+  "exampleEn": "My bag is very heavy.",
+  "freqRank": 563
+ },
+ {
+  "id": "da-0564",
+  "da": "lomme",
+  "en": [
+   "pocket"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han har penge i lommen.",
+  "exampleEn": "He has money in his pocket.",
+  "freqRank": 564
+ },
+ {
+  "id": "da-0565",
+  "da": "bestille",
+  "en": [
+   "order",
+   "book"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg bestiller et bord til to.",
+  "exampleEn": "I book a table for two.",
+  "freqRank": 565
+ },
+ {
+  "id": "da-0566",
+  "da": "hård",
+  "en": [
+   "hard",
+   "tough"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Stolen er hård at sidde på.",
+  "exampleEn": "The chair is hard to sit on.",
+  "freqRank": 566
+ },
+ {
+  "id": "da-0567",
+  "da": "telefon",
+  "en": [
+   "phone",
+   "telephone"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min telefon er helt ny.",
+  "exampleEn": "My phone is brand new.",
+  "freqRank": 567
+ },
+ {
+  "id": "da-0568",
+  "da": "computer",
+  "en": [
+   "computer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg arbejder på min computer.",
+  "exampleEn": "I work on my computer.",
+  "freqRank": 568
+ },
+ {
+  "id": "da-0569",
+  "da": "tilbyde",
+  "en": [
+   "offer"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han tilbyder mig en kop te.",
+  "exampleEn": "He offers me a cup of tea.",
+  "freqRank": 569
+ },
+ {
+  "id": "da-0570",
+  "da": "maskine",
+  "en": [
+   "machine"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Maskinen laver kaffe på et minut.",
+  "exampleEn": "The machine makes coffee in one minute.",
+  "freqRank": 570
+ },
+ {
+  "id": "da-0571",
+  "da": "tyk",
+  "en": [
+   "thick",
+   "fat"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han læser en tyk bog.",
+  "exampleEn": "He is reading a thick book.",
+  "freqRank": 571
+ },
+ {
+  "id": "da-0572",
+  "da": "forlade",
+  "en": [
+   "leave"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi forlader huset klokken syv.",
+  "exampleEn": "We leave the house at seven o'clock.",
+  "freqRank": 572
+ },
+ {
+  "id": "da-0573",
+  "da": "tynd",
+  "en": [
+   "thin"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jakken er for tynd til vinteren.",
+  "exampleEn": "The jacket is too thin for winter.",
+  "freqRank": 573
+ },
+ {
+  "id": "da-0574",
+  "da": "bygge",
+  "en": [
+   "build"
+  ],
+  "pos": "verb",
+  "exampleDa": "De bygger et nyt hus ved søen.",
+  "exampleEn": "They are building a new house by the lake.",
+  "freqRank": 574
+ },
+ {
+  "id": "da-0575",
+  "da": "bred",
+  "en": [
+   "wide",
+   "broad"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Floden er bred her.",
+  "exampleEn": "The river is wide here.",
+  "freqRank": 575
+ },
+ {
+  "id": "da-0576",
+  "da": "drømme",
+  "en": [
+   "dream"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg drømmer om at bo ved havet.",
+  "exampleEn": "I dream of living by the sea.",
+  "freqRank": 576
+ },
+ {
+  "id": "da-0577",
+  "da": "skib",
+  "en": [
+   "ship"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det store skib sejler i dag.",
+  "exampleEn": "The big ship sails today.",
+  "freqRank": 577
+ },
+ {
+  "id": "da-0578",
+  "da": "båd",
+  "en": [
+   "boat"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi sejler i en lille båd.",
+  "exampleEn": "We sail in a small boat.",
+  "freqRank": 578
+ },
+ {
+  "id": "da-0579",
+  "da": "smal",
+  "en": [
+   "narrow"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Gaden er meget smal.",
+  "exampleEn": "The street is very narrow.",
+  "freqRank": 579
+ },
+ {
+  "id": "da-0580",
+  "da": "ferie",
+  "en": [
+   "holiday",
+   "vacation"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi holder ferie i juli.",
+  "exampleEn": "We take a holiday in July.",
+  "freqRank": 580
+ },
+ {
+  "id": "da-0581",
+  "da": "dyb",
+  "en": [
+   "deep"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Søen er dyb og kold.",
+  "exampleEn": "The lake is deep and cold.",
+  "freqRank": 581
+ },
+ {
+  "id": "da-0582",
+  "da": "skifte",
+  "en": [
+   "change",
+   "switch",
+   "shift"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg skal skifte tøj før festen.",
+  "exampleEn": "I have to change clothes before the party.",
+  "freqRank": 582
+ },
+ {
+  "id": "da-0583",
+  "da": "lav",
+  "en": [
+   "low"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Prisen er lav i dag.",
+  "exampleEn": "The price is low today.",
+  "freqRank": 583
+ },
+ {
+  "id": "da-0584",
+  "da": "rund",
+  "en": [
+   "round"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi sidder ved et rundt bord.",
+  "exampleEn": "We are sitting at a round table.",
+  "freqRank": 584
+ },
+ {
+  "id": "da-0585",
+  "da": "ren",
+  "en": [
+   "clean",
+   "pure"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Køkkenet er rent nu.",
+  "exampleEn": "The kitchen is clean now.",
+  "freqRank": 585
+ },
+ {
+  "id": "da-0586",
+  "da": "beskidt",
+  "en": [
+   "dirty"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Dine sko er meget beskidte.",
+  "exampleEn": "Your shoes are very dirty.",
+  "freqRank": 586
+ },
+ {
+  "id": "da-0587",
+  "da": "sommer",
+  "en": [
+   "summer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi svømmer meget om sommeren.",
+  "exampleEn": "We swim a lot in the summer.",
+  "freqRank": 587
+ },
+ {
+  "id": "da-0588",
+  "da": "vinter",
+  "en": [
+   "winter"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vinteren her er lang og kold.",
+  "exampleEn": "The winter here is long and cold.",
+  "freqRank": 588
+ },
+ {
+  "id": "da-0589",
+  "da": "våd",
+  "en": [
+   "wet"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Mit tøj er vådt efter regnen.",
+  "exampleEn": "My clothes are wet after the rain.",
+  "freqRank": 589
+ },
+ {
+  "id": "da-0590",
+  "da": "kræve",
+  "en": [
+   "require",
+   "demand"
+  ],
+  "pos": "verb",
+  "exampleDa": "Arbejdet kræver meget tid.",
+  "exampleEn": "The work requires a lot of time.",
+  "freqRank": 590
+ },
+ {
+  "id": "da-0591",
+  "da": "forår",
+  "en": [
+   "spring"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Blomsterne kommer om foråret.",
+  "exampleEn": "The flowers come in the spring.",
+  "freqRank": 591
+ },
+ {
+  "id": "da-0592",
+  "da": "efterår",
+  "en": [
+   "autumn",
+   "fall"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det regner meget om efteråret.",
+  "exampleEn": "It rains a lot in the autumn.",
+  "freqRank": 592
+ },
+ {
+  "id": "da-0593",
+  "da": "miste",
+  "en": [
+   "lose"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg vil ikke miste mine nøgler.",
+  "exampleEn": "I do not want to lose my keys.",
+  "freqRank": 593
+ },
+ {
+  "id": "da-0594",
+  "da": "tør",
+  "en": [
+   "dry"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Håndklædet er tørt igen.",
+  "exampleEn": "The towel is dry again.",
+  "freqRank": 594
+ },
+ {
+  "id": "da-0595",
+  "da": "tom",
+  "en": [
+   "empty"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Mælkekartonen er helt tom.",
+  "exampleEn": "The milk carton is completely empty.",
+  "freqRank": 595
+ },
+ {
+  "id": "da-0596",
+  "da": "fuld",
+  "en": [
+   "full",
+   "drunk"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Bussen er fuld af mennesker.",
+  "exampleEn": "The bus is full of people.",
+  "freqRank": 596
+ },
+ {
+  "id": "da-0597",
+  "da": "halv",
+  "en": [
+   "half"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi venter en halv time.",
+  "exampleEn": "We wait for half an hour.",
+  "freqRank": 597
+ },
+ {
+  "id": "da-0598",
+  "da": "pleje",
+  "en": [
+   "usually do",
+   "care for",
+   "tend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg plejer at stå op klokken syv.",
+  "exampleEn": "I usually get up at seven o'clock.",
+  "freqRank": 598
+ },
+ {
+  "id": "da-0599",
+  "da": "ild",
+  "en": [
+   "fire"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi sidder rundt om ilden.",
+  "exampleEn": "We sit around the fire.",
+  "freqRank": 599
+ },
+ {
+  "id": "da-0600",
+  "da": "lukket",
+  "en": [
+   "closed",
+   "shut"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Butikken er lukket om søndagen.",
+  "exampleEn": "The shop is closed on Sundays.",
+  "freqRank": 600
+ },
+ {
+  "id": "da-0601",
+  "da": "vare",
+  "en": [
+   "last",
+   "take"
+  ],
+  "pos": "verb",
+  "exampleDa": "Filmen varer to timer.",
+  "exampleEn": "The film lasts two hours.",
+  "freqRank": 601
+ },
+ {
+  "id": "da-0602",
+  "da": "sten",
+  "en": [
+   "stone",
+   "rock"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der ligger store sten på stranden.",
+  "exampleEn": "There are big stones on the beach.",
+  "freqRank": 602
+ },
+ {
+  "id": "da-0603",
+  "da": "lykkes",
+  "en": [
+   "succeed",
+   "manage"
+  ],
+  "pos": "verb",
+  "exampleDa": "Det lykkedes hende at finde nøglen.",
+  "exampleEn": "She managed to find the key.",
+  "freqRank": 603
+ },
+ {
+  "id": "da-0604",
+  "da": "travl",
+  "en": [
+   "busy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min mor har en travl dag.",
+  "exampleEn": "My mother has a busy day.",
+  "freqRank": 604
+ },
+ {
+  "id": "da-0605",
+  "da": "rolig",
+  "en": [
+   "calm",
+   "quiet"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Gaden er rolig om natten.",
+  "exampleEn": "The street is calm at night.",
+  "freqRank": 605
+ },
+ {
+  "id": "da-0606",
+  "da": "stille",
+  "en": [
+   "quiet",
+   "silent",
+   "still"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vær stille, babyen sover.",
+  "exampleEn": "Be quiet, the baby is sleeping.",
+  "freqRank": 606
+ },
+ {
+  "id": "da-0607",
+  "da": "bestemme",
+  "en": [
+   "decide",
+   "determine"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du må bestemme, hvad vi spiser.",
+  "exampleEn": "You can decide what we eat.",
+  "freqRank": 607
+ },
+ {
+  "id": "da-0608",
+  "da": "undersøge",
+  "en": [
+   "examine",
+   "investigate",
+   "check"
+  ],
+  "pos": "verb",
+  "exampleDa": "Lægen undersøger den syge dreng.",
+  "exampleEn": "The doctor examines the sick boy.",
+  "freqRank": 608
+ },
+ {
+  "id": "da-0609",
+  "da": "vild",
+  "en": [
+   "wild",
+   "crazy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Der bor vilde dyr i skoven.",
+  "exampleEn": "Wild animals live in the forest.",
+  "freqRank": 609
+ },
+ {
+  "id": "da-0610",
+  "da": "ansigt",
+  "en": [
+   "face"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun vasker sit ansigt hver morgen.",
+  "exampleEn": "She washes her face every morning.",
+  "freqRank": 610
+ },
+ {
+  "id": "da-0611",
+  "da": "forklare",
+  "en": [
+   "explain"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du forklare reglerne igen?",
+  "exampleEn": "Can you explain the rules again?",
+  "freqRank": 611
+ },
+ {
+  "id": "da-0612",
+  "da": "farlig",
+  "en": [
+   "dangerous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vejen er farlig om vinteren.",
+  "exampleEn": "The road is dangerous in winter.",
+  "freqRank": 612
+ },
+ {
+  "id": "da-0613",
+  "da": "overveje",
+  "en": [
+   "consider",
+   "think about"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi overvejer at flytte til byen.",
+  "exampleEn": "We are considering moving to the city.",
+  "freqRank": 613
+ },
+ {
+  "id": "da-0614",
+  "da": "bange",
+  "en": [
+   "afraid",
+   "scared"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun er bange for hunde.",
+  "exampleEn": "She is afraid of dogs.",
+  "freqRank": 614
+ },
+ {
+  "id": "da-0615",
+  "da": "vurdere",
+  "en": [
+   "assess",
+   "evaluate",
+   "judge"
+  ],
+  "pos": "verb",
+  "exampleDa": "Læreren vurderer alle vores opgaver.",
+  "exampleEn": "The teacher evaluates all our assignments.",
+  "freqRank": 615
+ },
+ {
+  "id": "da-0616",
+  "da": "vred",
+  "en": [
+   "angry",
+   "mad"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er vred på sin bror.",
+  "exampleEn": "He is angry with his brother.",
+  "freqRank": 616
+ },
+ {
+  "id": "da-0617",
+  "da": "behandle",
+  "en": [
+   "treat",
+   "handle",
+   "process"
+  ],
+  "pos": "verb",
+  "exampleDa": "Lægen behandler mange patienter hver dag.",
+  "exampleEn": "The doctor treats many patients every day.",
+  "freqRank": 617
+ },
+ {
+  "id": "da-0618",
+  "da": "indeholde",
+  "en": [
+   "contain"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kagen indeholder nødder og chokolade.",
+  "exampleEn": "The cake contains nuts and chocolate.",
+  "freqRank": 618
+ },
+ {
+  "id": "da-0619",
+  "da": "sur",
+  "en": [
+   "grumpy",
+   "sour",
+   "cross"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Chefen er sur i dag.",
+  "exampleEn": "The boss is grumpy today.",
+  "freqRank": 619
+ },
+ {
+  "id": "da-0620",
+  "da": "opnå",
+  "en": [
+   "achieve",
+   "obtain",
+   "attain"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun opnåede et rigtig godt resultat.",
+  "exampleEn": "She achieved a really good result.",
+  "freqRank": 620
+ },
+ {
+  "id": "da-0621",
+  "da": "blod",
+  "en": [
+   "blood"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Der er blod på min finger.",
+  "exampleEn": "There is blood on my finger.",
+  "freqRank": 621
+ },
+ {
+  "id": "da-0622",
+  "da": "ond",
+  "en": [
+   "evil",
+   "mean",
+   "wicked"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Heksen i historien er ond.",
+  "exampleEn": "The witch in the story is evil.",
+  "freqRank": 622
+ },
+ {
+  "id": "da-0623",
+  "da": "kæmpe",
+  "en": [
+   "fight",
+   "struggle"
+  ],
+  "pos": "verb",
+  "exampleDa": "Holdet kæmper for at vinde kampen.",
+  "exampleEn": "The team is fighting to win the match.",
+  "freqRank": 623
+ },
+ {
+  "id": "da-0624",
+  "da": "venlig",
+  "en": [
+   "friendly",
+   "kind"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Naboen er altid venlig.",
+  "exampleEn": "The neighbour is always friendly.",
+  "freqRank": 624
+ },
+ {
+  "id": "da-0625",
+  "da": "støtte",
+  "en": [
+   "support"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi støtter det lokale fodboldhold.",
+  "exampleEn": "We support the local football team.",
+  "freqRank": 625
+ },
+ {
+  "id": "da-0626",
+  "da": "rar",
+  "en": [
+   "nice",
+   "kind",
+   "pleasant"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vores lærer er meget rar.",
+  "exampleEn": "Our teacher is very nice.",
+  "freqRank": 626
+ },
+ {
+  "id": "da-0627",
+  "da": "styre",
+  "en": [
+   "steer",
+   "control",
+   "manage"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han styrer båden med én hånd.",
+  "exampleEn": "He steers the boat with one hand.",
+  "freqRank": 627
+ },
+ {
+  "id": "da-0628",
+  "da": "klog",
+  "en": [
+   "wise",
+   "smart",
+   "clever"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Min mormor er en klog kvinde.",
+  "exampleEn": "My grandmother is a wise woman.",
+  "freqRank": 628
+ },
+ {
+  "id": "da-0629",
+  "da": "lede",
+  "en": [
+   "lead",
+   "look for",
+   "search"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun leder efter sine briller.",
+  "exampleEn": "She is looking for her glasses.",
+  "freqRank": 629
+ },
+ {
+  "id": "da-0630",
+  "da": "deltage",
+  "en": [
+   "participate",
+   "take part"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vil du deltage i mødet i morgen?",
+  "exampleEn": "Do you want to take part in the meeting tomorrow?",
+  "freqRank": 630
+ },
+ {
+  "id": "da-0631",
+  "da": "kop",
+  "en": [
+   "cup"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vil du have en kop kaffe?",
+  "exampleEn": "Would you like a cup of coffee?",
+  "freqRank": 631
+ },
+ {
+  "id": "da-0632",
+  "da": "dum",
+  "en": [
+   "stupid",
+   "dumb",
+   "silly"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Det var en dum idé.",
+  "exampleEn": "That was a stupid idea.",
+  "freqRank": 632
+ },
+ {
+  "id": "da-0633",
+  "da": "glas",
+  "en": [
+   "glass"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun drikker et glas vand.",
+  "exampleEn": "She drinks a glass of water.",
+  "freqRank": 633
+ },
+ {
+  "id": "da-0634",
+  "da": "opstå",
+  "en": [
+   "arise",
+   "occur",
+   "emerge"
+  ],
+  "pos": "verb",
+  "exampleDa": "Der opstod et problem med bilen.",
+  "exampleEn": "A problem arose with the car.",
+  "freqRank": 634
+ },
+ {
+  "id": "da-0635",
+  "da": "flaske",
+  "en": [
+   "bottle"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der står en flaske mælk i køleskabet.",
+  "exampleEn": "There is a bottle of milk in the fridge.",
+  "freqRank": 635
+ },
+ {
+  "id": "da-0636",
+  "da": "dygtig",
+  "en": [
+   "skilled",
+   "clever",
+   "talented"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun er en dygtig læge.",
+  "exampleEn": "She is a skilled doctor.",
+  "freqRank": 636
+ },
+ {
+  "id": "da-0637",
+  "da": "regne",
+  "en": [
+   "rain",
+   "calculate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Det regner meget i dag.",
+  "exampleEn": "It is raining a lot today.",
+  "freqRank": 637
+ },
+ {
+  "id": "da-0638",
+  "da": "doven",
+  "en": [
+   "lazy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Katten er doven og sover hele dagen.",
+  "exampleEn": "The cat is lazy and sleeps all day.",
+  "freqRank": 638
+ },
+ {
+  "id": "da-0639",
+  "da": "nævne",
+  "en": [
+   "mention"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han nævnte dig i sin tale.",
+  "exampleEn": "He mentioned you in his speech.",
+  "freqRank": 639
+ },
+ {
+  "id": "da-0640",
+  "da": "fest",
+  "en": [
+   "party",
+   "celebration"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi holder en fest på lørdag.",
+  "exampleEn": "We are having a party on Saturday.",
+  "freqRank": 640
+ },
+ {
+  "id": "da-0641",
+  "da": "gave",
+  "en": [
+   "gift",
+   "present"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har købt en gave til dig.",
+  "exampleEn": "I have bought a gift for you.",
+  "freqRank": 641
+ },
+ {
+  "id": "da-0642",
+  "da": "beskrive",
+  "en": [
+   "describe"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du beskrive din nye lejlighed?",
+  "exampleEn": "Can you describe your new apartment?",
+  "freqRank": 642
+ },
+ {
+  "id": "da-0643",
+  "da": "modig",
+  "en": [
+   "brave",
+   "courageous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Drengen var modig hos tandlægen.",
+  "exampleEn": "The boy was brave at the dentist.",
+  "freqRank": 643
+ },
+ {
+  "id": "da-0644",
+  "da": "foreslå",
+  "en": [
+   "suggest",
+   "propose"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg foreslår, at vi spiser ude.",
+  "exampleEn": "I suggest that we eat out.",
+  "freqRank": 644
+ },
+ {
+  "id": "da-0645",
+  "da": "genert",
+  "en": [
+   "shy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Pigen er genert over for nye mennesker.",
+  "exampleEn": "The girl is shy around new people.",
+  "freqRank": 645
+ },
+ {
+  "id": "da-0646",
+  "da": "nervøs",
+  "en": [
+   "nervous"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er nervøs før prøven.",
+  "exampleEn": "I am nervous before the test.",
+  "freqRank": 646
+ },
+ {
+  "id": "da-0647",
+  "da": "sang",
+  "en": [
+   "song"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi synger en sang sammen.",
+  "exampleEn": "We sing a song together.",
+  "freqRank": 647
+ },
+ {
+  "id": "da-0648",
+  "da": "acceptere",
+  "en": [
+   "accept"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han accepterede vores tilbud med det samme.",
+  "exampleEn": "He accepted our offer right away.",
+  "freqRank": 648
+ },
+ {
+  "id": "da-0649",
+  "da": "kamp",
+  "en": [
+   "match",
+   "game",
+   "fight"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi så en spændende kamp i går.",
+  "exampleEn": "We watched an exciting match yesterday.",
+  "freqRank": 649
+ },
+ {
+  "id": "da-0650",
+  "da": "stolt",
+  "en": [
+   "proud"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi er stolte af dig.",
+  "exampleEn": "We are proud of you.",
+  "freqRank": 650
+ },
+ {
+  "id": "da-0651",
+  "da": "tillade",
+  "en": [
+   "allow",
+   "permit"
+  ],
+  "pos": "verb",
+  "exampleDa": "Min mor tillader ikke slik om aftenen.",
+  "exampleEn": "My mother does not allow sweets in the evening.",
+  "freqRank": 651
+ },
+ {
+  "id": "da-0652",
+  "da": "afvise",
+  "en": [
+   "reject",
+   "refuse",
+   "turn down"
+  ],
+  "pos": "verb",
+  "exampleDa": "Banken afviste hans ansøgning.",
+  "exampleEn": "The bank rejected his application.",
+  "freqRank": 652
+ },
+ {
+  "id": "da-0653",
+  "da": "lykkelig",
+  "en": [
+   "happy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De er lykkelige sammen.",
+  "exampleEn": "They are happy together.",
+  "freqRank": 653
+ },
+ {
+  "id": "da-0654",
+  "da": "nægte",
+  "en": [
+   "refuse",
+   "deny"
+  ],
+  "pos": "verb",
+  "exampleDa": "Barnet nægter at spise sine grøntsager.",
+  "exampleEn": "The child refuses to eat his vegetables.",
+  "freqRank": 654
+ },
+ {
+  "id": "da-0655",
+  "da": "trist",
+  "en": [
+   "sad",
+   "gloomy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han er trist i dag.",
+  "exampleEn": "He is sad today.",
+  "freqRank": 655
+ },
+ {
+  "id": "da-0656",
+  "da": "påstå",
+  "en": [
+   "claim",
+   "maintain",
+   "allege"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han påstår, at han er syg.",
+  "exampleEn": "He claims that he is ill.",
+  "freqRank": 656
+ },
+ {
+  "id": "da-0657",
+  "da": "ked",
+  "en": [
+   "sad",
+   "sorry",
+   "upset"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun er ked af det i dag.",
+  "exampleEn": "She is sad today.",
+  "freqRank": 657
+ },
+ {
+  "id": "da-0658",
+  "da": "indrømme",
+  "en": [
+   "admit",
+   "confess"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun indrømmede sin fejl til sidst.",
+  "exampleEn": "She admitted her mistake in the end.",
+  "freqRank": 658
+ },
+ {
+  "id": "da-0659",
+  "da": "sky",
+  "en": [
+   "cloud"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er ingen skyer på himlen.",
+  "exampleEn": "There are no clouds in the sky.",
+  "freqRank": 659
+ },
+ {
+  "id": "da-0660",
+  "da": "ensom",
+  "en": [
+   "lonely"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Den gamle mand føler sig ensom.",
+  "exampleEn": "The old man feels lonely.",
+  "freqRank": 660
+ },
+ {
+  "id": "da-0661",
+  "da": "påvirke",
+  "en": [
+   "affect",
+   "influence"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vejret påvirker mit humør.",
+  "exampleEn": "The weather affects my mood.",
+  "freqRank": 661
+ },
+ {
+  "id": "da-0662",
+  "da": "storm",
+  "en": [
+   "storm"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der kommer en storm i nat.",
+  "exampleEn": "A storm is coming tonight.",
+  "freqRank": 662
+ },
+ {
+  "id": "da-0663",
+  "da": "temperatur",
+  "en": [
+   "temperature"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Temperaturen er ti grader i dag.",
+  "exampleEn": "The temperature is ten degrees today.",
+  "freqRank": 663
+ },
+ {
+  "id": "da-0664",
+  "da": "bekymret",
+  "en": [
+   "worried",
+   "concerned"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Mor er bekymret for os.",
+  "exampleEn": "Mum is worried about us.",
+  "freqRank": 664
+ },
+ {
+  "id": "da-0665",
+  "da": "samle",
+  "en": [
+   "collect",
+   "gather"
+  ],
+  "pos": "verb",
+  "exampleDa": "Drengen samler på gamle mønter.",
+  "exampleEn": "The boy collects old coins.",
+  "freqRank": 665
+ },
+ {
+  "id": "da-0666",
+  "da": "grad",
+  "en": [
+   "degree"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Det er fem grader udenfor.",
+  "exampleEn": "It is five degrees outside.",
+  "freqRank": 666
+ },
+ {
+  "id": "da-0667",
+  "da": "varme",
+  "en": [
+   "heat",
+   "warmth"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg elsker varmen om sommeren.",
+  "exampleEn": "I love the heat in the summer.",
+  "freqRank": 667
+ },
+ {
+  "id": "da-0668",
+  "da": "dele",
+  "en": [
+   "share",
+   "divide",
+   "split"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi deler en stor pizza i aften.",
+  "exampleEn": "We are sharing a big pizza tonight.",
+  "freqRank": 668
+ },
+ {
+  "id": "da-0669",
+  "da": "skuffet",
+  "en": [
+   "disappointed"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Han var skuffet over resultatet.",
+  "exampleEn": "He was disappointed with the result.",
+  "freqRank": 669
+ },
+ {
+  "id": "da-0670",
+  "da": "kulde",
+  "en": [
+   "cold"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi sad inde på grund af kulden.",
+  "exampleEn": "We sat inside because of the cold.",
+  "freqRank": 670
+ },
+ {
+  "id": "da-0671",
+  "da": "fjerne",
+  "en": [
+   "remove"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du fjerne pletten fra skjorten?",
+  "exampleEn": "Can you remove the stain from the shirt?",
+  "freqRank": 671
+ },
+ {
+  "id": "da-0672",
+  "da": "solskin",
+  "en": [
+   "sunshine"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Vi spiser frokost ude i solskinnet.",
+  "exampleEn": "We eat lunch outside in the sunshine.",
+  "freqRank": 672
+ },
+ {
+  "id": "da-0673",
+  "da": "overrasket",
+  "en": [
+   "surprised"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi var overraskede over gaven.",
+  "exampleEn": "We were surprised by the gift.",
+  "freqRank": 673
+ },
+ {
+  "id": "da-0674",
+  "da": "jakke",
+  "en": [
+   "jacket"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tag din jakke på, det er koldt.",
+  "exampleEn": "Put on your jacket, it is cold.",
+  "freqRank": 674
+ },
+ {
+  "id": "da-0675",
+  "da": "tilføje",
+  "en": [
+   "add"
+  ],
+  "pos": "verb",
+  "exampleDa": "Tilføj lidt salt til suppen.",
+  "exampleEn": "Add a little salt to the soup.",
+  "freqRank": 675
+ },
+ {
+  "id": "da-0676",
+  "da": "kjole",
+  "en": [
+   "dress"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en ny rød kjole på.",
+  "exampleEn": "She is wearing a new red dress.",
+  "freqRank": 676
+ },
+ {
+  "id": "da-0677",
+  "da": "skjorte",
+  "en": [
+   "shirt"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han stryger sin hvide skjorte.",
+  "exampleEn": "He irons his white shirt.",
+  "freqRank": 677
+ },
+ {
+  "id": "da-0678",
+  "da": "spændt",
+  "en": [
+   "excited",
+   "tense"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Jeg er spændt på i morgen.",
+  "exampleEn": "I am excited about tomorrow.",
+  "freqRank": 678
+ },
+ {
+  "id": "da-0679",
+  "da": "trøje",
+  "en": [
+   "sweater",
+   "jumper",
+   "jersey"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg tager en varm trøje på.",
+  "exampleEn": "I put on a warm sweater.",
+  "freqRank": 679
+ },
+ {
+  "id": "da-0680",
+  "da": "frakke",
+  "en": [
+   "coat"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min frakke hænger ude i gangen.",
+  "exampleEn": "My coat is hanging in the hallway.",
+  "freqRank": 680
+ },
+ {
+  "id": "da-0681",
+  "da": "heldig",
+  "en": [
+   "lucky",
+   "fortunate"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Du er heldig med vejret.",
+  "exampleEn": "You are lucky with the weather.",
+  "freqRank": 681
+ },
+ {
+  "id": "da-0682",
+  "da": "nederdel",
+  "en": [
+   "skirt"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun købte en blå nederdel i går.",
+  "exampleEn": "She bought a blue skirt yesterday.",
+  "freqRank": 682
+ },
+ {
+  "id": "da-0683",
+  "da": "hue",
+  "en": [
+   "beanie",
+   "cap",
+   "hat"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tag en hue på, når det sner.",
+  "exampleEn": "Wear a beanie when it snows.",
+  "freqRank": 683
+ },
+ {
+  "id": "da-0684",
+  "da": "rig",
+  "en": [
+   "rich",
+   "wealthy"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Familien er meget rig.",
+  "exampleEn": "The family is very rich.",
+  "freqRank": 684
+ },
+ {
+  "id": "da-0685",
+  "da": "hat",
+  "en": [
+   "hat"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han har altid en hat på om sommeren.",
+  "exampleEn": "He always wears a hat in the summer.",
+  "freqRank": 685
+ },
+ {
+  "id": "da-0686",
+  "da": "handske",
+  "en": [
+   "glove"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har mistet den ene handske.",
+  "exampleEn": "I have lost one of my gloves.",
+  "freqRank": 686
+ },
+ {
+  "id": "da-0687",
+  "da": "tjene",
+  "en": [
+   "earn",
+   "serve"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun tjener gode penge på sit arbejde.",
+  "exampleEn": "She earns good money at her job.",
+  "freqRank": 687
+ },
+ {
+  "id": "da-0688",
+  "da": "fattig",
+  "en": [
+   "poor"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De var fattige for mange år siden.",
+  "exampleEn": "They were poor many years ago.",
+  "freqRank": 688
+ },
+ {
+  "id": "da-0689",
+  "da": "støvle",
+  "en": [
+   "boot"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Mine støvler er våde efter regnen.",
+  "exampleEn": "My boots are wet after the rain.",
+  "freqRank": 689
+ },
+ {
+  "id": "da-0690",
+  "da": "spare",
+  "en": [
+   "save"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi sparer op til en lang rejse.",
+  "exampleEn": "We are saving up for a long trip.",
+  "freqRank": 690
+ },
+ {
+  "id": "da-0691",
+  "da": "sok",
+  "en": [
+   "sock"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der ligger en sok under sengen.",
+  "exampleEn": "There is a sock under the bed.",
+  "freqRank": 691
+ },
+ {
+  "id": "da-0692",
+  "da": "tørklæde",
+  "en": [
+   "scarf"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun har et varmt tørklæde om halsen.",
+  "exampleEn": "She has a warm scarf around her neck.",
+  "freqRank": 692
+ },
+ {
+  "id": "da-0693",
+  "da": "hyggelig",
+  "en": [
+   "cozy",
+   "nice",
+   "pleasant"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vi havde en hyggelig aften sammen.",
+  "exampleEn": "We had a cozy evening together.",
+  "freqRank": 693
+ },
+ {
+  "id": "da-0694",
+  "da": "skylde",
+  "en": [
+   "owe"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du skylder mig hundrede kroner.",
+  "exampleEn": "You owe me a hundred kroner.",
+  "freqRank": 694
+ },
+ {
+  "id": "da-0695",
+  "da": "bælte",
+  "en": [
+   "belt"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Han skal bruge et bælte til bukserne.",
+  "exampleEn": "He needs a belt for his trousers.",
+  "freqRank": 695
+ },
+ {
+  "id": "da-0696",
+  "da": "eje",
+  "en": [
+   "own",
+   "possess"
+  ],
+  "pos": "verb",
+  "exampleDa": "Familien ejer et lille sommerhus.",
+  "exampleEn": "The family owns a small summer house.",
+  "freqRank": 696
+ },
+ {
+  "id": "da-0697",
+  "da": "voksen",
+  "en": [
+   "adult",
+   "grown-up"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Hun er voksen nu og bor alene.",
+  "exampleEn": "She is grown up now and lives alone.",
+  "freqRank": 697
+ },
+ {
+  "id": "da-0698",
+  "da": "knap",
+  "en": [
+   "button"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der mangler en knap på min skjorte.",
+  "exampleEn": "A button is missing from my shirt.",
+  "freqRank": 698
+ },
+ {
+  "id": "da-0699",
+  "da": "undertøj",
+  "en": [
+   "underwear"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg pakker undertøj til rejsen.",
+  "exampleEn": "I pack underwear for the trip.",
+  "freqRank": 699
+ },
+ {
+  "id": "da-0700",
+  "da": "tilhøre",
+  "en": [
+   "belong to",
+   "belong"
+  ],
+  "pos": "verb",
+  "exampleDa": "Den blå jakke tilhører min bror.",
+  "exampleEn": "The blue jacket belongs to my brother.",
+  "freqRank": 700
+ },
+ {
+  "id": "da-0701",
+  "da": "gift",
+  "en": [
+   "married"
+  ],
+  "pos": "adjective",
+  "exampleDa": "De har været gift i ti år.",
+  "exampleEn": "They have been married for ten years.",
+  "freqRank": 701
+ },
+ {
+  "id": "da-0702",
+  "da": "sorg",
+  "en": [
+   "sorrow",
+   "grief"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun følte stor sorg, da katten døde.",
+  "exampleEn": "She felt great sorrow when the cat died.",
+  "freqRank": 702
+ },
+ {
+  "id": "da-0703",
+  "da": "vrede",
+  "en": [
+   "anger"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han talte med vrede i stemmen.",
+  "exampleEn": "He spoke with anger in his voice.",
+  "freqRank": 703
+ },
+ {
+  "id": "da-0704",
+  "da": "død",
+  "en": [
+   "dead"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Planten i vinduet er død.",
+  "exampleEn": "The plant in the window is dead.",
+  "freqRank": 704
+ },
+ {
+  "id": "da-0705",
+  "da": "leje",
+  "en": [
+   "rent",
+   "hire"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi lejer en bil på ferien.",
+  "exampleEn": "We rent a car on holiday.",
+  "freqRank": 705
+ },
+ {
+  "id": "da-0706",
+  "da": "frygt",
+  "en": [
+   "fear"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har en stor frygt for edderkopper.",
+  "exampleEn": "She has a great fear of spiders.",
+  "freqRank": 706
+ },
+ {
+  "id": "da-0707",
+  "da": "levende",
+  "en": [
+   "alive",
+   "living",
+   "lively"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Fisken er stadig levende.",
+  "exampleEn": "The fish is still alive.",
+  "freqRank": 707
+ },
+ {
+  "id": "da-0708",
+  "da": "smerte",
+  "en": [
+   "pain",
+   "ache"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en smerte i ryggen.",
+  "exampleEn": "I have a pain in my back.",
+  "freqRank": 708
+ },
+ {
+  "id": "da-0709",
+  "da": "forsigtig",
+  "en": [
+   "careful",
+   "cautious"
+  ],
+  "pos": "adjective",
+  "exampleDa": "Vær forsigtig på den våde vej!",
+  "exampleEn": "Be careful on the wet road!",
+  "freqRank": 709
+ },
+ {
+  "id": "da-0710",
+  "da": "levere",
+  "en": [
+   "deliver",
+   "supply"
+  ],
+  "pos": "verb",
+  "exampleDa": "Butikken leverer varerne i morgen.",
+  "exampleEn": "The shop delivers the goods tomorrow.",
+  "freqRank": 710
+ },
+ {
+  "id": "da-0711",
+  "da": "angst",
+  "en": [
+   "anxiety",
+   "fear"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han følte angst før eksamen.",
+  "exampleEn": "He felt anxiety before the exam.",
+  "freqRank": 711
+ },
+ {
+  "id": "da-0712",
+  "da": "humør",
+  "en": [
+   "mood",
+   "spirits"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun er altid i godt humør.",
+  "exampleEn": "She is always in a good mood.",
+  "freqRank": 712
+ },
+ {
+  "id": "da-0713",
+  "da": "tænde",
+  "en": [
+   "turn on",
+   "light"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du tænde lyset i køkkenet?",
+  "exampleEn": "Can you turn on the light in the kitchen?",
+  "freqRank": 713
+ },
+ {
+  "id": "da-0714",
+  "da": "bekymring",
+  "en": [
+   "worry",
+   "concern"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun har mange bekymringer om fremtiden.",
+  "exampleEn": "She has many worries about the future.",
+  "freqRank": 714
+ },
+ {
+  "id": "da-0715",
+  "da": "overraskelse",
+  "en": [
+   "surprise"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Festen var en stor overraskelse for hende.",
+  "exampleEn": "The party was a big surprise for her.",
+  "freqRank": 715
+ },
+ {
+  "id": "da-0716",
+  "da": "afhænge",
+  "en": [
+   "depend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Turen afhænger helt af vejret.",
+  "exampleEn": "The trip depends entirely on the weather.",
+  "freqRank": 716
+ },
+ {
+  "id": "da-0717",
+  "da": "skuffelse",
+  "en": [
+   "disappointment"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Det var en stor skuffelse for holdet.",
+  "exampleEn": "It was a big disappointment for the team.",
+  "freqRank": 717
+ },
+ {
+  "id": "da-0718",
+  "da": "stolthed",
+  "en": [
+   "pride"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun viste sit arbejde frem med stolthed.",
+  "exampleEn": "She showed her work with pride.",
+  "freqRank": 718
+ },
+ {
+  "id": "da-0719",
+  "da": "skam",
+  "en": [
+   "shame"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han følte skam over sin fejl.",
+  "exampleEn": "He felt shame about his mistake.",
+  "freqRank": 719
+ },
+ {
+  "id": "da-0720",
+  "da": "anbefale",
+  "en": [
+   "recommend"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du anbefale en god restaurant?",
+  "exampleEn": "Can you recommend a good restaurant?",
+  "freqRank": 720
+ },
+ {
+  "id": "da-0721",
+  "da": "ensomhed",
+  "en": [
+   "loneliness"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Mange ældre oplever ensomhed.",
+  "exampleEn": "Many elderly people experience loneliness.",
+  "freqRank": 721
+ },
+ {
+  "id": "da-0722",
+  "da": "tillid",
+  "en": [
+   "trust",
+   "confidence"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har fuld tillid til min læge.",
+  "exampleEn": "I have full trust in my doctor.",
+  "freqRank": 722
+ },
+ {
+  "id": "da-0723",
+  "da": "planlægge",
+  "en": [
+   "plan"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi planlægger en stor fest til sommer.",
+  "exampleEn": "We are planning a big party for the summer.",
+  "freqRank": 723
+ },
+ {
+  "id": "da-0724",
+  "da": "tvivl",
+  "en": [
+   "doubt"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Der er ingen tvivl om svaret.",
+  "exampleEn": "There is no doubt about the answer.",
+  "freqRank": 724
+ },
+ {
+  "id": "da-0725",
+  "da": "mod",
+  "en": [
+   "courage",
+   "bravery"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Det kræver mod at tale foran mange mennesker.",
+  "exampleEn": "It takes courage to speak in front of many people.",
+  "freqRank": 725
+ },
+ {
+  "id": "da-0726",
+  "da": "forberede",
+  "en": [
+   "prepare"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun forbereder sig til den svære eksamen.",
+  "exampleEn": "She is preparing for the difficult exam.",
+  "freqRank": 726
+ },
+ {
+  "id": "da-0727",
+  "da": "ro",
+  "en": [
+   "calm",
+   "peace",
+   "quiet"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har brug for fred og ro.",
+  "exampleEn": "I need peace and quiet.",
+  "freqRank": 727
+ },
+ {
+  "id": "da-0728",
+  "da": "sundhed",
+  "en": [
+   "health"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Motion er godt for din sundhed.",
+  "exampleEn": "Exercise is good for your health.",
+  "freqRank": 728
+ },
+ {
+  "id": "da-0729",
+  "da": "arrangere",
+  "en": [
+   "arrange",
+   "organize"
+  ],
+  "pos": "verb",
+  "exampleDa": "Skolen arrangerer en tur til museet.",
+  "exampleEn": "The school is organizing a trip to the museum.",
+  "freqRank": 729
+ },
+ {
+  "id": "da-0730",
+  "da": "feber",
+  "en": [
+   "fever"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Barnet har feber og skal blive hjemme.",
+  "exampleEn": "The child has a fever and must stay home.",
+  "freqRank": 730
+ },
+ {
+  "id": "da-0731",
+  "da": "forkølelse",
+  "en": [
+   "cold"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en slem forkølelse lige nu.",
+  "exampleEn": "I have a bad cold right now.",
+  "freqRank": 731
+ },
+ {
+  "id": "da-0732",
+  "da": "invitere",
+  "en": [
+   "invite"
+  ],
+  "pos": "verb",
+  "exampleDa": "De inviterede os til middag på fredag.",
+  "exampleEn": "They invited us to dinner on Friday.",
+  "freqRank": 732
+ },
+ {
+  "id": "da-0733",
+  "da": "hoste",
+  "en": [
+   "cough"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han har haft hoste i tre dage.",
+  "exampleEn": "He has had a cough for three days.",
+  "freqRank": 733
+ },
+ {
+  "id": "da-0734",
+  "da": "aflyse",
+  "en": [
+   "cancel"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi må desværre aflyse festen.",
+  "exampleEn": "Unfortunately we have to cancel the party.",
+  "freqRank": 734
+ },
+ {
+  "id": "da-0735",
+  "da": "hovedpine",
+  "en": [
+   "headache"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har hovedpine og går tidligt i seng.",
+  "exampleEn": "I have a headache and am going to bed early.",
+  "freqRank": 735
+ },
+ {
+  "id": "da-0736",
+  "da": "influenza",
+  "en": [
+   "flu",
+   "influenza"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hun ligger i sengen med influenza.",
+  "exampleEn": "She is in bed with the flu.",
+  "freqRank": 736
+ },
+ {
+  "id": "da-0737",
+  "da": "afslutte",
+  "en": [
+   "finish",
+   "complete",
+   "end"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han afsluttede sin uddannelse i juni.",
+  "exampleEn": "He finished his education in June.",
+  "freqRank": 737
+ },
+ {
+  "id": "da-0738",
+  "da": "medicin",
+  "en": [
+   "medicine",
+   "medication"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Husk at tage din medicin hver morgen.",
+  "exampleEn": "Remember to take your medicine every morning.",
+  "freqRank": 738
+ },
+ {
+  "id": "da-0739",
+  "da": "pille",
+  "en": [
+   "pill",
+   "tablet"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tag en pille mod smerten.",
+  "exampleEn": "Take a pill for the pain.",
+  "freqRank": 739
+ },
+ {
+  "id": "da-0740",
+  "da": "recept",
+  "en": [
+   "prescription"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Du skal have en recept på denne medicin.",
+  "exampleEn": "You need a prescription for this medicine.",
+  "freqRank": 740
+ },
+ {
+  "id": "da-0741",
+  "da": "apotek",
+  "en": [
+   "pharmacy",
+   "chemist"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg henter medicinen på apoteket.",
+  "exampleEn": "I pick up the medicine at the pharmacy.",
+  "freqRank": 741
+ },
+ {
+  "id": "da-0742",
+  "da": "forsvinde",
+  "en": [
+   "disappear",
+   "vanish"
+  ],
+  "pos": "verb",
+  "exampleDa": "Solen forsvandt bag de mørke skyer.",
+  "exampleEn": "The sun disappeared behind the dark clouds.",
+  "freqRank": 742
+ },
+ {
+  "id": "da-0743",
+  "da": "tandlæge",
+  "en": [
+   "dentist"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg skal til tandlæge på torsdag.",
+  "exampleEn": "I am going to the dentist on Thursday.",
+  "freqRank": 743
+ },
+ {
+  "id": "da-0744",
+  "da": "sygeplejerske",
+  "en": [
+   "nurse"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Sygeplejersken hjælper patienten med medicinen.",
+  "exampleEn": "The nurse helps the patient with the medicine.",
+  "freqRank": 744
+ },
+ {
+  "id": "da-0745",
+  "da": "ankomme",
+  "en": [
+   "arrive"
+  ],
+  "pos": "verb",
+  "exampleDa": "Toget ankommer klokken ti.",
+  "exampleEn": "The train arrives at ten o'clock.",
+  "freqRank": 745
+ },
+ {
+  "id": "da-0746",
+  "da": "ambulance",
+  "en": [
+   "ambulance"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Ambulancen kom efter fem minutter.",
+  "exampleEn": "The ambulance came after five minutes.",
+  "freqRank": 746
+ },
+ {
+  "id": "da-0747",
+  "da": "skade",
+  "en": [
+   "injury",
+   "damage"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han fik en skade i knæet under kampen.",
+  "exampleEn": "He got an injury to his knee during the match.",
+  "freqRank": 747
+ },
+ {
+  "id": "da-0748",
+  "da": "sår",
+  "en": [
+   "wound",
+   "sore"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun har et lille sår på hånden.",
+  "exampleEn": "She has a small wound on her hand.",
+  "freqRank": 748
+ },
+ {
+  "id": "da-0749",
+  "da": "hade",
+  "en": [
+   "hate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han hader at vente på bussen.",
+  "exampleEn": "He hates waiting for the bus.",
+  "freqRank": 749
+ },
+ {
+  "id": "da-0750",
+  "da": "hals",
+  "en": [
+   "throat",
+   "neck"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har ondt i halsen i dag.",
+  "exampleEn": "I have a sore throat today.",
+  "freqRank": 750
+ },
+ {
+  "id": "da-0751",
+  "da": "skulder",
+  "en": [
+   "shoulder"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min skulder gør ondt, når jeg svømmer.",
+  "exampleEn": "My shoulder hurts when I swim.",
+  "freqRank": 751
+ },
+ {
+  "id": "da-0752",
+  "da": "frygte",
+  "en": [
+   "fear",
+   "dread"
+  ],
+  "pos": "verb",
+  "exampleDa": "Mange mennesker frygter slanger.",
+  "exampleEn": "Many people fear snakes.",
+  "freqRank": 752
+ },
+ {
+  "id": "da-0753",
+  "da": "knæ",
+  "en": [
+   "knee"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun slog sit knæ på trappen.",
+  "exampleEn": "She hit her knee on the stairs.",
+  "freqRank": 753
+ },
+ {
+  "id": "da-0754",
+  "da": "redde",
+  "en": [
+   "save",
+   "rescue"
+  ],
+  "pos": "verb",
+  "exampleDa": "Manden reddede hunden fra det kolde vand.",
+  "exampleEn": "The man saved the dog from the cold water.",
+  "freqRank": 754
+ },
+ {
+  "id": "da-0755",
+  "da": "beskytte",
+  "en": [
+   "protect"
+  ],
+  "pos": "verb",
+  "exampleDa": "Solcreme beskytter din hud mod solen.",
+  "exampleEn": "Sunscreen protects your skin from the sun.",
+  "freqRank": 755
+ },
+ {
+  "id": "da-0756",
+  "da": "advare",
+  "en": [
+   "warn"
+  ],
+  "pos": "verb",
+  "exampleDa": "Politiet advarer mod glatte veje.",
+  "exampleEn": "The police warn against slippery roads.",
+  "freqRank": 756
+ },
+ {
+  "id": "da-0757",
+  "da": "hud",
+  "en": [
+   "skin"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Hendes hud bliver tør om vinteren.",
+  "exampleEn": "Her skin gets dry in the winter.",
+  "freqRank": 757
+ },
+ {
+  "id": "da-0758",
+  "da": "muskel",
+  "en": [
+   "muscle"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har en øm muskel i benet.",
+  "exampleEn": "I have a sore muscle in my leg.",
+  "freqRank": 758
+ },
+ {
+  "id": "da-0759",
+  "da": "slukke",
+  "en": [
+   "turn off",
+   "put out",
+   "extinguish"
+  ],
+  "pos": "verb",
+  "exampleDa": "Husk at slukke lyset, når du går.",
+  "exampleEn": "Remember to turn off the light when you leave.",
+  "freqRank": 759
+ },
+ {
+  "id": "da-0760",
+  "da": "motion",
+  "en": [
+   "exercise"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg får motion, når jeg cykler til arbejde.",
+  "exampleEn": "I get exercise when I bike to work.",
+  "freqRank": 760
+ },
+ {
+  "id": "da-0761",
+  "da": "træning",
+  "en": [
+   "training",
+   "practice",
+   "workout"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi har træning to gange om ugen.",
+  "exampleEn": "We have training twice a week.",
+  "freqRank": 761
+ },
+ {
+  "id": "da-0762",
+  "da": "lyve",
+  "en": [
+   "lie",
+   "tell a lie"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du må aldrig lyve for mig.",
+  "exampleEn": "You must never lie to me.",
+  "freqRank": 762
+ },
+ {
+  "id": "da-0763",
+  "da": "stjæle",
+  "en": [
+   "steal"
+  ],
+  "pos": "verb",
+  "exampleDa": "Nogen har stjålet min nye cykel.",
+  "exampleEn": "Someone has stolen my new bike.",
+  "freqRank": 763
+ },
+ {
+  "id": "da-0764",
+  "da": "børnehave",
+  "en": [
+   "kindergarten",
+   "nursery",
+   "preschool"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min datter går i børnehave.",
+  "exampleEn": "My daughter goes to kindergarten.",
+  "freqRank": 764
+ },
+ {
+  "id": "da-0765",
+  "da": "snyde",
+  "en": [
+   "cheat",
+   "trick"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han snyder altid i kortspil.",
+  "exampleEn": "He always cheats at card games.",
+  "freqRank": 765
+ },
+ {
+  "id": "da-0766",
+  "da": "politistation",
+  "en": [
+   "police station"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Politistationen ligger ved siden af banken.",
+  "exampleEn": "The police station is next to the bank.",
+  "freqRank": 766
+ },
+ {
+  "id": "da-0767",
+  "da": "rådhus",
+  "en": [
+   "city hall",
+   "town hall"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Rådhuset ligger på det store torv.",
+  "exampleEn": "The city hall is on the big square.",
+  "freqRank": 767
+ },
+ {
+  "id": "da-0768",
+  "da": "love",
+  "en": [
+   "promise"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg lover at komme tidligt hjem.",
+  "exampleEn": "I promise to come home early.",
+  "freqRank": 768
+ },
+ {
+  "id": "da-0769",
+  "da": "fængsel",
+  "en": [
+   "prison",
+   "jail"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Tyven kom i fængsel i to år.",
+  "exampleEn": "The thief went to prison for two years.",
+  "freqRank": 769
+ },
+ {
+  "id": "da-0770",
+  "da": "takke",
+  "en": [
+   "thank"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi takkede dem for den gode mad.",
+  "exampleEn": "We thanked them for the good food.",
+  "freqRank": 770
+ },
+ {
+  "id": "da-0771",
+  "da": "forsikring",
+  "en": [
+   "insurance"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Har du en forsikring til din cykel?",
+  "exampleEn": "Do you have insurance for your bicycle?",
+  "freqRank": 771
+ },
+ {
+  "id": "da-0772",
+  "da": "hilse",
+  "en": [
+   "greet",
+   "say hello"
+  ],
+  "pos": "verb",
+  "exampleDa": "Husk at hilse på din nye nabo.",
+  "exampleEn": "Remember to say hello to your new neighbor.",
+  "freqRank": 772
+ },
+ {
+  "id": "da-0773",
+  "da": "fabrik",
+  "en": [
+   "factory"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min farfar arbejdede på en fabrik.",
+  "exampleEn": "My grandfather worked in a factory.",
+  "freqRank": 773
+ },
+ {
+  "id": "da-0774",
+  "da": "supermarked",
+  "en": [
+   "supermarket"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Jeg køber ind i supermarkedet om fredagen.",
+  "exampleEn": "I shop at the supermarket on Fridays.",
+  "freqRank": 774
+ },
+ {
+  "id": "da-0775",
+  "da": "undskylde",
+  "en": [
+   "apologize",
+   "excuse"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han undskyldte for at komme for sent.",
+  "exampleEn": "He apologized for being late.",
+  "freqRank": 775
+ },
+ {
+  "id": "da-0776",
+  "da": "bageri",
+  "en": [
+   "bakery"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Bageriet åbner klokken seks om morgenen.",
+  "exampleEn": "The bakery opens at six in the morning.",
+  "freqRank": 776
+ },
+ {
+  "id": "da-0777",
+  "da": "klage",
+  "en": [
+   "complain"
+  ],
+  "pos": "verb",
+  "exampleDa": "Gæsten klagede over den kolde suppe.",
+  "exampleEn": "The guest complained about the cold soup.",
+  "freqRank": 777
+ },
+ {
+  "id": "da-0778",
+  "da": "forening",
+  "en": [
+   "association",
+   "club",
+   "society"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han er medlem af en lokal forening.",
+  "exampleEn": "He is a member of a local association.",
+  "freqRank": 778
+ },
+ {
+  "id": "da-0779",
+  "da": "klub",
+  "en": [
+   "club"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min søn spiller fodbold i en klub.",
+  "exampleEn": "My son plays football in a club.",
+  "freqRank": 779
+ },
+ {
+  "id": "da-0780",
+  "da": "gætte",
+  "en": [
+   "guess"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du gætte, hvor gammel jeg er?",
+  "exampleEn": "Can you guess how old I am?",
+  "freqRank": 780
+ },
+ {
+  "id": "da-0781",
+  "da": "pung",
+  "en": [
+   "wallet",
+   "purse"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min pung ligger i tasken.",
+  "exampleEn": "My wallet is in the bag.",
+  "freqRank": 781
+ },
+ {
+  "id": "da-0782",
+  "da": "tvivle",
+  "en": [
+   "doubt"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg tvivler på, at det er sandt.",
+  "exampleEn": "I doubt that it is true.",
+  "freqRank": 782
+ },
+ {
+  "id": "da-0783",
+  "da": "paraply",
+  "en": [
+   "umbrella"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Tag en paraply med, det regner.",
+  "exampleEn": "Bring an umbrella, it is raining.",
+  "freqRank": 783
+ },
+ {
+  "id": "da-0784",
+  "da": "ur",
+  "en": [
+   "watch",
+   "clock"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Mit ur viser ti minutter i to.",
+  "exampleEn": "My watch shows ten minutes to two.",
+  "freqRank": 784
+ },
+ {
+  "id": "da-0785",
+  "da": "stole",
+  "en": [
+   "trust",
+   "rely on"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du kan altid stole på mig.",
+  "exampleEn": "You can always trust me.",
+  "freqRank": 785
+ },
+ {
+  "id": "da-0786",
+  "da": "håndklæde",
+  "en": [
+   "towel"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Tag et rent håndklæde til badet.",
+  "exampleEn": "Take a clean towel for the bath.",
+  "freqRank": 786
+ },
+ {
+  "id": "da-0787",
+  "da": "minde",
+  "en": [
+   "remind"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vil du minde mig om mødet?",
+  "exampleEn": "Will you remind me about the meeting?",
+  "freqRank": 787
+ },
+ {
+  "id": "da-0788",
+  "da": "sæbe",
+  "en": [
+   "soap"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vask hænderne med vand og sæbe.",
+  "exampleEn": "Wash your hands with water and soap.",
+  "freqRank": 788
+ },
+ {
+  "id": "da-0789",
+  "da": "tandbørste",
+  "en": [
+   "toothbrush"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg har glemt min tandbørste derhjemme.",
+  "exampleEn": "I have forgotten my toothbrush at home.",
+  "freqRank": 789
+ },
+ {
+  "id": "da-0790",
+  "da": "genkende",
+  "en": [
+   "recognize"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg genkendte hende ikke med det samme.",
+  "exampleEn": "I did not recognize her right away.",
+  "freqRank": 790
+ },
+ {
+  "id": "da-0791",
+  "da": "kuffert",
+  "en": [
+   "suitcase"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min kuffert er tung, fordi den er fuld.",
+  "exampleEn": "My suitcase is heavy because it is full.",
+  "freqRank": 791
+ },
+ {
+  "id": "da-0792",
+  "da": "rygsæk",
+  "en": [
+   "backpack",
+   "rucksack"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Han bærer sin rygsæk på turen.",
+  "exampleEn": "He carries his backpack on the trip.",
+  "freqRank": 792
+ },
+ {
+  "id": "da-0793",
+  "da": "overraske",
+  "en": [
+   "surprise"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi vil overraske far på hans fødselsdag.",
+  "exampleEn": "We want to surprise dad on his birthday.",
+  "freqRank": 793
+ },
+ {
+  "id": "da-0794",
+  "da": "tallerken",
+  "en": [
+   "plate"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Sæt tallerkenerne på bordet, tak.",
+  "exampleEn": "Put the plates on the table, please.",
+  "freqRank": 794
+ },
+ {
+  "id": "da-0795",
+  "da": "fejre",
+  "en": [
+   "celebrate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi fejrer min fødselsdag på lørdag.",
+  "exampleEn": "We are celebrating my birthday on Saturday.",
+  "freqRank": 795
+ },
+ {
+  "id": "da-0796",
+  "da": "kniv",
+  "en": [
+   "knife"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg skærer brødet med en skarp kniv.",
+  "exampleEn": "I cut the bread with a sharp knife.",
+  "freqRank": 796
+ },
+ {
+  "id": "da-0797",
+  "da": "gaffel",
+  "en": [
+   "fork"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi spiser kagen med en gaffel.",
+  "exampleEn": "We eat the cake with a fork.",
+  "freqRank": 797
+ },
+ {
+  "id": "da-0798",
+  "da": "gifte",
+  "en": [
+   "marry",
+   "get married"
+  ],
+  "pos": "verb",
+  "exampleDa": "De gifter sig til sommer.",
+  "exampleEn": "They are getting married this summer.",
+  "freqRank": 798
+ },
+ {
+  "id": "da-0799",
+  "da": "gryde",
+  "en": [
+   "pot",
+   "saucepan"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Suppen står i gryden på komfuret.",
+  "exampleEn": "The soup is in the pot on the stove.",
+  "freqRank": 799
+ },
+ {
+  "id": "da-0800",
+  "da": "kysse",
+  "en": [
+   "kiss"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han kyssede hende blidt på kinden.",
+  "exampleEn": "He kissed her gently on the cheek.",
+  "freqRank": 800
+ },
+ {
+  "id": "da-0801",
+  "da": "ovn",
+  "en": [
+   "oven"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Kagen skal i ovnen i fyrre minutter.",
+  "exampleEn": "The cake goes in the oven for forty minutes.",
+  "freqRank": 801
+ },
+ {
+  "id": "da-0802",
+  "da": "køleskab",
+  "en": [
+   "fridge",
+   "refrigerator"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Mælken står i køleskabet.",
+  "exampleEn": "The milk is in the fridge.",
+  "freqRank": 802
+ },
+ {
+  "id": "da-0803",
+  "da": "vaskemaskine",
+  "en": [
+   "washing machine"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vores vaskemaskine er gået i stykker.",
+  "exampleEn": "Our washing machine has broken.",
+  "freqRank": 803
+ },
+ {
+  "id": "da-0804",
+  "da": "støvsuger",
+  "en": [
+   "vacuum cleaner",
+   "hoover"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg bruger støvsugeren hver søndag.",
+  "exampleEn": "I use the vacuum cleaner every Sunday.",
+  "freqRank": 804
+ },
+ {
+  "id": "da-0805",
+  "da": "vågne",
+  "en": [
+   "wake up",
+   "wake"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg vågner klokken seks hver morgen.",
+  "exampleEn": "I wake up at six every morning.",
+  "freqRank": 805
+ },
+ {
+  "id": "da-0806",
+  "da": "pude",
+  "en": [
+   "pillow",
+   "cushion"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Jeg sover altid med to puder.",
+  "exampleEn": "I always sleep with two pillows.",
+  "freqRank": 806
+ },
+ {
+  "id": "da-0807",
+  "da": "vække",
+  "en": [
+   "wake",
+   "wake up"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du vække mig klokken syv?",
+  "exampleEn": "Can you wake me up at seven?",
+  "freqRank": 807
+ },
+ {
+  "id": "da-0808",
+  "da": "dyne",
+  "en": [
+   "duvet",
+   "comforter"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Om vinteren bruger jeg en tyk dyne.",
+  "exampleEn": "In the winter I use a thick duvet.",
+  "freqRank": 808
+ },
+ {
+  "id": "da-0809",
+  "da": "hvile",
+  "en": [
+   "rest"
+  ],
+  "pos": "verb",
+  "exampleDa": "Farfar hviler sig efter frokost.",
+  "exampleEn": "Grandpa rests after lunch.",
+  "freqRank": 809
+ },
+ {
+  "id": "da-0810",
+  "da": "gardin",
+  "en": [
+   "curtain"
+  ],
+  "pos": "noun",
+  "article": "et",
+  "exampleDa": "Hun trækker gardinerne for om aftenen.",
+  "exampleEn": "She draws the curtains in the evening.",
+  "freqRank": 810
+ },
+ {
+  "id": "da-0811",
+  "da": "slappe",
+  "en": [
+   "relax",
+   "unwind"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi slapper af foran fjernsynet.",
+  "exampleEn": "We relax in front of the TV.",
+  "freqRank": 811
+ },
+ {
+  "id": "da-0812",
+  "da": "kælder",
+  "en": [
+   "basement",
+   "cellar"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Cyklerne står nede i kælderen.",
+  "exampleEn": "The bicycles are down in the basement.",
+  "freqRank": 812
+ },
+ {
+  "id": "da-0813",
+  "da": "fodbold",
+  "en": [
+   "football",
+   "soccer"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Drengene spiller fodbold i parken.",
+  "exampleEn": "The boys play football in the park.",
+  "freqRank": 813
+ },
+ {
+  "id": "da-0814",
+  "da": "kede",
+  "en": [
+   "bore",
+   "be bored"
+  ],
+  "pos": "verb",
+  "exampleDa": "Børnene keder sig, når det regner.",
+  "exampleEn": "The children get bored when it rains.",
+  "freqRank": 814
+ },
+ {
+  "id": "da-0815",
+  "da": "svømning",
+  "en": [
+   "swimming"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Min datter går til svømning om onsdagen.",
+  "exampleEn": "My daughter goes to swimming on Wednesdays.",
+  "freqRank": 815
+ },
+ {
+  "id": "da-0816",
+  "da": "koncert",
+  "en": [
+   "concert"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Vi skal til koncert på fredag.",
+  "exampleEn": "We are going to a concert on Friday.",
+  "freqRank": 816
+ },
+ {
+  "id": "da-0817",
+  "da": "skynde",
+  "en": [
+   "hurry",
+   "rush"
+  ],
+  "pos": "verb",
+  "exampleDa": "Skynd dig, bussen kommer nu!",
+  "exampleEn": "Hurry up, the bus is coming now!",
+  "freqRank": 817
+ },
+ {
+  "id": "da-0818",
+  "da": "biograf",
+  "en": [
+   "cinema",
+   "movie theater"
+  ],
+  "pos": "noun",
+  "article": "en",
+  "exampleDa": "Skal vi gå i biografen i aften?",
+  "exampleEn": "Shall we go to the cinema tonight?",
+  "freqRank": 818
+ },
+ {
+  "id": "da-0819",
+  "da": "gide",
+  "en": [
+   "feel like",
+   "bother"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg gider ikke lave mad i aften.",
+  "exampleEn": "I don't feel like cooking tonight.",
+  "freqRank": 819
+ },
+ {
+  "id": "da-0820",
+  "da": "fortryde",
+  "en": [
+   "regret"
+  ],
+  "pos": "verb",
+  "exampleDa": "Han fortrød, at han solgte bilen.",
+  "exampleEn": "He regretted selling the car.",
+  "freqRank": 820
+ },
+ {
+  "id": "da-0821",
+  "da": "øve",
+  "en": [
+   "practice",
+   "practise",
+   "rehearse"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun øver sig på klaveret hver dag.",
+  "exampleEn": "She practices the piano every day.",
+  "freqRank": 821
+ },
+ {
+  "id": "da-0822",
+  "da": "træne",
+  "en": [
+   "train",
+   "exercise",
+   "work out"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg træner tre gange om ugen.",
+  "exampleEn": "I work out three times a week.",
+  "freqRank": 822
+ },
+ {
+  "id": "da-0823",
+  "da": "studere",
+  "en": [
+   "study"
+  ],
+  "pos": "verb",
+  "exampleDa": "Min søster studerer på universitetet.",
+  "exampleEn": "My sister studies at the university.",
+  "freqRank": 823
+ },
+ {
+  "id": "da-0824",
+  "da": "undervise",
+  "en": [
+   "teach"
+  ],
+  "pos": "verb",
+  "exampleDa": "Hun underviser børn i musik.",
+  "exampleEn": "She teaches children music.",
+  "freqRank": 824
+ },
+ {
+  "id": "da-0825",
+  "da": "oversætte",
+  "en": [
+   "translate"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du oversætte denne sætning for mig?",
+  "exampleEn": "Can you translate this sentence for me?",
+  "freqRank": 825
+ },
+ {
+  "id": "da-0826",
+  "da": "gentage",
+  "en": [
+   "repeat"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vil du gentage spørgsmålet, tak?",
+  "exampleEn": "Will you repeat the question, please?",
+  "freqRank": 826
+ },
+ {
+  "id": "da-0827",
+  "da": "rette",
+  "en": [
+   "correct",
+   "fix"
+  ],
+  "pos": "verb",
+  "exampleDa": "Læreren retter vores opgaver i weekenden.",
+  "exampleEn": "The teacher corrects our assignments at the weekend.",
+  "freqRank": 827
+ },
+ {
+  "id": "da-0828",
+  "da": "lege",
+  "en": [
+   "play"
+  ],
+  "pos": "verb",
+  "exampleDa": "Børnene leger ude i haven.",
+  "exampleEn": "The children are playing out in the garden.",
+  "freqRank": 828
+ },
+ {
+  "id": "da-0829",
+  "da": "cykle",
+  "en": [
+   "cycle",
+   "bike",
+   "ride a bike"
+  ],
+  "pos": "verb",
+  "exampleDa": "Jeg cykler til arbejde hver dag.",
+  "exampleEn": "I cycle to work every day.",
+  "freqRank": 829
+ },
+ {
+  "id": "da-0830",
+  "da": "fange",
+  "en": [
+   "catch",
+   "capture"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vi fangede tre fisk i søen.",
+  "exampleEn": "We caught three fish in the lake.",
+  "freqRank": 830
+ },
+ {
+  "id": "da-0831",
+  "da": "løfte",
+  "en": [
+   "lift",
+   "raise"
+  ],
+  "pos": "verb",
+  "exampleDa": "Kan du løfte den tunge kasse?",
+  "exampleEn": "Can you lift the heavy box?",
+  "freqRank": 831
+ },
+ {
+  "id": "da-0832",
+  "da": "skubbe",
+  "en": [
+   "push",
+   "shove"
+  ],
+  "pos": "verb",
+  "exampleDa": "Du skal skubbe døren, ikke trække.",
+  "exampleEn": "You have to push the door, not pull.",
+  "freqRank": 832
+ },
+ {
+  "id": "da-0833",
+  "da": "reparere",
+  "en": [
+   "repair",
+   "fix"
+  ],
+  "pos": "verb",
+  "exampleDa": "Min far reparerer den gamle cykel.",
+  "exampleEn": "My dad is repairing the old bike.",
+  "freqRank": 833
+ },
+ {
+  "id": "da-0834",
+  "da": "ødelægge",
+  "en": [
+   "destroy",
+   "ruin",
+   "break"
+  ],
+  "pos": "verb",
+  "exampleDa": "Regnen ødelagde vores tur til stranden.",
+  "exampleEn": "The rain ruined our trip to the beach.",
+  "freqRank": 834
+ },
+ {
+  "id": "da-0835",
+  "da": "bage",
+  "en": [
+   "bake"
+  ],
+  "pos": "verb",
+  "exampleDa": "Min mor bager boller hver søndag.",
+  "exampleEn": "My mother bakes buns every Sunday.",
+  "freqRank": 835
+ },
+ {
+  "id": "da-0836",
+  "da": "koge",
+  "en": [
+   "boil",
+   "cook"
+  ],
+  "pos": "verb",
+  "exampleDa": "Vandet koger om to minutter.",
+  "exampleEn": "The water will boil in two minutes.",
+  "freqRank": 836
+ },
+ {
+  "id": "da-0837",
+  "da": "rydde",
+  "en": [
+   "clear",
+   "tidy",
+   "clean up"
+  ],
+  "pos": "verb",
+  "exampleDa": "Ryd op på dit værelse nu!",
+  "exampleEn": "Tidy up your room now!",
+  "freqRank": 837
+ }
 ]

@@ -23,7 +23,7 @@ const readGame = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.game)
 
 try {
-  await page.goto('http://localhost:4174/ClueCabulary/?mock=1&seed=11')
+  await page.goto('http://localhost:4174/ClueCabulary/?mock=1&seed=11&howto=0')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
   await page.click('.grid-card:first-child')
   await page.waitForSelector('.board-grid')
