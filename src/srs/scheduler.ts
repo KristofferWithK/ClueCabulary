@@ -1,0 +1,64 @@
+import type { RoundWordResult, SrsMap, WordStats } from './types'
+
+export const INTERVALS_DAYS = [0, 1, 3, 7, 14] as const
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+export function newStats(now: number): WordStats {
+  return {
+    box: 0,
+    lastSeenAt: now,
+    seen: 0,
+    correctGuesses: 0,
+    misses: 0,
+    lookups: 0,
+    redemptionRight: 0,
+    redemptionWrong: 0,
+  }
+}
+
+const clampBox = (b: number): WordStats['box'] => Math.max(0, Math.min(4, b)) as WordStats['box']
+
+/**
+ * Apply one round's signals in a single batch at round end, returning a new map.
+ * A looked-up word that was then guessed correctly deliberately nets out to
+ * "no promotion": the lookup did the work, not memory.
+ */
+export function applyRoundResults(map: SrsMap, results: RoundWordResult[], now: number): SrsMap {
+  const next: SrsMap = { ...map }
+  for (const r of results) {
+    const prev = next[r.wordId] ?? newStats(now)
+    const s: WordStats = { ...prev, seen: prev.seen + 1 }
+
+    if (r.guessedGreen) s.correctGuesses += 1
+    if (r.guessedWrong) s.misses += 1
+    if (r.lookedUp) s.lookups += 1
+    if (r.redemption === 'right') s.redemptionRight += 1
+    if (r.redemption === 'wrong') s.redemptionWrong += 1
+
+    const demote = r.guessedWrong || r.redemption === 'wrong'
+    const promote = (r.guessedGreen && !r.lookedUp) || r.redemption === 'right'
+    if (demote) s.box = clampBox(s.box - 1)
+    else if (promote) s.box = clampBox(s.box + 1)
+
+    // Lookup-only exposure stays due: don't push the review date forward.
+    const lookupOnly = r.lookedUp && !r.guessedGreen && !r.guessedWrong && !r.redemption
+    if (!lookupOnly || !(r.wordId in map)) s.lastSeenAt = now
+
+    next[r.wordId] = s
+  }
+  return next
+}
+
+/**
+ * Sampling weight for a seen word: overdue words and struggling words dominate;
+ * nothing reaches zero, preserving variety.
+ */
+export function reviewWeight(stats: WordStats, now: number): number {
+  const interval = INTERVALS_DAYS[stats.box]!
+  const daysSince = Math.max(0, now - stats.lastSeenAt) / DAY_MS
+  const overdue = interval === 0 ? 3 : Math.min(3, Math.max(0.25, daysSince / interval))
+  const struggling = 1 + stats.misses / (stats.seen + 1)
+  const lookedUp = 1 + (0.5 * Math.min(stats.lookups, 4)) / 4
+  return overdue * struggling * lookedUp
+}
