@@ -2,6 +2,28 @@ import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
 
+const CONFETTI_COLORS = ['#6aaa64', '#c9b458', '#567b95', '#121212', '#e3735e']
+
+/** One-shot CSS confetti burst — deterministic layout, no dependencies. */
+function Confetti() {
+  return (
+    <div className="confetti" aria-hidden="true">
+      {Array.from({ length: 28 }, (_, i) => (
+        <span
+          key={i}
+          className="confetti-piece"
+          style={{
+            left: `${(i * 37) % 100}%`,
+            background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+            animationDelay: `${(i % 7) * 0.12}s`,
+            animationDuration: `${2 + (i % 5) * 0.3}s`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 const OUTCOME_COPY: Record<string, { title: string; sub: string }> = {
   'won:all-greens': { title: 'You won! 🎉', sub: 'Every green word found together.' },
   'won:redeemed': { title: 'Redeemed! 🔥', sub: 'You translated your way out of disaster.' },
@@ -21,6 +43,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
 
   return (
     <div className="debrief">
+      {outcome.result === 'won' && <Confetti />}
       <div className={`outcome-banner outcome-${outcome.result}`}>
         <h2>{copy.title}</h2>
         <p>{copy.sub}</p>

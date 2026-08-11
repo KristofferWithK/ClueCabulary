@@ -108,3 +108,25 @@ function shuffleInPlace<T>(a: T[], rng: Rng): T[] {
   }
   return a
 }
+
+/**
+ * Daily-challenge board: a seeded uniform draw over the WHOLE dataset (same
+ * board for everyone on the same date), with the usual conflict exclusions.
+ */
+export function selectDailyWords(
+  all: readonly WordEntry[],
+  totalWords: number,
+  rng: Rng,
+): WordEntry[] {
+  if (all.length < totalWords) {
+    throw new Error(`need at least ${totalWords} words, dataset has ${all.length}`)
+  }
+  const pool = all.map((entry) => ({ entry, weight: 1 }))
+  const chosen = drawWeighted(pool, totalWords, [], rng)
+  // The exclusion rules can only starve a board in a pathological dataset.
+  for (const w of all) {
+    if (chosen.length === totalWords) break
+    if (!chosen.includes(w)) chosen.push(w)
+  }
+  return shuffleInPlace(chosen.slice(0, totalWords), rng)
+}

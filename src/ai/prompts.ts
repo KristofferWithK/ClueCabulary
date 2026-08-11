@@ -47,7 +47,10 @@ Hard constraints:
 - Your partner is a Danish LEARNER: prefer a clear, common association over a clever obscure one.
 - Check every word marked FORBIDDEN on your key: if your clue could plausibly point at one, pick a different clue. Neutral words cost a turn; forbidden words nearly lose the game.
 - ${view.turnsLeft <= 2 ? `Only ${view.turnsLeft} clue(s) left — be as ambitious as safely possible.` : 'Balance ambition with safety.'}
-Respond with ONLY a JSON object: {"clue": string, "number": <how many words you mean, 1-4>, "targetWordIds": [ids of the words you mean], "rationale": <one short sentence in English explaining the connection>}`
+Respond with ONLY a JSON object: {"clue": string, "number": <how many words you mean, 1-4>, "targetWordIds": [ids of the words you mean], "rationale": <one short sentence in English explaining the connection>}
+
+Example of a strong reply, from a DIFFERENT board where w3 was "hund" (dog) and w7 was "kat" (cat), both green on your key and far from your forbidden words:
+{"clue": "${view.clueLanguage === 'da' ? 'kæledyr' : 'pets'}", "number": 2, "targetWordIds": ["w3", "w7"], "rationale": "Dogs and cats are both household pets."}`
 
   const user = `Board (id | danish (english) [pos] | status | my key):
 ${board}
@@ -74,7 +77,10 @@ You are the GUESSER this turn. Your partner gave a clue pointing at some of THEI
 - Rank ALL plausible unrevealed words by how well they fit the clue, best first, with a calibrated confidence 0-1 for each.
 - Be honest about uncertainty: a wrong guess can end the turn or hit a forbidden word. Confidence below 0.35 should mean "I would rather stop than guess this".
 - Include at least the single best candidate even when unsure.
-Respond with ONLY a JSON object: {"guesses": [{"wordId": string, "confidence": number, "reasoning": <short English sentence>}]}`
+Respond with ONLY a JSON object: {"guesses": [{"wordId": string, "confidence": number, "reasoning": <short English sentence>}]}
+
+Example of a well-calibrated reply, from a DIFFERENT board where the clue was "frugt" (2):
+{"guesses": [{"wordId": "w2", "confidence": 0.85, "reasoning": "æble (apple) is literally a fruit"}, {"wordId": "w9", "confidence": 0.6, "reasoning": "pære (pear) is also a fruit"}, {"wordId": "w5", "confidence": 0.2, "reasoning": "træ (tree) is only loosely related — better to stop than guess this"}]}`
 
   const user = `Board (id | danish (english) [pos] | status):
 ${board}

@@ -12,6 +12,22 @@ function wordOfTheDay() {
   return WORDS[(dayKey * 2654435761) % WORDS.length]!
 }
 
+/** Local date key + seed: the same daily board for everyone on that date. */
+function dailyChallenge() {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  const key = `${y}-${m}-${d}`
+  return { key, seed: y * 10000 + (now.getMonth() + 1) * 100 + now.getDate() }
+}
+
+const DAILY_BADGE: Record<string, string> = {
+  won: '✓ solved',
+  redeemed: '🔥 redeemed',
+  lost: '· played',
+}
+
 export function HomeScreen() {
   const goTo = useUi((s) => s.goTo)
   const pendingSeed = useUi((s) => s.pendingSeed)
@@ -22,10 +38,17 @@ export function HomeScreen() {
 
   const openSheet = useUi((s) => s.openSheet)
   const wotd = wordOfTheDay()
+  const daily = dailyChallenge()
+  const dailyOutcome = localStorage.getItem(`cluecab-daily:${daily.key}`)
 
   const start = (gridSize: GridSize) => {
     settings.set({ gridSize })
-    newGame(pendingSeed ?? undefined)
+    newGame({ seed: pendingSeed ?? undefined })
+    goTo('game')
+  }
+
+  const startDaily = () => {
+    newGame({ seed: daily.seed, dailyKey: daily.key, gridSize: 'standard' })
     goTo('game')
   }
 
@@ -71,6 +94,14 @@ export function HomeScreen() {
           </span>
         </button>
       </div>
+
+      <button className="daily-card" onClick={startDaily}>
+        <span className="daily-card-name">Dagens udfordring</span>
+        <span className="daily-card-desc">
+          Daily challenge — one shared 4×5 board per day
+        </span>
+        {dailyOutcome && <span className="daily-card-badge">{DAILY_BADGE[dailyOutcome]}</span>}
+      </button>
 
       <button className="wotd" onClick={() => openSheet(wotd.id)}>
         <span className="wotd-label">Dagens ord · word of the day</span>

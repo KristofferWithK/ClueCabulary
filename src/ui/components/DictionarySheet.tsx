@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { wordById } from '../../data/words'
 import { useGame } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
+import { canSpeak, speakDanish } from '../speak'
 
 export function DictionarySheet() {
   const { sheetWordId, closeSheet } = useUi()
@@ -27,10 +28,30 @@ export function DictionarySheet() {
             {entry.da}
           </h2>
           <span className="pos-badge">{entry.pos}</span>
+          {canSpeak() && (
+            <button
+              className="speak-btn"
+              aria-label={`Pronounce ${entry.da}`}
+              onClick={() => speakDanish(entry.da)}
+            >
+              🔊
+            </button>
+          )}
         </div>
         <p className="sheet-glosses">{entry.en.join(', ')}</p>
         <blockquote className="sheet-example">
-          <p lang="da">{entry.exampleDa}</p>
+          <p lang="da">
+            {entry.exampleDa}
+            {canSpeak() && (
+              <button
+                className="speak-btn speak-btn-inline"
+                aria-label="Pronounce example sentence"
+                onClick={() => speakDanish(entry.exampleDa)}
+              >
+                🔊
+              </button>
+            )}
+          </p>
           <p className="sheet-example-en">{entry.exampleEn}</p>
         </blockquote>
         <button className="btn" onClick={closeSheet}>
