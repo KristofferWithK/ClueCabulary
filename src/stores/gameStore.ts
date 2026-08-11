@@ -63,6 +63,11 @@ function companion(): Companion {
 const aiMessage = (e: unknown): string =>
   e instanceof AiError ? e.message : 'Something went wrong talking to the AI companion.'
 
+const buzz = (result: 'green' | 'bystander' | 'forbidden') => {
+  if (typeof navigator === 'undefined' || !navigator.vibrate) return
+  navigator.vibrate(result === 'green' ? 15 : result === 'bystander' ? 40 : [70, 50, 70])
+}
+
 export const useGame = create<GameStore>()(
   persist(
     (set, get) => ({
@@ -135,6 +140,8 @@ export const useGame = create<GameStore>()(
         const { game } = get()
         if (!game || game.phase !== 'playerGuessing') return
         const next = applyEvent(game, { type: 'GUESS', wordId })
+        const clue = currentClue(next)
+        buzz(clue!.guesses[clue!.guesses.length - 1]!.result)
         set({ game: next, selectedWordId: null })
         if (next.phase === 'finished') get().finishRound()
       },
@@ -192,6 +199,8 @@ export const useGame = create<GameStore>()(
         }
         try {
           const after = applyEvent(game, { type: 'GUESS', wordId: next.wordId })
+          const clue = currentClue(after)
+          buzz(clue!.guesses[clue!.guesses.length - 1]!.result)
           const turnEnded = after.phase !== 'aiGuessing'
           set({ game: after, aiGuessQueue: turnEnded ? [] : rest, lastAiGuess: next })
           if (after.phase === 'finished') get().finishRound()

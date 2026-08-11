@@ -15,8 +15,19 @@ export function ClueInput({ game, onSubmit }: Props) {
   const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
   const canSubmit = trimmed.length > 0 && verdict?.legal === true
 
+  const last = game.clueHistory[game.clueHistory.length - 1]
+  const mark = { green: '✓', bystander: '·', forbidden: '☠' } as const
+
   return (
     <div className="dock clue-input">
+      {last && (
+        <p className="last-turn">
+          Last turn — {last.by === 'player' ? 'you' : 'Klaus'} clued «{last.text}»:{' '}
+          {last.guesses
+            .map((g) => `${game.words.find((w) => w.wordId === g.wordId)?.da} ${mark[g.result]}`)
+            .join('  ') || 'no guesses'}
+        </p>
+      )}
       <p className="dock-title">Your clue — one word for Klaus to guess by</p>
       <div className="clue-row">
         <input
