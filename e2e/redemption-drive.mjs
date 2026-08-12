@@ -27,6 +27,8 @@ try {
   await page.waitForSelector('h1:has-text("ClueCabulary")')
   await page.click('.grid-card:first-child')
   await page.waitForSelector('.board-grid')
+  const study = page.locator('.study-dock .btn-primary')
+  if (await study.isVisible().catch(() => false)) await study.click()
 
   // Round-trip one player clue. Two valid routes into redemption from here:
   // the mock AI stumbles onto a forbidden word itself, or we reach our own

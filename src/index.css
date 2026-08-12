@@ -839,6 +839,17 @@ select:focus {
 /* Your private key card, drawn onto the board: a green dot marks a word you
    must get Klaus to guess, a cross marks one that is forbidden for you. Shape
    plus color, never color alone. */
+.study-dock {
+  border: 1px solid var(--text);
+  background: var(--bg);
+}
+
+.study-hint {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .key-legend {
   text-align: center;
   font-size: 0.75rem;

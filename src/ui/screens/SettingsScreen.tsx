@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AiError, testConnection } from '../../ai/client'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
+import type { StudyMode } from '../../journey/progress'
 import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
@@ -98,6 +99,22 @@ export function SettingsScreen() {
             <option value="en">English clues (gentler)</option>
             <option value="da">Danish clues (immersion)</option>
           </select>
+        </label>
+
+        <label className="field">
+          <span>Study phase</span>
+          <select
+            value={settings.studyPhase}
+            onChange={(e) => settings.set({ studyPhase: e.target.value as StudyMode })}
+          >
+            <option value="auto">Auto — fades after Viborg</option>
+            <option value="always">Always show translations first</option>
+            <option value="never">Never — straight into the round</option>
+          </select>
+          <small>
+            A round can open with the whole board translated. On auto it disappears once the
+            journey turns north at Aalborg. Studying never counts as looking a word up.
+          </small>
         </label>
       </section>
 
