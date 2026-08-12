@@ -6,6 +6,7 @@ import type { StudyMode } from '../../journey/progress'
 import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
+import { BackupPanel } from '../components/BackupPanel'
 
 export function SettingsScreen() {
   const goTo = useUi((s) => s.goTo)
@@ -116,6 +117,11 @@ export function SettingsScreen() {
             journey turns north at Aalborg. Studying never counts as looking a word up.
           </small>
         </label>
+      </section>
+
+      <section className="settings-section">
+        <h3>Your collection</h3>
+        <BackupPanel />
       </section>
 
       <section className="settings-section">
