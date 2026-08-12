@@ -2118,3 +2118,54 @@ select:focus {
   flex-direction: column;
   gap: 8px;
 }
+
+/* ---------- a new version is waiting ---------- */
+
+.update-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 60;
+  max-width: 456px;
+  margin: 0 auto;
+  background: var(--text);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+
+.update-banner .btn {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: transparent;
+  color: #fff;
+}
+
+.update-banner .btn-primary {
+  background: #fff;
+  border-color: #fff;
+  color: var(--text);
+}
+
+.update-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Purely informational and self-dismissing: it must not sit in front of the
+   buttons it happens to overlap. */
+.update-banner-quiet {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  justify-content: center;
+  pointer-events: none;
+}

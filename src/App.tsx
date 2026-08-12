@@ -8,6 +8,7 @@ import { useSrs } from './stores/srsStore'
 import { consumeSelfPop, shouldShowHowTo, useUi } from './stores/uiStore'
 import { DictionarySheet } from './ui/components/DictionarySheet'
 import { HowToPlay } from './ui/components/HowToPlay'
+import { UpdateBanner } from './ui/components/UpdateBanner'
 import { GameScreen } from './ui/screens/GameScreen'
 import { GateExamScreen } from './ui/screens/GateExamScreen'
 import { HomeScreen } from './ui/screens/HomeScreen'
@@ -117,6 +118,7 @@ export default function App() {
       {screen === 'gate' && <GateExamScreen />}
       <DictionarySheet />
       <HowToPlay />
+      <UpdateBanner />
     </main>
   )
 }
