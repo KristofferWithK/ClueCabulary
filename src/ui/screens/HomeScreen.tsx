@@ -1,11 +1,12 @@
 import { WORDS } from '../../data/words'
 import { GRID_CONFIGS, type GridSize } from '../../engine/config'
+import { mulberry32 } from '../../engine/rng'
 import { CITIES, GATES_PER_CITY, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
 import {
   canTravel,
   countCollection,
-  examReadiness,
+  examComposition,
   examWords,
   stampsFor,
   unlockedWords,
@@ -96,7 +97,8 @@ export function HomeScreen() {
   const cityCounts = countCollection(wordsForCity(WORDS, journey.cityIndex), srs, journey.banked)
   const allCounts = countCollection(WORDS, srs, journey.banked)
   const stamps = stampsFor(journey, journey.cityIndex)
-  const readiness = examReadiness(WORDS, srs, journey.banked, journey.cityIndex)
+  const paper = examComposition(WORDS, srs, journey.banked, journey.cityIndex)
+  const paperUnknown = paper.discovered + paper.undiscovered
   const travelReady = canTravel(journey, journey.cityIndex)
 
   const wotd = wordOfTheDay(journey.cityIndex)
@@ -111,7 +113,13 @@ export function HomeScreen() {
   }
 
   const openExam = () => {
-    const words = examWords(WORDS, srs, journey.banked, journey.cityIndex)
+    const words = examWords(
+      WORDS,
+      srs,
+      journey.banked,
+      journey.cityIndex,
+      mulberry32(Date.now() % 0xffffffff),
+    )
     journey.startExam(
       journey.cityIndex,
       words.map((w) => w.id),
@@ -190,8 +198,12 @@ export function HomeScreen() {
         </button>
       ) : (
         <button className="btn btn-gate" onClick={openExam}>
-          <span lang="da">Rejseprøve</span> — {readiness.ready}/{readiness.total} of your best
-          words are green
+          <span lang="da">Rejseprøve</span>
+          <span className="gate-paper">
+            {paperUnknown === 0
+              ? `all ${paper.learned} words green — a fair test`
+              : `${paper.learned} you know · ${paperUnknown} you don't`}
+          </span>
         </button>
       )}
 

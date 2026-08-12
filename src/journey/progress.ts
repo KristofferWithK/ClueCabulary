@@ -1,4 +1,5 @@
 import type { WordEntry } from '../data/types'
+import { shuffle, type Rng } from '../engine/rng'
 import type { SrsMap, WordStats } from '../srs/types'
 import { CITIES, GATES_PER_CITY, GATE_SIZE, STUDY_UNTIL_CITY, WORDS_PER_CITY } from './cities'
 
@@ -91,36 +92,63 @@ export function countCollection(
   }
 }
 
+/** Unbanked words of a city, split by how well the player knows them. */
+function unbankedByState(
+  all: readonly WordEntry[],
+  srs: SrsMap,
+  banked: BankedWords,
+  cityIndex: number,
+) {
+  const pool = wordsForCity(all, cityIndex).filter((w) => !(w.id in banked))
+  return {
+    learned: pool.filter((w) => wordState(srs[w.id], false) === 'learned'),
+    discovered: pool.filter((w) => wordState(srs[w.id], false) === 'discovered'),
+    undiscovered: pool.filter((w) => wordState(srs[w.id], false) === 'undiscovered'),
+  }
+}
+
 /**
- * The travel exam is never locked: it always draws the player's strongest
- * words in this city that no stamp has banked yet — most-handled first, then
- * by frequency. Taking it early is allowed and simply harder, so the player is
- * never stuck waiting for a particular word to come round.
+ * What the next paper will hold, without drawing it — so the player can judge
+ * the risk before committing. Green words come first, then grey, then words
+ * never met, which makes the exam self-balancing: at twenty greens the paper is
+ * entirely green and a fair test; take it earlier and you are gambling on words
+ * you may not know.
+ */
+export function examComposition(
+  all: readonly WordEntry[],
+  srs: SrsMap,
+  banked: BankedWords,
+  cityIndex: number,
+): { learned: number; discovered: number; undiscovered: number; total: number } {
+  const pool = unbankedByState(all, srs, banked, cityIndex)
+  const learned = Math.min(pool.learned.length, GATE_SIZE)
+  const discovered = Math.min(pool.discovered.length, GATE_SIZE - learned)
+  const undiscovered = Math.min(
+    pool.undiscovered.length,
+    GATE_SIZE - learned - discovered,
+  )
+  return { learned, discovered, undiscovered, total: learned + discovered + undiscovered }
+}
+
+/**
+ * Draw the paper. Green words are taken by frequency (stable), while the grey
+ * and unknown filler is sampled, so an impatient attempt is not the same test
+ * twice. Never locked, and never re-tests a banked word.
  */
 export function examWords(
   all: readonly WordEntry[],
   srs: SrsMap,
   banked: BankedWords,
   cityIndex: number,
+  rng: Rng,
 ): WordEntry[] {
-  return wordsForCity(all, cityIndex)
-    .filter((w) => !(w.id in banked))
-    .map((w) => ({ w, handled: srs[w.id]?.correctGuesses ?? 0 }))
-    .sort((a, b) => b.handled - a.handled || a.w.freqRank - b.w.freqRank)
-    .slice(0, GATE_SIZE)
-    .map((x) => x.w)
-}
-
-/** How many of the next exam's words are already green — the readiness hint. */
-export function examReadiness(
-  all: readonly WordEntry[],
-  srs: SrsMap,
-  banked: BankedWords,
-  cityIndex: number,
-): { ready: number; total: number } {
-  const words = examWords(all, srs, banked, cityIndex)
-  const ready = words.filter((w) => isLearned(srs[w.id], w.id in banked)).length
-  return { ready, total: words.length }
+  const pool = unbankedByState(all, srs, banked, cityIndex)
+  const paper = pool.learned.slice(0, GATE_SIZE)
+  for (const group of [pool.discovered, pool.undiscovered]) {
+    if (paper.length >= GATE_SIZE) break
+    paper.push(...shuffle(group, rng).slice(0, GATE_SIZE - paper.length))
+  }
+  return paper.sort((a, b) => a.freqRank - b.freqRank)
 }
 
 export function stampsFor(journey: JourneyState, cityIndex: number): number {
