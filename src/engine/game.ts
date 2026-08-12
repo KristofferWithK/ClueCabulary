@@ -189,7 +189,7 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
         throw new IllegalEventError(`cannot submit redemption in phase ${s.phase}`)
       }
       const prompted = s.words.filter((w) => s.redemption!.promptWordIds.includes(w.wordId))
-      const results = gradeRedemption(event.answers, prompted)
+      const results = gradeRedemption(event.answers, prompted, event.isKnownWord)
       s.redemption.results = results
       s.phase = 'finished'
       s.outcome = results.every((r) => r.accepted)

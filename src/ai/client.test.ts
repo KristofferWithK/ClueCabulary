@@ -84,7 +84,9 @@ describe('chatJson error taxonomy', () => {
     vi.stubGlobal('fetch', fetchMock)
     await chatJson(settings, messages)
     const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe('https://ai.example/v1/chat/completions')
+    // A URL object now, not a string: the base is parsed and checked before
+    // any header carrying the API key is built. fetch takes either.
+    expect(String(url)).toBe('https://ai.example/v1/chat/completions')
     expect(init.headers.Authorization).toBe('Bearer key')
     const body = JSON.parse(init.body)
     expect(body.model).toBe('m')

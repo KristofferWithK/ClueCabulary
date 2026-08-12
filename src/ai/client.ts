@@ -29,6 +29,43 @@ export class AiError extends Error {
 export const DEFAULT_BASE_URL = 'https://ollama.com/v1'
 export const DEFAULT_MODEL = 'gpt-oss:120b'
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])
+
+/**
+ * Resolve the endpoint, refusing anything that would carry the API key
+ * somewhere it does not belong.
+ *
+ * The Base URL is free text the player types. Left to fetch, "myproxy.dev/v1"
+ * is a RELATIVE url — it resolves against the page's own origin, so the request
+ * (Authorization header and all) goes to whatever host is serving the app, and
+ * the key lands in someone else's access log. "//host/v1" is worse: it is
+ * protocol-relative and silently goes wherever it says.
+ *
+ * So: absolute only, https only, with plain http allowed just for a local
+ * Ollama, where there is no network to intercept.
+ */
+export function resolveEndpoint(baseUrl: string): URL {
+  const trimmed = baseUrl.trim().replace(/\/+$/, '')
+  let url: URL
+  try {
+    // No base argument: anything relative or protocol-relative throws here.
+    url = new URL(`${trimmed}/chat/completions`)
+  } catch {
+    throw new AiError(
+      'network',
+      'The Base URL must be a full address starting with https:// — check it in Settings.',
+    )
+  }
+  const local = LOCAL_HOSTS.has(url.hostname)
+  if (url.protocol !== 'https:' && !(url.protocol === 'http:' && local)) {
+    throw new AiError(
+      'network',
+      `The Base URL must use https:// (http:// is allowed only for a local Ollama). Check it in Settings.`,
+    )
+  }
+  return url
+}
+
 export type ChatFn = (
   settings: AiSettings,
   messages: ChatMessage[],
@@ -40,9 +77,11 @@ export type ChatFn = (
  * model errors so Settings can give actionable advice; retries once on 5xx.
  */
 export const chatJson: ChatFn = async (settings, messages, opts) => {
+  // Before any header is built, let alone sent.
+  const endpoint = resolveEndpoint(settings.baseUrl)
   const doFetch = async (): Promise<Response> => {
     try {
-      return await fetch(`${settings.baseUrl.replace(/\/+$/, '')}/chat/completions`, {
+      return await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,14 +1,24 @@
 import { useState } from 'react'
-import { wordById } from '../../data/words'
+import { isKnownGloss, wordById } from '../../data/words'
 import type { WordEntry } from '../../data/types'
 import { answerMatches } from '../../engine/redemption'
-import { CITIES, GATES_PER_CITY, GATE_SIZE, cityAt } from '../../journey/cities'
-import { canTravel, examTrials, stampsFor } from '../../journey/progress'
+import { CITIES, GATES_PER_CITY, cityAt } from '../../journey/cities'
+import {
+  canTravel,
+  examTrials,
+  examWords,
+  greensToNextTrial,
+  stampsFor,
+  wordState,
+} from '../../journey/progress'
+import { championAt } from '../../journey/champions'
+import { mulberry32 } from '../../engine/rng'
 import { WORDS } from '../../data/words'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import type { RoundWordResult } from '../../srs/types'
+import { Arrival } from '../components/Arrival'
 
 interface Graded {
   word: WordEntry
@@ -21,33 +31,10 @@ export function GateExamScreen() {
   const journey = useJourney()
   const recordRound = useSrs((s) => s.recordRound)
 
-  const [graded, setGraded] = useState<Graded[] | null>(null)
+  const [submitted, setSubmitted] = useState(false)
   const [arrivedIndex, setArrivedIndex] = useState<number | null>(null)
 
-  if (arrivedIndex !== null) {
-    const arrived = cityAt(arrivedIndex)
-    return (
-      <div className="screen arrival-screen">
-        <p className="arrival-eyebrow" lang="da">
-          Velkommen til
-        </p>
-        <h1 className="arrival-city" lang="da">
-          {arrived.name}
-        </h1>
-        <p className="arrival-blurb" lang="da">
-          {arrived.blurbDa}
-        </p>
-        <p className="arrival-blurb-en">{arrived.blurbEn}</p>
-        <p className="arrival-unlock">100 new words to discover.</p>
-        <button className="btn btn-primary btn-big" onClick={() => goTo('home')}>
-          <span lang="da">Kom i gang</span>
-        </button>
-        <button className="btn" onClick={() => goTo('map')}>
-          <span lang="da">Se kortet</span>
-        </button>
-      </div>
-    )
-  }
+  if (arrivedIndex !== null) return <Arrival cityIndex={arrivedIndex} />
 
   const exam = journey.activeExam
   if (!exam) {
@@ -55,20 +42,48 @@ export function GateExamScreen() {
     return null
   }
 
-  const city = cityAt(journey.cityIndex)
+  // The paper's own city, not wherever the player happens to be. They normally
+  // agree — travel() clears any open exam — but the v1 rescue can move the
+  // player while a paper is still out, and a paper must always stamp the city
+  // it was drawn for.
+  const examCity = exam.cityIndex
+  const city = cityAt(examCity)
+  // The champion sets the paper and stamps the passport. Everything the exam
+  // says is said by a person.
+  const champion = championAt(examCity)
   // The exact words drawn when the exam opened, so playing elsewhere cannot
   // change the paper mid-sitting.
   const words = exam.wordIds.map((id) => wordById(id)).filter((w): w is WordEntry => !!w)
   const answers = exam.answers
   const answered = words.filter((w) => (answers[w.id] ?? '').trim().length > 0).length
-  const passed = graded !== null && graded.every((g) => g.accepted)
+
+  // Derived, not stored: a paper marked before a reload comes back marked,
+  // because gradedAt is persisted with the answers. Without that, resuming a
+  // passed exam would put the filled-in paper back on screen and submitting it
+  // again would award a second stempel from one correct paper, endlessly.
+  const graded: Graded[] | null =
+    submitted || exam.gradedAt
+      ? words.map((w) => {
+          const given = answers[w.id] ?? ''
+          return { word: w, given, accepted: answerMatches(given, w.en, isKnownGloss) !== undefined }
+        })
+      : null
+  // words.length guards a vacuous pass: [].every(...) is true, so a city with
+  // nothing left unbanked would hand out a stempel for an empty sheet.
+  const passed = graded !== null && graded.length > 0 && graded.every((g) => g.accepted)
+  // How much of this paper the player already owns — the honest risk statement.
+  const srsStats = useSrs.getState().stats
+  const paperGreens = words.filter(
+    (w) => wordState(srsStats[w.id], w.id in journey.banked) === 'learned',
+  ).length
 
   const submit = () => {
+    if (exam.gradedAt) return
     const results: Graded[] = words.map((w) => {
       const given = answers[w.id] ?? ''
       return { word: w, given, accepted: answerMatches(given, w.en) !== undefined }
     })
-    setGraded(results)
+    setSubmitted(true)
 
     // Feed the schedule: misses demote, hits promote. Handling counts are
     // untouched, so an exam never inflates the play-route to green.
@@ -81,31 +96,47 @@ export function GateExamScreen() {
     }))
     recordRound(srsResults, Date.now())
 
-    if (results.every((r) => r.accepted)) {
-      journey.awardStamp(journey.cityIndex, exam.wordIds, Date.now())
+    journey.markExamGraded(Date.now())
+    // The attempt was already spent when the paper was drawn.
+    if (results.length > 0 && results.every((r) => r.accepted)) {
+      journey.awardStamp(examCity, exam.wordIds, Date.now())
       if (navigator.vibrate) navigator.vibrate([20, 60, 20])
-    } else {
-      // Only failure costs an attempt; success is never punished.
-      journey.spendTrial(journey.cityIndex)
     }
   }
 
-  const trialsLeft = examTrials(
+  const trials = examTrials(
     WORDS,
     useSrs.getState().stats,
     journey.banked,
     journey,
-    journey.cityIndex,
-  ).available
+    examCity,
+  )
+  const canRetry = trials.unlimited || trials.available > 0
+  const toNextTrial = greensToNextTrial(WORDS, useSrs.getState().stats, journey.banked, examCity)
 
+  // A fresh paper, never the one just marked. The results screen prints the
+  // right answer beside every miss, so re-serving the same twenty words would
+  // hand the player a guaranteed pass and make the attempt economy meaningless.
   const retry = () => {
-    journey.startExam(exam.cityIndex, exam.wordIds)
-    setGraded(null)
+    const words = examWords(
+      WORDS,
+      useSrs.getState().stats,
+      journey.banked,
+      exam.cityIndex,
+      mulberry32(Date.now() % 0xffffffff),
+    )
+    journey.startExam(
+      exam.cityIndex,
+      words.map((w) => w.id),
+    )
+    setSubmitted(false)
   }
 
   // awardStamp already ran, so read the freshly-stamped passport.
-  const stamps = stampsFor(journey, journey.cityIndex)
-  const readyToTravel = passed && canTravel(journey, journey.cityIndex)
+  const stamps = stampsFor(journey, examCity)
+  // Travelling on is only offered when the paper belongs to where you stand.
+  const readyToTravel =
+    passed && examCity === journey.cityIndex && canTravel(journey, journey.cityIndex)
   const nextCity = journey.cityIndex + 1 < CITIES.length ? cityAt(journey.cityIndex + 1) : null
 
   return (
@@ -113,9 +144,10 @@ export function GateExamScreen() {
       <header className="screen-header">
         <button
           className="icon-btn"
-          aria-label="Back"
+          aria-label={graded ? 'Back' : 'Put the paper down and come back to it'}
           onClick={() => {
-            journey.endExam()
+            // A marked paper is finished; only an unmarked one is worth keeping.
+            if (exam.gradedAt) journey.endExam()
             goTo('home')
           }}
         >
@@ -126,13 +158,32 @@ export function GateExamScreen() {
         </h1>
       </header>
 
-      <p className="gate-intro">
-        {graded
-          ? passed
-            ? `All ${words.length} right — a stempel for ${city.name}.`
-            : 'Not this time. Look at the misses, play a few more rounds, and come back.'
-          : `Your strongest ${words.length} words in ${city.name}. Translate every one to English — no mistakes, and the dictionary is closed.`}
+      <p className="gate-paper-line">
+        {`${words.length} words from ${city.name}${
+          paperGreens === words.length
+            ? ', all of them ones you have learned'
+            : ` — ${paperGreens} you have learned, ${words.length - paperGreens} you have not`
+        }. Translate every one to English — no mistakes, and the dictionary is closed.`}
       </p>
+
+      <div className="champion-says">
+        <span className="champion-motif-inline" aria-hidden="true">
+          {champion.motif}
+        </span>
+        {graded ? (
+          <>
+            <p className="champion-line" lang="da">
+              {passed ? champion.passDa : champion.failDa}
+            </p>
+            <p className="champion-line-en">{passed ? champion.passEn : champion.failEn}</p>
+          </>
+        ) : (
+          <p className="champion-line-en">{champion.examIntroEn}</p>
+        )}
+        <p className="champion-attrib">
+          {champion.name}, <span lang="da">{champion.titleDa}</span>
+        </p>
+      </div>
 
       {graded ? (
         <>
@@ -155,9 +206,13 @@ export function GateExamScreen() {
 
           {!passed && (
             <p className="trials-left">
-              {trialsLeft > 0
-                ? `${trialsLeft} ${trialsLeft === 1 ? 'attempt' : 'attempts'} left · every ten green words earns another`
-                : 'No attempts left — turn ten more words green to earn one.'}
+              {trials.unlimited
+                ? `You know this city — take the paper as often as you like.`
+                : trials.available > 0
+                  ? `${trials.available} ${trials.available === 1 ? 'attempt' : 'attempts'} left · every ten green words earns another`
+                  : `No attempts left — ${toNextTrial} more green ${
+                      toNextTrial === 1 ? 'word' : 'words'
+                    } earns one.`}
             </p>
           )}
 
@@ -167,20 +222,48 @@ export function GateExamScreen() {
                 <span lang="da">Stempel</span> {stamps} / {GATES_PER_CITY} ·{' '}
                 {words.length} words banked
               </p>
-              {readyToTravel && nextCity ? (
+              {/* A full page is a full page whether or not there is a road out
+                  of it. Gating the farewell on nextCity made the last
+                  champion's line — the one line in the game that fires exactly
+                  once — fire zero times, and ended the whole journey on a
+                  system sentence back on Home. */}
+              {readyToTravel ? (
                 <>
-                  <p className="travel-callout">The passport page is full. The road is open.</p>
-                  <button
-                    className="btn btn-primary btn-big"
-                    onClick={() => {
-                      const destination = journey.cityIndex + 1
-                      journey.endExam()
-                      journey.travel(Date.now())
-                      setArrivedIndex(destination)
-                    }}
-                  >
-                    <span lang="da">Rejs videre</span> → {nextCity.name}
-                  </button>
+                  <p className="travel-callout">
+                    {nextCity
+                      ? 'The passport page is full. The road is open.'
+                      : 'The passport is full. A thousand words.'}
+                  </p>
+                  <div className="champion-says champion-says-farewell">
+                    <p className="champion-line" lang="da">
+                      {champion.farewellDa}
+                    </p>
+                    <p className="champion-line-en">{champion.farewellEn}</p>
+                    <p className="champion-attrib">{champion.name}</p>
+                  </div>
+                  {nextCity ? (
+                    <button
+                      className="btn btn-primary btn-big"
+                      onClick={() => {
+                        const destination = journey.cityIndex + 1
+                        journey.endExam()
+                        journey.travel(Date.now())
+                        setArrivedIndex(destination)
+                      }}
+                    >
+                      <span lang="da">Rejs videre</span> → {nextCity.name}
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-primary btn-big"
+                      onClick={() => {
+                        journey.endExam()
+                        goTo('home')
+                      }}
+                    >
+                      <span lang="da">Rejsen er slut</span>
+                    </button>
+                  )}
                 </>
               ) : (
                 <button
@@ -196,8 +279,8 @@ export function GateExamScreen() {
             </div>
           ) : (
             <div className="gate-actions">
-              <button className="btn btn-primary" onClick={retry} disabled={trialsLeft < 1}>
-                Try again
+              <button className="btn btn-primary" onClick={retry} disabled={!canRetry}>
+                Try again{trials.unlimited ? '' : ' — spends an attempt'}
               </button>
               <button
                 className="btn"
@@ -238,7 +321,7 @@ export function GateExamScreen() {
             {answered} / {words.length} answered
           </p>
           <button className="btn btn-primary btn-big" onClick={submit}>
-            Submit — all {GATE_SIZE} must be right
+            Submit — all {words.length} must be right
           </button>
         </>
       )}

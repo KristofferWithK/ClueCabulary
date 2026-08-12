@@ -39,9 +39,13 @@ export function ClueInput({ game, onSubmit }: Props) {
       </p>
       <div className="clue-row">
         <input
+          id="clue-word"
           type="text"
           value={text}
           placeholder="e.g. dyreliv"
+          aria-label="Your one-word clue"
+          aria-invalid={verdict ? !verdict.legal : undefined}
+          aria-describedby={verdict && !verdict.legal ? 'clue-error' : undefined}
           autoCapitalize="off"
           autoComplete="off"
           enterKeyHint="done"
@@ -54,13 +58,20 @@ export function ClueInput({ game, onSubmit }: Props) {
           >
             −
           </button>
-          <span className="stepper-value">{number}</span>
+          <span className="stepper-value" aria-live="polite" aria-label={`${number} words`}>
+            {number}
+          </span>
           <button aria-label="more words" onClick={() => setNumber((n) => Math.min(4, n + 1))}>
             +
           </button>
         </div>
       </div>
-      {verdict && !verdict.legal && <p className="clue-error">{verdict.reason}</p>}
+      {/* role=alert so a rejected clue is spoken; id so the field points at it. */}
+      {verdict && !verdict.legal && (
+        <p className="clue-error" id="clue-error" role="alert">
+          {verdict.reason}
+        </p>
+      )}
       <button
         className="btn btn-primary"
         disabled={!canSubmit}

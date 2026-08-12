@@ -9,6 +9,7 @@ import {
   GATES_PER_CITY,
   GATE_SIZE,
   STUDY_UNTIL_CITY,
+  UNLIMITED_TRIALS_AT,
   WORDS_PER_CITY,
 } from './cities'
 import {
@@ -270,11 +271,29 @@ describe('exam trials', () => {
     expect(GREENS_PER_TRIAL).toBe(GATE_SIZE / 2)
   })
 
-  it('failures spend attempts and can shut the exam again', () => {
+  it('an attempt taken shuts the exam again', () => {
     const srs = greens(GREENS_PER_TRIAL)
     const spent = journey({ trialsSpent: { 0: 1 } })
     expect(examTrials(WORDS, srs, {}, spent, 0).available).toBe(0)
     expect(examUnlocked(WORDS, srs, {}, spent, 0)).toBe(false)
+  })
+
+  it('passing pays for itself: each stamp banks twenty, earning two for one', () => {
+    // Ten greens buys the first attempt. Passing banks the paper's twenty
+    // words, which are worth two more attempts — so a clean run never stalls.
+    let state = journey()
+    let srs = greens(GREENS_PER_TRIAL)
+    let banked: Record<string, number> = {}
+    for (let stamp = 1; stamp <= GATES_PER_CITY; stamp++) {
+      expect(examUnlocked(WORDS, srs, banked, state, 0)).toBe(true)
+      state = journey({ trialsSpent: { 0: (state.trialsSpent[0] ?? 0) + 1 } })
+      banked = {
+        ...banked,
+        ...Object.fromEntries(city.slice(0, stamp * GATE_SIZE).map((w) => [w.id, NOW])),
+      }
+      srs = {}
+    }
+    expect(examTrials(WORDS, srs, banked, state, 0).spent).toBe(GATES_PER_CITY)
   })
 
   it('banked words keep counting toward attempts', () => {
@@ -282,15 +301,44 @@ describe('exam trials', () => {
     expect(examTrials(WORDS, {}, banked, journey(), 0).earned).toBe(2)
   })
 
-  it('a certain paper is always allowed, however many attempts were burnt', () => {
-    // Every remaining word green, but all ten trials spent.
-    const banked = Object.fromEntries(city.slice(0, 80).map((w) => [w.id, NOW]))
-    const srs = srsWith(city.slice(80), { correctGuesses: LEARN_REPS })
+  it('stops counting once the city is nine-tenths green, however many were burnt', () => {
+    const srs = greens(UNLIMITED_TRIALS_AT)
     const burnt = journey({ trialsSpent: { 0: 99 } })
-    const trials = examTrials(WORDS, srs, banked, burnt, 0)
+    const trials = examTrials(WORDS, srs, {}, burnt, 0)
     expect(trials.available).toBe(0)
-    expect(trials.certain).toBe(true)
-    expect(examUnlocked(WORDS, srs, banked, burnt, 0)).toBe(true)
+    expect(trials.unlimited).toBe(true)
+    expect(examUnlocked(WORDS, srs, {}, burnt, 0)).toBe(true)
+  })
+
+  it('one green short of the threshold is still rationed', () => {
+    const srs = greens(UNLIMITED_TRIALS_AT - 1)
+    const burnt = journey({ trialsSpent: { 0: 99 } })
+    expect(examTrials(WORDS, srs, {}, burnt, 0).unlimited).toBe(false)
+    expect(examUnlocked(WORDS, srs, {}, burnt, 0)).toBe(false)
+  })
+
+  it('banked words count toward the threshold too', () => {
+    const banked = Object.fromEntries(
+      city.slice(0, UNLIMITED_TRIALS_AT).map((w) => [w.id, NOW]),
+    )
+    expect(examTrials(WORDS, {}, banked, journey({ trialsSpent: { 0: 99 } }), 0).unlimited).toBe(
+      true,
+    )
+  })
+
+  it('play can always buy another attempt, so no city can strand a player', () => {
+    // Every attempt burnt at every green count below the threshold: greening
+    // ten more words always reopens the exam.
+    const burnt = (n: number) => journey({ trialsSpent: { 0: n } })
+    for (let learned = 0; learned < UNLIMITED_TRIALS_AT; learned += GREENS_PER_TRIAL) {
+      const srs = greens(learned)
+      const allSpent = burnt(Math.floor(learned / GREENS_PER_TRIAL))
+      expect(examUnlocked(WORDS, srs, {}, allSpent, 0)).toBe(false)
+      // ...and ten more greens opens it again.
+      expect(
+        examUnlocked(WORDS, greens(learned + GREENS_PER_TRIAL), {}, allSpent, 0),
+      ).toBe(true)
+    }
   })
 
   it('reports how many greens remain before the next attempt', () => {

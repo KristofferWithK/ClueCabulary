@@ -9,7 +9,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt', not 'autoUpdate': autoUpdate can swap the app out from under
+      // a round in progress, and it gave the player no way to know a new
+      // version existed. UpdateBanner asks instead.
+      registerType: 'prompt',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
       manifest: {
         name: 'ClueCabulary',
@@ -37,11 +40,22 @@ export default defineConfig({
         // The app shell and word data are precached; AI calls are network-only.
         globPatterns: ['**/*.{js,css,html,png,svg,json,woff2}'],
         navigateFallback: '/ClueCabulary/index.html',
+        // Prompt mode turns both of these off. skipWaiting must stay off — that
+        // is what lets the player choose the moment. clientsClaim has to come
+        // back on: without it the very first visit is uncontrolled, so a player
+        // who installs the app and goes offline has nothing cached yet. It only
+        // affects a worker that is already activating, so it cannot jump the
+        // queue past the prompt.
+        clientsClaim: true,
+        skipWaiting: false,
       },
     }),
   ],
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Agents' throwaway probes live here and are gitignored; they must not
+    // join the suite that gates a commit.
+    exclude: ['**/__probe__/**', '**/__fuzz__/**', '**/__scratch__/**', '**/node_modules/**'],
   },
 })

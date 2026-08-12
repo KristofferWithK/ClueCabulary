@@ -1,5 +1,8 @@
 :root {
   --bg: #ffffff;
+  /* Collection greys: 'discovered' is grey everywhere, never the board's beige. */
+  --grey-tile: #9a9da1;
+  --grey-soft: #ececee;
   --surface: #f7f7f5;
   --line: #d3d6da;
   --line-soft: #e6e6e6;
@@ -181,12 +184,12 @@ select:focus {
 /* ---------- home ---------- */
 
 .home-screen {
-  gap: 20px;
+  gap: 16px;
 }
 
 .home-hero {
   text-align: center;
-  padding: 40px 0 4px;
+  padding: 18px 0 4px;
 }
 
 .home-hero h1 {
@@ -211,7 +214,7 @@ select:focus {
 
 .home-progress::before {
   content: '● ';
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .setup-nudge {
@@ -280,7 +283,7 @@ select:focus {
 .city-card {
   border: 1px solid var(--text);
   border-radius: var(--radius);
-  padding: 20px 18px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -330,7 +333,7 @@ select:focus {
 }
 
 .collect-discovered {
-  background: var(--beige-deep);
+  background: var(--grey-tile);
 }
 
 /* ---------- home map ---------- */
@@ -348,6 +351,9 @@ select:focus {
 .home-map {
   width: 100%;
   height: auto;
+  /* Uncapped, Denmark's 1000x812 shape pushed the primary action below the
+     fold on 640-667px phones. preserveAspectRatio letterboxes the rest. */
+  max-height: 26vh;
   display: block;
 }
 
@@ -387,6 +393,12 @@ select:focus {
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--text-dim);
+}
+
+/* The stamp row is otherwise the one thing on Home that never says what it is for. */
+.passport-gloss {
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .stamp-row {
@@ -465,9 +477,11 @@ select:focus {
   background: var(--green-tile);
 }
 
+/* Keys the grey tiles and the grey bar segment, so it has to be the same grey —
+   and never the board's beige, which the tutorial teaches as a spent turn. */
 .swatch-discovered {
-  background: var(--beige);
-  border: 1px solid var(--beige-deep);
+  background: var(--grey-soft);
+  border: 1px solid var(--grey-tile);
 }
 
 .swatch-unknown {
@@ -500,7 +514,7 @@ select:focus {
 }
 
 .collection-locked {
-  color: var(--line);
+  color: var(--text-dim);
 }
 
 .word-dex {
@@ -532,15 +546,15 @@ select:focus {
 }
 
 .dex-discovered {
-  background: var(--beige);
-  border: 1px solid var(--beige-deep);
+  background: var(--grey-soft);
+  border: 1px solid var(--grey-tile);
   color: var(--text);
 }
 
 .dex-unknown {
   background: var(--surface);
   border: 1px dashed var(--line);
-  color: var(--line);
+  color: var(--text-dim);
 }
 
 .collection-foot {
@@ -1033,7 +1047,9 @@ select:focus {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 4px;
+  /* Top padding reserves the strip the key mark and the ⓘ live in, so the word
+     is never drawn underneath either of them. */
+  padding: 17px 4px 4px;
   overflow: hidden;
   transition: transform 0.1s ease, background 0.25s ease, border-color 0.25s ease;
 }
@@ -1058,14 +1074,27 @@ select:focus {
   cursor: default;
 }
 
+/* Sits in the reserved top strip. Kept small so it cannot swallow a tap meant
+   for the word during your guessing turn, and given a wider invisible hit area
+   through ::after rather than by growing over the card. */
 .card-info {
   position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 1rem;
+  top: 1px;
+  right: 2px;
+  font-size: 0.8rem;
+  line-height: 1;
   color: #565758;
-  padding: 10px 12px;
+  padding: 5px 6px;
   z-index: 2;
+}
+
+.card-info::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -2px;
+  width: 34px;
+  height: 30px;
 }
 
 .wrap-green .card-info,
@@ -1110,7 +1139,7 @@ select:focus {
 
 .legend-sep {
   margin: 0 8px;
-  color: var(--line);
+  color: var(--text-dim);
 }
 
 .key-mark {
@@ -1542,7 +1571,7 @@ select:focus {
   content: '→';
   position: absolute;
   left: 0;
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .redemption-results {
@@ -1564,7 +1593,7 @@ select:focus {
 }
 
 .redemption-results .accepted .result-mark {
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .redemption-results .rejected .result-mark {
@@ -1892,4 +1921,485 @@ select:focus {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ---------- collection: newly-green words, shown after a round ---------- */
+
+.collected-section {
+  background: var(--green-soft);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.collected-words {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.collected-word {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.collected-mark {
+  color: var(--green-deep);
+  font-size: 0.7rem;
+}
+
+.collected-word [lang='da'] {
+  font-weight: 700;
+}
+
+.collected-en {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.collected-note {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ---------- journey: end of the road, and a resumable exam ---------- */
+
+.journey-done {
+  border: 2px solid var(--green-tile);
+  background: var(--green-soft);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.exam-resume {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-quiet {
+  border-color: var(--line-soft);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 10px;
+}
+
+/* ---------- map: the passport, so the map answers "how far to go?" ---------- */
+
+.stamp-row-map {
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.map-stamp-note {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+/* ---------- collection screen ---------- */
+
+.collection-chevron {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-right: 8px;
+}
+
+.collection-city-grey {
+  color: var(--text-dim);
+}
+
+/* ---------- neutrals are directional: live for one side, spent for the other ----------
+
+   A neutral ends the turn of whoever hit it, but stays guessable for the other
+   side. The directional gradients alone sit at ~1.35:1 against white, which is
+   invisible on a phone — so during your guessing turn, say which is which.  */
+
+.card-still-live {
+  border-color: var(--text);
+  border-style: solid;
+}
+
+.card-still-live .card-mark {
+  opacity: 0.35;
+}
+
+/* A spent card is still an enabled button — tapping it opens the dictionary —
+   so it cannot be dimmed with opacity: that dropped its Danish to 4.0:1 and its
+   gloss to 2.1:1. "Spent" is carried by the strike-through, the flat fill and
+   the card's accessible name instead. */
+.word-card.card-spent {
+  background: var(--surface);
+  border-color: var(--line-soft);
+}
+
+.card-spent .card-da {
+  color: var(--text-dim);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.card-spent .card-en {
+  color: var(--text-dim);
+}
+
+.gate-cost {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ---------- backup: the only way the collection leaves this phone ---------- */
+
+.backup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.backup-fallback {
+  align-self: flex-start;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 8px 0;
+  min-height: 40px;
+}
+
+.backup-paste {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.backup-paste textarea {
+  font: inherit;
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  resize: vertical;
+}
+
+.backup-preview {
+  border: 2px solid var(--text);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.backup-preview h4 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-dim);
+}
+
+.backup-preview ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.92rem;
+}
+
+.backup-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- a new version is waiting ---------- */
+
+.update-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 60;
+  max-width: 456px;
+  margin: 0 auto;
+  background: var(--text);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+
+.update-banner .btn {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: transparent;
+  color: #fff;
+}
+
+.update-banner .btn-primary {
+  background: #fff;
+  border-color: #fff;
+  color: var(--text);
+}
+
+.update-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Purely informational and self-dismissing: it must not sit in front of the
+   buttons it happens to overlap. */
+.update-banner-quiet {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* ---------- the letter that opens the game ---------- */
+
+.letter-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+  gap: 14px;
+}
+
+/* The letter scrolls, the button does not. A sticky button inside the scroller
+   was drawn over the paragraphs it was floating above. */
+.letter-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 0 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.letter {
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  outline: none;
+}
+
+.letter-stamp {
+  font-size: 1.6rem;
+  text-align: center;
+  opacity: 0.4;
+}
+
+.letter-salutation,
+.letter-signoff {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+.letter-signoff {
+  margin-top: 8px;
+}
+
+.letter-para {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.62;
+}
+
+.letter-from {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.letter-ps {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.letter-ps-label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.letter-go {
+  width: 100%;
+  max-width: 440px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.home-tagline {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+/* ---------- the ten champions ---------- */
+
+.champion-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.champion-card-arrival {
+  background: var(--surface);
+}
+
+.champion-motif {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.champion-motif-inline {
+  font-size: 0.95rem;
+}
+
+.champion-name {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.champion-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.champion-line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.champion-line-en {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.champion-blurb {
+  margin-top: 6px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.champion-knew {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+}
+
+.city-champion {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.champion-says {
+  border-left: 3px solid var(--text);
+  padding: 4px 0 4px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.champion-says-farewell {
+  border-left-color: var(--green-tile);
+  margin: 10px 0;
+}
+
+.champion-attrib {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.gate-paper-line {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* Short phones: the hero and the map give up room so the primary action stays
+   reachable without scrolling. Measured on 375x667 and 360x640. */
+@media (max-height: 720px) {
+  .home-screen {
+    gap: 12px;
+  }
+
+  .home-hero {
+    padding: 6px 0 0;
+  }
+
+  .home-hero h1 {
+    font-size: 2rem;
+  }
+
+  .home-tagline {
+    display: none;
+  }
+
+  .home-map {
+    max-height: 21vh;
+  }
+
+  .city-card {
+    padding: 12px 14px;
+  }
+
+  .city-name {
+    font-size: 1.7rem;
+  }
+}
+
+.map-champion {
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.map-champion-ahead {
+  font-style: italic;
 }

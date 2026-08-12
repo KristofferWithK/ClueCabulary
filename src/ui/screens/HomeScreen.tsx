@@ -1,7 +1,14 @@
 import { WORDS } from '../../data/words'
 import { GRID_CONFIGS, type GridSize } from '../../engine/config'
 import { mulberry32 } from '../../engine/rng'
-import { CITIES, GATES_PER_CITY, WORDS_PER_CITY, cityAt } from '../../journey/cities'
+import {
+  CITIES,
+  FINAL_CITY_INDEX,
+  GATES_PER_CITY,
+  WORDS_PER_CITY,
+  cityAt,
+} from '../../journey/cities'
+import { championAt } from '../../journey/champions'
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
 import {
   canTravel,
@@ -11,6 +18,7 @@ import {
   examUnlocked,
   examWords,
   greensToNextTrial,
+  isJourneyComplete,
   stampsFor,
   unlockedWords,
   wordsForCity,
@@ -20,6 +28,7 @@ import { useJourney } from '../../stores/journeyStore'
 import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
+import { LETTER } from '../../journey/letter'
 
 /** Deterministic pick that changes daily — drawn from words already unlocked. */
 function wordOfTheDay(cityIndex: number) {
@@ -79,7 +88,15 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
           r={i === cityIndex ? 26 : 14}
         />
       ))}
-      <text className="home-map-here" x={here.x} y={here.y - 42} textAnchor="middle">
+      {/* Skagen sits at the top of the map, where a label above the dot falls
+          outside the viewBox — flip it below. The same for the east coast,
+          where a centred label would run off the right edge. */}
+      <text
+        className="home-map-here"
+        x={Math.min(Math.max(here.x, 110), MAP_WIDTH - 110)}
+        y={here.y < 90 ? here.y + 62 : here.y - 42}
+        textAnchor="middle"
+      >
         {cityAt(cityIndex).name}
       </text>
     </svg>
@@ -97,15 +114,31 @@ export function HomeScreen() {
   const journey = useJourney()
 
   const city = cityAt(journey.cityIndex)
+  const champion = championAt(journey.cityIndex)
   const cityCounts = countCollection(wordsForCity(WORDS, journey.cityIndex), srs, journey.banked)
   const allCounts = countCollection(WORDS, srs, journey.banked)
   const stamps = stampsFor(journey, journey.cityIndex)
   const paper = examComposition(WORDS, srs, journey.banked, journey.cityIndex)
   const paperUnknown = paper.discovered + paper.undiscovered
+  const paperLine =
+    paperUnknown === 0
+      ? `all ${paper.learned} green`
+      : `${paper.learned} you know · ${paperUnknown} you don't`
   const examOpen = examUnlocked(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const trials = examTrials(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const toNextTrial = greensToNextTrial(WORDS, srs, journey.banked, journey.cityIndex)
-  const travelReady = canTravel(journey, journey.cityIndex)
+  // København has no next stop at all, stamps or no stamps. Every place that
+  // names the next city has to ask this, not journeyDone — journeyDone also
+  // wants a full passport, so at the last city with four stamps it is false
+  // while cityAt(cityIndex + 1) still throws and blanks the app.
+  const atRoadsEnd = journey.cityIndex >= FINAL_CITY_INDEX
+  const nextCity = atRoadsEnd ? null : cityAt(journey.cityIndex + 1)
+  const journeyDone = isJourneyComplete(journey)
+  const travelReady = canTravel(journey, journey.cityIndex) && !atRoadsEnd
+
+  const examAnswered = journey.activeExam
+    ? Object.values(journey.activeExam.answers).filter((a) => a.trim().length > 0).length
+    : 0
 
   const wotd = wordOfTheDay(journey.cityIndex)
   const daily = dailyChallenge()
@@ -126,6 +159,8 @@ export function HomeScreen() {
       journey.cityIndex,
       mulberry32(Date.now() % 0xffffffff),
     )
+    // Nothing left unbanked in this city: an empty paper would pass vacuously.
+    if (words.length === 0) return
     journey.startExam(
       journey.cityIndex,
       words.map((w) => w.id),
@@ -137,6 +172,7 @@ export function HomeScreen() {
     <div className="screen home-screen">
       <div className="home-hero">
         <h1>ClueCabulary</h1>
+        <p className="home-tagline">{LETTER.tagline}</p>
       </div>
 
       {needsSetup && (
@@ -159,6 +195,13 @@ export function HomeScreen() {
         <p className="city-blurb" lang="da">
           {city.blurbDa}
         </p>
+        <p className="city-champion">
+          <span className="champion-motif-inline" aria-hidden="true">
+            {champion.motif}
+          </span>{' '}
+          {champion.name} — <span lang="da">{champion.titleDa}</span> holds the{' '}
+          <span lang="da">stempel</span> here
+        </p>
 
         <div className="collect-bar" aria-hidden="true">
           <div
@@ -176,8 +219,15 @@ export function HomeScreen() {
           <span className="dim">{cityCounts.undiscovered} to find</span>
         </p>
 
-        <p className="passport-label" lang="da">
-          Rejsepas
+        <p className="passport-label">
+          <span lang="da">Rejsepas</span>
+          <span className="passport-gloss">
+            {' '}
+            —{' '}
+            {nextCity
+              ? `${GATES_PER_CITY} stempler open the road to ${nextCity.name}`
+              : `${GATES_PER_CITY} stempler and the collection is complete`}
+          </span>
         </p>
         <ul className="stamp-row" aria-label={`${stamps} of ${GATES_PER_CITY} stamps`}>
           {Array.from({ length: GATES_PER_CITY }, (_, i) => (
@@ -198,22 +248,46 @@ export function HomeScreen() {
         </button>
       )}
 
-      {travelReady ? (
+      {journeyDone ? (
+        <p className="journey-done">
+          <span lang="da">Rejsen er slut</span> — you filled the passport in København.{' '}
+          {allCounts.learned} of {WORDS.length} words learned.
+        </p>
+      ) : journey.activeExam ? (
+        // A relaunch loses the screen but not the exam, and an open exam locks
+        // the dictionary. Surface it so the lock always has a visible cause.
+        <div className="exam-resume">
+          <button className="btn btn-gate" onClick={() => goTo('gate')}>
+            <span lang="da">Fortsæt rejseprøven</span>
+            <span className="gate-paper">
+              {examAnswered} of {journey.activeExam.wordIds.length} answered · the dictionary
+              stays closed until you finish
+            </span>
+          </button>
+          <button className="btn btn-quiet" onClick={() => journey.endExam()}>
+            Abandon it
+          </button>
+        </div>
+      ) : travelReady ? (
         <button className="btn btn-travel" onClick={() => goTo('map')}>
-          <span lang="da">Rejs videre</span> → {cityAt(journey.cityIndex + 1).name}
+          <span lang="da">Rejs videre</span> → {nextCity?.name}
         </button>
       ) : (
-        <button className="btn btn-gate" onClick={openExam} disabled={!examOpen}>
+        <button className="btn btn-gate" onClick={openExam} disabled={!examOpen || paper.total === 0}>
           <span lang="da">Rejseprøve</span>
           <span className="gate-paper">
             {!examOpen
               ? `${toNextTrial} more green ${toNextTrial === 1 ? 'word' : 'words'} earns an attempt`
-              : `${trials.available || 1} ${trials.available === 1 ? 'attempt' : 'attempts'} · ${
-                  paperUnknown === 0
-                    ? `all ${paper.learned} green`
-                    : `${paper.learned} you know · ${paperUnknown} you don't`
-                }`}
+              : trials.unlimited
+                ? `Unlimited attempts · ${paperLine}`
+                : `${trials.available} ${
+                    trials.available === 1 ? 'attempt' : 'attempts'
+                  } left · ${paperLine}`}
           </span>
+          {examOpen && !trials.unlimited && (
+            // Said before the tap, because the tap is what spends it.
+            <span className="gate-cost">Opening the paper spends one</span>
+          )}
         </button>
       )}
 
@@ -262,6 +336,10 @@ export function HomeScreen() {
           {wotd.da}
         </span>
         <span className="wotd-en">{wotd.en[0]}</span>
+      </button>
+
+      <button className="howto-link" onClick={() => useUi.getState().openLetter()}>
+        Read <span lang="da">{LETTER.fromShort}</span>'s letter again
       </button>
 
       <button className="howto-link" onClick={() => useUi.getState().openHowTo()}>

@@ -86,4 +86,14 @@ export type GameEvent =
     }
   | { type: 'GUESS'; wordId: string }
   | { type: 'STOP_GUESSING' }
-  | { type: 'SUBMIT_REDEMPTION'; answers: Record<string, string> }
+  | {
+      type: 'SUBMIT_REDEMPTION'
+      answers: Record<string, string>
+      /**
+       * Tells the grader which strings are real English words for something
+       * else, so a near-miss cannot pass one word off as another. Supplied by
+       * the caller because the engine holds no dataset; omitted, grading falls
+       * back to distance alone.
+       */
+      isKnownWord?: (normalized: string) => boolean
+    }

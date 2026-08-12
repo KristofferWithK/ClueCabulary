@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { AiError, testConnection } from '../../ai/client'
+import { AiError, resolveEndpoint, testConnection } from '../../ai/client'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import type { StudyMode } from '../../journey/progress'
 import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
+import { BackupPanel } from '../components/BackupPanel'
 
 export function SettingsScreen() {
   const goTo = useUi((s) => s.goTo)
@@ -14,6 +15,18 @@ export function SettingsScreen() {
   const resetJourney = useJourney((s) => s.reset)
   const abandonGame = useGame((s) => s.abandonGame)
   const [test, setTest] = useState<'idle' | 'testing' | 'ok' | string>('idle')
+
+  // Say it while they are typing, not after a request has already carried the
+  // key somewhere. A relative Base URL would post it to whatever serves the app.
+  const baseUrlProblem = (() => {
+    if (!settings.baseUrl.trim()) return null
+    try {
+      resolveEndpoint(settings.baseUrl)
+      return null
+    } catch (e) {
+      return e instanceof AiError ? e.message : 'That Base URL cannot be used.'
+    }
+  })()
 
   const runTest = async () => {
     setTest('testing')
@@ -60,8 +73,10 @@ export function SettingsScreen() {
           />
           <small>
             Default: https://ollama.com/v1 — switch to your own proxy if Test connection reports a
-            CORS problem (see proxy/README.md in the repo).
+            CORS problem (see proxy/README.md in the repo). Must start with https://, since your
+            API key is sent to it.
           </small>
+          {baseUrlProblem && <p className="test-fail">{baseUrlProblem}</p>}
         </label>
         <label className="field">
           <span>Model</span>
@@ -71,7 +86,11 @@ export function SettingsScreen() {
             onChange={(e) => settings.set({ model: e.target.value })}
           />
         </label>
-        <button className="btn" disabled={test === 'testing'} onClick={runTest}>
+        <button
+          className="btn"
+          disabled={test === 'testing' || !!baseUrlProblem}
+          onClick={runTest}
+        >
           {test === 'testing' ? 'Testing…' : 'Test connection'}
         </button>
         {test === 'ok' && <p className="test-ok">✓ Connected — Klaus is awake.</p>}
@@ -116,6 +135,11 @@ export function SettingsScreen() {
             journey turns north at Aalborg. Studying never counts as looking a word up.
           </small>
         </label>
+      </section>
+
+      <section className="settings-section">
+        <h3>Your collection</h3>
+        <BackupPanel />
       </section>
 
       <section className="settings-section">

@@ -21,7 +21,12 @@ try {
   await page.goto('http://localhost:4173/ClueCabulary/?mock=1&seed=5')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
 
-  // First visit shows the How-to-play overlay — read it like a new player would.
+  // First visit opens with the letter, which hands over to the rules.
+  await page.waitForSelector('.letter', { timeout: 8000 })
+  await page.screenshot({ path: `${SHOT_DIR}/00-letter.png` })
+  await page.click('.letter-go')
+
+  // Then the How-to-play overlay — read it like a new player would.
   await page.waitForSelector('.howto', { timeout: 5000 })
   await page.screenshot({ path: `${SHOT_DIR}/00-howto.png` })
   await page.click('.howto .btn-primary')

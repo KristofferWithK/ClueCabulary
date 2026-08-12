@@ -69,6 +69,15 @@ export function BoardGrid({
                 'word-card',
                 `card-${kind}`,
                 guessable ? 'card-guessable' : '',
+                // A neutral is burned only against the side that hit it, so on
+                // your turn some beige cards are still live and some are spent.
+                // The two tints differ by ~1.35:1 — far too little to read on a
+                // phone — so say it outright while it matters.
+                canGuess && reveal.kind === 'bystander'
+                  ? guessable
+                    ? 'card-still-live'
+                    : 'card-spent'
+                  : '',
                 selectedWordId === w.wordId ? 'card-selected' : '',
                 showKey ? `mykey-${myRole}` : '',
               ].join(' ')}

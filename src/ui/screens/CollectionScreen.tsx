@@ -63,11 +63,18 @@ export function CollectionScreen() {
               aria-expanded={open}
               onClick={() => setOpenCity(open ? -1 : index)}
             >
+              <span className="collection-chevron" aria-hidden="true">
+                {open ? '▾' : '▸'}
+              </span>
               <span className="collection-city-name" lang="da">
                 {city.name}
               </span>
               <span className="collection-city-count">
                 {counts.learned} / {WORDS_PER_CITY}
+                {counts.discovered > 0 && (
+                  // A half-met city read as an untouched one without this.
+                  <span className="collection-city-grey"> · {counts.discovered} grey</span>
+                )}
                 {!reached && <span className="collection-locked"> · not reached</span>}
               </span>
             </button>
