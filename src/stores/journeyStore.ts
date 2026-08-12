@@ -18,6 +18,8 @@ interface JourneyStore extends JourneyState {
   startExam: (cityIndex: number, wordIds: string[]) => void
   setExamAnswer: (wordId: string, text: string) => void
   endExam: () => void
+  /** A failed attempt spends one trial. */
+  spendTrial: (cityIndex: number) => void
   /** A passed exam: bank its words and stamp the passport. */
   awardStamp: (cityIndex: number, wordIds: string[], now: number) => void
   travel: (now: number) => void
@@ -28,6 +30,7 @@ const initial = {
   cityIndex: 0,
   stamps: {} as Record<number, number>,
   banked: {} as Record<string, number>,
+  trialsSpent: {} as Record<number, number>,
   arrivedAt: {} as Record<number, number>,
   activeExam: null as ActiveExam | null,
 }
@@ -44,6 +47,10 @@ export const useJourney = create<JourneyStore>()(
             : s,
         ),
       endExam: () => set({ activeExam: null }),
+      spendTrial: (cityIndex) =>
+        set((s) => ({
+          trialsSpent: { ...s.trialsSpent, [cityIndex]: (s.trialsSpent[cityIndex] ?? 0) + 1 },
+        })),
       awardStamp: (cityIndex, wordIds, now) =>
         set((s) => {
           const banked = { ...s.banked }

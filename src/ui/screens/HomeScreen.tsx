@@ -6,10 +6,11 @@ import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/
 import {
   canTravel,
   countCollection,
-  EXAM_MIN_GREEN,
   examComposition,
+  examTrials,
   examUnlocked,
   examWords,
+  greensToNextTrial,
   stampsFor,
   unlockedWords,
   wordsForCity,
@@ -101,7 +102,9 @@ export function HomeScreen() {
   const stamps = stampsFor(journey, journey.cityIndex)
   const paper = examComposition(WORDS, srs, journey.banked, journey.cityIndex)
   const paperUnknown = paper.discovered + paper.undiscovered
-  const examOpen = examUnlocked(WORDS, srs, journey.banked, journey.cityIndex)
+  const examOpen = examUnlocked(WORDS, srs, journey.banked, journey, journey.cityIndex)
+  const trials = examTrials(WORDS, srs, journey.banked, journey, journey.cityIndex)
+  const toNextTrial = greensToNextTrial(WORDS, srs, journey.banked, journey.cityIndex)
   const travelReady = canTravel(journey, journey.cityIndex)
 
   const wotd = wordOfTheDay(journey.cityIndex)
@@ -204,10 +207,12 @@ export function HomeScreen() {
           <span lang="da">Rejseprøve</span>
           <span className="gate-paper">
             {!examOpen
-              ? `${paper.learned} / ${EXAM_MIN_GREEN} green words needed to sit it`
-              : paperUnknown === 0
-                ? `all ${paper.learned} words green — a fair test`
-                : `${paper.learned} you know · ${paperUnknown} you don't`}
+              ? `${toNextTrial} more green ${toNextTrial === 1 ? 'word' : 'words'} earns an attempt`
+              : `${trials.available || 1} ${trials.available === 1 ? 'attempt' : 'attempts'} · ${
+                  paperUnknown === 0
+                    ? `all ${paper.learned} green`
+                    : `${paper.learned} you know · ${paperUnknown} you don't`
+                }`}
           </span>
         </button>
       )}

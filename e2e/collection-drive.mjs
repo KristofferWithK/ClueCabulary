@@ -41,8 +41,8 @@ try {
   // A brand-new city keeps the exam shut until half a paper could be green.
   await page.goto(`${BASE}?mock=1&howto=0&city=1`)
   await page.waitForSelector('.city-card')
-  if (await page.locator('.btn-gate').isEnabled()) throw new Error('exam open with no green words')
-  console.log('exam locked on an untouched city:', (await page.locator('.gate-paper').textContent())?.trim())
+  if (await page.locator('.btn-gate').isEnabled()) throw new Error('exam open with no attempts earned')
+  console.log('untouched city:', (await page.locator('.gate-paper').textContent())?.trim())
 
   // Back to the seeded city: the exam is open and passing it stamps the passport.
   await page.goto(`${BASE}?mock=1&howto=0&city=0&learned=30`)
@@ -55,7 +55,12 @@ try {
   await page.click('.btn-primary')
   await page.waitForSelector('.gate-results')
   if (await page.locator('.stamp-award').count()) throw new Error('a failed exam awarded a stamp')
-  console.log('failed exam awarded no stamp')
+  const left = await page.locator('.trials-left').textContent()
+  console.log('after failing:', left?.replace(/\s+/g, ' ').trim())
+  const spent = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent,
+  )
+  if (spent?.['0'] !== 1) throw new Error(`failure did not spend a trial: ${JSON.stringify(spent)}`)
   await page.screenshot({ path: `${SHOT_DIR}/c3-exam-failed.png` })
 
   const answers = await page.locator('.gate-results .result-answer em').allTextContents()
