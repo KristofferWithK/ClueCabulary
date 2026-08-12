@@ -14,18 +14,22 @@ import { createServer } from 'node:http'
  * request body is recorded, which is what lets a drive assert the AI firewall
  * against the bytes that actually left the browser.
  */
-export async function startFakeOllama(port, { auto = false } = {}) {
+export async function startFakeOllama(port, { auto = false, cors: sendCors = true } = {}) {
   /** @type {Array<{status?: number, body?: string, json?: unknown}>} */
   const script = []
   /** @type {Array<{messages: unknown[], raw: string}>} */
   const received = []
 
   const server = createServer((req, res) => {
-    const cors = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'authorization, content-type',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    }
+    // `cors: false` stands in for the thing the proxy exists to solve: a server
+    // that answers fine from curl and is unusable from a browser.
+    const cors = sendCors
+      ? {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'authorization, content-type',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        }
+      : {}
     if (req.method === 'OPTIONS') {
       res.writeHead(204, cors)
       res.end()

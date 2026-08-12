@@ -106,8 +106,18 @@ node e2e/offline-drive.mjs    # the dictionary works with the network off
 node e2e/ai-drive.mjs         # the real AI client against a fake Ollama:
                               # messy JSON, retries, the HTTP error taxonomy,
                               # and the key firewall asserted on the wire
+node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
+                              # runtime, fixing a CORS failure that is really there
 node e2e/map-preview.mjs      # render the map to a PNG for inspection
 ```
+
+`proxy-drive` runs [`proxy/worker.js`](proxy/worker.js) unmodified on workerd
+(via miniflare), with the app talking to it from a browser and an upstream that
+deliberately sends no CORS headers — so it checks that the proxy solves a
+problem that is actually present, that the key and the HTTP status both survive
+the extra hop, and that the README's optional origin lock both lets you in and
+shuts everyone else out. Without miniflare installed it prints
+`PROXY DRIVE SKIPPED` and exits 0.
 
 To check Klaus against a real model — the one thing no automated drive can
 settle, since it needs a key and a network:

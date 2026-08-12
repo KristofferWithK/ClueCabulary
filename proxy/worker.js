@@ -32,14 +32,26 @@ export default {
     }
 
     const url = new URL(request.url)
-    const upstream = await fetch(`${UPSTREAM}${url.pathname}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: request.headers.get('Authorization') ?? '',
-      },
-      body: request.body,
-    })
+    let upstream
+    try {
+      upstream = await fetch(`${UPSTREAM}${url.pathname}${url.search}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: request.headers.get('Authorization') ?? '',
+        },
+        body: request.body,
+      })
+    } catch {
+      // An uncaught throw here becomes Cloudflare's own error page, which
+      // carries no CORS headers — so the browser reports a CORS failure and
+      // the app tells you to deploy the proxy you are already using. Answer
+      // ourselves instead, so the real problem is the one you see.
+      return new Response('Could not reach the upstream AI server.', {
+        status: 502,
+        headers: corsHeaders,
+      })
+    }
 
     const headers = new Headers(upstream.headers)
     for (const [k, v] of Object.entries(corsHeaders)) headers.set(k, v)
