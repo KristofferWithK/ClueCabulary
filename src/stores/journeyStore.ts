@@ -1,35 +1,33 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { CITIES } from '../journey/cities'
-import { mergeCollected, type CollectedLatch, type JourneyState } from '../journey/progress'
-import type { SrsMap } from '../srs/types'
+import { CITIES, GATES_PER_CITY } from '../journey/cities'
+import type { JourneyState } from '../journey/progress'
 
 /** Answers survive a phone killing the app mid-exam. */
 export interface ActiveExam {
   cityIndex: number
-  gateIndex: number
+  /** The exact words drawn when the exam was opened. */
+  wordIds: string[]
   answers: Record<string, string>
 }
 
 interface JourneyStore extends JourneyState {
-  /** Add-only record of when each word was collected. */
-  collectedAt: CollectedLatch
   /** cityIndex -> arrival timestamp, for the travel log on the map. */
   arrivedAt: Record<number, number>
   activeExam: ActiveExam | null
-  syncCollected: (srs: SrsMap, now: number) => void
-  startExam: (cityIndex: number, gateIndex: number) => void
+  startExam: (cityIndex: number, wordIds: string[]) => void
   setExamAnswer: (wordId: string, text: string) => void
   endExam: () => void
-  passGate: (cityIndex: number, gateIndex: number) => void
+  /** A passed exam: bank its words and stamp the passport. */
+  awardStamp: (cityIndex: number, wordIds: string[], now: number) => void
   travel: (now: number) => void
   reset: () => void
 }
 
 const initial = {
   cityIndex: 0,
-  gatesPassed: {} as Record<number, number[]>,
-  collectedAt: {} as CollectedLatch,
+  stamps: {} as Record<number, number>,
+  banked: {} as Record<string, number>,
   arrivedAt: {} as Record<number, number>,
   activeExam: null as ActiveExam | null,
 }
@@ -38,12 +36,7 @@ export const useJourney = create<JourneyStore>()(
   persist(
     (set) => ({
       ...initial,
-      syncCollected: (srs, now) =>
-        set((s) => {
-          const next = mergeCollected(s.collectedAt, srs, now)
-          return next === s.collectedAt ? s : { collectedAt: next }
-        }),
-      startExam: (cityIndex, gateIndex) => set({ activeExam: { cityIndex, gateIndex, answers: {} } }),
+      startExam: (cityIndex, wordIds) => set({ activeExam: { cityIndex, wordIds, answers: {} } }),
       setExamAnswer: (wordId, text) =>
         set((s) =>
           s.activeExam
@@ -51,12 +44,18 @@ export const useJourney = create<JourneyStore>()(
             : s,
         ),
       endExam: () => set({ activeExam: null }),
-      passGate: (cityIndex, gateIndex) =>
+      awardStamp: (cityIndex, wordIds, now) =>
         set((s) => {
-          const passed = s.gatesPassed[cityIndex] ?? []
-          if (passed.includes(gateIndex)) return s
+          const banked = { ...s.banked }
+          for (const id of wordIds) if (!(id in banked)) banked[id] = now
+          // activeExam deliberately survives: the results screen still needs
+          // its words, and the player leaves it themselves.
           return {
-            gatesPassed: { ...s.gatesPassed, [cityIndex]: [...passed, gateIndex].sort() },
+            banked,
+            stamps: {
+              ...s.stamps,
+              [cityIndex]: Math.min((s.stamps[cityIndex] ?? 0) + 1, GATES_PER_CITY),
+            },
           }
         }),
       travel: (now) =>
@@ -67,11 +66,6 @@ export const useJourney = create<JourneyStore>()(
         }),
       reset: () => set({ ...initial }),
     }),
-    { name: 'cluecab-journey-v1', version: 1 },
+    { name: 'cluecab-journey-v2', version: 2 },
   ),
 )
-
-/** The collected set, for the pure progress functions. */
-export function collectedSet(latch: CollectedLatch): Set<string> {
-  return new Set(Object.keys(latch))
-}

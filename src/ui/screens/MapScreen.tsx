@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { WORDS } from '../../data/words'
 import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
-import { canTravel, collectedCount, wordsForCity } from '../../journey/progress'
-import { collectedSet, useJourney } from '../../stores/journeyStore'
+import { canTravel, countCollection, wordsForCity } from '../../journey/progress'
+import { useJourney } from '../../stores/journeyStore'
+import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 
 type Placement = { anchor: 'start' | 'end'; dx: number; dy: number }
@@ -21,7 +22,7 @@ const defaultPlacement = (x: number): Placement =>
 export function MapScreen() {
   const goTo = useUi((s) => s.goTo)
   const journey = useJourney()
-  const collectedIds = collectedSet(journey.collectedAt)
+  const srs = useSrs((s) => s.stats)
   const [selected, setSelected] = useState<number>(journey.cityIndex)
 
   const points = CITIES.map((c) => projectCity(c.lon, c.lat))
@@ -35,7 +36,7 @@ export function MapScreen() {
     .join(' ')
 
   const city = cityAt(selected)
-  const collected = collectedCount(wordsForCity(WORDS, selected), collectedIds)
+  const counts = countCollection(wordsForCity(WORDS, selected), srs, journey.banked)
   const state =
     selected < journey.cityIndex ? 'visited' : selected === journey.cityIndex ? 'current' : 'ahead'
   const travelReady = canTravel(journey, journey.cityIndex)
@@ -117,7 +118,8 @@ export function MapScreen() {
           </p>
         ) : (
           <p className="map-collected">
-            <strong>{collected}</strong> / {WORDS_PER_CITY} words collected
+            <strong>{counts.learned}</strong> / {WORDS_PER_CITY} learned ·{' '}
+            {counts.discovered} discovered
             {journey.arrivedAt[selected] && (
               <>
                 {' · arrived '}

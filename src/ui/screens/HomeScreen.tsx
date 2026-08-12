@@ -1,18 +1,20 @@
 import { WORDS } from '../../data/words'
-import { cityAt, GATES_PER_CITY, WORDS_PER_CITY } from '../../journey/cities'
+import { GRID_CONFIGS, type GridSize } from '../../engine/config'
+import { CITIES, GATES_PER_CITY, WORDS_PER_CITY, cityAt } from '../../journey/cities'
+import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
 import {
   canTravel,
-  cityGateStatuses,
-  collectedCount,
-  currentGateIndex,
+  countCollection,
+  examReadiness,
+  examWords,
+  stampsFor,
   unlockedWords,
   wordsForCity,
-  type GateStatus,
 } from '../../journey/progress'
-import { GRID_CONFIGS, type GridSize } from '../../engine/config'
 import { useGame } from '../../stores/gameStore'
-import { collectedSet, useJourney } from '../../stores/journeyStore'
+import { useJourney } from '../../stores/journeyStore'
 import { useSettings } from '../../stores/settingsStore'
+import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 
 /** Deterministic pick that changes daily — drawn from words already unlocked. */
@@ -29,8 +31,10 @@ function dailyChallenge() {
   const y = now.getFullYear()
   const m = String(now.getMonth() + 1).padStart(2, '0')
   const d = String(now.getDate()).padStart(2, '0')
-  const key = `${y}-${m}-${d}`
-  return { key, seed: y * 10000 + (now.getMonth() + 1) * 100 + now.getDate() }
+  return {
+    key: `${y}-${m}-${d}`,
+    seed: y * 10000 + (now.getMonth() + 1) * 100 + now.getDate(),
+  }
 }
 
 const DAILY_BADGE: Record<string, string> = {
@@ -39,10 +43,43 @@ const DAILY_BADGE: Record<string, string> = {
   lost: '· played',
 }
 
-const GATE_LABEL: Record<GateStatus, string> = {
-  passed: 'passed',
-  ready: 'ready to test',
-  locked: 'still collecting',
+/** The route so far, drawn small enough to live above the fold. */
+function JourneyMap({ cityIndex }: { cityIndex: number }) {
+  const points = CITIES.map((c) => projectCity(c.lon, c.lat))
+  const done = points
+    .slice(0, cityIndex + 1)
+    .map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`)
+    .join(' ')
+  const ahead = points
+    .slice(cityIndex)
+    .map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`)
+    .join(' ')
+  const here = points[cityIndex]!
+
+  return (
+    <svg
+      className="home-map"
+      viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+      role="img"
+      aria-label={`Stop ${cityIndex + 1} of ${CITIES.length}: ${cityAt(cityIndex).name}`}
+    >
+      <path className="map-land" d={DENMARK_PATH} />
+      <polyline className="map-route-ahead" points={ahead} />
+      <polyline className="map-route-done" points={done} />
+      {points.map((p, i) => (
+        <circle
+          key={CITIES[i]!.id}
+          className={`home-dot ${i < cityIndex ? 'dot-done' : i === cityIndex ? 'dot-here' : 'dot-ahead'}`}
+          cx={p.x}
+          cy={p.y}
+          r={i === cityIndex ? 26 : 14}
+        />
+      ))}
+      <text className="home-map-here" x={here.x} y={here.y - 42} textAnchor="middle">
+        {cityAt(cityIndex).name}
+      </text>
+    </svg>
+  )
 }
 
 export function HomeScreen() {
@@ -52,15 +89,14 @@ export function HomeScreen() {
   const game = useGame((s) => s.game)
   const newGame = useGame((s) => s.newGame)
   const settings = useSettings()
+  const srs = useSrs((s) => s.stats)
   const journey = useJourney()
-  const collectedIds = collectedSet(journey.collectedAt)
 
   const city = cityAt(journey.cityIndex)
-  const cityWords = wordsForCity(WORDS, journey.cityIndex)
-  const collected = collectedCount(cityWords, collectedIds)
-  const gates = cityGateStatuses(WORDS, collectedIds, journey, journey.cityIndex)
-  const nextGate = currentGateIndex(WORDS, collectedIds, journey, journey.cityIndex)
-  const readyGate = gates.findIndex((s) => s === 'ready')
+  const cityCounts = countCollection(wordsForCity(WORDS, journey.cityIndex), srs, journey.banked)
+  const allCounts = countCollection(WORDS, srs, journey.banked)
+  const stamps = stampsFor(journey, journey.cityIndex)
+  const readiness = examReadiness(WORDS, srs, journey.banked, journey.cityIndex)
   const travelReady = canTravel(journey, journey.cityIndex)
 
   const wotd = wordOfTheDay(journey.cityIndex)
@@ -74,14 +110,13 @@ export function HomeScreen() {
     goTo('game')
   }
 
-  const openExam = (gateIndex: number) => {
-    journey.startExam(journey.cityIndex, gateIndex)
-    useUi.getState().openGate(gateIndex)
-  }
-
-  const startDaily = () => {
-    newGame({ seed: daily.seed, dailyKey: daily.key, gridSize: 'standard' })
-    goTo('game')
+  const openExam = () => {
+    const words = examWords(WORDS, srs, journey.banked, journey.cityIndex)
+    journey.startExam(
+      journey.cityIndex,
+      words.map((w) => w.id),
+    )
+    goTo('gate')
   }
 
   return (
@@ -96,9 +131,13 @@ export function HomeScreen() {
         </button>
       )}
 
+      <button className="map-button" onClick={() => goTo('map')} aria-label="Open the map">
+        <JourneyMap cityIndex={journey.cityIndex} />
+      </button>
+
       <section className="city-card">
         <p className="city-eyebrow">
-          Stop {journey.cityIndex + 1} of 10 · <span lang="da">{city.region}</span>
+          Stop {journey.cityIndex + 1} of {CITIES.length} · <span lang="da">{city.region}</span>
         </p>
         <h2 className="city-name" lang="da">
           {city.name}
@@ -106,29 +145,30 @@ export function HomeScreen() {
         <p className="city-blurb" lang="da">
           {city.blurbDa}
         </p>
-        <p className="city-blurb-en">{city.blurbEn}</p>
 
-        <div
-          className="collect-bar"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={WORDS_PER_CITY}
-          aria-valuenow={collected}
-          aria-label={`${collected} of ${WORDS_PER_CITY} words collected in ${city.name}`}
-        >
-          <div className="collect-fill" style={{ width: `${collected}%` }} />
+        <div className="collect-bar" aria-hidden="true">
+          <div
+            className="collect-fill collect-learned"
+            style={{ width: `${(cityCounts.learned / WORDS_PER_CITY) * 100}%` }}
+          />
+          <div
+            className="collect-fill collect-discovered"
+            style={{ width: `${(cityCounts.discovered / WORDS_PER_CITY) * 100}%` }}
+          />
         </div>
         <p className="collect-count">
-          <strong>{collected}</strong> / {WORDS_PER_CITY} words collected
+          <strong>{cityCounts.learned}</strong> learned ·{' '}
+          <span className="dim">{cityCounts.discovered} discovered</span> ·{' '}
+          <span className="dim">{cityCounts.undiscovered} to find</span>
         </p>
 
-        <ul className="gate-pips">
-          {gates.map((status, i) => (
-            <li key={i} className={`gate-pip gate-${status}`}>
-              <span className="visually-hidden">
-                Gate {i + 1} of {GATES_PER_CITY}: {GATE_LABEL[status]}
-              </span>
-              <span aria-hidden="true">{status === 'passed' ? '✓' : i + 1}</span>
+        <p className="passport-label" lang="da">
+          Rejsepas
+        </p>
+        <ul className="stamp-row" aria-label={`${stamps} of ${GATES_PER_CITY} stamps`}>
+          {Array.from({ length: GATES_PER_CITY }, (_, i) => (
+            <li key={i} className={`stamp ${i < stamps ? 'stamp-earned' : ''}`}>
+              <span aria-hidden="true">{i < stamps ? '✓' : '○'}</span>
             </li>
           ))}
         </ul>
@@ -148,19 +188,15 @@ export function HomeScreen() {
         <button className="btn btn-travel" onClick={() => goTo('map')}>
           <span lang="da">Rejs videre</span> → {cityAt(journey.cityIndex + 1).name}
         </button>
-      ) : readyGate >= 0 ? (
-        <button className="btn btn-gate" onClick={() => openExam(readyGate)}>
-          <span lang="da">Rejseprøve</span> {readyGate + 1} of {GATES_PER_CITY} — 20 words ready
-        </button>
       ) : (
-        <p className="gate-hint">
-          Collect the next {GATES_PER_CITY > 0 ? 20 : 0} words to open{' '}
-          <span lang="da">rejseprøve</span> {nextGate + 1}.
-        </p>
+        <button className="btn btn-gate" onClick={openExam}>
+          <span lang="da">Rejseprøve</span> — {readiness.ready}/{readiness.total} of your best
+          words are green
+        </button>
       )}
 
-      <button className="btn" onClick={() => goTo('map')}>
-        <span lang="da">Se kortet</span> · view the map
+      <button className="btn" onClick={() => goTo('stats')}>
+        <span lang="da">Samlingen</span> — {allCounts.learned} of {WORDS.length} learned
       </button>
 
       <p className="section-divider">
@@ -184,7 +220,10 @@ export function HomeScreen() {
         </button>
       </div>
 
-      <button className="daily-card" onClick={startDaily}>
+      <button className="daily-card" onClick={() => {
+        newGame({ seed: daily.seed, dailyKey: daily.key, gridSize: 'standard' })
+        goTo('game')
+      }}>
         <span className="daily-card-name" lang="da">
           Dagens udfordring
         </span>
@@ -208,9 +247,6 @@ export function HomeScreen() {
       </button>
 
       <nav className="home-nav">
-        <button className="btn" onClick={() => goTo('stats')}>
-          Progress
-        </button>
         <button className="btn" onClick={() => goTo('settings')}>
           Settings
         </button>

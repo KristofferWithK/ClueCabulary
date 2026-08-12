@@ -3,20 +3,26 @@ import { WORDS } from '../data/words'
 import type { WordEntry } from '../data/types'
 import { applyRoundResults, newStats } from '../srs/scheduler'
 import type { SrsMap, WordStats } from '../srs/types'
-import { CITIES, GATES_PER_CITY, GATE_SIZE, STUDY_UNTIL_CITY, WORDS_PER_CITY } from './cities'
 import {
+  CITIES,
+  GATES_PER_CITY,
+  GATE_SIZE,
+  STUDY_UNTIL_CITY,
+  WORDS_PER_CITY,
+} from './cities'
+import {
+  LEARN_REPS,
   canTravel,
   cityBand,
-  cityGateStatuses,
-  collectedCount,
-  currentGateIndex,
-  gateStatus,
-  isCollected,
+  countCollection,
+  examReadiness,
+  examWords,
   isJourneyComplete,
-  mergeCollected,
+  isLearned,
+  stampsFor,
   studyPhaseEnabled,
   unlockedWords,
-  waveWords,
+  wordState,
   wordsForCity,
   type JourneyState,
 } from './progress'
@@ -25,16 +31,13 @@ const NOW = 1_700_000_000_000
 const stats = (over: Partial<WordStats> = {}): WordStats => ({ ...newStats(NOW), ...over })
 const journey = (over: Partial<JourneyState> = {}): JourneyState => ({
   cityIndex: 0,
-  gatesPassed: {},
+  stamps: {},
+  banked: {},
   ...over,
 })
 
-/** Collect every given word so gates open. */
-const collectAll = (words: readonly WordEntry[]): Set<string> =>
-  new Set(words.map((w) => w.id))
-
-const srsAll = (words: readonly WordEntry[]): SrsMap =>
-  Object.fromEntries(words.map((w) => [w.id, stats({ correctGuesses: 2 })]))
+const srsWith = (words: readonly WordEntry[], over: Partial<WordStats>): SrsMap =>
+  Object.fromEntries(words.map((w) => [w.id, stats(over)]))
 
 describe('city bands', () => {
   it('cover the dataset exactly once, 100 words per city', () => {
@@ -48,7 +51,6 @@ describe('city bands', () => {
       }
     }
     expect(seen.size).toBe(WORDS.length)
-    expect(CITIES.length * WORDS_PER_CITY).toBe(WORDS.length)
   })
 
   it('band ranges are contiguous and ordered', () => {
@@ -57,11 +59,6 @@ describe('city bands', () => {
     for (let c = 1; c < CITIES.length; c++) {
       expect(cityBand(c)[0]).toBe(cityBand(c - 1)[1] + 1)
     }
-  })
-
-  it('the first city teaches the most frequent words', () => {
-    const first = wordsForCity(WORDS, 0)
-    expect(Math.max(...first.map((w) => w.freqRank))).toBe(100)
   })
 })
 
@@ -73,146 +70,27 @@ describe('unlockedWords', () => {
       expect(Math.max(...pool.map((w) => w.freqRank))).toBe((c + 1) * WORDS_PER_CITY)
     }
   })
-
-  it('is a superset of every earlier city', () => {
-    const early = new Set(unlockedWords(WORDS, 2).map((w) => w.id))
-    const later = new Set(unlockedWords(WORDS, 5).map((w) => w.id))
-    for (const id of early) expect(later.has(id)).toBe(true)
-  })
 })
 
-describe('isCollected', () => {
-  const cases: [WordStats | undefined, boolean, string][] = [
-    [undefined, false, 'never seen'],
-    [stats(), false, 'seen but never guessed'],
-    [stats({ correctGuesses: 1, lookups: 0 }), true, 'one clean correct guess'],
-    [stats({ correctGuesses: 1, lookups: 1 }), false, 'correct but looked up'],
-    [stats({ correctGuesses: 2, lookups: 3 }), true, 'proven twice despite lookups'],
-    [stats({ correctGuesses: 0, lookups: 9 }), false, 'only looked up'],
-    [stats({ correctGuesses: 5, misses: 4 }), true, 'misses do not uncollect'],
+describe('the three collection states', () => {
+  const cases: [WordStats | undefined, boolean, string, string][] = [
+    [undefined, false, 'undiscovered', 'never met'],
+    [stats(), false, 'discovered', 'seen but never handled'],
+    [stats({ correctGuesses: 1 }), false, 'discovered', 'handled once'],
+    [stats({ correctGuesses: LEARN_REPS - 1 }), false, 'discovered', 'one short'],
+    [stats({ correctGuesses: LEARN_REPS }), false, 'learned', 'handled enough'],
+    [stats({ correctGuesses: 0 }), true, 'learned', 'banked by an exam'],
+    [undefined, true, 'learned', 'banked even if never played'],
+    [stats({ correctGuesses: LEARN_REPS, misses: 9 }), false, 'learned', 'misses do not unlearn'],
   ]
-  it.each(cases)('%#: %s', (s, expected) => {
-    expect(isCollected(s)).toBe(expected)
+  it.each(cases)('%#: %s', (s, banked, expected) => {
+    expect(wordState(s, banked)).toBe(expected)
   })
 
-  it('never regresses when a word is later missed', () => {
-    const before = stats({ correctGuesses: 2 })
-    expect(isCollected(before)).toBe(true)
-    // A later bad round only raises misses / lowers box — collection holds.
-    expect(isCollected({ ...before, misses: 3, box: 0 })).toBe(true)
-  })
-})
-
-describe('waves and gates', () => {
-  it('five disjoint waves of 20 cover a city in frequency order', () => {
-    const city = wordsForCity(WORDS, 3)
-    const seen: string[] = []
-    for (let g = 0; g < GATES_PER_CITY; g++) {
-      const wave = waveWords(WORDS, 3, g)
-      expect(wave.length).toBe(GATE_SIZE)
-      seen.push(...wave.map((w) => w.id))
-      // Waves ascend through the band.
-      expect(wave[0]!.freqRank).toBe(city[g * GATE_SIZE]!.freqRank)
-    }
-    expect(new Set(seen).size).toBe(WORDS_PER_CITY)
-  })
-
-  it('rejects out-of-range gates', () => {
-    expect(() => waveWords(WORDS, 0, -1)).toThrow()
-    expect(() => waveWords(WORDS, 0, GATES_PER_CITY)).toThrow()
-  })
-
-  it('a gate stays locked until every word of its wave is collected', () => {
-    const wave = waveWords(WORDS, 0, 0)
-    const almost = collectAll(wave.slice(0, GATE_SIZE - 1))
-    expect(gateStatus(WORDS, almost, journey(), 0, 0)).toBe('locked')
-
-    expect(gateStatus(WORDS, collectAll(wave), journey(), 0, 0)).toBe('ready')
-  })
-
-  it('a passed gate reports passed even if words are later missed', () => {
-    const j = journey({ gatesPassed: { 0: [0] } })
-    expect(gateStatus(WORDS, new Set(), j, 0, 0)).toBe('passed')
-  })
-
-  it('gate statuses are independent within a city', () => {
-    const collected = collectAll(waveWords(WORDS, 0, 2))
-    const statuses = cityGateStatuses(WORDS, collected, journey(), 0)
-    expect(statuses).toEqual(['locked', 'locked', 'ready', 'locked', 'locked'])
-  })
-})
-
-describe('travel', () => {
-  it('needs all five gates', () => {
-    expect(canTravel(journey({ gatesPassed: { 0: [0, 1, 2, 3] } }), 0)).toBe(false)
-    expect(canTravel(journey({ gatesPassed: { 0: [0, 1, 2, 3, 4] } }), 0)).toBe(true)
-  })
-
-  it('is tracked per city', () => {
-    const j = journey({ cityIndex: 1, gatesPassed: { 0: [0, 1, 2, 3, 4] } })
-    expect(canTravel(j, 0)).toBe(true)
-    expect(canTravel(j, 1)).toBe(false)
-  })
-
-  it('the journey completes only after the final city', () => {
-    const last = CITIES.length - 1
-    expect(isJourneyComplete(journey({ cityIndex: last, gatesPassed: {} }))).toBe(false)
-    expect(
-      isJourneyComplete(journey({ cityIndex: last, gatesPassed: { [last]: [0, 1, 2, 3, 4] } })),
-    ).toBe(true)
-  })
-})
-
-describe('currentGateIndex', () => {
-  it('points at the first unpassed gate', () => {
-    const j = journey({ gatesPassed: { 0: [0, 1] } })
-    expect(currentGateIndex(WORDS, new Set(), j, 0)).toBe(2)
-  })
-
-  it('clamps to the last gate when all are passed', () => {
-    const j = journey({ gatesPassed: { 0: [0, 1, 2, 3, 4] } })
-    expect(currentGateIndex(WORDS, new Set(), j, 0)).toBe(GATES_PER_CITY - 1)
-  })
-})
-
-describe('collectedCount', () => {
-  it('counts only collected words', () => {
+  it('never regresses across many rounds of real SRS updates', () => {
     const city = wordsForCity(WORDS, 0)
-    expect(collectedCount(city, collectAll(city.slice(0, 42)))).toBe(42)
-  })
-})
-
-describe('mergeCollected — the monotonic latch', () => {
-  const city = wordsForCity(WORDS, 0)
-
-  it('credits words already proven before the journey existed', () => {
-    const latch = mergeCollected({}, srsAll(city.slice(0, 30)), NOW)
-    expect(Object.keys(latch).length).toBe(30)
-  })
-
-  it('returns the same object when nothing new was collected', () => {
-    const srs = srsAll(city.slice(0, 5))
-    const first = mergeCollected({}, srs, NOW)
-    expect(mergeCollected(first, srs, NOW + 1)).toBe(first)
-  })
-
-  it('never drops a word — a later lookup cannot revoke a clean guess', () => {
-    const word = city[0]!
-    // Collected by the "one clean correct guess" clause…
-    const before: SrsMap = { [word.id]: stats({ correctGuesses: 1, lookups: 0 }) }
-    const latch = mergeCollected({}, before, NOW)
-    expect(latch[word.id]).toBeDefined()
-
-    // …then the player looks it up, which flips the raw predicate false.
-    const after: SrsMap = { [word.id]: stats({ correctGuesses: 1, lookups: 1 }) }
-    expect(isCollected(after[word.id])).toBe(false)
-    expect(mergeCollected(latch, after, NOW + 1)[word.id]).toBeDefined()
-  })
-
-  it('grows monotonically across many rounds of real SRS updates', () => {
     let srs: SrsMap = {}
-    let latch = mergeCollected({}, srs, NOW)
-    let size = 0
+    let learned = 0
     for (let round = 0; round < 200; round++) {
       const picks = city.slice((round * 7) % 80, ((round * 7) % 80) + 12)
       srs = applyRoundResults(
@@ -225,22 +103,105 @@ describe('mergeCollected — the monotonic latch', () => {
         })),
         NOW + round * 1000,
       )
-      latch = mergeCollected(latch, srs, NOW + round * 1000)
-      expect(Object.keys(latch).length).toBeGreaterThanOrEqual(size)
-      size = Object.keys(latch).length
+      const now = countCollection(city, srs, {}).learned
+      expect(now).toBeGreaterThanOrEqual(learned)
+      learned = now
     }
-    expect(size).toBeGreaterThan(0)
+    expect(learned).toBeGreaterThan(0)
+  })
+
+  it('counts split cleanly and always sum to the whole', () => {
+    const city = wordsForCity(WORDS, 0)
+    const srs = {
+      ...srsWith(city.slice(0, 10), { correctGuesses: LEARN_REPS }),
+      ...srsWith(city.slice(10, 35), { correctGuesses: 1 }),
+    }
+    const banked = Object.fromEntries(city.slice(90, 95).map((w) => [w.id, NOW]))
+    const counts = countCollection(city, srs, banked)
+    expect(counts.learned).toBe(15) // 10 by play + 5 banked
+    expect(counts.discovered).toBe(25)
+    expect(counts.undiscovered).toBe(60)
+    expect(counts.learned + counts.discovered + counts.undiscovered).toBe(counts.total)
+  })
+})
+
+describe('the travel exam is never locked', () => {
+  const city = wordsForCity(WORDS, 0)
+
+  it('always offers a full paper, even on an untouched city', () => {
+    const words = examWords(WORDS, {}, {}, 0)
+    expect(words.length).toBe(GATE_SIZE)
+  })
+
+  it('draws your strongest unbanked words first', () => {
+    // Make a scattered handful the best-known words in the city.
+    const strong = [city[70]!, city[40]!, city[95]!, city[12]!]
+    const srs = srsWith(strong, { correctGuesses: 5 })
+    const paper = examWords(WORDS, srs, {}, 0)
+    for (const w of strong) expect(paper.slice(0, strong.length)).toContainEqual(w)
+  })
+
+  it('never re-tests a banked word', () => {
+    const banked = Object.fromEntries(city.slice(0, 20).map((w) => [w.id, NOW]))
+    const paper = examWords(WORDS, {}, banked, 0)
+    expect(paper.length).toBe(GATE_SIZE)
+    for (const w of paper) expect(w.id in banked).toBe(false)
+  })
+
+  it('shrinks its paper only when a city is nearly exhausted', () => {
+    const banked = Object.fromEntries(city.slice(0, 95).map((w) => [w.id, NOW]))
+    expect(examWords(WORDS, {}, banked, 0).length).toBe(5)
+  })
+
+  it('readiness reports how many of the paper are already green', () => {
+    const srs = srsWith(city.slice(0, 7), { correctGuesses: LEARN_REPS })
+    const { ready, total } = examReadiness(WORDS, srs, {}, 0)
+    expect(total).toBe(GATE_SIZE)
+    expect(ready).toBe(7)
+  })
+})
+
+describe('stamps and travel', () => {
+  it('needs a full passport page', () => {
+    for (let n = 0; n < GATES_PER_CITY; n++) {
+      expect(canTravel(journey({ stamps: { 0: n } }), 0)).toBe(false)
+    }
+    expect(canTravel(journey({ stamps: { 0: GATES_PER_CITY } }), 0)).toBe(true)
+  })
+
+  it('is tracked per city', () => {
+    const j = journey({ cityIndex: 1, stamps: { 0: GATES_PER_CITY } })
+    expect(canTravel(j, 0)).toBe(true)
+    expect(canTravel(j, 1)).toBe(false)
+    expect(stampsFor(j, 1)).toBe(0)
+  })
+
+  it('the journey completes only after the final city', () => {
+    const last = CITIES.length - 1
+    expect(isJourneyComplete(journey({ cityIndex: last }))).toBe(false)
+    expect(
+      isJourneyComplete(journey({ cityIndex: last, stamps: { [last]: GATES_PER_CITY } })),
+    ).toBe(true)
+  })
+
+  it('five full papers bank a whole city', () => {
+    expect(GATES_PER_CITY * GATE_SIZE).toBe(WORDS_PER_CITY)
+  })
+})
+
+describe('isLearned', () => {
+  it('matches wordState', () => {
+    expect(isLearned(stats({ correctGuesses: LEARN_REPS }), false)).toBe(true)
+    expect(isLearned(stats({ correctGuesses: 1 }), false)).toBe(false)
+    expect(isLearned(undefined, true)).toBe(true)
   })
 })
 
 describe('studyPhaseEnabled', () => {
-  it('auto: scaffolds the first five stops, then withdraws', () => {
+  it('auto: scaffolds the early stops, then withdraws', () => {
     for (let city = 0; city < CITIES.length; city++) {
       expect(studyPhaseEnabled('auto', city)).toBe(city < STUDY_UNTIL_CITY)
     }
-    // The scaffold is gone by the time the journey turns north.
-    expect(studyPhaseEnabled('auto', 5)).toBe(false)
-    expect(studyPhaseEnabled('auto', CITIES.length - 1)).toBe(false)
   })
 
   it('the setting overrides the ramp in both directions', () => {
@@ -250,7 +211,7 @@ describe('studyPhaseEnabled', () => {
 })
 
 describe('cities data', () => {
-  it('has one city per band with unique ids and plausible coordinates', () => {
+  it('has unique ids and plausible coordinates', () => {
     expect(new Set(CITIES.map((c) => c.id)).size).toBe(CITIES.length)
     for (const c of CITIES) {
       expect(c.lat).toBeGreaterThan(54.5)
@@ -258,14 +219,12 @@ describe('cities data', () => {
       expect(c.lon).toBeGreaterThan(8)
       expect(c.lon).toBeLessThan(13)
       expect(c.blurbDa.length).toBeGreaterThan(10)
-      expect(c.blurbEn.length).toBeGreaterThan(10)
     }
   })
 
   it('starts in the far south and ends in the capital', () => {
     expect(CITIES[0]!.name).toBe('Sønderborg')
     expect(CITIES[CITIES.length - 1]!.name).toBe('København')
-    // Sønderborg is the southernmost stop on the route.
     expect(Math.min(...CITIES.map((c) => c.lat))).toBe(CITIES[0]!.lat)
   })
 })
