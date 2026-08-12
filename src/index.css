@@ -184,7 +184,7 @@ select:focus {
 /* ---------- home ---------- */
 
 .home-screen {
-  gap: 20px;
+  gap: 16px;
 }
 
 .home-hero {
@@ -353,7 +353,7 @@ select:focus {
   height: auto;
   /* Uncapped, Denmark's 1000x812 shape pushed the primary action below the
      fold on 640-667px phones. preserveAspectRatio letterboxes the rest. */
-  max-height: 30vh;
+  max-height: 26vh;
   display: block;
 }
 
@@ -2168,4 +2168,221 @@ select:focus {
   box-shadow: none;
   justify-content: center;
   pointer-events: none;
+}
+
+/* ---------- the letter that opens the game ---------- */
+
+.letter-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+  gap: 14px;
+}
+
+/* The letter scrolls, the button does not. A sticky button inside the scroller
+   was drawn over the paragraphs it was floating above. */
+.letter-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 0 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.letter {
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  outline: none;
+}
+
+.letter-stamp {
+  font-size: 1.6rem;
+  text-align: center;
+  opacity: 0.4;
+}
+
+.letter-salutation,
+.letter-signoff {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+.letter-signoff {
+  margin-top: 8px;
+}
+
+.letter-para {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  line-height: 1.62;
+}
+
+.letter-from {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.letter-ps {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.letter-ps-label {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.letter-go {
+  width: 100%;
+  max-width: 440px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.home-tagline {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+/* ---------- the ten champions ---------- */
+
+.champion-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.champion-card-arrival {
+  background: var(--surface);
+}
+
+.champion-motif {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.champion-motif-inline {
+  font-size: 0.95rem;
+}
+
+.champion-name {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.champion-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.champion-line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.champion-line-en {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.champion-blurb {
+  margin-top: 6px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.champion-knew {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+}
+
+.city-champion {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.champion-says {
+  border-left: 3px solid var(--text);
+  padding: 4px 0 4px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.champion-says-farewell {
+  border-left-color: var(--green-tile);
+  margin: 10px 0;
+}
+
+.champion-attrib {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.gate-paper-line {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* Short phones: the hero and the map give up room so the primary action stays
+   reachable without scrolling. Measured on 375x667 and 360x640. */
+@media (max-height: 720px) {
+  .home-screen {
+    gap: 12px;
+  }
+
+  .home-hero {
+    padding: 6px 0 0;
+  }
+
+  .home-hero h1 {
+    font-size: 2rem;
+  }
+
+  .home-tagline {
+    display: none;
+  }
+
+  .home-map {
+    max-height: 21vh;
+  }
+
+  .city-card {
+    padding: 12px 14px;
+  }
+
+  .city-name {
+    font-size: 1.7rem;
+  }
 }

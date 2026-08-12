@@ -1,7 +1,14 @@
 import { WORDS } from '../../data/words'
 import { GRID_CONFIGS, type GridSize } from '../../engine/config'
 import { mulberry32 } from '../../engine/rng'
-import { CITIES, GATES_PER_CITY, WORDS_PER_CITY, cityAt } from '../../journey/cities'
+import {
+  CITIES,
+  FINAL_CITY_INDEX,
+  GATES_PER_CITY,
+  WORDS_PER_CITY,
+  cityAt,
+} from '../../journey/cities'
+import { championAt } from '../../journey/champions'
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
 import {
   canTravel,
@@ -21,6 +28,7 @@ import { useJourney } from '../../stores/journeyStore'
 import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
+import { LETTER } from '../../journey/letter'
 
 /** Deterministic pick that changes daily — drawn from words already unlocked. */
 function wordOfTheDay(cityIndex: number) {
@@ -106,6 +114,7 @@ export function HomeScreen() {
   const journey = useJourney()
 
   const city = cityAt(journey.cityIndex)
+  const champion = championAt(journey.cityIndex)
   const cityCounts = countCollection(wordsForCity(WORDS, journey.cityIndex), srs, journey.banked)
   const allCounts = countCollection(WORDS, srs, journey.banked)
   const stamps = stampsFor(journey, journey.cityIndex)
@@ -118,10 +127,14 @@ export function HomeScreen() {
   const examOpen = examUnlocked(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const trials = examTrials(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const toNextTrial = greensToNextTrial(WORDS, srs, journey.banked, journey.cityIndex)
-  // København has no next stop: without this the travel button would ask
-  // cityAt for a city one past the end, which throws and blanks the app.
+  // København has no next stop at all, stamps or no stamps. Every place that
+  // names the next city has to ask this, not journeyDone — journeyDone also
+  // wants a full passport, so at the last city with four stamps it is false
+  // while cityAt(cityIndex + 1) still throws and blanks the app.
+  const atRoadsEnd = journey.cityIndex >= FINAL_CITY_INDEX
+  const nextCity = atRoadsEnd ? null : cityAt(journey.cityIndex + 1)
   const journeyDone = isJourneyComplete(journey)
-  const travelReady = canTravel(journey, journey.cityIndex) && !journeyDone
+  const travelReady = canTravel(journey, journey.cityIndex) && !atRoadsEnd
 
   const examAnswered = journey.activeExam
     ? Object.values(journey.activeExam.answers).filter((a) => a.trim().length > 0).length
@@ -157,6 +170,7 @@ export function HomeScreen() {
     <div className="screen home-screen">
       <div className="home-hero">
         <h1>ClueCabulary</h1>
+        <p className="home-tagline">{LETTER.tagline}</p>
       </div>
 
       {needsSetup && (
@@ -179,6 +193,13 @@ export function HomeScreen() {
         <p className="city-blurb" lang="da">
           {city.blurbDa}
         </p>
+        <p className="city-champion">
+          <span className="champion-motif-inline" aria-hidden="true">
+            {champion.motif}
+          </span>{' '}
+          {champion.name} — <span lang="da">{champion.titleDa}</span> holds the{' '}
+          <span lang="da">stempel</span> here
+        </p>
 
         <div className="collect-bar" aria-hidden="true">
           <div
@@ -200,8 +221,10 @@ export function HomeScreen() {
           <span lang="da">Rejsepas</span>
           <span className="passport-gloss">
             {' '}
-            — {GATES_PER_CITY} stempler open the road to{' '}
-            {journeyDone ? 'nowhere further' : cityAt(journey.cityIndex + 1).name}
+            —{' '}
+            {nextCity
+              ? `${GATES_PER_CITY} stempler open the road to ${nextCity.name}`
+              : `${GATES_PER_CITY} stempler and the collection is complete`}
           </span>
         </p>
         <ul className="stamp-row" aria-label={`${stamps} of ${GATES_PER_CITY} stamps`}>
@@ -245,7 +268,7 @@ export function HomeScreen() {
         </div>
       ) : travelReady ? (
         <button className="btn btn-travel" onClick={() => goTo('map')}>
-          <span lang="da">Rejs videre</span> → {cityAt(journey.cityIndex + 1).name}
+          <span lang="da">Rejs videre</span> → {nextCity?.name}
         </button>
       ) : (
         <button className="btn btn-gate" onClick={openExam} disabled={!examOpen}>
@@ -311,6 +334,10 @@ export function HomeScreen() {
           {wotd.da}
         </span>
         <span className="wotd-en">{wotd.en[0]}</span>
+      </button>
+
+      <button className="howto-link" onClick={() => useUi.getState().openLetter()}>
+        Read <span lang="da">{LETTER.fromShort}</span>'s letter again
       </button>
 
       <button className="howto-link" onClick={() => useUi.getState().openHowTo()}>

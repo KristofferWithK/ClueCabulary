@@ -4,6 +4,7 @@ import type { WordEntry } from '../../data/types'
 import { answerMatches } from '../../engine/redemption'
 import { CITIES, GATES_PER_CITY, cityAt } from '../../journey/cities'
 import { canTravel, examTrials, examWords, stampsFor, wordState } from '../../journey/progress'
+import { championAt } from '../../journey/champions'
 import { mulberry32 } from '../../engine/rng'
 import { WORDS } from '../../data/words'
 import { useJourney } from '../../stores/journeyStore'
@@ -35,6 +36,9 @@ export function GateExamScreen() {
   }
 
   const city = cityAt(journey.cityIndex)
+  // The champion sets the paper and stamps the passport. Everything the exam
+  // says is said by a person.
+  const champion = championAt(journey.cityIndex)
   // The exact words drawn when the exam opened, so playing elsewhere cannot
   // change the paper mid-sitting.
   const words = exam.wordIds.map((id) => wordById(id)).filter((w): w is WordEntry => !!w)
@@ -119,17 +123,32 @@ export function GateExamScreen() {
         </h1>
       </header>
 
-      <p className="gate-intro">
-        {graded
-          ? passed
-            ? `All ${words.length} right — a stempel for ${city.name}.`
-            : 'Not this time. Look at the misses, play a few more rounds, and come back.'
-          : `${words.length} words from ${city.name}${
-              paperGreens === words.length
-                ? ', all of them ones you have learned'
-                : ` — ${paperGreens} you have learned, ${words.length - paperGreens} you have not`
-            }. Translate every one to English — no mistakes, and the dictionary is closed.`}
+      <p className="gate-paper-line">
+        {`${words.length} words from ${city.name}${
+          paperGreens === words.length
+            ? ', all of them ones you have learned'
+            : ` — ${paperGreens} you have learned, ${words.length - paperGreens} you have not`
+        }. Translate every one to English — no mistakes, and the dictionary is closed.`}
       </p>
+
+      <div className="champion-says">
+        <span className="champion-motif-inline" aria-hidden="true">
+          {champion.motif}
+        </span>
+        {graded ? (
+          <>
+            <p className="champion-line" lang="da">
+              {passed ? champion.passDa : champion.failDa}
+            </p>
+            <p className="champion-line-en">{passed ? champion.passEn : champion.failEn}</p>
+          </>
+        ) : (
+          <p className="champion-line-en">{champion.examIntroEn}</p>
+        )}
+        <p className="champion-attrib">
+          {champion.name}, <span lang="da">{champion.titleDa}</span>
+        </p>
+      </div>
 
       {graded ? (
         <>
@@ -166,20 +185,48 @@ export function GateExamScreen() {
                 <span lang="da">Stempel</span> {stamps} / {GATES_PER_CITY} ·{' '}
                 {words.length} words banked
               </p>
-              {readyToTravel && nextCity ? (
+              {/* A full page is a full page whether or not there is a road out
+                  of it. Gating the farewell on nextCity made the last
+                  champion's line — the one line in the game that fires exactly
+                  once — fire zero times, and ended the whole journey on a
+                  system sentence back on Home. */}
+              {readyToTravel ? (
                 <>
-                  <p className="travel-callout">The passport page is full. The road is open.</p>
-                  <button
-                    className="btn btn-primary btn-big"
-                    onClick={() => {
-                      const destination = journey.cityIndex + 1
-                      journey.endExam()
-                      journey.travel(Date.now())
-                      setArrivedIndex(destination)
-                    }}
-                  >
-                    <span lang="da">Rejs videre</span> → {nextCity.name}
-                  </button>
+                  <p className="travel-callout">
+                    {nextCity
+                      ? 'The passport page is full. The road is open.'
+                      : 'The passport is full. A thousand words.'}
+                  </p>
+                  <div className="champion-says champion-says-farewell">
+                    <p className="champion-line" lang="da">
+                      {champion.farewellDa}
+                    </p>
+                    <p className="champion-line-en">{champion.farewellEn}</p>
+                    <p className="champion-attrib">{champion.name}</p>
+                  </div>
+                  {nextCity ? (
+                    <button
+                      className="btn btn-primary btn-big"
+                      onClick={() => {
+                        const destination = journey.cityIndex + 1
+                        journey.endExam()
+                        journey.travel(Date.now())
+                        setArrivedIndex(destination)
+                      }}
+                    >
+                      <span lang="da">Rejs videre</span> → {nextCity.name}
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-primary btn-big"
+                      onClick={() => {
+                        journey.endExam()
+                        goTo('home')
+                      }}
+                    >
+                      <span lang="da">Rejsen er slut</span>
+                    </button>
+                  )}
                 </>
               ) : (
                 <button

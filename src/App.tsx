@@ -5,8 +5,9 @@ import { LEARN_REPS, wordsForCity } from './journey/progress'
 import { useJourney } from './stores/journeyStore'
 import { useSettings } from './stores/settingsStore'
 import { useSrs } from './stores/srsStore'
-import { consumeSelfPop, shouldShowHowTo, useUi } from './stores/uiStore'
+import { consumeSelfPop, shouldShowHowTo, shouldShowLetter, useUi } from './stores/uiStore'
 import { DictionarySheet } from './ui/components/DictionarySheet'
+import { GrandmotherLetter } from './ui/components/GrandmotherLetter'
 import { HowToPlay } from './ui/components/HowToPlay'
 import { UpdateBanner } from './ui/components/UpdateBanner'
 import { GameScreen } from './ui/screens/GameScreen'
@@ -27,7 +28,11 @@ export default function App() {
     if (seed && /^\d+$/.test(seed)) {
       useUi.setState({ pendingSeed: Number(seed) })
     }
-    if (shouldShowHowTo() && params.get('howto') !== '0') useUi.getState().openHowTo()
+    // The invitation comes before the rules: the letter opens, and closing it
+    // hands over to How to Play. ?howto=0 skips both, for the drives.
+    const skipIntro = params.get('howto') === '0' || params.get('letter') === '0'
+    if (shouldShowLetter() && !skipIntro) useUi.getState().openLetter()
+    else if (shouldShowHowTo() && !skipIntro) useUi.getState().openHowTo()
 
     // Journey dev switches, so the travel screens can be driven in tests:
     // ?city=N jumps to a stop, ?collected=K collects K of its words,
@@ -94,6 +99,8 @@ export default function App() {
       const ui = useUi.getState()
       if (ui.sheetWordId) {
         useUi.setState({ sheetWordId: null })
+      } else if (ui.letterOpen) {
+        useUi.setState({ letterOpen: false })
       } else if (ui.howToOpen) {
         ui.closeHowTo()
       } else if (ui.screen !== 'home') {
@@ -117,6 +124,7 @@ export default function App() {
       {screen === 'map' && <MapScreen />}
       {screen === 'gate' && <GateExamScreen />}
       <DictionarySheet />
+      <GrandmotherLetter />
       <HowToPlay />
       <UpdateBanner />
     </main>
