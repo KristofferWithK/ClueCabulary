@@ -6,7 +6,9 @@ import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/
 import {
   canTravel,
   countCollection,
+  EXAM_MIN_GREEN,
   examComposition,
+  examUnlocked,
   examWords,
   stampsFor,
   unlockedWords,
@@ -99,6 +101,7 @@ export function HomeScreen() {
   const stamps = stampsFor(journey, journey.cityIndex)
   const paper = examComposition(WORDS, srs, journey.banked, journey.cityIndex)
   const paperUnknown = paper.discovered + paper.undiscovered
+  const examOpen = examUnlocked(WORDS, srs, journey.banked, journey.cityIndex)
   const travelReady = canTravel(journey, journey.cityIndex)
 
   const wotd = wordOfTheDay(journey.cityIndex)
@@ -197,12 +200,14 @@ export function HomeScreen() {
           <span lang="da">Rejs videre</span> → {cityAt(journey.cityIndex + 1).name}
         </button>
       ) : (
-        <button className="btn btn-gate" onClick={openExam}>
+        <button className="btn btn-gate" onClick={openExam} disabled={!examOpen}>
           <span lang="da">Rejseprøve</span>
           <span className="gate-paper">
-            {paperUnknown === 0
-              ? `all ${paper.learned} words green — a fair test`
-              : `${paper.learned} you know · ${paperUnknown} you don't`}
+            {!examOpen
+              ? `${paper.learned} / ${EXAM_MIN_GREEN} green words needed to sit it`
+              : paperUnknown === 0
+                ? `all ${paper.learned} words green — a fair test`
+                : `${paper.learned} you know · ${paperUnknown} you don't`}
           </span>
         </button>
       )}

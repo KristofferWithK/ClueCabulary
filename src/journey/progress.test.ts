@@ -12,11 +12,13 @@ import {
   WORDS_PER_CITY,
 } from './cities'
 import {
+  EXAM_MIN_GREEN,
   LEARN_REPS,
   canTravel,
   cityBand,
   countCollection,
   examComposition,
+  examUnlocked,
   examWords,
   isJourneyComplete,
   isLearned,
@@ -170,6 +172,23 @@ describe('the travel exam is never locked', () => {
     const banked = Object.fromEntries(city.slice(0, 95).map((w) => [w.id, NOW]))
     expect(examWords(WORDS, {}, banked, 0, rng()).length).toBe(5)
     expect(examComposition(WORDS, {}, banked, 0).total).toBe(5)
+  })
+
+  it('stays shut until half the paper could be green', () => {
+    // Nothing learned: an exam would be twenty unseen words.
+    expect(examUnlocked(WORDS, {}, {}, 0)).toBe(false)
+    const nearly = srsWith(city.slice(0, EXAM_MIN_GREEN - 1), { correctGuesses: LEARN_REPS })
+    expect(examUnlocked(WORDS, nearly, {}, 0)).toBe(false)
+    const enough = srsWith(city.slice(0, EXAM_MIN_GREEN), { correctGuesses: LEARN_REPS })
+    expect(examUnlocked(WORDS, enough, {}, 0)).toBe(true)
+  })
+
+  it('cannot be locked out by a nearly exhausted city', () => {
+    // A short final paper only needs all of itself green.
+    const banked = Object.fromEntries(city.slice(0, 96).map((w) => [w.id, NOW]))
+    const srs = srsWith(city.slice(96), { correctGuesses: LEARN_REPS })
+    expect(examComposition(WORDS, srs, banked, 0).total).toBe(4)
+    expect(examUnlocked(WORDS, srs, banked, 0)).toBe(true)
   })
 
   it('varies which unknown words it draws between attempts', () => {

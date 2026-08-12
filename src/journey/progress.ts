@@ -16,6 +16,13 @@ export function studyPhaseEnabled(mode: StudyMode, cityIndex: number): boolean {
 export const LEARN_REPS = 3
 
 /**
+ * Green words needed before a travel exam opens. Half a paper: low enough that
+ * you are never stuck for long, high enough that the exam is always at least
+ * half winnable rather than twenty words you have never met.
+ */
+export const EXAM_MIN_GREEN = GATE_SIZE / 2
+
+/**
  * A word's place in the collection:
  * - `undiscovered` — never met
  * - `discovered`   — seen on a board, not yet secure
@@ -131,9 +138,24 @@ export function examComposition(
 }
 
 /**
+ * Whether the player may sit a travel exam yet. The bar is deliberately low —
+ * half the paper green — so the wait is short, but it rules out an exam that
+ * is mostly words the player has never seen.
+ */
+export function examUnlocked(
+  all: readonly WordEntry[],
+  srs: SrsMap,
+  banked: BankedWords,
+  cityIndex: number,
+): boolean {
+  const paper = examComposition(all, srs, banked, cityIndex)
+  return paper.learned >= Math.min(EXAM_MIN_GREEN, paper.total)
+}
+
+/**
  * Draw the paper. Green words are taken by frequency (stable), while the grey
- * and unknown filler is sampled, so an impatient attempt is not the same test
- * twice. Never locked, and never re-tests a banked word.
+ * and unknown filler is sampled, so a second attempt is not the same test
+ * twice. Never re-tests a banked word.
  */
 export function examWords(
   all: readonly WordEntry[],
