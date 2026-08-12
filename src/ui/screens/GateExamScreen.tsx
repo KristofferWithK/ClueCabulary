@@ -3,7 +3,8 @@ import { wordById } from '../../data/words'
 import type { WordEntry } from '../../data/types'
 import { answerMatches } from '../../engine/redemption'
 import { CITIES, GATES_PER_CITY, GATE_SIZE, cityAt } from '../../journey/cities'
-import { canTravel, stampsFor } from '../../journey/progress'
+import { canTravel, examTrials, stampsFor } from '../../journey/progress'
+import { WORDS } from '../../data/words'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
@@ -83,8 +84,19 @@ export function GateExamScreen() {
     if (results.every((r) => r.accepted)) {
       journey.awardStamp(journey.cityIndex, exam.wordIds, Date.now())
       if (navigator.vibrate) navigator.vibrate([20, 60, 20])
+    } else {
+      // Only failure costs an attempt; success is never punished.
+      journey.spendTrial(journey.cityIndex)
     }
   }
+
+  const trialsLeft = examTrials(
+    WORDS,
+    useSrs.getState().stats,
+    journey.banked,
+    journey,
+    journey.cityIndex,
+  ).available
 
   const retry = () => {
     journey.startExam(exam.cityIndex, exam.wordIds)
@@ -141,6 +153,14 @@ export function GateExamScreen() {
             ))}
           </ul>
 
+          {!passed && (
+            <p className="trials-left">
+              {trialsLeft > 0
+                ? `${trialsLeft} ${trialsLeft === 1 ? 'attempt' : 'attempts'} left · every ten green words earns another`
+                : 'No attempts left — turn ten more words green to earn one.'}
+            </p>
+          )}
+
           {passed ? (
             <div className="gate-actions">
               <p className="stamp-award">
@@ -176,8 +196,8 @@ export function GateExamScreen() {
             </div>
           ) : (
             <div className="gate-actions">
-              <button className="btn btn-primary" onClick={retry}>
-                Try the same words again
+              <button className="btn btn-primary" onClick={retry} disabled={trialsLeft < 1}>
+                Try again
               </button>
               <button
                 className="btn"

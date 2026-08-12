@@ -16,11 +16,11 @@ export function studyPhaseEnabled(mode: StudyMode, cityIndex: number): boolean {
 export const LEARN_REPS = 3
 
 /**
- * Green words needed before a travel exam opens. Half a paper: low enough that
- * you are never stuck for long, high enough that the exam is always at least
- * half winnable rather than twenty words you have never met.
+ * Green words that earn one attempt at a travel exam. The first arrives at ten
+ * greens — half a paper — so an exam is never twenty words you have never met,
+ * and every ten after that buys another try.
  */
-export const EXAM_MIN_GREEN = GATE_SIZE / 2
+export const GREENS_PER_TRIAL = GATE_SIZE / 2
 
 /**
  * A word's place in the collection:
@@ -38,6 +38,8 @@ export interface JourneyState {
   /** cityIndex -> travel stamps earned (0..GATES_PER_CITY). */
   stamps: Record<number, number>
   banked: Record<string, number>
+  /** cityIndex -> failed attempts, each of which spent a trial. */
+  trialsSpent: Record<number, number>
 }
 
 /** Inclusive freqRank range owned by a city. City 0 holds ranks 1..100. */
@@ -137,19 +139,63 @@ export function examComposition(
   return { learned, discovered, undiscovered, total: learned + discovered + undiscovered }
 }
 
+export interface ExamTrials {
+  earned: number
+  spent: number
+  available: number
+  /** True when the paper would be entirely green — always worth allowing. */
+  certain: boolean
+}
+
 /**
- * Whether the player may sit a travel exam yet. The bar is deliberately low —
- * half the paper green — so the wait is short, but it rules out an exam that
- * is mostly words the player has never seen.
+ * Attempts at a travel exam: one per ten green words in the city, banked ones
+ * included, minus the attempts already failed. Passing costs nothing — success
+ * should never be punished — so only a failure spends a trial.
+ *
+ * The `certain` escape hatch matters: a player who has greened every remaining
+ * word but burnt all their trials would otherwise be stuck forever, refused a
+ * test they would certainly pass.
  */
+export function examTrials(
+  all: readonly WordEntry[],
+  srs: SrsMap,
+  banked: BankedWords,
+  journey: JourneyState,
+  cityIndex: number,
+): ExamTrials {
+  const learned = countCollection(wordsForCity(all, cityIndex), srs, banked).learned
+  const earned = Math.floor(learned / GREENS_PER_TRIAL)
+  const spent = journey.trialsSpent[cityIndex] ?? 0
+  const paper = examComposition(all, srs, banked, cityIndex)
+  return {
+    earned,
+    spent,
+    available: Math.max(0, earned - spent),
+    certain: paper.total > 0 && paper.learned === paper.total,
+  }
+}
+
+/** An exam may be sat with a trial in hand, or when the paper is all green. */
 export function examUnlocked(
   all: readonly WordEntry[],
   srs: SrsMap,
   banked: BankedWords,
+  journey: JourneyState,
   cityIndex: number,
 ): boolean {
-  const paper = examComposition(all, srs, banked, cityIndex)
-  return paper.learned >= Math.min(EXAM_MIN_GREEN, paper.total)
+  const trials = examTrials(all, srs, banked, journey, cityIndex)
+  return trials.available > 0 || trials.certain
+}
+
+/** Green words still needed before the next trial is earned. */
+export function greensToNextTrial(
+  all: readonly WordEntry[],
+  srs: SrsMap,
+  banked: BankedWords,
+  cityIndex: number,
+): number {
+  const learned = countCollection(wordsForCity(all, cityIndex), srs, banked).learned
+  return GREENS_PER_TRIAL - (learned % GREENS_PER_TRIAL)
 }
 
 /**

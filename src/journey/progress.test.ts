@@ -12,13 +12,15 @@ import {
   WORDS_PER_CITY,
 } from './cities'
 import {
-  EXAM_MIN_GREEN,
+  GREENS_PER_TRIAL,
   LEARN_REPS,
   canTravel,
   cityBand,
   countCollection,
   examComposition,
+  examTrials,
   examUnlocked,
+  greensToNextTrial,
   examWords,
   isJourneyComplete,
   isLearned,
@@ -36,6 +38,7 @@ const journey = (over: Partial<JourneyState> = {}): JourneyState => ({
   cityIndex: 0,
   stamps: {},
   banked: {},
+  trialsSpent: {},
   ...over,
 })
 
@@ -174,23 +177,6 @@ describe('the travel exam is never locked', () => {
     expect(examComposition(WORDS, {}, banked, 0).total).toBe(5)
   })
 
-  it('stays shut until half the paper could be green', () => {
-    // Nothing learned: an exam would be twenty unseen words.
-    expect(examUnlocked(WORDS, {}, {}, 0)).toBe(false)
-    const nearly = srsWith(city.slice(0, EXAM_MIN_GREEN - 1), { correctGuesses: LEARN_REPS })
-    expect(examUnlocked(WORDS, nearly, {}, 0)).toBe(false)
-    const enough = srsWith(city.slice(0, EXAM_MIN_GREEN), { correctGuesses: LEARN_REPS })
-    expect(examUnlocked(WORDS, enough, {}, 0)).toBe(true)
-  })
-
-  it('cannot be locked out by a nearly exhausted city', () => {
-    // A short final paper only needs all of itself green.
-    const banked = Object.fromEntries(city.slice(0, 96).map((w) => [w.id, NOW]))
-    const srs = srsWith(city.slice(96), { correctGuesses: LEARN_REPS })
-    expect(examComposition(WORDS, srs, banked, 0).total).toBe(4)
-    expect(examUnlocked(WORDS, srs, banked, 0)).toBe(true)
-  })
-
   it('varies which unknown words it draws between attempts', () => {
     const a = examWords(WORDS, {}, {}, 0, mulberry32(1)).map((w) => w.id).join()
     const b = examWords(WORDS, {}, {}, 0, mulberry32(2)).map((w) => w.id).join()
@@ -263,5 +249,52 @@ describe('cities data', () => {
     expect(CITIES[0]!.name).toBe('Sønderborg')
     expect(CITIES[CITIES.length - 1]!.name).toBe('København')
     expect(Math.min(...CITIES.map((c) => c.lat))).toBe(CITIES[0]!.lat)
+  })
+})
+
+describe('exam trials', () => {
+  const city = wordsForCity(WORDS, 0)
+  const greens = (n: number) => srsWith(city.slice(0, n), { correctGuesses: LEARN_REPS })
+
+  it('earns one attempt per ten green words', () => {
+    expect(examTrials(WORDS, {}, {}, journey(), 0).earned).toBe(0)
+    expect(examTrials(WORDS, greens(GREENS_PER_TRIAL - 1), {}, journey(), 0).earned).toBe(0)
+    expect(examTrials(WORDS, greens(GREENS_PER_TRIAL), {}, journey(), 0).earned).toBe(1)
+    expect(examTrials(WORDS, greens(35), {}, journey(), 0).earned).toBe(3)
+    expect(examTrials(WORDS, greens(100), {}, journey(), 0).earned).toBe(10)
+  })
+
+  it('the first attempt arrives at exactly half a paper green', () => {
+    expect(examUnlocked(WORDS, greens(GREENS_PER_TRIAL - 1), {}, journey(), 0)).toBe(false)
+    expect(examUnlocked(WORDS, greens(GREENS_PER_TRIAL), {}, journey(), 0)).toBe(true)
+    expect(GREENS_PER_TRIAL).toBe(GATE_SIZE / 2)
+  })
+
+  it('failures spend attempts and can shut the exam again', () => {
+    const srs = greens(GREENS_PER_TRIAL)
+    const spent = journey({ trialsSpent: { 0: 1 } })
+    expect(examTrials(WORDS, srs, {}, spent, 0).available).toBe(0)
+    expect(examUnlocked(WORDS, srs, {}, spent, 0)).toBe(false)
+  })
+
+  it('banked words keep counting toward attempts', () => {
+    const banked = Object.fromEntries(city.slice(0, 20).map((w) => [w.id, NOW]))
+    expect(examTrials(WORDS, {}, banked, journey(), 0).earned).toBe(2)
+  })
+
+  it('a certain paper is always allowed, however many attempts were burnt', () => {
+    // Every remaining word green, but all ten trials spent.
+    const banked = Object.fromEntries(city.slice(0, 80).map((w) => [w.id, NOW]))
+    const srs = srsWith(city.slice(80), { correctGuesses: LEARN_REPS })
+    const burnt = journey({ trialsSpent: { 0: 99 } })
+    const trials = examTrials(WORDS, srs, banked, burnt, 0)
+    expect(trials.available).toBe(0)
+    expect(trials.certain).toBe(true)
+    expect(examUnlocked(WORDS, srs, banked, burnt, 0)).toBe(true)
+  })
+
+  it('reports how many greens remain before the next attempt', () => {
+    expect(greensToNextTrial(WORDS, {}, {}, 0)).toBe(GREENS_PER_TRIAL)
+    expect(greensToNextTrial(WORDS, greens(7), {}, 0)).toBe(3)
   })
 })
