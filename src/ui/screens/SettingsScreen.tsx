@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AiError, listModels, resolveEndpoint, testConnection } from '../../ai/client'
+import { AiError, DEFAULT_MODEL, listModels, resolveEndpoint, testConnection } from '../../ai/client'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import type { StudyMode } from '../../journey/progress'
@@ -7,6 +7,7 @@ import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { BackupPanel } from '../components/BackupPanel'
+import { BuildFooter } from '../components/BuildFooter'
 import { ConnectKlaus } from '../components/ConnectKlaus'
 
 export function SettingsScreen() {
@@ -30,6 +31,13 @@ export function SettingsScreen() {
       return e instanceof AiError ? e.message : 'That Base URL cannot be used.'
     }
   })()
+
+  // An empty model field is silently fatal: the request goes out with no model
+  // and comes back a 404, which reads as "wrong endpoint". Name it here, next
+  // to the box, the way the Base URL problem is named.
+  const modelProblem = settings.model.trim()
+    ? null
+    : `No model. Type one, or tap “List models this server accepts”. The usual default is ${DEFAULT_MODEL}.`
 
   // Ollama Cloud names its models "gpt-oss:120b-cloud" in some places and
   // "gpt-oss:120b" in others; guessing wrong returns a 404 that reads like a
@@ -101,8 +109,13 @@ export function SettingsScreen() {
           <input
             type="text"
             value={settings.model}
+            placeholder={DEFAULT_MODEL}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             onChange={(e) => settings.set({ model: e.target.value })}
           />
+          {modelProblem && <p className="test-fail">{modelProblem}</p>}
           <button className="btn btn-small" disabled={!!baseUrlProblem} onClick={runModels}>
             List models this server accepts
           </button>
@@ -123,7 +136,7 @@ export function SettingsScreen() {
         </label>
         <button
           className="btn"
-          disabled={test === 'testing' || !!baseUrlProblem}
+          disabled={test === 'testing' || !!baseUrlProblem || !!modelProblem}
           onClick={runTest}
         >
           {test === 'testing' ? 'Testing…' : 'Test connection'}
@@ -197,6 +210,7 @@ export function SettingsScreen() {
         >
           Reset progress
         </button>
+        <BuildFooter />
       </section>
     </div>
   )

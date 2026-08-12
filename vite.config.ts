@@ -4,8 +4,15 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // Deployed as a GitHub Pages project site: https://kristofferwithk.github.io/ClueCabulary/
+// Stamped into the bundle so a screenshot of Settings says which build it is.
+// Without it, "have you got the update?" is unanswerable, and an installed PWA
+// can sit on a version for days.
+const BUILD_STAMP =
+  process.env.GITHUB_SHA?.slice(0, 7) ?? new Date().toISOString().slice(0, 16).replace('T', ' ')
+
 export default defineConfig({
   base: '/ClueCabulary/',
+  define: { __BUILD_STAMP__: JSON.stringify(BUILD_STAMP) },
   plugins: [
     react(),
     VitePWA({
