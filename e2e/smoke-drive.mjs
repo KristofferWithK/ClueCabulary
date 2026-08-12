@@ -69,9 +69,16 @@ try {
     await page.click('.sheet .btn')
   }
 
-  // Translations toggle
-  await page.click('.game-header .icon-btn:last-child')
-  await page.screenshot({ path: `${SHOT_DIR}/06-translations.png` })
+  // Translations toggle. Deliberately disabled during the redemption round —
+  // which the mock AI can reach on some seeds — so only exercise it in play.
+  const toggle = page.locator('.game-header .icon-btn:last-child')
+  if (await toggle.isEnabled()) {
+    await toggle.click()
+    await page.screenshot({ path: `${SHOT_DIR}/06-translations.png` })
+  } else {
+    console.log('translations toggle locked (redemption round) — skipping')
+    await page.screenshot({ path: `${SHOT_DIR}/06-redemption.png` })
+  }
 
   console.log('SMOKE OK')
 } catch (e) {

@@ -17,7 +17,8 @@ import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { WORDS } from '../data/words'
 import { unlockedWords } from '../journey/progress'
-import { useJourney } from './journeyStore'
+import { collectedSet, useJourney } from './journeyStore'
+import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
 import { useSrs } from './srsStore'
 import { useUi } from './uiStore'
@@ -115,10 +116,27 @@ export const useGame = create<GameStore>()(
               mulberry32(actualSeed ^ 0x9e3779b9),
               Date.now(),
             )
+        // Steer the deal: words the player still struggles with become Klaus's
+        // greens (so the player has to recall them), well-known ones become the
+        // forbidden hazards. The daily challenge stays an unbiased shared board.
+        const srsStats = useSrs.getState().stats
+        const collectedIds = collectedSet(useJourney.getState().collectedAt)
+        const bias = opts?.dailyKey
+          ? undefined
+          : {
+              need: Object.fromEntries(
+                entries.map((w) => [
+                  w.id,
+                  practiceNeed(srsStats[w.id], collectedIds.has(w.id), Date.now()),
+                ]),
+              ),
+            }
+
         const game = createGame({
           config,
           words: entries.map((w) => ({ wordId: w.id, da: w.da, en: w.en, pos: w.pos })),
           seed: actualSeed,
+          bias,
         })
         // A translation overlay left on would show answers from second one
         // without ever counting as lookups — every round starts covered.

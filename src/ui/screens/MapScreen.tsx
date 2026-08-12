@@ -143,6 +143,10 @@ export function MapScreen() {
       <button className="btn" onClick={() => goTo('home')}>
         Back
       </button>
+
+      <p className="map-credit">
+        Kort · map data: Geodatastyrelsen / DAGI (FOT), 1:500 000
+      </p>
     </div>
   )
 }
