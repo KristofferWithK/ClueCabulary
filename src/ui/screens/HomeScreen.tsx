@@ -143,7 +143,12 @@ export function HomeScreen() {
   const wotd = wordOfTheDay(journey.cityIndex)
   const daily = dailyChallenge()
   const dailyOutcome = localStorage.getItem(`cluecab-daily:${daily.key}`)
+  // Three states, not two: no key at all, a key that has never been shown to
+  // work, and everything fine. The middle one used to look like the last, so a
+  // wrong key or a CORS block announced itself only after the player had picked
+  // a grid and committed to a board.
   const needsSetup = !settings.apiKey && !settings.useMock
+  const unverifiedKlaus = !needsSetup && !settings.useMock && settings.klausVerifiedAt === null
 
   const play = (gridSize?: GridSize) => {
     if (gridSize) settings.set({ gridSize })
@@ -178,6 +183,12 @@ export function HomeScreen() {
       {needsSetup && (
         <button className="setup-nudge" onClick={() => goTo('settings')}>
           Add your Ollama API key in Settings to wake Klaus up →
+        </button>
+      )}
+
+      {unverifiedKlaus && (
+        <button className="setup-nudge" onClick={() => goTo('settings')}>
+          Klaus has not answered yet — tap Test connection in Settings before you start a round →
         </button>
       )}
 

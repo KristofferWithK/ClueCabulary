@@ -36,6 +36,7 @@ export function SettingsScreen() {
         apiKey: settings.apiKey,
         model: settings.model,
       })
+      settings.markKlausVerified(Date.now())
       setTest('ok')
     } catch (e) {
       setTest(e instanceof AiError ? e.message : 'Connection failed.')
@@ -73,8 +74,16 @@ export function SettingsScreen() {
           />
           <small>
             Default: https://ollama.com/v1 — switch to your own proxy if Test connection reports a
-            CORS problem (see proxy/README.md in the repo). Must start with https://, since your
-            API key is sent to it.
+            CORS problem — see{' '}
+            <a
+              href="https://github.com/KristofferWithK/ClueCabulary/blob/main/proxy/README.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              the proxy guide
+            </a>
+            , which is five minutes on a free Cloudflare account. Must start with https://, since
+            your API key is sent to it.
           </small>
           {baseUrlProblem && <p className="test-fail">{baseUrlProblem}</p>}
         </label>

@@ -103,8 +103,25 @@ node e2e/story-drive.mjs      # the letter opens, a champion sets the exam
 node e2e/nav-drive.mjs        # system Back peels one layer at a time
 node e2e/layout-drive.mjs     # fold, map labels, journey's end
 node e2e/offline-drive.mjs    # the dictionary works with the network off
+node e2e/ai-drive.mjs         # the real AI client against a fake Ollama:
+                              # messy JSON, retries, the HTTP error taxonomy,
+                              # and the key firewall asserted on the wire
 node e2e/map-preview.mjs      # render the map to a PNG for inspection
 ```
+
+To check Klaus against a real model — the one thing no automated drive can
+settle, since it needs a key and a network:
+
+```bash
+OLLAMA_API_KEY=... node e2e/live-drive.mjs
+```
+
+It plays one round and prints the clue Klaus actually gave, so the prompts can
+be judged against real output. Without a key it prints `LIVE DRIVE SKIPPED` and
+exits 0. Set `OLLAMA_BASE_URL` to your Cloudflare Worker (see
+[`proxy/README.md`](proxy/README.md)) if ollama.com refuses browser requests,
+and `OLLAMA_MODEL` to try another model. The key is read from the environment,
+never placed in a URL and never printed.
 
 Useful dev URLs: `?mock=1` forces the offline companion, `?seed=N` fixes the
 board, `?howto=0` skips the rules overlay, and `?city=N&learned=K&almost=K&stamps=G`
