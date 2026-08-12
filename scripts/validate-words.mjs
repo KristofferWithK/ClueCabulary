@@ -14,6 +14,15 @@ const warnings = []
 const ids = new Set()
 const das = new Set()
 const ranks = new Set()
+const curriculum = new Set()
+// Kept in step with src/ai/local/concepts.ts by concepts.test.ts, which fails
+// if the city uses a concept the companion cannot name.
+const CONCEPTS = new Set([
+  'people', 'family', 'body', 'food', 'drink', 'kitchen', 'home', 'furniture',
+  'school', 'work', 'money', 'time', 'colour', 'animal', 'nature', 'weather',
+  'vehicle', 'building', 'place', 'movement', 'speech', 'thought', 'emotion',
+  'senses', 'size', 'age', 'clothing', 'health', 'leisure', 'nationality',
+])
 
 for (const [i, w] of words.entries()) {
   const at = `#${i} (${w?.da ?? '?'})`
@@ -30,6 +39,21 @@ for (const [i, w] of words.entries()) {
   if (ranks.has(w.freqRank)) errors.push(`${at}: duplicate freqRank ${w.freqRank}`)
   ranks.add(w.freqRank)
   if (!Number.isInteger(w.freqRank) || w.freqRank < 1) errors.push(`${at}: bad freqRank`)
+  if (w.curriculumRank !== undefined) {
+    if (!Number.isInteger(w.curriculumRank) || w.curriculumRank < 1) {
+      errors.push(`${at}: bad curriculumRank`)
+    } else if (curriculum.has(w.curriculumRank)) {
+      errors.push(`${at}: duplicate curriculumRank ${w.curriculumRank}`)
+    }
+    curriculum.add(w.curriculumRank)
+  }
+  if (w.concepts !== undefined) {
+    if (!Array.isArray(w.concepts) || w.concepts.length === 0) {
+      errors.push(`${at}: concepts must be a non-empty array when present`)
+    } else {
+      for (const c of w.concepts) if (!CONCEPTS.has(c)) errors.push(`${at}: unknown concept "${c}"`)
+    }
+  }
   if (!DA_TOKEN.test(w.da)) errors.push(`${at}: da is not a single Danish token`)
   if (!POS.has(w.pos)) errors.push(`${at}: pos "${w.pos}" not in whitelist`)
   if (!Array.isArray(w.en) || w.en.length === 0 || w.en.some((g) => typeof g !== 'string' || !g.trim())) {
@@ -47,7 +71,12 @@ for (const [i, w] of words.entries()) {
   }
 }
 
-console.log(`${words.length} entries checked`)
+// A partial curriculum ordering would put words in no city at all.
+if (curriculum.size && curriculum.size !== words.length) {
+  errors.push(`${curriculum.size} of ${words.length} words have a curriculumRank — it must be all or none`)
+}
+const tagged = words.filter((w) => w.concepts?.length).length
+console.log(`${words.length} entries checked, ${curriculum.size} ranked for teaching, ${tagged} tagged`)
 if (warnings.length) {
   console.log(`\n${warnings.length} warnings:`)
   for (const w of warnings.slice(0, 40)) console.log(`  ⚠ ${w}`)

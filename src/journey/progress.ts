@@ -1,4 +1,5 @@
 import type { WordEntry } from '../data/types'
+import { curriculumRank } from '../data/words'
 import { shuffle, type Rng } from '../engine/rng'
 import type { SrsMap, WordStats } from '../srs/types'
 import {
@@ -49,22 +50,22 @@ export interface JourneyState {
   trialsSpent: Record<number, number>
 }
 
-/** Inclusive freqRank range owned by a city. City 0 holds ranks 1..100. */
+/** Inclusive curriculumRank range owned by a city. City 0 holds 1..100. */
 export function cityBand(cityIndex: number): [number, number] {
   return [cityIndex * WORDS_PER_CITY + 1, (cityIndex + 1) * WORDS_PER_CITY]
 }
 
-const byRank = (a: WordEntry, b: WordEntry) => a.freqRank - b.freqRank
+const byRank = (a: WordEntry, b: WordEntry) => curriculumRank(a) - curriculumRank(b)
 
 export function wordsForCity(all: readonly WordEntry[], cityIndex: number): WordEntry[] {
   const [lo, hi] = cityBand(cityIndex)
-  return all.filter((w) => w.freqRank >= lo && w.freqRank <= hi).sort(byRank)
+  return all.filter((w) => curriculumRank(w) >= lo && curriculumRank(w) <= hi).sort(byRank)
 }
 
 /** Everything the player may meet on a board: this city and all before it. */
 export function unlockedWords(all: readonly WordEntry[], cityIndex: number): WordEntry[] {
   const [, hi] = cityBand(cityIndex)
-  return all.filter((w) => w.freqRank <= hi).sort(byRank)
+  return all.filter((w) => curriculumRank(w) <= hi).sort(byRank)
 }
 
 /**
@@ -223,7 +224,7 @@ export function examWords(
     if (paper.length >= GATE_SIZE) break
     paper.push(...shuffle(group, rng).slice(0, GATE_SIZE - paper.length))
   }
-  return paper.sort((a, b) => a.freqRank - b.freqRank)
+  return paper.sort((a, b) => curriculumRank(a) - curriculumRank(b))
 }
 
 export function stampsFor(journey: JourneyState, cityIndex: number): number {

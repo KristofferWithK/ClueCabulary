@@ -68,6 +68,6 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'proxy/**/*.test.mjs'],
     // Agents' throwaway probes live here and are gitignored; they must not
     // join the suite that gates a commit.
-    exclude: ['**/__probe__/**', '**/__fuzz__/**', '**/__scratch__/**', '**/node_modules/**'],
+    exclude: ['**/__probe__/**', '**/__fuzz__/**', '**/__scratch__/**', '**/probe_tmp/**', '**/node_modules/**'],
   },
 })

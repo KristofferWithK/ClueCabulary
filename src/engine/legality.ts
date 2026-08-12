@@ -27,6 +27,27 @@ function isInflectionOfShort(longer: string, short: string): boolean {
 }
 
 /**
+ * Danish written on an English keyboard: æ→ae, ø→oe, å→aa. Folded only here,
+ * inside the legality check, and never in normalize(): legality erring strict
+ * costs a model one retry, whereas folding in the shared normalizer would also
+ * loosen redemption grading, where "hus" must not be accepted for "hös".
+ *
+ * Without this, "sovevaerelse" is a legal clue on a board holding "værelse"
+ * while "soveværelse" is not — a compound clue slips through purely by being
+ * typed without the Danish letters, which is exactly how a model spells it.
+ */
+const foldDanish = (s: string): string =>
+  s.replace(/æ/g, 'ae').replace(/ø/g, 'oe').replace(/å/g, 'aa')
+
+/** Does either string contain the other, in plain or ASCII-folded spelling? */
+function overlaps(a: string, b: string): boolean {
+  if (a.includes(b) || b.includes(a)) return true
+  const fa = foldDanish(a)
+  const fb = foldDanish(b)
+  return fa !== a || fb !== b ? fa.includes(fb) || fb.includes(fa) : false
+}
+
+/**
  * A clue is illegal when it is too close to ANY board word — its Danish form or
  * any English gloss. Checked identically for the player's and the AI's clues.
  */
@@ -44,7 +65,7 @@ export function checkClueLegality(clue: string, words: readonly BoardWord[]): Le
       // name the Danish board word the player can actually see.
       const isGloss = b !== normalize(w.da)
       const what = isGloss ? `"${candidate}" — the translation of "${w.da}"` : `"${candidate}"`
-      if (c === b) {
+      if (c === b || (foldDanish(c) === foldDanish(b) && c !== b)) {
         return {
           legal: false,
           reason: isGloss
@@ -53,10 +74,10 @@ export function checkClueLegality(clue: string, words: readonly BoardWord[]): Le
           conflictWord: w.da,
         }
       }
-      if (b.length >= 4 && (c.includes(b) || b.includes(c))) {
+      if (b.length >= 4 && overlaps(c, b)) {
         return { legal: false, reason: `"${clue}" contains or is contained in ${what}`, conflictWord: w.da }
       }
-      if (cStem === danishStem(b)) {
+      if (cStem === danishStem(b) || danishStem(foldDanish(c)) === danishStem(foldDanish(b))) {
         return { legal: false, reason: `"${clue}" is a form of ${what}`, conflictWord: w.da }
       }
       if (
