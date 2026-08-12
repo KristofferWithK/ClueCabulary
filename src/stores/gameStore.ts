@@ -268,6 +268,9 @@ export const useGame = create<GameStore>()(
           // dropped without touching state — the new game manages its own.
           if (get().game !== game) return
           const plan = planGuessExecution(res.guesses, currentClue(game)?.number ?? 1)
+          // Klaus answered: ordinary play is proof the credentials work, so
+          // Home stops asking the player to check them.
+          useSettings.getState().markKlausVerified(Date.now())
           set({ aiBusy: false, aiGuessQueue: plan, planForClueIndex: game.clueHistory.length })
         } catch (e) {
           if (get().game === game) set({ aiBusy: false, error: aiMessage(e) })
@@ -330,6 +333,7 @@ export const useGame = create<GameStore>()(
             targets: res.targetWordIds,
             rationale: res.rationale,
           })
+          useSettings.getState().markKlausVerified(Date.now())
           set({ aiBusy: false, game: after })
         } catch (e) {
           if (get().game === game) set({ aiBusy: false, error: aiMessage(e) })

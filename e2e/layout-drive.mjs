@@ -175,6 +175,10 @@ await page.keyboard.press('Escape')
 await page.waitForTimeout(400)
 check('Escape closes the letter', (await page.locator('.letter').count()) === 0)
 
+// The practice companion needs no key, so neither nudge belongs on Home.
+await open('?mock=1&howto=0&city=0')
+check('no setup nudge with the practice companion', (await page.locator('.setup-nudge').count()) === 0)
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.stop()

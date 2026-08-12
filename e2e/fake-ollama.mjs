@@ -14,7 +14,7 @@ import { createServer } from 'node:http'
  * request body is recorded, which is what lets a drive assert the AI firewall
  * against the bytes that actually left the browser.
  */
-export async function startFakeOllama(port) {
+export async function startFakeOllama(port, { auto = false } = {}) {
   /** @type {Array<{status?: number, body?: string, json?: unknown}>} */
   const script = []
   /** @type {Array<{messages: unknown[], raw: string}>} */
@@ -43,7 +43,7 @@ export async function startFakeOllama(port) {
       }
       received.push({ messages: parsed?.messages ?? [], raw, auth: req.headers.authorization ?? '' })
 
-      const next = script.shift() ?? { json: null }
+      const next = script.shift() ?? (auto ? autoReply(parsed) : { json: null })
       if (next.status && next.status >= 400) {
         res.writeHead(next.status, { ...cors, 'Content-Type': 'application/json' })
         res.end(JSON.stringify({ error: { message: 'fake failure' } }))
@@ -73,6 +73,24 @@ export async function startFakeOllama(port) {
     },
     stop: () => new Promise((r) => server.close(r)),
   }
+}
+
+/**
+ * Answer any prompt plausibly by reading the board back out of it. Lets the
+ * fake stand in for a model with no script at all, which is how live-drive's
+ * own machinery gets exercised without a key.
+ */
+function autoReply(request) {
+  const text = (request?.messages ?? []).map((m) => m.content ?? '').join('\n')
+  // Board lines are "<id> | <danish> (...) [...] | <status>[ | my key: ROLE]".
+  const rows = [...text.matchAll(/^(\S+) \| .+? \| ([A-Za-z ]+?)(?: \| my key: (\w+))?$/gm)]
+  const hidden = rows.filter((m) => /hidden|unrevealed/i.test(m[2]))
+  if (/You are the GUESSER/.test(text)) {
+    const pick = (hidden[0] ?? rows[0])?.[1]
+    return pick ? guessReply([pick], 0.8) : { json: null }
+  }
+  const greens = rows.filter((m) => (m[3] ?? '').toUpperCase() === 'GREEN').map((m) => m[1])
+  return greens.length ? clueReply(greens.slice(0, 2), 'autoklue') : { json: null }
 }
 
 /** A well-formed clue reply for the given board word ids. */
