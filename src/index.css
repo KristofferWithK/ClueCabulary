@@ -783,6 +783,7 @@ select:focus {
 }
 
 .word-card {
+  position: relative;
   width: 100%;
   aspect-ratio: 5 / 4;
   border-radius: 8px;
@@ -831,6 +832,60 @@ select:focus {
 .wrap-green .card-info,
 .wrap-forbidden .card-info {
   color: rgba(255, 255, 255, 0.92);
+}
+
+/* ---------- your own key ---------- */
+
+/* Your private key card, drawn onto the board: a green dot marks a word you
+   must get Klaus to guess, a cross marks one that is forbidden for you. Shape
+   plus color, never color alone. */
+.key-legend {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.legend-dot {
+  font-size: 0.7rem;
+}
+
+.legend-target {
+  color: var(--green-tile);
+}
+
+.legend-forbidden {
+  color: var(--black-tile);
+}
+
+.legend-sep {
+  margin: 0 8px;
+  color: var(--line);
+}
+
+.key-mark {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.mykey-green {
+  border-color: var(--green-tile);
+}
+
+.mykey-green .key-mark {
+  color: var(--green-tile);
+}
+
+.mykey-forbidden {
+  border-color: var(--black-tile);
+  border-style: dashed;
+}
+
+.mykey-forbidden .key-mark {
+  color: var(--black-tile);
 }
 
 /* Non-color marker so revealed-neutral tiles are distinguishable by shape. */

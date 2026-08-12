@@ -1,4 +1,4 @@
-import type { GameState, Reveal } from '../../engine/types'
+import type { CardRole, GameState, Reveal } from '../../engine/types'
 import { isGuessable } from '../../engine/game'
 
 interface Props {
@@ -28,6 +28,13 @@ const stateText = (r: Reveal): string => {
   return r.against[0] === 'player' ? ', neutral under your clues' : ", neutral under Klaus's clues"
 }
 
+/** Your own key — the private information you play from, like a Duet key card. */
+const keyText: Record<CardRole, string> = {
+  green: ', your target',
+  forbidden: ', forbidden on your key',
+  bystander: '',
+}
+
 export function BoardGrid({
   game,
   translationsOn,
@@ -46,6 +53,15 @@ export function BoardGrid({
         const reveal = game.reveals[w.wordId]!
         const kind = revealKind(game, w.wordId)
         const guessable = canGuess && isGuessable(game, w.wordId)
+        const myRole = game.playerKey[w.wordId]!
+        // Once a word is globally revealed its key role is spent; while it is
+        // still in play (hidden, or neutral in only one direction) you need to
+        // see it to give clues.
+        const showKey = reveal.kind === 'hidden' || reveal.kind === 'bystander'
+        // Outside your guessing turn a tap has nothing else to do, so let the
+        // whole card open the dictionary rather than hiding that behind ⓘ.
+        const tapLooksUp = !guessable && !dictionaryLocked
+
         return (
           <div key={w.wordId} className={`word-card-wrap wrap-${kind}`}>
             <button
@@ -54,12 +70,23 @@ export function BoardGrid({
                 `card-${kind}`,
                 guessable ? 'card-guessable' : '',
                 selectedWordId === w.wordId ? 'card-selected' : '',
+                showKey ? `mykey-${myRole}` : '',
               ].join(' ')}
-              disabled={!guessable}
-              aria-label={`${w.da}${stateText(reveal)}`}
+              disabled={!guessable && !tapLooksUp}
+              aria-label={`${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
+                tapLooksUp ? '. Tap to look up' : ''
+              }`}
               aria-pressed={selectedWordId === w.wordId}
-              onClick={() => guessable && onCardTap(w.wordId)}
+              onClick={() => {
+                if (guessable) onCardTap(w.wordId)
+                else if (tapLooksUp) onInfoTap(w.wordId)
+              }}
             >
+              {showKey && myRole !== 'bystander' && (
+                <span className="key-mark" aria-hidden="true">
+                  {myRole === 'green' ? '●' : '✖'}
+                </span>
+              )}
               <span className="card-da" lang="da">
                 {w.da}
               </span>
