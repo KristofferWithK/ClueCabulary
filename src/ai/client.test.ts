@@ -9,6 +9,16 @@ const jsonResponse = (content: string, status = 200) =>
 
 afterEach(() => vi.unstubAllGlobals())
 
+async function catchError(promise: Promise<unknown>): Promise<AiError> {
+  try {
+    await promise
+  } catch (e) {
+    if (e instanceof AiError) return e
+    throw e
+  }
+  throw new Error('expected an AiError')
+}
+
 async function kindOf(promise: Promise<unknown>): Promise<string> {
   try {
     await promise
@@ -20,16 +30,19 @@ async function kindOf(promise: Promise<unknown>): Promise<string> {
 }
 
 describe('chatJson error taxonomy', () => {
-  it('maps fetch rejection (no HTTP status) to cors with proxy advice', async () => {
+  it('maps a fetch rejection to cors, and names what ollama.com actually does', async () => {
+    // ollama.com answers the CORS preflight with a redirect, which browsers
+    // refuse outright — so for that host the advice is "you need the proxy",
+    // not "check your settings". For any other host it is the reverse.
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
-    try {
-      await chatJson(settings, messages)
-      expect.unreachable()
-    } catch (e) {
-      expect(e).toBeInstanceOf(AiError)
-      expect((e as AiError).kind).toBe('cors')
-      expect((e as AiError).message).toContain('proxy')
-    }
+    const ollama = await catchError(chatJson({ ...settings, baseUrl: 'https://ollama.com/v1' }, messages))
+    expect(ollama.kind).toBe('cors')
+    expect(ollama.message).toMatch(/preflight/i)
+    expect(ollama.message).toMatch(/proxy/i)
+
+    const other = await catchError(chatJson(settings, messages))
+    expect(other.kind).toBe('cors')
+    expect(other.message).toMatch(/Base URL/i)
   })
 
   it.each([

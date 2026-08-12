@@ -81,7 +81,7 @@ describe('chatJson with no API key', () => {
     }
   }
 
-  it('says so at once, without sending anything', async () => {
+  it('says so at once for ollama.com, without sending anything', async () => {
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
     const err = await say({ baseUrl: DEFAULT_BASE_URL, apiKey: '   ', model: 'm' })
@@ -91,9 +91,23 @@ describe('chatJson with no API key', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
-  it('and points at the way to keep playing', async () => {
+  it('and names the setup that does not need one', async () => {
     const err = await say({ baseUrl: DEFAULT_BASE_URL, apiKey: '', model: 'm' })
-    expect(err!.message).toMatch(/without Klaus/i)
+    expect(err!.message).toMatch(/proxy/i)
+  })
+
+  it('but a proxy may hold the key itself, so no key is not an error there', async () => {
+    // The recommended setup keeps the key as a Worker secret, so the app has
+    // none. Demanding one here would break exactly the setup the guide gives.
+    const fetchSpy = vi.fn(async (_url: unknown, _init: RequestInit) =>
+      new Response(JSON.stringify({ choices: [{ message: { content: '{"ok":true}' } }] })),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+    await expect(
+      chatJson({ baseUrl: 'https://proxy.example.workers.dev/v1', apiKey: '', model: 'm' }, []),
+    ).resolves.toEqual({ ok: true })
+    const init = fetchSpy.mock.calls[0]![1] as RequestInit
+    expect(Object.keys(init.headers as Record<string, string>)).not.toContain('Authorization')
   })
 
   it('but a local Ollama needs no key, so it is not asked for one', async () => {

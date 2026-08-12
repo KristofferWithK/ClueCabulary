@@ -57,23 +57,26 @@ or a wholesale replace. The file never contains your API key.
 ## Setup
 
 The app is a PWA — open the deployed page on your phone and "Add to Home
-Screen". To wake Klaus up:
+Screen". To wake Klaus up you need the bundled proxy; there is no way around
+it. **A browser cannot call ollama.com at all** — its API answers the CORS
+preflight with a redirect, and browsers forbid redirects on preflight, so the
+request is refused before it is sent. No key, model name or app setting
+changes that. `curl` works because `curl` is not a browser.
+
+So:
 
 1. Create an API key at https://ollama.com/settings/keys
-2. In the app: **Settings → Ollama API key** — the key is stored only on your
-   device.
-3. Tap **Test connection**. If it reports a CORS problem, deploy the tiny
-   bundled proxy (see [`proxy/README.md`](proxy/README.md)) and set it as the
-   Base URL.
+2. Deploy the worker in [`proxy/`](proxy/README.md) — `npx wrangler deploy`,
+   then `npx wrangler secret put OLLAMA_API_KEY`. Five minutes on a free
+   Cloudflare account.
+3. In the app: **Settings → Base URL** → your worker URL plus `/v1`. Leave the
+   API key field empty; the worker holds it, so it is never in this repository,
+   the app bundle, or your phone.
+4. Tap **List models this server accepts** and pick one, rather than guessing
+   between `gpt-oss:120b` and `gpt-oss:120b-cloud`.
 
-No key? Enable the offline **practice companion** in Settings to learn the
-rules (it plays legally but not cleverly).
-
-If Klaus fails part-way through a round — no key yet, the wrong key, a browser
-that will not talk to ollama.com, or no signal — the error offers **Play on
-without Klaus**, which finishes that round with the practice companion so the
-board is not lost. It is scoped to the round and changes no setting: the next
-round tries Klaus again.
+Prefer the key on the phone? Skip step 2's secret and paste it into Settings
+instead — a key the app sends wins over the worker's own.
 
 ## Development
 
@@ -113,7 +116,8 @@ node e2e/ai-drive.mjs         # the real AI client against a fake Ollama:
                               # messy JSON, retries, the HTTP error taxonomy,
                               # and the key firewall asserted on the wire
 node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
-                              # runtime, fixing a CORS failure that is really there
+                              # runtime, fixing a CORS failure that is really
+                              # there — including the key living on the worker
 node e2e/map-preview.mjs      # render the map to a PNG for inspection
 ```
 

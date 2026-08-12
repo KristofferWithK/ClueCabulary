@@ -79,14 +79,14 @@ export type ChatFn = (
 export const chatJson: ChatFn = async (settings, messages, opts) => {
   // Before any header is built, let alone sent.
   const endpoint = resolveEndpoint(settings.baseUrl)
-  // Say the obvious thing immediately. Without a key the request still goes
-  // out, and comes back as a 401 — or, more often, as a browser CORS refusal
-  // that tells the player to deploy a proxy they do not need. A locally run
-  // Ollama takes no key, so only remote hosts are asked for one.
-  if (!settings.apiKey.trim() && !LOCAL_HOSTS.has(endpoint.hostname)) {
+  // Only ollama.com is asked for a key here. A local Ollama takes none, and a
+  // proxy may hold the key itself as a server-side secret — which is the setup
+  // the deploy guide recommends, because it keeps the key off the phone
+  // entirely. Guessing "no key means broken" would break that.
+  if (!settings.apiKey.trim() && endpoint.hostname === 'ollama.com') {
     throw new AiError(
       'auth',
-      'No API key yet — add one in Settings. You can still finish a round without Klaus.',
+      'No API key. Add one in Settings, or point the Base URL at a proxy that holds the key — see proxy/README.md.',
     )
   }
   const doFetch = async (): Promise<Response> => {
@@ -95,7 +95,9 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${settings.apiKey}`,
+          // Omitted entirely when empty: a bare "Bearer " would shadow the
+          // key a proxy holds as its own secret.
+          ...(settings.apiKey.trim() ? { Authorization: `Bearer ${settings.apiKey}` } : {}),
         },
         body: JSON.stringify({
           model: settings.model,
@@ -111,7 +113,9 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       }
       throw new AiError(
         'cors',
-        'The AI server refused the browser request (likely CORS). If this is ollama.com, deploy the bundled proxy (see proxy/README.md) and set it as the Base URL in Settings.',
+        endpoint.hostname === 'ollama.com'
+          ? 'ollama.com cannot be called from a browser: it answers the CORS preflight with a redirect, which browsers refuse. Deploy the bundled proxy (proxy/README.md) and set it as the Base URL — that is the only way this works on a phone.'
+          : 'The AI server refused the browser request (likely CORS). Check the Base URL in Settings.',
       )
     }
   }
@@ -156,6 +160,39 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       }
     }
     throw new AiError('invalid-response', 'The AI reply was not valid JSON.')
+  }
+}
+
+/**
+ * The model names Ollama Cloud will actually accept, so nobody has to guess
+ * between "gpt-oss:120b" and "gpt-oss:120b-cloud" and read the 404 as a broken
+ * setup. Same auth and same base URL as a real call, so it doubles as a
+ * connection test that says something useful when it succeeds.
+ */
+export async function listModels(settings: AiSettings): Promise<string[]> {
+  const endpoint = new URL(resolveEndpoint(settings.baseUrl).href.replace(/\/chat\/completions$/, '/models'))
+  let res: Response
+  try {
+    res = await fetch(endpoint, {
+      headers: settings.apiKey.trim() ? { Authorization: `Bearer ${settings.apiKey}` } : {},
+    })
+  } catch {
+    throw new AiError(
+      'cors',
+      'The AI server refused the browser request. ollama.com cannot be called from a browser at all — deploy the bundled proxy (proxy/README.md) and set it as the Base URL.',
+    )
+  }
+  if (res.status === 401 || res.status === 403) {
+    throw new AiError('auth', 'The API key was rejected. Check it in Settings.')
+  }
+  if (!res.ok) throw new AiError('server', `Could not list models (HTTP ${res.status}).`)
+  try {
+    const data = (await res.json()) as { data?: { id?: string }[] }
+    const ids = (data.data ?? []).map((m) => m.id).filter((id): id is string => !!id)
+    if (ids.length === 0) throw new Error('empty')
+    return ids.sort()
+  } catch {
+    throw new AiError('invalid-response', 'The model list was not in the expected format.')
   }
 }
 
