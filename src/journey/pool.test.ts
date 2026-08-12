@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { WORDS } from '../data/words'
+import { WORDS, curriculumRank } from '../data/words'
 import { GRID_CONFIGS } from '../engine/config'
 import { mulberry32 } from '../engine/rng'
 import { danishStem, levenshtein, normalize } from '../engine/text'
@@ -48,7 +48,7 @@ describe('board sampling from a journey-restricted pool', () => {
         )
         for (const w of board) {
           expect(allowed.has(w.id)).toBe(true)
-          expect(w.freqRank).toBeLessThanOrEqual(maxRank)
+          expect(curriculumRank(w)).toBeLessThanOrEqual(maxRank)
         }
       }
     }

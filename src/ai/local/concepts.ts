@@ -76,7 +76,7 @@ export const CONCEPT_CLUES: Record<ConceptId, { da: readonly string[]; en: reado
   emotion: { da: ['følelse', 'stemning', 'humør', 'hjertevarme'], en: ['feeling', 'mood', 'sentiment', 'temper'] },
   senses: { da: ['sansning', 'sanser', 'opfattelse', 'indtryk'], en: ['perception', 'sensation', 'awareness', 'impression'] },
   size: { da: ['størrelse', 'omfang', 'målestok', 'dimension'], en: ['magnitude', 'scale', 'measurement', 'proportions'] },
-  age: { da: ['alder', 'levealder', 'generation', 'årgang'], en: ['ageing', 'vintage', 'lifespan', 'birthday'] },
+  age: { da: ['alder', 'levealder', 'årgang', 'aldersgruppe'], en: ['generation', 'lifespan', 'birthday', 'ageing'] },
   clothing: { da: ['påklædning', 'garderobe', 'stof', 'mode'], en: ['garment', 'wardrobe', 'fabric', 'attire'] },
   health: { da: ['helbred', 'sygdom', 'medicin', 'behandling'], en: ['medicine', 'illness', 'treatment', 'wellbeing'] },
   leisure: { da: ['fritid', 'hobby', 'underholdning', 'ferie'], en: ['pastime', 'entertainment', 'holiday', 'recreation'] },
