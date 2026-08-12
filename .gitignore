@@ -9,3 +9,7 @@ probe-*.mjs
 # build info + screenshots the e2e drives write when SHOT_DIR is unset
 *.tsbuildinfo
 /*.png
+# throwaway probes written by audit/debugging agents
+src/**/__probe__/
+src/**/__fuzz__/
+src/**/__scratch__/

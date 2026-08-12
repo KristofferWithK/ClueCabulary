@@ -17,5 +17,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Audit and debugging agents drop throwaway probes under these names; they
+  // are gitignored, and must not fail a build or a typecheck while they exist.
+  "exclude": ["src/**/__probe__/**", "src/**/__fuzz__/**", "src/**/__scratch__/**"]
 }

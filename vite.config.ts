@@ -54,5 +54,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // Agents' throwaway probes live here and are gitignored; they must not
+    // join the suite that gates a commit.
+    exclude: ['**/__probe__/**', '**/__fuzz__/**', '**/__scratch__/**', '**/node_modules/**'],
   },
 })
