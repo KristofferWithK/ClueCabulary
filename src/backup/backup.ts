@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CITIES } from '../journey/cities'
 import type { GamesTally } from '../stores/srsStore'
 import type { SrsMap, WordStats } from '../srs/types'
 
@@ -34,7 +35,10 @@ const TallySchema = z.object({
 })
 
 const JourneySchema = z.object({
-  cityIndex: z.number(),
+  // Bounded, not just numeric: cityAt throws outside the route, and a restore
+  // writes this straight into the store, so an out-of-range value would blank
+  // the app on every load with no way back in.
+  cityIndex: z.number().int().min(0).max(CITIES.length - 1),
   stamps: z.record(z.string(), z.number()),
   banked: z.record(z.string(), z.number()),
   trialsSpent: z.record(z.string(), z.number()),
@@ -43,9 +47,11 @@ const JourneySchema = z.object({
 
 /** Preferences worth carrying across. Never the API key. */
 const PrefsSchema = z.object({
-  gridSize: z.string(),
-  clueLanguage: z.string(),
-  studyPhase: z.string(),
+  // Enumerated, not free strings: these are cast straight into settings, and a
+  // bad gridSize makes every new game throw when it looks up its config.
+  gridSize: z.enum(['beginner', 'standard']),
+  clueLanguage: z.enum(['da', 'en']),
+  studyPhase: z.enum(['auto', 'always', 'never']),
 })
 
 export const BackupSchema = z.object({
@@ -186,14 +192,33 @@ export function mergeSnapshot(current: Snapshot, incoming: Backup): Snapshot {
       redeemed: Math.max(current.games.redeemed, incoming.srs.games.redeemed),
       lost: Math.max(current.games.lost, incoming.srs.games.lost),
     },
-    journey: {
-      cityIndex: Math.max(current.journey.cityIndex, incoming.journey.cityIndex),
-      stamps: maxByKey(numKeyed(current.journey.stamps), incoming.journey.stamps),
-      banked: earliestByKey(current.journey.banked, incoming.journey.banked),
-      trialsSpent: maxByKey(numKeyed(current.journey.trialsSpent), incoming.journey.trialsSpent),
-      arrivedAt: earliestByKey(numKeyed(current.journey.arrivedAt), incoming.journey.arrivedAt),
-    },
+    journey: mergeJourney(current.journey, incoming.journey),
     prefs: current.prefs,
+  }
+}
+
+/**
+ * Fold two journeys together without losing ground, by the rules above. Shared
+ * with the rescue of progress stranded by an old storage key, so there is one
+ * definition of "merging cannot cost you anything".
+ */
+export function mergeJourney(
+  current: JourneyBackup,
+  incoming: { cityIndex: number } & Record<string, unknown>,
+): JourneyBackup {
+  const j = incoming as unknown as {
+    cityIndex: number
+    stamps: Record<string, number>
+    banked: Record<string, number>
+    trialsSpent: Record<string, number>
+    arrivedAt: Record<string, number>
+  }
+  return {
+    cityIndex: Math.max(current.cityIndex, j.cityIndex),
+    stamps: maxByKey(numKeyed(current.stamps), j.stamps),
+    banked: earliestByKey(current.banked, j.banked),
+    trialsSpent: maxByKey(numKeyed(current.trialsSpent), j.trialsSpent),
+    arrivedAt: earliestByKey(numKeyed(current.arrivedAt), j.arrivedAt),
   }
 }
 

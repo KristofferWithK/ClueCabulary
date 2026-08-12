@@ -24,7 +24,7 @@ export function GateExamScreen() {
   const journey = useJourney()
   const recordRound = useSrs((s) => s.recordRound)
 
-  const [graded, setGraded] = useState<Graded[] | null>(null)
+  const [submitted, setSubmitted] = useState(false)
   const [arrivedIndex, setArrivedIndex] = useState<number | null>(null)
 
   if (arrivedIndex !== null) return <Arrival cityIndex={arrivedIndex} />
@@ -44,6 +44,18 @@ export function GateExamScreen() {
   const words = exam.wordIds.map((id) => wordById(id)).filter((w): w is WordEntry => !!w)
   const answers = exam.answers
   const answered = words.filter((w) => (answers[w.id] ?? '').trim().length > 0).length
+
+  // Derived, not stored: a paper marked before a reload comes back marked,
+  // because gradedAt is persisted with the answers. Without that, resuming a
+  // passed exam would put the filled-in paper back on screen and submitting it
+  // again would award a second stempel from one correct paper, endlessly.
+  const graded: Graded[] | null =
+    submitted || exam.gradedAt
+      ? words.map((w) => {
+          const given = answers[w.id] ?? ''
+          return { word: w, given, accepted: answerMatches(given, w.en) !== undefined }
+        })
+      : null
   const passed = graded !== null && graded.every((g) => g.accepted)
   // How much of this paper the player already owns — the honest risk statement.
   const srsStats = useSrs.getState().stats
@@ -52,11 +64,12 @@ export function GateExamScreen() {
   ).length
 
   const submit = () => {
+    if (exam.gradedAt) return
     const results: Graded[] = words.map((w) => {
       const given = answers[w.id] ?? ''
       return { word: w, given, accepted: answerMatches(given, w.en) !== undefined }
     })
-    setGraded(results)
+    setSubmitted(true)
 
     // Feed the schedule: misses demote, hits promote. Handling counts are
     // untouched, so an exam never inflates the play-route to green.
@@ -69,6 +82,7 @@ export function GateExamScreen() {
     }))
     recordRound(srsResults, Date.now())
 
+    journey.markExamGraded(Date.now())
     // The attempt was already spent when the paper was drawn.
     if (results.every((r) => r.accepted)) {
       journey.awardStamp(journey.cityIndex, exam.wordIds, Date.now())
@@ -100,7 +114,7 @@ export function GateExamScreen() {
       exam.cityIndex,
       words.map((w) => w.id),
     )
-    setGraded(null)
+    setSubmitted(false)
   }
 
   // awardStamp already ran, so read the freshly-stamped passport.
@@ -113,8 +127,12 @@ export function GateExamScreen() {
       <header className="screen-header">
         <button
           className="icon-btn"
-          aria-label="Put the paper down and come back to it"
-          onClick={() => goTo('home')}
+          aria-label={graded ? 'Back' : 'Put the paper down and come back to it'}
+          onClick={() => {
+            // A marked paper is finished; only an unmarked one is worth keeping.
+            if (exam.gradedAt) journey.endExam()
+            goTo('home')
+          }}
         >
           ←
         </button>

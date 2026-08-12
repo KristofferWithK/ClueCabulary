@@ -1,11 +1,17 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { WORDS } from './data/words'
-import { GATES_PER_CITY } from './journey/cities'
+import { GATES_PER_CITY, cityAt } from './journey/cities'
 import { LEARN_REPS, wordsForCity } from './journey/progress'
-import { useJourney } from './stores/journeyStore'
+import { rescueStrandedJourney, useJourney } from './stores/journeyStore'
 import { useSettings } from './stores/settingsStore'
 import { useSrs } from './stores/srsStore'
-import { consumeSelfPop, shouldShowHowTo, shouldShowLetter, useUi } from './stores/uiStore'
+import {
+  consumeSelfPop,
+  devSwitchesAllowed,
+  shouldShowHowTo,
+  shouldShowLetter,
+  useUi,
+} from './stores/uiStore'
 import { DictionarySheet } from './ui/components/DictionarySheet'
 import { GrandmotherLetter } from './ui/components/GrandmotherLetter'
 import { HowToPlay } from './ui/components/HowToPlay'
@@ -19,9 +25,29 @@ import { SettingsScreen } from './ui/screens/SettingsScreen'
 
 export default function App() {
   const screen = useUi((s) => s.screen)
+  const [rescued, setRescued] = useState<{ cityIndex: number; stamps: number; banked: number } | null>(
+    null,
+  )
+
+  // Before anything reads the journey: give back what the v1 -> v2 key rename
+  // took. Merges, never replaces, and runs once per device.
+  useEffect(() => {
+    const r = rescueStrandedJourney()
+    if (r.outcome === 'rescued' && r.recovered) setRescued(r.recovered)
+
+    // A marked paper does not survive a relaunch. Its stempel is already
+    // awarded, and leaving it active would offer it back on Home as unfinished
+    // work while silently locking the dictionary. Only unmarked papers resume.
+    if (useJourney.getState().activeExam?.gradedAt) useJourney.getState().endExam()
+  }, [])
 
   // Dev/e2e switches: ?mock=1 selects the offline companion, ?seed=N fixes the board.
   useEffect(() => {
+    // These overwrite the collection — ?learned=100 rewrites a hundred word
+    // records with no confirmation — so they must not exist on a deployed site
+    // where a shared link could carry them. Local only; the Playwright drives
+    // run against 127.0.0.1, so they keep working.
+    if (!devSwitchesAllowed()) return
     const params = new URLSearchParams(window.location.search)
     if (params.get('mock') === '1') useSettings.getState().set({ useMock: true })
     const seed = params.get('seed')
@@ -104,10 +130,13 @@ export default function App() {
       } else if (ui.howToOpen) {
         ui.closeHowTo()
       } else if (ui.screen !== 'home') {
-        // Backing out of a travel exam suspends it rather than binning it — the
-        // attempt was spent when the paper was drawn, so the paper has to
-        // survive being put down. Home surfaces it, which is what keeps the
-        // app-wide dictionary lock from becoming an invisible dead end.
+        // Backing out of an unmarked travel exam suspends it rather than
+        // binning it — the attempt was spent when the paper was drawn, so the
+        // paper has to survive being put down, and Home surfaces it. A marked
+        // one is finished: its stempel is already awarded, and leaving it on
+        // the shelf would only lock the dictionary for nothing.
+        const exam = useJourney.getState().activeExam
+        if (ui.screen === 'gate' && exam?.gradedAt) useJourney.getState().endExam()
         useUi.setState({ screen: 'home', sheetWordId: null })
       }
     }
@@ -123,6 +152,19 @@ export default function App() {
       {screen === 'stats' && <CollectionScreen />}
       {screen === 'map' && <MapScreen />}
       {screen === 'gate' && <GateExamScreen />}
+      {rescued && (
+        <div className="update-banner" role="status">
+          <span>
+            Found progress from an older version: {cityAt(rescued.cityIndex).name},{' '}
+            {rescued.stamps} {rescued.stamps === 1 ? 'stempel' : 'stempler'}. Put back.
+          </span>
+          <div className="update-actions">
+            <button className="btn btn-small btn-primary" onClick={() => setRescued(null)}>
+              Good
+            </button>
+          </div>
+        </div>
+      )}
       <DictionarySheet />
       <GrandmotherLetter />
       <HowToPlay />

@@ -125,6 +125,20 @@ export const useUi = create<UiState>((set, get) => ({
   },
 }))
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', ''])
+
+/**
+ * Whether the ?city / ?learned / ?seed switches are honoured. They rewrite the
+ * collection without asking, which is right for a test and wrong for a link
+ * someone was sent. Dev server, Playwright drives and a local preview qualify;
+ * a deployed origin never does.
+ */
+export function devSwitchesAllowed(): boolean {
+  if (typeof window === 'undefined') return false
+  if (import.meta.env.DEV) return true
+  return LOCAL_HOSTS.has(window.location.hostname)
+}
+
 /** First visit: show the rules once, NYT-style. */
 export function shouldShowHowTo(): boolean {
   return localStorage.getItem(HOWTO_KEY) === null

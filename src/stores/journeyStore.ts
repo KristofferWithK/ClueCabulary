@@ -2,6 +2,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CITIES, GATES_PER_CITY } from '../journey/cities'
 import type { JourneyState } from '../journey/progress'
+import {
+  alreadyRescued,
+  markRescued,
+  planRescue,
+  readV1,
+  type RescueResult,
+} from '../journey/rescue'
 
 /** Answers survive a phone killing the app mid-exam. */
 export interface ActiveExam {
@@ -9,6 +16,13 @@ export interface ActiveExam {
   /** The exact words drawn when the exam was opened. */
   wordIds: string[]
   answers: Record<string, string>
+  /**
+   * Set the moment the paper is marked. Persisted, because the results screen
+   * lives in component state: without this, a reload after passing would put
+   * the filled-in paper back on screen, and submitting it again would award a
+   * second stempel from one correct paper, over and over.
+   */
+  gradedAt?: number
 }
 
 interface JourneyStore extends JourneyState {
@@ -18,6 +32,8 @@ interface JourneyStore extends JourneyState {
   /** Drawing a paper spends one attempt, pass or fail. */
   startExam: (cityIndex: number, wordIds: string[]) => void
   setExamAnswer: (wordId: string, text: string) => void
+  /** Marks the paper as spent, so it can never be handed in twice. */
+  markExamGraded: (now: number) => void
   endExam: () => void
   /** A passed exam: bank its words and stamp the passport. */
   awardStamp: (cityIndex: number, wordIds: string[], now: number) => void
@@ -52,6 +68,8 @@ export const useJourney = create<JourneyStore>()(
             ? { activeExam: { ...s.activeExam, answers: { ...s.activeExam.answers, [wordId]: text } } }
             : s,
         ),
+      markExamGraded: (now) =>
+        set((s) => (s.activeExam ? { activeExam: { ...s.activeExam, gradedAt: now } } : s)),
       endExam: () => set({ activeExam: null }),
       awardStamp: (cityIndex, wordIds, now) =>
         set((s) => {
@@ -78,3 +96,34 @@ export const useJourney = create<JourneyStore>()(
     { name: 'cluecab-journey-v2', version: 2 },
   ),
 )
+
+/**
+ * Recover progress stranded by the v1 -> v2 key rename. Runs once per device,
+ * after the store has rehydrated, and merges rather than replaces so it can
+ * only ever add. See src/journey/rescue.ts for why this is needed at all.
+ */
+export function rescueStrandedJourney(): RescueResult {
+  if (typeof localStorage === 'undefined') return { outcome: 'nothing-to-rescue' }
+  if (alreadyRescued(localStorage)) return { outcome: 'already-done' }
+  const s = useJourney.getState()
+  const result = planRescue(readV1(localStorage), {
+    cityIndex: s.cityIndex,
+    stamps: s.stamps,
+    banked: s.banked,
+    trialsSpent: s.trialsSpent,
+    arrivedAt: s.arrivedAt,
+  })
+  markRescued(localStorage)
+  if (result.outcome !== 'rescued' || !result.journey) return result
+  const j = result.journey
+  const numeric = (r: Record<string, number>): Record<number, number> =>
+    Object.fromEntries(Object.entries(r).map(([k, v]) => [Number(k), v]))
+  useJourney.setState({
+    cityIndex: j.cityIndex,
+    stamps: numeric(j.stamps as unknown as Record<string, number>),
+    banked: j.banked,
+    trialsSpent: numeric(j.trialsSpent as unknown as Record<string, number>),
+    arrivedAt: numeric(j.arrivedAt as unknown as Record<string, number>),
+  })
+  return result
+}

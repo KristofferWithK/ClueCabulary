@@ -82,6 +82,27 @@ try {
   }
   if (state.stamps?.['0'] !== 1) throw new Error(`expected 1 stamp, got ${JSON.stringify(state.stamps)}`)
   if (Object.keys(state.banked ?? {}).length !== 20) throw new Error('exam did not bank its 20 words')
+
+  // A marked paper must never be markable again. The results screen lives in
+  // component state, so a reload used to hand the filled-in paper straight back
+  // and a second submit awarded a second stempel from one correct answer sheet.
+  // A marked paper is now finished the moment you leave it.
+  await page.reload()
+  await page.waitForSelector('.city-card')
+  if (await page.locator('.exam-resume').count()) {
+    throw new Error('a marked paper came back as unfinished work')
+  }
+  const after = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state,
+  )
+  if (after.activeExam) throw new Error('a marked paper is still active after a reload')
+  if (after.stamps?.['0'] !== 1) {
+    throw new Error(`the stamps moved on reload: ${JSON.stringify(after.stamps)}`)
+  }
+  // ...and the dictionary it was locking is open again.
+  await page.locator('.wotd').click()
+  await page.waitForSelector('.sheet', { timeout: 4000 })
+  console.log('a marked paper is finished, and unlocks the dictionary')
   await page.screenshot({ path: `${SHOT_DIR}/c4-stamped.png` })
 
   console.log('COLLECTION DRIVE OK')
