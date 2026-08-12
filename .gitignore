@@ -13,3 +13,5 @@ probe-*.mjs
 src/**/__probe__/
 src/**/__fuzz__/
 src/**/__scratch__/
+# scratch drives written by audit agents
+e2e/_*.mjs
