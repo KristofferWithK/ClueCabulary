@@ -200,6 +200,46 @@ try {
   check('a 500 is retried and the round continues', (await page.locator('.error-banner').count()) === 0)
   check('and it was retried exactly once', fake.received.length >= 2, `${fake.received.length} calls`)
 
+  // ---- a Klaus who never answers must not cost the board ---------------------
+  // Retry alone is a dead end when the key is wrong, missing, or blocked by
+  // CORS — and the board is already dealt. This is the first round a new player
+  // ever plays, so it had better not end here.
+  round = await freshRound()
+  fake.reset()
+  fake.queue({ status: 401 })
+  await submitClue()
+  await errorText()
+  const banner = await page.locator('.error-banner').boundingBox()
+  const actions = await page.locator('.error-actions').boundingBox()
+  check(
+    'both error actions fit the phone',
+    actions.x >= banner.x - 0.5 && actions.x + actions.width <= banner.x + banner.width + 0.5,
+    `${actions.width.toFixed(0)}px inside ${banner.width.toFixed(0)}px`,
+  )
+  await page.getByRole('button', { name: 'Play on without Klaus' }).click()
+  await page.waitForSelector('.practice-note', { timeout: 20000 })
+  await sleep(2000)
+  check('the round carries on with the practice companion', (await page.locator('.error-banner').count()) === 0)
+  check('and stops asking the server that just refused', fake.received.length === 1, `${fake.received.length} calls`)
+
+  await page.reload()
+  await page.waitForSelector('.city-card')
+  const stillFallen = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.practiceFallback,
+  )
+  check('the fallback survives a reload of the same round', stillFallen === true)
+  const mockLeaked = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-settings-v1') ?? '{}').state?.useMock,
+  )
+  check('and changes no setting, so it cannot become permanent', mockLeaked === false)
+
+  round = await freshRound()
+  fake.reset()
+  fake.queue(guessReply([round.ids[0]]), clueReply(round.aiGreens.slice(0, 2)))
+  await submitClue()
+  await sleep(2500)
+  check('the next round goes back to Klaus', fake.received.length >= 1, `${fake.received.length} calls`)
+
   void debriefReply
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nAI DRIVE OK')
   if (fail.length) process.exitCode = 1

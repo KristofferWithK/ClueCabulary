@@ -61,6 +61,16 @@ interface GameStore {
   lastAiGuess: PlannedGuess | null
   error: string | null
   selectedWordId: string | null
+  /**
+   * Finish this round with the practice companion because Klaus could not be
+   * reached. Deliberately per-round, not a settings change: a player who falls
+   * back once during an outage must not find themselves quietly playing the
+   * offline companion for good. Persisted so a reload mid-round does not walk
+   * back into the same failure.
+   */
+  practiceFallback: boolean
+  /** Give up on Klaus for this round and carry on offline. */
+  fallBackToPractice: () => void
 
   newGame: (opts?: NewGameOptions) => void
   endStudy: () => void
@@ -79,9 +89,9 @@ interface GameStore {
   clearError: () => void
 }
 
-function companion(): Companion {
+function companion(practiceFallback = false): Companion {
   const s = useSettings.getState()
-  if (s.useMock) return new MockCompanion()
+  if (s.useMock || practiceFallback) return new MockCompanion()
   return new OllamaCompanion({ baseUrl: s.baseUrl, apiKey: s.apiKey, model: s.model })
 }
 
@@ -105,6 +115,7 @@ export const useGame = create<GameStore>()(
       debriefFailed: false,
       newlyLearned: [],
       redemptionDraft: {},
+      practiceFallback: false,
       aiBusy: false,
       aiGuessQueue: [],
       planForClueIndex: null,
@@ -172,6 +183,8 @@ export const useGame = create<GameStore>()(
           debriefFailed: false,
           newlyLearned: [],
           redemptionDraft: {},
+          // Every round gets a fresh chance at Klaus.
+          practiceFallback: false,
           aiGuessQueue: [],
           planForClueIndex: null,
           lastAiGuess: null,
@@ -198,6 +211,7 @@ export const useGame = create<GameStore>()(
           debriefFailed: false,
           newlyLearned: [],
           redemptionDraft: {},
+          practiceFallback: false,
           aiGuessQueue: [],
           planForClueIndex: null,
           lastAiGuess: null,
@@ -261,7 +275,7 @@ export const useGame = create<GameStore>()(
         set({ aiBusy: true, error: null })
         try {
           const view = buildAiGuessView(game, useSettings.getState().clueLanguage)
-          const res = await companion().getGuesses(view)
+          const res = await companion(get().practiceFallback).getGuesses(view)
           // Any event replaces the game object, so reference equality proves
           // this response still belongs to the current game and clue. A stale
           // response (user abandoned or started a new game mid-flight) is
@@ -321,7 +335,7 @@ export const useGame = create<GameStore>()(
         set({ aiBusy: true, error: null, lastAiGuess: null })
         try {
           const view = buildAiClueView(game, useSettings.getState().clueLanguage)
-          const res = await companion().getClue(view)
+          const res = await companion(get().practiceFallback).getClue(view)
           // Reference check: never apply a clue composed for a previous game.
           const current = get().game
           if (current !== game || current.phase !== 'aiClueInput') return
@@ -346,7 +360,7 @@ export const useGame = create<GameStore>()(
         set({ aiBusy: true })
         try {
           const view = buildDebriefView(game, lookedUp)
-          const res = await companion().getDebrief(view)
+          const res = await companion(get().practiceFallback).getDebrief(view)
           if (get().game !== game) return // user already started the next round
           set({ aiBusy: false, debrief: res, debriefFailed: false })
         } catch {
@@ -411,6 +425,10 @@ export const useGame = create<GameStore>()(
       },
 
       clearError: () => set({ error: null }),
+
+      // Clearing the error is what restarts the turn, so this both switches
+      // companions and resumes in one tap.
+      fallBackToPractice: () => set({ practiceFallback: true, error: null }),
     }),
     {
       name: 'cluecab-game-v1',
@@ -425,6 +443,7 @@ export const useGame = create<GameStore>()(
         debriefFailed: s.debriefFailed,
         newlyLearned: s.newlyLearned,
         redemptionDraft: s.redemptionDraft,
+        practiceFallback: s.practiceFallback,
       }),
     },
   ),

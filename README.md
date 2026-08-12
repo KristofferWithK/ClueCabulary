@@ -69,6 +69,12 @@ Screen". To wake Klaus up:
 No key? Enable the offline **practice companion** in Settings to learn the
 rules (it plays legally but not cleverly).
 
+If Klaus fails part-way through a round — no key yet, the wrong key, a browser
+that will not talk to ollama.com, or no signal — the error offers **Play on
+without Klaus**, which finishes that round with the practice companion so the
+board is not lost. It is scoped to the round and changes no setting: the next
+round tries Klaus again.
+
 ## Development
 
 ```bash

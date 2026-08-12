@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { AiError, DEFAULT_BASE_URL, resolveEndpoint } from './client'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { AiError, DEFAULT_BASE_URL, chatJson, resolveEndpoint } from './client'
 
 /**
  * The Base URL is free text the player types, and every request built from it
@@ -61,5 +61,49 @@ describe('resolveEndpoint', () => {
       expect((e as AiError).message).toMatch(/https:\/\//)
       expect((e as AiError).message).toMatch(/Settings/)
     }
+  })
+})
+
+/**
+ * With no key the request used to go out anyway. Against ollama.com from a
+ * browser that comes back as a CORS refusal, whose message tells the player to
+ * deploy a proxy — advice that cannot help, for a problem they do not have.
+ */
+describe('chatJson with no API key', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  const say = async (settings: { baseUrl: string; apiKey: string; model: string }) => {
+    try {
+      await chatJson(settings, [{ role: 'user', content: 'hej' }])
+      return null
+    } catch (e) {
+      return e as AiError
+    }
+  }
+
+  it('says so at once, without sending anything', async () => {
+    const fetchSpy = vi.fn()
+    vi.stubGlobal('fetch', fetchSpy)
+    const err = await say({ baseUrl: DEFAULT_BASE_URL, apiKey: '   ', model: 'm' })
+    expect(err).toBeInstanceOf(AiError)
+    expect(err!.kind).toBe('auth')
+    expect(err!.message).toMatch(/API key/i)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('and points at the way to keep playing', async () => {
+    const err = await say({ baseUrl: DEFAULT_BASE_URL, apiKey: '', model: 'm' })
+    expect(err!.message).toMatch(/without Klaus/i)
+  })
+
+  it('but a local Ollama needs no key, so it is not asked for one', async () => {
+    const fetchSpy = vi.fn(async () =>
+      new Response(JSON.stringify({ choices: [{ message: { content: '{"ok":true}' } }] })),
+    )
+    vi.stubGlobal('fetch', fetchSpy)
+    await expect(
+      chatJson({ baseUrl: 'http://localhost:11434/v1', apiKey: '', model: 'm' }, []),
+    ).resolves.toEqual({ ok: true })
+    expect(fetchSpy).toHaveBeenCalledOnce()
   })
 })

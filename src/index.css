@@ -1343,15 +1343,33 @@ select:focus {
   border: 1px solid var(--red);
   border-radius: var(--radius);
   padding: 12px 14px;
+  /* Column, not row: the messages run to two or three lines on a phone, and a
+     second action beside them left no room for either. */
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
 }
 
 .error-banner p {
-  flex: 1;
   font-size: 0.9rem;
   line-height: 1.35;
+}
+
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.practice-note {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  text-align: center;
 }
 
 /* ---------- how to play ---------- */
