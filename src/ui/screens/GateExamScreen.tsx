@@ -65,22 +65,21 @@ export function GateExamScreen() {
     }))
     recordRound(srsResults, Date.now())
 
+    // The attempt was already spent when the paper was drawn.
     if (results.every((r) => r.accepted)) {
       journey.awardStamp(journey.cityIndex, exam.wordIds, Date.now())
       if (navigator.vibrate) navigator.vibrate([20, 60, 20])
-    } else {
-      // Only failure costs an attempt; success is never punished.
-      journey.spendTrial(journey.cityIndex)
     }
   }
 
-  const trialsLeft = examTrials(
+  const trials = examTrials(
     WORDS,
     useSrs.getState().stats,
     journey.banked,
     journey,
     journey.cityIndex,
-  ).available
+  )
+  const canRetry = trials.unlimited || trials.available > 0
 
   // A fresh paper, never the one just marked. The results screen prints the
   // right answer beside every miss, so re-serving the same twenty words would
@@ -110,11 +109,8 @@ export function GateExamScreen() {
       <header className="screen-header">
         <button
           className="icon-btn"
-          aria-label="Back"
-          onClick={() => {
-            journey.endExam()
-            goTo('home')
-          }}
+          aria-label="Put the paper down and come back to it"
+          onClick={() => goTo('home')}
         >
           ←
         </button>
@@ -156,9 +152,11 @@ export function GateExamScreen() {
 
           {!passed && (
             <p className="trials-left">
-              {trialsLeft > 0
-                ? `${trialsLeft} ${trialsLeft === 1 ? 'attempt' : 'attempts'} left · every ten green words earns another`
-                : 'No attempts left — turn ten more words green to earn one.'}
+              {trials.unlimited
+                ? `You know this city — take the paper as often as you like.`
+                : trials.available > 0
+                  ? `${trials.available} ${trials.available === 1 ? 'attempt' : 'attempts'} left · every ten green words earns another`
+                  : 'No attempts left — turn ten more words green to earn one.'}
             </p>
           )}
 
@@ -197,8 +195,8 @@ export function GateExamScreen() {
             </div>
           ) : (
             <div className="gate-actions">
-              <button className="btn btn-primary" onClick={retry} disabled={trialsLeft < 1}>
-                Try again
+              <button className="btn btn-primary" onClick={retry} disabled={!canRetry}>
+                Try again{trials.unlimited ? '' : ' — spends an attempt'}
               </button>
               <button
                 className="btn"

@@ -1,7 +1,14 @@
 import type { WordEntry } from '../data/types'
 import { shuffle, type Rng } from '../engine/rng'
 import type { SrsMap, WordStats } from '../srs/types'
-import { CITIES, GATES_PER_CITY, GATE_SIZE, STUDY_UNTIL_CITY, WORDS_PER_CITY } from './cities'
+import {
+  CITIES,
+  GATES_PER_CITY,
+  GATE_SIZE,
+  STUDY_UNTIL_CITY,
+  UNLIMITED_TRIALS_AT,
+  WORDS_PER_CITY,
+} from './cities'
 
 export type StudyMode = 'auto' | 'always' | 'never'
 
@@ -143,18 +150,19 @@ export interface ExamTrials {
   earned: number
   spent: number
   available: number
-  /** True when the paper would be entirely green — always worth allowing. */
-  certain: boolean
+  /** Past UNLIMITED_TRIALS_AT the city stops rationing, and `available` is moot. */
+  unlimited: boolean
 }
 
 /**
  * Attempts at a travel exam: one per ten green words in the city, banked ones
- * included, minus the attempts already failed. Passing costs nothing — success
- * should never be punished — so only a failure spends a trial.
+ * included, minus the attempts already taken. Drawing a paper costs one whether
+ * you pass or fail — an attempt you can retake for nothing is not an attempt,
+ * and it made the whole economy decorative.
  *
- * The `certain` escape hatch matters: a player who has greened every remaining
- * word but burnt all their trials would otherwise be stuck forever, refused a
- * test they would certainly pass.
+ * Nothing here can strand a player. Attempts are earned by play, which always
+ * has more words to green; and once nine words in ten are green the city gives
+ * up counting.
  */
 export function examTrials(
   all: readonly WordEntry[],
@@ -166,16 +174,15 @@ export function examTrials(
   const learned = countCollection(wordsForCity(all, cityIndex), srs, banked).learned
   const earned = Math.floor(learned / GREENS_PER_TRIAL)
   const spent = journey.trialsSpent[cityIndex] ?? 0
-  const paper = examComposition(all, srs, banked, cityIndex)
   return {
     earned,
     spent,
     available: Math.max(0, earned - spent),
-    certain: paper.total > 0 && paper.learned === paper.total,
+    unlimited: learned >= UNLIMITED_TRIALS_AT,
   }
 }
 
-/** An exam may be sat with a trial in hand, or when the paper is all green. */
+/** An exam needs an attempt in hand — unless the city has stopped counting. */
 export function examUnlocked(
   all: readonly WordEntry[],
   srs: SrsMap,
@@ -184,7 +191,7 @@ export function examUnlocked(
   cityIndex: number,
 ): boolean {
   const trials = examTrials(all, srs, banked, journey, cityIndex)
-  return trials.available > 0 || trials.certain
+  return trials.unlimited || trials.available > 0
 }
 
 /** Green words still needed before the next trial is earned. */

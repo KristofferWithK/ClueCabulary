@@ -77,15 +77,28 @@ for (const vp of [
 }
 await page.setViewportSize(PHONE)
 
-// An exam left open locks the dictionary app-wide and survives a relaunch, so
-// it must be visible and escapable from Home.
+// An exam put down mid-paper survives a relaunch — the attempt was already
+// spent, so the paper has to come back. It locks the dictionary app-wide while
+// it is open, so Home must surface it, let you resume, and let you drop it.
 await page.evaluate(() => {
   const raw = JSON.parse(localStorage.getItem('cluecab-journey-v2'))
   raw.state.activeExam = { cityIndex: 0, wordIds: ['w1', 'w2', 'w3'], answers: { w1: 'the' } }
   localStorage.setItem('cluecab-journey-v2', JSON.stringify(raw))
 })
 await open('?mock=1&howto=0')
-check('a leaked exam is surfaced on home', (await page.locator('.exam-resume').count()) === 1)
+check('a suspended exam is surfaced on home', (await page.locator('.exam-resume').count()) === 1)
+const spentBefore = await page.evaluate(
+  () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent?.['0'] ?? 0,
+)
+await page.locator('.exam-resume .btn-gate').click()
+await page.waitForTimeout(350)
+check('resuming reopens the same paper', (await page.locator('.gate-list').count()) === 1)
+const spentAfter = await page.evaluate(
+  () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent?.['0'] ?? 0,
+)
+check('resuming does not spend a second attempt', spentBefore === spentAfter, `${spentBefore} -> ${spentAfter}`)
+await page.goBack()
+await page.waitForTimeout(350)
 await page.locator('.btn-quiet').click()
 await page.waitForTimeout(250)
 check('abandoning it clears the lock', (await page.locator('.exam-resume').count()) === 0)

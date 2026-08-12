@@ -2043,3 +2043,10 @@ select:focus {
   text-decoration: line-through;
   text-decoration-thickness: 1px;
 }
+
+.gate-cost {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  font-style: italic;
+}

@@ -111,6 +111,10 @@ export function HomeScreen() {
   const stamps = stampsFor(journey, journey.cityIndex)
   const paper = examComposition(WORDS, srs, journey.banked, journey.cityIndex)
   const paperUnknown = paper.discovered + paper.undiscovered
+  const paperLine =
+    paperUnknown === 0
+      ? `all ${paper.learned} green`
+      : `${paper.learned} you know · ${paperUnknown} you don't`
   const examOpen = examUnlocked(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const trials = examTrials(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const toNextTrial = greensToNextTrial(WORDS, srs, journey.banked, journey.cityIndex)
@@ -249,12 +253,16 @@ export function HomeScreen() {
           <span className="gate-paper">
             {!examOpen
               ? `${toNextTrial} more green ${toNextTrial === 1 ? 'word' : 'words'} earns an attempt`
-              : `${trials.available || 1} ${trials.available === 1 ? 'attempt' : 'attempts'} · ${
-                  paperUnknown === 0
-                    ? `all ${paper.learned} green`
-                    : `${paper.learned} you know · ${paperUnknown} you don't`
-                }`}
+              : trials.unlimited
+                ? `Unlimited attempts · ${paperLine}`
+                : `${trials.available} ${
+                    trials.available === 1 ? 'attempt' : 'attempts'
+                  } left · ${paperLine}`}
           </span>
+          {examOpen && !trials.unlimited && (
+            // Said before the tap, because the tap is what spends it.
+            <span className="gate-cost">Opening the paper spends one</span>
+          )}
         </button>
       )}
 

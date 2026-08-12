@@ -96,10 +96,10 @@ export default function App() {
       } else if (ui.howToOpen) {
         ui.closeHowTo()
       } else if (ui.screen !== 'home') {
-        // Backing out of a travel exam abandons it. An exam left open locks the
-        // dictionary app-wide, and it is persisted — so a silent leak here would
-        // kill lookups on every screen, permanently.
-        if (ui.screen === 'gate') useJourney.getState().endExam()
+        // Backing out of a travel exam suspends it rather than binning it — the
+        // attempt was spent when the paper was drawn, so the paper has to
+        // survive being put down. Home surfaces it, which is what keeps the
+        // app-wide dictionary lock from becoming an invisible dead end.
         useUi.setState({ screen: 'home', sheetWordId: null })
       }
     }

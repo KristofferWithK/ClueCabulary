@@ -60,11 +60,11 @@ try {
   const spent = await page.evaluate(
     () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent,
   )
-  if (spent?.['0'] !== 1) throw new Error(`failure did not spend a trial: ${JSON.stringify(spent)}`)
+  if (spent?.['0'] !== 1) throw new Error(`drawing the paper did not spend a trial: ${JSON.stringify(spent)}`)
   await page.screenshot({ path: `${SHOT_DIR}/c3-exam-failed.png` })
 
   const answers = await page.locator('.gate-results .result-answer em').allTextContents()
-  await page.click('.btn-primary') // same words again
+  await page.click('.btn-primary') // retry — a second attempt, and it costs one
   await page.waitForSelector('.gate-list')
   for (let i = 0; i < 20; i++) {
     await page.locator('.gate-item input').nth(i).fill(answers[i].replace(/^\s*=\s*/, '').split(',')[0].trim())
@@ -76,6 +76,10 @@ try {
   const state = await page.evaluate(
     () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state,
   )
+  // Every drawn paper costs an attempt, the passed one included.
+  if (state.trialsSpent?.['0'] !== 2) {
+    throw new Error(`retry + pass should have spent 2, got ${JSON.stringify(state.trialsSpent)}`)
+  }
   if (state.stamps?.['0'] !== 1) throw new Error(`expected 1 stamp, got ${JSON.stringify(state.stamps)}`)
   if (Object.keys(state.banked ?? {}).length !== 20) throw new Error('exam did not bank its 20 words')
   await page.screenshot({ path: `${SHOT_DIR}/c4-stamped.png` })

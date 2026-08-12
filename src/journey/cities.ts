@@ -17,6 +17,13 @@ export const GATE_SIZE = 20
 export const GATES_PER_CITY = WORDS_PER_CITY / GATE_SIZE
 
 /**
+ * Green words at which a city stops rationing exam attempts. Someone who knows
+ * nine words in ten has proved the point; making them wait for another token is
+ * bookkeeping, not teaching.
+ */
+export const UNLIMITED_TRIALS_AT = Math.round(WORDS_PER_CITY * 0.9)
+
+/**
  * The route: from the far south, up Jutland to the tip where two seas meet,
  * then back down across Funen to Zealand and journey's end in the capital.
  */

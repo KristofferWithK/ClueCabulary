@@ -15,11 +15,10 @@ interface JourneyStore extends JourneyState {
   /** cityIndex -> arrival timestamp, for the travel log on the map. */
   arrivedAt: Record<number, number>
   activeExam: ActiveExam | null
+  /** Drawing a paper spends one attempt, pass or fail. */
   startExam: (cityIndex: number, wordIds: string[]) => void
   setExamAnswer: (wordId: string, text: string) => void
   endExam: () => void
-  /** A failed attempt spends one trial. */
-  spendTrial: (cityIndex: number) => void
   /** A passed exam: bank its words and stamp the passport. */
   awardStamp: (cityIndex: number, wordIds: string[], now: number) => void
   travel: (now: number) => void
@@ -39,7 +38,14 @@ export const useJourney = create<JourneyStore>()(
   persist(
     (set) => ({
       ...initial,
-      startExam: (cityIndex, wordIds) => set({ activeExam: { cityIndex, wordIds, answers: {} } }),
+      // Charged here, at the one place a paper is drawn, so no route — opening,
+      // retrying, or any future one — can hand out a free attempt. Resuming an
+      // exam does not come through here, and so is free, as it should be.
+      startExam: (cityIndex, wordIds) =>
+        set((s) => ({
+          activeExam: { cityIndex, wordIds, answers: {} },
+          trialsSpent: { ...s.trialsSpent, [cityIndex]: (s.trialsSpent[cityIndex] ?? 0) + 1 },
+        })),
       setExamAnswer: (wordId, text) =>
         set((s) =>
           s.activeExam
@@ -47,10 +53,6 @@ export const useJourney = create<JourneyStore>()(
             : s,
         ),
       endExam: () => set({ activeExam: null }),
-      spendTrial: (cityIndex) =>
-        set((s) => ({
-          trialsSpent: { ...s.trialsSpent, [cityIndex]: (s.trialsSpent[cityIndex] ?? 0) + 1 },
-        })),
       awardStamp: (cityIndex, wordIds, now) =>
         set((s) => {
           const banked = { ...s.banked }

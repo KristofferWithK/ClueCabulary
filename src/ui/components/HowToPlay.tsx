@@ -64,11 +64,13 @@ export function HowToPlay() {
             <strong>three times</strong> and it turns <strong>green</strong>.
           </li>
           <li>
-            With ten green words you may sit a <strong lang="da">rejseprøve</strong>: twenty words
-            — your green ones first, then any the paper needs to fill up — translated to English
-            with no mistakes and no dictionary. Passing banks those twenty and earns a{' '}
-            <strong lang="da">stempel</strong>. Five stempler fill your{' '}
-            <span lang="da">rejsepas</span> and the road to the next city opens.
+            Every ten green words buys one attempt at a <strong lang="da">rejseprøve</strong>:
+            twenty words — your green ones first, then whatever the paper needs to fill up —
+            translated to English with no mistakes and no dictionary. Drawing the paper spends
+            the attempt whether you pass or fail, so take it when you are ready. Passing banks
+            those twenty and earns a <strong lang="da">stempel</strong>; five stempler fill your{' '}
+            <span lang="da">rejsepas</span> and open the road north. Once ninety of a city's
+            hundred words are green it stops counting attempts altogether.
           </li>
         </ol>
 
