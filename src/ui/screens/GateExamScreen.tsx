@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { wordById } from '../../data/words'
 import type { WordEntry } from '../../data/types'
 import { answerMatches } from '../../engine/redemption'
-import { CITIES, GATES_PER_CITY, GATE_SIZE, cityAt } from '../../journey/cities'
-import { canTravel, examTrials, stampsFor } from '../../journey/progress'
+import { CITIES, GATES_PER_CITY, cityAt } from '../../journey/cities'
+import { canTravel, examTrials, examWords, stampsFor, wordState } from '../../journey/progress'
+import { mulberry32 } from '../../engine/rng'
 import { WORDS } from '../../data/words'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
@@ -62,6 +63,11 @@ export function GateExamScreen() {
   const answers = exam.answers
   const answered = words.filter((w) => (answers[w.id] ?? '').trim().length > 0).length
   const passed = graded !== null && graded.every((g) => g.accepted)
+  // How much of this paper the player already owns — the honest risk statement.
+  const srsStats = useSrs.getState().stats
+  const paperGreens = words.filter(
+    (w) => wordState(srsStats[w.id], w.id in journey.banked) === 'learned',
+  ).length
 
   const submit = () => {
     const results: Graded[] = words.map((w) => {
@@ -98,8 +104,21 @@ export function GateExamScreen() {
     journey.cityIndex,
   ).available
 
+  // A fresh paper, never the one just marked. The results screen prints the
+  // right answer beside every miss, so re-serving the same twenty words would
+  // hand the player a guaranteed pass and make the attempt economy meaningless.
   const retry = () => {
-    journey.startExam(exam.cityIndex, exam.wordIds)
+    const words = examWords(
+      WORDS,
+      useSrs.getState().stats,
+      journey.banked,
+      exam.cityIndex,
+      mulberry32(Date.now() % 0xffffffff),
+    )
+    journey.startExam(
+      exam.cityIndex,
+      words.map((w) => w.id),
+    )
     setGraded(null)
   }
 
@@ -131,7 +150,11 @@ export function GateExamScreen() {
           ? passed
             ? `All ${words.length} right — a stempel for ${city.name}.`
             : 'Not this time. Look at the misses, play a few more rounds, and come back.'
-          : `Your strongest ${words.length} words in ${city.name}. Translate every one to English — no mistakes, and the dictionary is closed.`}
+          : `${words.length} words from ${city.name}${
+              paperGreens === words.length
+                ? ', all of them ones you have learned'
+                : ` — ${paperGreens} you have learned, ${words.length - paperGreens} you have not`
+            }. Translate every one to English — no mistakes, and the dictionary is closed.`}
       </p>
 
       {graded ? (
@@ -238,7 +261,7 @@ export function GateExamScreen() {
             {answered} / {words.length} answered
           </p>
           <button className="btn btn-primary btn-big" onClick={submit}>
-            Submit — all {GATE_SIZE} must be right
+            Submit — all {words.length} must be right
           </button>
         </>
       )}
