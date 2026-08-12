@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { wordById } from '../../data/words'
+import { isKnownGloss, wordById } from '../../data/words'
 import type { WordEntry } from '../../data/types'
 import { answerMatches } from '../../engine/redemption'
 import { CITIES, GATES_PER_CITY, cityAt } from '../../journey/cities'
@@ -65,7 +65,7 @@ export function GateExamScreen() {
     submitted || exam.gradedAt
       ? words.map((w) => {
           const given = answers[w.id] ?? ''
-          return { word: w, given, accepted: answerMatches(given, w.en) !== undefined }
+          return { word: w, given, accepted: answerMatches(given, w.en, isKnownGloss) !== undefined }
         })
       : null
   // words.length guards a vacuous pass: [].every(...) is true, so a city with

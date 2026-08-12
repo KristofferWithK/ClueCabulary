@@ -15,7 +15,7 @@ import { mulberry32 } from '../engine/rng'
 import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
-import { WORDS } from '../data/words'
+import { WORDS, isKnownGloss } from '../data/words'
 import { isLearned, studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
@@ -235,7 +235,11 @@ export const useGame = create<GameStore>()(
       submitRedemption: (answers) => {
         const { game } = get()
         if (!game || game.phase !== 'redemption') return
-        const next = applyEvent(game, { type: 'SUBMIT_REDEMPTION', answers })
+        const next = applyEvent(game, {
+          type: 'SUBMIT_REDEMPTION',
+          answers,
+          isKnownWord: isKnownGloss,
+        })
         set({ game: next })
         get().finishRound()
       },
