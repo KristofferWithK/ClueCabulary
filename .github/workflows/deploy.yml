@@ -26,9 +26,10 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      # No configure-pages step: a workflow token cannot create the Pages site
+      # ("Resource not accessible by integration"). Enable it once by hand at
+      # Settings -> Pages -> Source: GitHub Actions; deploy-pages then works.
+      # The base path is pinned in vite.config.ts, so nothing here needs it.
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
