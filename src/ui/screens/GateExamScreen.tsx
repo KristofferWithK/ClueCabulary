@@ -35,10 +35,15 @@ export function GateExamScreen() {
     return null
   }
 
-  const city = cityAt(journey.cityIndex)
+  // The paper's own city, not wherever the player happens to be. They normally
+  // agree — travel() clears any open exam — but the v1 rescue can move the
+  // player while a paper is still out, and a paper must always stamp the city
+  // it was drawn for.
+  const examCity = exam.cityIndex
+  const city = cityAt(examCity)
   // The champion sets the paper and stamps the passport. Everything the exam
   // says is said by a person.
-  const champion = championAt(journey.cityIndex)
+  const champion = championAt(examCity)
   // The exact words drawn when the exam opened, so playing elsewhere cannot
   // change the paper mid-sitting.
   const words = exam.wordIds.map((id) => wordById(id)).filter((w): w is WordEntry => !!w)
@@ -56,7 +61,9 @@ export function GateExamScreen() {
           return { word: w, given, accepted: answerMatches(given, w.en) !== undefined }
         })
       : null
-  const passed = graded !== null && graded.every((g) => g.accepted)
+  // words.length guards a vacuous pass: [].every(...) is true, so a city with
+  // nothing left unbanked would hand out a stempel for an empty sheet.
+  const passed = graded !== null && graded.length > 0 && graded.every((g) => g.accepted)
   // How much of this paper the player already owns — the honest risk statement.
   const srsStats = useSrs.getState().stats
   const paperGreens = words.filter(
@@ -84,8 +91,8 @@ export function GateExamScreen() {
 
     journey.markExamGraded(Date.now())
     // The attempt was already spent when the paper was drawn.
-    if (results.every((r) => r.accepted)) {
-      journey.awardStamp(journey.cityIndex, exam.wordIds, Date.now())
+    if (results.length > 0 && results.every((r) => r.accepted)) {
+      journey.awardStamp(examCity, exam.wordIds, Date.now())
       if (navigator.vibrate) navigator.vibrate([20, 60, 20])
     }
   }
@@ -95,7 +102,7 @@ export function GateExamScreen() {
     useSrs.getState().stats,
     journey.banked,
     journey,
-    journey.cityIndex,
+    examCity,
   )
   const canRetry = trials.unlimited || trials.available > 0
 
@@ -118,8 +125,10 @@ export function GateExamScreen() {
   }
 
   // awardStamp already ran, so read the freshly-stamped passport.
-  const stamps = stampsFor(journey, journey.cityIndex)
-  const readyToTravel = passed && canTravel(journey, journey.cityIndex)
+  const stamps = stampsFor(journey, examCity)
+  // Travelling on is only offered when the paper belongs to where you stand.
+  const readyToTravel =
+    passed && examCity === journey.cityIndex && canTravel(journey, journey.cityIndex)
   const nextCity = journey.cityIndex + 1 < CITIES.length ? cityAt(journey.cityIndex + 1) : null
 
   return (

@@ -118,7 +118,11 @@ export function rescueStrandedJourney(): RescueResult {
   const j = result.journey
   const numeric = (r: Record<string, number>): Record<number, number> =>
     Object.fromEntries(Object.entries(r).map(([k, v]) => [Number(k), v]))
+  // A paper drawn for a city the player is no longer in would stamp the wrong
+  // page. The attempt is already spent either way, so the paper goes.
+  const stale = s.activeExam && s.activeExam.cityIndex !== j.cityIndex
   useJourney.setState({
+    ...(stale ? { activeExam: null } : {}),
     cityIndex: j.cityIndex,
     stamps: numeric(j.stamps as unknown as Record<string, number>),
     banked: j.banked,

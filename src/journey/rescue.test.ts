@@ -76,6 +76,15 @@ describe('rescuing progress stranded by the v1 -> v2 key rename', () => {
     expect(r.outcome).toBe('nothing-to-rescue')
   })
 
+  it('a paper drawn for the old city must not follow the player to the new one', () => {
+    // The exam screen stamps the paper's own city, and the rescue drops any
+    // paper that no longer belongs where the player stands — together those
+    // stop a Sonderborg paper stamping Aarhus.
+    const r = planRescue(v1({ cityIndex: 3, stamps: { 3: 1 } }), empty())
+    expect(r.outcome).toBe('rescued')
+    expect(r.journey!.cityIndex).toBe(3)
+  })
+
   it('is idempotent: rescuing the result again changes nothing', () => {
     const blob = v1({ cityIndex: 3, stamps: { 0: 5, 3: 1 }, banked: { hus: NOW } })
     const once = planRescue(blob, empty())

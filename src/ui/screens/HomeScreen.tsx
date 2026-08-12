@@ -159,6 +159,8 @@ export function HomeScreen() {
       journey.cityIndex,
       mulberry32(Date.now() % 0xffffffff),
     )
+    // Nothing left unbanked in this city: an empty paper would pass vacuously.
+    if (words.length === 0) return
     journey.startExam(
       journey.cityIndex,
       words.map((w) => w.id),
@@ -271,7 +273,7 @@ export function HomeScreen() {
           <span lang="da">Rejs videre</span> → {nextCity?.name}
         </button>
       ) : (
-        <button className="btn btn-gate" onClick={openExam} disabled={!examOpen}>
+        <button className="btn btn-gate" onClick={openExam} disabled={!examOpen || paper.total === 0}>
           <span lang="da">Rejseprøve</span>
           <span className="gate-paper">
             {!examOpen
