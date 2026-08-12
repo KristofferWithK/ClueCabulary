@@ -23,4 +23,26 @@ headers. Your API key is never stored on the proxy.
 In `worker.js`, change `ALLOWED_ORIGIN` from `'*'` to the exact origin you
 play from (for GitHub Pages that is `https://<username>.github.io`) so no
 other website can use your proxy. Requests still require your API key either
-way.
+way. Note that it is the **origin** only — scheme, host and port, with no path
+and no trailing slash.
+
+## What it does, and what it refuses to do
+
+It forwards the path and query to `ollama.com` and sends exactly two headers:
+your `Authorization` and `Content-Type: application/json`. Nothing else on the
+incoming request — cookies included — is passed on. The upstream status and
+body come back untouched, with the CORS headers replaced rather than appended,
+so the app's own error messages still say what went wrong.
+
+If ollama.com cannot be reached, the worker answers `502` itself instead of
+letting the request throw. An uncaught throw becomes Cloudflare's error page,
+which carries no CORS headers, so your browser would call it a CORS failure and
+the app would tell you to deploy the proxy you are already using.
+
+## Is any of this actually tested?
+
+Yes. `proxy/worker.test.mjs` covers the contract above, and
+`node e2e/proxy-drive.mjs` runs **this file, unmodified** on the Cloudflare
+runtime (via miniflare) with the app talking to it from a real browser and an
+upstream that deliberately sends no CORS headers — including the origin lock
+above, which has to both let you in and shut everyone else out.

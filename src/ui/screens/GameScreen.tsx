@@ -24,6 +24,8 @@ export function GameScreen() {
   const game = useGame((s) => s.game)
   const studying = useGame((s) => s.studying)
   const { error, aiBusy, planForClueIndex, selectedWordId, clearError } = useGame()
+  const practiceFallback = useGame((s) => s.practiceFallback)
+  const fallBackToPractice = useGame((s) => s.fallBackToPractice)
   const lastAiGuess = useGame((s) => s.lastAiGuess)
   const { translationsOn, toggleTranslations, goTo } = useUi()
   const openDictionary = useOpenDictionary()
@@ -126,10 +128,26 @@ export function GameScreen() {
       {error && (
         <div className="error-banner" role="alert">
           <p>{error}</p>
-          <button className="btn btn-small" onClick={clearError}>
-            Retry
-          </button>
+          <div className="error-actions">
+            <button className="btn btn-small" onClick={clearError}>
+              Retry
+            </button>
+            {/* Retry alone is a dead end when the key is wrong, missing, or
+                blocked — and the board is already dealt. This finishes the
+                round offline rather than throwing it away. */}
+            <button className="btn btn-small" onClick={fallBackToPractice}>
+              Play on without Klaus
+            </button>
+          </div>
         </div>
+      )}
+
+      {practiceFallback && !error && (
+        // Say it for the rest of the round: these clues are not Klaus's, and
+        // the player should not judge the AI companion by them.
+        <p className="practice-note">
+          Playing on with the practice companion — Klaus sits this round out.
+        </p>
       )}
 
       {showBoard && (

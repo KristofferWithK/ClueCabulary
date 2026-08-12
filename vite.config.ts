@@ -63,7 +63,9 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    // proxy/ is plain JS, outside the app's tsconfig on purpose: it is pasted
+    // into a Cloudflare dashboard, not bundled.
+    include: ['src/**/*.test.ts', 'proxy/**/*.test.mjs'],
     // Agents' throwaway probes live here and are gitignored; they must not
     // join the suite that gates a commit.
     exclude: ['**/__probe__/**', '**/__fuzz__/**', '**/__scratch__/**', '**/node_modules/**'],

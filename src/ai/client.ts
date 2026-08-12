@@ -79,6 +79,16 @@ export type ChatFn = (
 export const chatJson: ChatFn = async (settings, messages, opts) => {
   // Before any header is built, let alone sent.
   const endpoint = resolveEndpoint(settings.baseUrl)
+  // Say the obvious thing immediately. Without a key the request still goes
+  // out, and comes back as a 401 — or, more often, as a browser CORS refusal
+  // that tells the player to deploy a proxy they do not need. A locally run
+  // Ollama takes no key, so only remote hosts are asked for one.
+  if (!settings.apiKey.trim() && !LOCAL_HOSTS.has(endpoint.hostname)) {
+    throw new AiError(
+      'auth',
+      'No API key yet — add one in Settings. You can still finish a round without Klaus.',
+    )
+  }
   const doFetch = async (): Promise<Response> => {
     try {
       return await fetch(endpoint, {
