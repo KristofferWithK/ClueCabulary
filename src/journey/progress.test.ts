@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS } from '../data/words'
 import type { WordEntry } from '../data/types'
+import { mulberry32 } from '../engine/rng'
 import { applyRoundResults, newStats } from '../srs/scheduler'
 import type { SrsMap, WordStats } from '../srs/types'
 import {
@@ -11,11 +12,13 @@ import {
   WORDS_PER_CITY,
 } from './cities'
 import {
+  EXAM_MIN_GREEN,
   LEARN_REPS,
   canTravel,
   cityBand,
   countCollection,
-  examReadiness,
+  examComposition,
+  examUnlocked,
   examWords,
   isJourneyComplete,
   isLearned,
@@ -127,37 +130,71 @@ describe('the three collection states', () => {
 
 describe('the travel exam is never locked', () => {
   const city = wordsForCity(WORDS, 0)
+  const rng = () => mulberry32(99)
 
   it('always offers a full paper, even on an untouched city', () => {
-    const words = examWords(WORDS, {}, {}, 0)
-    expect(words.length).toBe(GATE_SIZE)
+    expect(examWords(WORDS, {}, {}, 0, rng()).length).toBe(GATE_SIZE)
   })
 
-  it('draws your strongest unbanked words first', () => {
-    // Make a scattered handful the best-known words in the city.
-    const strong = [city[70]!, city[40]!, city[95]!, city[12]!]
-    const srs = srsWith(strong, { correctGuesses: 5 })
-    const paper = examWords(WORDS, srs, {}, 0)
-    for (const w of strong) expect(paper.slice(0, strong.length)).toContainEqual(w)
+  it('takes every green first, then fills with grey, then the unknown', () => {
+    const greens = [city[70]!, city[40]!, city[95]!, city[12]!]
+    const greys = city.slice(0, 6)
+    const srs = {
+      ...srsWith(greens, { correctGuesses: LEARN_REPS }),
+      ...srsWith(greys, { correctGuesses: 1 }),
+    }
+    const paper = examWords(WORDS, srs, {}, 0, rng())
+    const ids = new Set(paper.map((w) => w.id))
+    // All four greens and all six greys make the cut before any unknown word.
+    for (const w of [...greens, ...greys]) expect(ids.has(w.id)).toBe(true)
+    expect(paper.length).toBe(GATE_SIZE)
+
+    const comp = examComposition(WORDS, srs, {}, 0)
+    expect(comp).toEqual({ learned: 4, discovered: 6, undiscovered: 10, total: GATE_SIZE })
+  })
+
+  it('is a fair test once twenty words are green', () => {
+    const srs = srsWith(city.slice(0, 25), { correctGuesses: LEARN_REPS })
+    const comp = examComposition(WORDS, srs, {}, 0)
+    expect(comp).toEqual({ learned: 20, discovered: 0, undiscovered: 0, total: GATE_SIZE })
+    const paper = examWords(WORDS, srs, {}, 0, rng())
+    for (const w of paper) expect(isLearned(srs[w.id], false)).toBe(true)
   })
 
   it('never re-tests a banked word', () => {
     const banked = Object.fromEntries(city.slice(0, 20).map((w) => [w.id, NOW]))
-    const paper = examWords(WORDS, {}, banked, 0)
+    const paper = examWords(WORDS, {}, banked, 0, rng())
     expect(paper.length).toBe(GATE_SIZE)
     for (const w of paper) expect(w.id in banked).toBe(false)
   })
 
   it('shrinks its paper only when a city is nearly exhausted', () => {
     const banked = Object.fromEntries(city.slice(0, 95).map((w) => [w.id, NOW]))
-    expect(examWords(WORDS, {}, banked, 0).length).toBe(5)
+    expect(examWords(WORDS, {}, banked, 0, rng()).length).toBe(5)
+    expect(examComposition(WORDS, {}, banked, 0).total).toBe(5)
   })
 
-  it('readiness reports how many of the paper are already green', () => {
-    const srs = srsWith(city.slice(0, 7), { correctGuesses: LEARN_REPS })
-    const { ready, total } = examReadiness(WORDS, srs, {}, 0)
-    expect(total).toBe(GATE_SIZE)
-    expect(ready).toBe(7)
+  it('stays shut until half the paper could be green', () => {
+    // Nothing learned: an exam would be twenty unseen words.
+    expect(examUnlocked(WORDS, {}, {}, 0)).toBe(false)
+    const nearly = srsWith(city.slice(0, EXAM_MIN_GREEN - 1), { correctGuesses: LEARN_REPS })
+    expect(examUnlocked(WORDS, nearly, {}, 0)).toBe(false)
+    const enough = srsWith(city.slice(0, EXAM_MIN_GREEN), { correctGuesses: LEARN_REPS })
+    expect(examUnlocked(WORDS, enough, {}, 0)).toBe(true)
+  })
+
+  it('cannot be locked out by a nearly exhausted city', () => {
+    // A short final paper only needs all of itself green.
+    const banked = Object.fromEntries(city.slice(0, 96).map((w) => [w.id, NOW]))
+    const srs = srsWith(city.slice(96), { correctGuesses: LEARN_REPS })
+    expect(examComposition(WORDS, srs, banked, 0).total).toBe(4)
+    expect(examUnlocked(WORDS, srs, banked, 0)).toBe(true)
+  })
+
+  it('varies which unknown words it draws between attempts', () => {
+    const a = examWords(WORDS, {}, {}, 0, mulberry32(1)).map((w) => w.id).join()
+    const b = examWords(WORDS, {}, {}, 0, mulberry32(2)).map((w) => w.id).join()
+    expect(a).not.toBe(b)
   })
 })
 

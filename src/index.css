@@ -600,6 +600,16 @@ select:focus {
 .btn-gate {
   border-color: var(--text);
   background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.3;
+}
+
+.gate-paper {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-dim);
 }
 
 .btn-travel {

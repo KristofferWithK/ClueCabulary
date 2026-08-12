@@ -55,9 +55,15 @@ export function HowToPlay() {
           </li>
           <li>
             You are travelling Denmark, south to north and home to København. Each city holds{' '}
-            <strong>100 words</strong>; guess one correctly twice and you have collected it. Every
-            20 collected words open a <strong lang="da">rejseprøve</strong> — translate all 20, with
-            no mistakes and no dictionary. Pass all five and the road to the next city opens.
+            <strong>100 words</strong>. A word you meet turns grey; clue or guess it{' '}
+            <strong>three times</strong> and it turns <strong>green</strong>.
+          </li>
+          <li>
+            With ten green words you may sit a <strong lang="da">rejseprøve</strong>: twenty words
+            — your green ones first, then any the paper needs to fill up — translated to English
+            with no mistakes and no dictionary. Passing banks those twenty and earns a{' '}
+            <strong lang="da">stempel</strong>. Five stempler fill your{' '}
+            <span lang="da">rejsepas</span> and the road to the next city opens.
           </li>
         </ol>
 

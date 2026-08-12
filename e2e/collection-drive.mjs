@@ -38,7 +38,14 @@ try {
   await page.screenshot({ path: `${SHOT_DIR}/c2-collection.png` })
   await page.click('.icon-btn')
 
-  // The exam is never locked, and passing it stamps the passport.
+  // A brand-new city keeps the exam shut until half a paper could be green.
+  await page.goto(`${BASE}?mock=1&howto=0&city=1`)
+  await page.waitForSelector('.city-card')
+  if (await page.locator('.btn-gate').isEnabled()) throw new Error('exam open with no green words')
+  console.log('exam locked on an untouched city:', (await page.locator('.gate-paper').textContent())?.trim())
+
+  // Back to the seeded city: the exam is open and passing it stamps the passport.
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&learned=30`)
   await page.waitForSelector('.city-card')
   await page.click('.btn-gate')
   await page.waitForSelector('.gate-list')
