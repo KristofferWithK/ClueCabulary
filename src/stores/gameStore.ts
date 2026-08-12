@@ -16,6 +16,8 @@ import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { WORDS } from '../data/words'
+import { unlockedWords } from '../journey/progress'
+import { useJourney } from './journeyStore'
 import { useSettings } from './settingsStore'
 import { useSrs } from './srsStore'
 import { useUi } from './uiStore'
@@ -100,10 +102,14 @@ export const useGame = create<GameStore>()(
         const actualSeed = opts?.seed ?? (Date.now() % 0xffffffff)
         // The daily challenge is the same board for everyone on that date:
         // a seeded uniform draw over the whole dataset, ignoring personal SRS.
+        // Journey rounds (and free play) draw only from words the player has
+        // travelled far enough to unlock; the daily challenge stays global so
+        // everyone gets the same board.
+        const pool = unlockedWords(WORDS, useJourney.getState().cityIndex)
         const entries = opts?.dailyKey
           ? selectDailyWords(WORDS, config.totalWords, mulberry32(actualSeed ^ 0x9e3779b9))
           : selectBoardWords(
-              WORDS,
+              pool,
               useSrs.getState().stats,
               { totalWords: config.totalWords, maxNewWordsPerBoard: config.maxNewWordsPerBoard },
               mulberry32(actualSeed ^ 0x9e3779b9),
@@ -312,8 +318,11 @@ export const useGame = create<GameStore>()(
             redemption,
           }
         })
-        useSrs.getState().recordRound(results, Date.now())
+        const finishedAt = Date.now()
+        useSrs.getState().recordRound(results, finishedAt)
         useSrs.getState().recordGame(game.outcome!)
+        // Latch anything newly proven, so journey progress only ever grows.
+        useJourney.getState().syncCollected(useSrs.getState().stats, finishedAt)
         const { dailyKey } = get()
         if (dailyKey) {
           const outcome =

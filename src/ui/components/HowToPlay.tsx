@@ -53,6 +53,12 @@ export function HowToPlay() {
             Tap <strong>ⓘ</strong> on a word for the dictionary, or <strong>Aa</strong> to show all
             translations. Every lookup tells the app which words to bring back next round.
           </li>
+          <li>
+            You are travelling Denmark, south to north and home to København. Each city holds{' '}
+            <strong>100 words</strong>; guess one correctly twice and you have collected it. Every
+            20 collected words open a <strong lang="da">rejseprøve</strong> — translate all 20, with
+            no mistakes and no dictionary. Pass all five and the road to the next city opens.
+          </li>
         </ol>
 
         <button className="btn btn-primary" onClick={close}>

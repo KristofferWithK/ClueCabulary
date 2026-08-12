@@ -263,6 +263,367 @@ select:focus {
   font-size: 0.85rem;
 }
 
+/* ---------- journey ---------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.city-card {
+  border: 1px solid var(--text);
+  border-radius: var(--radius);
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.city-eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-dim);
+}
+
+.city-name {
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.city-blurb {
+  font-family: var(--serif);
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.city-blurb-en {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.collect-bar {
+  margin-top: 12px;
+  height: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.collect-fill {
+  height: 100%;
+  background: var(--green-tile);
+  transition: width 0.4s ease;
+}
+
+.collect-count {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.collect-count strong {
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 1.15rem;
+}
+
+.gate-pips {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.gate-pip {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.gate-pip.gate-passed {
+  background: var(--green-tile);
+  border-color: var(--green-tile);
+  color: #fff;
+}
+
+.gate-pip.gate-ready {
+  border-color: var(--text);
+  color: var(--text);
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.btn-gate {
+  border-color: var(--text);
+  background: var(--surface);
+}
+
+.btn-travel {
+  background: var(--green-tile);
+  border-color: var(--green-tile);
+  color: #fff;
+}
+
+.gate-hint {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.section-divider {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-top: 4px;
+  position: relative;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 32%;
+  height: 1px;
+  background: var(--line-soft);
+}
+
+.section-divider::before {
+  left: 0;
+}
+
+.section-divider::after {
+  right: 0;
+}
+
+/* ---------- map ---------- */
+
+.denmark-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.map-land {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.map-route-ahead {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 5;
+  stroke-dasharray: 12 10;
+  stroke-linecap: round;
+}
+
+.map-route-done {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.map-dot {
+  fill: var(--bg);
+  stroke: var(--text);
+  stroke-width: 5;
+}
+
+.map-city-visited .map-dot {
+  fill: var(--text);
+}
+
+.map-city-current .map-dot {
+  fill: var(--green-tile);
+  stroke: var(--green-deep);
+  stroke-width: 7;
+}
+
+.map-city-ahead .map-dot {
+  stroke: var(--line);
+  stroke-width: 4;
+}
+
+.map-label {
+  font-family: var(--serif);
+  font-size: 30px;
+  fill: var(--text);
+}
+
+.map-city-ahead .map-label {
+  fill: var(--text-dim);
+}
+
+.map-city-selected .map-label {
+  font-weight: 700;
+}
+
+.map-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.map-hit:focus-visible {
+  outline: 3px solid var(--text);
+}
+
+.map-detail {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-locked,
+.map-collected {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+.map-collected strong {
+  color: var(--text);
+}
+
+/* ---------- travel exam ---------- */
+
+.gate-intro {
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.gate-list,
+.gate-results {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gate-item label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gate-da {
+  flex: 0 0 40%;
+  font-weight: 700;
+  text-align: right;
+}
+
+.gate-progress {
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.gate-results li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  line-height: 1.4;
+}
+
+.gate-results .result-mark {
+  width: 16px;
+  font-weight: 700;
+}
+
+.gate-results .accepted .result-mark {
+  color: var(--green-deep);
+}
+
+.gate-results .rejected .result-mark {
+  color: var(--red);
+}
+
+.gate-results .gate-da {
+  flex: 0 0 34%;
+}
+
+.gate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.travel-callout {
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+/* ---------- arrival ---------- */
+
+.arrival-screen {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.arrival-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.arrival-city {
+  font-size: 2.6rem;
+  line-height: 1.1;
+}
+
+.arrival-blurb {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.45;
+  max-width: 22rem;
+}
+
+.arrival-blurb-en {
+  color: var(--text-dim);
+  line-height: 1.4;
+  max-width: 22rem;
+}
+
+.arrival-unlock {
+  margin: 14px 0 6px;
+  font-weight: 600;
+  color: var(--green-deep);
+}
+
+.arrival-screen .btn {
+  width: 100%;
+  max-width: 20rem;
+}
+
 .daily-card {
   position: relative;
   background: var(--bg);
@@ -416,7 +777,7 @@ select:focus {
 
 .word-card {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 5 / 4;
   border-radius: 8px;
   background: var(--bg);
   border: 2px solid var(--line);

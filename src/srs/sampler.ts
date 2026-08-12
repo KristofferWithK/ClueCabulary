@@ -72,7 +72,13 @@ export function selectBoardWords(
   const unseen = all.filter((w) => !(w.id in srs)).sort((a, b) => a.freqRank - b.freqRank)
 
   const reviewPool = seen.map((entry) => ({ entry, weight: reviewWeight(srs[entry.id]!, now) }))
-  const desiredReview = Math.min(totalWords - Math.min(maxNewWordsPerBoard, totalWords), seen.length)
+  // Reserve new-word slots only as far as the pool actually HAS unseen words.
+  // Reserving them unconditionally means that once everything is seen — the
+  // normal state late in a journey city — the frontier picks nothing and those
+  // slots fall through to the relaxed last-resort fill below, which ignores
+  // both the weighting and the same-board exclusion rules.
+  const maxNew = Math.min(maxNewWordsPerBoard, totalWords, unseen.length)
+  const desiredReview = Math.min(totalWords - maxNew, seen.length)
   const chosen: WordEntry[] = drawWeighted(reviewPool, desiredReview, [], rng)
 
   // New words come from the front of the frontier; widen only if the review

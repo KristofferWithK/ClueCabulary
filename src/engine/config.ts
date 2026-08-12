@@ -28,8 +28,9 @@ export interface GridConfig {
  */
 export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
   beginner: {
-    rows: 3,
-    cols: 4,
+    // Portrait orientation: phones want more rows than columns.
+    rows: 4,
+    cols: 3,
     totalWords: 12,
     greensPerSide: 5,
     greenOverlap: 2, // 8 distinct greens
@@ -41,8 +42,8 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
     maxNewWordsPerBoard: 4,
   },
   standard: {
-    rows: 4,
-    cols: 5,
+    rows: 5,
+    cols: 4,
     totalWords: 20,
     greensPerSide: 7,
     greenOverlap: 2, // 12 distinct greens

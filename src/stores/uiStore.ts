@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type Screen = 'home' | 'game' | 'settings' | 'stats'
+export type Screen = 'home' | 'game' | 'settings' | 'stats' | 'map' | 'gate'
 
 interface UiState {
   screen: Screen
@@ -10,7 +10,10 @@ interface UiState {
   /** Fixed board seed from the ?seed= URL param (dev/e2e). */
   pendingSeed: number | null
   howToOpen: boolean
+  /** Which travel exam is open, when screen === 'gate'. */
+  gateIndex: number | null
   goTo: (screen: Screen) => void
+  openGate: (gateIndex: number) => void
   openSheet: (wordId: string) => void
   closeSheet: () => void
   toggleTranslations: () => void
@@ -40,9 +43,14 @@ export const useUi = create<UiState>((set, get) => ({
   translationsOn: false,
   pendingSeed: null,
   howToOpen: false,
+  gateIndex: null,
   goTo: (screen) => {
     if (screen !== 'home' && screen !== get().screen) pushHistory()
-    set({ screen, sheetWordId: null })
+    set({ screen, sheetWordId: null, gateIndex: screen === 'gate' ? get().gateIndex : null })
+  },
+  openGate: (gateIndex) => {
+    if (get().screen !== 'gate') pushHistory()
+    set({ screen: 'gate', gateIndex, sheetWordId: null })
   },
   openSheet: (wordId) => {
     if (!get().sheetWordId) pushHistory()
