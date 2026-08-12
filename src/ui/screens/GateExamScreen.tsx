@@ -10,6 +10,7 @@ import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import type { RoundWordResult } from '../../srs/types'
+import { Arrival } from '../components/Arrival'
 
 interface Graded {
   word: WordEntry
@@ -25,30 +26,7 @@ export function GateExamScreen() {
   const [graded, setGraded] = useState<Graded[] | null>(null)
   const [arrivedIndex, setArrivedIndex] = useState<number | null>(null)
 
-  if (arrivedIndex !== null) {
-    const arrived = cityAt(arrivedIndex)
-    return (
-      <div className="screen arrival-screen">
-        <p className="arrival-eyebrow" lang="da">
-          Velkommen til
-        </p>
-        <h1 className="arrival-city" lang="da">
-          {arrived.name}
-        </h1>
-        <p className="arrival-blurb" lang="da">
-          {arrived.blurbDa}
-        </p>
-        <p className="arrival-blurb-en">{arrived.blurbEn}</p>
-        <p className="arrival-unlock">100 new words to discover.</p>
-        <button className="btn btn-primary btn-big" onClick={() => goTo('home')}>
-          <span lang="da">Kom i gang</span>
-        </button>
-        <button className="btn" onClick={() => goTo('map')}>
-          <span lang="da">Se kortet</span>
-        </button>
-      </div>
-    )
-  }
+  if (arrivedIndex !== null) return <Arrival cityIndex={arrivedIndex} />
 
   const exam = journey.activeExam
   if (!exam) {

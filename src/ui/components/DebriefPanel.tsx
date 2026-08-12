@@ -1,5 +1,10 @@
+import { WORDS } from '../../data/words'
 import type { GameState } from '../../engine/types'
+import { WORDS_PER_CITY, cityAt } from '../../journey/cities'
+import { countCollection, wordsForCity } from '../../journey/progress'
 import { useGame } from '../../stores/gameStore'
+import { useJourney } from '../../stores/journeyStore'
+import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 
 const CONFETTI_COLORS = ['#6aaa64', '#c9b458', '#567b95', '#121212', '#e3735e']
@@ -35,8 +40,12 @@ const OUTCOME_COPY: Record<string, { title: string; sub: string }> = {
 }
 
 export function DebriefPanel({ game }: { game: GameState }) {
-  const { debrief, debriefFailed, aiBusy, newGame } = useGame()
+  const { debrief, debriefFailed, aiBusy, newGame, newlyLearned } = useGame()
   const goTo = useUi((s) => s.goTo)
+  const cityIndex = useJourney((s) => s.cityIndex)
+  const banked = useJourney((s) => s.banked)
+  const srs = useSrs((s) => s.stats)
+  const cityLearned = countCollection(wordsForCity(WORDS, cityIndex), srs, banked).learned
   const outcome = game.outcome!
   const copy = OUTCOME_COPY[`${outcome.result}:${outcome.reason}`]!
   const aiClues = game.clueHistory.filter((c) => c.by === 'ai' && c.rationale)
@@ -48,6 +57,35 @@ export function DebriefPanel({ game }: { game: GameState }) {
         <h2>{copy.title}</h2>
         <p>{copy.sub}</p>
       </div>
+
+      {/* The point of the round. A loss can still green a word, so this is
+          shown either way — and it is the only place the collection speaks. */}
+      {newlyLearned.length > 0 && (
+        <section className="debrief-section collected-section">
+          <h3>
+            Added to <span lang="da">samlingen</span>
+          </h3>
+          <ul className="collected-words">
+            {newlyLearned.map((id) => {
+              const w = game.words.find((x) => x.wordId === id)
+              if (!w) return null
+              return (
+                <li key={id} className="collected-word">
+                  <span className="collected-mark" aria-hidden="true">
+                    ●
+                  </span>
+                  <span lang="da">{w.da}</span>
+                  <span className="collected-en">{w.en[0]}</span>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="collected-note">
+            {newlyLearned.length === 1 ? 'One word' : `${newlyLearned.length} words`} turned green
+            — {cityLearned} of {WORDS_PER_CITY} in {cityAt(cityIndex).name}.
+          </p>
+        </section>
+      )}
 
       {game.redemption?.results && (
         <section className="debrief-section">

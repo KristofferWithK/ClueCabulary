@@ -6,3 +6,6 @@ dev-dist
 coverage
 # throwaway Playwright probes, kept out of `git add -A`
 probe-*.mjs
+# build info + screenshots the e2e drives write when SHOT_DIR is unset
+*.tsbuildinfo
+/*.png

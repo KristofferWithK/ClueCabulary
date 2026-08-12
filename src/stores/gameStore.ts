@@ -43,6 +43,8 @@ interface GameStore {
   studying: boolean
   debrief: DebriefResponse | null
   debriefFailed: boolean
+  /** Words this round pushed over the line into the collection's green. */
+  newlyLearned: string[]
   // Transient (not persisted):
   aiBusy: boolean
   aiGuessQueue: PlannedGuess[]
@@ -94,6 +96,7 @@ export const useGame = create<GameStore>()(
       studying: false,
       debrief: null,
       debriefFailed: false,
+      newlyLearned: [],
       aiBusy: false,
       aiGuessQueue: [],
       planForClueIndex: null,
@@ -116,7 +119,11 @@ export const useGame = create<GameStore>()(
           : selectBoardWords(
               pool,
               useSrs.getState().stats,
-              { totalWords: config.totalWords, maxNewWordsPerBoard: config.maxNewWordsPerBoard },
+              {
+                totalWords: config.totalWords,
+                maxNewWordsPerBoard: config.maxNewWordsPerBoard,
+                collected: new Set(Object.keys(useJourney.getState().banked)),
+              },
               mulberry32(actualSeed ^ 0x9e3779b9),
               Date.now(),
             )
@@ -155,6 +162,7 @@ export const useGame = create<GameStore>()(
           studying: studyPhaseEnabled(settings.studyPhase, useJourney.getState().cityIndex),
           debrief: null,
           debriefFailed: false,
+          newlyLearned: [],
           aiGuessQueue: [],
           planForClueIndex: null,
           lastAiGuess: null,
@@ -176,6 +184,7 @@ export const useGame = create<GameStore>()(
           studying: false,
           debrief: null,
           debriefFailed: false,
+          newlyLearned: [],
           aiGuessQueue: [],
           planForClueIndex: null,
           lastAiGuess: null,
@@ -219,8 +228,13 @@ export const useGame = create<GameStore>()(
       },
 
       recordLookup: (wordId) => {
-        const { game, lookedUp } = get()
+        const { game, lookedUp, studying } = get()
         if (!game || game.phase === 'redemption') return
+        // The opening study phase shows every translation anyway, so a tap
+        // during it reveals nothing and must not spend the round's credit —
+        // which is what Settings promises. Guarded here, not at the call site,
+        // so no future entry point can quietly break the promise.
+        if (studying) return
         if (!lookedUp.includes(wordId)) set({ lookedUp: [...lookedUp, wordId] })
       },
 
@@ -347,7 +361,19 @@ export const useGame = create<GameStore>()(
           }
         })
         const finishedAt = Date.now()
+        // Turning a word green is the loop's atomic reward, and it happens
+        // inside recordRound where nothing can see it. Straddle the call so the
+        // round can tell the player what it earned them.
+        const banked = useJourney.getState().banked
+        const before = useSrs.getState().stats
+        const wasLearned = new Set(
+          game.words.filter((w) => isLearned(before[w.wordId], w.wordId in banked)).map((w) => w.wordId),
+        )
         useSrs.getState().recordRound(results, finishedAt)
+        const after = useSrs.getState().stats
+        const newlyLearned = game.words
+          .map((w) => w.wordId)
+          .filter((id) => !wasLearned.has(id) && isLearned(after[id], id in banked))
         useSrs.getState().recordGame(game.outcome!)
         const { dailyKey } = get()
         if (dailyKey) {
@@ -359,7 +385,7 @@ export const useGame = create<GameStore>()(
               : 'lost'
           localStorage.setItem(`cluecab-daily:${dailyKey}`, outcome)
         }
-        set({ roundRecorded: true })
+        set({ roundRecorded: true, newlyLearned })
         void get().requestDebrief()
       },
 
@@ -376,6 +402,7 @@ export const useGame = create<GameStore>()(
         studying: s.studying,
         debrief: s.debrief,
         debriefFailed: s.debriefFailed,
+        newlyLearned: s.newlyLearned,
       }),
     },
   ),

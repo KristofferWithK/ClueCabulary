@@ -1,7 +1,7 @@
 import type { WordEntry } from '../data/types'
 import { danishStem, levenshtein, normalize } from '../engine/text'
 import type { Rng } from '../engine/rng'
-import { reviewWeight } from './scheduler'
+import { practiceNeed } from './scheduler'
 import type { SrsMap } from './types'
 
 /** How far into the unseen frontier a new word may be drawn from. */
@@ -59,11 +59,20 @@ function drawWeighted(
 export function selectBoardWords(
   all: readonly WordEntry[],
   srs: SrsMap,
-  opts: { totalWords: number; maxNewWordsPerBoard: number },
+  opts: {
+    totalWords: number
+    maxNewWordsPerBoard: number
+    /**
+     * Words already banked by a passed exam. They are permanently green, so a
+     * board full of them moves no counter — but dropping them outright would
+     * throw away the review they still need. Damped, not excluded.
+     */
+    collected?: ReadonlySet<string>
+  },
   rng: Rng,
   now: number,
 ): WordEntry[] {
-  const { totalWords, maxNewWordsPerBoard } = opts
+  const { totalWords, maxNewWordsPerBoard, collected } = opts
   if (all.length < totalWords) {
     throw new Error(`need at least ${totalWords} words, dataset has ${all.length}`)
   }
@@ -71,7 +80,10 @@ export function selectBoardWords(
   const seen = all.filter((w) => w.id in srs)
   const unseen = all.filter((w) => !(w.id in srs)).sort((a, b) => a.freqRank - b.freqRank)
 
-  const reviewPool = seen.map((entry) => ({ entry, weight: reviewWeight(srs[entry.id]!, now) }))
+  const reviewPool = seen.map((entry) => ({
+    entry,
+    weight: practiceNeed(srs[entry.id]!, collected?.has(entry.id) ?? false, now),
+  }))
   // Reserve new-word slots only as far as the pool actually HAS unseen words.
   // Reserving them unconditionally means that once everything is seen — the
   // normal state late in a journey city — the frontier picks nothing and those

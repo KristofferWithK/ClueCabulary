@@ -5,7 +5,7 @@ import { LEARN_REPS, wordsForCity } from './journey/progress'
 import { useJourney } from './stores/journeyStore'
 import { useSettings } from './stores/settingsStore'
 import { useSrs } from './stores/srsStore'
-import { shouldShowHowTo, useUi } from './stores/uiStore'
+import { consumeSelfPop, shouldShowHowTo, useUi } from './stores/uiStore'
 import { DictionarySheet } from './ui/components/DictionarySheet'
 import { HowToPlay } from './ui/components/HowToPlay'
 import { GameScreen } from './ui/screens/GameScreen'
@@ -55,6 +55,27 @@ export default function App() {
       useSrs.setState({ stats })
     }
 
+    // ?almost=K leaves the first K words one handling short of green, so a
+    // single round can be driven over the line in a test.
+    const almost = params.get('almost')
+    if (almost && /^\d{1,3}$/.test(almost)) {
+      const now = Date.now()
+      const stats = { ...useSrs.getState().stats }
+      for (const w of wordsForCity(WORDS, cityIndex).slice(0, Number(almost))) {
+        stats[w.id] = {
+          box: 2,
+          lastSeenAt: now - 3 * 24 * 60 * 60 * 1000,
+          seen: LEARN_REPS - 1,
+          correctGuesses: LEARN_REPS - 1,
+          misses: 0,
+          lookups: 0,
+          redemptionRight: 0,
+          redemptionWrong: 0,
+        }
+      }
+      useSrs.setState({ stats })
+    }
+
     const stamps = params.get('stamps')
     if (stamps && /^\d$/.test(stamps)) {
       const earned = Math.min(Number(stamps), GATES_PER_CITY)
@@ -66,12 +87,19 @@ export default function App() {
   // back to home — never straight out of the installed PWA.
   useEffect(() => {
     const onPop = () => {
+      // An in-app close already updated the state and asked for this pop;
+      // handling it again would close a second layer.
+      if (consumeSelfPop()) return
       const ui = useUi.getState()
       if (ui.sheetWordId) {
         useUi.setState({ sheetWordId: null })
       } else if (ui.howToOpen) {
         ui.closeHowTo()
       } else if (ui.screen !== 'home') {
+        // Backing out of a travel exam abandons it. An exam left open locks the
+        // dictionary app-wide, and it is persisted — so a silent leak here would
+        // kill lookups on every screen, permanently.
+        if (ui.screen === 'gate') useJourney.getState().endExam()
         useUi.setState({ screen: 'home', sheetWordId: null })
       }
     }

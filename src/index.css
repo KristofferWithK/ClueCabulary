@@ -1,5 +1,8 @@
 :root {
   --bg: #ffffff;
+  /* Collection greys: 'discovered' is grey everywhere, never the board's beige. */
+  --grey-tile: #9a9da1;
+  --grey-soft: #ececee;
   --surface: #f7f7f5;
   --line: #d3d6da;
   --line-soft: #e6e6e6;
@@ -186,7 +189,7 @@ select:focus {
 
 .home-hero {
   text-align: center;
-  padding: 40px 0 4px;
+  padding: 18px 0 4px;
 }
 
 .home-hero h1 {
@@ -211,7 +214,7 @@ select:focus {
 
 .home-progress::before {
   content: '● ';
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .setup-nudge {
@@ -280,7 +283,7 @@ select:focus {
 .city-card {
   border: 1px solid var(--text);
   border-radius: var(--radius);
-  padding: 20px 18px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -330,7 +333,7 @@ select:focus {
 }
 
 .collect-discovered {
-  background: var(--beige-deep);
+  background: var(--grey-tile);
 }
 
 /* ---------- home map ---------- */
@@ -348,6 +351,9 @@ select:focus {
 .home-map {
   width: 100%;
   height: auto;
+  /* Uncapped, Denmark's 1000x812 shape pushed the primary action below the
+     fold on 640-667px phones. preserveAspectRatio letterboxes the rest. */
+  max-height: 30vh;
   display: block;
 }
 
@@ -387,6 +393,12 @@ select:focus {
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: var(--text-dim);
+}
+
+/* The stamp row is otherwise the one thing on Home that never says what it is for. */
+.passport-gloss {
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .stamp-row {
@@ -500,7 +512,7 @@ select:focus {
 }
 
 .collection-locked {
-  color: var(--line);
+  color: var(--text-dim);
 }
 
 .word-dex {
@@ -532,15 +544,15 @@ select:focus {
 }
 
 .dex-discovered {
-  background: var(--beige);
-  border: 1px solid var(--beige-deep);
+  background: var(--grey-soft);
+  border: 1px solid var(--grey-tile);
   color: var(--text);
 }
 
 .dex-unknown {
   background: var(--surface);
   border: 1px dashed var(--line);
-  color: var(--line);
+  color: var(--text-dim);
 }
 
 .collection-foot {
@@ -1033,7 +1045,9 @@ select:focus {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 4px;
+  /* Top padding reserves the strip the key mark and the ⓘ live in, so the word
+     is never drawn underneath either of them. */
+  padding: 17px 4px 4px;
   overflow: hidden;
   transition: transform 0.1s ease, background 0.25s ease, border-color 0.25s ease;
 }
@@ -1058,14 +1072,27 @@ select:focus {
   cursor: default;
 }
 
+/* Sits in the reserved top strip. Kept small so it cannot swallow a tap meant
+   for the word during your guessing turn, and given a wider invisible hit area
+   through ::after rather than by growing over the card. */
 .card-info {
   position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 1rem;
+  top: 1px;
+  right: 2px;
+  font-size: 0.8rem;
+  line-height: 1;
   color: #565758;
-  padding: 10px 12px;
+  padding: 5px 6px;
   z-index: 2;
+}
+
+.card-info::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -2px;
+  width: 34px;
+  height: 30px;
 }
 
 .wrap-green .card-info,
@@ -1110,7 +1137,7 @@ select:focus {
 
 .legend-sep {
   margin: 0 8px;
-  color: var(--line);
+  color: var(--text-dim);
 }
 
 .key-mark {
@@ -1542,7 +1569,7 @@ select:focus {
   content: '→';
   position: absolute;
   left: 0;
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .redemption-results {
@@ -1564,7 +1591,7 @@ select:focus {
 }
 
 .redemption-results .accepted .result-mark {
-  color: var(--green);
+  color: var(--green-deep);
 }
 
 .redemption-results .rejected .result-mark {
@@ -1892,4 +1919,98 @@ select:focus {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ---------- collection: newly-green words, shown after a round ---------- */
+
+.collected-section {
+  background: var(--green-soft);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.collected-words {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.collected-word {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.collected-mark {
+  color: var(--green-deep);
+  font-size: 0.7rem;
+}
+
+.collected-word [lang='da'] {
+  font-weight: 700;
+}
+
+.collected-en {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.collected-note {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ---------- journey: end of the road, and a resumable exam ---------- */
+
+.journey-done {
+  border: 2px solid var(--green-tile);
+  background: var(--green-soft);
+  border-radius: var(--radius);
+  padding: 14px;
+  text-align: center;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.exam-resume {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-quiet {
+  border-color: var(--line-soft);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 10px;
+}
+
+/* ---------- map: the passport, so the map answers "how far to go?" ---------- */
+
+.stamp-row-map {
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.map-stamp-note {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+/* ---------- collection screen ---------- */
+
+.collection-chevron {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-right: 8px;
+}
+
+.collection-city-grey {
+  color: var(--text-dim);
 }

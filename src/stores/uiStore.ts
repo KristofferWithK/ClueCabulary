@@ -29,12 +29,42 @@ const HOWTO_KEY = 'cluecab-howto-v1'
  * browser back) closes the sheet or returns home instead of quitting the
  * installed PWA. App.tsx handles popstate.
  */
+/** Entries this app has pushed and not yet consumed. */
+let depth = 0
+/** Set while unwinding an entry ourselves, so App's popstate handler stands down. */
+let selfPop = false
+
 const pushHistory = () => {
   try {
     history.pushState({ cluecab: true }, '')
+    depth++
   } catch {
     // History can be unavailable in exotic embeds — navigation still works.
   }
+}
+
+/**
+ * Closing a layer from inside the app must consume the entry that opening it
+ * pushed. Without this the entry is orphaned and the next system Back press is
+ * swallowed unwinding it — the user taps Back and nothing happens.
+ */
+const popHistory = () => {
+  if (depth === 0) return
+  depth--
+  selfPop = true
+  try {
+    history.back()
+  } catch {
+    selfPop = false
+  }
+}
+
+/** True when the popstate now firing is one we asked for; clears on read. */
+export function consumeSelfPop(): boolean {
+  const was = selfPop
+  selfPop = false
+  if (!was) depth = Math.max(0, depth - 1)
+  return was
 }
 
 export const useUi = create<UiState>((set, get) => ({
@@ -45,7 +75,9 @@ export const useUi = create<UiState>((set, get) => ({
   howToOpen: false,
   gateIndex: null,
   goTo: (screen) => {
-    if (screen !== 'home' && screen !== get().screen) pushHistory()
+    const from = get().screen
+    if (screen !== 'home' && screen !== from) pushHistory()
+    if (screen === 'home' && from !== 'home') popHistory()
     set({ screen, sheetWordId: null, gateIndex: screen === 'gate' ? get().gateIndex : null })
   },
   openGate: (gateIndex) => {
@@ -56,7 +88,10 @@ export const useUi = create<UiState>((set, get) => ({
     if (!get().sheetWordId) pushHistory()
     set({ sheetWordId: wordId })
   },
-  closeSheet: () => set({ sheetWordId: null }),
+  closeSheet: () => {
+    if (get().sheetWordId) popHistory()
+    set({ sheetWordId: null })
+  },
   toggleTranslations: () => set((s) => ({ translationsOn: !s.translationsOn })),
   resetTranslations: () => set({ translationsOn: false }),
   openHowTo: () => {
@@ -65,6 +100,7 @@ export const useUi = create<UiState>((set, get) => ({
   },
   closeHowTo: () => {
     localStorage.setItem(HOWTO_KEY, 'seen')
+    if (get().howToOpen) popHistory()
     set({ howToOpen: false })
   },
 }))

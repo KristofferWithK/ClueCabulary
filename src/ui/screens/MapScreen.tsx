@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { WORDS } from '../../data/words'
-import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
+import { CITIES, GATES_PER_CITY, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
-import { canTravel, countCollection, wordsForCity } from '../../journey/progress'
+import { canTravel, countCollection, stampsFor, wordsForCity } from '../../journey/progress'
+import { Arrival } from '../components/Arrival'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
@@ -24,6 +25,7 @@ export function MapScreen() {
   const journey = useJourney()
   const srs = useSrs((s) => s.stats)
   const [selected, setSelected] = useState<number>(journey.cityIndex)
+  const [arrivedIndex, setArrivedIndex] = useState<number | null>(null)
 
   const points = CITIES.map((c) => projectCity(c.lon, c.lat))
   const travelledPath = points
@@ -37,10 +39,13 @@ export function MapScreen() {
 
   const city = cityAt(selected)
   const counts = countCollection(wordsForCity(WORDS, selected), srs, journey.banked)
+  const selectedStamps = stampsFor(journey, selected)
   const state =
     selected < journey.cityIndex ? 'visited' : selected === journey.cityIndex ? 'current' : 'ahead'
   const travelReady = canTravel(journey, journey.cityIndex)
   const nextCity = journey.cityIndex + 1 < CITIES.length ? cityAt(journey.cityIndex + 1) : null
+
+  if (arrivedIndex !== null) return <Arrival cityIndex={arrivedIndex} />
 
   return (
     <div className="screen map-screen">
@@ -117,16 +122,39 @@ export function MapScreen() {
             {WORDS_PER_CITY} words waiting — reach {city.name} to unlock them.
           </p>
         ) : (
-          <p className="map-collected">
-            <strong>{counts.learned}</strong> / {WORDS_PER_CITY} learned ·{' '}
-            {counts.discovered} discovered
-            {journey.arrivedAt[selected] && (
-              <>
-                {' · arrived '}
-                {new Date(journey.arrivedAt[selected]!).toLocaleDateString()}
-              </>
-            )}
-          </p>
+          <>
+            <p className="map-collected">
+              <strong>{counts.learned}</strong> / {WORDS_PER_CITY} learned ·{' '}
+              {counts.discovered} discovered
+              {journey.arrivedAt[selected] && (
+                <>
+                  {' · arrived '}
+                  {new Date(journey.arrivedAt[selected]!).toLocaleDateString()}
+                </>
+              )}
+            </p>
+            {/* The passport answers the question the map raises: how far to the
+                next city? Five stamps, and it is this many. */}
+            <ul
+              className="stamp-row stamp-row-map"
+              aria-label={`${selectedStamps} of ${GATES_PER_CITY} stamps in ${city.name}`}
+            >
+              {Array.from({ length: GATES_PER_CITY }, (_, i) => (
+                <li key={i} className={`stamp ${i < selectedStamps ? 'stamp-earned' : ''}`}>
+                  <span aria-hidden="true">{i < selectedStamps ? '✓' : '○'}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="map-stamp-note">
+              {state === 'visited'
+                ? 'passport page filled'
+                : selectedStamps >= GATES_PER_CITY
+                  ? 'The page is full — the road onward is open.'
+                  : `${GATES_PER_CITY - selectedStamps} more ${
+                      GATES_PER_CITY - selectedStamps === 1 ? 'stempel' : 'stempler'
+                    } to leave ${city.name}.`}
+            </p>
+          </>
         )}
       </section>
 
@@ -134,8 +162,10 @@ export function MapScreen() {
         <button
           className="btn btn-primary btn-big"
           onClick={() => {
+            const destination = journey.cityIndex + 1
             journey.travel(Date.now())
-            setSelected(journey.cityIndex + 1)
+            setSelected(destination)
+            setArrivedIndex(destination)
           }}
         >
           <span lang="da">Rejs videre</span> → {nextCity.name}

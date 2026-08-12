@@ -11,6 +11,7 @@ import {
   examUnlocked,
   examWords,
   greensToNextTrial,
+  isJourneyComplete,
   stampsFor,
   unlockedWords,
   wordsForCity,
@@ -79,7 +80,15 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
           r={i === cityIndex ? 26 : 14}
         />
       ))}
-      <text className="home-map-here" x={here.x} y={here.y - 42} textAnchor="middle">
+      {/* Skagen sits at the top of the map, where a label above the dot falls
+          outside the viewBox — flip it below. The same for the east coast,
+          where a centred label would run off the right edge. */}
+      <text
+        className="home-map-here"
+        x={Math.min(Math.max(here.x, 110), MAP_WIDTH - 110)}
+        y={here.y < 90 ? here.y + 62 : here.y - 42}
+        textAnchor="middle"
+      >
         {cityAt(cityIndex).name}
       </text>
     </svg>
@@ -105,7 +114,14 @@ export function HomeScreen() {
   const examOpen = examUnlocked(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const trials = examTrials(WORDS, srs, journey.banked, journey, journey.cityIndex)
   const toNextTrial = greensToNextTrial(WORDS, srs, journey.banked, journey.cityIndex)
-  const travelReady = canTravel(journey, journey.cityIndex)
+  // København has no next stop: without this the travel button would ask
+  // cityAt for a city one past the end, which throws and blanks the app.
+  const journeyDone = isJourneyComplete(journey)
+  const travelReady = canTravel(journey, journey.cityIndex) && !journeyDone
+
+  const examAnswered = journey.activeExam
+    ? Object.values(journey.activeExam.answers).filter((a) => a.trim().length > 0).length
+    : 0
 
   const wotd = wordOfTheDay(journey.cityIndex)
   const daily = dailyChallenge()
@@ -176,8 +192,13 @@ export function HomeScreen() {
           <span className="dim">{cityCounts.undiscovered} to find</span>
         </p>
 
-        <p className="passport-label" lang="da">
-          Rejsepas
+        <p className="passport-label">
+          <span lang="da">Rejsepas</span>
+          <span className="passport-gloss">
+            {' '}
+            — {GATES_PER_CITY} stempler open the road to{' '}
+            {journeyDone ? 'nowhere further' : cityAt(journey.cityIndex + 1).name}
+          </span>
         </p>
         <ul className="stamp-row" aria-label={`${stamps} of ${GATES_PER_CITY} stamps`}>
           {Array.from({ length: GATES_PER_CITY }, (_, i) => (
@@ -198,7 +219,27 @@ export function HomeScreen() {
         </button>
       )}
 
-      {travelReady ? (
+      {journeyDone ? (
+        <p className="journey-done">
+          <span lang="da">Rejsen er slut</span> — you filled the passport in København.{' '}
+          {allCounts.learned} of {WORDS.length} words learned.
+        </p>
+      ) : journey.activeExam ? (
+        // A relaunch loses the screen but not the exam, and an open exam locks
+        // the dictionary. Surface it so the lock always has a visible cause.
+        <div className="exam-resume">
+          <button className="btn btn-gate" onClick={() => goTo('gate')}>
+            <span lang="da">Fortsæt rejseprøven</span>
+            <span className="gate-paper">
+              {examAnswered} of {journey.activeExam.wordIds.length} answered · the dictionary
+              stays closed until you finish
+            </span>
+          </button>
+          <button className="btn btn-quiet" onClick={() => journey.endExam()}>
+            Abandon it
+          </button>
+        </div>
+      ) : travelReady ? (
         <button className="btn btn-travel" onClick={() => goTo('map')}>
           <span lang="da">Rejs videre</span> → {cityAt(journey.cityIndex + 1).name}
         </button>
