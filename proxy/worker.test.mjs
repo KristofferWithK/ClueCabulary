@@ -30,7 +30,7 @@ afterEach(() => vi.unstubAllGlobals())
 
 describe('the CORS proxy worker', () => {
   it('answers the preflight the client actually sends', async () => {
-    const res = await worker.fetch(new Request(ENDPOINT, { method: 'OPTIONS' }))
+    const res = await worker.fetch(new Request(ENDPOINT, { method: 'OPTIONS' }), {})
     expect(res.status).toBe(204)
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
     expect(res.headers.get('Access-Control-Allow-Headers')).toMatch(/authorization/i)
@@ -38,18 +38,80 @@ describe('the CORS proxy worker', () => {
     expect(res.headers.get('Access-Control-Allow-Methods')).toMatch(/POST/)
   })
 
-  it('refuses anything but POST, readably', async () => {
+  it('refuses a method it cannot serve, readably', async () => {
     // Without the CORS headers here the browser hides the 405 and reports a
     // CORS failure, which is the one diagnosis that sends you in a circle.
-    const res = await worker.fetch(new Request(ENDPOINT))
+    const res = await worker.fetch(new Request(ENDPOINT, { method: 'DELETE' }), {})
     expect(res.status).toBe(405)
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
+  })
+
+  it('allows GET, because /v1/models is how the app stops guessing model names', async () => {
+    const fetchSpy = vi.fn(async () => new Response('{"data":[{"id":"gpt-oss:120b"}]}', { status: 200 }))
+    vi.stubGlobal('fetch', fetchSpy)
+    const res = await worker.fetch(
+      new Request('https://p.workers.dev/v1/models', { headers: { Authorization: 'Bearer k' } }),
+      {},
+    )
+    expect(res.status).toBe(200)
+    expect(fetchSpy.mock.calls[0][0]).toBe('https://ollama.com/v1/models')
+    expect(fetchSpy.mock.calls[0][1].method).toBe('GET')
+  })
+
+  describe('holding the key itself', () => {
+    it('uses its own secret when the app sends none', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(
+        new Request(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }),
+        { OLLAMA_API_KEY: 'worker-secret' },
+      )
+      expect(fetchSpy.mock.calls[0][1].headers.Authorization).toBe('Bearer worker-secret')
+    })
+
+    it('is not shadowed by a blank Authorization header', async () => {
+      // Older builds sent "Bearer " when the key field was empty.
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(
+        new Request(ENDPOINT, { method: 'POST', headers: { Authorization: 'Bearer ' }, body: '{}' }),
+        { OLLAMA_API_KEY: 'worker-secret' },
+      )
+      expect(fetchSpy.mock.calls[0][1].headers.Authorization).toBe('Bearer worker-secret')
+    })
+
+    it('still prefers a key the app does send', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(post(), { OLLAMA_API_KEY: 'worker-secret' })
+      expect(fetchSpy.mock.calls[0][1].headers.Authorization).toBe('Bearer player-key')
+    })
+
+    it('refuses with 401 and CORS intact when there is no key anywhere', async () => {
+      const fetchSpy = vi.fn()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(
+        new Request(ENDPOINT, { method: 'POST', body: '{}' }),
+        {},
+      )
+      expect(res.status).toBe(401)
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
+    it('locks to one origin when ALLOWED_ORIGIN is set', async () => {
+      const res = await worker.fetch(new Request(ENDPOINT, { method: 'OPTIONS' }), {
+        ALLOWED_ORIGIN: 'https://someone.github.io',
+      })
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('https://someone.github.io')
+      expect(res.headers.get('Vary')).toMatch(/origin/i)
+    })
   })
 
   it('forwards the path, the query and the key to ollama.com', async () => {
     const fetchSpy = upstreamOk()
     vi.stubGlobal('fetch', fetchSpy)
-    await worker.fetch(new Request(`${ENDPOINT}?beta=1`, { method: 'POST', headers: { Authorization: 'Bearer player-key' }, body: '{}' }))
+    await worker.fetch(new Request(`${ENDPOINT}?beta=1`, { method: 'POST', headers: { Authorization: 'Bearer player-key' }, body: '{}' }), {})
     const [url, init] = fetchSpy.mock.calls[0]
     expect(url).toBe('https://ollama.com/v1/chat/completions?beta=1')
     expect(init.method).toBe('POST')
@@ -60,20 +122,20 @@ describe('the CORS proxy worker', () => {
     const fetchSpy = upstreamOk()
     vi.stubGlobal('fetch', fetchSpy)
     const body = JSON.stringify({ model: 'm', messages: [{ role: 'user', content: 'hej' }] })
-    await worker.fetch(post({ body }))
+    await worker.fetch(post({ body }), {})
     expect(await new Response(fetchSpy.mock.calls[0][1].body).text()).toBe(body)
   })
 
   it('carries nothing but the key and the content type', async () => {
     const fetchSpy = upstreamOk()
     vi.stubGlobal('fetch', fetchSpy)
-    await worker.fetch(post({ headers: { Cookie: 'session=secret', 'X-Forwarded-For': '10.0.0.1' } }))
+    await worker.fetch(post({ headers: { Cookie: 'session=secret', 'X-Forwarded-For': '10.0.0.1' } }), {})
     expect(Object.keys(fetchSpy.mock.calls[0][1].headers).sort()).toEqual(['Authorization', 'Content-Type'])
   })
 
   it('passes the upstream status and body back with CORS added', async () => {
     vi.stubGlobal('fetch', upstreamOk('{"error":{"message":"nope"}}', { status: 429 }))
-    const res = await worker.fetch(post())
+    const res = await worker.fetch(post(), {})
     expect(res.status).toBe(429)
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
     expect(await res.text()).toBe('{"error":{"message":"nope"}}')
@@ -85,13 +147,13 @@ describe('the CORS proxy worker', () => {
       'fetch',
       upstreamOk('{}', { headers: { 'Access-Control-Allow-Origin': 'https://ollama.com' } }),
     )
-    const res = await worker.fetch(post())
+    const res = await worker.fetch(post(), {})
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
   })
 
   it('answers an unreachable upstream itself, with CORS intact', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('fetch failed') }))
-    const res = await worker.fetch(post())
+    const res = await worker.fetch(post(), {})
     expect(res.status).toBe(502)
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
     expect(await res.text()).toMatch(/upstream/i)

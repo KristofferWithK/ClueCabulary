@@ -1,13 +1,8 @@
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const WORKER_PATH = join(HERE, '..', 'proxy', 'worker.js')
-
-/** The exact line proxy/README.md tells you to edit for the origin lock. */
-const ORIGIN_LINE = "const ALLOWED_ORIGIN = '*'"
 
 /**
  * Run proxy/worker.js on the Cloudflare runtime it is written for.
@@ -25,10 +20,11 @@ const ORIGIN_LINE = "const ALLOWED_ORIGIN = '*'"
  * intercepted by miniflare's outboundService — the worker still asks for
  * https://ollama.com/..., and we record what it asked for before forwarding.
  *
- * `allowedOrigin`, when set, applies the README's optional hardening step to a
- * copy of the file, so the advice can be checked rather than assumed.
+ * `apiKey` and `allowedOrigin` are delivered as Cloudflare bindings, so the
+ * recommended setup — the key living on the worker rather than on the phone —
+ * is exercised the way it is actually deployed.
  */
-export async function startWorker(port, { upstream, allowedOrigin } = {}) {
+export async function startWorker(port, { upstream, allowedOrigin, apiKey } = {}) {
   let Miniflare
   try {
     ;({ Miniflare } = await import('miniflare'))
@@ -36,19 +32,7 @@ export async function startWorker(port, { upstream, allowedOrigin } = {}) {
     return null
   }
 
-  let scriptPath = WORKER_PATH
-  if (allowedOrigin) {
-    const src = await readFile(WORKER_PATH, 'utf8')
-    if (!src.includes(ORIGIN_LINE)) {
-      throw new Error(`proxy/worker.js no longer contains "${ORIGIN_LINE}" — the README's hardening step is stale`)
-    }
-    const dir = await mkdtemp(join(tmpdir(), 'cluecab-worker-'))
-    scriptPath = join(dir, 'worker.js')
-    await writeFile(
-      scriptPath,
-      src.replace(ORIGIN_LINE, `const ALLOWED_ORIGIN = ${JSON.stringify(allowedOrigin)}`),
-    )
-  }
+  const scriptPath = WORKER_PATH
 
   /** @type {Array<{url: string, method: string, auth: string}>} */
   const upstreamCalls = []
@@ -62,6 +46,12 @@ export async function startWorker(port, { upstream, allowedOrigin } = {}) {
         scriptPath,
         modulesRoot: dirname(scriptPath),
         compatibilityDate: '2026-01-01',
+        // Secrets and vars reach the worker as `env`, exactly as Cloudflare
+        // delivers them — which is how the key-in-the-worker setup is tested.
+        bindings: {
+          ...(apiKey ? { OLLAMA_API_KEY: apiKey } : {}),
+          ...(allowedOrigin ? { ALLOWED_ORIGIN: allowedOrigin } : {}),
+        },
         outboundService: async (request) => {
           upstreamCalls.push({
             url: request.url,

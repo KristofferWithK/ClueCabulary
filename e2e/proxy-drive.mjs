@@ -24,6 +24,7 @@ const WORKER_PORT = 4192
 const LOCKED_PORT = 4193
 const WRONG_ORIGIN_PORT = 4194
 const KEY = 'player-secret-key'
+const WORKER_SECRET = 'secret-that-lives-on-the-worker'
 
 const fail = []
 const check = (name, ok, detail = '') => {
@@ -51,9 +52,9 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
 const page = await ctx.newPage()
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
-const settingsFor = (baseUrl) => ({
+const settingsFor = (baseUrl, apiKey = KEY) => ({
   state: {
-    apiKey: KEY,
+    apiKey,
     baseUrl,
     model: 'fake-model',
     gridSize: 'beginner',
@@ -66,11 +67,11 @@ const settingsFor = (baseUrl) => ({
 })
 
 /** Point the app at a base URL and land it on Home with nothing verified. */
-async function useBaseUrl(baseUrl) {
+async function useBaseUrl(baseUrl, apiKey = KEY) {
   await page.goto(`${preview.base}?howto=0`)
   await page.evaluate(
     ({ value }) => localStorage.setItem('cluecab-settings-v1', JSON.stringify(value)),
-    { value: settingsFor(baseUrl) },
+    { value: settingsFor(baseUrl, apiKey) },
   )
   await page.goto(`${preview.base}?howto=0`)
   await page.waitForSelector('.city-card')
@@ -93,9 +94,19 @@ try {
   const direct = await testConnection()
   check('a server without CORS headers fails in the browser', !direct.ok, direct.message)
   check(
-    'and the app names CORS and points at the proxy',
-    /CORS/i.test(direct.message) && /proxy/i.test(direct.message),
+    'and the app names CORS and the setting to check',
+    /CORS/i.test(direct.message) && /Base URL/i.test(direct.message),
     direct.message,
+  )
+
+  // Aimed at ollama.com the advice must be different and specific: no setting
+  // fixes that host, because it answers the preflight with a redirect.
+  await useBaseUrl('https://ollama.com/v1')
+  const cloud = await testConnection()
+  check(
+    'aimed at ollama.com it explains the preflight redirect and names the proxy',
+    !cloud.ok && /preflight/i.test(cloud.message) && /proxy/i.test(cloud.message),
+    cloud.message,
   )
 
   // ---- and the worker fixes it -----------------------------------------------
@@ -167,12 +178,42 @@ try {
       /content-type/i.test(pre.headers.get('access-control-allow-headers') ?? ''),
     `${pre.status} ${pre.headers.get('access-control-allow-headers')}`,
   )
-  const notPost = await fetch(`${worker.base}/v1/chat/completions`)
+  const bad = await fetch(`${worker.base}/v1/chat/completions`, { method: 'DELETE' })
   check(
-    'a GET is refused but still readable by the browser',
-    notPost.status === 405 && notPost.headers.get('access-control-allow-origin') === '*',
-    `${notPost.status}, allow-origin ${notPost.headers.get('access-control-allow-origin')}`,
+    'an unsupported method is refused but still readable by the browser',
+    bad.status === 405 && bad.headers.get('access-control-allow-origin') === '*',
+    `${bad.status}, allow-origin ${bad.headers.get('access-control-allow-origin')}`,
   )
+  // GET is allowed on purpose: /v1/models is how Settings offers real model
+  // names instead of leaving you to guess between gpt-oss:120b and -cloud.
+  fake.reset()
+  fake.queue({ body: JSON.stringify({ data: [{ id: 'gpt-oss:120b' }] }) })
+  const models = await fetch(`${worker.base}/v1/models`, { headers: { Authorization: `Bearer ${KEY}` } })
+  check(
+    'the model list comes through',
+    models.status === 200 && worker.upstreamCalls.at(-1)?.url === 'https://ollama.com/v1/models',
+    `${models.status} ${worker.upstreamCalls.at(-1)?.url}`,
+  )
+
+  // ---- the setup the guide actually recommends: no key on the phone --------
+  // The worker holds the key as a Cloudflare secret, so Settings is empty and
+  // nothing that reaches the browser contains it.
+  await worker.stop()
+  const keyed = await startWorker(WORKER_PORT, { upstream: fake.baseUrl, apiKey: WORKER_SECRET })
+  fake.reset()
+  await useBaseUrl(`${keyed.base}/v1`, '')
+  const keyless = await testConnection()
+  check('a worker holding the key works with no key in the app', keyless.ok, keyless.message)
+  check(
+    'and the worker supplied its own secret upstream',
+    fake.received.at(-1)?.auth === `Bearer ${WORKER_SECRET}`,
+    fake.received.at(-1)?.auth ? 'Bearer <worker secret>' : 'no Authorization',
+  )
+  const leaked = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-settings-v1') ?? '{}').state?.apiKey,
+  )
+  check('with nothing key-shaped left on the device', leaked === '', JSON.stringify(leaked))
+  await keyed.stop()
 
   // An unreachable upstream is checked in proxy/worker.test.mjs, not here.
   // Miniflare cannot reproduce it: a throw inside its outbound stub comes back
@@ -183,8 +224,8 @@ try {
   // ---- the README's optional hardening, actually checked ----------------------
   // Locking ALLOWED_ORIGIN is advice the guide gives without ever having tried
   // it. It has to still let the player in, and it has to actually shut others
-  // out — otherwise it is decoration.
-  await worker.stop()
+  // out — otherwise it is decoration. (The open worker was already disposed
+  // above; disposing it twice takes the whole drive down.)
   const locked = await startWorker(LOCKED_PORT, { upstream: fake.baseUrl, allowedOrigin: PAGE_ORIGIN })
   fake.reset()
   await useBaseUrl(`${locked.base}/v1`)

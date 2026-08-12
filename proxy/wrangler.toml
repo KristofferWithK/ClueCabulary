@@ -1,0 +1,19 @@
+name = "cluecabulary-proxy"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# Deploy from this directory:
+#
+#   npx wrangler login
+#   npx wrangler deploy
+#   npx wrangler secret put OLLAMA_API_KEY     # paste the key; it is stored
+#                                              # encrypted, never in this repo
+#
+# Then lock it to the origin you play from, so nobody else can spend your
+# subscription through it:
+#
+#   npx wrangler deploy --var ALLOWED_ORIGIN:https://<your-username>.github.io
+#
+# The deploy prints a URL like https://cluecabulary-proxy.<you>.workers.dev —
+# put that plus /v1 into the app's Settings -> Base URL, and leave the API key
+# field empty.

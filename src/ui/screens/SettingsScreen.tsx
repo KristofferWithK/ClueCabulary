@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AiError, resolveEndpoint, testConnection } from '../../ai/client'
+import { AiError, listModels, resolveEndpoint, testConnection } from '../../ai/client'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import type { StudyMode } from '../../journey/progress'
@@ -15,6 +15,8 @@ export function SettingsScreen() {
   const resetJourney = useJourney((s) => s.reset)
   const abandonGame = useGame((s) => s.abandonGame)
   const [test, setTest] = useState<'idle' | 'testing' | 'ok' | string>('idle')
+  const [models, setModels] = useState<string[] | null>(null)
+  const [modelsError, setModelsError] = useState<string | null>(null)
 
   // Say it while they are typing, not after a request has already carried the
   // key somewhere. A relative Base URL would post it to whatever serves the app.
@@ -27,6 +29,19 @@ export function SettingsScreen() {
       return e instanceof AiError ? e.message : 'That Base URL cannot be used.'
     }
   })()
+
+  // Ollama Cloud names its models "gpt-oss:120b-cloud" in some places and
+  // "gpt-oss:120b" in others; guessing wrong returns a 404 that reads like a
+  // broken setup. Ask the server which names it accepts.
+  const runModels = async () => {
+    setModelsError(null)
+    setModels(null)
+    try {
+      setModels(await listModels({ baseUrl: settings.baseUrl, apiKey: settings.apiKey, model: settings.model }))
+    } catch (e) {
+      setModelsError(e instanceof AiError ? e.message : 'Could not list models.')
+    }
+  }
 
   const runTest = async () => {
     setTest('testing')
@@ -73,8 +88,11 @@ export function SettingsScreen() {
             onChange={(e) => settings.set({ baseUrl: e.target.value })}
           />
           <small>
-            Default: https://ollama.com/v1 — switch to your own proxy if Test connection reports a
-            CORS problem — see{' '}
+            <strong>ollama.com cannot be used directly from a phone.</strong> Its API answers the
+            browser's CORS preflight with a redirect, which browsers refuse — no key or model name
+            changes that. Deploy the bundled worker (five minutes, free Cloudflare account) and put
+            its URL plus <code>/v1</code> here. Put the key in the worker and you can leave the key
+            field above empty. See{' '}
             <a
               href="https://github.com/KristofferWithK/ClueCabulary/blob/main/proxy/README.md"
               target="_blank"
@@ -82,8 +100,7 @@ export function SettingsScreen() {
             >
               the proxy guide
             </a>
-            , which is five minutes on a free Cloudflare account. Must start with https://, since
-            your API key is sent to it.
+            . Must start with https://, since your API key is sent to it.
           </small>
           {baseUrlProblem && <p className="test-fail">{baseUrlProblem}</p>}
         </label>
@@ -94,6 +111,23 @@ export function SettingsScreen() {
             value={settings.model}
             onChange={(e) => settings.set({ model: e.target.value })}
           />
+          <button className="btn btn-small" disabled={!!baseUrlProblem} onClick={runModels}>
+            List models this server accepts
+          </button>
+          {models && (
+            <div className="model-list">
+              {models.map((m) => (
+                <button
+                  key={m}
+                  className={`chip${m === settings.model ? ' chip-on' : ''}`}
+                  onClick={() => settings.set({ model: m })}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          )}
+          {modelsError && <p className="test-fail">{modelsError}</p>}
         </label>
         <button
           className="btn"
