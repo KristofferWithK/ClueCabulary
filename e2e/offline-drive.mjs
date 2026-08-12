@@ -2,14 +2,12 @@
 // load with the network gone (service worker serves the precached shell,
 // including the full dictionary — only AI calls need connectivity).
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
+
+const PORT = 4175
+const preview = await startPreview(PORT)
 import { setTimeout as sleep } from 'node:timers/promises'
 
-const preview = spawn('npx', ['vite', 'preview', '--port', '4175', '--strictPort'], {
-  cwd: new URL('..', import.meta.url).pathname,
-  stdio: 'ignore',
-})
-await sleep(1500)
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -20,7 +18,7 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
   // First visit online: let the service worker install and precache.
-  await page.goto('http://localhost:4175/ClueCabulary/?mock=1&howto=0')
+  await page.goto(preview.base + '?mock=1&howto=0')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
   await page.waitForFunction(
     async () => {
@@ -50,5 +48,5 @@ try {
   process.exitCode = 1
 } finally {
   await browser.close()
-  preview.kill()
+  preview.stop()
 }

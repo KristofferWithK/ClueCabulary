@@ -12,10 +12,7 @@ interface UiState {
   howToOpen: boolean
   /** The grandmother's letter — the very first screen, and re-readable after. */
   letterOpen: boolean
-  /** Which travel exam is open, when screen === 'gate'. */
-  gateIndex: number | null
   goTo: (screen: Screen) => void
-  openGate: (gateIndex: number) => void
   openSheet: (wordId: string) => void
   closeSheet: () => void
   toggleTranslations: () => void
@@ -64,6 +61,19 @@ const popHistory = () => {
   }
 }
 
+/** Returning home consumes every entry the screens above it pushed. */
+const unwindToFloor = () => {
+  if (depth === 0) return
+  const steps = depth
+  depth = 0
+  selfPop = true
+  try {
+    history.go(-steps)
+  } catch {
+    selfPop = false
+  }
+}
+
 /** True when the popstate now firing is one we asked for; clears on read. */
 export function consumeSelfPop(): boolean {
   const was = selfPop
@@ -79,16 +89,14 @@ export const useUi = create<UiState>((set, get) => ({
   pendingSeed: null,
   howToOpen: false,
   letterOpen: false,
-  gateIndex: null,
   goTo: (screen) => {
     const from = get().screen
-    if (screen !== 'home' && screen !== from) pushHistory()
-    if (screen === 'home' && from !== 'home') popHistory()
-    set({ screen, sheetWordId: null, gateIndex: screen === 'gate' ? get().gateIndex : null })
-  },
-  openGate: (gateIndex) => {
-    if (get().screen !== 'gate') pushHistory()
-    set({ screen: 'gate', gateIndex, sheetWordId: null })
+    // Home is the floor. Hopping screen to screen used to push a second entry
+    // and returning home popped only one, so the strays piled up and a system
+    // Back press went to unwinding them instead of leaving the app.
+    if (screen === 'home') unwindToFloor()
+    else if (from === 'home') pushHistory()
+    set({ screen, sheetWordId: null })
   },
   openSheet: (wordId) => {
     if (!get().sheetWordId) pushHistory()

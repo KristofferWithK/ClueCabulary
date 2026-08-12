@@ -1,14 +1,12 @@
 // Manual-style smoke drive of the built app with the mock companion.
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
+
+const PORT = 4173
+const preview = await startPreview(PORT)
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
-const preview = spawn('npx', ['vite', 'preview', '--port', '4173', '--strictPort'], {
-  cwd: '/home/user/ClueCabulary',
-  stdio: 'ignore',
-})
-await sleep(1500)
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -18,7 +16,7 @@ page.on('console', (m) => m.type() === 'error' && console.log('PAGE ERROR:', m.t
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
-  await page.goto('http://localhost:4173/ClueCabulary/?mock=1&seed=5')
+  await page.goto(preview.base + '?mock=1&seed=5')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
 
   // First visit opens with the letter, which hands over to the rules.
@@ -105,7 +103,8 @@ try {
 } catch (e) {
   await page.screenshot({ path: `${SHOT_DIR}/99-failure.png` }).catch(() => {})
   console.log('SMOKE FAILED:', e.message)
+  process.exitCode = 1
 } finally {
   await browser.close()
-  preview.kill()
+  preview.stop()
 }

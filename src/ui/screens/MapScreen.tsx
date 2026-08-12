@@ -47,7 +47,9 @@ export function MapScreen() {
   const travelReady = canTravel(journey, journey.cityIndex)
   const nextCity = journey.cityIndex + 1 < CITIES.length ? cityAt(journey.cityIndex + 1) : null
 
-  if (arrivedIndex !== null) return <Arrival cityIndex={arrivedIndex} />
+  if (arrivedIndex !== null) {
+    return <Arrival cityIndex={arrivedIndex} onSeeMap={() => setArrivedIndex(null)} />
+  }
 
   return (
     <div className="screen map-screen">

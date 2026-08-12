@@ -78,6 +78,35 @@ describe('export and parse', () => {
     if (!parsed.ok) expect(parsed.error).toContain('newer version')
   })
 
+  it('rejects a city index off the route, which a restore would write straight through', () => {
+    // cityAt throws outside the route and the value goes into the store
+    // unexamined, so this bound is the only thing between a bad file and a
+    // permanently blank app.
+    for (const bad of [99, -3, 10, 1.5]) {
+      const file = buildBackup(snapshot(), NOW)
+      file.journey.cityIndex = bad
+      expect(parseBackup(JSON.stringify(file)).ok).toBe(false)
+    }
+    const good = buildBackup(snapshot(), NOW)
+    good.journey.cityIndex = 9
+    expect(parseBackup(JSON.stringify(good)).ok).toBe(true)
+  })
+
+  it('rejects preferences it would otherwise cast into settings', () => {
+    // A gridSize that is not a real one makes every new game throw when it
+    // looks up its config.
+    const cases: [keyof ReturnType<typeof snapshot>['prefs'], string][] = [
+      ['gridSize', 'enormous'],
+      ['clueLanguage', 'fr'],
+      ['studyPhase', 'sometimes'],
+    ]
+    for (const [field, value] of cases) {
+      const file = buildBackup(snapshot(), NOW)
+      ;(file.prefs as Record<string, string>)[field] = value
+      expect(parseBackup(JSON.stringify(file)).ok).toBe(false)
+    }
+  })
+
   it('rejects a file whose word records are the wrong shape', () => {
     const bad = buildBackup(snapshot({ stats: { hus: stats() } }), NOW)
     // @ts-expect-error deliberately corrupting the record
