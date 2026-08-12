@@ -125,8 +125,21 @@ the extra hop, and that the README's optional origin lock both lets you in and
 shuts everyone else out. Without miniflare installed it prints
 `PROXY DRIVE SKIPPED` and exits 0.
 
-To check Klaus against a real model — the one thing no automated drive can
-settle, since it needs a key and a network:
+Two things no drive here can settle, because they need a key and a network.
+First, whether a browser is allowed to talk to ollama.com at all — ten seconds,
+plain node, no build and no browser:
+
+```bash
+OLLAMA_API_KEY=... node e2e/ollama-probe.mjs
+```
+
+It reads the CORS preflight rather than guessing from "the request worked"
+(node enforces no CORS, so a successful call there proves nothing about a
+phone), and says either "no proxy needed" or "this is what `proxy/` is for".
+`OLLAMA_BASE_URL`, `OLLAMA_MODEL` and `ORIGIN` override the defaults; re-run it
+against your worker to confirm the proxy fixed it.
+
+Second, whether the clues are any good:
 
 ```bash
 OLLAMA_API_KEY=... node e2e/live-drive.mjs

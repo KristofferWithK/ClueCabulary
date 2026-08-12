@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AiError } from '../ai/client'
 import { OllamaCompanion, planGuessExecution, type Companion } from '../ai/companion'
+import { LocalCompanion } from '../ai/local/localCompanion'
 import { MockCompanion } from '../ai/mock/mockCompanion'
 import {
   buildAiClueView,
@@ -21,7 +22,7 @@ import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
 import { useSrs } from './srsStore'
-import { useUi } from './uiStore'
+import { devSwitchesAllowed, useUi } from './uiStore'
 
 type PlannedGuess = GuessResponse['guesses'][number]
 
@@ -89,9 +90,22 @@ interface GameStore {
   clearError: () => void
 }
 
+/**
+ * ?mock=1 asks for the DETERMINISTIC companion — hash-scrambled guesses and
+ * "mok1" clues — which is what the drives assert against. Nobody would want to
+ * play it, so it stays behind the dev-switch guard and never reaches a
+ * deployed origin; there, the offline companion is the real LocalCompanion.
+ */
+function wantsDeterministic(): boolean {
+  if (typeof window === 'undefined' || !devSwitchesAllowed()) return false
+  return new URLSearchParams(window.location.search).get('mock') === '1'
+}
+
 function companion(practiceFallback = false): Companion {
   const s = useSettings.getState()
-  if (s.useMock || practiceFallback) return new MockCompanion()
+  if (s.useMock || practiceFallback) {
+    return wantsDeterministic() ? new MockCompanion() : new LocalCompanion()
+  }
   return new OllamaCompanion({ baseUrl: s.baseUrl, apiKey: s.apiKey, model: s.model })
 }
 

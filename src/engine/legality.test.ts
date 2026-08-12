@@ -114,3 +114,33 @@ describe('compounds — the most-cheated clue rule in the game', () => {
     }
   })
 })
+
+/**
+ * A model writing Danish on an English keyboard spells "soveværelse" as
+ * "sovevaerelse", and the containment check compared raw strings — so the
+ * ASCII spelling of an illegal compound was legal. Found by running the app's
+ * real clue prompt against a model: it produced exactly this, three times out
+ * of three, on a board holding "værelse".
+ */
+describe('Danish written without the Danish letters', () => {
+  const board = [
+    { wordId: 'w1', da: 'værelse', en: ['room'], pos: 'noun' },
+    { wordId: 'w2', da: 'øje', en: ['eye'], pos: 'noun' },
+    { wordId: 'w3', da: 'år', en: ['year'], pos: 'noun' },
+  ]
+
+  it('catches a compound that contains a board word, however it is spelled', () => {
+    expect(checkClueLegality('soveværelse', board).legal).toBe(false)
+    expect(checkClueLegality('sovevaerelse', board).legal).toBe(false)
+  })
+
+  it('catches the board word itself, ASCII-folded', () => {
+    expect(checkClueLegality('vaerelse', board).legal).toBe(false)
+    expect(checkClueLegality('oeje', board).legal).toBe(false)
+  })
+
+  it('still allows a clue that merely shares a fold with nothing on the board', () => {
+    expect(checkClueLegality('koekken', board).legal).toBe(true)
+    expect(checkClueLegality('sengetoej', board).legal).toBe(true)
+  })
+})

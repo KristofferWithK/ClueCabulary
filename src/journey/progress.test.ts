@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { WORDS } from '../data/words'
+import { WORDS, curriculumRank } from '../data/words'
 import type { WordEntry } from '../data/types'
 import { mulberry32 } from '../engine/rng'
 import { applyRoundResults, newStats } from '../srs/scheduler'
@@ -74,7 +74,9 @@ describe('unlockedWords', () => {
     for (let c = 0; c < CITIES.length; c++) {
       const pool = unlockedWords(WORDS, c)
       expect(pool.length).toBe((c + 1) * WORDS_PER_CITY)
-      expect(Math.max(...pool.map((w) => w.freqRank))).toBe((c + 1) * WORDS_PER_CITY)
+      // Cities slice the TEACHING order, which the first city departs from
+      // deliberately: its hundred words are curated for clueability.
+      expect(Math.max(...pool.map(curriculumRank))).toBe((c + 1) * WORDS_PER_CITY)
     }
   })
 })

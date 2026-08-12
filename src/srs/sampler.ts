@@ -1,4 +1,5 @@
 import type { WordEntry } from '../data/types'
+import { curriculumRank } from '../data/words'
 import { danishStem, levenshtein, normalize } from '../engine/text'
 import type { Rng } from '../engine/rng'
 import { practiceNeed } from './scheduler'
@@ -78,7 +79,7 @@ export function selectBoardWords(
   }
 
   const seen = all.filter((w) => w.id in srs)
-  const unseen = all.filter((w) => !(w.id in srs)).sort((a, b) => a.freqRank - b.freqRank)
+  const unseen = all.filter((w) => !(w.id in srs)).sort((a, b) => curriculumRank(a) - curriculumRank(b))
 
   const reviewPool = seen.map((entry) => ({
     entry,
