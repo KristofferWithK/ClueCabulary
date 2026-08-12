@@ -1,4 +1,13 @@
 import { chromium } from 'playwright'
+import { spawn } from 'node:child_process'
+import { setTimeout as sleep } from 'node:timers/promises'
+
+const PORT = 4175
+const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
+  cwd: '/home/user/ClueCabulary',
+  stdio: 'ignore',
+})
+await sleep(2500)
 
 /**
  * Layout and journey-edge regressions that only show up in a real browser:
@@ -6,7 +15,7 @@ import { chromium } from 'playwright'
  * position on small phones, a leaked exam, and the board's ⓘ overlapping words.
  */
 const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'
-const BASE = 'http://127.0.0.1:5199/ClueCabulary/'
+const BASE = `http://127.0.0.1:${PORT}/ClueCabulary/`
 const PHONE = { width: 390, height: 844 }
 
 const browser = await chromium.launch({ executablePath: EXE })
@@ -136,5 +145,6 @@ if (debriefed) {
 
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
+preview.kill()
 console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nLAYOUT DRIVE OK')
 if (fail.length) process.exitCode = 1

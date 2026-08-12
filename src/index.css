@@ -2014,3 +2014,30 @@ select:focus {
 .collection-city-grey {
   color: var(--text-dim);
 }
+
+/* ---------- neutrals are directional: live for one side, spent for the other ----------
+
+   A neutral ends the turn of whoever hit it, but stays guessable for the other
+   side. The directional gradients alone sit at ~1.35:1 against white, which is
+   invisible on a phone — so during your guessing turn, say which is which.  */
+
+.card-still-live {
+  border-color: var(--text);
+  border-style: solid;
+}
+
+.card-still-live .card-mark {
+  opacity: 0.35;
+}
+
+/* .word-card:disabled pins opacity to 1, so this needs equal specificity. */
+.word-card.card-spent {
+  background: var(--surface);
+  border-color: var(--line-soft);
+  opacity: 0.55;
+}
+
+.card-spent .card-da {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}

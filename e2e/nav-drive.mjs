@@ -1,7 +1,16 @@
 import { chromium } from 'playwright'
+import { spawn } from 'node:child_process'
+import { setTimeout as sleep } from 'node:timers/promises'
+
+const PORT = 4174
+const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
+  cwd: '/home/user/ClueCabulary',
+  stdio: 'ignore',
+})
+await sleep(2500)
 
 const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'
-const ROOT = 'http://127.0.0.1:5199/ClueCabulary/'
+const ROOT = `http://127.0.0.1:${PORT}/ClueCabulary/`
 const SENTINEL = ROOT + '?sentinel=1'
 const APP = ROOT + '?mock=1&howto=0&city=2&learned=34'
 
@@ -114,5 +123,6 @@ check('and leave no entries behind', onSentinel(), page.url())
 
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
+preview.kill()
 console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nNAV DRIVE OK')
 if (fail.length) process.exitCode = 1

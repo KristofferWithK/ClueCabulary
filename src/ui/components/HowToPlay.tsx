@@ -46,6 +46,11 @@ export function HowToPlay() {
             Every clue spends one shared token (the dots at the top), however the turn ends.
           </li>
           <li>
+            A neutral is only spent for the side that hit it. A word Klaus burned may still be
+            green on <em>your</em> key — while you are guessing, spent words are crossed out and
+            the rest are still yours to take.
+          </li>
+          <li>
             Hit a <strong>forbidden</strong> word and one chance remains: translate every unsolved
             word on the board. All correct — the game is redeemed. Any miss — it's lost.
           </li>

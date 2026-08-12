@@ -128,6 +128,13 @@ export function GameScreen() {
           forbidden for you
           <span className="legend-sep">·</span>
           <span aria-hidden="true">ⓘ</span> look up
+          {game.phase === 'playerGuessing' && (
+            <>
+              <br />
+              A crossed-out word is spent for you; a neutral Klaus burned is still
+              yours to guess.
+            </>
+          )}
         </p>
       )}
 
