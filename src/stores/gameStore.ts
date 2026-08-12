@@ -9,24 +9,35 @@ import {
   buildDebriefView,
 } from '../ai/projections'
 import type { DebriefResponse, GuessResponse } from '../ai/schemas'
-import { GRID_CONFIGS } from '../engine/config'
+import { GRID_CONFIGS, type GridSize } from '../engine/config'
 import { applyEvent, createGame, currentClue } from '../engine/game'
 import { mulberry32 } from '../engine/rng'
 import type { GameState } from '../engine/types'
-import { selectBoardWords } from '../srs/sampler'
+import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { WORDS } from '../data/words'
+import { unlockedWords } from '../journey/progress'
+import { useJourney } from './journeyStore'
 import { useSettings } from './settingsStore'
 import { useSrs } from './srsStore'
 import { useUi } from './uiStore'
 
 type PlannedGuess = GuessResponse['guesses'][number]
 
+export interface NewGameOptions {
+  seed?: number
+  gridSize?: GridSize
+  /** Set for the shared daily challenge (local date, e.g. "2026-08-12"). */
+  dailyKey?: string
+}
+
 interface GameStore {
   game: GameState | null
   /** Word ids looked up in the dictionary this round (SRS signal). */
   lookedUp: string[]
   roundRecorded: boolean
+  /** Non-null while playing (or having finished) a daily challenge. */
+  dailyKey: string | null
   debrief: DebriefResponse | null
   debriefFailed: boolean
   // Transient (not persisted):
@@ -39,7 +50,7 @@ interface GameStore {
   error: string | null
   selectedWordId: string | null
 
-  newGame: (seed?: number) => void
+  newGame: (opts?: NewGameOptions) => void
   abandonGame: () => void
   submitPlayerClue: (text: string, number: number) => void
   selectWord: (wordId: string | null) => void
@@ -75,6 +86,7 @@ export const useGame = create<GameStore>()(
       game: null,
       lookedUp: [],
       roundRecorded: false,
+      dailyKey: null,
       debrief: null,
       debriefFailed: false,
       aiBusy: false,
@@ -84,17 +96,25 @@ export const useGame = create<GameStore>()(
       error: null,
       selectedWordId: null,
 
-      newGame: (seed) => {
+      newGame: (opts) => {
         const settings = useSettings.getState()
-        const config = GRID_CONFIGS[settings.gridSize]
-        const actualSeed = seed ?? (Date.now() % 0xffffffff)
-        const entries = selectBoardWords(
-          WORDS,
-          useSrs.getState().stats,
-          { totalWords: config.totalWords, maxNewWordsPerBoard: config.maxNewWordsPerBoard },
-          mulberry32(actualSeed ^ 0x9e3779b9),
-          Date.now(),
-        )
+        const config = GRID_CONFIGS[opts?.gridSize ?? settings.gridSize]
+        const actualSeed = opts?.seed ?? (Date.now() % 0xffffffff)
+        // The daily challenge is the same board for everyone on that date:
+        // a seeded uniform draw over the whole dataset, ignoring personal SRS.
+        // Journey rounds (and free play) draw only from words the player has
+        // travelled far enough to unlock; the daily challenge stays global so
+        // everyone gets the same board.
+        const pool = unlockedWords(WORDS, useJourney.getState().cityIndex)
+        const entries = opts?.dailyKey
+          ? selectDailyWords(WORDS, config.totalWords, mulberry32(actualSeed ^ 0x9e3779b9))
+          : selectBoardWords(
+              pool,
+              useSrs.getState().stats,
+              { totalWords: config.totalWords, maxNewWordsPerBoard: config.maxNewWordsPerBoard },
+              mulberry32(actualSeed ^ 0x9e3779b9),
+              Date.now(),
+            )
         const game = createGame({
           config,
           words: entries.map((w) => ({ wordId: w.id, da: w.da, en: w.en, pos: w.pos })),
@@ -107,6 +127,7 @@ export const useGame = create<GameStore>()(
           game,
           lookedUp: [],
           roundRecorded: false,
+          dailyKey: opts?.dailyKey ?? null,
           debrief: null,
           debriefFailed: false,
           aiGuessQueue: [],
@@ -124,6 +145,7 @@ export const useGame = create<GameStore>()(
           game: null,
           lookedUp: [],
           roundRecorded: false,
+          dailyKey: null,
           debrief: null,
           debriefFailed: false,
           aiGuessQueue: [],
@@ -296,7 +318,21 @@ export const useGame = create<GameStore>()(
             redemption,
           }
         })
-        useSrs.getState().recordRound(results, Date.now())
+        const finishedAt = Date.now()
+        useSrs.getState().recordRound(results, finishedAt)
+        useSrs.getState().recordGame(game.outcome!)
+        // Latch anything newly proven, so journey progress only ever grows.
+        useJourney.getState().syncCollected(useSrs.getState().stats, finishedAt)
+        const { dailyKey } = get()
+        if (dailyKey) {
+          const outcome =
+            game.outcome!.result === 'won'
+              ? game.outcome!.reason === 'redeemed'
+                ? 'redeemed'
+                : 'won'
+              : 'lost'
+          localStorage.setItem(`cluecab-daily:${dailyKey}`, outcome)
+        }
         set({ roundRecorded: true })
         void get().requestDebrief()
       },
@@ -310,6 +346,7 @@ export const useGame = create<GameStore>()(
         game: s.game,
         lookedUp: s.lookedUp,
         roundRecorded: s.roundRecorded,
+        dailyKey: s.dailyKey,
         debrief: s.debrief,
         debriefFailed: s.debriefFailed,
       }),

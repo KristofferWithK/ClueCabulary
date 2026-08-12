@@ -8,6 +8,7 @@ export function StatsScreen() {
   const goTo = useUi((s) => s.goTo)
   const openSheet = useUi((s) => s.openSheet)
   const stats = useSrs((s) => s.stats)
+  const games = useSrs((s) => s.games)
 
   const entries = Object.entries(stats)
   const boxCounts = [0, 0, 0, 0, 0]
@@ -35,6 +36,21 @@ export function StatsScreen() {
         <strong>{entries.length}</strong> of {WORDS.length} words met ·{' '}
         <strong>{boxCounts[3]! + boxCounts[4]!}</strong> known well
       </p>
+
+      {games.played > 0 && (
+        <p className="stats-games">
+          <span>
+            <strong>{games.played}</strong> played
+          </span>
+          <span>
+            <strong>{games.won}</strong> won
+            {games.redeemed > 0 ? ` (${games.redeemed} 🔥)` : ''}
+          </span>
+          <span>
+            <strong>{games.lost}</strong> lost
+          </span>
+        </p>
+      )}
 
       <section className="settings-section">
         <h3>Learning boxes</h3>

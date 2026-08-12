@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AiError, testConnection } from '../../ai/client'
 import { useGame } from '../../stores/gameStore'
+import { useJourney } from '../../stores/journeyStore'
 import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
@@ -9,6 +10,7 @@ export function SettingsScreen() {
   const goTo = useUi((s) => s.goTo)
   const settings = useSettings()
   const resetSrs = useSrs((s) => s.reset)
+  const resetJourney = useJourney((s) => s.reset)
   const abandonGame = useGame((s) => s.abandonGame)
   const [test, setTest] = useState<'idle' | 'testing' | 'ok' | string>('idle')
 
@@ -104,8 +106,15 @@ export function SettingsScreen() {
         <button
           className="btn btn-danger"
           onClick={() => {
-            if (window.confirm('Reset all learning progress and the current game?')) {
+            // The journey must reset with the words: gates passed against zero
+            // collected words would be a broken state.
+            if (
+              window.confirm(
+                'Reset all learning progress, your journey through Denmark, and the current game?',
+              )
+            ) {
               resetSrs()
+              resetJourney()
               abandonGame()
             }
           }}

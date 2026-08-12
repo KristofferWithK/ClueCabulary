@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type Screen = 'home' | 'game' | 'settings' | 'stats'
+export type Screen = 'home' | 'game' | 'settings' | 'stats' | 'map' | 'gate'
 
 interface UiState {
   screen: Screen
@@ -10,7 +10,10 @@ interface UiState {
   /** Fixed board seed from the ?seed= URL param (dev/e2e). */
   pendingSeed: number | null
   howToOpen: boolean
+  /** Which travel exam is open, when screen === 'gate'. */
+  gateIndex: number | null
   goTo: (screen: Screen) => void
+  openGate: (gateIndex: number) => void
   openSheet: (wordId: string) => void
   closeSheet: () => void
   toggleTranslations: () => void
@@ -21,18 +24,45 @@ interface UiState {
 
 const HOWTO_KEY = 'cluecab-howto-v1'
 
-export const useUi = create<UiState>((set) => ({
+/**
+ * Each screen/overlay pushes a history entry so the Android back gesture (and
+ * browser back) closes the sheet or returns home instead of quitting the
+ * installed PWA. App.tsx handles popstate.
+ */
+const pushHistory = () => {
+  try {
+    history.pushState({ cluecab: true }, '')
+  } catch {
+    // History can be unavailable in exotic embeds — navigation still works.
+  }
+}
+
+export const useUi = create<UiState>((set, get) => ({
   screen: 'home',
   sheetWordId: null,
   translationsOn: false,
   pendingSeed: null,
   howToOpen: false,
-  goTo: (screen) => set({ screen, sheetWordId: null }),
-  openSheet: (wordId) => set({ sheetWordId: wordId }),
+  gateIndex: null,
+  goTo: (screen) => {
+    if (screen !== 'home' && screen !== get().screen) pushHistory()
+    set({ screen, sheetWordId: null, gateIndex: screen === 'gate' ? get().gateIndex : null })
+  },
+  openGate: (gateIndex) => {
+    if (get().screen !== 'gate') pushHistory()
+    set({ screen: 'gate', gateIndex, sheetWordId: null })
+  },
+  openSheet: (wordId) => {
+    if (!get().sheetWordId) pushHistory()
+    set({ sheetWordId: wordId })
+  },
   closeSheet: () => set({ sheetWordId: null }),
   toggleTranslations: () => set((s) => ({ translationsOn: !s.translationsOn })),
   resetTranslations: () => set({ translationsOn: false }),
-  openHowTo: () => set({ howToOpen: true }),
+  openHowTo: () => {
+    if (!get().howToOpen) pushHistory()
+    set({ howToOpen: true })
+  },
   closeHowTo: () => {
     localStorage.setItem(HOWTO_KEY, 'seen')
     set({ howToOpen: false })
