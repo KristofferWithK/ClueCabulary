@@ -19,7 +19,7 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 const journeyState = () =>
-  page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-journey-v1') ?? '{}').state)
+  page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state)
 
 /** The exam's words, in order, read from the rendered rows. */
 const examWords = () => page.locator('.gate-list .gate-da').allTextContents()
@@ -33,16 +33,16 @@ try {
   await page.screenshot({ path: `${SHOT_DIR}/j1-home-start.png` })
 
   // Jump to a city with four gates behind us and every word collected.
-  await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=100&gates=4`)
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&learned=100&stamps=4`)
   await page.waitForSelector('.city-card')
   const collected = await page.locator('.collect-count').textContent()
   console.log('progress:', collected?.replace(/\s+/g, ' ').trim())
-  if (!collected?.includes('100')) throw new Error('collected count did not reach 100')
+  if (!collected?.includes('100')) throw new Error('learned count did not reach 100')
   await page.screenshot({ path: `${SHOT_DIR}/j2-home-ready.png` })
 
-  // The fifth exam is offered; the other four read as passed.
-  const passedPips = await page.locator('.gate-pip.gate-passed').count()
-  if (passedPips !== 4) throw new Error(`expected 4 passed pips, saw ${passedPips}`)
+  // Four stamps already in the passport; the fifth exam is offered.
+  const earned = await page.locator('.stamp.stamp-earned').count()
+  if (earned !== 4) throw new Error(`expected 4 stamps, saw ${earned}`)
   await page.click('.btn-gate')
   await page.waitForSelector('.gate-list')
   const words = await examWords()

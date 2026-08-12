@@ -16,8 +16,8 @@ import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { WORDS } from '../data/words'
-import { studyPhaseEnabled, unlockedWords } from '../journey/progress'
-import { collectedSet, useJourney } from './journeyStore'
+import { isLearned, studyPhaseEnabled, unlockedWords } from '../journey/progress'
+import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
 import { useSrs } from './srsStore'
@@ -124,14 +124,14 @@ export const useGame = create<GameStore>()(
         // greens (so the player has to recall them), well-known ones become the
         // forbidden hazards. The daily challenge stays an unbiased shared board.
         const srsStats = useSrs.getState().stats
-        const collectedIds = collectedSet(useJourney.getState().collectedAt)
+        const banked = useJourney.getState().banked
         const bias = opts?.dailyKey
           ? undefined
           : {
               need: Object.fromEntries(
                 entries.map((w) => [
                   w.id,
-                  practiceNeed(srsStats[w.id], collectedIds.has(w.id), Date.now()),
+                  practiceNeed(srsStats[w.id], isLearned(srsStats[w.id], w.id in banked), Date.now()),
                 ]),
               ),
             }
@@ -349,8 +349,6 @@ export const useGame = create<GameStore>()(
         const finishedAt = Date.now()
         useSrs.getState().recordRound(results, finishedAt)
         useSrs.getState().recordGame(game.outcome!)
-        // Latch anything newly proven, so journey progress only ever grows.
-        useJourney.getState().syncCollected(useSrs.getState().stats, finishedAt)
         const { dailyKey } = get()
         if (dailyKey) {
           const outcome =

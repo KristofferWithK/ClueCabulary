@@ -11,12 +11,25 @@ export function studyPhaseEnabled(mode: StudyMode, cityIndex: number): boolean {
   return cityIndex < STUDY_UNTIL_CITY
 }
 
-export type GateStatus = 'locked' | 'ready' | 'passed'
+/** Successful handlings — clued or guessed — that turn a word green. */
+export const LEARN_REPS = 3
+
+/**
+ * A word's place in the collection:
+ * - `undiscovered` — never met
+ * - `discovered`   — seen on a board, not yet secure
+ * - `learned`      — handled LEARN_REPS times, or banked by passing an exam
+ */
+export type WordState = 'undiscovered' | 'discovered' | 'learned'
+
+/** Words banked by a passed travel exam: wordId -> when. Add-only. */
+export type BankedWords = Readonly<Record<string, number>>
 
 export interface JourneyState {
   cityIndex: number
-  /** cityIndex -> indices of gates already passed. */
-  gatesPassed: Record<number, number[]>
+  /** cityIndex -> travel stamps earned (0..GATES_PER_CITY). */
+  stamps: Record<number, number>
+  banked: Record<string, number>
 }
 
 /** Inclusive freqRank range owned by a city. City 0 holds ranks 1..100. */
@@ -38,107 +51,87 @@ export function unlockedWords(all: readonly WordEntry[], cityIndex: number): Wor
 }
 
 /**
- * Collected = proven in play: two correct guesses, or one if the word had
- * never been looked up at that moment.
- *
- * NOTE: the second clause is not monotonic on its own — looking a word up
- * later would revoke it. Never read this predicate directly for progress;
- * read the latch built by `mergeCollected`, which only ever adds.
+ * Both routes to green are monotonic — handling counts only rise and a banked
+ * word stays banked — so the collection can never regress on its own.
  */
-export function isCollected(stats: WordStats | undefined): boolean {
-  if (!stats) return false
-  if (stats.correctGuesses >= 2) return true
-  return stats.correctGuesses >= 1 && stats.lookups === 0
+export function wordState(stats: WordStats | undefined, banked: boolean): WordState {
+  if (banked) return 'learned'
+  if (!stats) return 'undiscovered'
+  return stats.correctGuesses >= LEARN_REPS ? 'learned' : 'discovered'
 }
 
-/** wordId -> the moment it was first collected. Add-only. */
-export type CollectedLatch = Record<string, number>
+export function isLearned(stats: WordStats | undefined, banked: boolean): boolean {
+  return wordState(stats, banked) === 'learned'
+}
+
+export interface CollectionCounts {
+  total: number
+  discovered: number // met but not yet learned
+  learned: number
+  undiscovered: number
+}
+
+export function countCollection(
+  words: readonly WordEntry[],
+  srs: SrsMap,
+  banked: BankedWords,
+): CollectionCounts {
+  let discovered = 0
+  let learned = 0
+  for (const w of words) {
+    const state = wordState(srs[w.id], w.id in banked)
+    if (state === 'learned') learned++
+    else if (state === 'discovered') discovered++
+  }
+  return {
+    total: words.length,
+    discovered,
+    learned,
+    undiscovered: words.length - discovered - learned,
+  }
+}
 
 /**
- * Fold the current SRS state into the latch. Returns the same object when
- * nothing changed, so stores can skip needless updates. Because entries are
- * only ever added, collection progress can never go backwards — and the first
- * call after upgrading credits everything the player had already proven.
+ * The travel exam is never locked: it always draws the player's strongest
+ * words in this city that no stamp has banked yet — most-handled first, then
+ * by frequency. Taking it early is allowed and simply harder, so the player is
+ * never stuck waiting for a particular word to come round.
  */
-export function mergeCollected(latch: Readonly<CollectedLatch>, srs: SrsMap, now: number): CollectedLatch {
-  let added = false
-  const next: CollectedLatch = { ...latch }
-  for (const [wordId, stats] of Object.entries(srs)) {
-    if (wordId in next) continue
-    if (isCollected(stats)) {
-      next[wordId] = now
-      added = true
-    }
-  }
-  return added ? next : (latch as CollectedLatch)
-}
-
-export function collectedCount(
-  words: readonly WordEntry[],
-  collected: ReadonlySet<string>,
-): number {
-  return words.reduce((n, w) => n + (collected.has(w.id) ? 1 : 0), 0)
-}
-
-/** The 20 words of one gate: wave G is the G-th slice of the city's band. */
-export function waveWords(
+export function examWords(
   all: readonly WordEntry[],
+  srs: SrsMap,
+  banked: BankedWords,
   cityIndex: number,
-  gateIndex: number,
 ): WordEntry[] {
-  if (gateIndex < 0 || gateIndex >= GATES_PER_CITY) {
-    throw new Error(`gate ${gateIndex} out of range`)
-  }
-  const start = gateIndex * GATE_SIZE
-  return wordsForCity(all, cityIndex).slice(start, start + GATE_SIZE)
+  return wordsForCity(all, cityIndex)
+    .filter((w) => !(w.id in banked))
+    .map((w) => ({ w, handled: srs[w.id]?.correctGuesses ?? 0 }))
+    .sort((a, b) => b.handled - a.handled || a.w.freqRank - b.w.freqRank)
+    .slice(0, GATE_SIZE)
+    .map((x) => x.w)
 }
 
-export function isGatePassed(journey: JourneyState, cityIndex: number, gateIndex: number): boolean {
-  return (journey.gatesPassed[cityIndex] ?? []).includes(gateIndex)
-}
-
-/** A gate opens once every word in its wave has been collected. */
-export function gateStatus(
+/** How many of the next exam's words are already green — the readiness hint. */
+export function examReadiness(
   all: readonly WordEntry[],
-  collected: ReadonlySet<string>,
-  journey: JourneyState,
+  srs: SrsMap,
+  banked: BankedWords,
   cityIndex: number,
-  gateIndex: number,
-): GateStatus {
-  if (isGatePassed(journey, cityIndex, gateIndex)) return 'passed'
-  const wave = waveWords(all, cityIndex, gateIndex)
-  return collectedCount(wave, collected) === wave.length ? 'ready' : 'locked'
+): { ready: number; total: number } {
+  const words = examWords(all, srs, banked, cityIndex)
+  const ready = words.filter((w) => isLearned(srs[w.id], w.id in banked)).length
+  return { ready, total: words.length }
 }
 
-export function cityGateStatuses(
-  all: readonly WordEntry[],
-  collected: ReadonlySet<string>,
-  journey: JourneyState,
-  cityIndex: number,
-): GateStatus[] {
-  return Array.from({ length: GATES_PER_CITY }, (_, g) =>
-    gateStatus(all, collected, journey, cityIndex, g),
-  )
+export function stampsFor(journey: JourneyState, cityIndex: number): number {
+  return journey.stamps[cityIndex] ?? 0
 }
 
-/** Travel unlocks when every gate of the current city has been passed. */
+/** A full passport page opens the road onward. */
 export function canTravel(journey: JourneyState, cityIndex: number): boolean {
-  const passed = journey.gatesPassed[cityIndex] ?? []
-  return Array.from({ length: GATES_PER_CITY }, (_, g) => g).every((g) => passed.includes(g))
+  return stampsFor(journey, cityIndex) >= GATES_PER_CITY
 }
 
 export function isJourneyComplete(journey: JourneyState): boolean {
   return journey.cityIndex >= CITIES.length - 1 && canTravel(journey, CITIES.length - 1)
-}
-
-/** The next wave still being collected — what boards should focus on. */
-export function currentGateIndex(
-  all: readonly WordEntry[],
-  collected: ReadonlySet<string>,
-  journey: JourneyState,
-  cityIndex: number,
-): number {
-  const statuses = cityGateStatuses(all, collected, journey, cityIndex)
-  const next = statuses.findIndex((s) => s !== 'passed')
-  return next === -1 ? GATES_PER_CITY - 1 : next
 }

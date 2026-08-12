@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { WORDS } from './data/words'
 import { GATES_PER_CITY } from './journey/cities'
-import { wordsForCity } from './journey/progress'
+import { LEARN_REPS, wordsForCity } from './journey/progress'
 import { useJourney } from './stores/journeyStore'
 import { useSettings } from './stores/settingsStore'
 import { useSrs } from './stores/srsStore'
@@ -12,8 +12,8 @@ import { GameScreen } from './ui/screens/GameScreen'
 import { GateExamScreen } from './ui/screens/GateExamScreen'
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { MapScreen } from './ui/screens/MapScreen'
+import { CollectionScreen } from './ui/screens/CollectionScreen'
 import { SettingsScreen } from './ui/screens/SettingsScreen'
-import { StatsScreen } from './ui/screens/StatsScreen'
 
 export default function App() {
   const screen = useUi((s) => s.screen)
@@ -35,16 +35,17 @@ export default function App() {
     if (city && /^\d$/.test(city)) useJourney.setState({ cityIndex: Number(city) })
     const cityIndex = useJourney.getState().cityIndex
 
-    const collected = params.get('collected')
-    if (collected && /^\d{1,3}$/.test(collected)) {
+    // ?learned=K marks the first K words of the city as green.
+    const learned = params.get('learned') ?? params.get('collected')
+    if (learned && /^\d{1,3}$/.test(learned)) {
       const now = Date.now()
       const stats = { ...useSrs.getState().stats }
-      for (const w of wordsForCity(WORDS, cityIndex).slice(0, Number(collected))) {
+      for (const w of wordsForCity(WORDS, cityIndex).slice(0, Number(learned))) {
         stats[w.id] = {
-          box: 2,
+          box: 3,
           lastSeenAt: now,
-          seen: 2,
-          correctGuesses: 2,
+          seen: 3,
+          correctGuesses: LEARN_REPS,
           misses: 0,
           lookups: 0,
           redemptionRight: 0,
@@ -54,15 +55,11 @@ export default function App() {
       useSrs.setState({ stats })
     }
 
-    const gates = params.get('gates')
-    if (gates && /^\d$/.test(gates)) {
-      const passed = Array.from({ length: Math.min(Number(gates), GATES_PER_CITY) }, (_, i) => i)
-      useJourney.setState((s) => ({ gatesPassed: { ...s.gatesPassed, [cityIndex]: passed } }))
+    const stamps = params.get('stamps')
+    if (stamps && /^\d$/.test(stamps)) {
+      const earned = Math.min(Number(stamps), GATES_PER_CITY)
+      useJourney.setState((s) => ({ stamps: { ...s.stamps, [cityIndex]: earned } }))
     }
-
-    // Credit everything already proven — including progress made before the
-    // journey existed — into the add-only collection latch.
-    useJourney.getState().syncCollected(useSrs.getState().stats, Date.now())
   }, [])
 
   // Android back gesture / browser back: close the top-most layer, then fall
@@ -87,7 +84,7 @@ export default function App() {
       {screen === 'home' && <HomeScreen />}
       {screen === 'game' && <GameScreen />}
       {screen === 'settings' && <SettingsScreen />}
-      {screen === 'stats' && <StatsScreen />}
+      {screen === 'stats' && <CollectionScreen />}
       {screen === 'map' && <MapScreen />}
       {screen === 'gate' && <GateExamScreen />}
       <DictionarySheet />
