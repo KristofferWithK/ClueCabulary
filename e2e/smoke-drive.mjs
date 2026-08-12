@@ -33,6 +33,22 @@ try {
   const cards = await page.locator('.word-card .card-da').allTextContents()
   console.log('BOARD:', cards.join(', '))
 
+  // Early cities open with the whole board translated; read it, then begin.
+  const study = page.locator('.study-dock .btn-primary')
+  if (await study.isVisible().catch(() => false)) {
+    const glosses = await page.locator('.word-card .card-en').count()
+    if (glosses !== cards.length) {
+      throw new Error(`study phase showed ${glosses} of ${cards.length} translations`)
+    }
+    console.log(`study phase: all ${glosses} translations shown`)
+    await page.screenshot({ path: `${SHOT_DIR}/02b-study.png` })
+    await study.click()
+    // Translations must hide again once the round starts.
+    if ((await page.locator('.word-card .card-en').count()) !== 0) {
+      throw new Error('translations stayed visible after the study phase')
+    }
+  }
+
   // Player clue round
   await page.fill('.clue-input input', 'huskeliste')
   await page.click('.clue-input .btn-primary')

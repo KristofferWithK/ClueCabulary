@@ -1,6 +1,15 @@
 import type { WordEntry } from '../data/types'
 import type { SrsMap, WordStats } from '../srs/types'
-import { CITIES, GATES_PER_CITY, GATE_SIZE, WORDS_PER_CITY } from './cities'
+import { CITIES, GATES_PER_CITY, GATE_SIZE, STUDY_UNTIL_CITY, WORDS_PER_CITY } from './cities'
+
+export type StudyMode = 'auto' | 'always' | 'never'
+
+/** Whether a round should open with the whole board translated. */
+export function studyPhaseEnabled(mode: StudyMode, cityIndex: number): boolean {
+  if (mode === 'always') return true
+  if (mode === 'never') return false
+  return cityIndex < STUDY_UNTIL_CITY
+}
 
 export type GateStatus = 'locked' | 'ready' | 'passed'
 

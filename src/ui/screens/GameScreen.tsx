@@ -22,6 +22,7 @@ const PHASE_CAPTION: Record<GameState['phase'], string> = {
 
 export function GameScreen() {
   const game = useGame((s) => s.game)
+  const studying = useGame((s) => s.studying)
   const { error, aiBusy, planForClueIndex, selectedWordId, clearError } = useGame()
   const { translationsOn, toggleTranslations, goTo } = useUi()
   const openDictionary = useOpenDictionary()
@@ -29,7 +30,7 @@ export function GameScreen() {
   // Drive the AI side of the loop off the game phase. Guards inside the store
   // actions make this safe under StrictMode double-invocation and reloads.
   useEffect(() => {
-    if (!game) return
+    if (!game || studying) return // nobody plays until the board has been read
     const s = useGame.getState()
     if (
       game.phase === 'aiGuessing' &&
@@ -41,7 +42,7 @@ export function GameScreen() {
     }
     if (game.phase === 'aiClueInput' && !s.aiBusy && !s.error) void s.runAiClue()
     if (game.phase === 'finished' && !s.roundRecorded) s.finishRound()
-  }, [game, error, aiBusy, planForClueIndex])
+  }, [game, studying, error, aiBusy, planForClueIndex])
 
   useEffect(() => {
     if (!game) goTo('home')
@@ -84,7 +85,7 @@ export function GameScreen() {
         <button
           className={`icon-btn ${translationsOn ? 'icon-btn-active' : ''}`}
           aria-label="Toggle translations"
-          disabled={game.phase === 'redemption'}
+          disabled={game.phase === 'redemption' || studying}
           onClick={handleTranslationsToggle}
         >
           Aa
@@ -104,8 +105,8 @@ export function GameScreen() {
         <div className="board-area">
           <BoardGrid
             game={game}
-            translationsOn={translationsOn}
-            canGuess={game.phase === 'playerGuessing'}
+            translationsOn={translationsOn || studying}
+            canGuess={!studying && game.phase === 'playerGuessing'}
             selectedWordId={selectedWordId}
             onCardTap={(id) => useGame.getState().selectWord(id)}
             onInfoTap={openDictionary}
@@ -130,11 +131,28 @@ export function GameScreen() {
         </p>
       )}
 
-      {game.phase === 'playerClueInput' && (
+      {studying && (
+        <div className="dock study-dock">
+          <p className="dock-title">
+            <span lang="da">Lær ordene</span> — study the board
+          </p>
+          <p className="study-hint">
+            Every translation is shown. Once you start they hide, and you can tap a single word to
+            look it up.
+          </p>
+          <button className="btn btn-primary btn-big" onClick={() => useGame.getState().endStudy()}>
+            <span lang="da">Klar</span> — start the round
+          </button>
+        </div>
+      )}
+
+      {!studying && game.phase === 'playerClueInput' && (
         <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
       )}
-      {(game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && <AiTurnPanel game={game} />}
-      {game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
+      {!studying && (game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
+        <AiTurnPanel game={game} />
+      )}
+      {!studying && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
       {game.phase === 'redemption' && (
         <RedemptionView game={game} onSubmit={(a) => useGame.getState().submitRedemption(a)} />
       )}

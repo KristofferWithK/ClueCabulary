@@ -16,7 +16,7 @@ import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { WORDS } from '../data/words'
-import { unlockedWords } from '../journey/progress'
+import { studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { collectedSet, useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
@@ -39,6 +39,8 @@ interface GameStore {
   roundRecorded: boolean
   /** Non-null while playing (or having finished) a daily challenge. */
   dailyKey: string | null
+  /** Opening study phase: the whole board shown translated, before play. */
+  studying: boolean
   debrief: DebriefResponse | null
   debriefFailed: boolean
   // Transient (not persisted):
@@ -52,6 +54,7 @@ interface GameStore {
   selectedWordId: string | null
 
   newGame: (opts?: NewGameOptions) => void
+  endStudy: () => void
   abandonGame: () => void
   submitPlayerClue: (text: string, number: number) => void
   selectWord: (wordId: string | null) => void
@@ -88,6 +91,7 @@ export const useGame = create<GameStore>()(
       lookedUp: [],
       roundRecorded: false,
       dailyKey: null,
+      studying: false,
       debrief: null,
       debriefFailed: false,
       aiBusy: false,
@@ -146,6 +150,9 @@ export const useGame = create<GameStore>()(
           lookedUp: [],
           roundRecorded: false,
           dailyKey: opts?.dailyKey ?? null,
+          // A deliberate preview is presentation, not a crutch, so it records
+          // no lookups — the clean-guess credit survives it.
+          studying: studyPhaseEnabled(settings.studyPhase, useJourney.getState().cityIndex),
           debrief: null,
           debriefFailed: false,
           aiGuessQueue: [],
@@ -157,6 +164,8 @@ export const useGame = create<GameStore>()(
         })
       },
 
+      endStudy: () => set({ studying: false }),
+
       abandonGame: () => {
         useUi.getState().resetTranslations()
         set({
@@ -164,6 +173,7 @@ export const useGame = create<GameStore>()(
           lookedUp: [],
           roundRecorded: false,
           dailyKey: null,
+          studying: false,
           debrief: null,
           debriefFailed: false,
           aiGuessQueue: [],
@@ -365,6 +375,7 @@ export const useGame = create<GameStore>()(
         lookedUp: s.lookedUp,
         roundRecorded: s.roundRecorded,
         dailyKey: s.dailyKey,
+        studying: s.studying,
         debrief: s.debrief,
         debriefFailed: s.debriefFailed,
       }),

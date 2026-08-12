@@ -3,7 +3,7 @@ import { WORDS } from '../data/words'
 import type { WordEntry } from '../data/types'
 import { applyRoundResults, newStats } from '../srs/scheduler'
 import type { SrsMap, WordStats } from '../srs/types'
-import { CITIES, GATES_PER_CITY, GATE_SIZE, WORDS_PER_CITY } from './cities'
+import { CITIES, GATES_PER_CITY, GATE_SIZE, STUDY_UNTIL_CITY, WORDS_PER_CITY } from './cities'
 import {
   canTravel,
   cityBand,
@@ -14,6 +14,7 @@ import {
   isCollected,
   isJourneyComplete,
   mergeCollected,
+  studyPhaseEnabled,
   unlockedWords,
   waveWords,
   wordsForCity,
@@ -229,6 +230,22 @@ describe('mergeCollected — the monotonic latch', () => {
       size = Object.keys(latch).length
     }
     expect(size).toBeGreaterThan(0)
+  })
+})
+
+describe('studyPhaseEnabled', () => {
+  it('auto: scaffolds the first five stops, then withdraws', () => {
+    for (let city = 0; city < CITIES.length; city++) {
+      expect(studyPhaseEnabled('auto', city)).toBe(city < STUDY_UNTIL_CITY)
+    }
+    // The scaffold is gone by the time the journey turns north.
+    expect(studyPhaseEnabled('auto', 5)).toBe(false)
+    expect(studyPhaseEnabled('auto', CITIES.length - 1)).toBe(false)
+  })
+
+  it('the setting overrides the ramp in both directions', () => {
+    expect(studyPhaseEnabled('always', CITIES.length - 1)).toBe(true)
+    expect(studyPhaseEnabled('never', 0)).toBe(false)
   })
 })
 

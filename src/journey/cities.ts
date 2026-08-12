@@ -115,6 +115,13 @@ export const CITIES: City[] = [
 
 export const FINAL_CITY_INDEX = CITIES.length - 1
 
+/**
+ * The study phase (whole board shown with translations before the round) is a
+ * beginner's scaffold. It fades once the journey turns north at Aalborg —
+ * by then the player has met 500 words and should be recalling, not reading.
+ */
+export const STUDY_UNTIL_CITY = 5
+
 export function cityAt(index: number): City {
   const city = CITIES[index]
   if (!city) throw new Error(`no city at index ${index}`)
