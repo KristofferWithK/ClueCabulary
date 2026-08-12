@@ -1747,6 +1747,16 @@ select:focus {
   display: flex;
   align-items: center;
   gap: 12px;
+  /* Installed on a phone there is no browser chrome, so a scrolled page draws
+     straight under the status bar — the back button and the title end up
+     behind the clock. Pin the header and give it its own inset and an opaque
+     background, so it covers the content instead of the clock covering it. */
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg);
+  margin: calc(-1 * env(safe-area-inset-top)) -16px 0;
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
 }
 
 .screen-header h1 {
@@ -2492,4 +2502,18 @@ select:focus {
 
 .connect-klaus a {
   color: var(--blue);
+}
+
+.build-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.build-note {
+  flex-basis: 100%;
+  line-height: 1.4;
 }

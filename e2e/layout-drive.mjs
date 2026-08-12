@@ -99,6 +99,42 @@ await page.locator('.btn-quiet').click()
 await page.waitForTimeout(250)
 check('abandoning it clears the lock', (await page.locator('.exam-resume').count()) === 0)
 
+// Installed, there is no browser chrome above the page, so a scrolled screen
+// used to draw its own title under the phone's clock.
+await open('?mock=1&howto=0&city=0')
+await page.locator('.home-screen .btn').last().click()
+await page.waitForSelector('.settings-screen')
+const headerTop = async () => (await page.locator('.screen-header').boundingBox()).y
+const atRest = await headerTop()
+await page.evaluate(() => window.scrollTo(0, 600))
+await page.waitForTimeout(250)
+const scrolled = await headerTop()
+check(
+  'the settings header stays put when the page scrolls',
+  scrolled <= atRest + 0.5 && scrolled >= -0.5,
+  `${atRest.toFixed(0)}px at rest, ${scrolled.toFixed(0)}px scrolled`,
+)
+const opaque = await page
+  .locator('.screen-header')
+  .evaluate((el) => getComputedStyle(el).backgroundColor)
+check('and is opaque, so content passes behind it', !/rgba\(0, 0, 0, 0\)|transparent/.test(opaque), opaque)
+await page.goBack()
+await page.waitForTimeout(250)
+
+// A screenshot of Settings has to say which build it is, or "have you got the
+// update yet?" cannot be answered.
+await open('?mock=1&howto=0&city=0')
+await page.locator('.home-screen .btn').last().click()
+await page.waitForSelector('.settings-screen')
+const stamp = (await page.locator('.build-footer').innerText()).trim()
+check('Settings names the build', /Build \S+/.test(stamp), stamp.split('\n')[0])
+check(
+  'and offers a way to go and fetch a newer one',
+  (await page.getByRole('button', { name: /check for updates/i }).count()) === 1,
+)
+await page.goBack()
+await page.waitForTimeout(250)
+
 // The ⓘ must not be drawn over the word it belongs to, or it steals taps meant
 // for a guess.
 await open('?mock=1&howto=0&seed=7&city=0')

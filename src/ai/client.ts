@@ -83,6 +83,13 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
   // proxy may hold the key itself as a server-side secret — which is the setup
   // the deploy guide recommends, because it keeps the key off the phone
   // entirely. Guessing "no key means broken" would break that.
+  if (!settings.model.trim()) {
+    // Sent empty, this comes back a 404 and reads as a broken endpoint.
+    throw new AiError(
+      'not-found',
+      `No model chosen. Set one in Settings — “List models this server accepts” fills it in, and the usual default is ${DEFAULT_MODEL}.`,
+    )
+  }
   if (!settings.apiKey.trim() && endpoint.hostname === 'ollama.com') {
     throw new AiError(
       'auth',
