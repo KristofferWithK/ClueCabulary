@@ -2,20 +2,20 @@
 // rules, and stays re-readable; and each city's champion sets the exam, reacts
 // to it, and sees you off.
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
 const PORT = 4185
-const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
-  cwd: '/home/user/ClueCabulary',
-  stdio: 'ignore',
-})
-await sleep(2500)
+const preview = await startPreview(PORT)
 
-const BASE = `http://127.0.0.1:${PORT}/ClueCabulary/`
+const BASE = preview.base
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  // Lets one context pretend to be a deployed origin: every drive so far has
+  // run on 127.0.0.1, which the app treats as local, so anything gated on
+  // "is this a real deployment" was never exercised.
+  args: [`--host-resolver-rules=MAP deployed.test 127.0.0.1`],
 })
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })
 const page = await ctx.newPage()
@@ -167,6 +167,30 @@ try {
   if (!(await page.locator('.journey-done').count())) throw new Error('no completion state on home')
   console.log('and lands home complete')
 
+  // On a deployed origin the dev switches are off. The first-run intro must
+  // not be off with them — it used to sit inside the same guard, so the letter
+  // and the rules never opened on the live site while this drive stayed green.
+  const deployed = await browser.newContext({ viewport: { width: 390, height: 844 } })
+  const dp = await deployed.newPage()
+  dp.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
+  await dp.goto(`http://deployed.test:${PORT}/ClueCabulary/?city=4&learned=50`)
+  await dp.waitForSelector('.letter', { timeout: 10000 })
+  console.log('the letter opens on a deployed origin too')
+  await dp.locator('.letter-go').click()
+  await dp.waitForSelector('.howto', { timeout: 5000 })
+  await dp.locator('.howto .btn-primary').click()
+  await dp.waitForSelector('.city-card')
+  const city = await dp.locator('.city-eyebrow').textContent()
+  if (!/Stop 1 of/.test(city)) {
+    throw new Error(`?city=4 was honoured on a deployed origin: ${city.trim()}`)
+  }
+  const collected = await dp.locator('.collect-count').textContent()
+  if (!/^0 /.test(collected.trim())) {
+    throw new Error(`?learned=50 was honoured on a deployed origin: ${collected.trim()}`)
+  }
+  console.log('and the collection-rewriting switches are not')
+  await deployed.close()
+
   console.log('STORY DRIVE OK')
 } catch (e) {
   await page.screenshot({ path: `${SHOT_DIR}/s9-failure.png` }).catch(() => {})
@@ -174,5 +198,5 @@ try {
   process.exitCode = 1
 } finally {
   await browser.close()
-  preview.kill()
+  preview.stop()
 }

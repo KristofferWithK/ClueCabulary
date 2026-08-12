@@ -14,7 +14,6 @@ const CHECK_EVERY_MS = 60 * 60 * 1000
  */
 export function UpdateBanner() {
   const [dismissed, setDismissed] = useState(false)
-  const [offlineSeen, setOfflineSeen] = useState(false)
 
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -37,13 +36,14 @@ export function UpdateBanner() {
     },
   })
 
-  // "You can play this on the plane" is worth saying once, and only once.
+  // "You can play this on the plane" is worth saying once, and briefly. This
+  // used to set its own state as its first act, which re-ran the effect and
+  // cleared the very timeout meant to hide the notice — so it never went away.
   useEffect(() => {
-    if (!offlineReady || offlineSeen) return
-    setOfflineSeen(true)
+    if (!offlineReady) return
     const t = setTimeout(() => setOfflineReady(false), 6000)
     return () => clearTimeout(t)
-  }, [offlineReady, offlineSeen, setOfflineReady])
+  }, [offlineReady, setOfflineReady])
 
   // Never interrupt a round in progress or an exam being sat — both are states
   // a reload would spoil, and the update will still be there afterwards.

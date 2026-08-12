@@ -24,6 +24,7 @@ export function GameScreen() {
   const game = useGame((s) => s.game)
   const studying = useGame((s) => s.studying)
   const { error, aiBusy, planForClueIndex, selectedWordId, clearError } = useGame()
+  const lastAiGuess = useGame((s) => s.lastAiGuess)
   const { translationsOn, toggleTranslations, goTo } = useUi()
   const openDictionary = useOpenDictionary()
 
@@ -51,7 +52,6 @@ export function GameScreen() {
 
   const showBoard = game.phase !== 'redemption' && game.phase !== 'finished'
 
-  const lastAiGuess = useGame((s) => s.lastAiGuess)
   const announcement = (() => {
     if (game.phase === 'aiGuessing' && lastAiGuess) {
       const word = game.words.find((w) => w.wordId === lastAiGuess.wordId)

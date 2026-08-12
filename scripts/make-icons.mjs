@@ -51,9 +51,16 @@ const inRoundedRect = (x, y, x0, y0, w, h, r) => {
   return (x - cx) ** 2 + (y - cy) ** 2 <= r * r || (x >= x0 + r && x < x0 + w - r) || (y >= y0 + r && y < y0 + h - r)
 }
 
-function iconPixel(size) {
+/**
+ * @param size    pixel dimension
+ * @param margin  fraction of the size to leave clear around the grid. A
+ *                maskable icon may be cropped to a circle of 40% radius, so
+ *                the artwork has to sit inside that or Android shears the
+ *                corner tiles off. The plain icon can afford a tighter frame.
+ */
+function iconPixel(size, margin = 0.14) {
   // 2×2 tile grid with margins, one teal (green/target) and one red (forbidden).
-  const m = size * 0.14 // outer margin
+  const m = size * margin // outer margin
   const gap = size * 0.06
   const tile = (size - 2 * m - gap) / 2
   const r = tile * 0.22
@@ -78,3 +85,9 @@ for (const size of [192, 512]) {
   writeFileSync(new URL(`icon-${size}.png`, OUT_DIR), png(size, iconPixel(size)))
   console.log(`public/icons/icon-${size}.png`)
 }
+
+// The manifest used to point `purpose: 'maskable'` at the plain icon, whose
+// grid runs to within 14% of the edge — outside the safe zone, so a circular
+// mask clipped the corner tiles. This one keeps the grid well inside it.
+writeFileSync(new URL('icon-512-maskable.png', OUT_DIR), png(512, iconPixel(512, 0.28)))
+console.log('public/icons/icon-512-maskable.png')

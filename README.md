@@ -78,7 +78,15 @@ npm test               # engine, SRS, AI-layer and firewall tests
 npm run build          # typecheck + production build
 npm run validate:words # dataset sanity checks
 node scripts/make-map.mjs # regenerate the Denmark outline
+node scripts/make-story.mjs story/story.json  # regenerate champions.ts + letter.ts
+node scripts/make-icons.mjs                   # regenerate the PWA icons
 ```
+
+The narrative — the opening letter and the ten city champions — is authored in
+`story/story.json` and generated into `src/journey/letter.ts` and
+`src/journey/champions.ts`. The generator refuses a roster that would read
+badly: two champions sharing a name, a surname, a motif, a trade, or a first
+name that differs only by spellings Danish tolerates.
 
 Playwright drives run against the built app and each start their own preview
 server, so `npm run build` first:
@@ -91,6 +99,7 @@ node e2e/collection-drive.mjs # the Pokedex, a failed exam, a passed one
 node e2e/key-visible-drive.mjs # your own key is drawn on the board
 node e2e/backup-drive.mjs     # export, wipe, restore, merge without loss
 node e2e/update-drive.mjs     # a new service worker is noticed and applied
+node e2e/story-drive.mjs      # the letter opens, a champion sets the exam
 node e2e/nav-drive.mjs        # system Back peels one layer at a time
 node e2e/layout-drive.mjs     # fold, map labels, journey's end
 node e2e/offline-drive.mjs    # the dictionary works with the network off

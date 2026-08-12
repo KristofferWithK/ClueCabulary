@@ -13,7 +13,7 @@ export default defineConfig({
       // a round in progress, and it gave the player no way to know a new
       // version existed. UpdateBanner asks instead.
       registerType: 'prompt',
-      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png'],
       manifest: {
         name: 'ClueCabulary',
         short_name: 'ClueCabulary',
@@ -29,7 +29,9 @@ export default defineConfig({
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           {
-            src: 'icons/icon-512.png',
+            // Its own artwork: a maskable icon may be cropped to a circle, and
+            // the plain one's grid runs too close to the edge to survive it.
+            src: 'icons/icon-512-maskable.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
@@ -51,6 +53,14 @@ export default defineConfig({
       },
     }),
   ],
+  preview: {
+    // e2e/story-drive.mjs maps this name to the local server so one context can
+    // load the app as a non-local origin, where devSwitchesAllowed() is false.
+    // Without it the first-run intro's dependence on that guard was invisible:
+    // every drive ran on 127.0.0.1, which the app treats as local. `preview` is
+    // a dev-server option and no part of the built output.
+    allowedHosts: ['deployed.test'],
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],

@@ -1,17 +1,13 @@
 // The collection lives on one phone. This drives the whole way out and back:
 // export, wipe, restore, and prove a merge cannot cost you a green word.
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const PORT = 4176
-const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
-  cwd: '/home/user/ClueCabulary',
-  stdio: 'ignore',
-})
-await sleep(2500)
+const preview = await startPreview(PORT)
 
-const BASE = `http://127.0.0.1:${PORT}/ClueCabulary/`
+const BASE = preview.base
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
 })
@@ -116,5 +112,5 @@ try {
   process.exitCode = 1
 } finally {
   await browser.close()
-  preview.kill()
+  preview.stop()
 }

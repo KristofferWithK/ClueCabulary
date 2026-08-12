@@ -3,7 +3,7 @@ import type { WordEntry } from '../data/types'
 import { mulberry32 } from '../engine/rng'
 import { newStats } from './scheduler'
 import type { SrsMap } from './types'
-import { selectBoardWords } from './sampler'
+import { selectBoardWords, selectDailyWords } from './sampler'
 
 const NOW = 1_700_000_000_000
 const DAY = 24 * 60 * 60 * 1000
@@ -134,5 +134,45 @@ describe('selectBoardWords', () => {
       expect(board.length).toBe(OPTS.totalWords)
       expect(new Set(board.map((w) => w.id)).size).toBe(OPTS.totalWords)
     })
+  })
+})
+
+describe('selectDailyWords', () => {
+  // The daily challenge is sold on being the same board for everyone on the
+  // same date, drawn from the whole dataset rather than one player's history.
+  const all = makeDataset(400)
+
+  it('is the same board for the same seed, and a different one otherwise', () => {
+    const a = selectDailyWords(all, 20, mulberry32(20260812)).map((w) => w.id)
+    const b = selectDailyWords(all, 20, mulberry32(20260812)).map((w) => w.id)
+    const c = selectDailyWords(all, 20, mulberry32(20260813)).map((w) => w.id)
+    expect(a).toEqual(b)
+    expect(a).not.toEqual(c)
+  })
+
+  it('draws from the whole dataset, not the front of the ranking', () => {
+    let deepest = 0
+    for (let seed = 1; seed <= 40; seed++) {
+      for (const w of selectDailyWords(all, 20, mulberry32(seed))) {
+        deepest = Math.max(deepest, w.freqRank)
+      }
+    }
+    expect(deepest).toBeGreaterThan(200)
+  })
+
+  it('ignores the player entirely — no SRS argument exists to pass', () => {
+    expect(selectDailyWords.length).toBe(3)
+  })
+
+  it('fills a full board of distinct words', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      const board = selectDailyWords(all, 20, mulberry32(seed))
+      expect(board.length).toBe(20)
+      expect(new Set(board.map((w) => w.id)).size).toBe(20)
+    }
+  })
+
+  it('throws when the dataset is too small', () => {
+    expect(() => selectDailyWords(makeDataset(5), 20, mulberry32(1))).toThrow()
   })
 })

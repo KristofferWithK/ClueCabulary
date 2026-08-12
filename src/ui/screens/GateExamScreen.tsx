@@ -57,17 +57,21 @@ export function GateExamScreen() {
   const answers = exam.answers
   const answered = words.filter((w) => (answers[w.id] ?? '').trim().length > 0).length
 
+  // One marking, used for everything. It used to be graded twice — once here
+  // for the screen and once inside submit() for the stempel — and when the
+  // stricter rule landed only this copy got it, so a paper could be stamped by
+  // the lenient rule while the screen showed it failed.
+  const mark = (): Graded[] =>
+    words.map((w) => {
+      const given = answers[w.id] ?? ''
+      return { word: w, given, accepted: answerMatches(given, w.en, isKnownGloss) !== undefined }
+    })
+
   // Derived, not stored: a paper marked before a reload comes back marked,
   // because gradedAt is persisted with the answers. Without that, resuming a
   // passed exam would put the filled-in paper back on screen and submitting it
   // again would award a second stempel from one correct paper, endlessly.
-  const graded: Graded[] | null =
-    submitted || exam.gradedAt
-      ? words.map((w) => {
-          const given = answers[w.id] ?? ''
-          return { word: w, given, accepted: answerMatches(given, w.en, isKnownGloss) !== undefined }
-        })
-      : null
+  const graded: Graded[] | null = submitted || exam.gradedAt ? mark() : null
   // words.length guards a vacuous pass: [].every(...) is true, so a city with
   // nothing left unbanked would hand out a stempel for an empty sheet.
   const passed = graded !== null && graded.length > 0 && graded.every((g) => g.accepted)
@@ -79,10 +83,7 @@ export function GateExamScreen() {
 
   const submit = () => {
     if (exam.gradedAt) return
-    const results: Graded[] = words.map((w) => {
-      const given = answers[w.id] ?? ''
-      return { word: w, given, accepted: answerMatches(given, w.en) !== undefined }
-    })
+    const results = mark()
     setSubmitted(true)
 
     // Feed the schedule: misses demote, hits promote. Handling counts are

@@ -2,22 +2,17 @@
 // a new service worker, tells the player, holds its tongue mid-round, and
 // actually applies the update when asked.
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { readFile, writeFile } from 'node:fs/promises'
 
-const ROOT = '/home/user/ClueCabulary'
-const SW = `${ROOT}/dist/sw.js`
+const SW = new URL('../dist/sw.js', import.meta.url).pathname
 const PORT = 4184
+const preview = await startPreview(PORT)
 const original = await readFile(SW, 'utf8')
 
-const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
-  cwd: ROOT,
-  stdio: 'ignore',
-})
-await sleep(2500)
 
-const BASE = `http://127.0.0.1:${PORT}/ClueCabulary/`
+const BASE = preview.base
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
 })
@@ -116,5 +111,5 @@ try {
 } finally {
   await writeFile(SW, original)
   await browser.close()
-  preview.kill()
+  preview.stop()
 }

@@ -3,15 +3,13 @@
 // that is forbidden on the AI's key, taps it deliberately during the player's
 // guessing turn, then answers the translation challenge correctly.
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
+
+const PORT = 4174
+const preview = await startPreview(PORT)
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
-const preview = spawn('npx', ['vite', 'preview', '--port', '4174', '--strictPort'], {
-  cwd: new URL('..', import.meta.url).pathname,
-  stdio: 'ignore',
-})
-await sleep(1500)
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -23,7 +21,7 @@ const readGame = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.game)
 
 try {
-  await page.goto('http://localhost:4174/ClueCabulary/?mock=1&seed=11&howto=0')
+  await page.goto(preview.base + '?mock=1&seed=11&howto=0')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
   await page.click('.grid-card:first-child')
   await page.waitForSelector('.board-grid')
@@ -90,5 +88,5 @@ try {
   process.exitCode = 1
 } finally {
   await browser.close()
-  preview.kill()
+  preview.stop()
 }

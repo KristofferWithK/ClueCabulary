@@ -70,3 +70,47 @@ describe('short board words (≤3 letters) — general guards all skip them', ()
     expect(checkClueLegality(clueText, shortBoard).legal).toBe(legal)
   })
 })
+
+describe('compounds — the most-cheated clue rule in the game', () => {
+  const board = [
+    { wordId: 'w1', da: 'hund', en: ['dog'], pos: 'noun' as const },
+    { wordId: 'w2', da: 'vand', en: ['water'], pos: 'noun' as const },
+    { wordId: 'w3', da: 'barn', en: ['child'], pos: 'noun' as const },
+  ]
+
+  it.each([
+    ['hundehus', 'contains hund'],
+    ['jagthund', 'ends with hund'],
+    ['vandfald', 'contains vand'],
+    ['barnevogn', 'contains barn'],
+  ])('refuses "%s" (%s)', (clue) => {
+    expect(checkClueLegality(clue, board).legal).toBe(false)
+  })
+
+  it('refuses a compound built on the English gloss too, since it is on the card', () => {
+    expect(checkClueLegality('waterfall', board).legal).toBe(false)
+    expect(checkClueLegality('childhood', board).legal).toBe(false)
+  })
+
+  // Board words of three letters or fewer are exempt from substring
+  // containment on purpose — Danish compounds make it a bad test there, and
+  // the inflection check beside it is the targeted tool. Documented so the
+  // exemption is a decision rather than a gap.
+  it('does not apply containment to a three-letter board word', () => {
+    const short = [{ wordId: 's', da: 'hus', en: ['house'], pos: 'noun' as const }]
+    expect(checkClueLegality('husholdning', short).legal).toBe(true)
+    expect(checkClueLegality('huset', short).legal).toBe(false)
+  })
+
+  it('names the board word the player can see, not the hidden gloss', () => {
+    const verdict = checkClueLegality('waterfall', board)
+    expect(verdict.legal).toBe(false)
+    if (!verdict.legal) expect(verdict.conflictWord).toBe('vand')
+  })
+
+  it('still allows a clue that merely shares letters', () => {
+    for (const ok of ['kæledyr', 'flod', 'bolig']) {
+      expect(checkClueLegality(ok, board).legal).toBe(true)
+    }
+  })
+})

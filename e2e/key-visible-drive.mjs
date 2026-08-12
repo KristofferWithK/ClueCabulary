@@ -1,15 +1,13 @@
 // Guards the bug that made the game unplayable: your own key card must be
 // drawn on the board, or you cannot tell which words to clue.
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
+
+const PORT = 4178
+const preview = await startPreview(PORT)
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
-const preview = spawn('npx', ['vite', 'preview', '--port', '4178', '--strictPort'], {
-  cwd: new URL('..', import.meta.url).pathname,
-  stdio: 'ignore',
-})
-await sleep(1500)
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -18,7 +16,7 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
-  await page.goto('http://localhost:4178/ClueCabulary/?mock=1&seed=5&howto=0')
+  await page.goto(preview.base + '?mock=1&seed=5&howto=0')
   await page.waitForSelector('.city-card')
   await page.click('.btn-primary')
   await page.waitForSelector('.board-grid')
@@ -63,5 +61,5 @@ try {
   process.exitCode = 1
 } finally {
   await browser.close()
-  preview.kill()
+  preview.stop()
 }

@@ -41,6 +41,19 @@ export default function App() {
     if (useJourney.getState().activeExam?.gradedAt) useJourney.getState().endExam()
   }, [])
 
+  // The invitation comes before the rules: the letter opens, and closing it
+  // hands over to How to Play. Its own effect, because it must run for every
+  // player — it used to sit below the dev-switch guard in the effect beneath
+  // this one, which returns early on any deployed origin, so on the live site
+  // neither the letter nor the rules ever opened.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const skip = params.get('howto') === '0' || params.get('letter') === '0'
+    if (skip) return
+    if (shouldShowLetter()) useUi.getState().openLetter()
+    else if (shouldShowHowTo()) useUi.getState().openHowTo()
+  }, [])
+
   // Dev/e2e switches: ?mock=1 selects the offline companion, ?seed=N fixes the board.
   useEffect(() => {
     // These overwrite the collection — ?learned=100 rewrites a hundred word
@@ -54,12 +67,6 @@ export default function App() {
     if (seed && /^\d+$/.test(seed)) {
       useUi.setState({ pendingSeed: Number(seed) })
     }
-    // The invitation comes before the rules: the letter opens, and closing it
-    // hands over to How to Play. ?howto=0 skips both, for the drives.
-    const skipIntro = params.get('howto') === '0' || params.get('letter') === '0'
-    if (shouldShowLetter() && !skipIntro) useUi.getState().openLetter()
-    else if (shouldShowHowTo() && !skipIntro) useUi.getState().openHowTo()
-
     // Journey dev switches, so the travel screens can be driven in tests:
     // ?city=N jumps to a stop, ?collected=K collects K of its words,
     // ?gates=G marks G travel exams as already passed.

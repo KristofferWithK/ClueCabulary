@@ -1,16 +1,12 @@
 import { chromium } from 'playwright'
-import { spawn } from 'node:child_process'
+import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const PORT = 4181
-const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
-  cwd: '/home/user/ClueCabulary',
-  stdio: 'ignore',
-})
-await sleep(2500)
+const preview = await startPreview(PORT)
 
 const EXE = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'
-const ROOT = `http://127.0.0.1:${PORT}/ClueCabulary/`
+const ROOT = preview.base
 const SENTINEL = ROOT + '?sentinel=1'
 const APP = ROOT + '?mock=1&howto=0&city=2&learned=34'
 
@@ -19,6 +15,7 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
 const page = await ctx.newPage()
 const errors = []
 page.on('pageerror', (e) => errors.push(String(e)))
+page.on('console', (m) => m.type() === 'error' && console.log('CONSOLE:', m.text().slice(0, 300)))
 
 const fail = []
 const check = (name, ok, detail = '') => {
@@ -59,6 +56,7 @@ check('baseline: back leaves the app', onSentinel(), page.url())
 // 2. In-app Back must consume the entry that opening the screen pushed, so the
 //    next system Back leaves the app instead of being swallowed.
 await fresh()
+console.log('DEBUG url=', page.url(), 'body=', (await page.locator('body').innerText()).replace(/\s+/g,' ').slice(0,120))
 await page.locator('.map-button').click()
 await page.waitForTimeout(300)
 check('map opens', (await screen()) === 'map')
@@ -109,7 +107,23 @@ check('back then returns home', !onSentinel() && (await screen()) === 'home')
 await back()
 check('back then leaves the app', onSentinel(), page.url())
 
-// 6. Repeated open/close must not accumulate entries.
+// 6. Hopping screen to screen must not strand entries: going home used to pop
+//    one while each hop had pushed another.
+await fresh()
+await page.locator('.map-button').click()
+await page.waitForTimeout(250)
+await page.locator('.btn:has-text("Back")').click()
+await page.waitForTimeout(250)
+check('map to home via the in-page Back', (await screen()) === 'home')
+await page.locator('.btn:has-text("Samlingen")').click()
+await page.waitForTimeout(250)
+await page.locator('.collection-screen .icon-btn').click()
+await page.waitForTimeout(300)
+check('collection to home', (await screen()) === 'home')
+await back()
+check('two screens visited, no entries stranded', onSentinel(), page.url())
+
+// 6b. Repeated open/close must not accumulate entries.
 await fresh()
 for (let i = 0; i < 5; i++) {
   await page.locator('.map-button').click()
@@ -123,6 +137,6 @@ check('and leave no entries behind', onSentinel(), page.url())
 
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
-preview.kill()
+preview.stop()
 console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nNAV DRIVE OK')
 if (fail.length) process.exitCode = 1
