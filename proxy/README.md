@@ -1,10 +1,12 @@
-# The proxy is required. Here is why, and how to deploy it in five minutes.
+# The proxy, and how to deploy it from a phone
 
-**A browser cannot call `https://ollama.com` at all.** Not with a key, not with
-the right model name, not with any setting in the app. The cloud API answers
-the browser's CORS preflight with a **redirect**, and the fetch spec forbids
-redirects on preflight, so Chrome and Safari refuse before your real request is
-ever sent:
+**Try the app's Settings → Test connection first.** If Klaus answers, you do
+not need any of this.
+
+If it reports a CORS problem, this is why. A browser is reported to be unable
+to call `https://ollama.com` at all: the cloud API answers the browser's CORS
+preflight with a **redirect**, and the fetch spec forbids redirects on
+preflight, so Chrome and Safari refuse before your real request is sent —
 
 ```
 Access to fetch at 'https://ollama.com/...' has been blocked by CORS policy:
@@ -12,49 +14,58 @@ Response to preflight request doesn't pass access control check:
 Redirect is not allowed for a preflight request.
 ```
 
-That is a property of ollama.com, not of ClueCabulary. `curl` works fine —
-`curl` is not a browser and does not do preflights. This is the same wall
-[Open WebUI hit](https://github.com/open-webui/open-webui/issues/16412).
+That is a property of ollama.com, not of ClueCabulary, and no key or model name
+changes it. `curl` works fine — `curl` is not a browser and sends no preflight.
+Other projects have hit the same wall
+([Open WebUI](https://github.com/open-webui/open-webui/issues/16412)). Your own
+Test connection is what settles it for your phone.
 
 This worker is the fix. It answers the preflight **itself** — it never forwards
 an OPTIONS request, so there is no redirect to trip over — and adds the headers
 the browser needs to the real response.
 
-## Deploy
+## Deploy from a phone, with no terminal
 
-From this directory:
+`wrangler` is a command-line tool and there is no mobile equivalent — but
+everything it needs is a secret you can type into a web form, so this
+repository can deploy the worker for you.
+
+1. [Create a free Cloudflare account](https://dash.cloudflare.com) — no domain
+   needed.
+2. [Create an API token](https://dash.cloudflare.com/profile/api-tokens) using
+   the **Edit Cloudflare Workers** template. Your Account ID is on the
+   Workers & Pages overview page.
+3. In this repository: **Settings → Secrets and variables → Actions → New
+   repository secret**, three times — `CLOUDFLARE_API_TOKEN`,
+   `CLOUDFLARE_ACCOUNT_ID`, `OLLAMA_API_KEY`.
+4. **Actions → Deploy the AI proxy → Run workflow.**
+5. The run summary prints the exact address. Paste it into the app's
+   **Settings → Base URL** and leave the **API key** field empty — the worker
+   holds the key now, so it is off your phone entirely.
+6. Tap **List models this server accepts**, pick one, play.
+
+The key is uploaded as a Worker secret, stored encrypted at Cloudflare. It is
+never in this repository, never in the app bundle, never on the phone.
+`ALLOWED_ORIGIN` in [`wrangler.toml`](./wrangler.toml) locks the worker to the
+origin you play from, so nobody else can spend your subscription through it —
+change it if you serve the app from elsewhere.
+
+## Or, at a computer
 
 ```bash
+cd proxy
 npx wrangler login
 npx wrangler deploy
+npx wrangler secret put OLLAMA_API_KEY
 ```
 
-That prints a URL like `https://cluecabulary-proxy.<you>.workers.dev`.
+Same result; same Base URL to paste.
 
-**Put the key in the worker, not in the app:**
+Prefer to keep the key on the phone instead? Skip the secret and paste it into
+Settings. A key the app sends is used in preference to the worker's own, so
+both work; the secret is simply the safer default.
 
-```bash
-npx wrangler secret put OLLAMA_API_KEY     # paste the key
-```
-
-It is stored encrypted at Cloudflare. It is never in this repository, never in
-the app bundle, and never on your phone. Then lock the worker to the origin you
-play from, so nobody else can spend your subscription through it:
-
-```bash
-npx wrangler deploy --var ALLOWED_ORIGIN:https://<your-username>.github.io
-```
-
-Finally, in the app: **Settings → Base URL** → your worker URL **plus `/v1`**,
-e.g. `https://cluecabulary-proxy.<you>.workers.dev/v1`. Leave **API key**
-empty. Tap **List models this server accepts** — if names come back, you are
-done, and you can pick one rather than guessing.
-
-Prefer to keep the key on the phone instead? Skip the `secret put` step and
-paste it into Settings. A key the app sends is used in preference to the
-worker's own, so both work; the secret is simply the safer default.
-
-## No Cloudflare dashboard? Paste it by hand
+## Or, by hand in the Cloudflare dashboard
 
 1. Create a free account at https://dash.cloudflare.com (no domain needed).
 2. **Workers & Pages → Create → Worker**, name it, deploy the hello-world.

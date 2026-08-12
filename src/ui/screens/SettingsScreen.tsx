@@ -7,6 +7,7 @@ import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { BackupPanel } from '../components/BackupPanel'
+import { ConnectKlaus } from '../components/ConnectKlaus'
 
 export function SettingsScreen() {
   const goTo = useUi((s) => s.goTo)
@@ -69,6 +70,7 @@ export function SettingsScreen() {
 
       <section className="settings-section">
         <h3>AI companion</h3>
+        <ConnectKlaus verified={settings.klausVerifiedAt !== null} />
         <label className="field">
           <span>Ollama API key</span>
           <input
@@ -88,19 +90,9 @@ export function SettingsScreen() {
             onChange={(e) => settings.set({ baseUrl: e.target.value })}
           />
           <small>
-            <strong>ollama.com cannot be used directly from a phone.</strong> Its API answers the
-            browser's CORS preflight with a redirect, which browsers refuse — no key or model name
-            changes that. Deploy the bundled worker (five minutes, free Cloudflare account) and put
-            its URL plus <code>/v1</code> here. Put the key in the worker and you can leave the key
-            field above empty. See{' '}
-            <a
-              href="https://github.com/KristofferWithK/ClueCabulary/blob/main/proxy/README.md"
-              target="_blank"
-              rel="noreferrer"
-            >
-              the proxy guide
-            </a>
-            . Must start with https://, since your API key is sent to it.
+            Your proxy's address plus <code>/v1</code>, or{' '}
+            <code>https://ollama.com/v1</code> to try the cloud directly. Must start with
+            https://, since your API key is sent to it.
           </small>
           {baseUrlProblem && <p className="test-fail">{baseUrlProblem}</p>}
         </label>

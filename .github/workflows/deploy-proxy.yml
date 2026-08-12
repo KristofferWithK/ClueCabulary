@@ -1,0 +1,84 @@
+name: Deploy the AI proxy
+
+# Run this by hand from the Actions tab. It exists so the proxy can be deployed
+# from a phone: `wrangler` is a CLI and there is no mobile equivalent, but the
+# three things it needs are secrets you can type into a web form.
+#
+# One-time setup, all in a mobile browser:
+#   1. https://dash.cloudflare.com                      — free, no domain needed
+#   2. https://dash.cloudflare.com/profile/api-tokens   — Create Token, using
+#      the "Edit Cloudflare Workers" template. The Account ID is on the
+#      Workers & Pages overview page.
+#   3. Settings -> Secrets and variables -> Actions on this repository, add:
+#        CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, OLLAMA_API_KEY
+#
+# Then run this workflow. The summary prints the Base URL to paste into the
+# app. OLLAMA_API_KEY is uploaded as a Worker secret, so the key lives at
+# Cloudflare and never in this repository, the app bundle, or your phone.
+#
+# Deliberately not `on: push` — it needs secrets, and it would fail loudly for
+# anyone who cloned this repository without them.
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the secrets are present
+        # wrangler's own error for a missing token is not obvious on a phone.
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          KEY: ${{ secrets.OLLAMA_API_KEY }}
+        run: |
+          missing=""
+          [ -n "$TOKEN" ]   || missing="$missing CLOUDFLARE_API_TOKEN"
+          [ -n "$ACCOUNT" ] || missing="$missing CLOUDFLARE_ACCOUNT_ID"
+          [ -n "$KEY" ]     || missing="$missing OLLAMA_API_KEY"
+          if [ -n "$missing" ]; then
+            {
+              echo "### Missing repository secrets"
+              echo
+              echo "Add these under **Settings → Secrets and variables → Actions**, then run this again:"
+              for s in $missing; do echo "- \`$s\`"; done
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "missing secrets:$missing" >&2
+            exit 1
+          fi
+
+      - id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: proxy
+          # Newline-separated secret NAMES, each bound from env below. This is
+          # what puts the Ollama key on the worker rather than on the phone.
+          secrets: |
+            OLLAMA_API_KEY
+        env:
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+
+      - name: Say what to paste into the app
+        # The step summary is the readable surface on a phone; a job log is not.
+        run: |
+          url="${{ steps.deploy.outputs.deployment-url }}"
+          {
+            echo "### Klaus is deployed"
+            echo
+            if [ -n "$url" ]; then
+              echo "In the app: **Settings → Base URL**, paste this, and leave the API key field **empty**:"
+              echo
+              echo '```'
+              echo "${url%/}/v1"
+              echo '```'
+            else
+              echo "Deployed, but Cloudflare did not report a URL. Find the worker at"
+              echo "https://dash.cloudflare.com → Workers & Pages → cluecabulary-proxy,"
+              echo "and use its address plus \`/v1\`."
+            fi
+            echo
+            echo "Then tap **List models this server accepts** and pick one."
+          } >> "$GITHUB_STEP_SUMMARY"

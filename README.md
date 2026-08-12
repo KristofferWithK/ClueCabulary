@@ -57,26 +57,25 @@ or a wholesale replace. The file never contains your API key.
 ## Setup
 
 The app is a PWA — open the deployed page on your phone and "Add to Home
-Screen". To wake Klaus up you need the bundled proxy; there is no way around
-it. **A browser cannot call ollama.com at all** — its API answers the CORS
-preflight with a redirect, and browsers forbid redirects on preflight, so the
-request is refused before it is sent. No key, model name or app setting
-changes that. `curl` works because `curl` is not a browser.
+Screen". Then, in **Settings**, paste an
+[Ollama API key](https://ollama.com/settings/keys) and tap **Test connection**.
 
-So:
+If that works, you are done. If it reports a CORS problem, you need the small
+proxy in [`proxy/`](proxy/README.md): a browser is reported to be unable to
+call ollama.com at all, because its API answers the CORS preflight with a
+redirect and browsers refuse to follow one. No key, model name or app setting
+changes that; `curl` works only because `curl` sends no preflight.
 
-1. Create an API key at https://ollama.com/settings/keys
-2. Deploy the worker in [`proxy/`](proxy/README.md) — `npx wrangler deploy`,
-   then `npx wrangler secret put OLLAMA_API_KEY`. Five minutes on a free
-   Cloudflare account.
-3. In the app: **Settings → Base URL** → your worker URL plus `/v1`. Leave the
-   API key field empty; the worker holds it, so it is never in this repository,
-   the app bundle, or your phone.
-4. Tap **List models this server accepts** and pick one, rather than guessing
-   between `gpt-oss:120b` and `gpt-oss:120b-cloud`.
+Deploying it needs no terminal. Add three secrets to this repository
+(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `OLLAMA_API_KEY`) and run the
+**Deploy the AI proxy** workflow from the Actions tab; its summary prints the
+Base URL to paste. The key is uploaded as a Worker secret, so it lives at
+Cloudflare rather than in this repository, the app bundle, or your phone —
+leave the app's API key field empty. Settings carries the same steps, each one
+a tappable link.
 
-Prefer the key on the phone? Skip step 2's secret and paste it into Settings
-instead — a key the app sends wins over the worker's own.
+Then tap **List models this server accepts** and pick one, rather than guessing
+between `gpt-oss:120b` and `gpt-oss:120b-cloud`.
 
 ## Development
 

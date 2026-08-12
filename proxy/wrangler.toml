@@ -2,17 +2,23 @@ name = "cluecabulary-proxy"
 main = "worker.js"
 compatibility_date = "2026-01-01"
 
-# Deploy from this directory:
+# Only this origin may use the worker. It matters most when the worker holds
+# the API key: without the lock, any website could spend your subscription
+# through it. Change this if you serve the app from somewhere else, or delete
+# the line to allow any origin.
+[vars]
+ALLOWED_ORIGIN = "https://kristofferwithk.github.io"
+
+# On a phone: run the "Deploy the AI proxy" workflow from this repository's
+# Actions tab — see .github/workflows/deploy-proxy.yml for the three secrets it
+# needs. Nothing below is required.
+#
+# At a computer, if you prefer:
 #
 #   npx wrangler login
 #   npx wrangler deploy
-#   npx wrangler secret put OLLAMA_API_KEY     # paste the key; it is stored
+#   npx wrangler secret put OLLAMA_API_KEY     # paste the key; stored
 #                                              # encrypted, never in this repo
-#
-# Then lock it to the origin you play from, so nobody else can spend your
-# subscription through it:
-#
-#   npx wrangler deploy --var ALLOWED_ORIGIN:https://<your-username>.github.io
 #
 # The deploy prints a URL like https://cluecabulary-proxy.<you>.workers.dev —
 # put that plus /v1 into the app's Settings -> Base URL, and leave the API key

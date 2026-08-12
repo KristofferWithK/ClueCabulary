@@ -2444,3 +2444,52 @@ select:focus {
   color: var(--green-deep);
   font-weight: 600;
 }
+
+/* ---------- connect Klaus ---------- */
+
+.connect-klaus {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.connect-klaus > summary {
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  /* A 44px target: this is the one control on the screen a stuck player needs. */
+  padding: 6px 0;
+}
+
+.connect-lede,
+.connect-foot {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.connect-steps {
+  margin: 12px 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.connect-steps code,
+.connect-foot code,
+.field small code {
+  font-size: 0.85em;
+  background: var(--grey-soft);
+  border-radius: 4px;
+  padding: 1px 5px;
+  /* Long secret names must wrap rather than widen the page. */
+  overflow-wrap: anywhere;
+}
+
+.connect-klaus a {
+  color: var(--blue);
+}
