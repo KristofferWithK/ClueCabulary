@@ -2386,3 +2386,13 @@ select:focus {
     font-size: 1.7rem;
   }
 }
+
+.map-champion {
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.map-champion-ahead {
+  font-style: italic;
+}

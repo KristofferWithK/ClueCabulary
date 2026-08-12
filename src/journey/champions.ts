@@ -123,7 +123,7 @@ export const CHAMPIONS: readonly Champion[] = [
     "titleDa": "laboranten i Rørdal",
     "titleEn": "lab technician at Rørdal",
     "blurbEn": "Grethe Thomsen runs the laboratory at the cement works out at Rørdal, east along the fjord, where she pulls three samples a shift and fails the ones that only hold in good conditions. She has no patience for collecting words: a word is yours the first time it holds under load, not the first time you write it down.",
-    "knewHer": "Ingeborg interpreted a plant tour here in 1987 and posted forty-one Danish words back to the laboratory afterwards for the spelling to be checked; Grethe confirmed all forty-one, though kalkslør she had invented on the tour herself rather than admit she had forgotten the real word for the dust. Ingeborg came out to the works once more, in 1998, on her own money and for no conference at all, and stood an hour at the kiln.",
+    "knewHer": "Ingeborg interpreted a plant tour here in 1987 and posted thirty-nine Danish words back to the laboratory afterwards for the spelling to be checked; Grethe confirmed all thirty-nine, though kalkslør she had invented on the tour herself rather than admit she had forgotten the real word for the dust. Ingeborg came out to the works once more, in 1998, on her own money and for no conference at all, and stood an hour at the kiln.",
     "greetingDa": "Otte kilometer ud ad fjorden for et stempel. Her tæller et ord først, når du har brugt det.",
     "greetingEn": "Eight kilometres out along the fjord for a stamp. A word doesn't count here until you have used it.",
     "examIntroEn": "We don't test concrete the day it is poured. We test it at twenty-eight days, when it is supposed to carry something. You have had these words a good while now.",

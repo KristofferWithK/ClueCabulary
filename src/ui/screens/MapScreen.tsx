@@ -3,6 +3,7 @@ import { WORDS } from '../../data/words'
 import { CITIES, GATES_PER_CITY, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
 import { canTravel, countCollection, stampsFor, wordsForCity } from '../../journey/progress'
+import { championAt } from '../../journey/champions'
 import { Arrival } from '../components/Arrival'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
@@ -40,6 +41,7 @@ export function MapScreen() {
   const city = cityAt(selected)
   const counts = countCollection(wordsForCity(WORDS, selected), srs, journey.banked)
   const selectedStamps = stampsFor(journey, selected)
+  const champion = championAt(selected)
   const state =
     selected < journey.cityIndex ? 'visited' : selected === journey.cityIndex ? 'current' : 'ahead'
   const travelReady = canTravel(journey, journey.cityIndex)
@@ -117,6 +119,21 @@ export function MapScreen() {
           {city.blurbDa}
         </p>
         <p className="city-blurb-en">{city.blurbEn}</p>
+        {/* Who is waiting there. Named once you have arrived; before that the
+            letter's promise is all the player gets. */}
+        {state === 'ahead' ? (
+          <p className="map-champion map-champion-ahead">
+            Someone in {city.name} knew her.
+          </p>
+        ) : (
+          <p className="map-champion">
+            <span className="champion-motif-inline" aria-hidden="true">
+              {champion.motif}
+            </span>{' '}
+            {champion.name} — <span lang="da">{champion.titleDa}</span>
+          </p>
+        )}
+
         {state === 'ahead' ? (
           <p className="map-locked">
             {WORDS_PER_CITY} words waiting — reach {city.name} to unlock them.
