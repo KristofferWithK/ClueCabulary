@@ -1,5 +1,5 @@
 import type { GridConfig } from './config'
-import { distinctGreenIds, generateKeys } from './keygen'
+import { distinctGreenIds, generateKeys, type KeyBias } from './keygen'
 import { checkClueLegality, type LegalityVerdict } from './legality'
 import { gradeRedemption } from './redemption'
 import { mulberry32 } from './rng'
@@ -18,8 +18,10 @@ export function createGame(opts: {
   words: BoardWord[]
   seed: number
   firstGiver?: Side
+  /** Steers which words become recall practice vs. hazards. */
+  bias?: KeyBias
 }): GameState {
-  const { config, words, seed, firstGiver = 'player' } = opts
+  const { config, words, seed, firstGiver = 'player', bias } = opts
   if (words.length !== config.totalWords) {
     throw new Error(`board needs ${config.totalWords} words, got ${words.length}`)
   }
@@ -27,6 +29,7 @@ export function createGame(opts: {
     config,
     words.map((w) => w.wordId),
     mulberry32(seed),
+    bias,
   )
   return {
     config,

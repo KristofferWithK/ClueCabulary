@@ -50,6 +50,25 @@ export function applyRoundResults(map: SrsMap, results: RoundWordResult[], now: 
   return next
 }
 
+/** A never-seen word wants practice as much as a box-0 one — see reviewWeight. */
+const UNSEEN_NEED = 3
+
+/**
+ * How much the player needs to practise a word, used to steer key dealing:
+ * high-need words become the AI's greens (the player must recall them), while
+ * well-known ones become the forbidden hazards they can knowingly avoid.
+ * Reuses reviewWeight's overdue × struggling × looked-up shape, then damps
+ * words already collected so they drift toward hazard and filler.
+ */
+export function practiceNeed(
+  stats: WordStats | undefined,
+  collected: boolean,
+  now: number,
+): number {
+  if (!stats) return UNSEEN_NEED
+  return reviewWeight(stats, now) * (collected ? 0.4 : 1)
+}
+
 /**
  * Sampling weight for a seen word: overdue words and struggling words dominate;
  * nothing reaches zero, preserving variety.

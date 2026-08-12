@@ -489,6 +489,13 @@ select:focus {
   outline: 3px solid var(--text);
 }
 
+.map-credit {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
 .map-detail {
   border: 1px solid var(--line-soft);
   border-radius: var(--radius);
