@@ -477,9 +477,11 @@ select:focus {
   background: var(--green-tile);
 }
 
+/* Keys the grey tiles and the grey bar segment, so it has to be the same grey —
+   and never the board's beige, which the tutorial teaches as a spent turn. */
 .swatch-discovered {
-  background: var(--beige);
-  border: 1px solid var(--beige-deep);
+  background: var(--grey-soft);
+  border: 1px solid var(--grey-tile);
 }
 
 .swatch-unknown {
