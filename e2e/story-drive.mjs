@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
-const PORT = 4178
+const PORT = 4185
 const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
   cwd: '/home/user/ClueCabulary',
   stdio: 'ignore',

@@ -8,7 +8,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 
 const ROOT = '/home/user/ClueCabulary'
 const SW = `${ROOT}/dist/sw.js`
-const PORT = 4177
+const PORT = 4184
 const original = await readFile(SW, 'utf8')
 
 const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {

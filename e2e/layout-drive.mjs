@@ -2,7 +2,7 @@ import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
 import { setTimeout as sleep } from 'node:timers/promises'
 
-const PORT = 4175
+const PORT = 4182
 const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
   cwd: '/home/user/ClueCabulary',
   stdio: 'ignore',
