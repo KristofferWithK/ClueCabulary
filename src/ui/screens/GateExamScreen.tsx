@@ -3,7 +3,14 @@ import { wordById } from '../../data/words'
 import type { WordEntry } from '../../data/types'
 import { answerMatches } from '../../engine/redemption'
 import { CITIES, GATES_PER_CITY, cityAt } from '../../journey/cities'
-import { canTravel, examTrials, examWords, stampsFor, wordState } from '../../journey/progress'
+import {
+  canTravel,
+  examTrials,
+  examWords,
+  greensToNextTrial,
+  stampsFor,
+  wordState,
+} from '../../journey/progress'
 import { championAt } from '../../journey/champions'
 import { mulberry32 } from '../../engine/rng'
 import { WORDS } from '../../data/words'
@@ -105,6 +112,7 @@ export function GateExamScreen() {
     examCity,
   )
   const canRetry = trials.unlimited || trials.available > 0
+  const toNextTrial = greensToNextTrial(WORDS, useSrs.getState().stats, journey.banked, examCity)
 
   // A fresh paper, never the one just marked. The results screen prints the
   // right answer beside every miss, so re-serving the same twenty words would
@@ -202,7 +210,9 @@ export function GateExamScreen() {
                 ? `You know this city — take the paper as often as you like.`
                 : trials.available > 0
                   ? `${trials.available} ${trials.available === 1 ? 'attempt' : 'attempts'} left · every ten green words earns another`
-                  : 'No attempts left — turn ten more words green to earn one.'}
+                  : `No attempts left — ${toNextTrial} more green ${
+                      toNextTrial === 1 ? 'word' : 'words'
+                    } earns one.`}
             </p>
           )}
 

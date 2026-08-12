@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
 import { LETTER } from '../../journey/letter'
 import { useUi } from '../../stores/uiStore'
+import { useDialog } from '../useDialog'
 
 /**
  * The frame the whole journey hangs on, and the first screen a new player sees:
@@ -10,18 +10,23 @@ import { useUi } from '../../stores/uiStore'
 export function GrandmotherLetter() {
   const open = useUi((s) => s.letterOpen)
   const close = useUi((s) => s.closeLetter)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (open) ref.current?.focus()
-  }, [open])
+  // Focus in, Tab kept inside, Escape closes, focus restored on the way out.
+  // The ref goes on the whole screen so the set-off button is inside the trap.
+  const ref = useDialog(open, close)
 
   if (!open) return null
 
   return (
-    <div className="letter-screen" role="dialog" aria-modal="true" aria-labelledby="letter-from">
+    <div
+      className="letter-screen"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="letter-from"
+      tabIndex={-1}
+      ref={ref}
+    >
       <div className="letter-scroll">
-        <div className="letter" ref={ref} tabIndex={-1}>
+        <div className="letter">
           <p className="letter-stamp" aria-hidden="true">
             ✉
           </p>

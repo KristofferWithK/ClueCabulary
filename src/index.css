@@ -2032,16 +2032,23 @@ select:focus {
   opacity: 0.35;
 }
 
-/* .word-card:disabled pins opacity to 1, so this needs equal specificity. */
+/* A spent card is still an enabled button — tapping it opens the dictionary —
+   so it cannot be dimmed with opacity: that dropped its Danish to 4.0:1 and its
+   gloss to 2.1:1. "Spent" is carried by the strike-through, the flat fill and
+   the card's accessible name instead. */
 .word-card.card-spent {
   background: var(--surface);
   border-color: var(--line-soft);
-  opacity: 0.55;
 }
 
 .card-spent .card-da {
+  color: var(--text-dim);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
+}
+
+.card-spent .card-en {
+  color: var(--text-dim);
 }
 
 .gate-cost {

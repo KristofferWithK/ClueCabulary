@@ -51,6 +51,21 @@ export function GameScreen() {
 
   const showBoard = game.phase !== 'redemption' && game.phase !== 'finished'
 
+  const lastAiGuess = useGame((s) => s.lastAiGuess)
+  const announcement = (() => {
+    if (game.phase === 'aiGuessing' && lastAiGuess) {
+      const word = game.words.find((w) => w.wordId === lastAiGuess.wordId)
+      const result = game.reveals[lastAiGuess.wordId]?.kind
+      if (word && result) {
+        const outcome =
+          result === 'green' ? 'correct' : result === 'forbidden' ? 'forbidden' : 'neutral'
+        return `Klaus guessed ${word.da} — ${outcome}.`
+      }
+    }
+    if (aiBusy) return 'Klaus is thinking.'
+    return PHASE_CAPTION[game.phase]
+  })()
+
   const handleTranslationsToggle = () => {
     if (game.phase === 'redemption') return
     if (!translationsOn) {
@@ -73,7 +88,9 @@ export function GameScreen() {
         </button>
         <div className="game-header-mid">
           <TurnTokens total={game.config.turnTokens} left={game.turnsLeft} />
-          <p className="phase-caption">{PHASE_CAPTION[game.phase]}</p>
+          <p className="phase-caption" role="status">
+            {PHASE_CAPTION[game.phase]}
+          </p>
         </div>
         <button
           className="icon-btn"
@@ -84,7 +101,13 @@ export function GameScreen() {
         </button>
         <button
           className={`icon-btn ${translationsOn ? 'icon-btn-active' : ''}`}
-          aria-label="Toggle translations"
+          // The on/off state was carried by background colour alone.
+          aria-pressed={translationsOn}
+          aria-label={
+            translationsOn
+              ? 'Hide translations'
+              : 'Show every translation — counts as looking up each unsolved word'
+          }
           disabled={game.phase === 'redemption' || studying}
           onClick={handleTranslationsToggle}
         >
@@ -92,8 +115,16 @@ export function GameScreen() {
         </button>
       </header>
 
+      {/* Klaus's whole turn happened in silence: every status message in the
+          loop was a plain paragraph that never took focus, so no screen reader
+          had reason to speak it. This region is mounted for the whole round —
+          a live region that appears with its content does not announce. */}
+      <p className="visually-hidden" role="status" aria-live="polite">
+        {announcement}
+      </p>
+
       {error && (
-        <div className="error-banner">
+        <div className="error-banner" role="alert">
           <p>{error}</p>
           <button className="btn btn-small" onClick={clearError}>
             Retry

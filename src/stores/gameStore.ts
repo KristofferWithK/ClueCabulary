@@ -45,6 +45,13 @@ interface GameStore {
   debriefFailed: boolean
   /** Words this round pushed over the line into the collection's green. */
   newlyLearned: string[]
+  /**
+   * Answers typed into the redemption challenge. Persisted because the phase
+   * itself is: without this, one back gesture or a phone killing the app threw
+   * away up to twenty typed answers in the one round that cannot be replayed.
+   */
+  redemptionDraft: Record<string, string>
+  setRedemptionAnswer: (wordId: string, text: string) => void
   // Transient (not persisted):
   aiBusy: boolean
   aiGuessQueue: PlannedGuess[]
@@ -97,6 +104,7 @@ export const useGame = create<GameStore>()(
       debrief: null,
       debriefFailed: false,
       newlyLearned: [],
+      redemptionDraft: {},
       aiBusy: false,
       aiGuessQueue: [],
       planForClueIndex: null,
@@ -163,6 +171,7 @@ export const useGame = create<GameStore>()(
           debrief: null,
           debriefFailed: false,
           newlyLearned: [],
+          redemptionDraft: {},
           aiGuessQueue: [],
           planForClueIndex: null,
           lastAiGuess: null,
@@ -173,6 +182,9 @@ export const useGame = create<GameStore>()(
       },
 
       endStudy: () => set({ studying: false }),
+
+      setRedemptionAnswer: (wordId, text) =>
+        set((s) => ({ redemptionDraft: { ...s.redemptionDraft, [wordId]: text } })),
 
       abandonGame: () => {
         useUi.getState().resetTranslations()
@@ -185,6 +197,7 @@ export const useGame = create<GameStore>()(
           debrief: null,
           debriefFailed: false,
           newlyLearned: [],
+          redemptionDraft: {},
           aiGuessQueue: [],
           planForClueIndex: null,
           lastAiGuess: null,
@@ -403,6 +416,7 @@ export const useGame = create<GameStore>()(
         debrief: s.debrief,
         debriefFailed: s.debriefFailed,
         newlyLearned: s.newlyLearned,
+        redemptionDraft: s.redemptionDraft,
       }),
     },
   ),

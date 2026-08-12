@@ -15,3 +15,4 @@ src/**/__fuzz__/
 src/**/__scratch__/
 # scratch drives written by audit agents
 e2e/_*.mjs
+src/probe_tmp/

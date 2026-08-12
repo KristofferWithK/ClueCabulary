@@ -156,6 +156,29 @@ if (debriefed) {
   console.log('SKIP round did not reach a debrief on this seed')
 }
 
+// Klaus's whole turn used to happen in silence: no live region existed
+// anywhere in the game loop.
+await open('?mock=1&howto=0&seed=7&city=0')
+await page.locator('.grid-card').first().click()
+await page.waitForSelector('.board-grid')
+const studyBtn = page.locator('.study-dock .btn-primary')
+if (await studyBtn.isVisible().catch(() => false)) await studyBtn.click()
+const regions = await page.locator('[aria-live], [role="status"], [role="alert"]').count()
+check('the game loop has a live region', regions > 0, `${regions} found`)
+const pressed = await page.locator('.game-header .icon-btn[aria-pressed]').count()
+check('the translations toggle exposes its state', pressed === 1)
+
+// The letter claims role=dialog aria-modal; it has to behave like one.
+await page.goto(BASE + '?mock=1', { waitUntil: 'networkidle' })
+await page.waitForSelector('.letter')
+const focusedInside = await page.evaluate(
+  () => document.querySelector('.letter-screen')?.contains(document.activeElement) ?? false,
+)
+check('the letter takes focus when it opens', focusedInside)
+await page.keyboard.press('Escape')
+await page.waitForTimeout(400)
+check('Escape closes the letter', (await page.locator('.letter').count()) === 0)
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.kill()
