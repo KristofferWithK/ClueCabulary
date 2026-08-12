@@ -34,7 +34,9 @@ export function ClueInput({ game, onSubmit }: Props) {
               ))}
         </p>
       )}
-      <p className="dock-title">Your clue — one word for Klaus to guess by</p>
+      <p className="dock-title">
+        Your clue — one word leading Klaus to your <span className="legend-target">●</span> targets
+      </p>
       <div className="clue-row">
         <input
           type="text"

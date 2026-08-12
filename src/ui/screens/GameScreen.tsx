@@ -114,6 +114,22 @@ export function GameScreen() {
         </div>
       )}
 
+      {showBoard && (
+        <p className="key-legend">
+          <span className="legend-dot legend-target" aria-hidden="true">
+            ●
+          </span>{' '}
+          your target
+          <span className="legend-sep">·</span>
+          <span className="legend-dot legend-forbidden" aria-hidden="true">
+            ✖
+          </span>{' '}
+          forbidden for you
+          <span className="legend-sep">·</span>
+          <span aria-hidden="true">ⓘ</span> look up
+        </p>
+      )}
+
       {game.phase === 'playerClueInput' && (
         <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
       )}
