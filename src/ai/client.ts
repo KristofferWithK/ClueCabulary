@@ -86,7 +86,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
   if (!settings.apiKey.trim() && endpoint.hostname === 'ollama.com') {
     throw new AiError(
       'auth',
-      'No API key. Add one in Settings, or point the Base URL at a proxy that holds the key — see proxy/README.md.',
+      'No API key. Add one above, or point the Base URL at a proxy that holds the key — the steps are at the top of this screen.',
     )
   }
   const doFetch = async (): Promise<Response> => {
@@ -114,7 +114,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       throw new AiError(
         'cors',
         endpoint.hostname === 'ollama.com'
-          ? 'ollama.com cannot be called from a browser: it answers the CORS preflight with a redirect, which browsers refuse. Deploy the bundled proxy (proxy/README.md) and set it as the Base URL — that is the only way this works on a phone.'
+          ? 'ollama.com refused the browser request. It is reported to answer the CORS preflight with a redirect, which browsers will not follow — a key or model name cannot fix that. Deploy the small proxy and set it as the Base URL; Settings has the steps.'
           : 'The AI server refused the browser request (likely CORS). Check the Base URL in Settings.',
       )
     }
@@ -179,7 +179,7 @@ export async function listModels(settings: AiSettings): Promise<string[]> {
   } catch {
     throw new AiError(
       'cors',
-      'The AI server refused the browser request. ollama.com cannot be called from a browser at all — deploy the bundled proxy (proxy/README.md) and set it as the Base URL.',
+      'The AI server refused the browser request — the usual cause is CORS. If this is ollama.com, deploy the small proxy and set it as the Base URL; Settings has the steps.',
     )
   }
   if (res.status === 401 || res.status === 403) {

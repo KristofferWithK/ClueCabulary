@@ -179,6 +179,49 @@ check('Escape closes the letter', (await page.locator('.letter').count()) === 0)
 await open('?mock=1&howto=0&city=0')
 check('no setup nudge with the practice companion', (await page.locator('.setup-nudge').count()) === 0)
 
+// Connecting Klaus is the one thing a stuck player must be able to do from the
+// phone in their hand, so the steps live in the app rather than behind a link
+// to a markdown file. They have to fit the screen and be reachable.
+await page.evaluate(() => {
+  const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1') ?? '{}')
+  raw.state = { ...raw.state, useMock: false, apiKey: 'a-key', klausVerifiedAt: null }
+  localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
+})
+await open('?howto=0&city=0')
+await page.locator('.setup-nudge').first().click()
+await page.waitForSelector('.settings-screen')
+const panel = page.locator('.connect-klaus')
+check('the setup steps are in the app', (await panel.count()) === 1)
+check('and open while Klaus has never answered', await panel.evaluate((el) => el.open))
+const steps = await page.locator('.connect-steps li').count()
+check('with every step listed', steps === 6, `${steps} steps`)
+const box = await panel.boundingBox()
+check(
+  'the panel fits the phone',
+  box.x >= -0.5 && box.x + box.width <= PHONE.width + 0.5,
+  `${box.width.toFixed(0)}px wide on ${PHONE.width}px`,
+)
+const links = await page.locator('.connect-steps a').count()
+check('and its links are tappable, not a wall of prose', links >= 4, `${links} links`)
+
+// Once Klaus has answered it is history, and must stop eating the screen.
+await page.evaluate(() => {
+  const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1'))
+  raw.state.klausVerifiedAt = Date.now()
+  localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
+})
+await open('?howto=0&city=0')
+await page.locator('.btn').filter({ hasText: 'Settings' }).first().click().catch(() => {})
+if ((await page.locator('.settings-screen').count()) === 0) {
+  await page.evaluate(() => window.history.pushState({}, '', location.href))
+  await page.locator('.home-screen .btn').last().click()
+}
+await page.waitForSelector('.settings-screen', { timeout: 5000 })
+check(
+  'and collapses once Klaus has answered',
+  (await page.locator('.connect-klaus').evaluate((el) => el.open)) === false,
+)
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.stop()

@@ -31,9 +31,11 @@ async function kindOf(promise: Promise<unknown>): Promise<string> {
 
 describe('chatJson error taxonomy', () => {
   it('maps a fetch rejection to cors, and names what ollama.com actually does', async () => {
-    // ollama.com answers the CORS preflight with a redirect, which browsers
-    // refuse outright — so for that host the advice is "you need the proxy",
-    // not "check your settings". For any other host it is the reverse.
+    // ollama.com is reported to answer the CORS preflight with a redirect,
+    // which browsers will not follow — so for that host the advice is "you
+    // need the proxy", not "check your settings". For any other host it is the
+    // reverse. Stated as reported rather than measured: this session cannot
+    // reach ollama.com, and the app's own Test connection is what settles it.
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
     const ollama = await catchError(chatJson({ ...settings, baseUrl: 'https://ollama.com/v1' }, messages))
     expect(ollama.kind).toBe('cors')
