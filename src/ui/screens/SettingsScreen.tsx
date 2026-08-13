@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AiError, DEFAULT_MODEL, listModels, resolveEndpoint, testConnection } from '../../ai/client'
+import { AiError, listModels, resolveEndpoint, testConnection } from '../../ai/client'
 import { hasBundledKey } from '../../ai/bundled-key'
 import { PROVIDERS, providerFor, type Provider } from '../../ai/providers'
 import { useGame } from '../../stores/gameStore'
@@ -40,7 +40,7 @@ export function SettingsScreen() {
   // to the box, the way the Base URL problem is named.
   const modelProblem = settings.model.trim()
     ? null
-    : `No model. Type one, or tap “List models this server accepts”. The usual default is ${DEFAULT_MODEL}.`
+    : 'No model yet — tap “List models this server accepts” below and pick one.'
 
   // Ollama Cloud names its models "gpt-oss:120b-cloud" in some places and
   // "gpt-oss:120b" in others; guessing wrong returns a 404 that reads like a
@@ -160,7 +160,7 @@ export function SettingsScreen() {
           <input
             type="text"
             value={settings.model}
-            placeholder={DEFAULT_MODEL}
+            placeholder="tap List models below"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}

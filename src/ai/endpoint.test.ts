@@ -8,7 +8,15 @@ import { AiError, DEFAULT_BASE_URL, chatJson, resolveEndpoint } from './client'
  */
 describe('resolveEndpoint', () => {
   it('accepts the default and any https host', () => {
-    expect(resolveEndpoint(DEFAULT_BASE_URL).href).toBe('https://ollama.com/v1/chat/completions')
+    expect(resolveEndpoint(DEFAULT_BASE_URL).href).toBe(`${DEFAULT_BASE_URL}/chat/completions`)
+    // A base URL with a path of its own — Gemini's is /v1beta/openai — must
+    // keep it rather than have /chat/completions replace it.
+    expect(resolveEndpoint('https://generativelanguage.googleapis.com/v1beta/openai').href).toBe(
+      'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+    )
+    expect(resolveEndpoint('https://ollama.com/v1').href).toBe(
+      'https://ollama.com/v1/chat/completions',
+    )
     expect(resolveEndpoint('https://proxy.example.com/v1').href).toBe(
       'https://proxy.example.com/v1/chat/completions',
     )
@@ -83,9 +91,11 @@ describe('chatJson with no API key', () => {
   }
 
   it('says so at once for ollama.com, without sending anything', async () => {
+    // Pinned to ollama.com rather than the default: the default is Gemini now,
+    // and this rule is specifically about the service that demands a key.
     const fetchSpy = vi.fn()
     vi.stubGlobal('fetch', fetchSpy)
-    const err = await say({ baseUrl: DEFAULT_BASE_URL, apiKey: '   ', model: 'm' })
+    const err = await say({ baseUrl: 'https://ollama.com/v1', apiKey: '   ', model: 'm' })
     expect(err).toBeInstanceOf(AiError)
     expect(err!.kind).toBe('auth')
     expect(err!.message).toMatch(/API key/i)
@@ -93,7 +103,7 @@ describe('chatJson with no API key', () => {
   })
 
   it('and names the setup that does not need one', async () => {
-    const err = await say({ baseUrl: DEFAULT_BASE_URL, apiKey: '', model: 'm' })
+    const err = await say({ baseUrl: 'https://ollama.com/v1', apiKey: '', model: 'm' })
     expect(err!.message).toMatch(/proxy/i)
   })
 

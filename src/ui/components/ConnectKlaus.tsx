@@ -14,18 +14,21 @@ export function ConnectKlaus({ verified }: { verified: boolean }) {
   return (
     <details className="connect-klaus" open={!verified}>
       <summary>
-        {verified ? 'Connected. How this was set up' : 'Klaus is not connected — how to fix that'}
+        {verified ? 'Connected. How this was set up' : 'Klaus is not connected — 30 seconds to fix'}
       </summary>
 
       <p className="connect-lede">
-        Pick a service above, paste its key, and tap <strong>List models this server accepts</strong>
-        . Model names coming back means it works from this phone and you are done.
+        <strong>Use Gemini.</strong> Tap it above, paste a{' '}
+        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+          Gemini key
+        </a>
+        , tap <strong>List models this server accepts</strong>, pick one. That is the whole setup —
+        it has been played on from a phone, with no proxy involved.
       </p>
       <p className="connect-lede">
-        <strong>Ollama Cloud will not work directly</strong> — measured on this phone, it refuses
-        browser requests, and no key or model name gets around it. <strong>Gemini</strong> is the one
-        worth trying first, because it may need nothing further. If both report a CORS problem, you
-        need a small proxy of your own — and you can deploy one from here without a terminal.
+        <strong>Ollama Cloud will not work directly.</strong> Measured on a phone: it refuses
+        browser requests, and no key or model name gets around it. Only if you want that service
+        specifically do you need the steps below.
       </p>
 
       <ol className="connect-steps">

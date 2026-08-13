@@ -24,18 +24,18 @@ export interface Provider {
 
 export const PROVIDERS: readonly Provider[] = [
   {
-    id: 'ollama',
-    label: 'Ollama Cloud',
-    baseUrl: 'https://ollama.com/v1',
-    keysAt: 'https://ollama.com/settings/keys',
-    note: 'Measured to refuse browser requests — this one needs the proxy.',
-  },
-  {
     id: 'gemini',
     label: 'Gemini',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
     keysAt: 'https://aistudio.google.com/apikey',
-    note: 'OpenAI-compatible. Whether it allows browsers is untested — this is how to find out.',
+    note: 'Works straight from the phone, no proxy — this is the one that has been played on.',
+  },
+  {
+    id: 'ollama',
+    label: 'Ollama Cloud',
+    baseUrl: 'https://ollama.com/v1',
+    keysAt: 'https://ollama.com/settings/keys',
+    note: 'Refuses browser requests — measured on a real phone. This one needs the proxy.',
   },
 ]
 
