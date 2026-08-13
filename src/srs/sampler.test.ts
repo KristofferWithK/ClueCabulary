@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { WordEntry } from '../data/types'
 import { mulberry32 } from '../engine/rng'
-import { newStats } from './scheduler'
+import { WORDS, curriculumRank } from '../data/words'
+import { applyRoundResults, newStats } from './scheduler'
 import type { SrsMap } from './types'
 import { selectBoardWords, selectDailyWords } from './sampler'
 
@@ -174,5 +175,74 @@ describe('selectDailyWords', () => {
 
   it('throws when the dataset is too small', () => {
     expect(() => selectDailyWords(makeDataset(5), 20, mulberry32(1))).toThrow()
+  })
+})
+
+/**
+ * "I'm getting a lot of the same words", reported from real play — and true.
+ * Measured before the box-0 recency fix: 4.8 of 12 words carried over from one
+ * board to the next in a sitting, and one word appeared on 8 boards out of 10.
+ *
+ * Some repetition is the point: a word needs three correct handlings to go
+ * green, and only four never-seen words enter per board, so eight of twelve
+ * slots must come from words already met. What was wrong was that box-0 words
+ * — everything the player is currently failing — ignored recency completely,
+ * so the same handful crowded out the rest of the pool.
+ *
+ * This measures the whole loop rather than the weight function, because that
+ * is the thing the player actually experiences.
+ */
+describe('how much a board repeats the last one', () => {
+  const city = [...WORDS].sort((a, b) => curriculumRank(a) - curriculumRank(b)).slice(0, 100)
+
+  /** Rounds back to back, the way a person on a sofa plays them. */
+  function sitting(rounds: number, minutesApart: number, seed: number) {
+    let srs: SrsMap = {}
+    let now = Date.UTC(2026, 0, 1, 12)
+    const boards: string[][] = []
+    const rng = mulberry32(seed)
+    for (let r = 0; r < rounds; r++) {
+      const board = selectBoardWords(city, srs, { totalWords: 12, maxNewWordsPerBoard: 4 }, rng, now)
+      boards.push(board.map((w) => w.id))
+      srs = applyRoundResults(
+        srs,
+        board.map((w, i) => ({
+          wordId: w.id,
+          guessedGreen: i % 3 === 0,
+          guessedWrong: i % 5 === 0,
+          lookedUp: i % 7 === 0,
+        })),
+        now,
+      )
+      now += minutesApart * 60_000
+    }
+    const overlaps = boards.slice(1).map((b, i) => {
+      const prev = new Set(boards[i]!)
+      return b.filter((id) => prev.has(id)).length
+    })
+    const counts = new Map<string, number>()
+    for (const b of boards) for (const id of b) counts.set(id, (counts.get(id) ?? 0) + 1)
+    return {
+      avgOverlap: overlaps.reduce((a, b) => a + b, 0) / overlaps.length,
+      worst: Math.max(...counts.values()),
+      rounds,
+    }
+  }
+
+  it('leaves most of the board new from one round to the next', () => {
+    const { avgOverlap } = sitting(10, 5, 1)
+    // Was 4.8 of 12. Four is the ceiling this is held to; the floor is not
+    // zero on purpose, since review is what turns a word green.
+    expect(avgOverlap).toBeLessThanOrEqual(4)
+  })
+
+  it('and settles further over a longer sitting rather than circling', () => {
+    const { avgOverlap } = sitting(25, 5, 3)
+    expect(avgOverlap).toBeLessThanOrEqual(2.5)
+  })
+
+  it('does not let one word dominate a sitting', () => {
+    // Was 8 boards out of 10 for a single word.
+    expect(sitting(10, 5, 1).worst).toBeLessThanOrEqual(7)
   })
 })
