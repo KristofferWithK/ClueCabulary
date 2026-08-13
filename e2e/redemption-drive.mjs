@@ -3,7 +3,6 @@
 // that is forbidden on the AI's key, taps it deliberately during the player's
 // guessing turn, then answers the translation challenge correctly.
 import { chromium } from 'playwright'
-import { passKlausOpening } from './first-turn.mjs'
 import { startPreview } from './preview-server.mjs'
 
 const PORT = 4174
@@ -32,8 +31,6 @@ try {
   // Round-trip one player clue. Two valid routes into redemption from here:
   // the mock AI stumbles onto a forbidden word itself, or we reach our own
   // guessing turn and deliberately tap one.
-  // Klaus opens the round, so the clue box is one guess away.
-  await passKlausOpening(page)
   await page.fill('.clue-input input', 'huskeliste')
   await page.click('.clue-input .btn-primary')
   await page.waitForFunction(

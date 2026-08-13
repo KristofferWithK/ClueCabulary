@@ -6,7 +6,6 @@
 // the app at all. This drives that field where it is actually used, and checks
 // the two rules that keep it from being a way to read the board for free.
 import { chromium } from 'playwright'
-import { passKlausOpening } from './first-turn.mjs'
 import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
@@ -45,8 +44,6 @@ try {
   console.log(`board: ${board.map((w) => w.da).join(', ')}`)
 
   // It lives where the clue is written, not behind a menu.
-  // Klaus opens the round, so the clue box is one guess away.
-  await passKlausOpening(page)
   const box = page.locator('.clue-input .translate-box')
   check('the lookup is in the clue dock', (await box.count()) === 1)
   await box.locator('summary').click()

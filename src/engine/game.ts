@@ -21,10 +21,12 @@ export function createGame(opts: {
   /** Steers which words become recall practice vs. hazards. */
   bias?: KeyBias
 }): GameState {
-  // Klaus opens. A round that starts by asking the player to compose a Danish
-  // clue starts with the hardest thing in the game, on a board they have not
-  // read yet; starting with a guess lets them meet the words first.
-  const { config, words, seed, firstGiver = 'ai', bias } = opts
+  // The player opens. Klaus opened for one build, on the reasoning that a
+  // round beginning with a guess lets the player meet the words before having
+  // to compose a Danish clue about them. Played, it was worse: the round
+  // starts with waiting, and the study phase already does the meeting. Back to
+  // the player, who now decides when the round begins.
+  const { config, words, seed, firstGiver = 'player', bias } = opts
   if (words.length !== config.totalWords) {
     throw new Error(`board needs ${config.totalWords} words, got ${words.length}`)
   }

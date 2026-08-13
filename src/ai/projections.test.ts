@@ -20,8 +20,7 @@ const words = (n: number): BoardWord[] =>
   }))
 
 const game = (seed: number): GameState =>
-  // firstGiver pinned: every fixture below opens with a player clue. The
-  // default is Klaus, which these tests are not about.
+  // firstGiver pinned so these fixtures do not move if the default does.
   createGame({ config: GRID_CONFIGS.standard, words: words(20), seed, firstGiver: 'player' })
 
 /** Cyclically reassign the roles among words — same counts, different key. */
