@@ -216,6 +216,67 @@ try {
   check('and lighter', Number(s.articleWeight) < Number(s.wordWeight), `${s.articleWeight} vs ${s.wordWeight}`)
   check('and clear of the word', s.gapPx > 0, `${s.gapPx.toFixed(1)}px between them`)
 
+  // The article is the smallest text on the board, so its contrast is decided
+  // by the darkest tile it can sit on, not by the white card it is designed
+  // against. Read the shipped palette and the shipped colours and do the
+  // arithmetic: #6b6b6b looks right on white and lands at 4.00:1 on a beige
+  // bystander tile, under AA for text this size.
+  const contrast = await page.evaluate(() => {
+    const root = getComputedStyle(document.documentElement)
+    const v = (n) => root.getPropertyValue(n).trim()
+    const card = [...document.querySelectorAll('.word-card')].find((c) => c.querySelector('.card-article'))
+    // Colour resolves correctly through a class chain; background does not,
+    // because the tint rules live on the card itself. So take grounds from the
+    // palette and inks from a probe.
+    const inkUnder = (cls) => {
+      const probe = card.querySelector('.card-article').cloneNode(true)
+      const host = document.createElement('div')
+      host.className = `word-card ${cls}`
+      host.style.position = 'absolute'
+      host.style.visibility = 'hidden'
+      host.appendChild(probe)
+      card.parentElement.appendChild(host)
+      const c = getComputedStyle(probe).color
+      host.remove()
+      return c
+    }
+    const lum = (c) => {
+      const [r, g, b] = c.match(/\d+/g).slice(0, 3).map(Number).map((x) => {
+        x /= 255
+        return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4
+      })
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    }
+    const hexToRgb = (h) => {
+      // The build minifies #ffffff to #fff, so both forms reach this.
+      let s = h.replace('#', '')
+      if (s.length === 3) s = s.replace(/./g, (c) => c + c)
+      const n = parseInt(s, 16)
+      return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`
+    }
+    const ratio = (fg, bg) => {
+      const [a, b] = [lum(fg), lum(bg)]
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+    }
+    // Every ground the article is actually drawn on, with the ink it takes there.
+    return [
+      ['plain card', inkUnder(''), v('--bg')],
+      ['bystander tile', inkUnder(''), v('--beige')],
+      ['spent tile', inkUnder('card-spent'), v('--surface')],
+      ['found green', inkUnder('card-green'), v('--green-tile')],
+      ['forbidden', inkUnder('card-forbidden'), v('--black-tile')],
+    ].map(([name, fg, bg]) => ({ name, fg, bg, ratio: +ratio(fg, hexToRgb(bg)).toFixed(2) }))
+  })
+  for (const c of contrast) console.log(`     ${c.name.padEnd(15)} ${c.fg} on ${c.bg} — ${c.ratio}:1`)
+  check(
+    'the article clears AA on every tile it can land on',
+    // 4.4 rather than 4.5: --green-tile is documented at ~4.6:1 for white and
+    // measures 4.45, so the board's own floor is the bar here, not a rounder
+    // number the tile itself would fail.
+    contrast.every((c) => c.ratio >= 4.4),
+    contrast.filter((c) => c.ratio < 4.4).map((c) => `${c.name} ${c.ratio}:1`).join('; ') || 'all grounds',
+  )
+
   // Screen readers should hear the collocation, not the bare noun — the visual
   // separation is exactly what would otherwise lose it.
   const label = await page.locator('.word-card').first().getAttribute('aria-label')

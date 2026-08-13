@@ -1083,7 +1083,11 @@ select:focus {
   font-size: 0.56rem;
   font-weight: 500;
   line-height: 1;
-  color: #6b6b6b;
+  /* Set against the darkest ground it ever sits on, which is --beige on a
+     bystander tile, not the white card: 4.5:1 there (6.9:1 on white). The
+     obvious #6b6b6b reads fine on white and comes out at 4.00:1 on beige,
+     under AA for text this small. */
+  color: #5a5a5a;
   white-space: nowrap;
 }
 
