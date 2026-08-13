@@ -106,7 +106,14 @@ words are green it stops counting attempts.
    being asked twice. A hit that is already on the board says so, since it is
    the right translation and an illegal clue.
 5. After each round Klaus debriefs: what his clues meant and which words
-   deserve another look.
+   deserve another look. The review page also shows **what was said, and why** —
+   every clue and every guess with the reasoning behind it, including what Klaus
+   deliberately steered away from and how sure he was of each guess. Tap ⚑ on
+   anything of his that was a bad call: flags are kept (newest 24) and quoted
+   back to him in later rounds, with his own sentence attached, so the
+   correction has something to bite on. They carry a clue word, a board word and
+   his own reasoning — no key data — so they pass the AI firewall by
+   construction, which `src/ai/flags.test.ts` asserts directly.
 
 Progress is tracked per word with a spaced-repetition scheduler; new words are
 introduced along the frequency ranking while struggling words return more

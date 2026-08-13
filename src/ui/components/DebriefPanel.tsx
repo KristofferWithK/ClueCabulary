@@ -5,6 +5,7 @@ import { countCollection, wordsForCity } from '../../journey/progress'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
+import { clueFlagId, guessFlagId, useFeedback } from '../../stores/feedbackStore'
 import { useUi } from '../../stores/uiStore'
 
 const CONFETTI_COLORS = ['#6aaa64', '#c9b458', '#567b95', '#121212', '#e3735e']
@@ -63,6 +64,44 @@ const OUTCOME_COPY: Record<OutcomeKey, { title: string; sub: string }> = {
     title: 'So close…',
     sub: 'The forbidden word won this round. Those translations will stick now.',
   },
+}
+
+/**
+ * One tap to say "that was a bad call", on the screen where the reasoning is.
+ *
+ * A toggle, not a report form: the player is looking at a finished round and
+ * the useful signal is cheap to give. Everything needed to show Klaus what he
+ * did — the word, the clue it was made under, and his own account of it — is
+ * on screen already, so the flag carries it rather than a bare thumbs-down.
+ */
+function FlagButton({
+  id,
+  kind,
+  what,
+  underClue,
+  why,
+  label,
+}: {
+  id: string
+  kind: 'clue' | 'guess'
+  what: string
+  underClue?: string
+  why?: string
+  label: string
+}) {
+  const flags = useFeedback((s) => s.flags)
+  const toggleFlag = useFeedback((s) => s.toggleFlag)
+  const flagged = flags.some((f) => f.id === id)
+  return (
+    <button
+      className={`flag-btn ${flagged ? 'flag-on' : ''}`}
+      aria-pressed={flagged}
+      aria-label={flagged ? `${label} — flagged as a bad call. Tap to undo` : `Flag ${label} as a bad call`}
+      onClick={() => toggleFlag({ id, kind, what, underClue, why })}
+    >
+      ⚑
+    </button>
+  )
 }
 
 export function DebriefPanel({ game }: { game: GameState }) {
@@ -188,9 +227,17 @@ export function DebriefPanel({ game }: { game: GameState }) {
           from too, which is the half a learner cannot reconstruct alone. */}
       <section className="debrief-section">
         <h3>What was said, and why</h3>
+        {/* Flagging lives here and nowhere else: this is the only screen where
+            the reasoning is visible, and a verdict on a clue is only worth
+            anything next to the account Klaus gave of it. Klaus's own turns
+            only — flagging your own clue would be marking your own homework. */}
+        <p className="dim log-hint">
+          Tap ⚑ on anything of Klaus's that was a bad call. He is shown the ones you flag.
+        </p>
         <ol className="turn-log">
           {game.clueHistory.map((c, i) => {
             const da = (id: string) => game.words.find((w) => w.wordId === id)?.da ?? id
+            const clueId = clueFlagId(game.seed, i)
             return (
               <li key={i}>
                 <p className="turn-clue">
@@ -200,6 +247,15 @@ export function DebriefPanel({ game }: { game: GameState }) {
                       {' '}
                       for <span lang="da">{c.targets.map(da).join(', ')}</span>
                     </span>
+                  )}
+                  {c.by === 'ai' && (
+                    <FlagButton
+                      id={clueId}
+                      kind="clue"
+                      what={c.text}
+                      why={c.rationale}
+                      label={`Klaus's clue «${c.text}»`}
+                    />
                   )}
                 </p>
                 {c.rationale && <p className="turn-why">{c.rationale}</p>}
@@ -228,6 +284,18 @@ export function DebriefPanel({ game }: { game: GameState }) {
                         <span className="guess-confidence">
                           {Math.round(g.confidence * 100)}% sure
                         </span>
+                      )}
+                      {/* His guesses are the ones made under YOUR clue; the
+                          rest of this list is your own tapping. */}
+                      {c.by === 'player' && (
+                        <FlagButton
+                          id={guessFlagId(game.seed, i, gi)}
+                          kind="guess"
+                          what={da(g.wordId)}
+                          underClue={c.text}
+                          why={g.reasoning}
+                          label={`Klaus's guess «${da(g.wordId)}»`}
+                        />
                       )}
                     </li>
                   ))}

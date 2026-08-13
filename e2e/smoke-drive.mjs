@@ -238,6 +238,31 @@ try {
     `turn log: ${log.turns} turns, ${log.guesses} guesses, ${log.whys} reasons, ${log.confidences} confidences`,
   )
 
+  // ---- flagging a bad call, on the one screen that shows the reasoning ------
+  // The flag is only worth tapping because Klaus is shown it next round, so
+  // this checks it reaches storage rather than just toggling a glyph.
+  const flags = page.locator('.flag-btn')
+  const flagCount = await flags.count()
+  if (flagCount === 0) throw new Error('nothing in the review page can be flagged')
+  await flags.first().click()
+  await sleep(150)
+  const stored = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-feedback-v1') ?? '{}').state?.flags ?? [],
+  )
+  if (stored.length !== 1) throw new Error(`flag not stored: ${JSON.stringify(stored)}`)
+  if (!stored[0].what) throw new Error(`flag carries no word: ${JSON.stringify(stored[0])}`)
+  if (!(await flags.first().getAttribute('aria-pressed')) === true) {
+    throw new Error('flag does not report its state')
+  }
+  // A mis-tap must be undoable.
+  await flags.first().click()
+  await sleep(150)
+  const cleared = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-feedback-v1') ?? '{}').state?.flags ?? [],
+  )
+  if (cleared.length !== 0) throw new Error(`flag would not come back off: ${cleared.length}`)
+  console.log(`flagged and unflagged one of ${flagCount} calls`)
+
   console.log('SMOKE OK')
 } catch (e) {
   await page.screenshot({ path: `${SHOT_DIR}/99-failure.png` }).catch(() => {})

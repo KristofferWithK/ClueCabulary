@@ -1,6 +1,6 @@
 import { aiTargetableIds } from './projections'
 import type { Outcome } from '../engine/types'
-import type { AiClueView, AiGuessView, DebriefView, PublicClue } from './projections'
+import type { AiClueView, AiGuessView, DebriefView, FlaggedCall, PublicClue } from './projections'
 
 /**
  * Prompt builders. They may import ONLY projection types — never GameState or
@@ -76,6 +76,28 @@ function paceLine(view: AiClueView): string {
   return `THE ARITHMETIC: ${mine} of your greens are still hidden, and ${view.turnsLeft} clues remain in the pool shared with your partner — so expect about ${myTurns} more turns of your own. That is ${rate} word${high === 1 ? '' : 's'} a clue just to finish.${cost}`
 }
 
+/**
+ * What the player marked as a bad call, in past rounds' reviews.
+ *
+ * The only channel in the game where the player gets to say "that was wrong"
+ * and have it mean something next time. Kept short and quoted rather than
+ * summarised: Klaus's own reasoning is in there, and being shown the sentence
+ * he wrote is what makes the correction land rather than reading as a scold.
+ */
+function flaggedBlock(flagged: readonly FlaggedCall[]): string {
+  if (flagged.length === 0) return ''
+  const lines = flagged.slice(0, 6).map((f) =>
+    f.kind === 'clue'
+      ? `- your clue «${f.what}»${f.why ? ` — you said: "${f.why}"` : ''}`
+      : `- guessing «${f.what}» under their clue «${f.underClue ?? '?'}»${f.why ? ` — you said: "${f.why}"` : ''}`,
+  )
+  return `
+CALLS YOUR PARTNER MARKED AS BAD, from earlier rounds:
+${lines.join('\n')}
+These are their judgement, not a score. Read what you wrote at the time and ask what the reasoning has in common — a link that was yours rather than theirs, a word you leaned on that a learner does not have, a confidence you did not have the grounds for. Do not mention this list to them; just do not make the same call again.
+`
+}
+
 export function buildCluePrompt(view: AiClueView): ChatMessage[] {
   const targetable = aiTargetableIds(view)
   const targetableSet = new Set(targetable)
@@ -113,6 +135,7 @@ Naming anything else — a word already found, a neutral, a forbidden word — i
 ${forbidden.length > 0 ? `FORBIDDEN FOR YOU, and the fastest way to lose this game: ${forbidden.join(', ')}.
 Before you commit to a clue, say each of these to yourself and ask whether the clue could bring it to mind. "kitchen" fetches "food". "rain" fetches "water". "school" fetches "child". If your clue reaches a forbidden word by ANY ordinary association — same room, same activity, same category, part of the same thing — it is the wrong clue no matter how well it fits your targets. Choose a different one; there is always another.` : ''}
 
+${flaggedBlock(view.flagged)}
 ${paceLine(view)}
 
 Two or three targets is the normal shape of a clue here, and one is the exception. Before you settle for a single word, look for a second green that fits the same idea — a category (fruit, furniture, weather), a place they both belong to, a thing you do with both. Test each target alone and ask whether your partner, who cannot see your key, would name it from this clue by itself; drop a target you only linked by a chain of reasoning, and keep the rest. But do not talk yourself down to one because two feels risky: the board is not lost by a wrong guess, it is lost by running out of clues with greens still on it.
@@ -159,6 +182,7 @@ You are the GUESSER this turn. Your partner gave a clue pointing at some of THEI
 - After the first, guesses are executed in confidence order and stopped by two rules: at most ${view.currentClue.number} are taken — the number is the whole allowance and the turn ends itself on the ${view.currentClue.number}th correct one — and everything stops at the first below 0.35. So from the second onward the bands mean something exact: 0.8+ "I am acting on this", 0.5-0.79 "plausible but I would rather not be the one who names it", 0.35-0.49 "only if nothing better", under 0.35 "do not name this". On the FIRST they mean nothing — it is named regardless — so use the confidence to tell your partner the truth afterwards, and the ordering to protect them now.
 - You get ${view.currentClue.number} shot(s) and no more, so spend them on the ${view.currentClue.number} words you actually believe in. Ranking a weak word above a strong one costs you the strong one outright; there is no spare guess to recover it.
 - ${view.turnsLeft <= 2 ? `Only ${view.turnsLeft} clue(s) left: a cautious stop now may cost the game, so back your best set.` : 'Be honest about uncertainty: a wrong guess ends the turn and can reveal a forbidden word.'}
+${flaggedBlock(view.flagged)}
 Respond with ONLY a JSON object: {"guesses": [{"wordId": string, "confidence": number, "reasoning": <short English sentence>}]}
 
 Example of a well-calibrated reply, from a DIFFERENT board where the clue was "frugt" (2):

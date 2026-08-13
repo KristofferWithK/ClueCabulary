@@ -24,12 +24,28 @@ export interface PublicClue {
   guesses: { da: string; result: CardRole }[]
 }
 
+/**
+ * What the player marked as a bad call in a past round's review.
+ *
+ * Carries no key data of any kind — a clue word, a Danish board word, and the
+ * account Klaus himself gave — so it passes the firewall by construction. It
+ * is here rather than in the store because prompts may only read projections.
+ */
+export interface FlaggedCall {
+  kind: 'clue' | 'guess'
+  what: string
+  underClue?: string
+  why?: string
+}
+
 export interface AiClueView {
   kind: 'ai-clue'
   clueLanguage: 'da' | 'en'
   turnsLeft: number
   words: (PublicWord & { roleOnMyKey: CardRole })[]
   history: PublicClue[]
+  /** Past calls the player flagged. Empty when there are none. */
+  flagged: FlaggedCall[]
 }
 
 export interface AiGuessView {
@@ -39,6 +55,8 @@ export interface AiGuessView {
   words: PublicWord[]
   currentClue: { text: string; number: number }
   history: PublicClue[]
+  /** Past calls the player flagged. Empty when there are none. */
+  flagged: FlaggedCall[]
 }
 
 /** Post-game view for the debrief — the game is over, everything is public. */
@@ -66,7 +84,11 @@ const publicHistory = (state: GameState): PublicClue[] =>
     })),
   }))
 
-export function buildAiClueView(state: GameState, clueLanguage: 'da' | 'en'): AiClueView {
+export function buildAiClueView(
+  state: GameState,
+  clueLanguage: 'da' | 'en',
+  flagged: readonly FlaggedCall[] = [],
+): AiClueView {
   return {
     kind: 'ai-clue',
     clueLanguage,
@@ -76,10 +98,15 @@ export function buildAiClueView(state: GameState, clueLanguage: 'da' | 'en'): Ai
       roleOnMyKey: state.aiKey[w.wordId]!,
     })),
     history: publicHistory(state),
+    flagged: flagged.map(({ kind, what, underClue, why }) => ({ kind, what, underClue, why })),
   }
 }
 
-export function buildAiGuessView(state: GameState, clueLanguage: 'da' | 'en'): AiGuessView {
+export function buildAiGuessView(
+  state: GameState,
+  clueLanguage: 'da' | 'en',
+  flagged: readonly FlaggedCall[] = [],
+): AiGuessView {
   const clue = state.clueHistory[state.clueHistory.length - 1]
   if (!clue || clue.by !== 'player') throw new Error('AI guess view requires an active player clue')
   return {
@@ -89,6 +116,7 @@ export function buildAiGuessView(state: GameState, clueLanguage: 'da' | 'en'): A
     words: state.words.map((w) => publicWord(state, w.wordId)),
     currentClue: { text: clue.text, number: clue.number },
     history: publicHistory(state),
+    flagged: flagged.map(({ kind, what, underClue, why }) => ({ kind, what, underClue, why })),
   }
 }
 
