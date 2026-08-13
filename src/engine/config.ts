@@ -29,15 +29,13 @@ export interface GridConfig {
  * divided by turnTokens, i.e. how much each clue has to carry.
  *
  *   Duet          15 greens / 9 tokens = 1.67
- *   beginner       8 greens / 4 tokens = 2.00
+ *   beginner       8 greens / 5 tokens = 1.60
  *   middle        11 greens / 6 tokens = 1.83
  *   standard      12 greens / 8 tokens = 1.50
  *
- * Beginner is deliberately the tightest of the three. Four clues means two
- * each, which is the shape the game was asked for: short, and both sides get
- * to guess twice. It is a harder game than the 3x4 board looks, and if it
- * proves too hard the cheapest fix is greensPerSide 5 -> 4 here, which takes
- * it to 6 greens / 4 tokens = 1.50 without touching the board.
+ * Beginner is the gentlest of the three, which is what a first board should
+ * be. Every play style clears it: cluing in pairs takes all five, cluing
+ * threes takes three and leaves two spare.
  *
  * Tokens are a shared pool, not two each: a side whose greens are all found
  * has nothing left to clue, so the other side spends what remains.
@@ -54,9 +52,13 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
     forbiddenBothSides: 0,
     forbiddenVsGreen: 0,
     forbiddenVsBystander: 1,
-    // Four clues: you clue, Klaus clues, you clue, Klaus clues. Both sides
-    // guess twice, and the round is over in about as long as a bus ride.
-    turnTokens: 4,
+    // Five. It was four — two clues each, which is the tidier shape — and four
+    // makes cluing in pairs mathematically impossible: eight greens need five
+    // such clues. The fifth token does not slow the ambitious line down, which
+    // still finishes in three and now has two spare; it just stops the board
+    // from insisting on ambition. Odd on purpose: whoever still has greens
+    // takes the extra turn.
+    turnTokens: 5,
     maxNewWordsPerBoard: 4,
   },
   /**
