@@ -74,6 +74,20 @@ both work; the secret is simply the safer default.
    **Encrypt**, paste the key, save. Add `ALLOWED_ORIGIN` the same way (not
    encrypted) if you want the origin lock.
 
+## Fronting Gemini instead
+
+One worker serves either service. Gemini's OpenAI-compatible layer wants the
+same Bearer token this worker already sends, and the app's Base URL supplies
+the path, so only the host moves — set `UPSTREAM` as a Worker variable:
+
+```
+UPSTREAM = https://generativelanguage.googleapis.com
+```
+
+in [`wrangler.toml`](./wrangler.toml), or in the dashboard under Settings →
+Variables. Unset, it forwards to ollama.com. Try Gemini directly from the app
+first, though: it may need no proxy at all.
+
 ## What it does, and what it refuses to do
 
 It forwards the path and query to `ollama.com` and sends exactly two headers:

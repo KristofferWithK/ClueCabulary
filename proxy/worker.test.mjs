@@ -99,6 +99,31 @@ describe('the CORS proxy worker', () => {
       expect(fetchSpy).not.toHaveBeenCalled()
     })
 
+    it('fronts a different service when UPSTREAM is set', async () => {
+      // One worker, either provider: Gemini's OpenAI-compatible layer wants
+      // the same Bearer token, so only the host moves.
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(
+        new Request('https://p.workers.dev/v1beta/openai/chat/completions', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer player-key' },
+          body: '{}',
+        }),
+        { UPSTREAM: 'https://generativelanguage.googleapis.com/' },
+      )
+      expect(fetchSpy.mock.calls[0][0]).toBe(
+        'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+      )
+    })
+
+    it('and still defaults to ollama.com with no UPSTREAM', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(post(), {})
+      expect(fetchSpy.mock.calls[0][0]).toBe('https://ollama.com/v1/chat/completions')
+    })
+
     it('locks to one origin when ALLOWED_ORIGIN is set', async () => {
       const res = await worker.fetch(new Request(ENDPOINT, { method: 'OPTIONS' }), {
         ALLOWED_ORIGIN: 'https://someone.github.io',
