@@ -5,6 +5,7 @@ import {
   IllegalEventError,
   applyEvent,
   createGame,
+  giverOf,
   isGuessable,
   remainingGreenIds,
   targetableGreenIds,
@@ -20,6 +21,9 @@ const makeWords = (n: number): BoardWord[] =>
     pos: 'noun',
   }))
 
+// Pins the opener, because most tests below are about mechanics and read
+// better starting from the player's clue. The real default — Klaus opens — is
+// asserted against createGame directly, in 'who opens the round'.
 const newGame = (grid: 'beginner' | 'standard' = 'beginner', seed = 7, firstGiver: Side = 'player') =>
   createGame({
     config: GRID_CONFIGS[grid],
@@ -64,15 +68,19 @@ describe('full game flows', () => {
     expect(s.turnsLeft).toBeGreaterThan(0)
   })
 
-  it('loses by timeout when every turn hits a bystander', () => {
+  it('runs out of clues into sudden death, not into a loss', () => {
     let s = newGame()
-    while (s.phase !== 'finished') {
+    while (s.phase === 'playerClueInput' || s.phase === 'aiClueInput') {
       const giver = s.phase === 'playerClueInput' ? 'player' : 'ai'
       s = clue(s, giver, 1)
       s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'bystander') })
     }
-    expect(s.outcome).toEqual({ result: 'lost', reason: 'timeout' })
+    // Every turn burned on a neutral, so nothing was found and the tokens are
+    // gone — and the round is still alive, which is the point of the change.
     expect(s.turnsLeft).toBe(0)
+    expect(s.phase).toBe('suddenDeath')
+    expect(s.outcome).toBeUndefined()
+    expect(remainingGreenIds(s).length).toBeGreaterThan(0)
   })
 
   it('forbidden word triggers redemption; correct answers redeem the game', () => {
@@ -210,5 +218,95 @@ describe('illegal events', () => {
     const snapshot = JSON.stringify(s)
     clue(s, 'player', 2)
     expect(JSON.stringify(s)).toBe(snapshot)
+  })
+})
+
+/**
+ * Running out of clues no longer ends the round. Codenames Duet's ending:
+ * the clues are spent, the board is still there, and you keep naming words
+ * until you either finish it or name one that is not green.
+ */
+describe('sudden death', () => {
+  /** Burn every clue token without finding anything. */
+  const exhaust = (grid: 'beginner' | 'standard' = 'beginner') => {
+    let s = newGame(grid)
+    while (s.phase !== 'suddenDeath' && s.phase !== 'finished') {
+      const giver = giverOf(s.phase)
+      s = clue(s, giver, 1)
+      s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'bystander') })
+    }
+    return s
+  }
+
+  it('opens instead of losing when the clues run out', () => {
+    const s = exhaust()
+    expect(s.phase).toBe('suddenDeath')
+    expect(s.outcome).toBeUndefined()
+    expect(s.turnsLeft).toBe(0)
+  })
+
+  it('accepts a green on either key, and keeps going', () => {
+    let s = exhaust()
+    const green = remainingGreenIds(s)[0]!
+    s = applyEvent(s, { type: 'GUESS', wordId: green })
+    expect(s.reveals[green]).toEqual({ kind: 'green' })
+    expect(s.phase).toBe('suddenDeath')
+  })
+
+  it('wins the round if the last green is named', () => {
+    let s = exhaust()
+    for (const id of [...remainingGreenIds(s)]) {
+      s = applyEvent(s, { type: 'GUESS', wordId: id })
+    }
+    expect(s.outcome).toEqual({ result: 'won', reason: 'all-greens' })
+  })
+
+  it('ends it on the first word that is green on neither key', () => {
+    let s = exhaust()
+    const greens = new Set(remainingGreenIds(s))
+    const dud = s.words.map((w) => w.wordId).find((id) => isGuessable(s, id) && !greens.has(id))!
+    s = applyEvent(s, { type: 'GUESS', wordId: dud })
+    expect(s.outcome).toEqual({ result: 'lost', reason: 'sudden-death' })
+    // Shown for what it was, so the ending reads rather than just stops.
+    expect(s.reveals[dud]!.kind).not.toBe('hidden')
+  })
+
+  it('lets a neutral burned against one side back in, since it may be the other side’s green', () => {
+    const s = exhaust()
+    const burned = s.words
+      .map((w) => w.wordId)
+      .filter((id) => s.reveals[id]!.kind === 'bystander')
+    expect(burned.length).toBeGreaterThan(0)
+    for (const id of burned) expect(isGuessable(s, id)).toBe(true)
+  })
+
+  it('can be walked away from, and that is a loss', () => {
+    const s = applyEvent(exhaust(), { type: 'STOP_GUESSING' })
+    expect(s.outcome).toEqual({ result: 'lost', reason: 'timeout' })
+  })
+
+  it('never re-opens a word already found', () => {
+    let s = exhaust()
+    const green = remainingGreenIds(s)[0]!
+    s = applyEvent(s, { type: 'GUESS', wordId: green })
+    expect(isGuessable(s, green)).toBe(false)
+    expect(() => applyEvent(s, { type: 'GUESS', wordId: green })).toThrow(IllegalEventError)
+  })
+})
+
+describe('who opens the round', () => {
+  const bare = () =>
+    createGame({
+      config: GRID_CONFIGS.beginner,
+      words: makeWords(GRID_CONFIGS.beginner.totalWords),
+      seed: 7,
+    })
+
+  it('is Klaus, so the player meets the board by guessing rather than composing', () => {
+    expect(bare().phase).toBe('aiClueInput')
+  })
+
+  it('but the caller can still say otherwise', () => {
+    expect(newGame('beginner', 7, 'player').phase).toBe('playerClueInput')
   })
 })

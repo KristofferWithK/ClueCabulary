@@ -9,6 +9,8 @@ interface UiState {
   translationsOn: boolean
   /** Fixed board seed from the ?seed= URL param (dev/e2e). */
   pendingSeed: number | null
+  /** Dev switch only: ?first=player starts the round with the player cluing. */
+  pendingFirstGiver: 'player' | 'ai' | null
   howToOpen: boolean
   /** The grandmother's letter — the very first screen, and re-readable after. */
   letterOpen: boolean
@@ -87,6 +89,7 @@ export const useUi = create<UiState>((set, get) => ({
   sheetWordId: null,
   translationsOn: false,
   pendingSeed: null,
+  pendingFirstGiver: null,
   howToOpen: false,
   letterOpen: false,
   goTo: (screen) => {

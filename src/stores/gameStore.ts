@@ -186,6 +186,9 @@ export const useGame = create<GameStore>()(
           })),
           seed: actualSeed,
           bias,
+          ...(useUi.getState().pendingFirstGiver
+            ? { firstGiver: useUi.getState().pendingFirstGiver! }
+            : {}),
         })
         // A translation overlay left on would show answers from second one
         // without ever counting as lookups — every round starts covered.
@@ -249,17 +252,27 @@ export const useGame = create<GameStore>()(
 
       playerGuess: (wordId) => {
         const { game } = get()
-        if (!game || game.phase !== 'playerGuessing') return
+        if (!game || (game.phase !== 'playerGuessing' && game.phase !== 'suddenDeath')) return
         const next = applyEvent(game, { type: 'GUESS', wordId })
-        const clue = currentClue(next)
-        buzz(clue!.guesses[clue!.guesses.length - 1]!.result)
+        // Sudden death records nothing on a clue — there is no clue — so the
+        // buzz comes from what the card turned out to be. Reading it off the
+        // clue here threw on every sudden-death guess, because the last clue in
+        // the history is whichever one ran the tokens out and it may have no
+        // guesses at all.
+        if (game.phase === 'suddenDeath') {
+          const reveal = next.reveals[wordId]!
+          buzz(reveal.kind === 'green' ? 'green' : reveal.kind === 'forbidden' ? 'forbidden' : 'bystander')
+        } else {
+          const clue = currentClue(next)
+          buzz(clue!.guesses[clue!.guesses.length - 1]!.result)
+        }
         set({ game: next, selectedWordId: null })
         if (next.phase === 'finished') get().finishRound()
       },
 
       playerStop: () => {
         const { game } = get()
-        if (!game || game.phase !== 'playerGuessing') return
+        if (!game || (game.phase !== 'playerGuessing' && game.phase !== 'suddenDeath')) return
         const next = applyEvent(game, { type: 'STOP_GUESSING' })
         set({ game: next, selectedWordId: null })
         if (next.phase === 'finished') get().finishRound()

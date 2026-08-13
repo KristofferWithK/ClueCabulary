@@ -6,6 +6,7 @@
 // the app at all. This drives that field where it is actually used, and checks
 // the two rules that keep it from being a way to read the board for free.
 import { chromium } from 'playwright'
+import { passKlausOpening } from './first-turn.mjs'
 import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
@@ -44,6 +45,8 @@ try {
   console.log(`board: ${board.map((w) => w.da).join(', ')}`)
 
   // It lives where the clue is written, not behind a menu.
+  // Klaus opens the round, so the clue box is one guess away.
+  await passKlausOpening(page)
   const box = page.locator('.clue-input .translate-box')
   check('the lookup is in the clue dock', (await box.count()) === 1)
   await box.locator('summary').click()
@@ -100,8 +103,12 @@ try {
     raw.state.game.phase = 'redemption'
     localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
   })
+  // A reload lands on Home, where there is no lookup box to find — so the two
+  // checks below used to pass without ever reaching the screen they name.
+  // Come back in the way the player does.
   await page.reload()
-  await page.waitForTimeout(600)
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.redemption-view, .redemption', { timeout: 15000 })
   check(
     'and it is gone during redemption, where it would be the answer key',
     (await page.locator('.translate-box').count()) === 0,
@@ -115,17 +122,21 @@ try {
   // screen's back arrow and the round resumed underneath it.
   await page.evaluate(() => {
     const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
-    raw.state.game.phase = 'clue'
+    raw.state.game.phase = 'playerClueInput'
     localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
     const j = JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{"state":{},"version":2}')
     j.state.activeExam = { cityIndex: 0, wordIds: ['da-hund'], answers: {} }
     localStorage.setItem('cluecab-journey-v2', JSON.stringify(j))
   })
   await page.reload()
-  await page.waitForTimeout(600)
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.clue-input', { timeout: 15000 })
   check(
     'and gone while a travel exam paper is out, which is the same promise',
-    (await page.locator('.translate-box').count()) === 0,
+    // On the clue screen, where it normally lives — so its absence means the
+    // lock, not the wrong screen.
+    (await page.locator('.clue-input').count()) === 1 &&
+      (await page.locator('.translate-box').count()) === 0,
   )
 
   check('no page errors', crashes.length === 0, crashes.join(' | '))

@@ -27,25 +27,33 @@ words are green it stops counting attempts.
 
 ## How a round works
 
-1. The board is 3×4 (beginner) or 4×5 (standard) Danish words from the ~1000
-   most common, each noun carrying its gender — **en** or **et** — in the strip
-   along the top of its card. You and Klaus each have a secret key marking
-   green targets and **forbidden words**.
-2. You alternate: you give a one-word clue, Klaus guesses — then Klaus clues
-   and you guess. Guesses are judged against the clue-giver's key.
+1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words
+   from the ~1000 most common, each noun carrying its gender — **en** or **et**
+   — in the strip along the top of its card. You and Klaus each have a secret
+   key marking green targets and **forbidden words**.
+2. **Klaus opens.** He clues, you guess; then you clue and he guesses. Guesses
+   are judged against the clue-giver's key. Starting on a guess means you meet
+   the words before you have to compose a Danish clue about them.
 3. Find every green word before the shared clue tokens run out and you both
-   win. Hit a forbidden word and there is one way out: **translate every
+   win. Beginner is four clues — two each; middle is six; standard is eight.
+   Running out is not the end: the clues stop but the board does not, and
+   **sudden death** lets you keep naming words with nothing left to go on. Name
+   a green and you are still alive; name anything else and the round is over.
+   Hit a forbidden word at any point and there is one way out: **translate every
    unsolved word on the board** — dictionary locked, one shot, all or nothing.
 4. **Clue in Danish.** Tap ⓘ on any board word for the built-in dictionary
    (translation, gender, example sentence), or open **Look up a word** in the
    clue dock to go the other way — English in, Danish out — which is the
-   direction composing a clue actually needs. It answers from the shipped
-   thousand instantly and offline, and asks Klaus only for what is outside
-   them. When Klaus clues in Danish, one tap loads his clue into the same box.
+   direction composing a clue actually needs. When Klaus clues in Danish, one
+   tap loads his clue into the same box.
    Toggle **Aa** to overlay every translation. Every lookup tells the practice
    scheduler which words to bring back sooner — including one done in the
    lookup box, which costs exactly what tapping ⓘ costs, and neither is
-   available during the translation challenge or a travel exam.
+   available during the translation challenge or a travel exam. A clue may be
+   any Danish word, so the lookup answers any word: the shipped thousand come
+   back instantly and offline, and anything else is asked of Klaus without
+   being asked twice. A hit that is already on the board says so, since it is
+   the right translation and an illegal clue.
 5. After each round Klaus debriefs: what his clues meant and which words
    deserve another look.
 
@@ -137,6 +145,8 @@ node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
                               # and the two rules that stop it reading the board
 node e2e/article-drive.mjs    # en/et on every card, across all ten cities, on
                               # a 360px phone — and costing the word no line
+node e2e/endgame-drive.mjs    # Klaus opens; the 3x5 board; and sudden death
+                              # won, lost and walked away from
 node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
                               # runtime, fixing a CORS failure that is really
                               # there — including the key living on the worker
@@ -179,7 +189,8 @@ and `OLLAMA_MODEL` to try another model. The key is read from the environment,
 never placed in a URL and never printed.
 
 Useful dev URLs: `?mock=1` forces the offline companion, `?seed=N` fixes the
-board, `?howto=0` skips the rules overlay, and `?city=N&learned=K&almost=K&stamps=G`
+board, `?first=player` makes the player open the round instead of Klaus,
+`?howto=0` skips the rules overlay, and `?city=N&learned=K&almost=K&stamps=G`
 jumps the journey to a given stop with K words green (or one handling short of
 it) and G stempler already earned.
 

@@ -49,7 +49,7 @@ const JourneySchema = z.object({
 const PrefsSchema = z.object({
   // Enumerated, not free strings: these are cast straight into settings, and a
   // bad gridSize makes every new game throw when it looks up its config.
-  gridSize: z.enum(['beginner', 'standard']),
+  gridSize: z.enum(['beginner', 'middle', 'standard']),
   clueLanguage: z.enum(['da', 'en']),
   studyPhase: z.enum(['auto', 'always', 'never']),
 })

@@ -67,6 +67,11 @@ export default function App() {
     if (seed && /^\d+$/.test(seed)) {
       useUi.setState({ pendingSeed: Number(seed) })
     }
+    // ?first=player makes the player open the round. Klaus opens by default,
+    // and a drive that is about the AI client rather than the turn order needs
+    // to get to the clue box without spending a guess first.
+    const first = params.get('first')
+    if (first === 'player' || first === 'ai') useUi.setState({ pendingFirstGiver: first })
     // Journey dev switches, so the travel screens can be driven in tests:
     // ?city=N jumps to a stop, ?collected=K collects K of its words,
     // ?gates=G marks G travel exams as already passed.

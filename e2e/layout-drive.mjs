@@ -1,4 +1,5 @@
 import { chromium } from 'playwright'
+import { passKlausOpening } from './first-turn.mjs'
 import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
@@ -182,6 +183,8 @@ await page.locator('.grid-card').first().click()
 await page.waitForSelector('.board-grid')
 const study = page.locator('.study-dock .btn-primary')
 if (await study.isVisible().catch(() => false)) await study.click()
+// Klaus opens the round, so the clue box is one guess away.
+await passKlausOpening(page)
 await page.fill('.clue-input input', 'huskeliste')
 await page.click('.clue-input .btn-primary')
 await page.waitForFunction(
