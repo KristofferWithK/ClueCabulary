@@ -168,15 +168,15 @@ export function GameScreen() {
 
       {showBoard && (
         <p className="key-legend">
-          <span className="legend-dot legend-target" aria-hidden="true">
-            ●
-          </span>{' '}
-          your target
+          {/* The legend promised a ● and a ✖ that were removed when the card's
+              border took over the job of showing your key. Neither existed on
+              the board any more — and its ✖ collided with the ✕ the board does
+              still draw, on already-revealed neutrals, so the one mark a
+              player could find meant the opposite of what the legend said.
+              Shows the borders themselves now. */}
+          <span className="legend-swatch legend-target" aria-hidden="true" /> your target
           <span className="legend-sep">·</span>
-          <span className="legend-dot legend-forbidden" aria-hidden="true">
-            ✖
-          </span>{' '}
-          forbidden for you
+          <span className="legend-swatch legend-forbidden" aria-hidden="true" /> forbidden for you
           <span className="legend-sep">·</span>
           <span aria-hidden="true">ⓘ</span> look up
           {game.phase === 'playerGuessing' && (

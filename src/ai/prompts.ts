@@ -1,4 +1,5 @@
 import { aiTargetableIds } from './projections'
+import type { Outcome } from '../engine/types'
 import type { AiClueView, AiGuessView, DebriefView, PublicClue } from './projections'
 
 /**
@@ -149,15 +150,40 @@ Turns left: ${view.turnsLeft}. Your partner's clue: "${view.currentClue.text}" (
   ]
 }
 
+/**
+ * Every ending, spelled out — not a ternary chain with a catch-all.
+ *
+ * It was a chain, and sudden death fell off the end of it into "lost on the
+ * translation challenge after hitting a forbidden word". So on the most common
+ * losing ending Klaus was told, as fact, about a forbidden word the player
+ * never hit and a translation challenge that never ran, and he wrote the
+ * debrief from that: the banner above his text said "Sudden death", his text
+ * explained a different round.
+ *
+ * The key type distributes over the outcome union, so it lists only endings
+ * that exist and demands a sentence for each. Adding an outcome without
+ * writing its sentence now fails to compile rather than quietly inheriting
+ * somebody else's ending.
+ */
+type OutcomeKey = Outcome extends infer O
+  ? O extends Outcome
+    ? `${O['result']}:${O['reason']}`
+    : never
+  : never
+
+const OUTCOME_TEXT: Record<OutcomeKey, string> = {
+  'won:all-greens': 'won by finding every green word',
+  'won:redeemed': 'won at the last moment through the translation challenge',
+  // Clues running out no longer ends the round — it opens sudden death — so
+  // this one is now reached by choosing to stop there.
+  'lost:timeout': 'lost by giving up in sudden death, with green words still hidden',
+  'lost:sudden-death':
+    'lost in sudden death: the clues ran out, the board stayed open with no new clue allowed, and a word named there was green on neither key',
+  'lost:forbidden-failed': 'lost on the translation challenge after hitting a forbidden word',
+}
+
 export function buildDebriefPrompt(view: DebriefView): ChatMessage[] {
-  const outcomeText =
-    view.outcome.result === 'won'
-      ? view.outcome.reason === 'redeemed'
-        ? 'won at the last moment through the translation challenge'
-        : 'won by finding every green word'
-      : view.outcome.reason === 'timeout'
-        ? 'lost when the clues ran out'
-        : 'lost on the translation challenge after hitting a forbidden word'
+  const outcomeText = OUTCOME_TEXT[`${view.outcome.result}:${view.outcome.reason}` as OutcomeKey]
 
   const board = view.words
     .map(

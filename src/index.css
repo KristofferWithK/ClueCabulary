@@ -1177,16 +1177,23 @@ select:focus {
   line-height: 1.5;
 }
 
-.legend-dot {
-  font-size: 0.7rem;
+/* Miniatures of the card border itself, since that is what the board draws.
+   The legend used to show a ● and a ✖ that no longer exist anywhere on it. */
+.legend-swatch {
+  display: inline-block;
+  width: 15px;
+  height: 12px;
+  border-radius: 3px;
+  vertical-align: -1px;
+  margin-right: 2px;
 }
 
 .legend-target {
-  color: var(--green-tile);
+  border: 3px solid var(--green-tile);
 }
 
 .legend-forbidden {
-  color: var(--black-tile);
+  border: 2px dashed var(--black-tile);
 }
 
 .legend-sep {
