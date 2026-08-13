@@ -73,8 +73,38 @@ describe('applyRoundResults', () => {
 })
 
 describe('reviewWeight', () => {
-  it('box-0 words are always maximally due', () => {
-    expect(reviewWeight(base({ box: 0, lastSeenAt: NOW }), NOW)).toBeGreaterThanOrEqual(3)
+  /**
+   * This used to read "box-0 words are always maximally due", and that was the
+   * bug rather than the rule. Box 0 is where every word the player is currently
+   * getting wrong lives, so pinning it to the maximum meant a word stayed as
+   * urgent thirty seconds after being played as a week later — and boards
+   * repeated themselves. Measured before the change: 4.8 of 12 words carried
+   * over from one board to the next, and one word turned up on 8 boards in 10.
+   */
+  const MINUTE = 60_000
+
+  it('does not treat a word played moments ago as overdue', () => {
+    const justNow = reviewWeight(base({ box: 0, lastSeenAt: NOW - MINUTE }), NOW)
+    const anHourAgo = reviewWeight(base({ box: 0, lastSeenAt: NOW - 60 * MINUTE }), NOW)
+    expect(justNow).toBeLessThan(anHourAgo)
+  })
+
+  it('but brings it back the same evening, which is what box 0 is for', () => {
+    const anHourAgo = reviewWeight(base({ box: 0, lastSeenAt: NOW - 60 * MINUTE }), NOW)
+    const boxTwoOnItsDay = reviewWeight(base({ box: 2, lastSeenAt: NOW - 3 * DAY }), NOW)
+    expect(anHourAgo).toBeGreaterThanOrEqual(boxTwoOnItsDay)
+  })
+
+  it('and never falls to zero, so nothing drops out of rotation', () => {
+    for (const box of [0, 1, 2, 3, 4] as const) {
+      expect(reviewWeight(base({ box, lastSeenAt: NOW }), NOW)).toBeGreaterThan(0)
+    }
+  })
+
+  it('still ranks a struggling word above a settled one seen just as recently', () => {
+    const failing = reviewWeight(base({ box: 0, lastSeenAt: NOW - 30 * MINUTE, seen: 4, misses: 3 }), NOW)
+    const settled = reviewWeight(base({ box: 4, lastSeenAt: NOW - 30 * MINUTE }), NOW)
+    expect(failing).toBeGreaterThan(settled)
   })
 
   it('overdue beats recently reviewed at the same box', () => {
