@@ -1,6 +1,19 @@
 // The collection: three word states, the Pokédex, and stamps earned by exam.
 import { chromium } from 'playwright'
+import { readFileSync } from 'node:fs'
 import { startPreview } from './preview-server.mjs'
+
+/**
+ * The dataset. The retry used to be answered by scraping the answer key off
+ * the failed paper and typing it back positionally — which only worked because
+ * the retry WAS the failed paper. This drive passed because of that defect.
+ */
+const GLOSS = new Map(
+  JSON.parse(readFileSync(new URL('../src/data/words.da.json', import.meta.url))).map((w) => [
+    w.da,
+    w.en[0],
+  ]),
+)
 
 const PORT = 4179
 const preview = await startPreview(PORT)
@@ -61,11 +74,16 @@ try {
   if (spent?.['0'] !== 1) throw new Error(`drawing the paper did not spend a trial: ${JSON.stringify(spent)}`)
   await page.screenshot({ path: `${SHOT_DIR}/c3-exam-failed.png` })
 
-  const answers = await page.locator('.gate-results .result-answer em').allTextContents()
+  const failedPaper = await page.locator('.gate-results .gate-da').allTextContents()
   await page.click('.btn-primary') // retry — a second attempt, and it costs one
   await page.waitForSelector('.gate-list')
+  const retryPaper = await page.locator('.gate-list .gate-da').allTextContents()
+  if (retryPaper.every((w) => failedPaper.includes(w)))
+    throw new Error('the retry re-served the paper whose answers were just printed')
   for (let i = 0; i < 20; i++) {
-    await page.locator('.gate-item input').nth(i).fill(answers[i].replace(/^\s*=\s*/, '').split(',')[0].trim())
+    const gloss = GLOSS.get(retryPaper[i].trim())
+    if (!gloss) throw new Error(`no gloss for exam word "${retryPaper[i]}"`)
+    await page.locator('.gate-item input').nth(i).fill(gloss)
   }
   await page.click('.btn-primary')
   await page.waitForSelector('.stamp-award')

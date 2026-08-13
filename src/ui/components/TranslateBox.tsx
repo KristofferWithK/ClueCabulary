@@ -3,6 +3,7 @@ import { AiError } from '../../ai/client'
 import type { TranslationResponse } from '../../ai/schemas'
 import { lookupLocal } from '../../data/lookup'
 import { useGame } from '../../stores/gameStore'
+import { useJourney } from '../../stores/journeyStore'
 import { canSpeak, speakDanish } from '../speak'
 
 /**
@@ -25,9 +26,15 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
   const [error, setError] = useState<string | null>(null)
   const translate = useGame((s) => s.translate)
   const noteLookup = useGame((s) => s.noteLookup)
+  // A suspended travel exam is still an exam. Both store actions already refuse
+  // while one is out, but the shipped dictionary is read straight from this
+  // component, so without this the offline half answered the paper's own words
+  // — for free, since noteLookup declines to charge during an exam too. The
+  // ⓘ sheet has locked itself this way all along; this is the same lock.
+  const examOut = useJourney((s) => s.activeExam !== null)
 
   const trimmed = term.trim()
-  const local = trimmed ? lookupLocal(trimmed) : []
+  const local = trimmed && !examOut ? lookupLocal(trimmed) : []
 
   // Typing again invalidates an answer about the previous word.
   useEffect(() => {
@@ -64,6 +71,10 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
         🔊
       </button>
     ) : null
+
+  // After the hooks, so the order stays stable when a paper is drawn mid-round.
+  // Offering a disabled box would only advertise the way around the lock.
+  if (examOut) return null
 
   return (
     <details className="translate-box">

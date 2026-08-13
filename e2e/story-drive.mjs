@@ -2,8 +2,17 @@
 // rules, and stays re-readable; and each city's champion sets the exam, reacts
 // to it, and sees you off.
 import { chromium } from 'playwright'
-import { startPreview } from './preview-server.mjs'
+import { readFileSync } from 'node:fs'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { startPreview } from './preview-server.mjs'
+
+/** The dictionary, so an exam can be passed by knowing the words. */
+const GLOSS = new Map(
+  JSON.parse(readFileSync(new URL('../src/data/words.da.json', import.meta.url))).map((w) => [
+    w.da,
+    w.en[0],
+  ]),
+)
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
 const PORT = 4185
@@ -23,33 +32,32 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 
 /**
- * Sit the exam until it passes, learning the answers as it goes. A retry draws
- * a fresh paper by design, so the answers revealed by one attempt only partly
- * cover the next — the map accumulates until an attempt can be filled whole.
+ * Sit the exam and pass it, answering from the dictionary.
+ *
+ * This used to harvest the answer key instead: fail the paper, scrape the
+ * glosses the results screen prints beside every miss, retry, repeat until the
+ * map covered a whole paper. That worked because the retry re-served the paper
+ * just marked, so one failure bought the answers to the very next attempt —
+ * the defect that let a player bank twenty words they had just failed. With the
+ * retry drawing a genuinely fresh paper the strategy cannot work at all, and it
+ * should not: a drive that demonstrates a champion's congratulations ought to
+ * earn them.
  */
-async function passTheExam(page, known = new Map()) {
-  for (let attempt = 1; attempt <= 6; attempt++) {
-    await page.waitForSelector('.gate-list')
-    const words = await page.locator('.gate-list .gate-da').allTextContents()
-    for (let i = 0; i < words.length; i++) {
-      await page.locator('.gate-item input').nth(i).fill(known.get(words[i].trim()) ?? 'zzz')
-    }
-    await page.click('.gate-list ~ .btn-primary, .gate-screen > .btn-primary')
-    await page.waitForSelector('.gate-results')
-    if (await page.locator('.stamp-award').count()) return { known, attempts: attempt }
-
-    // Learn every word this attempt gave away, by word rather than by position.
-    const rows = await page.locator('.gate-results li').all()
-    for (const row of rows) {
-      const da = (await row.locator('.gate-da').textContent()).trim()
-      const em = row.locator('.result-answer em')
-      if (await em.count()) {
-        known.set(da, (await em.textContent()).replace(/^\s*=\s*/, '').split(',')[0].trim())
-      }
-    }
-    await page.click('.gate-actions .btn-primary')
+async function passTheExam(page) {
+  await page.waitForSelector('.gate-list')
+  const words = await page.locator('.gate-list .gate-da').allTextContents()
+  for (let i = 0; i < words.length; i++) {
+    const gloss = GLOSS.get(words[i].trim())
+    if (!gloss) throw new Error(`no gloss for exam word "${words[i]}"`)
+    await page.locator('.gate-item input').nth(i).fill(gloss)
   }
-  throw new Error('six attempts and the exam never passed')
+  await page.click('.gate-list ~ .btn-primary, .gate-screen > .btn-primary')
+  await page.waitForSelector('.gate-results')
+  if (!(await page.locator('.stamp-award').count())) {
+    const missed = await page.locator('.gate-results .rejected .gate-da').allTextContents()
+    throw new Error(`a paper answered from the dictionary did not pass: ${missed.join(', ')}`)
+  }
+  return { attempts: 1 }
 }
 
 try {
@@ -105,6 +113,15 @@ try {
   console.log(`ten champions, ten people: ${[...seen.keys()].join(', ')}`)
 
   // They run the exam: an intro in their voice, then a reaction to the result.
+  //
+  // Start from a clean passport. The champion walk above sits an exam in every
+  // city, and trialsSpent survives a reload — ?learned=30 grants three attempts
+  // but does not give back the ones already spent here. That was invisible
+  // while a retry re-served the paper just marked, because passTheExam then
+  // always passed on its second attempt; once the retry became a genuinely
+  // fresh paper it needs a few, and city 0 arrived here with nothing left.
+  await page.goto(`${BASE}?howto=0`)
+  await page.evaluate(() => localStorage.clear())
   await page.goto(`${BASE}?mock=1&howto=0&city=0&learned=30`)
   await page.waitForSelector('.city-card')
   await page.locator('.btn-gate').click()
@@ -125,7 +142,7 @@ try {
   console.log('on a miss:', onFail.trim())
 
   await page.click('.gate-actions .btn-primary')
-  const learned = (await passTheExam(page)).known
+  await passTheExam(page)
   const onPass = await page.locator('.champion-says .champion-line').textContent()
   console.log('on a stamp:', onPass.trim())
   if (onPass.trim() === onFail.trim()) throw new Error('the same line for a pass and a miss')
@@ -136,7 +153,7 @@ try {
   await page.waitForSelector('.city-card')
   await page.locator('.btn-gate').click()
   await page.waitForSelector('.gate-list')
-  await passTheExam(page, new Map(learned))
+  await passTheExam(page)
   await page.waitForSelector('.champion-says-farewell', { timeout: 10000 })
   const farewell = await page.locator('.champion-says-farewell .champion-line').textContent()
   console.log('sees you off:', farewell.trim())

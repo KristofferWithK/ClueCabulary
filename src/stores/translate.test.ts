@@ -97,3 +97,32 @@ describe('translating during a round', () => {
     expect(useGame.getState().lookedUp).toEqual([])
   })
 })
+
+/**
+ * The store actions refused during an exam all along; the component did not.
+ * TranslateBox reads the shipped dictionary directly, so the offline half
+ * answered the exam paper's own words — and noteLookup declines to charge
+ * during an exam, so it cost nothing either. These lock the store side; the
+ * component side is asserted in e2e/translate-drive.mjs, where the box has to
+ * actually disappear.
+ */
+describe('the dictionary is closed while a paper is out', () => {
+  beforeEach(() => {
+    useSettings.setState({ useMock: true })
+    useJourney.getState().reset()
+    useGame.getState().abandonGame()
+    useGame.getState().newGame({ seed: 5 })
+    useGame.getState().endStudy()
+  })
+
+  it('refuses to translate a word that is on the paper', async () => {
+    useJourney.getState().startExam(0, ['a', 'b'])
+    await expect(useGame.getState().translate('hus')).rejects.toThrow(/closed/i)
+  })
+
+  it('refuses even with no game in progress, so leaving the round is no way round it', async () => {
+    useGame.getState().abandonGame()
+    useJourney.getState().startExam(0, ['a', 'b'])
+    await expect(useGame.getState().translate('hus')).rejects.toThrow(/closed/i)
+  })
+})

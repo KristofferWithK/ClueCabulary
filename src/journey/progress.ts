@@ -207,9 +207,22 @@ export function greensToNextTrial(
 }
 
 /**
- * Draw the paper. Green words are taken by frequency (stable), while the grey
- * and unknown filler is sampled, so a second attempt is not the same test
- * twice. Never re-tests a banked word.
+ * Draw the paper. Never re-tests a banked word.
+ *
+ * `avoid` is the paper that was just marked, and it matters more than it looks:
+ * the results screen prints the right answer beside every miss, so any word
+ * carried over to the next attempt arrives with its answer already given. The
+ * green portion used to be `pool.learned.slice(0, GATE_SIZE)` — a deterministic
+ * prefix of a rank-sorted list, with only the grey filler shuffled — and since
+ * no exam outcome can change `pool.learned` (correctGuesses only moves on a
+ * green GUESS, never on a paper), the retry came back byte-identical to the
+ * paper whose answers had just been read out. Passing it banked twenty words
+ * the player had just failed.
+ *
+ * So avoided words go to the back of every queue rather than being dropped: a
+ * player with exactly GATE_SIZE unbanked greens has a paper that is *defined*
+ * as "all of them", and a short paper would be a worse answer than a repeat.
+ * They are spent last, and only to fill.
  */
 export function examWords(
   all: readonly WordEntry[],
@@ -217,12 +230,21 @@ export function examWords(
   banked: BankedWords,
   cityIndex: number,
   rng: Rng,
+  avoid: ReadonlySet<string> = new Set(),
 ): WordEntry[] {
   const pool = unbankedByState(all, srs, banked, cityIndex)
-  const paper = pool.learned.slice(0, GATE_SIZE)
+  const fresh = (ws: readonly WordEntry[]) => ws.filter((w) => !avoid.has(w.id))
+  const stale = (ws: readonly WordEntry[]) => ws.filter((w) => avoid.has(w.id))
+
+  const paper = fresh(pool.learned).slice(0, GATE_SIZE)
   for (const group of [pool.discovered, pool.undiscovered]) {
     if (paper.length >= GATE_SIZE) break
-    paper.push(...shuffle(group, rng).slice(0, GATE_SIZE - paper.length))
+    paper.push(...shuffle(fresh(group), rng).slice(0, GATE_SIZE - paper.length))
+  }
+  // Only now, and only because the paper would otherwise be short.
+  for (const group of [pool.learned, pool.discovered, pool.undiscovered]) {
+    if (paper.length >= GATE_SIZE) break
+    paper.push(...shuffle(stale(group), rng).slice(0, GATE_SIZE - paper.length))
   }
   return paper.sort((a, b) => curriculumRank(a) - curriculumRank(b))
 }

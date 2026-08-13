@@ -245,7 +245,69 @@ try {
     !wrongRes.ok && /CORS/i.test(wrongRes.message),
     wrongRes.message,
   )
-  check('a blocked origin never reaches upstream', fake.received.length === 0, `${fake.received.length} upstream calls`)
+  check(
+    'a blocked origin never reaches upstream, from a browser',
+    fake.received.length === 0,
+    `${fake.received.length} upstream calls`,
+  )
+
+  // The two checks above only prove Chromium enforces CORS on itself, which it
+  // does whatever the worker says. They passed for a year against a worker that
+  // read ALLOWED_ORIGIN in exactly one place — the response header — and never
+  // looked at the incoming Origin at all. The attacker this is meant to stop
+  // does not run a browser, so ask without one.
+  fake.reset()
+  const rawForeign = await fetch(`${wrong.base}/v1/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Origin: 'https://evil.example' },
+    body: JSON.stringify({ model: 'm', messages: [{ role: 'user', content: 'hi' }] }),
+  })
+  check(
+    'and refuses a foreign origin outside a browser too',
+    rawForeign.status === 403,
+    `HTTP ${rawForeign.status}`,
+  )
+  check(
+    'spending nothing upstream when it does',
+    fake.received.length === 0,
+    `${fake.received.length} upstream calls`,
+  )
+
+  // curl sends no Origin at all, which is the whole point of using curl.
+  fake.reset()
+  const rawNoOrigin = await fetch(`${wrong.base}/v1/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'm', messages: [{ role: 'user', content: 'hi' }] }),
+  })
+  check(
+    'and refuses a request with no Origin at all',
+    rawNoOrigin.status === 403,
+    `HTTP ${rawNoOrigin.status}`,
+  )
+  check(
+    'spending nothing upstream for that one either',
+    fake.received.length === 0,
+    `${fake.received.length} upstream calls`,
+  )
+
+  // The allowed origin must still get through on the same worker, or the lock
+  // is just an outage.
+  fake.reset()
+  const rawAllowed = await fetch(`${wrong.base}/v1/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Origin: 'https://someone-else.example',
+      Authorization: `Bearer ${KEY}`,
+    },
+    body: JSON.stringify({ model: 'm', messages: [{ role: 'user', content: 'hi' }] }),
+  })
+  check(
+    'while the origin it is locked to still gets through',
+    rawAllowed.status === 200 && fake.received.length === 1,
+    `HTTP ${rawAllowed.status}, ${fake.received.length} upstream calls`,
+  )
   await wrong.stop()
 
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nPROXY DRIVE OK')

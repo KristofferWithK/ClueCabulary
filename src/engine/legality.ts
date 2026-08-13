@@ -27,6 +27,27 @@ function isInflectionOfShort(longer: string, short: string): boolean {
 }
 
 /**
+ * The same test, also in ASCII spelling — because every other guard here folds
+ * and this one did not, so with "dør" on the board "døren" was rejected while
+ * "doeren" was legal. 41 board words are three letters or fewer and contain a
+ * Danish letter, so that is not a corner: øl/oellet, æg/aegget, søn/soennen.
+ *
+ * Two details the obvious version gets wrong, both measured against the whole
+ * thousand-word set. The fold is applied only when the SHORT word really
+ * contains a Danish letter, and the length test stays on the unfolded
+ * spelling — folding unconditionally lengthens the short word into a prefix it
+ * never was, and blocks four real pairs: "to" swallows "tør", "ko" swallows
+ * "køre", "sko" swallows "skøn", "ro" swallows "røre". Guarded this way it
+ * catches all twelve ASCII forms and adds no new block anywhere in the set.
+ */
+function inflectionOfShort(longer: string, short: string): boolean {
+  if (short.length > 3) return false
+  if (isInflectionOfShort(longer, short)) return true
+  const folded = foldDanish(short)
+  return folded !== short && isInflectionOfShort(foldDanish(longer), folded)
+}
+
+/**
  * Danish written on an English keyboard: æ→ae, ø→oe, å→aa. Folded only here,
  * inside the legality check, and never in normalize(): legality erring strict
  * costs a model one retry, whereas folding in the shared normalizer would also
@@ -80,10 +101,7 @@ export function checkClueLegality(clue: string, words: readonly BoardWord[]): Le
       if (cStem === danishStem(b) || danishStem(foldDanish(c)) === danishStem(foldDanish(b))) {
         return { legal: false, reason: `"${clue}" is a form of ${what}`, conflictWord: w.da }
       }
-      if (
-        (b.length <= 3 && isInflectionOfShort(c, b)) ||
-        (c.length <= 3 && isInflectionOfShort(b, c))
-      ) {
+      if (inflectionOfShort(c, b) || inflectionOfShort(b, c)) {
         return { legal: false, reason: `"${clue}" is a form of ${what}`, conflictWord: w.da }
       }
       if (b.length >= 4 && c.length >= 4 && levenshtein(c, b) <= 1) {

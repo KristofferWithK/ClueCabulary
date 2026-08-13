@@ -29,6 +29,14 @@ interface JourneyStore extends JourneyState {
   /** cityIndex -> arrival timestamp, for the travel log on the map. */
   arrivedAt: Record<number, number>
   activeExam: ActiveExam | null
+  /**
+   * The words on the last paper that was marked. Marking prints the right
+   * answer beside every miss, so these are the words whose answers the player
+   * has been given; the next draw pushes them to the back of the queue. Kept
+   * here rather than read off activeExam because leaving a graded paper clears
+   * it, and drawing again from Home must not be the way around this.
+   */
+  lastPaper: string[]
   /** Drawing a paper spends one attempt, pass or fail. */
   startExam: (cityIndex: number, wordIds: string[]) => void
   setExamAnswer: (wordId: string, text: string) => void
@@ -48,6 +56,7 @@ const initial = {
   trialsSpent: {} as Record<number, number>,
   arrivedAt: {} as Record<number, number>,
   activeExam: null as ActiveExam | null,
+  lastPaper: [] as string[],
 }
 
 export const useJourney = create<JourneyStore>()(
@@ -68,8 +77,14 @@ export const useJourney = create<JourneyStore>()(
             ? { activeExam: { ...s.activeExam, answers: { ...s.activeExam.answers, [wordId]: text } } }
             : s,
         ),
+      // Marking is the moment the answers go on screen, so it is the moment
+      // these words become spent for drawing purposes.
       markExamGraded: (now) =>
-        set((s) => (s.activeExam ? { activeExam: { ...s.activeExam, gradedAt: now } } : s)),
+        set((s) =>
+          s.activeExam
+            ? { activeExam: { ...s.activeExam, gradedAt: now }, lastPaper: s.activeExam.wordIds }
+            : s,
+        ),
       endExam: () => set({ activeExam: null }),
       awardStamp: (cityIndex, wordIds, now) =>
         set((s) => {
