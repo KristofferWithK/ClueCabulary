@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { AiError, type AiSettings } from './client'
 import { OllamaCompanion, planGuessExecution } from './companion'
 import type { AiClueView, AiGuessView } from './projections'
+import type { ChatMessage } from './prompts'
 
 const settings: AiSettings = { baseUrl: 'http://x', apiKey: 'k', model: 'm' }
 
@@ -27,9 +28,11 @@ const guessView: AiGuessView = {
   history: [],
 }
 
+// Args are declared so a test can inspect what was actually sent — the
+// corrective retry's text is the interesting part of a rejected reply.
 const respondWith = (...replies: unknown[]) => {
   let i = 0
-  return async () => {
+  return async (_settings: AiSettings, _messages: ChatMessage[], _opts?: unknown) => {
     if (i >= replies.length) throw new Error('unexpected extra AI call')
     return replies[i++]
   }
@@ -60,19 +63,37 @@ describe('planGuessExecution', () => {
 })
 
 describe('OllamaCompanion.getClue', () => {
-  it('accepts a valid clue and filters targets to its own unrevealed greens', async () => {
+  /**
+   * This test used to assert the trimming — "filters targets to its own
+   * unrevealed greens" — and the trimming was the bug. Dropping w2, w3 and
+   * "nonsense" while keeping the word "dyreliv" leaves a clue chosen for five
+   * words pointing at two, with three of the five sitting on the board
+   * scoring nothing. Rejected now, and the retry is the fix.
+   */
+  it('refuses a clue whose targets are not all its own unrevealed greens', async () => {
+    const bad = {
+      clue: 'dyreliv',
+      number: 3,
+      targetWordIds: ['w0', 'w1', 'w2', 'w3', 'nonsense'],
+      rationale: 'animals',
+    }
+    const good = { clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'pets' }
+    const chat = vi.fn(respondWith(bad, good))
+    const clue = await new OllamaCompanion(settings, chat).getClue(clueView)
+    expect(clue.clue).toBe('kæledyr')
+    expect(clue.targetWordIds).toEqual(['w0', 'w1'])
+    expect(clue.number).toBe(2)
+    expect(chat).toHaveBeenCalledTimes(2)
+  })
+
+  it('accepts one whose targets are all its own, first time', async () => {
     const companion = new OllamaCompanion(
       settings,
-      respondWith({
-        clue: 'dyreliv',
-        number: 3,
-        targetWordIds: ['w0', 'w1', 'w2', 'w3', 'nonsense'],
-        rationale: 'animals',
-      }),
+      respondWith({ clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'pets' }),
     )
     const clue = await companion.getClue(clueView)
-    expect(clue.targetWordIds).toEqual(['w0', 'w1']) // w2 not green, w3 revealed, nonsense unknown
-    expect(clue.number).toBe(2) // trimmed to real target count
+    expect(clue.targetWordIds).toEqual(['w0', 'w1'])
+    expect(clue.number).toBe(2)
   })
 
   it('retries once on an illegal clue, then succeeds', async () => {
@@ -156,5 +177,80 @@ describe('OllamaCompanion.getGuesses', () => {
     )
     const res = await companion.getGuesses(guessView)
     expect(res.guesses[0]!.wordId).toBe('w1')
+  })
+})
+
+/**
+ * Reported from a real game: "Klaus clued ocean twice and each time I took
+ * something obvious like water or fish and it was wrong."
+ *
+ * He had named water, fish and beach as his targets; only beach was green on
+ * his key. getClue used to silently drop the other two, keep the word "ocean",
+ * and rewrite the number to 1 — so the player was shown «ocean» (1) on a board
+ * where water and fish are the two most obvious ocean words and neither scores.
+ * The clue pointed away from the only word it could pay for.
+ *
+ * This is not a corner case. The deal makes Klaus's greens the words the player
+ * knows least and the hazards the ones they know best, so the obvious referent
+ * of a clue is disproportionately not his to give.
+ */
+describe('a clue is only as good as the targets it was chosen for', () => {
+  const ocean: AiClueView = {
+    kind: 'ai-clue',
+    clueLanguage: 'en',
+    turnsLeft: 5,
+    words: [
+      { id: 'w0', da: 'vand', en: ['water'], pos: 'noun', reveal: { kind: 'hidden' }, roleOnMyKey: 'bystander' },
+      { id: 'w1', da: 'fisk', en: ['fish'], pos: 'noun', reveal: { kind: 'hidden' }, roleOnMyKey: 'bystander' },
+      { id: 'w2', da: 'strand', en: ['beach'], pos: 'noun', reveal: { kind: 'hidden' }, roleOnMyKey: 'green' },
+      { id: 'w3', da: 'stol', en: ['chair'], pos: 'noun', reveal: { kind: 'hidden' }, roleOnMyKey: 'green' },
+    ],
+    history: [],
+  }
+  const oceanReply = {
+    clue: 'ocean',
+    number: 3,
+    targetWordIds: ['w0', 'w1', 'w2'],
+    rationale: 'Water, fish and the beach are all the sea.',
+  }
+
+  it('refuses the reply instead of quietly keeping the word and dropping the words', async () => {
+    const good = { clue: 'sand', number: 1, targetWordIds: ['w2'], rationale: 'A beach is sand.' }
+    const chat = vi.fn(respondWith(oceanReply, good))
+    const res = await new OllamaCompanion(settings, chat).getClue(ocean)
+    expect(res.clue).toBe('sand')
+    expect(res.targetWordIds).toEqual(['w2'])
+    expect(chat).toHaveBeenCalledTimes(2)
+  })
+
+  it('and tells him which word was not his, by name, so the retry can fix it', async () => {
+    const good = { clue: 'sand', number: 1, targetWordIds: ['w2'], rationale: 'x' }
+    const chat = vi.fn(respondWith(oceanReply, good))
+    await new OllamaCompanion(settings, chat).getClue(ocean)
+    const retry = JSON.stringify(chat.mock.calls[1]![1])
+    expect(retry).toContain('vand')
+    expect(retry).toContain('fisk')
+    // And what he may have instead.
+    expect(retry).toContain('strand')
+  })
+
+  it('gives up rather than serving a clue whose targets it had to invent', async () => {
+    const chat = vi.fn(respondWith(oceanReply, oceanReply))
+    await expect(new OllamaCompanion(settings, chat).getClue(ocean)).rejects.toThrow(AiError)
+  })
+
+  it('accepts a reply whose targets are all his, and counts them itself', async () => {
+    const reply = { clue: 'sidde', number: 1, targetWordIds: ['w2', 'w3'], rationale: 'x' }
+    const res = await new OllamaCompanion(settings, respondWith(reply)).getClue(ocean)
+    // Number follows the targets, not the model's arithmetic.
+    expect(res.number).toBe(2)
+    expect(res.targetWordIds).toEqual(['w2', 'w3'])
+  })
+
+  it('still collapses a duplicate id without calling it an error', async () => {
+    const reply = { clue: 'sand', number: 2, targetWordIds: ['w2', 'w2'], rationale: 'x' }
+    const res = await new OllamaCompanion(settings, respondWith(reply)).getClue(ocean)
+    expect(res.targetWordIds).toEqual(['w2'])
+    expect(res.number).toBe(1)
   })
 })
