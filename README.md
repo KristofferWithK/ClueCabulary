@@ -33,7 +33,12 @@ words are green it stops counting attempts.
    solid green for a target, dashed black for forbidden **on your key** — which
    is a word Klaus must never be led to, not a word you must never tap.
 2. You open: you give a one-word clue, Klaus guesses — then Klaus clues and you
-   guess. Guesses are judged against the clue-giver's key. Klaus is told how
+   guess. A clue's number is the whole allowance: guess that many right and the
+   turn ends itself. (There is no Codenames-style bonus guess. It existed to
+   pick up a word left over from an earlier clue, and in practice only read as
+   the turn refusing to end once you had found everything the clue promised.)
+   Stopping short is still yours to choose. Guesses are judged against the
+   clue-giver's key. Klaus is told how
    many of his greens are left against how many clues remain, so he aims for
    two or three words a clue rather than picking off one at a time — and on his
    last clue, for everything he has left, since a green he never points at is
@@ -69,7 +74,10 @@ words are green it stops counting attempts.
    direction composing a clue actually needs. When Klaus clues in Danish, one
    tap loads his clue into the same box.
    Toggle **Aa** to overlay every translation — off to start with, so the board
-   opens as twelve Danish words rather than twenty-four lines of text. Every lookup tells the practice
+   opens as twelve Danish words rather than twenty-four lines of text, and there
+   is no opening study phase either (Settings can turn one back on; a save from
+   before that default changed is migrated, since a persisted setting kept the
+   old behaviour alive long after the default moved). Every lookup tells the practice
    scheduler which words to bring back sooner — including one done in the
    lookup box, which costs exactly what tapping ⓘ costs, and neither is
    available during the translation challenge or a travel exam. A clue may be

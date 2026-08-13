@@ -36,21 +36,19 @@ try {
   const cards = await page.locator('.word-card .card-word').allTextContents()
   console.log('BOARD:', cards.join(', '))
 
-  // Early cities open with the whole board translated; read it, then begin.
-  const study = page.locator('.study-dock .btn-primary')
-  if (await study.isVisible().catch(() => false)) {
-    const glosses = await page.locator('.word-card .card-en').count()
-    if (glosses !== cards.length) {
-      throw new Error(`study phase showed ${glosses} of ${cards.length} translations`)
-    }
-    console.log(`study phase: all ${glosses} translations shown`)
-    await page.screenshot({ path: `${SHOT_DIR}/02b-study.png` })
-    await study.click()
-    // Translations must hide again once the round starts.
-    if ((await page.locator('.word-card .card-en').count()) !== 0) {
-      throw new Error('translations stayed visible after the study phase')
-    }
+  // A round opens on Danish words and nothing else. No study dock, no glosses.
+  // Asserted rather than tolerated: this drive used to accept the study phase if
+  // it appeared, so it would have kept passing while every round opened with
+  // twelve English translations on screen — which is exactly what a stale
+  // persisted setting was still doing.
+  if (await page.locator('.study-dock').count()) {
+    throw new Error('the round opened with the study phase')
   }
+  const openingGlosses = await page.locator('.word-card .card-en').count()
+  if (openingGlosses !== 0) {
+    throw new Error(`the round opened with ${openingGlosses} translations on the board`)
+  }
+  console.log(`opened on ${cards.length} Danish words, 0 translations`)
 
   // Player clue round
   await page.fill('.clue-input input', 'huskeliste')
@@ -98,6 +96,45 @@ try {
     console.log('translations toggle locked (redemption round) — skipping')
     await page.screenshot({ path: `${SHOT_DIR}/06-redemption.png` })
   }
+
+  // ---- and on a phone that has been playing since before the default moved --
+  // The check above passes on a fresh install even when the app is broken for
+  // everyone who already has it: settings persist, so a device holding the old
+  // studyPhase kept opening every round with the whole board translated long
+  // after the default said otherwise. This is that device.
+  const V1_SETTINGS = JSON.stringify({
+    version: 1,
+    state: {
+      apiKey: '',
+      baseUrl: 'https://example.invalid/v1',
+      model: 'm',
+      gridSize: 'beginner',
+      clueLanguage: 'en',
+      studyPhase: 'auto',
+      useMock: false,
+      klausVerifiedAt: null,
+    },
+  })
+  await page.evaluate((blob) => {
+    localStorage.clear()
+    localStorage.setItem('cluecab-settings-v1', blob)
+  }, V1_SETTINGS)
+  await page.goto(preview.base + '?mock=1&seed=5&howto=0&letter=0')
+  await page.waitForSelector('.city-card')
+  await page.click('.grid-card:first-child')
+  await page.waitForSelector('.board-grid')
+  if (await page.locator('.study-dock').count()) {
+    throw new Error('an upgraded save still opens with the study phase')
+  }
+  const staleGlosses = await page.locator('.word-card .card-en').count()
+  if (staleGlosses !== 0) {
+    throw new Error(`an upgraded save opened with ${staleGlosses} translations`)
+  }
+  const migrated = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-settings-v1')).state.studyPhase,
+  )
+  if (migrated !== 'never') throw new Error(`studyPhase not migrated: ${migrated}`)
+  console.log('a v1 save upgrades to a clean opening board')
 
   console.log('SMOKE OK')
 } catch (e) {

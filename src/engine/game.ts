@@ -193,8 +193,23 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
           s.outcome = { result: 'won', reason: 'all-greens' }
           return s
         }
-        // Duet rule: up to number + 1 guesses per clue.
-        if (clue.guesses.length >= clue.number + 1) return endTurn(s, giver)
+        /**
+         * The number is the whole allowance. Guess that many right and the turn
+         * ends itself.
+         *
+         * Codenames and Duet both grant a bonus (number + 1)-th guess, and this
+         * followed them — but the bonus is there to pick up a word left over
+         * from an EARLIER clue, which is a move a player has to be told about to
+         * ever make. In practice it read as the turn not ending: you guessed the
+         * two words Klaus asked for, both green, and then nothing happened until
+         * you found "Stop guessing". Asked for directly: "when you have guessed
+         * the amount of words Klaus gives you the turn ends automatically."
+         *
+         * Stopping short is still yours to do — the button remains, and stopping
+         * after one of three is a real decision. It is only the guess past the
+         * number that is gone.
+         */
+        if (clue.guesses.length >= clue.number) return endTurn(s, giver)
         return s
       }
 

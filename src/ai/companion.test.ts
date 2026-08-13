@@ -58,13 +58,18 @@ afterEach(() => {
 describe('planGuessExecution', () => {
   const g = (wordId: string, confidence: number) => ({ wordId, confidence, reasoning: '' })
 
-  it('orders by confidence and caps at number + 1 (bonus only when sure)', () => {
+  it('orders by confidence and caps at the number', () => {
     const plan = planGuessExecution([g('a', 0.5), g('c', 0.95), g('b', 0.8), g('d', 0.9)], 2)
-    expect(plan.map((x) => x.wordId)).toEqual(['c', 'd', 'b'])
+    expect(plan.map((x) => x.wordId)).toEqual(['c', 'd'])
   })
 
-  it('denies the bonus guess below 0.7', () => {
-    const plan = planGuessExecution([g('a', 0.9), g('b', 0.69)], 1)
+  /**
+   * There is no bonus guess any more — the engine ends the turn on the number-th
+   * correct one — so planning a third here would only queue a guess the engine
+   * refuses, in a phase that has already moved on.
+   */
+  it('plans no guess past the number, however sure', () => {
+    const plan = planGuessExecution([g('a', 0.99), g('b', 0.99), g('c', 0.99)], 1)
     expect(plan.map((x) => x.wordId)).toEqual(['a'])
   })
 

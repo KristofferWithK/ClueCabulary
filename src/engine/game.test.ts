@@ -200,8 +200,10 @@ describe('full game flows', () => {
     expect(s.reveals[target]).toEqual({ kind: 'bystander', against: ['player'] })
     expect(s.phase).toBe('aiClueInput')
 
-    // Under the AI's clue the same word is guessable — and green.
-    s = clue(s, 'ai', 1)
+    // Under the AI's clue the same word is guessable — and green. Clued as 2 so
+    // the turn survives it: the number is the whole allowance now, so a 1 would
+    // end the turn on this guess and the rest of this test could not run.
+    s = clue(s, 'ai', 2)
     expect(isGuessable(s, target)).toBe(true)
     s = applyEvent(s, { type: 'GUESS', wordId: target })
     expect(s.reveals[target]).toEqual({ kind: 'green' })
@@ -315,34 +317,63 @@ describe('full game flows', () => {
   })
 
   it('keeps the same giver when the other side has nothing left to clue', () => {
-    let s = newGame()
+    // standard, because emptying one side's key now takes two clues rather than
+    // one: MAX_CLUE_NUMBER is 4 and there is no bonus guess to stretch it, and
+    // beginner does not have the tokens to spare for the setup.
+    let s = newGame('standard')
     // Turn 1: player clue, AI hits a bystander → normal rotation to the AI.
     s = clue(s, 'player', 1)
     s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'bystander') })
     expect(s.phase).toBe('aiClueInput')
-    // Turn 2: under the AI's clue the player finds ALL 5 AI-key greens (cap 4+1).
-    s = clue(s, 'ai', 4)
-    for (let i = 0; i < 5; i++) {
-      s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'ai', 'green') })
+    // Turns 2 and 4: under the AI's clues the player finds all 7 AI-key greens.
+    const takeAiGreens = (n: number) => {
+      s = clue(s, 'ai', n)
+      for (let i = 0; i < n; i++) {
+        s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'ai', 'green') })
+      }
     }
+    takeAiGreens(4)
+    // Turn 3: a spacer, so the AI gets the clue again.
+    s = clue(s, 'player', 1)
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'bystander') })
+    takeAiGreens(3)
     expect(targetableGreenIds(s, 'ai')).toEqual([])
     expect(s.phase).toBe('playerClueInput')
-    // Turn 3: player clues, AI banks one green and stops. The AI side has
+    // Turn 5: player clues, AI banks one green and stops. The AI side has
     // nothing to clue, so the player must clue again — no aiClueInput dead-end.
-    s = clue(s, 'player', 1)
+    s = clue(s, 'player', 2)
     s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'green') })
     s = applyEvent(s, { type: 'STOP_GUESSING' })
     expect(s.phase).toBe('playerClueInput')
   })
 
-  it('caps guesses at number + 1', () => {
+  /**
+   * The number is the whole allowance: no bonus (number + 1)-th guess. Asked
+   * for as "when you have guessed the amount of words Klaus gives you the turn
+   * ends automatically", after the old rule read on a phone as the turn simply
+   * not ending once you had found everything the clue promised.
+   */
+  it('ends the turn on the number-th correct guess, with no bonus', () => {
     let s = clue(newGame(), 'player', 1)
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'green') })
+    expect(s.phase).toBe('aiClueInput')
+    expect(s.turnsLeft).toBe(s.config.turnTokens - 1)
+  })
+
+  it('and on the second of a two, not the third', () => {
+    let s = clue(newGame(), 'player', 2)
     s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'green') })
     expect(s.phase).toBe('aiGuessing')
     s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'green') })
-    // Two guesses on a "1" clue: turn ends automatically.
     expect(s.phase).toBe('aiClueInput')
-    expect(s.turnsLeft).toBe(s.config.turnTokens - 1)
+  })
+
+  it('but stopping short is still the guesser own call', () => {
+    let s = clue(newGame(), 'player', 3)
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'green') })
+    expect(s.phase).toBe('aiGuessing')
+    s = applyEvent(s, { type: 'STOP_GUESSING' })
+    expect(s.phase).toBe('aiClueInput')
   })
 })
 
