@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS, REDEMPTION_AFTER_ROUND } from './config'
+import { GRID_CONFIGS, REDEMPTION_AFTER_ROUND, type GridSize } from './config'
 import {
   IllegalClueError,
   IllegalEventError,
@@ -24,7 +24,7 @@ const makeWords = (n: number): BoardWord[] =>
 // Pins the opener explicitly, so these tests keep reading the same way if the
 // default ever moves again. The default itself is asserted against createGame
 // directly, in 'who opens the round'.
-const newGame = (grid: 'beginner' | 'standard' = 'beginner', seed = 7, firstGiver: Side = 'player') =>
+const newGame = (grid: GridSize = 'beginner', seed = 7, firstGiver: Side = 'player') =>
   createGame({
     config: GRID_CONFIGS[grid],
     words: makeWords(GRID_CONFIGS[grid].totalWords),
@@ -217,6 +217,101 @@ describe('full game flows', () => {
     expect(s.reveals[blocked]).toEqual({ kind: 'bystander', against: ['ai', 'player'] })
     s = clue(s, 'ai', 1)
     expect(isGuessable(s, blocked)).toBe(false) // now blocked in both directions
+  })
+
+  /**
+   * Forbidden words are directional in exactly the way bystanders are, and
+   * nothing here said so. An audit mutated this engine to the naive rule — a
+   * forbidden word is fatal to whoever names it — and 411 of 413 tests went on
+   * passing; the two that broke did so on an unrelated fixture message. So the
+   * rule the whole game turns on was, until this block, held up by nothing.
+   *
+   * It had to be reported by hand instead: "My forbidden word is a word he is
+   * not allowed to pick when he gets my clue. But if he gives me a clue that
+   * clues the forbidden word I see then that's fine, I can click that."
+   *
+   * That is right, and it is what these pin.
+   */
+  describe('a guess is judged against the clue-giver key, and only that key', () => {
+    it('the player may tap a word their OWN key forbids, under Klaus clue', () => {
+      let s = newGame('standard', 7, 'ai')
+      const mine = Object.keys(s.playerKey).find(
+        (w) => s.playerKey[w] === 'forbidden' && s.aiKey[w] !== 'forbidden',
+      )!
+      s = clue(s, 'ai', 2)
+      s = applyEvent(s, { type: 'GUESS', wordId: mine })
+      // Not fatal, not even revealed as forbidden: it is not on the key being read.
+      expect(s.outcome).toBeUndefined()
+      expect(s.reveals[mine]!.kind).not.toBe('forbidden')
+    })
+
+    it('and it SCORES when Klaus key calls it green', () => {
+      // standard still deals forbiddenVsGreen, which is the only place this
+      // card exists — the whole point being that it is a green, not a trap.
+      expect(GRID_CONFIGS.standard.forbiddenVsGreen).toBe(1)
+      let s = newGame('standard', 7, 'ai')
+      const card = Object.keys(s.playerKey).find(
+        (w) => s.playerKey[w] === 'forbidden' && s.aiKey[w] === 'green',
+      )!
+      expect(card).toBeDefined()
+      s = clue(s, 'ai', 2)
+      s = applyEvent(s, { type: 'GUESS', wordId: card })
+      expect(s.reveals[card]).toEqual({ kind: 'green' })
+      expect(s.outcome).toBeUndefined()
+    })
+
+    it('but Klaus OWN forbidden word, under his clue, ends the round', () => {
+      let s = newGame('standard', 7, 'ai')
+      const his = Object.keys(s.aiKey).find((w) => s.aiKey[w] === 'forbidden')!
+      s = clue(s, 'ai', 2)
+      s = applyEvent(s, { type: 'GUESS', wordId: his })
+      expect(s.reveals[his]).toEqual({ kind: 'forbidden' })
+      expect(s.outcome?.result).toBe('lost')
+    })
+
+    it('and the mirror: Klaus naming the player forbidden word under the player clue ends it', () => {
+      let s = newGame('standard', 7, 'player')
+      const mine = Object.keys(s.playerKey).find((w) => s.playerKey[w] === 'forbidden')!
+      s = clue(s, 'player', 2)
+      s = applyEvent(s, { type: 'GUESS', wordId: mine })
+      expect(s.reveals[mine]).toEqual({ kind: 'forbidden' })
+      expect(s.outcome?.result).toBe('lost')
+    })
+
+    /**
+     * The one that makes it un-regressable rather than seed-lucky: across every
+     * board, both openers and forty deals each, a card forbidden on the
+     * NON-giver's key is never fatal and never even reveals as forbidden.
+     */
+    it('holds across every board, both openers and forty deals', () => {
+      let checked = 0
+      for (const grid of ['beginner', 'middle', 'standard'] as const) {
+        for (const firstGiver of ['player', 'ai'] as const) {
+          for (let seed = 1; seed <= 40; seed++) {
+            let s = createGame({
+              config: GRID_CONFIGS[grid],
+              words: makeWords(GRID_CONFIGS[grid].totalWords),
+              seed,
+              firstGiver,
+            })
+            s = clue(s, firstGiver, 2)
+            const giver = giverOf(s.phase)
+            const giverKey = keyOf(s, giver)
+            const otherKey = keyOf(s, giver === 'player' ? 'ai' : 'player')
+            const safe = Object.keys(otherKey).find(
+              (w) => otherKey[w] === 'forbidden' && giverKey[w] !== 'forbidden' && isGuessable(s, w),
+            )
+            if (!safe) continue
+            const after = applyEvent(s, { type: 'GUESS', wordId: safe })
+            expect(after.reveals[safe]!.kind, `${grid}/${firstGiver}/${seed}`).not.toBe('forbidden')
+            expect(after.outcome, `${grid}/${firstGiver}/${seed}`).toBeUndefined()
+            checked++
+          }
+        }
+      }
+      // Fails loudly rather than vacuously if a config change removes the card.
+      expect(checked).toBeGreaterThan(100)
+    })
   })
 
   it('keeps the same giver when the other side has nothing left to clue', () => {

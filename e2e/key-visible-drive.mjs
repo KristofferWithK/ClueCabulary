@@ -45,9 +45,28 @@ try {
   const label = await page.locator('.word-card.mykey-green').first().getAttribute('aria-label')
   if (!label?.includes('your target')) throw new Error(`target not announced: ${label}`)
 
+  // A dashed card is forbidden ON your key: a word Klaus must never be led to,
+  // NOT a word you must never tap. Under his clue it is judged against his key
+  // and is perfectly safe. The legend said "forbidden for you", which reads as
+  // the opposite and disagreed with the screen-reader name beside it.
+  const dashLabel = await page
+    .locator('.word-card.mykey-forbidden')
+    .first()
+    .getAttribute('aria-label')
+  if (!dashLabel?.includes('forbidden on your key')) {
+    throw new Error(`dashed card not announced as a key marking: ${dashLabel}`)
+  }
+
   // The legend explains the markers, and the dictionary is reachable by tapping
   // a card outside your guessing turn.
   await page.waitForSelector('.key-legend')
+  const legend = (await page.locator('.key-legend').textContent()) ?? ''
+  if (!legend.includes('forbidden on your key')) {
+    throw new Error(`legend does not say whose key the dashes are: ${legend.trim()}`)
+  }
+  if (/forbidden for you/.test(legend)) {
+    throw new Error('legend still reads as "you must not name this"')
+  }
   await page.locator('.word-card').first().click()
   await page.waitForSelector('.sheet', { timeout: 5000 })
   console.log('tap-to-look-up opened:', (await page.locator('.sheet h2').textContent())?.trim())

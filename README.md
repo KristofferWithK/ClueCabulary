@@ -30,7 +30,8 @@ words are green it stops counting attempts.
 1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words
    from the ~1000 most common, each noun with its gender in front of it —
    **et hus**, the way the pair is learned. Your own key is the card's border:
-   solid green for a target, dashed black for forbidden.
+   solid green for a target, dashed black for forbidden **on your key** — which
+   is a word Klaus must never be led to, not a word you must never tap.
 2. You open: you give a one-word clue, Klaus guesses — then Klaus clues and you
    guess. Guesses are judged against the clue-giver's key. Klaus is told how
    many of his greens are left against how many clues remain, so he aims for
@@ -42,11 +43,18 @@ words are green it stops counting attempts.
    Running out is not the end: the clues stop but the board does not, and
    **sudden death** lets you keep naming words with nothing left to go on. Name
    a green and you are still alive; name anything else and the round is over.
-   Name a forbidden word — either of you can — and the round ends there. Once
-   **four clues** have been given, one last chance opens instead: **translate
-   every unsolved word on the board** — dictionary locked, one shot, all or
-   nothing. It closes again when the clues run out; in sudden death a forbidden
-   word simply ends it.
+   **Forbidden words cut one way at a time**, because a guess is judged against
+   the clue-giver's key and nothing else. Your dashed cards end the round only
+   when *Klaus* names one under *your* clue — they are safe for you to tap while
+   you guess his, where it is his forbidden words that are fatal and you cannot
+   see those. (Sudden death is the exception: no clue-giver, so either key ends
+   it. `game.test.ts` pins the whole rule; two mutations of the engine were
+   checked to fail it.)
+
+   Once **four clues** have been given, a forbidden word leaves one last chance
+   instead of ending the round: **translate every unsolved word on the board** —
+   dictionary locked, one shot, all or nothing. It closes again when the clues
+   run out.
 
    That threshold is `REDEMPTION_AFTER_ROUND` in `src/engine/config.ts`, and
    two measured facts sit beside it there. The guessing side alternates

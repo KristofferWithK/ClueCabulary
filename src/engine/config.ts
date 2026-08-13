@@ -72,16 +72,49 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
    *
    * One forbidden word a side, and it is the bystander variant on purpose.
    *
-   * This board shipped with two, one of which was forbidden here and GREEN on
-   * the other key — the Duet trap, where your partner's best word is the one
-   * that ends your game. Two things make that trap unfair rather than tense
-   * here: Klaus cannot see the player's key, so unlike a human partner he
-   * cannot even try to steer around it, and he is the one giving most of the
-   * clues. A player reported the exact shape — Klaus clued «kitchen», they
-   * answered «food», and food was forbidden — and asked for one forbidden word
-   * instead of two. Cutting the vsGreen one is how to spend that cut: what is
-   * left is a word that is merely neutral for Klaus, so nothing on the board is
-   * simultaneously worth pointing at and fatal to name.
+   * THE RULE THIS TURNS ON, because the first version of this comment got it
+   * backwards: outside sudden death a guess is judged against the CLUE-GIVER's
+   * key and nothing else (game.ts, the GUESS case). So the player's forbidden
+   * words can only end the round while the PLAYER is cluing and Klaus is
+   * guessing. A card the player's own key marks forbidden is harmless for them
+   * to tap under Klaus's clue — it is read off aiKey, where it is a green or a
+   * bystander. In the player's words, which are right: "my forbidden word is a
+   * word he is not allowed to pick when he gets my clue."
+   *
+   * forbiddenVsGreen deals BOTH directions (keygen.ts), one card each, and they
+   * are nothing alike:
+   *
+   * - (forbidden for the player, GREEN for Klaus) is not a trap at all. Klaus
+   *   clues toward it because it is his green, the player taps it, and it
+   *   SCORES. keygen already agrees — it files that card under the `recall`
+   *   tier, not `hazard`. It is dangerous only as a word the player must not
+   *   aim their OWN clue near, and the board draws it dashed from playerKey, so
+   *   the side that has to steer is the side that can see it.
+   * - (GREEN for the player, forbidden for Klaus) is the one worth cutting. The
+   *   player's own key paints it as a target; Klaus's key ends the round on it;
+   *   and while the player is guessing there is no marking to warn them. Klaus
+   *   can see it on his own key and should steer his clues away, exactly as a
+   *   human partner would — but that is the only protection, and it is only as
+   *   good as his clue.
+   *
+   * So the cut spends the vsGreen slot. It also happens to be free: by
+   * assertConfigConsistent's own arithmetic, vsGreen 0 / vsBystander 1 leaves
+   * perSideOnlyGreens at 4 and `used` at 13, keeping the thirteen-of-fifteen
+   * above intact, while vsGreen 1 / vsBystander 0 drops it to 11 and doubles
+   * the neutrals to four.
+   *
+   * (The report that prompted the change — Klaus clued «kitchen», the player
+   * answered «food», «food» was forbidden — cannot have been either vsGreen
+   * card. Under Klaus's clue a word forbidden on the PLAYER's key reveals green
+   * or neutral and play carries on. «food» was forbidden on KLAUS's key, which
+   * is the vsBystander card this cut leaves in place: a clue-quality problem,
+   * answered in prompts.ts, not a board-shape one. What the player saw was the
+   * dashed border on their own key, and they reasonably read it as "never touch
+   * this" — which is why the legend now says "forbidden on your key".)
+   *
+   * standard still ships forbiddenVsGreen: 1, so the (green for the player,
+   * forbidden for Klaus) card is still dealt there. Deliberate: it is the big
+   * board, and Duet's own ratios keep it.
    */
   middle: {
     rows: 5,

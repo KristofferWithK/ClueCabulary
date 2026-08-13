@@ -181,14 +181,20 @@ export function GameScreen() {
               Shows the borders themselves now. */}
           <span className="legend-swatch legend-target" aria-hidden="true" /> your target
           <span className="legend-sep">·</span>
-          <span className="legend-swatch legend-forbidden" aria-hidden="true" /> forbidden for you
+          {/* "forbidden for you" read as "you must not name this", which is
+              backwards: it is forbidden ON your key, meaning Klaus must not be
+              led to it. BoardGrid's screen-reader name has always said "on your
+              key"; the visible legend now agrees with it. */}
+          <span className="legend-swatch legend-forbidden" aria-hidden="true" /> forbidden on your
+          key
           <span className="legend-sep">·</span>
           <span aria-hidden="true">ⓘ</span> look up
           {game.phase === 'playerGuessing' && (
             <>
               <br />
-              A crossed-out word is spent for you; a neutral Klaus burned is still
-              yours to guess.
+              Klaus's key judges this guess, so a dashed word is safe to tap — it is your own
+              clues that must keep away from it. A crossed-out word is spent for you; a neutral
+              Klaus burned is still yours to guess.
             </>
           )}
         </p>
@@ -286,10 +292,14 @@ function PlayerGuessBar({ game }: { game: GameState }) {
         Klaus's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
         {left === 1 ? '' : 'es'}
       </p>
+      {/* Whose forbidden words, not "a forbidden word". This sits above a board
+          whose only forbidden markings are the player's own dashed cards, and
+          under Klaus's clue those are the safe ones — the guess is read off HIS
+          key. Unqualified, the sentence warns about exactly the wrong cards. */}
       <p className="dim stake-note">
         {lastChanceOpen
-          ? 'A forbidden word now leaves you the last chance.'
-          : 'A forbidden word ends the round.'}
+          ? "Klaus's forbidden words now leave you the last chance. You cannot see them."
+          : "Klaus's forbidden words end the round. You cannot see them."}
       </p>
       {selected ? (
         <div className="guess-confirm">

@@ -79,9 +79,13 @@ try {
     game.clueHistory.length <= REDEMPTION_AFTER_ROUND,
     `${game.clueHistory.length} given`,
   )
-  // The screen says so before it can cost anything.
+  // The screen says so before it can cost anything — and says WHOSE forbidden
+  // words, because the only ones visible here are the player's own dashed
+  // cards and those are the safe ones. A regex on "ends the round" alone would
+  // keep passing on the unqualified sentence that made this wrong.
   const stake = await page.locator('.stake-note').textContent()
-  check('and the guess bar says what a forbidden word costs now', /ends the round/.test(stake), stake)
+  check('the guess bar says what a forbidden word costs now', /end the round/.test(stake), stake)
+  check("and whose forbidden words it means", /Klaus/.test(stake), stake)
 
   const doomed = forbiddenForPlayerTurn(game)
   if (!doomed) throw new Error('no hidden forbidden word on Klaus’s key')

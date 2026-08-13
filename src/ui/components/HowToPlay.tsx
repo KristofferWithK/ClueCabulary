@@ -48,14 +48,19 @@ export function HowToPlay() {
           </li>
           <li>
             A neutral is only spent for the side that hit it. A word Klaus burned may still be
-            green on <em>your</em> key — while you are guessing, spent words are crossed out and
-            the rest are still yours to take.
+            green on <em>his</em> key — and his key is the one that scores while you are guessing,
+            so spent words are crossed out and the rest are still yours to take.
           </li>
           <li>
-            Name a <strong>forbidden</strong> word — either of you can — and the round ends there.
-            Once <strong>{REDEMPTION_AFTER_ROUND} clues</strong> have been given, one last chance
-            opens instead: translate every unsolved word on the board. All correct — the game is
-            redeemed. Any miss — it's lost.
+            <strong>Forbidden words cut one way at a time</strong>, because a guess is judged on
+            the clue-giver's key. The dashed cards are forbidden on <em>your</em> key: safe for you
+            to tap, but never lead Klaus to one with your clue. While you guess <em>his</em> clue
+            it is <em>his</em> forbidden words that end the round — and you cannot see those.
+          </li>
+          <li>
+            Once <strong>{REDEMPTION_AFTER_ROUND} clues</strong> have been given, a forbidden word
+            leaves one last chance instead of ending it: translate every unsolved word on the
+            board. All correct — the game is redeemed. Any miss — it's lost.
           </li>
           <li>
             When the clues run out the board stays open. Keep naming green words and you can still
