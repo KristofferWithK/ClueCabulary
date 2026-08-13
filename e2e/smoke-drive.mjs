@@ -1,6 +1,5 @@
 // Manual-style smoke drive of the built app with the mock companion.
 import { chromium } from 'playwright'
-import { passKlausOpening } from './first-turn.mjs'
 import { startPreview } from './preview-server.mjs'
 
 const PORT = 4173
@@ -54,8 +53,6 @@ try {
   }
 
   // Player clue round
-  // Klaus opens the round, so the clue box is one guess away.
-  await passKlausOpening(page)
   await page.fill('.clue-input input', 'huskeliste')
   await page.click('.clue-input .btn-primary')
   console.log('clue submitted; waiting for AI guesses…')

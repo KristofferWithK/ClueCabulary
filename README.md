@@ -31,9 +31,10 @@ words are green it stops counting attempts.
    from the ~1000 most common, each noun carrying its gender — **en** or **et**
    — in the strip along the top of its card. You and Klaus each have a secret
    key marking green targets and **forbidden words**.
-2. **Klaus opens.** He clues, you guess; then you clue and he guesses. Guesses
-   are judged against the clue-giver's key. Starting on a guess means you meet
-   the words before you have to compose a Danish clue about them.
+2. You open: you give a one-word clue, Klaus guesses — then Klaus clues and you
+   guess. Guesses are judged against the clue-giver's key. Klaus is told how
+   many of his greens are left against how many clues remain, so he aims for
+   two or three words a clue rather than picking off one at a time.
 3. Find every green word before the shared clue tokens run out and you both
    win. Beginner is four clues — two each; middle is six; standard is eight.
    Running out is not the end: the clues stop but the board does not, and

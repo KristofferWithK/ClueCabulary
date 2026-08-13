@@ -21,9 +21,9 @@ const makeWords = (n: number): BoardWord[] =>
     pos: 'noun',
   }))
 
-// Pins the opener, because most tests below are about mechanics and read
-// better starting from the player's clue. The real default — Klaus opens — is
-// asserted against createGame directly, in 'who opens the round'.
+// Pins the opener explicitly, so these tests keep reading the same way if the
+// default ever moves again. The default itself is asserted against createGame
+// directly, in 'who opens the round'.
 const newGame = (grid: 'beginner' | 'standard' = 'beginner', seed = 7, firstGiver: Side = 'player') =>
   createGame({
     config: GRID_CONFIGS[grid],
@@ -302,11 +302,11 @@ describe('who opens the round', () => {
       seed: 7,
     })
 
-  it('is Klaus, so the player meets the board by guessing rather than composing', () => {
-    expect(bare().phase).toBe('aiClueInput')
+  it('is the player, so the round starts on their clue rather than on waiting', () => {
+    expect(bare().phase).toBe('playerClueInput')
   })
 
   it('but the caller can still say otherwise', () => {
-    expect(newGame('beginner', 7, 'player').phase).toBe('playerClueInput')
+    expect(newGame('beginner', 7, 'ai').phase).toBe('aiClueInput')
   })
 })

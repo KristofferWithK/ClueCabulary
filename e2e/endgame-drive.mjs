@@ -1,8 +1,8 @@
 // The two ends of a round: who opens it, and what happens when the clues run
 // out.
 //
-// Both are rules, not decoration. Klaus opening means the player's first act
-// is a guess rather than composing a Danish clue on a board they have not read.
+// Both are rules, not decoration. The player opens, so the round starts on
+// their clue rather than on waiting for Klaus.
 // Sudden death means the clue tokens running out is not the end — you keep
 // naming words with nothing to go on, and one wrong name finishes it. Neither
 // is provable from the engine alone: the phase has to reach the screen, the
@@ -65,22 +65,16 @@ async function name(da) {
 }
 
 try {
-  // ---- Klaus opens ------------------------------------------------------------
+  // ---- the player opens -------------------------------------------------------
   await start(0)
-  await page.waitForSelector('.guess-bar', { timeout: 30_000 })
   const opened = await game()
-  // Asserted on the record rather than the live phase: the mock companion
-  // answers instantly, so aiClueInput is gone before a check can see it.
+  check('the round opens on the player', opened.phase === 'playerClueInput', opened.phase)
   check(
-    'the round opens on Klaus, not on the player',
-    opened.clueHistory[0]?.by === 'ai',
-    `first clue by ${opened.clueHistory[0]?.by}`,
+    'so the clue box is there and nothing is being waited for',
+    (await page.locator('.clue-input').count()) === 1 &&
+      (await page.locator('.guess-bar').count()) === 0,
   )
-  check(
-    'so the first thing the player is asked for is a guess',
-    (await page.locator('.clue-input').count()) === 0 &&
-      (await page.locator('.guess-bar').count()) === 1,
-  )
+  check('and Klaus has not clued yet', opened.clueHistory.length === 0, `${opened.clueHistory.length} clues`)
 
   // ---- the 3x5 board ----------------------------------------------------------
   await start(1)
