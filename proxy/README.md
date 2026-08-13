@@ -1,12 +1,13 @@
-# The proxy, and how to deploy it from a phone
+# The proxy — only needed for Ollama Cloud
 
-**Try the app's Settings → Test connection first.** If Klaus answers, you do
-not need any of this.
+**You probably do not need this.** Use **Gemini** in Settings: it answers a
+browser directly, and a round has been played on a phone that way with no proxy
+at all. This directory exists for Ollama Cloud, which cannot.
 
-If it reports a CORS problem, this is why. A browser is reported to be unable
-to call `https://ollama.com` at all: the cloud API answers the browser's CORS
-preflight with a **redirect**, and the fetch spec forbids redirects on
-preflight, so Chrome and Safari refuse before your real request is sent —
+Ollama Cloud refuses browser requests outright — measured on a real device. Its
+API answers the browser's CORS preflight with a **redirect**, and the fetch
+spec forbids redirects on preflight, so Chrome and Safari refuse before the
+real request is sent:
 
 ```
 Access to fetch at 'https://ollama.com/...' has been blocked by CORS policy:
@@ -16,9 +17,8 @@ Redirect is not allowed for a preflight request.
 
 That is a property of ollama.com, not of ClueCabulary, and no key or model name
 changes it. `curl` works fine — `curl` is not a browser and sends no preflight.
-Other projects have hit the same wall
-([Open WebUI](https://github.com/open-webui/open-webui/issues/16412)). Your own
-Test connection is what settles it for your phone.
+Other projects hit the same wall
+([Open WebUI](https://github.com/open-webui/open-webui/issues/16412)).
 
 This worker is the fix. It answers the preflight **itself** — it never forwards
 an OPTIONS request, so there is no redirect to trip over — and adds the headers

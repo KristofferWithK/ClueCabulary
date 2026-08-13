@@ -27,8 +27,23 @@ export class AiError extends Error {
   }
 }
 
-export const DEFAULT_BASE_URL = 'https://ollama.com/v1'
-export const DEFAULT_MODEL = 'gpt-oss:120b'
+/**
+ * Gemini, because it is the one measured to work.
+ *
+ * This was ollama.com until a real phone settled it: ollama.com refuses
+ * browser requests outright, so every fresh install started on a service that
+ * could not answer and needed a Cloudflare Worker before it could. Gemini's
+ * OpenAI-compatible endpoint answers a browser directly — confirmed by playing
+ * a round on the device, not inferred from anyone's bug tracker.
+ */
+export const DEFAULT_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai'
+
+/**
+ * Empty on purpose. Ollama and Gemini publish conflicting ids for the same
+ * model, and a wrong default returns a 404 that reads as a broken endpoint —
+ * so Settings asks the server instead, and says so until one is chosen.
+ */
+export const DEFAULT_MODEL = ''
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])
 
@@ -80,19 +95,19 @@ export type ChatFn = (
 export const chatJson: ChatFn = async (settings, messages, opts) => {
   // Before any header is built, let alone sent.
   const endpoint = resolveEndpoint(settings.baseUrl)
-  // Only ollama.com is asked for a key here. A local Ollama takes none, and a
-  // proxy may hold the key itself as a server-side secret — which is the setup
-  // the deploy guide recommends, because it keeps the key off the phone
-  // entirely. Guessing "no key means broken" would break that.
+  // Sent empty, the model comes back a 404 that reads as a broken endpoint.
   if (!settings.model.trim()) {
-    // Sent empty, this comes back a 404 and reads as a broken endpoint.
     throw new AiError(
       'not-found',
-      `No model chosen. Set one in Settings — “List models this server accepts” fills it in, and the usual default is ${DEFAULT_MODEL}.`,
+      'No model chosen. In Settings, tap “List models this server accepts” and pick one.',
     )
   }
   // What the player typed, else the key shipped with the build.
   const key = effectiveKey(settings.apiKey)
+  // Only ollama.com is asked for a key here. A local Ollama takes none, and a
+  // proxy may hold the key itself as a server-side secret — which is the setup
+  // the deploy guide recommends, because it keeps the key off the phone
+  // entirely. Guessing "no key means broken" would break that.
   if (!key && endpoint.hostname === 'ollama.com') {
     throw new AiError(
       'auth',

@@ -189,7 +189,9 @@ export function BackupPanel() {
         </div>
       )}
 
-      {status.kind === 'error' && <p className="test-fail">{status.message}</p>}
+      {/* Its own class as well as the shared style: Settings has other
+          .test-fail messages, and "the error" has to mean this one. */}
+      {status.kind === 'error' && <p className="test-fail backup-error">{status.message}</p>}
       {(status.kind === 'saved' || status.kind === 'restored') && (
         <p className="test-ok">✓ {status.message}</p>
       )}
