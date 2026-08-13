@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DEFAULT_BASE_URL, DEFAULT_MODEL } from '../ai/client'
+import { onPracticeCompanion } from './gameStore'
 import { migrateSettings, useSettings } from './settingsStore'
 
 /**
@@ -102,5 +103,29 @@ describe('the study phase, which the board should no longer open with', () => {
   it('survives a save with no studyPhase at all', () => {
     expect(() => migrate({ apiKey: 'k' }, 1)).not.toThrow()
     expect(() => migrate(undefined, 1)).not.toThrow()
+  })
+})
+
+/**
+ * "Why did it pick hvid at foster?" — one candidate answer was that the player
+ * was not talking to Klaus at all. `?mock=1` writes useMock permanently into
+ * persisted settings, and the practice companion ranks guesses by
+ * djb2(clue + wordId): measured statistically indistinguishable from naming a
+ * card at random, and at chance on greens too.
+ *
+ * It said nothing. The in-round note keyed on the FALLBACK flag, which is the
+ * other route to the same object, and useMock additionally suppressed both of
+ * Home's setup warnings — so a player with no API key and this switched on was
+ * told nothing anywhere.
+ */
+describe('knowing when Klaus is not playing', () => {
+  it('the practice companion is announced by either route to it', () => {
+    useSettings.setState({ useMock: false })
+    expect(onPracticeCompanion(false)).toBe(false)
+    expect(onPracticeCompanion(true)).toBe(true) // fell back mid-round
+    useSettings.setState({ useMock: true })
+    expect(onPracticeCompanion(false)).toBe(true) // chosen in Settings, or ?mock=1
+    expect(onPracticeCompanion(true)).toBe(true)
+    useSettings.setState({ useMock: false })
   })
 })

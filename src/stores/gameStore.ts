@@ -121,6 +121,21 @@ function companion(practiceFallback = false): Companion {
   return new OllamaCompanion({ baseUrl: s.baseUrl, apiKey: s.apiKey, model: s.model })
 }
 
+/**
+ * Is the thing playing Klaus the practice companion rather than Klaus?
+ *
+ * The screen used to answer this with `practiceFallback` alone, which is only
+ * one of the two routes into the same object. A player with useMock set — which
+ * ?mock=1 writes permanently into settings — got the mock in every round with
+ * NOTHING on screen saying so, while useMock simultaneously suppressed both of
+ * Home's setup warnings. Its guesses rank by djb2(clue + wordId), so what they
+ * saw was a companion measured to be statistically indistinguishable from
+ * naming a card at random, presented as Klaus.
+ */
+export function onPracticeCompanion(practiceFallback: boolean): boolean {
+  return useSettings.getState().useMock || practiceFallback
+}
+
 const aiMessage = (e: unknown): string =>
   e instanceof AiError ? e.message : 'Something went wrong talking to the AI companion.'
 

@@ -56,6 +56,16 @@ words are green it stops counting attempts.
    it. `game.test.ts` pins the whole rule; two mutations of the engine were
    checked to fail it.)
 
+   How often a forbidden word gets named is mostly board arithmetic, not
+   reasoning. Measured over 3000 games a board with a guesser that knows
+   nothing: **9.9%** of guesses on 3×4, **7.9%** on 3×5, **15.9%** on 4×5,
+   ending 31%, 27% and 47% of games. That is the floor any guesser starts from,
+   so "the AI keeps hitting forbidden words" is the expected shape unless it is
+   beating it. Giving Klaus his own key while guessing was measured and is
+   **not** the fix: on 3×4 and 3×5 nothing is forbidden on both keys, so his own
+   hazard is harmless to the player, and removing it from his pool makes him
+   *worse* (9.9% → 11.1%).
+
    Once **four clues** have been given, a forbidden word leaves one last chance
    instead of ending the round: **translate every unsolved word on the board** —
    dictionary locked, one shot, all or nothing. It closes again when the clues
