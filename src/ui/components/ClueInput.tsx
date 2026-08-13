@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MAX_CLUE_NUMBER } from '../../engine/config'
 import { checkClueLegality } from '../../engine/legality'
 import type { GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
@@ -63,7 +64,12 @@ export function ClueInput({ game, onSubmit }: Props) {
           <span className="stepper-value" aria-live="polite" aria-label={`${number} words`}>
             {number}
           </span>
-          <button aria-label="more words" onClick={() => setNumber((n) => Math.min(4, n + 1))}>
+          {/* Shared with the engine: the config guard checks a board is
+              clearable using this same ceiling, so the two must not drift. */}
+          <button
+            aria-label="more words"
+            onClick={() => setNumber((n) => Math.min(MAX_CLUE_NUMBER, n + 1))}
+          >
             +
           </button>
         </div>
