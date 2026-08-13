@@ -8,6 +8,7 @@ import { BoardGrid } from '../components/BoardGrid'
 import { ClueInput } from '../components/ClueInput'
 import { DebriefPanel } from '../components/DebriefPanel'
 import { useOpenDictionary } from '../components/DictionarySheet'
+import { TranslateBox } from '../components/TranslateBox'
 import { RedemptionView } from '../components/RedemptionView'
 import { TurnTokens } from '../components/TurnTokens'
 
@@ -245,6 +246,9 @@ function PlayerGuessBar({ game }: { game: GameState }) {
       ) : (
         <p className="dim">Tap a word you think Klaus means.</p>
       )}
+      {/* Klaus clues in Danish when asked to, and a clue you cannot read is
+          not a clue. Prefilled from his, one tap. */}
+      <TranslateBox klausClue={clue.text} />
       {made > 0 && (
         <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
           Stop guessing (keep what we have)

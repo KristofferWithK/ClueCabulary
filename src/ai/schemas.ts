@@ -28,3 +28,20 @@ export const DebriefResponseSchema = z.object({
   takeaways: z.array(z.string().trim().min(1)).min(1).max(6),
 })
 export type DebriefResponse = z.infer<typeof DebriefResponseSchema>
+
+/**
+ * A translation, for the field the player uses to compose a Danish clue or to
+ * read one of Klaus's. Deliberately tiny: the whole value is being able to ask
+ * without leaving the round.
+ */
+export const TranslationResponseSchema = z.object({
+  /** The Danish form, citation form for a noun or bare infinitive for a verb. */
+  da: z.string().trim().min(1),
+  /** The English meaning. */
+  en: z.string().trim().min(1),
+  /** en/et for a noun, when it is one. */
+  article: z.enum(['en', 'et']).optional(),
+  /** One short line where the word needs it — false friends, register, usage. */
+  note: z.string().trim().optional(),
+})
+export type TranslationResponse = z.infer<typeof TranslationResponseSchema>

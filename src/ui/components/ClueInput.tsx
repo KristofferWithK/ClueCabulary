@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { checkClueLegality } from '../../engine/legality'
 import type { GameState } from '../../engine/types'
+import { TranslateBox } from './TranslateBox'
 
 interface Props {
   game: GameState
@@ -35,14 +36,15 @@ export function ClueInput({ game, onSubmit }: Props) {
         </p>
       )}
       <p className="dock-title">
-        Your clue — one word leading Klaus to your <span className="legend-target">●</span> targets
+        Your clue — <strong lang="da">ét dansk ord</strong> leading Klaus to your{' '}
+        <span className="legend-target">●</span> targets
       </p>
       <div className="clue-row">
         <input
           id="clue-word"
           type="text"
           value={text}
-          placeholder="e.g. dyreliv"
+          placeholder="fx dyreliv"
           aria-label="Your one-word clue"
           aria-invalid={verdict ? !verdict.legal : undefined}
           aria-describedby={verdict && !verdict.legal ? 'clue-error' : undefined}
@@ -72,6 +74,9 @@ export function ClueInput({ game, onSubmit }: Props) {
           {verdict.reason}
         </p>
       )}
+      {/* Clueing in Danish means needing a word you do not have yet — which is
+          the moment to be able to look one up, not after abandoning the turn. */}
+      <TranslateBox />
       <button
         className="btn btn-primary"
         disabled={!canSubmit}

@@ -35,9 +35,16 @@ words are green it stops counting attempts.
 3. Find every green word before the shared clue tokens run out and you both
    win. Hit a forbidden word and there is one way out: **translate every
    unsolved word on the board** — dictionary locked, one shot, all or nothing.
-4. Tap ⓘ on any word for the built-in dictionary (translation, gender,
-   example sentence); toggle **Aa** to overlay translations. Every lookup tells
-   the practice scheduler which words to bring back sooner.
+4. **Clue in Danish.** Tap ⓘ on any board word for the built-in dictionary
+   (translation, gender, example sentence), or open **Look up a word** in the
+   clue dock to go the other way — English in, Danish out — which is the
+   direction composing a clue actually needs. It answers from the shipped
+   thousand instantly and offline, and asks Klaus only for what is outside
+   them. When Klaus clues in Danish, one tap loads his clue into the same box.
+   Toggle **Aa** to overlay every translation. Every lookup tells the practice
+   scheduler which words to bring back sooner — including one done in the
+   lookup box, which costs exactly what tapping ⓘ costs, and neither is
+   available during the translation challenge or a travel exam.
 5. After each round Klaus debriefs: what his clues meant and which words
    deserve another look.
 
@@ -125,6 +132,8 @@ node e2e/offline-drive.mjs    # the dictionary works with the network off
 node e2e/ai-drive.mjs         # the real AI client against a fake Ollama:
                               # messy JSON, retries, the HTTP error taxonomy,
                               # and the key firewall asserted on the wire
+node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
+                              # and the two rules that stop it reading the board
 node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
                               # runtime, fixing a CORS failure that is really
                               # there — including the key living on the worker

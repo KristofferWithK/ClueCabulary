@@ -8,13 +8,14 @@ import {
   buildAiGuessView,
   buildDebriefView,
 } from '../ai/projections'
-import type { DebriefResponse, GuessResponse } from '../ai/schemas'
+import type { DebriefResponse, GuessResponse, TranslationResponse } from '../ai/schemas'
 import { GRID_CONFIGS, type GridSize } from '../engine/config'
 import { applyEvent, createGame, currentClue } from '../engine/game'
 import { mulberry32 } from '../engine/rng'
 import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
+import { boardWordFor } from '../data/lookup'
 import { WORDS, isKnownGloss } from '../data/words'
 import { isLearned, studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { useJourney } from './journeyStore'
@@ -81,6 +82,18 @@ interface GameStore {
   playerStop: () => void
   submitRedemption: (answers: Record<string, string>) => void
   recordLookup: (wordId: string) => void
+  /**
+   * Translate one word for the player, so a Danish clue can be composed
+   * without leaving the round. Charges a lookup when the word turns out to be
+   * on the board, and refuses outright while the dictionary is locked.
+   */
+  translate: (term: string) => Promise<TranslationResponse>
+  /**
+   * Charge a lookup if this term names a board word — for the answers that
+   * come from the shipped dictionary rather than from Klaus. Without it the
+   * offline half of the lookup field reads the board for free.
+   */
+  noteLookup: (term: string) => void
   runAiGuesses: () => Promise<void>
   stepAiGuess: () => void
   runAiClue: () => Promise<void>
@@ -267,6 +280,33 @@ export const useGame = create<GameStore>()(
         // so no future entry point can quietly break the promise.
         if (studying) return
         if (!lookedUp.includes(wordId)) set({ lookedUp: [...lookedUp, wordId] })
+      },
+
+      noteLookup: (term) => {
+        const { game } = get()
+        if (!game || game.phase === 'redemption') return
+        if (useJourney.getState().activeExam) return
+        const hit = boardWordFor(term, game.words.map((w) => w.wordId))
+        if (hit) get().recordLookup(hit)
+      },
+
+      translate: async (term) => {
+        const { game, practiceFallback } = get()
+        // The redemption challenge IS "translate the board with no dictionary",
+        // and a travel exam is the same bargain. A translate field open during
+        // either would not be a feature, it would be the answer key.
+        if (game?.phase === 'redemption' || useJourney.getState().activeExam) {
+          throw new AiError('invalid-response', 'The dictionary is closed until this is finished.')
+        }
+        const result = await companion(practiceFallback).translate(term)
+        // Looking a board word up here costs exactly what tapping ⓘ costs.
+        // Otherwise this field is a way to read the board for free.
+        if (game) {
+          const ids = game.words.map((w) => w.wordId)
+          const hit = boardWordFor(term, ids) ?? boardWordFor(result.da, ids)
+          if (hit) get().recordLookup(hit)
+        }
+        return result
       },
 
       runAiGuesses: async () => {
