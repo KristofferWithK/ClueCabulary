@@ -1057,8 +1057,48 @@ select:focus {
 .card-da {
   font-weight: 700;
   font-size: clamp(0.7rem, 4vw, 1rem);
+  /* Pinned, so two wrapped lines cost a predictable height: the content box
+     is 36px on a 4-wide board and a third line does not fit in it. */
+  line-height: 1.15;
   word-break: break-word;
   text-align: center;
+}
+
+/* Danish gender, in the strip along the top that the key mark and ⓘ already
+   reserve — between the two, where there is room and nothing else to draw.
+   It was set inline ahead of the word first, since gender is learned as a
+   collocation, and measuring the whole dataset at 360px killed that: the word
+   gets 64px on a 4-wide board and an inline article takes 16 of them, so 105
+   of 430 nouns broke across two lines and two were clipped away entirely.
+   Absolute here, so it costs the word no width and no line. Demoted three
+   ways at once, smaller, lighter and greyer, so it is readable at a glance
+   and never the thing the eye lands on when scanning twelve cards for a clue
+   match. Centred between the key mark (left: 6px) and ⓘ (right: 2px), which
+   leaves it about 32px of clear strip — three times what "en" needs. */
+.card-article {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.56rem;
+  font-weight: 500;
+  line-height: 1;
+  color: #6b6b6b;
+  white-space: nowrap;
+}
+
+/* Tiles that paint themselves dark take the same ink the word takes: white on
+   --green-tile is already at the card's contrast floor, so dimming the article
+   there would fail at this size. Size and weight carry the distinction. */
+.card-green .card-article,
+.card-forbidden .card-article {
+  color: #fff;
+}
+
+/* Spent: match the struck word, so the article is never the loudest thing on
+   a card that is finished with. */
+.card-spent .card-article {
+  color: var(--text-dim);
 }
 
 .card-en {

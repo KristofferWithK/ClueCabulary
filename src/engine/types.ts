@@ -9,6 +9,13 @@ export interface BoardWord {
   da: string
   en: string[]
   pos: string
+  /**
+   * Danish gender article, nouns only. Carried on the board because gender is
+   * learned as a collocation — "et hus", not "hus (neuter)" — so the card has
+   * to show the pair. Optional: verbs and adjectives have none, and a game
+   * persisted before this existed simply renders without it.
+   */
+  article?: 'en' | 'et'
 }
 
 export type Reveal =

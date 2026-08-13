@@ -177,7 +177,13 @@ export const useGame = create<GameStore>()(
 
         const game = createGame({
           config,
-          words: entries.map((w) => ({ wordId: w.id, da: w.da, en: w.en, pos: w.pos })),
+          words: entries.map((w) => ({
+            wordId: w.id,
+            da: w.da,
+            en: w.en,
+            pos: w.pos,
+            article: w.article,
+          })),
           seed: actualSeed,
           bias,
         })

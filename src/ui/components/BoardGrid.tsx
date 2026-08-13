@@ -82,7 +82,7 @@ export function BoardGrid({
                 showKey ? `mykey-${myRole}` : '',
               ].join(' ')}
               disabled={!guessable && !tapLooksUp}
-              aria-label={`${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
+              aria-label={`${w.article ? `${w.article} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
                 tapLooksUp ? '. Tap to look up' : ''
               }`}
               aria-pressed={selectedWordId === w.wordId}
@@ -94,6 +94,20 @@ export function BoardGrid({
               {showKey && myRole !== 'bystander' && (
                 <span className="key-mark" aria-hidden="true">
                   {myRole === 'green' ? '●' : '✖'}
+                </span>
+              )}
+              {/* Gender rides in the strip already reserved along the top,
+                  between the key mark and ⓘ, because that space is free and
+                  the line the word sits on is not: a 4-wide board at 360px
+                  leaves each word 64px, and an inline "en" takes 16 of them.
+                  Set inline it broke a quarter of all nouns across two lines —
+                  "en pand/e", "et mark/ed" — which teaches a learner the wrong
+                  shape for the word. Whole word first; the collocation is
+                  taught properly in the dictionary sheet and the lookup box,
+                  which is where it is read at leisure. */}
+              {w.article && (
+                <span className="card-article" aria-hidden="true">
+                  {w.article}
                 </span>
               )}
               <span className="card-da" lang="da">
