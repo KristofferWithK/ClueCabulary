@@ -217,6 +217,7 @@ export const useGame = create<GameStore>()(
             en: w.en,
             pos: w.pos,
             article: w.article,
+            gender: w.gender,
           })),
           seed: actualSeed,
           bias,
@@ -413,7 +414,14 @@ export const useGame = create<GameStore>()(
           return
         }
         try {
-          const after = applyEvent(game, { type: 'GUESS', wordId: next.wordId })
+          // Klaus's own account of the guess travels with it into the history,
+          // so the debrief can say why he named that word rather than another.
+          const after = applyEvent(game, {
+            type: 'GUESS',
+            wordId: next.wordId,
+            reasoning: next.reasoning,
+            confidence: next.confidence,
+          })
           const clue = currentClue(after)
           buzz(clue!.guesses[clue!.guesses.length - 1]!.result)
           const turnEnded = after.phase !== 'aiGuessing'

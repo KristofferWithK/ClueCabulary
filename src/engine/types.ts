@@ -16,6 +16,12 @@ export interface BoardWord {
    * persisted before this existed simply renders without it.
    */
   article?: 'en' | 'et'
+  /**
+   * Carried alongside the article because a few nouns have no article at all
+   * (plurale tantum: penge, bukser, briller) and the card still has to say what
+   * gender they are. See src/data/gender.ts for what gets printed.
+   */
+  gender?: 'common' | 'neuter'
 }
 
 export type Reveal =
@@ -32,6 +38,20 @@ export type Reveal =
 export interface GuessRecord {
   wordId: string
   result: CardRole
+  /**
+   * Why the AI named this word, and how sure it was — stored but hidden until
+   * the debrief, like a clue's rationale.
+   *
+   * The model has always produced both and the engine always threw them away,
+   * so the one thing a player could never find out was why Klaus named the word
+   * he named. That is the question they kept asking, and it is the question a
+   * companion in a LEARNING game exists to answer: the association he saw is
+   * worth as much as the word.
+   *
+   * Absent on the player's own guesses — nobody is asked to justify a tap.
+   */
+  reasoning?: string
+  confidence?: number
 }
 
 export interface Clue {
@@ -104,7 +124,8 @@ export type GameEvent =
       targets?: string[]
       rationale?: string
     }
-  | { type: 'GUESS'; wordId: string }
+  /** `reasoning`/`confidence` carry the AI's own account of the guess. */
+  | { type: 'GUESS'; wordId: string; reasoning?: string; confidence?: number }
   | { type: 'STOP_GUESSING' }
   | {
       type: 'SUBMIT_REDEMPTION'

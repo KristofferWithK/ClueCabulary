@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MAX_CLUE_NUMBER } from '../../engine/config'
+import { looksEnglish } from '../../data/words'
 import { checkClueLegality } from '../../engine/legality'
 import type { GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
@@ -15,7 +16,12 @@ export function ClueInput({ game, onSubmit }: Props) {
 
   const trimmed = text.trim()
   const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
-  const canSubmit = trimmed.length > 0 && verdict?.legal === true
+  // Klaus reads a Danish board and is handed the clue as a bare string. An
+  // English word there is one he cannot place — and the whole point of the
+  // round is reaching for the Danish, so the box says so and puts the lookup
+  // one tap away rather than passing the English along.
+  const english = looksEnglish(trimmed)
+  const canSubmit = trimmed.length > 0 && verdict?.legal === true && !english
 
   const last = game.clueHistory[game.clueHistory.length - 1]
   const mark = { green: '✓', bystander: '·', forbidden: '☠' } as const
@@ -47,8 +53,8 @@ export function ClueInput({ game, onSubmit }: Props) {
           value={text}
           placeholder="fx dyreliv"
           aria-label="Your one-word clue"
-          aria-invalid={verdict ? !verdict.legal : undefined}
-          aria-describedby={verdict && !verdict.legal ? 'clue-error' : undefined}
+          aria-invalid={trimmed ? !canSubmit : undefined}
+          aria-describedby={(verdict && !verdict.legal) || english ? 'clue-error' : undefined}
           autoCapitalize="off"
           autoComplete="off"
           // The one field in the app that asks for DANISH and the only one that
@@ -83,14 +89,19 @@ export function ClueInput({ game, onSubmit }: Props) {
         </div>
       </div>
       {/* role=alert so a rejected clue is spoken; id so the field points at it. */}
-      {verdict && !verdict.legal && (
+      {verdict && !verdict.legal && !english && (
         <p className="clue-error" id="clue-error" role="alert">
           {verdict.reason}
         </p>
       )}
+      {english && (
+        <p className="clue-error" id="clue-error" role="alert">
+          «{trimmed}» is English. Look it up below and clue Klaus with the Danish.
+        </p>
+      )}
       {/* Clueing in Danish means needing a word you do not have yet — which is
           the moment to be able to look one up, not after abandoning the turn. */}
-      <TranslateBox />
+      <TranslateBox prefill={english ? { term: trimmed, label: `Look up «${trimmed}»` } : undefined} />
       <button
         className="btn btn-primary"
         disabled={!canSubmit}
