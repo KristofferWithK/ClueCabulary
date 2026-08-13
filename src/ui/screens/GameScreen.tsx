@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { REDEMPTION_AFTER_ROUND } from '../../engine/config'
 import { currentClue } from '../../engine/game'
 import type { GameState } from '../../engine/types'
-import { useGame } from '../../stores/gameStore'
+import { onPracticeCompanion, useGame } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
 import { AiTurnPanel } from '../components/AiTurnPanel'
 import { BoardGrid } from '../components/BoardGrid'
@@ -149,11 +149,14 @@ export function GameScreen() {
         </div>
       )}
 
-      {practiceFallback && !error && (
-        // Say it for the rest of the round: these clues are not Klaus's, and
-        // the player should not judge the AI companion by them.
+      {onPracticeCompanion(practiceFallback) && !error && (
+        // Say it for as long as it is true: these clues and guesses are not
+        // Klaus's, and the player should not judge the AI companion by them.
+        // Keyed on the companion actually in use, not on the fallback flag —
+        // the settings route reached the same object and said nothing.
         <p className="practice-note">
-          Playing on with the practice companion — Klaus sits this round out.
+          Practice companion — its clues are «mok1» and its guesses are random. Klaus is not
+          playing. Settings → Practice companion turns it off.
         </p>
       )}
 

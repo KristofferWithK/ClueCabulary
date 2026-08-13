@@ -147,6 +147,12 @@ export function HomeScreen() {
   // work, and everything fine. The middle one used to look like the last, so a
   // wrong key or a CORS block announced itself only after the player had picked
   // a grid and committed to a board.
+  // Still suppressed by useMock, deliberately. Someone who ticked "Practice
+  // companion" does not need a key and should not be nagged for one — and on a
+  // 360x640 phone the nudge pushes the primary action below the fold, which
+  // layout-drive catches. The signal that was missing belongs in the round
+  // instead: the practice note now fires for this route too, on the screen
+  // where a random-looking guess is actually confusing someone.
   const needsSetup = !settings.apiKey && !settings.useMock
   const unverifiedKlaus = !needsSetup && !settings.useMock && settings.klausVerifiedAt === null
 

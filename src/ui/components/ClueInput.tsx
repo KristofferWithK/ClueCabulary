@@ -51,6 +51,14 @@ export function ClueInput({ game, onSubmit }: Props) {
           aria-describedby={verdict && !verdict.legal ? 'clue-error' : undefined}
           autoCapitalize="off"
           autoComplete="off"
+          // The one field in the app that asks for DANISH and the only one that
+          // was leaving the phone keyboard's English autocorrect on — every
+          // other free-text field (TranslateBox, the exam paper, Settings,
+          // Backup) sets both of these. On an English keyboard a Danish word is
+          // rewritten at the space or submit boundary, and what arrives is an
+          // English dictionary word the player never typed.
+          autoCorrect="off"
+          spellCheck={false}
           enterKeyHint="done"
           onChange={(e) => setText(e.target.value)}
         />

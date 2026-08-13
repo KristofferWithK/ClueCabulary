@@ -50,6 +50,19 @@ try {
   }
   console.log(`opened on ${cards.length} Danish words, 0 translations`)
 
+  // The clue box asks for a Danish word, and it was the only free-text field in
+  // the app leaving the phone keyboard's English autocorrect on. What comes
+  // back from that is an English word the player never typed — a plausible
+  // source of the clue «foster», which is legal, unguessable, and a
+  // Danish/English homograph besides.
+  const clueAttrs = await page.evaluate(() => {
+    const el = document.querySelector('.clue-input input')
+    return { correct: el.getAttribute('autocorrect'), spell: el.getAttribute('spellcheck') }
+  })
+  if (clueAttrs.correct !== 'off' || clueAttrs.spell !== 'false') {
+    throw new Error(`clue box still autocorrects: ${JSON.stringify(clueAttrs)}`)
+  }
+
   // Player clue round
   await page.fill('.clue-input input', 'huskeliste')
   await page.click('.clue-input .btn-primary')
@@ -135,6 +148,19 @@ try {
   )
   if (migrated !== 'never') throw new Error(`studyPhase not migrated: ${migrated}`)
   console.log('a v1 save upgrades to a clean opening board')
+
+  // ---- and the practice companion admits to being the practice companion ----
+  // This whole drive runs on ?mock=1, which writes useMock into settings. The
+  // in-round note used to key on the FALLBACK flag alone, so this route — the
+  // one a stray URL puts a player on permanently — produced random guesses
+  // under Klaus's name with nothing on screen saying so, while also suppressing
+  // both of Home's setup warnings.
+  const note = await page.locator('.practice-note').textContent()
+  if (!/Practice companion/.test(note ?? '')) {
+    throw new Error(`no practice note while on the mock: ${note}`)
+  }
+  if (!/Klaus is not playing/.test(note)) throw new Error(`note is too coy: ${note}`)
+  console.log('practice companion says so:', note.replace(/\s+/g, ' ').trim().slice(0, 60) + '…')
 
   console.log('SMOKE OK')
 } catch (e) {

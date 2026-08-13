@@ -78,9 +78,22 @@ describe('planGuessExecution', () => {
     expect(plan.map((x) => x.wordId)).toEqual(['a'])
   })
 
-  it('always guesses at least once, however unsure', () => {
-    const plan = planGuessExecution([g('a', 0.05)], 3)
-    expect(plan.map((x) => x.wordId)).toEqual(['a'])
+  /**
+   * The rules require a guess every turn — the engine refuses STOP_GUESSING
+   * before one has been made — so there is nowhere for a refusal to go and the
+   * top-ranked word is played whatever confidence it carries.
+   *
+   * This is correct, and for a long time the prompt said the opposite: "under
+   * 0.35: do not guess this", to a model whose 0.05 pick was named on the board
+   * anyway. A player asked why Klaus answered «hvid» to the clue «foster», and
+   * the answer is that he did not think they were related — he was made to say
+   * it. The prompt now tells him the ranking is the decision.
+   */
+  it('always guesses at least once, however unsure — the ranking is the decision', () => {
+    expect(planGuessExecution([g('a', 0.05)], 3).map((x) => x.wordId)).toEqual(['a'])
+    expect(planGuessExecution([g('a', 0)], 1).map((x) => x.wordId)).toEqual(['a'])
+    // Even when a later word is over the floor: order decides, not the floor.
+    expect(planGuessExecution([g('a', 0.1), g('b', 0.05)], 2).map((x) => x.wordId)).toEqual(['a'])
   })
 })
 
