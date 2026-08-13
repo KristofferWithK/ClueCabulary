@@ -28,13 +28,15 @@ words are green it stops counting attempts.
 ## How a round works
 
 1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words
-   from the ~1000 most common, each noun carrying its gender — **en** or **et**
-   — in the strip along the top of its card. You and Klaus each have a secret
-   key marking green targets and **forbidden words**.
+   from the ~1000 most common, each noun with its gender in front of it —
+   **et hus**, the way the pair is learned. Your own key is the card's border:
+   solid green for a target, dashed black for forbidden.
 2. You open: you give a one-word clue, Klaus guesses — then Klaus clues and you
    guess. Guesses are judged against the clue-giver's key. Klaus is told how
    many of his greens are left against how many clues remain, so he aims for
-   two or three words a clue rather than picking off one at a time.
+   two or three words a clue rather than picking off one at a time — and on his
+   last clue, for everything he has left, since a green he never points at is
+   one you cannot find in sudden death.
 3. Find every green word before the shared clue tokens run out and you both
    win. Beginner is four clues — two each; middle is six; standard is eight.
    Running out is not the end: the clues stop but the board does not, and
@@ -47,7 +49,8 @@ words are green it stops counting attempts.
    clue dock to go the other way — English in, Danish out — which is the
    direction composing a clue actually needs. When Klaus clues in Danish, one
    tap loads his clue into the same box.
-   Toggle **Aa** to overlay every translation. Every lookup tells the practice
+   Toggle **Aa** to overlay every translation — off to start with, so the board
+   opens as twelve Danish words rather than twenty-four lines of text. Every lookup tells the practice
    scheduler which words to bring back sooner — including one done in the
    lookup box, which costs exactly what tapping ⓘ costs, and neither is
    available during the translation challenge or a travel exam. A clue may be

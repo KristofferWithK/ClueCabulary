@@ -210,7 +210,8 @@ for (let i = 0; i < 12 && (await page.locator('.debrief').count()) === 0; i++) {
 const debriefed = (await page.locator('.debrief').count()) > 0
 if (debriefed) {
   const shown = await page.locator('.collected-section').count()
-  const greens = await page.locator('.word-card .key-mark').count()
+  // The key dot is gone: your own key is the card's border now.
+const greens = await page.locator('.word-card.mykey-green').count()
   check('a round that greens words says so', shown === 1, `${shown} sections, ${greens} key marks`)
 } else {
   console.log('SKIP round did not reach a debrief on this seed')

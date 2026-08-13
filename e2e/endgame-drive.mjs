@@ -60,7 +60,7 @@ async function forceSuddenDeath() {
 
 /** Tap a board card by its Danish word and confirm. */
 async function name(da) {
-  await page.locator(`.word-card:has(.card-da:text-is("${da}"))`).click()
+  await page.locator(`.word-card:has(.card-word:text-is("${da}"))`).click()
   await page.locator('.guess-confirm .btn-primary').click()
 }
 

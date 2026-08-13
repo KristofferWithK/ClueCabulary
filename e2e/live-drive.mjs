@@ -74,7 +74,7 @@ try {
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
 
-  const board = await page.locator('.word-card .card-da').allTextContents()
+  const board = await page.locator('.word-card .card-word').allTextContents()
   console.log(`board: ${board.join(', ')}\n`)
 
   // Your clue first, so Klaus has to guess before he has to invent.

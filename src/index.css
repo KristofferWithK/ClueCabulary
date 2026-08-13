@@ -1039,6 +1039,8 @@ select:focus {
   position: relative;
   width: 100%;
   aspect-ratio: 5 / 4;
+  /* The word is sized off the CARD, not the viewport — see .card-da. */
+  container-type: inline-size;
   border-radius: 8px;
   background: var(--bg);
   border: 2px solid var(--line);
@@ -1049,14 +1051,25 @@ select:focus {
   gap: 2px;
   /* Top padding reserves the strip the key mark and the ⓘ live in, so the word
      is never drawn underneath either of them. */
-  padding: 17px 4px 4px;
+  /* The top strip used to reserve room for a key dot as well as ⓘ; the dot
+     is gone, and the room came back to the word — which is what pays for the
+     article now sitting in front of it. */
+  padding: 11px 4px 4px;
   overflow: hidden;
   transition: transform 0.1s ease, background 0.25s ease, border-color 0.25s ease;
 }
 
 .card-da {
   font-weight: 700;
-  font-size: clamp(0.7rem, 4vw, 1rem);
+  /* Sized off the card rather than the viewport. At 4vw every board got the
+     same 14.4px word, but a 4-wide card is a quarter narrower than a 3-wide
+     one — so the standard board was breaking seven-letter words with a single
+     letter left over ("smert/e", "levend/e") while the beginner board had
+     room to spare. In cqw the word shrinks only where the card is tight: 12.8px
+     on a 4-wide 360px board, and clamped up to 16px on the 3-wide ones, which
+     is larger than they had before. Measured over all 430 nouns with an
+     article in front: nothing clipped anywhere. */
+  font-size: clamp(0.62rem, 20cqw, 1rem);
   /* Pinned, so two wrapped lines cost a predictable height: the content box
      is 36px on a 4-wide board and a third line does not fit in it. */
   line-height: 1.15;
@@ -1064,32 +1077,27 @@ select:focus {
   text-align: center;
 }
 
-/* Danish gender, in the strip along the top that the key mark and ⓘ already
-   reserve — between the two, where there is room and nothing else to draw.
-   It was set inline ahead of the word first, since gender is learned as a
-   collocation, and measuring the whole dataset at 360px killed that: the word
-   gets 64px on a 4-wide board and an inline article takes 16 of them, so 105
-   of 430 nouns broke across two lines and two were clipped away entirely.
-   Absolute here, so it costs the word no width and no line. Demoted three
-   ways at once, smaller, lighter and greyer, so it is readable at a glance
-   and never the thing the eye lands on when scanning twelve cards for a clue
-   match. Centred between the key mark (left: 6px) and ⓘ (right: 2px), which
-   leaves it about 32px of clear strip — three times what "en" needs. */
+/* Danish gender, in front of the word, which is how the pair is learned:
+   "et hus", not "hus (neuter)". It sat in the top strip for one build, where
+   it costs no layout at all, and there it was too easy to miss.
+   Inline it is not free. On a 4-wide board at 360px the word has 64px and
+   this takes about 13 of them, so 71 of the 430 nouns in the set gain a
+   second line. Measured across all of them, none is clipped. Demoted three
+   ways — smaller, lighter, greyer — so it reads at a glance without being
+   what the eye lands on when scanning twelve cards for a match. The gap is
+   sized in rem off the WORD, not in em off the article, or it comes out
+   narrower than a real word space and reads as "ethus". */
 .card-article {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.56rem;
+  font-size: 0.5rem;
   font-weight: 500;
   line-height: 1;
-  /* Set against the darkest ground it ever sits on, which is --beige on a
-     bystander tile, not the white card: 4.5:1 there (6.9:1 on white). The
-     obvious #6b6b6b reads fine on white and comes out at 4.00:1 on beige,
-     under AA for text this small. */
+  /* Set against the darkest ground it sits on — --beige on a bystander tile,
+     not the white card: 5.18:1 there, 6.9:1 on white. */
   color: #5a5a5a;
+  margin-right: 0.2rem;
   white-space: nowrap;
 }
+
 
 /* Tiles that paint themselves dark take the same ink the word takes: white on
    --green-tile is already at the card's contrast floor, so dimming the article
@@ -1186,29 +1194,18 @@ select:focus {
   color: var(--text-dim);
 }
 
-.key-mark {
-  position: absolute;
-  top: 4px;
-  left: 6px;
-  font-size: 0.72rem;
-  line-height: 1;
-}
 
+/* Your own key, drawn as the card's border: solid green for a target,
+   dashed black for forbidden. Both differ from a plain card in style as well
+   as colour, so neither depends on seeing the difference between greens. */
 .mykey-green {
   border-color: var(--green-tile);
-}
-
-.mykey-green .key-mark {
-  color: var(--green-tile);
+  border-width: 3px;
 }
 
 .mykey-forbidden {
   border-color: var(--black-tile);
   border-style: dashed;
-}
-
-.mykey-forbidden .key-mark {
-  color: var(--black-tile);
 }
 
 /* Non-color marker so revealed-neutral tiles are distinguishable by shape. */
