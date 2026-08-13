@@ -1,3 +1,4 @@
+import { REDEMPTION_AFTER_ROUND } from '../../engine/config'
 import { useUi } from '../../stores/uiStore'
 import { useDialog } from '../useDialog'
 
@@ -51,8 +52,15 @@ export function HowToPlay() {
             the rest are still yours to take.
           </li>
           <li>
-            Hit a <strong>forbidden</strong> word and one chance remains: translate every unsolved
-            word on the board. All correct — the game is redeemed. Any miss — it's lost.
+            Name a <strong>forbidden</strong> word — either of you can — and the round ends there.
+            Once <strong>{REDEMPTION_AFTER_ROUND} clues</strong> have been given, one last chance
+            opens instead: translate every unsolved word on the board. All correct — the game is
+            redeemed. Any miss — it's lost.
+          </li>
+          <li>
+            When the clues run out the board stays open. Keep naming green words and you can still
+            win it; name anything else and the round is over — a forbidden word included, with no
+            last chance out there.
           </li>
           <li>
             Tap <strong>ⓘ</strong> on a word for the dictionary, or <strong>Aa</strong> to show all

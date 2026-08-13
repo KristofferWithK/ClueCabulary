@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS } from './config'
+import { GRID_CONFIGS, REDEMPTION_AFTER_ROUND } from './config'
 import {
   IllegalClueError,
   IllegalEventError,
@@ -45,6 +45,19 @@ function findGuessable(s: GameState, giver: Side, role: CardRole): string {
 const clue = (s: GameState, by: Side, number: number) =>
   applyEvent(s, { type: 'SUBMIT_CLUE', by, text: 'klods', number })
 
+/**
+ * Play `n` complete clue-turns, each ended by a bystander guess, and stop in a
+ * clue-input phase. The way to reach a state where the last chance has opened.
+ */
+function burnClues(s: GameState, n: number): GameState {
+  while (s.clueHistory.length < n) {
+    const giver: Side = s.phase === 'playerClueInput' ? 'player' : 'ai'
+    s = clue(s, giver, 1)
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'bystander') })
+  }
+  return s
+}
+
 describe('full game flows', () => {
   it('wins by finding all distinct greens', () => {
     let s = newGame()
@@ -84,11 +97,17 @@ describe('full game flows', () => {
   })
 
   it('forbidden word triggers redemption; correct answers redeem the game', () => {
-    let s = clue(newGame(), 'player', 2)
+    // Into the eligible window first: the last chance opens only after
+    // REDEMPTION_AFTER_ROUND clues, so this used to fire on clue 1 and now
+    // cannot.
+    let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND)
+    s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
+    expect(s.clueHistory.length).toBe(REDEMPTION_AFTER_ROUND + 1)
+    const giver = giverOf(s.phase)
     // Reveal one green first so the prompt list excludes it.
-    const green = findGuessable(s, 'player', 'green')
+    const green = findGuessable(s, giver, 'green')
     s = applyEvent(s, { type: 'GUESS', wordId: green })
-    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'forbidden') })
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'forbidden') })
 
     expect(s.phase).toBe('redemption')
     expect(s.redemption!.promptWordIds).not.toContain(green)
@@ -106,6 +125,68 @@ describe('full game flows', () => {
     })
     expect(lost.outcome).toEqual({ result: 'lost', reason: 'forbidden-failed' })
     expect(lost.redemption!.results!.some((r) => !r.accepted)).toBe(true)
+  })
+
+  /**
+   * "The last chance redemption should only be triggered after round 4."
+   *
+   * A round is a clue. Before the threshold a forbidden word ends the round
+   * where it stands, with its own ending — not 'forbidden-failed', which every
+   * screen describes as losing a translation challenge that in this case never
+   * ran.
+   */
+  describe('the last chance opens only after four clues', () => {
+    const hitForbidden = (s: GameState) => {
+      const giver = giverOf(s.phase)
+      return applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'forbidden') })
+    }
+
+    it('ends the round on the spot on the opening clue', () => {
+      const s = hitForbidden(clue(newGame(), 'player', 2))
+      expect(s.phase).toBe('finished')
+      expect(s.outcome).toEqual({ result: 'lost', reason: 'forbidden-hit' })
+      expect(s.redemption).toBeUndefined()
+    })
+
+    it('and on the fourth, the last clue before it opens', () => {
+      let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND - 1)
+      s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
+      expect(s.clueHistory.length).toBe(REDEMPTION_AFTER_ROUND)
+      expect(hitForbidden(s).outcome).toEqual({ result: 'lost', reason: 'forbidden-hit' })
+    })
+
+    it('opens on the fifth', () => {
+      let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND)
+      s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
+      expect(hitForbidden(s).phase).toBe('redemption')
+    })
+
+    /** The card is shown either way, so the debrief can name what ended it. */
+    it('reveals the word whichever side of the line it falls', () => {
+      const early = clue(newGame(), 'player', 2)
+      const id = findGuessable(early, 'player', 'forbidden')
+      expect(applyEvent(early, { type: 'GUESS', wordId: id }).reveals[id]).toEqual({
+        kind: 'forbidden',
+      })
+    })
+
+    /**
+     * Sudden death has always ended on a wrong name and is untouched: a
+     * forbidden word there is still 'sudden-death', not 'forbidden-hit', even
+     * though by then far more than four clues have been given.
+     */
+    it('does not reach into sudden death, where the clue count is past it', () => {
+      let s = burnClues(newGame(), GRID_CONFIGS.beginner.turnTokens)
+      expect(s.phase).toBe('suddenDeath')
+      expect(s.clueHistory.length).toBeGreaterThan(REDEMPTION_AFTER_ROUND)
+      const doomed = s.words
+        .map((w) => w.wordId)
+        .find((id) => s.playerKey[id] === 'forbidden' && isGuessable(s, id))
+      if (doomed) {
+        s = applyEvent(s, { type: 'GUESS', wordId: doomed })
+        expect(s.outcome).toEqual({ result: 'lost', reason: 'sudden-death' })
+      }
+    })
   })
 
   it('bystander reveals are directional: blocked for one giver, guessable for the other', () => {

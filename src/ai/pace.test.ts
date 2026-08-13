@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { GRID_CONFIGS } from '../engine/config'
 import { applyEvent, createGame, isGuessable } from '../engine/game'
-import type { BoardWord } from '../engine/types'
+import type { BoardWord, Outcome } from '../engine/types'
 import { aiTargetableIds, buildAiClueView } from './projections'
 import type { DebriefView } from './projections'
 import { buildCluePrompt, buildDebriefPrompt } from './prompts'
+
+/** `result:reason` for every ending, distributed over the union. */
+type OutcomeKey = Outcome extends infer O
+  ? O extends Outcome
+    ? `${O['result']}:${O['reason']}`
+    : never
+  : never
 
 const words = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -187,16 +194,34 @@ describe('the debrief is told how the round actually ended', () => {
     expect(text({ result: 'lost', reason: 'forbidden-failed' })).toContain('forbidden word')
   })
 
+  it('describes the round that ended before the last chance could open', () => {
+    const t = text({ result: 'lost', reason: 'forbidden-hit' })
+    expect(t).toContain('forbidden word')
+    // The ending it must NOT borrow: no challenge was offered, let alone failed.
+    expect(t).not.toContain('lost on the translation challenge')
+  })
+
+  /**
+   * A Record keyed off the Outcome union, not a hand-written array.
+   *
+   * The array this replaces claimed in its own comment to be compile-time
+   * exhaustive and then ended in `as DebriefView['outcome'][]`, which is
+   * precisely the cast that makes it not — 'lost:forbidden-hit' was added to
+   * the engine and this loop went on passing without it. A missing key here is
+   * a build error.
+   */
   it('has a sentence for every ending the engine can produce', () => {
-    // The type makes this compile-time; this catches a stray `as` cast.
-    for (const o of [
-      { result: 'won', reason: 'all-greens' },
-      { result: 'won', reason: 'redeemed' },
-      { result: 'lost', reason: 'timeout' },
-      { result: 'lost', reason: 'sudden-death' },
-      { result: 'lost', reason: 'forbidden-failed' },
-    ] as DebriefView['outcome'][]) {
-      expect(text(o), JSON.stringify(o)).not.toContain('undefined')
+    const EVERY_ENDING: Record<OutcomeKey, DebriefView['outcome']> = {
+      'won:all-greens': { result: 'won', reason: 'all-greens' },
+      'won:redeemed': { result: 'won', reason: 'redeemed' },
+      'lost:timeout': { result: 'lost', reason: 'timeout' },
+      'lost:sudden-death': { result: 'lost', reason: 'sudden-death' },
+      'lost:forbidden-hit': { result: 'lost', reason: 'forbidden-hit' },
+      'lost:forbidden-failed': { result: 'lost', reason: 'forbidden-failed' },
+    }
+    for (const [key, o] of Object.entries(EVERY_ENDING)) {
+      expect(text(o), key).not.toContain('undefined')
+      expect(text(o).length, key).toBeGreaterThan(20)
     }
   })
 })

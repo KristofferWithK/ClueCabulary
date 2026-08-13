@@ -204,7 +204,10 @@ for (let i = 0; i < 12 && (await page.locator('.debrief').count()) === 0; i++) {
     }
   }
   await page.waitForTimeout(900)
-  const redeem = page.locator('.redemption-form input').first()
+  // `.redemption-form` never existed — RedemptionView renders .redemption /
+  // .redemption-list / .redemption-item — so this break was dead and the loop
+  // only ever exited on a debrief or on running out of iterations.
+  const redeem = page.locator('.redemption-item input').first()
   if (await redeem.isVisible().catch(() => false)) break
 }
 const debriefed = (await page.locator('.debrief').count()) > 0
@@ -228,6 +231,25 @@ const regions = await page.locator('[aria-live], [role="status"], [role="alert"]
 check('the game loop has a live region', regions > 0, `${regions} found`)
 const pressed = await page.locator('.game-header .icon-btn[aria-pressed]').count()
 check('the translations toggle exposes its state', pressed === 1)
+
+// The clue count is there because a rule turns on it: the last chance opens
+// after four clues. A header that overflows or a count only sighted players
+// get would each undo the point of showing it.
+const header = await page.evaluate(() => {
+  const h = document.querySelector('.game-header')
+  const t = document.querySelector('.turn-tokens')
+  return {
+    overflows: h.scrollWidth > h.clientWidth + 1,
+    count: t.querySelector('.token-count')?.textContent ?? '',
+    label: t.getAttribute('aria-label') ?? '',
+    pipsHidden: t.querySelector('.token-row')?.getAttribute('aria-hidden') === 'true',
+  }
+})
+check('the header fits with the clue count in it', !header.overflows)
+check('the count is on screen', /clues given/.test(header.count), header.count)
+check('and in the accessible name, not only the pips', /clues given/.test(header.label), header.label)
+check('and the pips do not read out twice', header.pipsHidden)
+check('the label says where the last chance stands', /last chance/i.test(header.label), header.label)
 
 // The letter claims role=dialog aria-modal; it has to behave like one.
 await page.goto(BASE + '?mock=1', { waitUntil: 'networkidle' })

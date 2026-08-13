@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   GRID_CONFIGS,
   MAX_CLUE_NUMBER,
+  REDEMPTION_AFTER_ROUND,
   assertConfigConsistent,
   distinctGreens,
   type GridConfig,
@@ -57,16 +58,63 @@ describe('the guard against a board that cannot be cleared', () => {
     expect(() => assertConfigConsistent({ ...beginner, turnTokens: 1 })).toThrow(/cannot clear/)
   })
 
+  // Both of these assert what the CLEARING guard does, so they are written as
+  // "not this complaint" rather than "no complaint": assertConfigConsistent
+  // now carries a second, unrelated bound (below), and a bare not.toThrow()
+  // would quietly start testing that one instead.
   it('allows the arithmetic floor, tight as it is', () => {
     const floor = Math.ceil(distinctGreens(beginner) / (MAX_CLUE_NUMBER + 1))
     expect(floor).toBe(2)
-    expect(() => assertConfigConsistent({ ...beginner, turnTokens: floor })).not.toThrow()
+    expect(() => assertConfigConsistent({ ...beginner, turnTokens: floor })).not.toThrow(
+      /cannot clear/,
+    )
   })
 
   it('is a bound on the impossible, not on the merely hard', () => {
     // Deliberately not an opinion about difficulty: 2 tokens for 8 greens is a
     // brutal game and a legal one. Only unwinnable configurations are refused.
-    expect(() => assertConfigConsistent({ ...beginner, turnTokens: 4 })).not.toThrow()
+    expect(() => assertConfigConsistent({ ...beginner, turnTokens: 4 })).not.toThrow(/cannot clear/)
+  })
+})
+
+/**
+ * The last chance opens after REDEMPTION_AFTER_ROUND clues, so a board with no
+ * more clues than that can never reach it. Nothing would break loudly: the
+ * phase, RedemptionView, the grader and the 'redeemed' ending would all still
+ * ship, and none of them would be reachable.
+ *
+ * Not a hypothetical. beginner ran on four tokens until recently, and the same
+ * conversation that set this threshold also asked for four rounds on that
+ * board — so the two numbers have already been on a collision course once.
+ */
+describe('the guard against a board where the last chance never opens', () => {
+  const beginner = GRID_CONFIGS.beginner
+
+  it('every shipped board can reach it', () => {
+    for (const config of Object.values(GRID_CONFIGS)) {
+      expect(config.turnTokens).toBeGreaterThan(REDEMPTION_AFTER_ROUND)
+    }
+  })
+
+  it('refuses a board with no clue after the threshold', () => {
+    expect(() =>
+      assertConfigConsistent({ ...beginner, turnTokens: REDEMPTION_AFTER_ROUND }),
+    ).toThrow(/never opens/)
+  })
+
+  it('and says how to fix it, since either number is the one to move', () => {
+    try {
+      assertConfigConsistent({ ...beginner, turnTokens: REDEMPTION_AFTER_ROUND })
+    } catch (e) {
+      expect((e as Error).message).toMatch(/REDEMPTION_AFTER_ROUND/)
+      expect((e as Error).message).toMatch(/another clue/)
+    }
+  })
+
+  it('accepts one clue past it', () => {
+    expect(() =>
+      assertConfigConsistent({ ...beginner, turnTokens: REDEMPTION_AFTER_ROUND + 1 }),
+    ).not.toThrow()
   })
 })
 
