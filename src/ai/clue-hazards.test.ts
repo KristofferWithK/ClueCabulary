@@ -83,11 +83,16 @@ describe('the clue prompt says which words are actually targetable', () => {
 /**
  * Also reported: "Klaus gave kitchen and I said food but that was forbidden."
  *
- * Either side's forbidden word ends the round, whoever names it, so a clue that
- * reaches Klaus's own forbidden word is dangerous even though he is not the one
- * guessing. He could see them in the table and was told to check — in the third
- * of five bullet points under "Hard constraints", as one clause among several.
- * They get their own block now, with the player's own example in it.
+ * A guess is judged against the clue-giver's key alone, so «food» was forbidden
+ * on KLAUS's key — a word he could see, under a clue he chose. That is what
+ * makes his own forbidden words dangerous while he is the giver: his key is the
+ * one every guess of the player's is read against. (The first version of this
+ * comment said "either side's forbidden word ends the round, whoever names it",
+ * which is false, and reached the right conclusion by the wrong route.)
+ *
+ * He could see them in the table and was told to check — in the third of five
+ * bullet points under "Hard constraints", as one clause among several. They get
+ * their own block now, with the player's own example in it.
  */
 describe('the clue prompt makes the forbidden words hard to walk past', () => {
   it('names them in a block of their own, not only in the table', () => {
@@ -152,14 +157,31 @@ describe('the prompt survives a board with nothing to say', () => {
 })
 
 /**
- * Half the reason the "kitchen"/"food" trap existed at all was the board: the
- * 3×5 dealt one word forbidden for the player and GREEN for Klaus, so his best
- * clue and the player's instant loss could be the same card — and Klaus cannot
- * see the player's key, so no prompt can teach him around it.
+ * The two boards a learner meets deal no card that one key calls green and the
+ * other calls forbidden.
+ *
+ * This block used to be titled "no board word is both a target and an instant
+ * loss" and justified by the claim that a forbidden-for-player, green-for-Klaus
+ * card is "his best clue and the player's instant loss". That is false: under
+ * Klaus's clue the card is read off HIS key, where it is green, and it scores.
+ *
+ * The shape actually worth excluding is its mirror, which forbiddenVsGreen
+ * deals in the same breath: green on the player's key, forbidden on Klaus's.
+ * There the player's own key marks the card as a target while Klaus's key ends
+ * the round on it, and while they are guessing nothing on screen says so. Klaus
+ * can see it — it is forbidden on his own key — so a good clue steers around
+ * it, but that is the only protection there is.
+ *
+ * standard keeps it on purpose (see config.ts), which is why it is not swept
+ * here: this asserts what beginner and middle do, not a law about every board.
  */
-describe('no board word is both a target and an instant loss', () => {
+describe('the learner boards deal no card that is green on one key and forbidden on the other', () => {
   it.each(['beginner', 'middle'] as const)('on %s', (grid) => {
     expect(GRID_CONFIGS[grid].forbiddenVsGreen).toBe(0)
+  })
+
+  it('and standard keeps it, so this is a choice per board rather than a law', () => {
+    expect(GRID_CONFIGS.standard.forbiddenVsGreen).toBe(1)
   })
 
   it('holds through a dealt board: no forbidden word is green on the other key', () => {
