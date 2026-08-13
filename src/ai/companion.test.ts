@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AiError, type AiSettings } from './client'
 import { OllamaCompanion, planGuessExecution } from './companion'
 import type { AiClueView, AiGuessView } from './projections'
@@ -37,6 +37,23 @@ const respondWith = (...replies: unknown[]) => {
     return replies[i++]
   }
 }
+
+/**
+ * A model that never corrects itself, however often it is asked. One more reply
+ * than there are attempts, so "it gave up too early" fails as loudly as "it kept
+ * going" — running out of replies throws a plain Error, not the AiError the
+ * give-up tests assert.
+ */
+const refuseForever = (reply: unknown) => Array<unknown>(8).fill(reply)
+
+// Giving up logs the validator's own words for whoever is debugging. Silenced
+// here so a passing suite stays readable; one test reads the spy instead.
+beforeEach(() => {
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+})
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe('planGuessExecution', () => {
   const g = (wordId: string, confidence: number) => ({ wordId, confidence, reasoning: '' })
@@ -108,12 +125,73 @@ describe('OllamaCompanion.getClue', () => {
     expect(clue.clue).toBe('dyreliv')
   })
 
-  it('throws a typed error after two invalid replies', async () => {
+  it('throws a typed error once the corrections are spent', async () => {
+    const companion = new OllamaCompanion(settings, respondWith(...refuseForever({ nope: true })))
+    await expect(companion.getClue(clueView)).rejects.toThrowError(AiError)
+  })
+
+  /**
+   * Reported with a screenshot: the round stopped on "The AI kept answering
+   * invalidly: w1 (bog) is not an unrevealed GREEN word on your key…".
+   *
+   * Every word of that is written for the model. The player is not writing the
+   * prompt and cannot act on any of it — they are told their game is stuck in
+   * the vocabulary of the thing that got stuck. The detail still exists; it goes
+   * to the console, where whoever is debugging can read it.
+   */
+  it('tells the player what happened to their game, not what the validator said', async () => {
     const companion = new OllamaCompanion(
       settings,
-      respondWith({ nope: true }, { still: 'wrong' }),
+      respondWith(
+        ...refuseForever({ clue: 'dyr', number: 1, targetWordIds: ['w2'], rationale: 'x' }),
+      ),
     )
-    await expect(companion.getClue(clueView)).rejects.toThrowError(AiError)
+    const err = await companion.getClue(clueView).then(
+      () => null,
+      (e: unknown) => e as AiError,
+    )
+    expect(err).toBeInstanceOf(AiError)
+    expect(err!.message).toBe('Klaus could not settle on a clue for the words he is holding.')
+    expect(err!.message).not.toMatch(/GREEN|wordId|JSON|schema|invalid/i)
+    // …but the diagnostic is not thrown away.
+    expect(vi.mocked(console.warn).mock.calls[0]![0]).toContain('bil')
+  })
+
+  /**
+   * One retry was not enough on the boards where the check actually fires: the
+   * strongest association belongs to a word that is not Klaus's, so his second
+   * answer tends to be his first answer again. The third and fourth attempts
+   * are the ones that land.
+   */
+  it('keeps correcting past the second attempt instead of failing the turn', async () => {
+    const notHis = { clue: 'køretøj', number: 1, targetWordIds: ['w2'], rationale: 'x' }
+    const his = { clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'x' }
+    const chat = vi.fn(respondWith(notHis, notHis, notHis, his))
+    const clue = await new OllamaCompanion(settings, chat).getClue(clueView)
+    expect(clue.clue).toBe('kæledyr')
+    expect(chat).toHaveBeenCalledTimes(4)
+  })
+
+  it('lets the later attempts wander further than the first', async () => {
+    const notHis = { clue: 'køretøj', number: 1, targetWordIds: ['w2'], rationale: 'x' }
+    const his = { clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'x' }
+    const chat = vi.fn(respondWith(notHis, notHis, his))
+    await new OllamaCompanion(settings, chat).getClue(clueView)
+    const tempOf = (i: number) => (chat.mock.calls[i]![2] as { temperature: number }).temperature
+    // The first correction repeats the question as asked; only once that has
+    // failed too is repeating the question the thing that must change.
+    expect(tempOf(1)).toBe(tempOf(0))
+    expect(tempOf(2)).toBeGreaterThan(tempOf(1))
+  })
+
+  it('shows the model its own rejected replies, not just a complaint', async () => {
+    const notHis = { clue: 'køretøj', number: 1, targetWordIds: ['w2'], rationale: 'x' }
+    const his = { clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'x' }
+    const chat = vi.fn(respondWith(notHis, notHis, his))
+    await new OllamaCompanion(settings, chat).getClue(clueView)
+    const third = chat.mock.calls[2]![1] as ChatMessage[]
+    expect(third.filter((m) => m.role === 'assistant')).toHaveLength(2)
+    expect(JSON.stringify(third)).toContain('køretøj')
   })
 
   it('dedupes duplicate target ids and fixes the announced number', async () => {
@@ -235,7 +313,7 @@ describe('a clue is only as good as the targets it was chosen for', () => {
   })
 
   it('gives up rather than serving a clue whose targets it had to invent', async () => {
-    const chat = vi.fn(respondWith(oceanReply, oceanReply))
+    const chat = vi.fn(respondWith(...refuseForever(oceanReply)))
     await expect(new OllamaCompanion(settings, chat).getClue(ocean)).rejects.toThrow(AiError)
   })
 

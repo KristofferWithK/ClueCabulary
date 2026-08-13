@@ -77,17 +77,41 @@ function paceLine(view: AiClueView): string {
 }
 
 export function buildCluePrompt(view: AiClueView): ChatMessage[] {
+  const targetable = aiTargetableIds(view)
+  const targetableSet = new Set(targetable)
   const board = view.words
-    .map(
-      (w) =>
-        `${w.id} | ${w.da} (${w.en.join('/')}) [${w.pos}] | ${revealLabel(w.reveal)} | my key: ${w.roleOnMyKey.toUpperCase()}`,
-    )
+    .map((w) => {
+      // Spelled out per row rather than left as an intersection of two columns.
+      // The table said "my key: GREEN" beside "revealed green" and expected the
+      // reader to work out that the word was spent; a model that did not kept
+      // naming a found word as its target, was refused, and the round died on
+      // "the AI kept answering invalidly".
+      const usable =
+        w.roleOnMyKey === 'green'
+          ? targetableSet.has(w.id)
+            ? ' | ** YOU MAY TARGET THIS **'
+            : ' | green on your key but ALREADY FOUND — cannot be targeted'
+          : w.roleOnMyKey === 'forbidden'
+            ? ' | ** FORBIDDEN FOR YOU — never point a clue near this **'
+            : ''
+      return `${w.id} | ${w.da} (${w.en.join('/')}) [${w.pos}] | ${revealLabel(w.reveal)} | my key: ${w.roleOnMyKey.toUpperCase()}${usable}`
+    })
     .join('\n')
+
+  const forbidden = view.words
+    .filter((w) => w.roleOnMyKey === 'forbidden' && w.reveal.kind !== 'forbidden')
+    .map((w) => `${w.da} (${w.en.join('/')})`)
 
   const clueLang = view.clueLanguage === 'da' ? 'Danish' : 'English'
   const system = `${RULES}
 
 You are the CLUE-GIVER this turn. Choose from YOUR unrevealed GREEN words and give a single-word clue in ${clueLang} that evokes them.
+
+THE ONLY WORDS YOU MAY NAME AS TARGETS: ${targetable.length > 0 ? targetable.map((id) => `${id} (${view.words.find((w) => w.id === id)!.da})`).join(', ') : '(none — you should not have been asked)'}
+Naming anything else — a word already found, a neutral, a forbidden word — is not a smaller clue, it is a rejected one, and you will be asked again.
+
+${forbidden.length > 0 ? `FORBIDDEN FOR YOU, and the fastest way to lose this game: ${forbidden.join(', ')}.
+Before you commit to a clue, say each of these to yourself and ask whether the clue could bring it to mind. "kitchen" fetches "food". "rain" fetches "water". "school" fetches "child". If your clue reaches a forbidden word by ANY ordinary association — same room, same activity, same category, part of the same thing — it is the wrong clue no matter how well it fits your targets. Choose a different one; there is always another.` : ''}
 
 ${paceLine(view)}
 
@@ -97,6 +121,7 @@ Hard constraints:
 - Your partner is a Danish LEARNER: prefer a clear, common association over a clever obscure one.
 - Some greens are grammatical words — op, ind, ud, ned, så, lige, jo, gang, samme, anden, altid, igen and the like. Association clues do not reach these, so never hang one on the back of a real clue. Take one only alone, with number 1, pointing at the everyday phrase it lives in (stå op, en gang til, lige nu) — or clue a different green this turn and leave it.
 - Before you commit, read EVERY other unrevealed word on the board — neutral and FORBIDDEN alike — and ask which of them your clue also fits. If a non-target fits as well as or better than a target, the clue is wrong: pick another. Neutral words cost a turn; forbidden words nearly lose the game.
+- Your partner guesses in confidence order and does not stop at your number if they are sure, so the danger is not only "would they name the forbidden word FIRST" — it is whether they would name it at all while working through your clue.
 - A word shown as "revealed neutral (under player clue)" that is still GREEN on your key has NOT been scored for you — it is still a valid target. Only "revealed green" and "revealed forbidden" are gone for good.
 - Never split a clue you could give whole. If three greens fit one idea, say 3; do not give it as a 2 and save the third for a turn that may not come.
 Respond with ONLY a JSON object: {"clue": string, "number": <how many words you mean, 1-4>, "targetWordIds": [ids of the words you mean], "rationale": <one short sentence in English explaining the connection — the finished explanation only, written for your partner to read after the game. Never include deliberation, second thoughts or corrections; if you change your mind, change the clue and the number too, and describe only the clue you are actually giving>}

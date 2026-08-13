@@ -38,12 +38,18 @@ interface GameStore {
   /** Word ids looked up in the dictionary this round (SRS signal). */
   lookedUp: string[]
   /**
-   * The board just dealt, remembered so the NEXT one can avoid repeating it.
+   * The last two boards dealt, newest first, so the next deal can put exactly
+   * three words of the newest back and keep the rest off both.
+   *
+   * Two rather than one: three carried words that may carry again chain
+   * forward, and the sampler needs to see the board before last to know which
+   * three have already had their turn.
+   *
    * Persisted: a board dealt before the app was closed is still the last one
    * the player saw, and coming back to a near-identical board is exactly the
    * thing this prevents.
    */
-  lastBoard: string[]
+  recentBoards: string[][]
   roundRecorded: boolean
   /** Non-null while playing (or having finished) a daily challenge. */
   dailyKey: string | null
@@ -128,7 +134,7 @@ export const useGame = create<GameStore>()(
     (set, get) => ({
       game: null,
       lookedUp: [],
-      lastBoard: [],
+      recentBoards: [],
       roundRecorded: false,
       dailyKey: null,
       studying: false,
@@ -163,10 +169,11 @@ export const useGame = create<GameStore>()(
                 totalWords: config.totalWords,
                 maxNewWordsPerBoard: config.maxNewWordsPerBoard,
                 collected: new Set(Object.keys(useJourney.getState().banked)),
-                // Whatever the SRS weights want, at most three of these come
-                // back — a board that repeats the last one does not feel like
-                // a new board.
-                previousBoard: new Set(get().lastBoard),
+                // Whatever the SRS weights want, exactly three words of the
+                // last board come back and the rest of this one avoids both —
+                // a board that repeats the last one does not feel like a new
+                // board, and one that repeats nothing forgets too fast.
+                recentBoards: get().recentBoards.map((b) => new Set(b)),
               },
               mulberry32(actualSeed ^ 0x9e3779b9),
               Date.now(),
@@ -207,8 +214,9 @@ export const useGame = create<GameStore>()(
         useUi.getState().resetTranslations()
         set({
           game,
-          // Remembered for the NEXT deal, not this one.
-          lastBoard: entries.map((w) => w.id),
+          // Remembered for the NEXT deal, not this one. Two deep, which is all
+          // the "a word may not carry over twice running" rule can use.
+          recentBoards: [entries.map((w) => w.id), ...get().recentBoards].slice(0, 2),
           lookedUp: [],
           roundRecorded: false,
           dailyKey: opts?.dailyKey ?? null,
@@ -505,11 +513,22 @@ export const useGame = create<GameStore>()(
     }),
     {
       name: 'cluecab-game-v1',
-      version: 1,
+      version: 2,
+      /**
+       * v1 remembered one board under `lastBoard`. Without this the upgrade
+       * would silently lose it — harmless (one board deals without a carry-over
+       * quota) but avoidable, and an installed PWA updates under the player
+       * rather than at a moment they chose.
+       */
+      migrate: (persisted, from) => {
+        if (from >= 2) return persisted
+        const { lastBoard, ...rest } = (persisted ?? {}) as { lastBoard?: string[] }
+        return { ...rest, recentBoards: lastBoard?.length ? [lastBoard] : [] }
+      },
       partialize: (s) => ({
         game: s.game,
         lookedUp: s.lookedUp,
-        lastBoard: s.lastBoard,
+        recentBoards: s.recentBoards,
         roundRecorded: s.roundRecorded,
         dailyKey: s.dailyKey,
         studying: s.studying,

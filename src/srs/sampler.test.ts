@@ -4,7 +4,7 @@ import { mulberry32 } from '../engine/rng'
 import { WORDS, curriculumRank } from '../data/words'
 import { applyRoundResults, newStats } from './scheduler'
 import type { SrsMap } from './types'
-import { MAX_CARRY_OVER, selectBoardWords, selectDailyWords } from './sampler'
+import { CARRY_OVER, selectBoardWords, selectDailyWords } from './sampler'
 
 const NOW = 1_700_000_000_000
 const DAY = 24 * 60 * 60 * 1000
@@ -184,14 +184,16 @@ describe('selectDailyWords', () => {
  * next in a sitting, and one word appeared on 8 boards out of 10.
  *
  * Two things fixed it. Box-0 words stopped counting as maximally overdue
- * seconds after being played (see scheduler.test.ts), and the sampler gained a
- * hard ceiling: at most MAX_CARRY_OVER words may come back from the board just
- * played, whatever the weights want.
+ * seconds after being played (see scheduler.test.ts), and the sampler took
+ * control of the overlap directly instead of hoping the weights would.
  *
- * The ceiling is not a target. In practice, once a player has a pool to draw
- * from, consecutive boards share none at all — which is not a loss of review,
- * because the words still return a few boards later. That is better spacing
- * than back-to-back, not worse.
+ * The first attempt made it a ceiling — at most three — and that was the wrong
+ * rule twice over. It measured at an average of 0.3 words in common, because
+ * the fresh half of the pool was drawn first and spent the review budget before
+ * the ceiling was ever near; and "at most three" was not what was asked for:
+ * "It seems like a simple rule. Every board has 3 words from the previous
+ * round." So it is a quota now, drawn first, and these tests assert the floor
+ * as well as the ceiling.
  */
 describe('how much a board repeats the last one', () => {
   const city = [...WORDS].sort((a, b) => curriculumRank(a) - curriculumRank(b)).slice(0, 100)
@@ -202,18 +204,18 @@ describe('how much a board repeats the last one', () => {
     let now = Date.UTC(2026, 0, 1, 12)
     const boards: string[][] = []
     const rng = mulberry32(seed)
-    let previous: string[] = []
+    let recent: Set<string>[] = []
     for (let r = 0; r < rounds; r++) {
       const board = selectBoardWords(
         city,
         srs,
-        { totalWords: total, maxNewWordsPerBoard: maxNew, previousBoard: new Set(previous) },
+        { totalWords: total, maxNewWordsPerBoard: maxNew, recentBoards: recent },
         rng,
         now,
       )
       const ids = board.map((w) => w.id)
       boards.push(ids)
-      previous = ids
+      recent = [new Set(ids), ...recent].slice(0, 2)
       srs = applyRoundResults(
         srs,
         ids.map((id, i) => ({
@@ -234,33 +236,42 @@ describe('how much a board repeats the last one', () => {
     for (const b of boards) for (const id of b) counts.set(id, (counts.get(id) ?? 0) + 1)
     return {
       maxOverlap: Math.max(...overlaps),
+      minOverlap: Math.min(...overlaps),
       distinct: counts.size,
       totalSlots: rounds * total,
       worst: Math.max(...counts.values()),
     }
   }
 
-  it('never shares more than three words with the board before it', () => {
+  it('shares exactly three words with the board before it, every board', () => {
     for (const [rounds, minutes, seed] of [
       [10, 5, 1],
       [25, 5, 3],
       [10, 60 * 24, 2],
     ] as const) {
-      expect(sitting(rounds, minutes, seed).maxOverlap).toBeLessThanOrEqual(MAX_CARRY_OVER)
+      const { minOverlap, maxOverlap } = sitting(rounds, minutes, seed)
+      expect(maxOverlap).toBe(CARRY_OVER)
+      expect(minOverlap).toBe(CARRY_OVER)
     }
   })
 
   it('on the bigger boards too, where there is more room to repeat', () => {
-    expect(sitting(10, 5, 1, 20, 6).maxOverlap).toBeLessThanOrEqual(MAX_CARRY_OVER)
-    expect(sitting(10, 5, 4, 15, 5).maxOverlap).toBeLessThanOrEqual(MAX_CARRY_OVER)
+    for (const [total, maxNew, seed] of [
+      [20, 6, 1],
+      [15, 5, 4],
+    ] as const) {
+      const { minOverlap, maxOverlap } = sitting(10, 5, seed, total, maxNew)
+      expect(maxOverlap).toBe(CARRY_OVER)
+      expect(minOverlap).toBe(CARRY_OVER)
+    }
   })
 
   /**
-   * The ceiling outranks maxNewWordsPerBoard, and has to. On round two every
-   * word the player has seen IS the board they just played, so honouring the
-   * cap means introducing more new words than the review budget wanted. If
-   * this ever regresses, the cap silently becomes unenforceable exactly when
-   * repetition is most obvious.
+   * The quota outranks maxNewWordsPerBoard, and has to. On round two every word
+   * the player has seen IS the board they just played, so keeping the other
+   * nine slots off it means introducing more new words than the review budget
+   * wanted. If this ever regresses, the rule silently stops holding exactly
+   * when repetition is most obvious.
    */
   it('holds on the second round, when everything seen is what was just played', () => {
     let srs: SrsMap = {}
@@ -275,24 +286,157 @@ describe('how much a board repeats the last one', () => {
     const second = selectBoardWords(
       city,
       srs,
-      { totalWords: 12, maxNewWordsPerBoard: 4, previousBoard: new Set(first.map((w) => w.id)) },
+      { totalWords: 12, maxNewWordsPerBoard: 4, recentBoards: [new Set(first.map((w) => w.id))] },
       rng,
       now + 60_000,
     )
     const shared = second.filter((w) => first.some((f) => f.id === w.id))
-    expect(shared.length).toBeLessThanOrEqual(MAX_CARRY_OVER)
+    expect(shared.length).toBe(CARRY_OVER)
     expect(second).toHaveLength(12)
   })
 
-  it('still brings words back, just not on the very next board', () => {
-    const { distinct, totalSlots } = sitting(10, 5, 1)
-    // 120 slots over 53 distinct words: review is happening, spread out.
-    expect(distinct).toBeLessThan(totalSlots)
-    expect(distinct).toBeGreaterThan(40)
+  /**
+   * WHICH three come back is the quota's one degree of freedom, and it is spent
+   * on practice need: the three of the last board the player is shakiest on.
+   * Here every word was answered wrong except one, and that one is the one that
+   * does not come back — measured at 8.5% against the 25% an even draw gives it.
+   *
+   * The margin is a function of the gap, because most of what separates a
+   * failed word from a passed one is that box 0 comes due in twenty minutes and
+   * box 1 in a day. Five minutes later it is 8.5%; half an hour later, 2%; one
+   * minute later, 18%, because that early both are still clamped to the same
+   * floor. Five is the gap between two rounds played back to back, so that is
+   * what this measures.
+   */
+  it('brings back the words that went worst, not an arbitrary three', () => {
+    let srs: SrsMap = {}
+    const now = Date.UTC(2026, 0, 1, 12)
+    const first = selectBoardWords(
+      city,
+      srs,
+      { totalWords: 12, maxNewWordsPerBoard: 4 },
+      mulberry32(11),
+      now,
+    )
+    const easy = first[0]!
+    srs = applyRoundResults(
+      srs,
+      first.map((w) => ({
+        wordId: w.id,
+        guessedGreen: w.id === easy.id,
+        guessedWrong: w.id !== easy.id,
+        lookedUp: false,
+      })),
+      now,
+    )
+    // Repeated draws: the quota is weighted, not deterministic, so the claim is
+    // about what the weighting does over a sitting, not about one lucky sample.
+    let easyReturns = 0
+    for (let i = 0; i < 100; i++) {
+      const next = selectBoardWords(
+        city,
+        srs,
+        { totalWords: 12, maxNewWordsPerBoard: 4, recentBoards: [new Set(first.map((w) => w.id))] },
+        mulberry32(1000 + i),
+        now + 5 * 60_000,
+      )
+      if (next.some((w) => w.id === easy.id)) easyReturns++
+    }
+    // Three of twelve is 25 in 100 for a word drawn evenly.
+    expect(easyReturns).toBeLessThan(15)
   })
 
+  /**
+   * The quota chains if it is allowed to: three words carry to the next board,
+   * and nothing stops the same three carrying again, and again. Measured at one
+   * word on seven boards out of ten — which is the complaint that started all
+   * of this, arriving by a different route. A word that has already carried
+   * over sits the next board out, which is what the second entry in
+   * recentBoards is for.
+   */
+  it('lets no word ride the quota board after board', () => {
+    let srs: SrsMap = {}
+    const now = Date.UTC(2026, 0, 1, 12)
+    const rng = mulberry32(5)
+    const boards: string[][] = []
+    let recent: Set<string>[] = []
+    for (let r = 0; r < 6; r++) {
+      const board = selectBoardWords(
+        city,
+        srs,
+        { totalWords: 12, maxNewWordsPerBoard: 4, recentBoards: recent },
+        rng,
+        now + r * 5 * 60_000,
+      )
+      const ids = board.map((w) => w.id)
+      boards.push(ids)
+      recent = [new Set(ids), ...recent].slice(0, 2)
+      srs = applyRoundResults(
+        srs,
+        ids.map((id) => ({ wordId: id, guessedGreen: false, guessedWrong: true, lookedUp: false })),
+        now + r * 5 * 60_000,
+      )
+    }
+    // Every word answered wrong every time, so the weights want all of them
+    // back: nothing but the rule itself is stopping a chain here.
+    for (let i = 2; i < boards.length; i++) {
+      const three = new Set(boards[i]!.filter((id) => boards[i - 1]!.includes(id)))
+      expect(three.size).toBe(CARRY_OVER)
+      for (const id of three) expect(boards[i - 2]).not.toContain(id)
+    }
+  })
+
+  /**
+   * The rule used to be written over the SEEN words only, and every test here
+   * fed it an SRS map where everything was seen, so every test passed while the
+   * app repeated ten of twelve words board after board. A browser drive found
+   * it; this is the cheap version of that drive.
+   *
+   * The gap is worth naming, because it is not an oversight so much as a shape:
+   * a word is "seen" once a round it appeared in has been FINISHED, so a player
+   * who abandons rounds — or is simply on their second board ever — has an
+   * empty SRS map and a previous board made entirely of words the rule did not
+   * cover. Which is the first ten minutes of the game, for everybody.
+   */
+  it('holds when nothing has been recorded yet, which is everybody at first', () => {
+    const rng = mulberry32(3)
+    let recent: Set<string>[] = []
+    let previousIds: string[] = []
+    for (let r = 0; r < 5; r++) {
+      // The SRS map stays empty on purpose: no round was ever finished.
+      const board = selectBoardWords(
+        city,
+        {},
+        { totalWords: 12, maxNewWordsPerBoard: 4, recentBoards: recent },
+        rng,
+        Date.UTC(2026, 0, 1, 12),
+      )
+      const ids = board.map((w) => w.id)
+      if (r > 0) {
+        expect(ids.filter((id) => previousIds.includes(id))).toHaveLength(CARRY_OVER)
+      }
+      expect(new Set(ids).size).toBe(12)
+      previousIds = ids
+      recent = [new Set(ids), ...recent].slice(0, 2)
+    }
+  })
+
+  it('still brings words back later too, not only the quota', () => {
+    const { distinct, totalSlots } = sitting(10, 5, 1)
+    // 120 slots over a few dozen distinct words: review is happening, spread out.
+    expect(distinct).toBeLessThan(totalSlots)
+    expect(distinct).toBeGreaterThan(30)
+  })
+
+  /**
+   * Was 8 boards out of 10 before any of this, and 5 under the ceiling that
+   * came first. Six is the price of the quota, and it is worth being explicit
+   * that it IS a price: three words a board must come back, so a hundred-word
+   * city cannot spread ten boards as thinly as it could when zero had to. What
+   * six looks like is a word the player keeps getting wrong returning every
+   * other board, which is roughly what box 0 asks for anyway.
+   */
   it('and lets no single word dominate a sitting', () => {
-    // Was 8 boards out of 10 before any of this.
-    expect(sitting(10, 5, 1).worst).toBeLessThanOrEqual(5)
+    expect(sitting(10, 5, 1).worst).toBeLessThanOrEqual(6)
   })
 })
