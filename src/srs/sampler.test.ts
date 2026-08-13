@@ -4,7 +4,7 @@ import { mulberry32 } from '../engine/rng'
 import { WORDS, curriculumRank } from '../data/words'
 import { applyRoundResults, newStats } from './scheduler'
 import type { SrsMap } from './types'
-import { selectBoardWords, selectDailyWords } from './sampler'
+import { MAX_CARRY_OVER, selectBoardWords, selectDailyWords } from './sampler'
 
 const NOW = 1_700_000_000_000
 const DAY = 24 * 60 * 60 * 1000
@@ -180,34 +180,44 @@ describe('selectDailyWords', () => {
 
 /**
  * "I'm getting a lot of the same words", reported from real play — and true.
- * Measured before the box-0 recency fix: 4.8 of 12 words carried over from one
- * board to the next in a sitting, and one word appeared on 8 boards out of 10.
+ * Measured before this: 4.8 of 12 words carried over from one board to the
+ * next in a sitting, and one word appeared on 8 boards out of 10.
  *
- * Some repetition is the point: a word needs three correct handlings to go
- * green, and only four never-seen words enter per board, so eight of twelve
- * slots must come from words already met. What was wrong was that box-0 words
- * — everything the player is currently failing — ignored recency completely,
- * so the same handful crowded out the rest of the pool.
+ * Two things fixed it. Box-0 words stopped counting as maximally overdue
+ * seconds after being played (see scheduler.test.ts), and the sampler gained a
+ * hard ceiling: at most MAX_CARRY_OVER words may come back from the board just
+ * played, whatever the weights want.
  *
- * This measures the whole loop rather than the weight function, because that
- * is the thing the player actually experiences.
+ * The ceiling is not a target. In practice, once a player has a pool to draw
+ * from, consecutive boards share none at all — which is not a loss of review,
+ * because the words still return a few boards later. That is better spacing
+ * than back-to-back, not worse.
  */
 describe('how much a board repeats the last one', () => {
   const city = [...WORDS].sort((a, b) => curriculumRank(a) - curriculumRank(b)).slice(0, 100)
 
   /** Rounds back to back, the way a person on a sofa plays them. */
-  function sitting(rounds: number, minutesApart: number, seed: number) {
+  function sitting(rounds: number, minutesApart: number, seed: number, total = 12, maxNew = 4) {
     let srs: SrsMap = {}
     let now = Date.UTC(2026, 0, 1, 12)
     const boards: string[][] = []
     const rng = mulberry32(seed)
+    let previous: string[] = []
     for (let r = 0; r < rounds; r++) {
-      const board = selectBoardWords(city, srs, { totalWords: 12, maxNewWordsPerBoard: 4 }, rng, now)
-      boards.push(board.map((w) => w.id))
+      const board = selectBoardWords(
+        city,
+        srs,
+        { totalWords: total, maxNewWordsPerBoard: maxNew, previousBoard: new Set(previous) },
+        rng,
+        now,
+      )
+      const ids = board.map((w) => w.id)
+      boards.push(ids)
+      previous = ids
       srs = applyRoundResults(
         srs,
-        board.map((w, i) => ({
-          wordId: w.id,
+        ids.map((id, i) => ({
+          wordId: id,
           guessedGreen: i % 3 === 0,
           guessedWrong: i % 5 === 0,
           lookedUp: i % 7 === 0,
@@ -223,26 +233,66 @@ describe('how much a board repeats the last one', () => {
     const counts = new Map<string, number>()
     for (const b of boards) for (const id of b) counts.set(id, (counts.get(id) ?? 0) + 1)
     return {
-      avgOverlap: overlaps.reduce((a, b) => a + b, 0) / overlaps.length,
+      maxOverlap: Math.max(...overlaps),
+      distinct: counts.size,
+      totalSlots: rounds * total,
       worst: Math.max(...counts.values()),
-      rounds,
     }
   }
 
-  it('leaves most of the board new from one round to the next', () => {
-    const { avgOverlap } = sitting(10, 5, 1)
-    // Was 4.8 of 12. Four is the ceiling this is held to; the floor is not
-    // zero on purpose, since review is what turns a word green.
-    expect(avgOverlap).toBeLessThanOrEqual(4)
+  it('never shares more than three words with the board before it', () => {
+    for (const [rounds, minutes, seed] of [
+      [10, 5, 1],
+      [25, 5, 3],
+      [10, 60 * 24, 2],
+    ] as const) {
+      expect(sitting(rounds, minutes, seed).maxOverlap).toBeLessThanOrEqual(MAX_CARRY_OVER)
+    }
   })
 
-  it('and settles further over a longer sitting rather than circling', () => {
-    const { avgOverlap } = sitting(25, 5, 3)
-    expect(avgOverlap).toBeLessThanOrEqual(2.5)
+  it('on the bigger boards too, where there is more room to repeat', () => {
+    expect(sitting(10, 5, 1, 20, 6).maxOverlap).toBeLessThanOrEqual(MAX_CARRY_OVER)
+    expect(sitting(10, 5, 4, 15, 5).maxOverlap).toBeLessThanOrEqual(MAX_CARRY_OVER)
   })
 
-  it('does not let one word dominate a sitting', () => {
-    // Was 8 boards out of 10 for a single word.
-    expect(sitting(10, 5, 1).worst).toBeLessThanOrEqual(7)
+  /**
+   * The ceiling outranks maxNewWordsPerBoard, and has to. On round two every
+   * word the player has seen IS the board they just played, so honouring the
+   * cap means introducing more new words than the review budget wanted. If
+   * this ever regresses, the cap silently becomes unenforceable exactly when
+   * repetition is most obvious.
+   */
+  it('holds on the second round, when everything seen is what was just played', () => {
+    let srs: SrsMap = {}
+    const now = Date.UTC(2026, 0, 1, 12)
+    const rng = mulberry32(9)
+    const first = selectBoardWords(city, srs, { totalWords: 12, maxNewWordsPerBoard: 4 }, rng, now)
+    srs = applyRoundResults(
+      srs,
+      first.map((w) => ({ wordId: w.id, guessedGreen: false, guessedWrong: true, lookedUp: false })),
+      now,
+    )
+    const second = selectBoardWords(
+      city,
+      srs,
+      { totalWords: 12, maxNewWordsPerBoard: 4, previousBoard: new Set(first.map((w) => w.id)) },
+      rng,
+      now + 60_000,
+    )
+    const shared = second.filter((w) => first.some((f) => f.id === w.id))
+    expect(shared.length).toBeLessThanOrEqual(MAX_CARRY_OVER)
+    expect(second).toHaveLength(12)
+  })
+
+  it('still brings words back, just not on the very next board', () => {
+    const { distinct, totalSlots } = sitting(10, 5, 1)
+    // 120 slots over 53 distinct words: review is happening, spread out.
+    expect(distinct).toBeLessThan(totalSlots)
+    expect(distinct).toBeGreaterThan(40)
+  })
+
+  it('and lets no single word dominate a sitting', () => {
+    // Was 8 boards out of 10 before any of this.
+    expect(sitting(10, 5, 1).worst).toBeLessThanOrEqual(5)
   })
 })

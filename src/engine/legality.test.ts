@@ -234,3 +234,70 @@ describe('words that merely rhyme with a board word', () => {
     expect(checkClueLegality('soveværelse', one('værelse')).legal).toBe(false)
   })
 })
+
+/**
+ * Danish inflections the stem guard does not reach.
+ *
+ * When the edit-distance rule was removed, the comment left in its place
+ * claimed the stem and short-word guards already covered the inflections it
+ * had been catching. That was asserted rather than checked, and it was wrong:
+ * danishStem strips one suffix, so "køre" becomes "kør" while "kørte" becomes
+ * "kørt", and containment misses it too because "kørte" does not contain
+ * "køre". Of 24 real past forms tested against their own board word, 22 were
+ * legal clues. 249 verbs in the shipped set are in that class.
+ */
+describe('past tenses and irregular plurals', () => {
+  const verb = (da: string) => [{ wordId: 'w', da, en: ['x'], pos: 'verb' }]
+  const noun = (da: string) => [{ wordId: 'w', da, en: ['x'], pos: 'noun' }]
+
+  it('refuses the past tense of a board verb', () => {
+    for (const [clue, board] of [
+      ['kørte', 'køre'],
+      ['hørte', 'høre'],
+      ['spiste', 'spise'],
+      ['læste', 'læse'],
+      ['købte', 'købe'],
+      ['elskede', 'elske'],
+      ['elsket', 'elske'],
+    ]) {
+      const v = checkClueLegality(clue, verb(board))
+      expect(v.legal, `"${clue}" on a board holding "${board}"`).toBe(false)
+    }
+  })
+
+  it('refuses an irregular plural, which no suffix rule could reach', () => {
+    for (const [clue, board] of [
+      ['mænd', 'mand'],
+      ['børn', 'barn'],
+      ['hænder', 'hånd'],
+      ['tænder', 'tand'],
+      ['bøger', 'bog'],
+      ['nætter', 'nat'],
+      ['fødder', 'fod'],
+    ]) {
+      expect(checkClueLegality(clue, noun(board)).legal, `${clue}/${board}`).toBe(false)
+    }
+  })
+
+  /**
+   * The past rule is restricted to verbs, and that restriction is doing real
+   * work: applied to every part of speech, the same shape blocks unrelated
+   * pairs that all exist in the shipped set.
+   */
+  it('does not mistake a noun ending in -e plus an ending for its own past', () => {
+    expect(checkClueLegality('næste', noun('næse')).legal).toBe(true)
+    expect(checkClueLegality('sidde', noun('side')).legal).toBe(true)
+  })
+
+  /**
+   * "stolt" (proud) on a board holding "stole" (chairs) is refused, and not by
+   * the rule above — the stem guard strips the -t and the -e and lands both on
+   * "stol". Pre-existing, same family as "skøn" being refused for "sko", and
+   * left alone for the same reason: an over-strict clue costs a re-roll, and
+   * loosening the shared stemmer is a change with its own measurements to do.
+   * Asserted as it stands so the next reader sees it is known, not missed.
+   */
+  it('and the stem guard is separately over-strict here, which is recorded not fixed', () => {
+    expect(checkClueLegality('stolt', noun('stole')).legal).toBe(false)
+  })
+})

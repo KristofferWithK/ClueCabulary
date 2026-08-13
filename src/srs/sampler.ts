@@ -9,6 +9,23 @@ import type { SrsMap } from './types'
 const FRONTIER_WINDOW = 15
 
 /**
+ * How many words a board may share with the one before it.
+ *
+ * Weighting alone could not deliver this. Overdue words are meant to come back
+ * and the pool a new player has is small, so the draw kept landing on the same
+ * handful and boards averaged nearly five words in common — enough that they
+ * stopped feeling like new boards. This is the blunt instrument: whatever the
+ * weights say, at most three words carry over.
+ *
+ * It outranks maxNewWordsPerBoard when the two disagree, which they do early
+ * on: after the first round every seen word IS the previous board, so the only
+ * way to keep the cap is to introduce more new words than the review budget
+ * would like. That resolves itself within a couple of rounds, and a bigger
+ * pool is what stops the problem recurring anyway.
+ */
+export const MAX_CARRY_OVER = 3
+
+/**
  * Board-time exclusions: no shared stems, no near-identical Danish forms, and
  * no shared English gloss (ambiguous clues + unfair redemption grading).
  */
@@ -69,11 +86,16 @@ export function selectBoardWords(
      * throw away the review they still need. Damped, not excluded.
      */
     collected?: ReadonlySet<string>
+    /**
+     * The board just played. At most MAX_CARRY_OVER of its words come back —
+     * see the constant for why weighting alone could not do this.
+     */
+    previousBoard?: ReadonlySet<string>
   },
   rng: Rng,
   now: number,
 ): WordEntry[] {
-  const { totalWords, maxNewWordsPerBoard, collected } = opts
+  const { totalWords, maxNewWordsPerBoard, collected, previousBoard } = opts
   if (all.length < totalWords) {
     throw new Error(`need at least ${totalWords} words, dataset has ${all.length}`)
   }
@@ -81,10 +103,15 @@ export function selectBoardWords(
   const seen = all.filter((w) => w.id in srs)
   const unseen = all.filter((w) => !(w.id in srs)).sort((a, b) => curriculumRank(a) - curriculumRank(b))
 
-  const reviewPool = seen.map((entry) => ({
+  const weigh = (entry: WordEntry) => ({
     entry,
     weight: practiceNeed(srs[entry.id]!, collected?.has(entry.id) ?? false, now),
-  }))
+  })
+  // Split before drawing rather than filtering after: the cap has to bound the
+  // number taken, and a post-hoc filter would just leave the board short.
+  const onLastBoard = (w: WordEntry) => previousBoard?.has(w.id) ?? false
+  const freshPool = seen.filter((w) => !onLastBoard(w)).map(weigh)
+  const carryPool = seen.filter(onLastBoard).map(weigh)
   // Reserve new-word slots only as far as the pool actually HAS unseen words.
   // Reserving them unconditionally means that once everything is seen — the
   // normal state late in a journey city — the frontier picks nothing and those
@@ -92,7 +119,15 @@ export function selectBoardWords(
   // both the weighting and the same-board exclusion rules.
   const maxNew = Math.min(maxNewWordsPerBoard, totalWords, unseen.length)
   const desiredReview = Math.min(totalWords - maxNew, seen.length)
-  const chosen: WordEntry[] = drawWeighted(reviewPool, desiredReview, [], rng)
+
+  // Words that were NOT on the last board first, then at most MAX_CARRY_OVER
+  // that were. Any review slot still empty falls through to the frontier loop
+  // below and is filled with a new word — which is how the cap outranks
+  // maxNewWordsPerBoard in the early rounds, when everything seen is also
+  // everything just played.
+  const chosen: WordEntry[] = drawWeighted(freshPool, desiredReview, [], rng)
+  const carryRoom = Math.min(MAX_CARRY_OVER, desiredReview - chosen.length)
+  if (carryRoom > 0) chosen.push(...drawWeighted(carryPool, carryRoom, chosen, rng))
 
   // New words come from the front of the frontier; widen only if the review
   // pool could not fill its share (bootstrap or heavy exclusion conflicts).
@@ -111,7 +146,11 @@ export function selectBoardWords(
   // Last resort: exclusion rules made the board unfillable — relax them rather
   // than fail (duplicate glosses are unfortunate, an unplayable app is worse).
   if (chosen.length < totalWords) {
-    for (const w of [...seen, ...unseen]) {
+    // Last board's words go to the back of this queue too, so the cap survives
+    // the relaxation and is only broken when the pool genuinely cannot fill a
+    // board without them.
+    const lastResort = [...seen.filter((w) => !onLastBoard(w)), ...unseen, ...seen.filter(onLastBoard)]
+    for (const w of lastResort) {
       if (chosen.length === totalWords) break
       if (!chosen.includes(w)) chosen.push(w)
     }

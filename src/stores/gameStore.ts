@@ -37,6 +37,13 @@ interface GameStore {
   game: GameState | null
   /** Word ids looked up in the dictionary this round (SRS signal). */
   lookedUp: string[]
+  /**
+   * The board just dealt, remembered so the NEXT one can avoid repeating it.
+   * Persisted: a board dealt before the app was closed is still the last one
+   * the player saw, and coming back to a near-identical board is exactly the
+   * thing this prevents.
+   */
+  lastBoard: string[]
   roundRecorded: boolean
   /** Non-null while playing (or having finished) a daily challenge. */
   dailyKey: string | null
@@ -121,6 +128,7 @@ export const useGame = create<GameStore>()(
     (set, get) => ({
       game: null,
       lookedUp: [],
+      lastBoard: [],
       roundRecorded: false,
       dailyKey: null,
       studying: false,
@@ -155,6 +163,10 @@ export const useGame = create<GameStore>()(
                 totalWords: config.totalWords,
                 maxNewWordsPerBoard: config.maxNewWordsPerBoard,
                 collected: new Set(Object.keys(useJourney.getState().banked)),
+                // Whatever the SRS weights want, at most three of these come
+                // back — a board that repeats the last one does not feel like
+                // a new board.
+                previousBoard: new Set(get().lastBoard),
               },
               mulberry32(actualSeed ^ 0x9e3779b9),
               Date.now(),
@@ -195,6 +207,8 @@ export const useGame = create<GameStore>()(
         useUi.getState().resetTranslations()
         set({
           game,
+          // Remembered for the NEXT deal, not this one.
+          lastBoard: entries.map((w) => w.id),
           lookedUp: [],
           roundRecorded: false,
           dailyKey: opts?.dailyKey ?? null,
@@ -495,6 +509,7 @@ export const useGame = create<GameStore>()(
       partialize: (s) => ({
         game: s.game,
         lookedUp: s.lookedUp,
+        lastBoard: s.lastBoard,
         roundRecorded: s.roundRecorded,
         dailyKey: s.dailyKey,
         studying: s.studying,

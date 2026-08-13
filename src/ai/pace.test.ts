@@ -3,7 +3,8 @@ import { GRID_CONFIGS } from '../engine/config'
 import { applyEvent, createGame, isGuessable } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { aiTargetableIds, buildAiClueView } from './projections'
-import { buildCluePrompt } from './prompts'
+import type { DebriefView } from './projections'
+import { buildCluePrompt, buildDebriefPrompt } from './prompts'
 
 const words = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -147,5 +148,55 @@ describe('the clue prompt tells Klaus the pace he has to keep', () => {
     const a = buildCluePrompt(buildAiClueView(base, 'en'))[0]!.content
     const b = buildCluePrompt(buildAiClueView(permuted, 'en'))[0]!.content
     expect(a).toBe(b)
+  })
+})
+
+/**
+ * The debrief is written from a one-line account of how the round ended, and
+ * that line came from a ternary chain with a catch-all. Sudden death — added
+ * later — fell off the end of it into "lost on the translation challenge after
+ * hitting a forbidden word", so on the most common losing ending Klaus was
+ * told, as fact, about a forbidden word the player never hit and a challenge
+ * that never ran. The banner above his text said "Sudden death"; his text
+ * explained a different round.
+ */
+describe('the debrief is told how the round actually ended', () => {
+  const view = (outcome: DebriefView['outcome']): DebriefView => ({
+    outcome,
+    words: [
+      { id: 'w0', da: 'hus', en: ['house'], pos: 'noun', reveal: { kind: 'hidden' }, onPlayerKey: 'green', onAiKey: 'bystander' },
+    ],
+    history: [],
+    lookedUpDa: [],
+  })
+  const text = (o: DebriefView['outcome']) => buildDebriefPrompt(view(o))[1]!.content
+
+  it('names sudden death as sudden death', () => {
+    const t = text({ result: 'lost', reason: 'sudden-death' })
+    expect(t).toContain('sudden death')
+    expect(t).not.toContain('translation challenge after hitting a forbidden word')
+  })
+
+  it('does not call giving up "the clues ran out", now that running out opens sudden death', () => {
+    expect(text({ result: 'lost', reason: 'timeout' })).toContain('giving up in sudden death')
+  })
+
+  it('still describes the endings it always got right', () => {
+    expect(text({ result: 'won', reason: 'all-greens' })).toContain('finding every green word')
+    expect(text({ result: 'won', reason: 'redeemed' })).toContain('translation challenge')
+    expect(text({ result: 'lost', reason: 'forbidden-failed' })).toContain('forbidden word')
+  })
+
+  it('has a sentence for every ending the engine can produce', () => {
+    // The type makes this compile-time; this catches a stray `as` cast.
+    for (const o of [
+      { result: 'won', reason: 'all-greens' },
+      { result: 'won', reason: 'redeemed' },
+      { result: 'lost', reason: 'timeout' },
+      { result: 'lost', reason: 'sudden-death' },
+      { result: 'lost', reason: 'forbidden-failed' },
+    ] as DebriefView['outcome'][]) {
+      expect(text(o), JSON.stringify(o)).not.toContain('undefined')
+    }
   })
 })
