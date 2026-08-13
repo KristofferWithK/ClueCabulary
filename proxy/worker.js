@@ -19,6 +19,10 @@
  * reaches the browser contains it. A key sent by the app is used instead when
  * present, so both setups work.
  *
+ * Whenever the key lives here, set ALLOWED_ORIGIN too. It is enforced on the
+ * way in — see originAllowed — and without it this worker will attach your key
+ * to a request from anyone who learns its URL.
+ *
  * See proxy/README.md. Deploy: `npx wrangler deploy` from this directory, then
  * `npx wrangler secret put OLLAMA_API_KEY`.
  */
@@ -32,13 +36,53 @@
  */
 const DEFAULT_UPSTREAM = 'https://ollama.com'
 
-function corsHeaders(env) {
-  // Optionally lock this to the origin you play from, e.g.
-  // https://kristofferwithk.github.io — set ALLOWED_ORIGIN as a Worker var.
-  // Do that whenever the key lives here: without it, any website could spend
-  // your subscription through this worker.
+/**
+ * The origins allowed to spend this worker's key. Set ALLOWED_ORIGIN as a
+ * Worker var — one origin, or several separated by commas — e.g.
+ * https://kristofferwithk.github.io. Unset means anyone, which is only safe
+ * while the worker holds no key of its own.
+ */
+const allowList = (env) =>
+  (env?.ALLOWED_ORIGIN || '')
+    .split(',')
+    .map((o) => o.trim().replace(/\/+$/, ''))
+    .filter(Boolean)
+
+/**
+ * Is this request allowed to use the worker's key?
+ *
+ * This has to be a real check on the way IN, and for a long time it was not:
+ * ALLOWED_ORIGIN was only ever written into the Access-Control-Allow-Origin
+ * response header, and that header is a rule the BROWSER applies to itself
+ * when deciding whether a page may READ a reply. It stops nothing from being
+ * sent. curl has no origin to lie about, a server-side script never asks
+ * permission, and a third-party page can fire a no-cors POST it is not allowed
+ * to read but which reaches the upstream all the same — with `Bearer
+ * $OLLAMA_API_KEY` attached and billed to whoever deployed this. The
+ * Content-Type rewrite below made that worse, laundering the text/plain body a
+ * no-cors POST is limited to into the JSON the API accepts.
+ *
+ * A missing Origin is refused too, once a list is configured: the app is a
+ * page on another host, so its requests always carry one, and the callers that
+ * do not are exactly the ones this is for.
+ */
+function originAllowed(request, env) {
+  const allowed = allowList(env)
+  if (allowed.length === 0) return true
+  const origin = (request.headers.get('Origin') ?? '').trim().replace(/\/+$/, '')
+  return origin !== '' && allowed.includes(origin)
+}
+
+function corsHeaders(request, env) {
+  const allowed = allowList(env)
+  const origin = (request?.headers.get('Origin') ?? '').trim().replace(/\/+$/, '')
   return {
-    'Access-Control-Allow-Origin': env?.ALLOWED_ORIGIN || '*',
+    // A single value, never the list: this header takes one origin, and a
+    // comma-joined string matches nothing. Echo whichever entry asked, so a
+    // list of several works; fall back to the first so a refusal is still
+    // legible in devtools rather than silently header-less.
+    'Access-Control-Allow-Origin':
+      allowed.length === 0 ? '*' : allowed.includes(origin) ? origin : allowed[0],
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Authorization, Content-Type',
     'Access-Control-Max-Age': '86400',
@@ -48,7 +92,11 @@ function corsHeaders(env) {
 
 export default {
   async fetch(request, env) {
-    const cors = corsHeaders(env)
+    const cors = corsHeaders(request, env)
+    // Before anything else, and above all before the key is attached below.
+    if (!originAllowed(request, env)) {
+      return new Response('This proxy does not serve that origin.', { status: 403, headers: cors })
+    }
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: cors })
     }

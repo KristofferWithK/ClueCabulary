@@ -125,11 +125,80 @@ describe('the CORS proxy worker', () => {
     })
 
     it('locks to one origin when ALLOWED_ORIGIN is set', async () => {
-      const res = await worker.fetch(new Request(ENDPOINT, { method: 'OPTIONS' }), {
-        ALLOWED_ORIGIN: 'https://someone.github.io',
-      })
+      const res = await worker.fetch(
+        new Request(ENDPOINT, { method: 'OPTIONS', headers: { Origin: 'https://someone.github.io' } }),
+        { ALLOWED_ORIGIN: 'https://someone.github.io' },
+      )
       expect(res.headers.get('Access-Control-Allow-Origin')).toBe('https://someone.github.io')
       expect(res.headers.get('Vary')).toMatch(/origin/i)
+    })
+  })
+
+  /**
+   * ALLOWED_ORIGIN used to exist only as a response header, which is a rule the
+   * browser applies to itself before letting a page READ a reply — it stops
+   * nothing being sent. These test the request being refused, and above all
+   * that the key was never spent, because that is the part that costs money.
+   */
+  describe('the origin lock, on the way in', () => {
+    const keyed = { ALLOWED_ORIGIN: 'https://mine.github.io', OLLAMA_API_KEY: 'secret' }
+    const from = (origin) =>
+      new Request(ENDPOINT, {
+        method: 'POST',
+        headers: origin ? { Origin: origin } : {},
+        body: '{}',
+      })
+
+    it('refuses another origin, without reaching upstream', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(from('https://evil.example'), keyed)
+      expect(res.status).toBe(403)
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
+    it('refuses a request with no Origin, which is what curl sends', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(from(null), keyed)
+      expect(res.status).toBe(403)
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
+    it('refuses the preflight too, so nothing is encouraged', async () => {
+      const res = await worker.fetch(
+        new Request(ENDPOINT, { method: 'OPTIONS', headers: { Origin: 'https://evil.example' } }),
+        keyed,
+      )
+      expect(res.status).toBe(403)
+    })
+
+    it('lets the configured origin through, key attached', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(from('https://mine.github.io'), keyed)
+      expect(res.status).toBe(200)
+      expect(fetchSpy.mock.calls[0][1].headers.Authorization).toBe('Bearer secret')
+    })
+
+    it('accepts a comma-separated list and echoes whichever one asked', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const env = {
+        ALLOWED_ORIGIN: 'https://mine.github.io, http://localhost:5173',
+        OLLAMA_API_KEY: 'secret',
+      }
+      const res = await worker.fetch(from('http://localhost:5173'), env)
+      expect(res.status).toBe(200)
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:5173')
+    })
+
+    it('is open to everyone when ALLOWED_ORIGIN is unset, as before', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(from(null), { OLLAMA_API_KEY: 'secret' })
+      expect(res.status).toBe(200)
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
     })
   })
 

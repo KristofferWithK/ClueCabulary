@@ -1,7 +1,25 @@
 // Drives the journey: home → a failed travel exam blocks the road → a perfect
 // exam passes the fifth gate → travel to the next city unlocks its 100 words.
 import { chromium } from 'playwright'
+import { readFileSync } from 'node:fs'
 import { startPreview } from './preview-server.mjs'
+
+/**
+ * The dataset, so the retry can be answered on its own terms.
+ *
+ * This drive used to scrape the answer key off the failed paper and type it
+ * back positionally, which only worked because the retry WAS the failed paper —
+ * the defect that let a player fail an exam, read the answers printed beside
+ * every miss, and pass the identical twenty words. The drive passed because of
+ * the bug. Now the retry is a different paper, so answer it from the dictionary
+ * like someone who actually knows the words.
+ */
+const GLOSS = new Map(
+  JSON.parse(readFileSync(new URL('../src/data/words.da.json', import.meta.url))).map((w) => [
+    w.da,
+    w.en[0],
+  ]),
+)
 
 const PORT = 4177
 const preview = await startPreview(PORT)
@@ -63,13 +81,22 @@ try {
     throw new Error('travel offered despite a failed exam')
   await page.screenshot({ path: `${SHOT_DIR}/j4-exam-failed.png` })
 
-  // The results screen reveals the right answers — use them for the retry.
-  const answers = await page.locator('.gate-results .result-answer em').allTextContents()
+  // The results screen prints the right answer beside every miss, so the retry
+  // must not be able to reuse them: a different paper is the whole point.
+  const failedPaper = words
   await page.click('.btn-primary') // Try the test again
   await page.waitForSelector('.gate-list')
+  const retryPaper = await examWords()
+  const carriedOver = retryPaper.filter((w) => failedPaper.includes(w))
+  console.log(`retry paper shares ${carriedOver.length}/20 with the one just marked`)
+  if (carriedOver.length === retryPaper.length)
+    throw new Error('the retry re-served the paper whose answers were just printed')
+
+  // Answer it properly, from the dictionary rather than from the answer key.
   for (let i = 0; i < 20; i++) {
-    const first = answers[i].replace(/^\s*=\s*/, '').split(',')[0].trim()
-    await page.locator('.gate-item input').nth(i).fill(first)
+    const gloss = GLOSS.get(retryPaper[i].trim())
+    if (!gloss) throw new Error(`no gloss for exam word "${retryPaper[i]}"`)
+    await page.locator('.gate-item input').nth(i).fill(gloss)
   }
   await page.click('.btn-primary')
   await page.waitForSelector('.gate-results')

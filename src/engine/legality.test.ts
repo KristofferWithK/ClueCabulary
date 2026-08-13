@@ -144,3 +144,54 @@ describe('Danish written without the Danish letters', () => {
     expect(checkClueLegality('sengetoej', board).legal).toBe(true)
   })
 })
+
+/**
+ * Short board words were the hole the fold above did not reach. Every other
+ * guard here folds; the short-word inflection test did not, and its call site
+ * passed unfolded strings — so with "dør" on the board, "døren" was rejected
+ * and "doeren" was legal, which is exactly the spelling a model or a phone
+ * keyboard produces. 41 words in the set are three letters or fewer and carry
+ * a Danish letter, so this is not a corner of the dataset.
+ */
+describe('inflections of short board words, ASCII-folded', () => {
+  const board = [
+    { wordId: 'w1', da: 'dør', en: ['door'], pos: 'noun' },
+    { wordId: 'w2', da: 'øl', en: ['beer'], pos: 'noun' },
+    { wordId: 'w3', da: 'æg', en: ['egg'], pos: 'noun' },
+  ]
+
+  it('rejects the definite and plural forms however they are spelled', () => {
+    for (const clue of ['døren', 'doeren', 'døre', 'doere']) {
+      expect(checkClueLegality(clue, board).legal).toBe(false)
+    }
+  })
+
+  it('rejects geminated forms too, which is how Danish inflects these', () => {
+    for (const clue of ['øllet', 'oellet', 'ægget', 'aegget']) {
+      expect(checkClueLegality(clue, board).legal).toBe(false)
+    }
+  })
+
+  it('names the board word the player can see, not the folded spelling', () => {
+    const v = checkClueLegality('doeren', board)
+    expect(v.conflictWord).toBe('dør')
+    expect(v.reason).toContain('dør')
+  })
+
+  /**
+   * The obvious fix — folding both sides unconditionally — lengthens a short
+   * word into a prefix it never was, and swallows four real pairs in this very
+   * dataset. These are legitimate clues and must stay legal.
+   */
+  it('does not let a short word swallow an unrelated one it only folds into', () => {
+    expect(checkClueLegality('tør', [{ wordId: 'a', da: 'to', en: ['two'], pos: 'numeral' }]).legal).toBe(true)
+    expect(checkClueLegality('køre', [{ wordId: 'b', da: 'ko', en: ['cow'], pos: 'noun' }]).legal).toBe(true)
+    expect(checkClueLegality('røre', [{ wordId: 'd', da: 'ro', en: ['calm'], pos: 'noun' }]).legal).toBe(true)
+    // "skøn" on a board holding "sko" belongs in this list and is not in it:
+    // the folded-stem guard blocks it ("skoen" stems to "sko"), and has since
+    // long before the short-word fold above. Left as it is rather than
+    // quietly widened here — an over-strict clue costs a re-roll, and the
+    // stem guard is worth its own change with its own measurements.
+    expect(checkClueLegality('skøn', [{ wordId: 'c', da: 'sko', en: ['shoe'], pos: 'noun' }]).legal).toBe(false)
+  })
+})

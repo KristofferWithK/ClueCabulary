@@ -167,6 +167,46 @@ describe('the travel exam is never locked', () => {
     for (const w of paper) expect(isLearned(srs[w.id], false)).toBe(true)
   })
 
+  /**
+   * The retry used to be the same paper. Green words were a deterministic
+   * prefix of a rank-sorted list and no exam outcome can change that list, so
+   * failing, reading the answers the results screen prints beside every miss,
+   * and tapping "Try again" handed back the identical twenty words — a
+   * guaranteed pass that banked twenty words the player had just failed.
+   */
+  describe('and never re-serves the paper whose answers it just printed', () => {
+    it('gives a different paper to a player with words to spare', () => {
+      const srs = srsWith(city.slice(0, 40), { correctGuesses: LEARN_REPS })
+      const first = examWords(WORDS, srs, {}, 0, rng()).map((w) => w.id)
+      const second = examWords(WORDS, srs, {}, 0, rng(), new Set(first)).map((w) => w.id)
+      expect(second.length).toBe(GATE_SIZE)
+      for (const id of second) expect(first).not.toContain(id)
+    })
+
+    it('and shares as few as it must when the city cannot fill a fresh one', () => {
+      // Exactly GATE_SIZE unbanked greens: the paper is *defined* as all of
+      // them, so a repeat is unavoidable — but a short paper would be worse,
+      // and the words must come back only to fill.
+      const srs = srsWith(city.slice(0, GATE_SIZE), { correctGuesses: LEARN_REPS })
+      const first = examWords(WORDS, srs, {}, 0, rng()).map((w) => w.id)
+      const second = examWords(WORDS, srs, {}, 0, rng(), new Set(first))
+      expect(second.length).toBe(GATE_SIZE)
+      // Grey and unknown words are pulled in ahead of any repeat.
+      const repeats = second.filter((w) => first.includes(w.id))
+      expect(repeats.length).toBeLessThan(GATE_SIZE)
+      for (const w of second.filter((x) => !first.includes(x.id))) {
+        expect(isLearned(srs[w.id], false)).toBe(false)
+      }
+    })
+
+    it('still fills the paper when literally every candidate was just seen', () => {
+      const banked = Object.fromEntries(city.slice(GATE_SIZE).map((w) => [w.id, NOW]))
+      const first = examWords(WORDS, {}, banked, 0, rng()).map((w) => w.id)
+      const second = examWords(WORDS, {}, banked, 0, rng(), new Set(first))
+      expect(second.length).toBe(first.length)
+    })
+  })
+
   it('never re-tests a banked word', () => {
     const banked = Object.fromEntries(city.slice(0, 20).map((w) => [w.id, NOW]))
     const paper = examWords(WORDS, {}, banked, 0, rng())

@@ -125,6 +125,7 @@ export function GateExamScreen() {
       journey.banked,
       exam.cityIndex,
       mulberry32(Date.now() % 0xffffffff),
+      new Set(exam.wordIds),
     )
     journey.startExam(
       exam.cityIndex,

@@ -163,6 +163,9 @@ export function HomeScreen() {
       journey.banked,
       journey.cityIndex,
       mulberry32(Date.now() % 0xffffffff),
+      // Leaving a marked paper and drawing a new one from here must not be the
+      // way to get back the words whose answers were just printed.
+      new Set(journey.lastPaper),
     )
     // Nothing left unbanked in this city: an empty paper would pass vacuously.
     if (words.length === 0) return
