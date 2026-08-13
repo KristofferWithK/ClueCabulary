@@ -50,9 +50,14 @@ function paceLine(view: AiClueView): string {
   // by both sides, so roughly half these turns are yours.
   const myTurns = Math.max(1, Math.ceil(view.turnsLeft / 2))
   if (view.turnsLeft <= 2) {
+    // The last clue is also the only information the player will ever get
+    // about these words. When the tokens run out the round does not end — it
+    // goes to sudden death, where they keep naming words with no new clue to
+    // go on. A green you never pointed at is a green they cannot find, so a
+    // narrow last clue does not lose one word, it loses the round.
     return `THE CLOCK: ${mine} of your greens are still hidden and there ${
       view.turnsLeft === 1 ? 'is 1 clue' : `are ${view.turnsLeft} clues`
-    } left in the shared pool. This is your last chance or close to it. Take every green you can honestly reach — a clue of ${Math.min(4, mine)} that finds three is worth more than a clue of 1 that ends the game tidily.`
+    } left in the shared pool. This is your last chance or close to it, and it is also the last thing your partner will ever hear about these words: when the clues run out the round goes to sudden death, where they keep naming words with nothing new to go on. Anything you do not point at now, they cannot find later. So cover ALL ${mine} if one idea can stretch that far — say ${Math.min(4, mine)} and name them all — and if no single idea reaches them, pick the clue that gestures at as many as possible. A clue of 1 here throws the rest of the board away.`
   }
   // Reported as the honest range rather than rounded up. Ceil alone turns a
   // 2.33 average into "3 words per clue", which asks for a harder clue than

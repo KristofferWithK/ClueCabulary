@@ -33,7 +33,7 @@ try {
   await page.click('.grid-card:first-child') // beginner 3x4
   await page.waitForSelector('.board-grid')
   await page.screenshot({ path: `${SHOT_DIR}/02-board.png` })
-  const cards = await page.locator('.word-card .card-da').allTextContents()
+  const cards = await page.locator('.word-card .card-word').allTextContents()
   console.log('BOARD:', cards.join(', '))
 
   // Early cities open with the whole board translated; read it, then begin.

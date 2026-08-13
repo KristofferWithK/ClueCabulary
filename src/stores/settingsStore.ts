@@ -35,7 +35,11 @@ export const useSettings = create<SettingsState>()(
       model: DEFAULT_MODEL,
       gridSize: 'beginner',
       clueLanguage: 'en',
-      studyPhase: 'auto',
+      // Off. Opening every round with all twelve translations on screen
+      // clutters the board you are about to read, and the lookup box and ⓘ
+      // both answer the same question on demand. 'auto' and 'always' are
+      // still there in Settings for anyone who wants the old opening.
+      studyPhase: 'never',
       useMock: false,
       klausVerifiedAt: null,
       set: (patch) =>

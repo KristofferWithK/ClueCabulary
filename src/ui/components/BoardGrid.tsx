@@ -91,27 +91,26 @@ export function BoardGrid({
                 else if (tapLooksUp) onInfoTap(w.wordId)
               }}
             >
-              {showKey && myRole !== 'bystander' && (
-                <span className="key-mark" aria-hidden="true">
-                  {myRole === 'green' ? '●' : '✖'}
-                </span>
-              )}
-              {/* Gender rides in the strip already reserved along the top,
-                  between the key mark and ⓘ, because that space is free and
-                  the line the word sits on is not: a 4-wide board at 360px
-                  leaves each word 64px, and an inline "en" takes 16 of them.
-                  Set inline it broke a quarter of all nouns across two lines —
-                  "en pand/e", "et mark/ed" — which teaches a learner the wrong
-                  shape for the word. Whole word first; the collocation is
-                  taught properly in the dictionary sheet and the lookup box,
-                  which is where it is read at leisure. */}
-              {w.article && (
-                <span className="card-article" aria-hidden="true">
-                  {w.article}
-                </span>
-              )}
+              {/* No dot: the card's own border carries your key — solid green
+                  for a target, dashed black for forbidden — and two marks
+                  saying one thing was one too many. The border differs by
+                  style as well as colour, so it does not rest on colour alone,
+                  and the accessible name says it outright. */}
+              {/* Gender in front of the word, where it is read — "et hus", the
+                  way the pair is actually learned. It rode in the top strip
+                  for one build because it costs nothing there, and it was too
+                  easy to miss.
+                  It is not free here: a 4-wide board at 360px leaves the word
+                  64px and an inline "en" takes about 13 of them, so 71 of the
+                  430 nouns gain a second line. Measured across the whole set,
+                  none is clipped — the article is small, the strip's old
+                  padding came back when the key dot went, and the word is now
+                  sized off the card rather than the viewport. */}
               <span className="card-da" lang="da">
-                {w.da}
+                {w.article && <span className="card-article">{w.article}</span>}
+                {/* The Danish word alone, so a selector can still ask for it
+                    without the article coming along in the text. */}
+                <span className="card-word">{w.da}</span>
               </span>
               {(translationsOn || reveal.kind === 'green') && (
                 <span className="card-en">{w.en[0]}</span>

@@ -74,6 +74,21 @@ describe('the clue prompt tells Klaus the pace he has to keep', () => {
     expect(text).toContain('last chance')
   })
 
+  /**
+   * The last clue is the only information the player will ever get about the
+   * greens it does not mention. Running out of clues opens sudden death, where
+   * they name words with nothing new to go on — so a green Klaus never pointed
+   * at is one they cannot find, and a narrow last clue does not cost a word,
+   * it costs the round.
+   */
+  it('tells him the last clue has to cover everything he has left', () => {
+    const { text, view } = cluePrompt('beginner', 3)
+    const mine = aiTargetableIds(view).length
+    expect(text).toContain('sudden death')
+    expect(text).toContain('Anything you do not point at now, they cannot find later')
+    expect(text).toContain(`cover ALL ${mine}`)
+  })
+
   it('asks for two or three as the normal shape, not one', () => {
     const { text } = cluePrompt('standard')
     expect(text).toContain('Two or three targets is the normal shape')

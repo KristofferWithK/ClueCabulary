@@ -50,7 +50,7 @@ try {
     if (!forbidden) throw new Error('no hidden AI-forbidden word (unexpected)')
     const word = game.words.find((w) => w.wordId === forbidden[0])
     console.log(`deliberately guessing forbidden word: ${word.da}`)
-    await page.click(`.word-card:has(.card-da:text-is("${word.da}"))`)
+    await page.click(`.word-card:has(.card-word:text-is("${word.da}"))`)
     await page.click('.guess-confirm .btn-primary')
   } else {
     console.log('mock AI hit a forbidden word on its own — proceeding to redemption')
