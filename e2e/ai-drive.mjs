@@ -175,13 +175,26 @@ try {
   check('an off-board wordId is retried, not accepted', fake.received.length >= 2, `${fake.received.length} calls`)
   check('and the retry says what was wrong', /invalid|corrected JSON/i.test(fake.received[1]?.raw ?? ''))
 
-  // ---- two bad replies in a row → the round says so rather than hanging -------
+  // ---- nothing usable, ever → the round says so rather than hanging ----------
+  // Five, because the call gets three corrections after its first attempt. The
+  // fake auto-replies once its script drains, so a short queue would be rescued
+  // by a valid reply and this would assert nothing.
   round = await freshRound()
   fake.reset()
-  fake.queue({ body: 'I am afraid I cannot do that.' }, { body: 'Still no JSON from me.' })
+  fake.queue(...Array.from({ length: 5 }, (_, i) => ({ body: `No JSON from me (${i}).` })))
   await submitClue()
-  const twiceBad = await errorText()
-  check('two unusable replies surface an error', /json|invalid|kept answering/i.test(twiceBad), twiceBad)
+  const neverValid = await errorText()
+  check('a model that never returns JSON surfaces an error', neverValid.length > 0, neverValid)
+  check('and it took every correction first', fake.received.length === 4, `${fake.received.length} calls`)
+  // What the player reads is about their game. The validator's own words —
+  // "not an unrevealed GREEN word on your key", "schema mismatch" — are written
+  // for the model, and used to reach the screen verbatim under "The AI kept
+  // answering invalidly".
+  check(
+    'and the message is written for the player, not for the model',
+    /^Klaus could not/.test(neverValid) && !/JSON|schema|wordId|invalid/i.test(neverValid),
+    neverValid,
+  )
 
   // ---- the HTTP error taxonomy ----------------------------------------------
   const httpCases = [

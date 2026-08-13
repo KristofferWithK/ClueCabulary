@@ -69,6 +69,19 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
    * game. Three shared greens keep thirteen of fifteen cards on a key and
    * leave two neutrals, so a wrong guess is usually somebody's green rather
    * than empty air.
+   *
+   * One forbidden word a side, and it is the bystander variant on purpose.
+   *
+   * This board shipped with two, one of which was forbidden here and GREEN on
+   * the other key — the Duet trap, where your partner's best word is the one
+   * that ends your game. Two things make that trap unfair rather than tense
+   * here: Klaus cannot see the player's key, so unlike a human partner he
+   * cannot even try to steer around it, and he is the one giving most of the
+   * clues. A player reported the exact shape — Klaus clued «kitchen», they
+   * answered «food», and food was forbidden — and asked for one forbidden word
+   * instead of two. Cutting the vsGreen one is how to spend that cut: what is
+   * left is a word that is merely neutral for Klaus, so nothing on the board is
+   * simultaneously worth pointing at and fatal to name.
    */
   middle: {
     rows: 5,
@@ -76,9 +89,9 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
     totalWords: 15,
     greensPerSide: 7,
     greenOverlap: 3, // 11 distinct greens
-    forbiddenPerSide: 2,
+    forbiddenPerSide: 1,
     forbiddenBothSides: 0,
-    forbiddenVsGreen: 1,
+    forbiddenVsGreen: 0,
     forbiddenVsBystander: 1,
     turnTokens: 6,
     maxNewWordsPerBoard: 5,

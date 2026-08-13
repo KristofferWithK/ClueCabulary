@@ -55,41 +55,71 @@ export function planGuessExecution(
   return plan
 }
 
+/**
+ * How many corrective attempts a call gets before the round gives up.
+ *
+ * One was not enough. The clue check rejects a reply whose targets are not all
+ * Klaus's own unrevealed greens, and on the boards where that fires the model
+ * usually makes the same mistake twice: the strongest association on the board
+ * belongs to a word that is not his, and asking again in the same breath gets
+ * the same word back. A player reported the consequence — the round stopping on
+ * an internal validation string — and three corrections is what it takes for the
+ * second thought to be a different thought. They cost a few seconds each and
+ * only ever happen on a reply that was going to be thrown away anyway.
+ */
+const MAX_CORRECTIONS = 3
+
+const correctionTurn = (problem: string): ChatMessage => ({
+  role: 'user',
+  content: `That response was invalid: ${problem}. Reply again with ONLY a corrected JSON object.`,
+})
+
 async function askValidated<T>(
   chat: ChatFn,
   settings: AiSettings,
   messages: ChatMessage[],
   parse: (raw: unknown) => { ok: true; value: T } | { ok: false; problem: string },
   temperature: number,
+  /**
+   * What the player reads if every attempt fails. The validator's own words are
+   * written for the model — "w2 (strand) is not an unrevealed GREEN word on your
+   * key" is a sentence about the prompt contract, and it used to reach the
+   * screen verbatim, under "The AI kept answering invalidly". The player is told
+   * what happened to their game; the diagnostic goes to the console.
+   */
+  giveUpMessage: string,
 ): Promise<T> {
-  // A non-JSON reply (prose around the object) deserves the same corrective
-  // retry as a schema-invalid one — both are fixed by "reply with only JSON".
-  let first: unknown
-  let problem: string
-  try {
-    first = await chat(settings, messages, { temperature })
-    const parsed = parse(first)
+  // The rejected replies stay in the conversation. A model that is told only
+  // "that was invalid" cannot see which of its own answers was meant, and the
+  // second mistake is usually a variation on the first.
+  const conversation: ChatMessage[] = [...messages]
+  let problem = 'no reply was ever valid'
+
+  for (let attempt = 0; attempt <= MAX_CORRECTIONS; attempt++) {
+    // Repeating the same question at the same temperature tends to repeat the
+    // same answer, which is exactly what a second correction means it must not
+    // do — so the later attempts are allowed to wander further from it.
+    const temp = Math.min(1, temperature + Math.max(0, attempt - 1) * 0.2)
+    let raw: unknown
+    try {
+      raw = await chat(settings, conversation, { temperature: temp })
+    } catch (e) {
+      // A non-JSON reply (prose around the object) deserves the same corrective
+      // retry as a schema-invalid one — both are fixed by "reply with only
+      // JSON". Anything else is a real failure: no key, no network, no model.
+      if (!(e instanceof AiError) || e.kind !== 'invalid-response') throw e
+      problem = 'the reply was not a single valid JSON object'
+      conversation.push(correctionTurn(problem))
+      continue
+    }
+    const parsed = parse(raw)
     if (parsed.ok) return parsed.value
     problem = parsed.problem
-  } catch (e) {
-    if (!(e instanceof AiError) || e.kind !== 'invalid-response') throw e
-    problem = 'the reply was not a single valid JSON object'
+    conversation.push({ role: 'assistant', content: JSON.stringify(raw) }, correctionTurn(problem))
   }
 
-  const retryMessages: ChatMessage[] = [
-    ...messages,
-    ...(first !== undefined
-      ? [{ role: 'assistant' as const, content: JSON.stringify(first) }]
-      : []),
-    {
-      role: 'user',
-      content: `That response was invalid: ${problem}. Reply again with ONLY a corrected JSON object.`,
-    },
-  ]
-  const second = await chat(settings, retryMessages, { temperature })
-  const reparsed = parse(second)
-  if (reparsed.ok) return reparsed.value
-  throw new AiError('invalid-response', `The AI kept answering invalidly: ${reparsed.problem}`)
+  console.warn(`[klaus] gave up after ${MAX_CORRECTIONS} corrections: ${problem}`)
+  throw new AiError('invalid-response', giveUpMessage)
 }
 
 export class OllamaCompanion implements Companion {
@@ -168,6 +198,7 @@ export class OllamaCompanion implements Companion {
         }
       },
       0.6,
+      'Klaus could not settle on a clue for the words he is holding.',
     )
   }
 
@@ -185,6 +216,7 @@ export class OllamaCompanion implements Companion {
         return { ok: true, value: { guesses } }
       },
       0.3,
+      'Klaus could not work out which words your clue points at.',
     )
   }
 
@@ -201,6 +233,7 @@ export class OllamaCompanion implements Companion {
       },
       // A dictionary should not be imaginative.
       0.1,
+      'The translation came back in a form the app could not read.',
     )
   }
 
@@ -216,6 +249,7 @@ export class OllamaCompanion implements Companion {
           : { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
       },
       0.7,
+      'Klaus could not put the round into words.',
     )
   }
 }

@@ -63,9 +63,16 @@ words are green it stops counting attempts.
 
 Progress is tracked per word with a spaced-repetition scheduler; new words are
 introduced along the frequency ranking while struggling words return more
-often. The same signal steers the deal itself: words you keep forgetting become
+often. Every board carries exactly three words over from the one before —
+weighted toward the three that went worst, and no word may carry twice running
+— so a board is mostly new without ever dropping what you just struggled with.
+
+The same signal steers the deal itself: words you keep forgetting become
 Klaus's green targets, so you have to recall them, while words you know well
-become the forbidden hazards you must knowingly avoid.
+become the forbidden hazards you must knowingly avoid. A word is never both at
+once on the 3×4 and 3×5 boards: nothing there is forbidden for one side and
+green for the other, because Klaus cannot see your key and so cannot steer a
+clue around a hazard only you can see.
 
 ### Keeping your collection
 
@@ -151,6 +158,8 @@ node e2e/article-drive.mjs    # en/et on every card, across all ten cities, on
                               # a 360px phone — and costing the word no line
 node e2e/endgame-drive.mjs    # Klaus opens; the 3x5 board; and sudden death
                               # won, lost and walked away from
+node e2e/repeat-drive.mjs     # every board shares exactly three words with the
+                              # one before it — across a reload and a v1 save
 node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
                               # runtime, fixing a CORS failure that is really
                               # there — including the key living on the worker
