@@ -28,8 +28,9 @@ words are green it stops counting attempts.
 ## How a round works
 
 1. The board is 3×4 (beginner) or 4×5 (standard) Danish words from the ~1000
-   most common. You and Klaus each have a secret key marking green targets and
-   **forbidden words**.
+   most common, each noun carrying its gender — **en** or **et** — in the strip
+   along the top of its card. You and Klaus each have a secret key marking
+   green targets and **forbidden words**.
 2. You alternate: you give a one-word clue, Klaus guesses — then Klaus clues
    and you guess. Guesses are judged against the clue-giver's key.
 3. Find every green word before the shared clue tokens run out and you both
@@ -134,6 +135,8 @@ node e2e/ai-drive.mjs         # the real AI client against a fake Ollama:
                               # and the key firewall asserted on the wire
 node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
                               # and the two rules that stop it reading the board
+node e2e/article-drive.mjs    # en/et on every card, across all ten cities, on
+                              # a 360px phone — and costing the word no line
 node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
                               # runtime, fixing a CORS failure that is really
                               # there — including the key living on the worker
