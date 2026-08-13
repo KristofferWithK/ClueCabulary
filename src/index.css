@@ -1699,6 +1699,30 @@ select:focus {
   color: var(--text-dim);
 }
 
+/* One tap to mark a bad call, on the row it belongs to. Sized for a thumb
+   rather than for the text it sits beside — 44px of target under a 0.9rem
+   glyph, which is why the padding is negative-margined back out. */
+.flag-btn {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--line);
+  /* A 44px target around a small glyph, pulled back out of the line box so it
+     does not push the rows apart. Measured: the first attempt read 22x36. */
+  min-width: 44px;
+  min-height: 44px;
+  margin: -14px -10px -14px 0;
+  vertical-align: middle;
+}
+
+.flag-btn.flag-on {
+  color: var(--red);
+}
+
+.log-hint {
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+}
+
 /* The turn log: what was said, and why. Replaces .clue-log, whose one-line
    «mad ✓  hus ·» strip said what happened and never why. */
 .turn-log {
@@ -1738,9 +1762,16 @@ select:focus {
 
 .turn-guesses li {
   display: grid;
-  grid-template-columns: 1.1rem 1fr;
+  /* mark | word and its reasoning | flag, with the flag held on the first row
+     beside the word rather than falling under the confidence. */
+  grid-template-columns: 1.1rem 1fr auto;
   gap: 2px 6px;
   align-items: baseline;
+}
+
+.turn-guesses .flag-btn {
+  grid-column: 3;
+  grid-row: 1;
 }
 
 .turn-guesses .result-mark {

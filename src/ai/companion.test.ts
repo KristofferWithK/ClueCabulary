@@ -17,6 +17,7 @@ const clueView: AiClueView = {
     { id: 'w3', da: 'sol', en: ['sun'], pos: 'noun', reveal: { kind: 'green' }, roleOnMyKey: 'green' },
   ],
   history: [],
+  flagged: [],
 }
 
 const guessView: AiGuessView = {
@@ -26,6 +27,7 @@ const guessView: AiGuessView = {
   words: clueView.words.map(({ roleOnMyKey: _role, ...w }) => w),
   currentClue: { text: 'husdyr', number: 2 },
   history: [],
+  flagged: [],
 }
 
 // Args are declared so a test can inspect what was actually sent — the
@@ -302,6 +304,7 @@ describe('a clue is only as good as the targets it was chosen for', () => {
       { id: 'w3', da: 'stol', en: ['chair'], pos: 'noun', reveal: { kind: 'hidden' }, roleOnMyKey: 'green' },
     ],
     history: [],
+    flagged: [],
   }
   const oceanReply = {
     clue: 'ocean',

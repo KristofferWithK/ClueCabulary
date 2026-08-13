@@ -18,6 +18,7 @@ import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
 import { WORDS, isKnownGloss } from '../data/words'
 import { isLearned, studyPhaseEnabled, unlockedWords } from '../journey/progress'
+import { useFeedback } from './feedbackStore'
 import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
@@ -371,7 +372,13 @@ export const useGame = create<GameStore>()(
         if (!game || game.phase !== 'aiGuessing' || aiBusy) return
         set({ aiBusy: true, error: null })
         try {
-          const view = buildAiGuessView(game, useSettings.getState().clueLanguage)
+          // Flags the player raised in past reviews travel with the request:
+          // this is the only channel where "that was a bad call" reaches Klaus.
+          const view = buildAiGuessView(
+            game,
+            useSettings.getState().clueLanguage,
+            useFeedback.getState().flags,
+          )
           const res = await companion(get().practiceFallback).getGuesses(view)
           // Any event replaces the game object, so reference equality proves
           // this response still belongs to the current game and clue. A stale
@@ -438,7 +445,11 @@ export const useGame = create<GameStore>()(
         if (!game || game.phase !== 'aiClueInput' || aiBusy) return
         set({ aiBusy: true, error: null, lastAiGuess: null })
         try {
-          const view = buildAiClueView(game, useSettings.getState().clueLanguage)
+          const view = buildAiClueView(
+            game,
+            useSettings.getState().clueLanguage,
+            useFeedback.getState().flags,
+          )
           const res = await companion(get().practiceFallback).getClue(view)
           // Reference check: never apply a clue composed for a previous game.
           const current = get().game
