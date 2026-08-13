@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AiError } from '../../ai/client'
 import type { TranslationResponse } from '../../ai/schemas'
 import { lookupLocal } from '../../data/lookup'
@@ -32,6 +32,12 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
   // — for free, since noteLookup declines to charge during an exam too. The
   // ⓘ sheet has locked itself this way all along; this is the same lock.
   const examOut = useJourney((s) => s.activeExam !== null)
+  // The words in play, so a hit that is one of them can say so. Selected as the
+  // store's own array and turned into a Set here: zustand 5 dropped the
+  // equality-function argument, so a selector building a new Set each render
+  // would never compare equal and would spin.
+  const boardWords = useGame((s) => s.game?.words)
+  const onBoard = useMemo(() => new Set((boardWords ?? []).map((w) => w.wordId)), [boardWords])
 
   const trimmed = term.trim()
   const local = trimmed && !examOut ? lookupLocal(trimmed) : []
@@ -102,13 +108,20 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
       {local.length > 0 && (
         <ul className="translate-hits">
           {local.slice(0, 4).map((m) => (
-            <li key={m.entry.id}>
+            <li key={m.entry.id} className={onBoard.has(m.entry.id) ? 'hit-on-board' : undefined}>
               <span lang="da">
                 {m.entry.pos === 'noun' && m.entry.article ? `${m.entry.article} ` : ''}
                 {m.entry.da}
               </span>
               {say(m.entry.da)} — {m.entry.en.join(', ')}
               {m.approximate && <em className="translate-note"> (from {term.trim()})</em>}
+              {/* Looking up "wood" on a board holding træ answers with træ,
+                  which is the right translation and an illegal clue. Saying so
+                  here saves typing it and being told no — and the board is
+                  already in front of the player, so it reveals nothing. */}
+              {onBoard.has(m.entry.id) && (
+                <em className="translate-note"> — on your board, so you cannot clue with it</em>
+              )}
             </li>
           ))}
         </ul>

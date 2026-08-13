@@ -57,6 +57,20 @@ try {
   // And no request was needed: the thousand words answer offline.
   check('with no Ask Klaus needed', (await box.locator('.translate-ask').count()) === 0)
 
+  // Looking up an English word whose Danish is ON the board. This is the case
+  // that read as a broken dictionary from a phone: "wood" answers "et træ",
+  // which is both the correct translation and an illegal clue, with nothing
+  // saying so. The board is already on screen, so naming it reveals nothing.
+  const boardEn = board[2].en[0]
+  await box.locator('input').fill(boardEn)
+  await sleep(300)
+  const flagged = await box.locator('.translate-hits .hit-on-board').count()
+  check(
+    'a hit that is on the board says so, instead of inviting an illegal clue',
+    flagged >= 1,
+    `${boardEn} → ${(await box.locator('.translate-hits li').allTextContents()).join(' | ')}`,
+  )
+
   // A word outside the set offers Klaus rather than inventing something.
   await box.locator('input').fill('helicopter')
   await sleep(250)
