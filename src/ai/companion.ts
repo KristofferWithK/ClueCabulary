@@ -120,18 +120,50 @@ export class OllamaCompanion implements Companion {
         if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
         const verdict = checkClueLegality(parsed.data.clue, boardWords)
         if (!verdict.legal) return { ok: false, problem: `illegal clue: ${verdict.reason}` }
-        const targets = [...new Set(parsed.data.targetWordIds)]
-          .filter((id) => targetable.has(id))
-          .slice(0, 4)
-        if (targets.length === 0) {
-          return { ok: false, problem: 'targetWordIds must be unrevealed GREEN words from your key' }
+        /**
+         * A clue is only worth what its targets are worth, so a reply naming a
+         * word that is not Klaus's green is rejected rather than trimmed.
+         *
+         * Trimming is what this used to do, and it produced the worst kind of
+         * clue: the text stayed, the words it was chosen for were dropped, and
+         * the number was quietly rewritten to whatever survived. Klaus would
+         * mean "ocean" for water, fish and beach, only beach would be green on
+         * his key, and the player was shown «ocean» (1) on a board where water
+         * and fish sit in plain sight and score nothing. The clue actively
+         * pointed away from the only word it could pay for.
+         *
+         * That is not a rare shape either: the deal makes Klaus's greens the
+         * words the player knows least and the hazards the ones they know
+         * best, so the obvious referent of any clue is disproportionately NOT
+         * his to give. He has to pick a clue that fits the words he actually
+         * holds, and askValidated gives him a corrective retry to do it.
+         */
+        const asked = [...new Set(parsed.data.targetWordIds)]
+        const notMine = asked.filter((id) => !targetable.has(id))
+        if (notMine.length > 0) {
+          const name = (id: string) => {
+            const w = view.words.find((x) => x.id === id)
+            return w ? `${id} (${w.da})` : id
+          }
+          const legal = [...targetable].map(name).join(', ')
+          return {
+            ok: false,
+            problem:
+              `${notMine.map(name).join(', ')} ${notMine.length === 1 ? 'is' : 'are'} not an unrevealed GREEN word on your key, ` +
+              `so your clue would point at a word that scores nothing. Do not simply drop it — a clue chosen for it is the wrong clue. ` +
+              `Choose a clue for the words you actually hold and list only those. You may target: ${legal}`,
+          }
+        }
+        if (asked.length > 4) {
+          return { ok: false, problem: 'at most 4 targets — give a clue for a smaller set' }
         }
         return {
           ok: true,
           value: {
             ...parsed.data,
-            targetWordIds: targets,
-            number: Math.min(Math.max(1, targets.length), 4),
+            targetWordIds: asked,
+            // The targets are the truth; the number is how many there are.
+            number: asked.length,
           },
         }
       },
