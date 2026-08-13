@@ -17,6 +17,7 @@ const PHASE_CAPTION: Record<GameState['phase'], string> = {
   aiGuessing: 'Klaus is guessing',
   aiClueInput: 'Klaus prepares a clue',
   playerGuessing: 'Your turn to guess',
+  suddenDeath: 'Sudden death — no clues left',
   redemption: 'Last chance',
   finished: 'Round over',
 }
@@ -156,7 +157,7 @@ export function GameScreen() {
           <BoardGrid
             game={game}
             translationsOn={translationsOn || studying}
-            canGuess={!studying && game.phase === 'playerGuessing'}
+            canGuess={!studying && (game.phase === 'playerGuessing' || game.phase === 'suddenDeath')}
             selectedWordId={selectedWordId}
             onCardTap={(id) => useGame.getState().selectWord(id)}
             onInfoTap={openDictionary}
@@ -210,10 +211,55 @@ export function GameScreen() {
         <AiTurnPanel game={game} />
       )}
       {!studying && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
+      {!studying && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
       {game.phase === 'redemption' && (
         <RedemptionView game={game} onSubmit={(a) => useGame.getState().submitRedemption(a)} />
       )}
       {game.phase === 'finished' && <DebriefPanel game={game} />}
+    </div>
+  )
+}
+
+/**
+ * The clues are gone and the board is not finished. Codenames Duet ends this
+ * way rather than on a buzzer: keep naming words, with nothing to go on but
+ * what the clues already meant, and one wrong name ends it.
+ *
+ * The greens on your own key are the ones you can already see, so what is left
+ * is whatever Klaus was pointing at and you never worked out. No target count
+ * is shown on purpose — knowing how many remain is most of the puzzle.
+ */
+function SuddenDeathBar({ game }: { game: GameState }) {
+  const { selectedWordId } = useGame()
+  const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
+
+  return (
+    <div className="dock guess-bar sudden-death-bar">
+      <p className="dock-title">
+        <span lang="da">Alt eller intet</span> — no clues left
+      </p>
+      <p className="dim">
+        Keep naming green words and you can still win this. Name anything else and the round is
+        over.
+      </p>
+      {selected ? (
+        <div className="guess-confirm">
+          <button
+            className="btn btn-primary"
+            onClick={() => useGame.getState().playerGuess(selected.wordId)}
+          >
+            Name «{selected.da}»
+          </button>
+          <button className="btn" onClick={() => useGame.getState().selectWord(null)}>
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <p className="dim">Tap a word you are sure of.</p>
+      )}
+      <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
+        Give up the round
+      </button>
     </div>
   )
 }

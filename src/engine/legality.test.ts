@@ -25,7 +25,13 @@ describe('checkClueLegality', () => {
     ['house', false, 'gloss exact'],
     ['houses', false, 'gloss substring'],
     ['kærligheden', false, 'long compound definite'],
-    ['lobe', false, 'Levenshtein 1 from løbe'],
+    // "loebe" is caught, "lobe" is not: the fold is æ→ae, ø→oe, å→aa, which is
+    // how a model and most keyboards write it. Stripping to the bare letter
+    // instead would also catch this, and would collide nine pairs of real
+    // words in the shipped set — far/får, tænke/tanke, blød/blod, svær/svar —
+    // which is a worse trade for one nonsense string.
+    ['loebe', false, 'ASCII fold of løbe'],
+    ['lobe', true, 'not a Danish word, and not close enough to be worth the false blocks'],
     ['', false, 'empty'],
     ['to ord', false, 'multiword'],
   ])('clue "%s" → legal=%s (%s)', (clue, legal) => {
@@ -193,5 +199,38 @@ describe('inflections of short board words, ASCII-folded', () => {
     // quietly widened here — an over-strict clue costs a re-roll, and the
     // stem guard is worth its own change with its own measurements.
     expect(checkClueLegality('skøn', [{ wordId: 'c', da: 'sko', en: ['shoe'], pos: 'noun' }]).legal).toBe(false)
+  })
+})
+
+/**
+ * Danish minimal pairs are not near-misses, they are different words. An
+ * edit-distance rule used to block 271 such pairs across the shipped
+ * thousand — every one a clue a person would reasonably give, and the reason
+ * "mand" was refused on a board holding "mund".
+ */
+describe('words that merely rhyme with a board word', () => {
+  const one = (da: string, en: string[] = ['x']) => [{ wordId: 'w1', da, en, pos: 'noun' }]
+
+  it('are legal clues', () => {
+    for (const [clue, board] of [
+      ['mand', 'mund'],
+      ['hund', 'hånd'],
+      ['bord', 'jord'],
+      ['læse', 'næse'],
+      ['lige', 'pige'],
+      ['skole', 'stole'],
+      ['fisk', 'frisk'],
+      ['vand', 'vind'],
+    ]) {
+      const v = checkClueLegality(clue, one(board))
+      expect(v.legal, `"${clue}" on a board holding "${board}": ${v.reason ?? ''}`).toBe(true)
+    }
+  })
+
+  it('while the forms of a board word are still refused', () => {
+    expect(checkClueLegality('munden', one('mund')).legal).toBe(false)
+    expect(checkClueLegality('hunde', one('hund')).legal).toBe(false)
+    expect(checkClueLegality('husene', one('hus')).legal).toBe(false)
+    expect(checkClueLegality('soveværelse', one('værelse')).legal).toBe(false)
   })
 })

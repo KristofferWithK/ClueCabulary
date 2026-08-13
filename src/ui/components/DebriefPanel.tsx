@@ -32,7 +32,13 @@ function Confetti() {
 const OUTCOME_COPY: Record<string, { title: string; sub: string }> = {
   'won:all-greens': { title: 'You won! 🎉', sub: 'Every green word found together.' },
   'won:redeemed': { title: 'Redeemed! 🔥', sub: 'You translated your way out of disaster.' },
-  'lost:timeout': { title: 'Out of clues', sub: 'The connection was there — next time.' },
+  // Reached by giving up in sudden death now, not by the clock running out —
+  // the clock hands you sudden death instead of ending the round.
+  'lost:timeout': { title: 'Round given up', sub: 'The connection was there — next time.' },
+  'lost:sudden-death': {
+    title: 'Sudden death',
+    sub: 'One word too far. The clues were spent and that one was not green.',
+  },
   'lost:forbidden-failed': {
     title: 'So close…',
     sub: 'The forbidden word won this round. Those translations will stick now.',

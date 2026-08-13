@@ -59,17 +59,33 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trimmed, local.length, noteLookup])
 
-  const ask = async () => {
+  const ask = async (term: string) => {
     setAsking(true)
     setError(null)
     try {
-      setAsked(await translate(trimmed))
+      setAsked(await translate(term))
     } catch (e) {
       setError(e instanceof AiError ? e.message : 'Could not translate that.')
     } finally {
       setAsking(false)
     }
   }
+
+  // A clue may be any word in the language, so the lookup has to answer any
+  // word in the language. The shipped thousand are the instant, free, offline
+  // half; everything else is Klaus, and it should not need a second tap to say
+  // yes — being told "not among the thousand words this app teaches" reads as
+  // a refusal when it was only ever meant as a note about where the answer is
+  // coming from. Asked automatically once typing settles, so it is one request
+  // per word rather than one per keystroke.
+  useEffect(() => {
+    if (examOut || !trimmed || local.length > 0) return
+    // Two letters is a prefix on the way somewhere, not a word.
+    if (trimmed.length < 3) return
+    const t = setTimeout(() => void ask(trimmed), 700)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trimmed, local.length, examOut])
 
   const say = (da: string) =>
     canSpeak() ? (
@@ -129,10 +145,13 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
 
       {trimmed && local.length === 0 && !asked && (
         <div className="translate-ask">
-          <p className="translate-note">Not among the thousand words this app teaches.</p>
-          <button className="btn btn-small" disabled={asking} onClick={ask}>
-            {asking ? 'Asking Klaus…' : 'Ask Klaus'}
-          </button>
+          {asking ? (
+            <p className="translate-note">Asking Klaus…</p>
+          ) : (
+            <button className="btn btn-small" onClick={() => void ask(trimmed)}>
+              Ask Klaus
+            </button>
+          )}
         </div>
       )}
 

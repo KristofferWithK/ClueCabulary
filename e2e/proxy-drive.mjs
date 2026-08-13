@@ -11,6 +11,7 @@
 // from curl, unusable from a browser. Pointed straight at it the app must fail
 // and say CORS; pointed at the worker the same app must work.
 import { chromium } from 'playwright'
+import { passKlausOpening } from './first-turn.mjs'
 import { startPreview } from './preview-server.mjs'
 import { startFakeOllama } from './fake-ollama.mjs'
 import { startWorker } from './worker-runtime.mjs'
@@ -154,6 +155,8 @@ try {
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
+  // Klaus opens the round, so the clue box is one guess away.
+  await passKlausOpening(page)
   await page.fill('.clue-input input', 'huskeliste')
   await page.click('.clue-input .btn-primary')
   await page.waitForSelector('.ai-guess-line, .guess-bar', { timeout: 25000 })

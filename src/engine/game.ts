@@ -21,7 +21,10 @@ export function createGame(opts: {
   /** Steers which words become recall practice vs. hazards. */
   bias?: KeyBias
 }): GameState {
-  const { config, words, seed, firstGiver = 'player', bias } = opts
+  // Klaus opens. A round that starts by asking the player to compose a Danish
+  // clue starts with the hardest thing in the game, on a board they have not
+  // read yet; starting with a guess lets them meet the words first.
+  const { config, words, seed, firstGiver = 'ai', bias } = opts
   if (words.length !== config.totalWords) {
     throw new Error(`board needs ${config.totalWords} words, got ${words.length}`)
   }
@@ -58,6 +61,10 @@ export function currentClue(state: GameState): Clue | undefined {
 export function isGuessable(state: GameState, wordId: string): boolean {
   const reveal = state.reveals[wordId]
   if (!reveal) return false
+  // Sudden death has no giver to judge against, so "burned for this side" does
+  // not apply: a card that was neutral under one key can still be the other
+  // side's green, and with no clues left that is exactly what you are hunting.
+  if (state.phase === 'suddenDeath') return reveal.kind === 'hidden' || reveal.kind === 'bystander'
   if (reveal.kind === 'hidden') return true
   if (reveal.kind === 'bystander') return !reveal.against.includes(giverOf(state.phase))
   return false
@@ -85,8 +92,11 @@ export function targetableGreenIds(state: GameState, side: Side): string[] {
 function endTurn(s: GameState, giver: Side): GameState {
   s.turnsLeft -= 1
   if (s.turnsLeft <= 0) {
-    s.phase = 'finished'
-    s.outcome = { result: 'lost', reason: 'timeout' }
+    // Duet's ending rather than a buzzer. The clues are spent, but the board
+    // is still in front of you and you have been staring at it for four
+    // rounds — so keep naming words, with nothing to go on but what the clues
+    // already meant, and one wrong name ends it.
+    s.phase = 'suddenDeath'
   } else {
     // The other side normally clues next — but a side whose greens are all
     // found has nothing to clue, so the same giver continues (Duet lets the
@@ -126,6 +136,40 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
     }
 
     case 'GUESS': {
+      /**
+       * Sudden death has no clue and no giver, so it is judged differently:
+       * a word counts if it is green on EITHER key, and anything else loses on
+       * the spot. Duet has the two players keep guessing on each other's cards
+       * here, which needs a partner who can guess with no clue to go on —
+       * Klaus cannot, and inventing a clueless AI turn would be a worse game
+       * than letting the player name the board themselves. The greens on your
+       * own key are the ones you can already see, so the tension is real: what
+       * is left is whatever Klaus was pointing at and you never worked out.
+       */
+      if (s.phase === 'suddenDeath') {
+        if (!isGuessable(s, event.wordId)) {
+          throw new IllegalEventError(`word ${event.wordId} is not guessable`)
+        }
+        const isGreen =
+          s.playerKey[event.wordId] === 'green' || s.aiKey[event.wordId] === 'green'
+        if (isGreen) {
+          s.reveals[event.wordId] = { kind: 'green' }
+          if (remainingGreenIds(s).length === 0) {
+            s.phase = 'finished'
+            s.outcome = { result: 'won', reason: 'all-greens' }
+          }
+          return s
+        }
+        // Show what it was, so the ending is legible rather than just over.
+        s.reveals[event.wordId] =
+          s.playerKey[event.wordId] === 'forbidden' || s.aiKey[event.wordId] === 'forbidden'
+            ? { kind: 'forbidden' }
+            : { kind: 'bystander', against: ['player', 'ai'] }
+        s.phase = 'finished'
+        s.outcome = { result: 'lost', reason: 'sudden-death' }
+        return s
+      }
+
       if (s.phase !== 'aiGuessing' && s.phase !== 'playerGuessing') {
         throw new IllegalEventError(`cannot guess in phase ${s.phase}`)
       }
@@ -174,6 +218,13 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
     }
 
     case 'STOP_GUESSING': {
+      // Walking away from sudden death is allowed and is a loss: it is the
+      // difference between deciding you are beaten and being told you are.
+      if (s.phase === 'suddenDeath') {
+        s.phase = 'finished'
+        s.outcome = { result: 'lost', reason: 'timeout' }
+        return s
+      }
       if (s.phase !== 'aiGuessing' && s.phase !== 'playerGuessing') {
         throw new IllegalEventError(`cannot stop guessing in phase ${s.phase}`)
       }

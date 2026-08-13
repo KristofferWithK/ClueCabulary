@@ -1,4 +1,4 @@
-import { danishStem, levenshtein, normalize } from './text'
+import { danishStem, normalize } from './text'
 import type { BoardWord } from './types'
 
 export interface LegalityVerdict {
@@ -104,9 +104,15 @@ export function checkClueLegality(clue: string, words: readonly BoardWord[]): Le
       if (inflectionOfShort(c, b) || inflectionOfShort(b, c)) {
         return { legal: false, reason: `"${clue}" is a form of ${what}`, conflictWord: w.da }
       }
-      if (b.length >= 4 && c.length >= 4 && levenshtein(c, b) <= 1) {
-        return { legal: false, reason: `"${clue}" is too close to ${what}`, conflictWord: w.da }
-      }
+      // There was an edit-distance rule here — one letter apart counted as too
+      // close — and it was wrong for this language. Danish runs on minimal
+      // pairs: hund/hånd, bord/jord, læse/næse, lige/pige, mand/mund,
+      // skole/stole, fisk/frisk. Across the shipped thousand it blocked 271
+      // pairs of entirely unrelated words, every one of them a clue a person
+      // would reasonably give. The inflections it was meant to catch are
+      // already caught above, by the stem and short-word guards, which is
+      // where that job belongs. Codenames bans the board word and its forms,
+      // not words that merely rhyme with it.
     }
   }
   return { legal: true }

@@ -321,6 +321,13 @@ export function HomeScreen() {
             12 words · {GRID_CONFIGS.beginner.turnTokens} clues
           </span>
         </button>
+        <button className="grid-card" onClick={() => play('middle')}>
+          <span className="grid-card-size">3×5</span>
+          <span className="grid-card-name">Middle</span>
+          <span className="grid-card-desc">
+            15 words · {GRID_CONFIGS.middle.turnTokens} clues
+          </span>
+        </button>
         <button className="grid-card" onClick={() => play('standard')}>
           <span className="grid-card-size">4×5</span>
           <span className="grid-card-name">Standard</span>

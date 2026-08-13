@@ -1,4 +1,4 @@
-export type GridSize = 'beginner' | 'standard'
+export type GridSize = 'beginner' | 'middle' | 'standard'
 
 export interface GridConfig {
   rows: number
@@ -30,6 +30,7 @@ export interface GridConfig {
  *
  *   Duet          15 greens / 9 tokens = 1.67
  *   beginner       8 greens / 4 tokens = 2.00
+ *   middle        11 greens / 6 tokens = 1.83
  *   standard      12 greens / 8 tokens = 1.50
  *
  * Beginner is deliberately the tightest of the three. Four clues means two
@@ -57,6 +58,28 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
     // guess twice, and the round is over in about as long as a bus ride.
     turnTokens: 4,
     maxNewWordsPerBoard: 4,
+  },
+  /**
+   * Three across, five down. Seven greens a side is 2 + 2 + 3, which is three
+   * clues each and six rounds — the shape this board was asked for. Cluing in
+   * pairs spends all six exactly, with nothing left over; that is deliberate
+   * now that running out of clues opens sudden death rather than ending the
+   * game. Three shared greens keep thirteen of fifteen cards on a key and
+   * leave two neutrals, so a wrong guess is usually somebody's green rather
+   * than empty air.
+   */
+  middle: {
+    rows: 5,
+    cols: 3,
+    totalWords: 15,
+    greensPerSide: 7,
+    greenOverlap: 3, // 11 distinct greens
+    forbiddenPerSide: 2,
+    forbiddenBothSides: 0,
+    forbiddenVsGreen: 1,
+    forbiddenVsBystander: 1,
+    turnTokens: 6,
+    maxNewWordsPerBoard: 5,
   },
   standard: {
     rows: 5,

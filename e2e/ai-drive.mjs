@@ -56,12 +56,19 @@ await page.addInitScript(
 const gameState = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.game)
 
-/** A fresh beginner round, stopped just before the first AI call. */
+/**
+ * A fresh beginner round with the PLAYER cluing first.
+ *
+ * Klaus opens by default now, which would spend the first queued fake response
+ * on his opening clue and shift every scenario below by one. ?first=player is
+ * a local-only dev switch for exactly this: these tests are about the AI
+ * client's parsing, retries and error taxonomy, not about who goes first.
+ */
 async function freshRound(seed = 5) {
-  await page.goto(`${BASE}?howto=0&seed=${seed}`)
+  await page.goto(`${BASE}?howto=0&first=player&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${BASE}?howto=0&seed=${seed}`)
+  await page.goto(`${BASE}?howto=0&first=player&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.locator('.grid-card').first().click()
   await page.waitForSelector('.board-grid')

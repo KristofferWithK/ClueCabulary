@@ -50,6 +50,11 @@ export type Phase =
   | 'aiGuessing'
   | 'aiClueInput' // waiting for the AI's clue; player will guess
   | 'playerGuessing'
+  /**
+   * Clues are gone but the board is not finished. Codenames Duet's ending:
+   * no more clues, keep naming words, one wrong name and it is over.
+   */
+  | 'suddenDeath'
   | 'redemption'
   | 'finished'
 
@@ -62,7 +67,7 @@ export interface RedemptionResult {
 
 export type Outcome =
   | { result: 'won'; reason: 'all-greens' | 'redeemed' }
-  | { result: 'lost'; reason: 'timeout' | 'forbidden-failed' }
+  | { result: 'lost'; reason: 'timeout' | 'sudden-death' | 'forbidden-failed' }
 
 export interface GameState {
   config: GridConfig

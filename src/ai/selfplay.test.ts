@@ -88,6 +88,22 @@ async function playOneGame(seed: number, grid: 'beginner' | 'standard'): Promise
         }
         break
       }
+      /**
+       * Clues spent, board unfinished. The player names words until the board
+       * is clear or one of them is not green. Played here at random, which is
+       * the point: whatever it picks, the engine must stay in a legal state
+       * and the game must still terminate.
+       */
+      case 'suddenDeath': {
+        const open = s.words.filter((w) => isGuessable(s, w.wordId))
+        if (open.length === 0 || hash(`sd${seed}${open.length}`) % 7 === 0) {
+          s = applyEvent(s, { type: 'STOP_GUESSING' })
+          break
+        }
+        const pick = open[hash(`sd${seed}${open.length}`) % open.length]!
+        s = applyEvent(s, { type: 'GUESS', wordId: pick.wordId })
+        break
+      }
       case 'redemption': {
         // Half the games ace the translation quiz, half flunk one word.
         const flunk = seed % 2 === 0
