@@ -38,7 +38,7 @@ words are green it stops counting attempts.
    last clue, for everything he has left, since a green he never points at is
    one you cannot find in sudden death.
 3. Find every green word before the shared clue tokens run out and you both
-   win. Beginner is four clues — two each; middle is six; standard is eight.
+   win. Beginner is five clues, middle six, standard eight.
    Running out is not the end: the clues stop but the board does not, and
    **sudden death** lets you keep naming words with nothing left to go on. Name
    a green and you are still alive; name anything else and the round is over.

@@ -15,13 +15,14 @@ describe('the shipped boards', () => {
   })
 
   /**
-   * Beginner is four clues: you, Klaus, you, Klaus. Both sides guess twice and
-   * the round is over quickly, which is the shape it was asked for. Pinned
-   * because it is a play-feel decision, not an implementation detail — if it
-   * changes, it should change because someone meant it to.
+   * Pinned because it is a play-feel decision, not an implementation detail —
+   * if it changes, it should change because someone meant it to. It was four
+   * for a build, which reads tidier (two clues each) and quietly forbids a
+   * whole play style: eight greens cannot be cleared by clues of 2 in four
+   * turns, so the board insisted on ambition.
    */
-  it('give the beginner board four clues, two each', () => {
-    expect(GRID_CONFIGS.beginner.turnTokens).toBe(4)
+  it('give the beginner board five clues', () => {
+    expect(GRID_CONFIGS.beginner.turnTokens).toBe(5)
   })
 
   /**
@@ -33,10 +34,12 @@ describe('the shipped boards', () => {
     const load = (c: GridConfig) => +(distinctGreens(c) / c.turnTokens).toFixed(2)
     expect({
       beginner: load(GRID_CONFIGS.beginner),
+      middle: load(GRID_CONFIGS.middle),
       standard: load(GRID_CONFIGS.standard),
-    }).toEqual({ beginner: 2, standard: 1.5 })
-    // Codenames Duet, the game this is scaled from, sits at 15/9 = 1.67.
-    expect(load(GRID_CONFIGS.beginner)).toBeGreaterThan(15 / 9)
+    }).toEqual({ beginner: 1.6, middle: 1.83, standard: 1.5 })
+    // Codenames Duet, the game this is scaled from, sits at 15/9 = 1.67. The
+    // first board a player meets should not be the hardest of the three.
+    expect(load(GRID_CONFIGS.beginner)).toBeLessThan(15 / 9)
   })
 
   it('count a shared green once, since finding it once is all the game asks', () => {
@@ -68,13 +71,15 @@ describe('the guard against a board that cannot be cleared', () => {
 })
 
 /**
- * Is four clues actually enough? Play the boards and find out.
+ * Is the token count actually enough? Play the boards and find out.
  *
  * The first answer to this was measured with fixed-ambition strategies —
- * "always clue 2", "always clue 3" — which said cluing pairs loses every
- * board. True, and the wrong question: nobody clues 2 while five of their
- * greens are still hidden. A person clues for what is left, up to about three
- * at a time, and that is what this plays.
+ * "always clue 2", "always clue 3" — and reported that cluing pairs loses
+ * every board, which was true and was the wrong emphasis: nobody clues 2
+ * while five of their greens are still hidden. A person clues for what is
+ * left, up to about three at a time. Both are worth playing, though, and at
+ * four tokens the pair-by-pair line really was impossible rather than merely
+ * slow — which is what the fifth token is for.
  */
 const makeWords = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({ wordId: `w${i}`, da: `xq${i}`, en: [`zz${i}`], pos: 'noun' }))
@@ -103,7 +108,7 @@ function playClueingForWhatIsLeft(seed: number, cap: number) {
   return { won: s.outcome?.result === 'won', clues: s.clueHistory.length, numbers }
 }
 
-describe('four clues, played the way a person plays', () => {
+describe('the beginner board, played the way a person plays', () => {
   const seeds = Array.from({ length: 60 }, (_, i) => i * 7 + 1)
 
   it('clears every board, cluing at most three at a time', () => {
@@ -114,13 +119,27 @@ describe('four clues, played the way a person plays', () => {
   /**
    * Three-then-three-then-two, on all sixty. Five greens a side and two of
    * them shared, so whoever clues first spends the overlap and leaves the
-   * other side three. The fourth clue is slack: the perfect line is three, and
-   * the budget is four, which is exactly one mistake's worth of room.
+   * other side three. The perfect line is three clues and the budget is five,
+   * so two are spare — room for a wrong guess and a wasted clue, rather than
+   * the one mistake four allowed.
    */
-  it('takes three of its four clues, leaving one for a mistake', () => {
+  it('takes three of its five clues when clued ambitiously', () => {
     const runs = seeds.map((s) => playClueingForWhatIsLeft(s, 3))
     const shapes = new Set(runs.map((r) => r.numbers.join('+')))
     expect([...shapes]).toEqual(['3+3+2'])
-    expect(runs.every((r) => r.clues < GRID_CONFIGS.beginner.turnTokens)).toBe(true)
+    expect(runs.every((r) => r.clues <= GRID_CONFIGS.beginner.turnTokens - 2)).toBe(true)
+  })
+
+  /**
+   * The reason for the fifth token. Eight greens need five clues of 2, and at
+   * four this line could not be played at all — a whole way of playing the
+   * game was arithmetically forbidden on the first board a learner meets.
+   */
+  it('and clears it cluing nothing but pairs, which four clues could not', () => {
+    const runs = seeds.map((s) => playClueingForWhatIsLeft(s, 2))
+    expect(runs.every((r) => r.won)).toBe(true)
+    expect(runs.every((r) => r.clues <= GRID_CONFIGS.beginner.turnTokens)).toBe(true)
+    // Four would have run out one clue short of the board.
+    expect(Math.max(...runs.map((r) => r.clues))).toBeGreaterThan(4)
   })
 })

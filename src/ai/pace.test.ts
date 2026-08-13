@@ -49,21 +49,41 @@ describe('the clue prompt tells Klaus the pace he has to keep', () => {
     expect(text).toContain(`${view.turnsLeft} clues remain`)
   })
 
-  it('and does the division, so a clue of 1 is visibly behind the pace', () => {
-    const { text } = cluePrompt('beginner')
-    // 5 greens over ~2 turns of his own: 2 or 3 a clue, and spending one on a
-    // single word leaves 4 for the last turn.
-    expect(text).toContain('That is 2 or 3 words a clue just to finish.')
-    expect(text).toContain('A clue of 1 now leaves 4 for 1 turn — 4 a clue')
+  /**
+   * Checked as arithmetic rather than as a fixed string, so retuning a board's
+   * token count does not silently make the sentence wrong — which is what a
+   * hardcoded "2 or 3" did the first time beginner moved from four clues to
+   * five.
+   */
+  it.each(['beginner', 'middle', 'standard'] as const)('does the division correctly on %s', (grid) => {
+    const { text, view } = cluePrompt(grid)
+    const mine = aiTargetableIds(view).length
+    // Half the shared pool is his, rounded up.
+    const myTurns = Math.ceil(view.turnsLeft / 2)
+    const rate = mine / myTurns
+
+    const m = text.match(/That is (\d+)(?: or (\d+))? words? a clue just to finish\./)
+    expect(m, `no rate sentence in:\n${text}`).not.toBeNull()
+    const low = Number(m![1])
+    const high = m![2] ? Number(m![2]) : low
+    // The true rate has to sit inside the range quoted, and the range has to
+    // be the tightest pair of whole numbers around it — not rounded up, which
+    // would ask for a harder clue than the board needs.
+    expect(rate).toBeGreaterThanOrEqual(low === 0 ? 0 : low - 0.001)
+    expect(rate).toBeLessThanOrEqual(high + 0.001)
+    expect(high - low).toBeLessThanOrEqual(1)
+    expect(text).toContain(`${mine} of your greens are still hidden`)
   })
 
-  it('reports the rate honestly rather than rounding it up', () => {
-    // The middle board is 7 greens over ~3 turns = 2.33. Rounding that up to
-    // "3 words a clue" asks for a harder clue than the board does, which is
-    // the opposite of the mistake being fixed.
-    const { text } = cluePrompt('middle')
-    expect(text).toContain('That is 2 or 3 words a clue just to finish.')
-    expect(text).not.toContain('That is 3 words a clue')
+  it('only warns what a cheap clue costs when it really costs something', () => {
+    // The clause is conditional on purpose: on a board where 1 now still
+    // leaves a normal clue later, saying "and then you will need N" would be
+    // a scold with no arithmetic behind it.
+    for (const grid of ['beginner', 'middle', 'standard'] as const) {
+      const { text } = cluePrompt(grid)
+      if (!text.includes('A clue of 1 now leaves')) continue
+      expect(text).toMatch(/A clue of 1 now leaves \d+ for \d+ turns? — \d+ a clue/)
+    }
   })
 
   it('escalates when the clues are nearly gone', () => {
