@@ -96,7 +96,7 @@ describe('the study phase, which the board should no longer open with', () => {
     )
   })
 
-  it('and a v2 save is passed through untouched', () => {
+  it('and a v2 save keeps its study phase', () => {
     expect((migrate({ studyPhase: 'auto' }, 2) as Record<string, unknown>).studyPhase).toBe('auto')
   })
 
@@ -127,5 +127,37 @@ describe('knowing when Klaus is not playing', () => {
     expect(onPracticeCompanion(false)).toBe(true) // chosen in Settings, or ?mock=1
     expect(onPracticeCompanion(true)).toBe(true)
     useSettings.setState({ useMock: false })
+  })
+})
+
+
+/**
+ * "Also the clues Klaus sends should be in danish as well."
+ *
+ * The clue dock has always asked the PLAYER for "ét dansk ord"; this setting
+ * governed only Klaus's own clues, and its default had him answering in English
+ * on a Danish board. Same shape of trap as the study phase: moving the default
+ * does nothing for a device that already stored one, which is every device that
+ * has ever opened Settings.
+ */
+describe('which language Klaus clues in', () => {
+  const migrate = migrateSettings
+
+  it('is Danish for anyone who has never stored a setting', () => {
+    expect(useSettings.getInitialState().clueLanguage).toBe('da')
+  })
+
+  it('and is switched to Danish on a save that still holds the old default', () => {
+    expect((migrate({ clueLanguage: 'en' }, 2) as Record<string, unknown>).clueLanguage).toBe('da')
+    expect((migrate({ clueLanguage: 'en' }, 1) as Record<string, unknown>).clueLanguage).toBe('da')
+  })
+
+  it('a v3 save is left alone, whatever it holds', () => {
+    expect((migrate({ clueLanguage: 'en' }, 3) as Record<string, unknown>).clueLanguage).toBe('en')
+  })
+
+  it('and the v1 study-phase fix still happens on the way past', () => {
+    const up = migrate({ studyPhase: 'auto', clueLanguage: 'en' }, 1) as Record<string, unknown>
+    expect(up).toMatchObject({ studyPhase: 'never', clueLanguage: 'da' })
   })
 })

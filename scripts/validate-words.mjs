@@ -59,10 +59,26 @@ for (const [i, w] of words.entries()) {
   if (!Array.isArray(w.en) || w.en.length === 0 || w.en.some((g) => typeof g !== 'string' || !g.trim())) {
     errors.push(`${at}: en must be a non-empty string array`)
   }
-  if (w.pos === 'noun' && w.article !== 'en' && w.article !== 'et') {
-    warnings.push(`${at}: noun without en/et article`)
+  // Every noun must say what gender it is. Most say it with en/et; the ones
+  // that cannot — plurale tantum, where there is no indefinite singular — say
+  // it with the gender field, and the card prints (com)/(neut). A noun with
+  // neither tells the learner nothing, which is a hard error rather than a
+  // warning: gender is not decoration in Danish.
+  if (w.pos === 'noun' && w.gender !== 'common' && w.gender !== 'neuter') {
+    errors.push(`${at}: noun with no gender (needs en/et or an explicit gender)`)
   }
-  if (w.pos !== 'noun' && w.article) warnings.push(`${at}: non-noun with article`)
+  if (w.article === 'en' && w.gender !== 'common') {
+    errors.push(`${at}: article "en" disagrees with gender ${w.gender}`)
+  }
+  if (w.article === 'et' && w.gender !== 'neuter') {
+    errors.push(`${at}: article "et" disagrees with gender ${w.gender}`)
+  }
+  if (w.pos === 'noun' && !w.article) {
+    warnings.push(`${at}: noun with no article — shown as (${w.gender === 'neuter' ? 'neut' : 'com'})`)
+  }
+  if (w.pos !== 'noun' && (w.article || w.gender)) {
+    warnings.push(`${at}: non-noun with article or gender`)
+  }
   if (w.en?.some((g) => /^to /.test(g))) warnings.push(`${at}: gloss with leading "to " (${w.en})`)
   // The example should contain the headword or a recognizable inflection.
   const stem = String(w.da).toLowerCase().slice(0, Math.max(3, w.da.length - 2))

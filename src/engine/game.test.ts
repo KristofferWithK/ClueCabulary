@@ -517,3 +517,64 @@ describe('who opens the round', () => {
     expect(newGame('beginner', 7, 'ai').phase).toBe('aiClueInput')
   })
 })
+
+/**
+ * "I think the ai should always write down its reasoning for why it picked a
+ * word and not any other. […] I want the debrief to show the reasoning for its
+ * decisions."
+ *
+ * The model had always written a reason for every guess and the engine dropped
+ * it: `clue.guesses.push({ wordId, result })` kept the score and threw away the
+ * account. So the one question a player kept asking — why THAT word — was the
+ * one thing the app had discarded on purpose.
+ */
+describe('a guess remembers why it was made', () => {
+  it('keeps the AI reasoning and confidence on the record', () => {
+    let s = clue(newGame(), 'player', 2)
+    const target = findGuessable(s, 'player', 'green')
+    s = applyEvent(s, {
+      type: 'GUESS',
+      wordId: target,
+      reasoning: 'the only food word on the board',
+      confidence: 0.82,
+    })
+    const g = s.clueHistory[0]!.guesses[0]!
+    expect(g).toMatchObject({ wordId: target, result: 'green', confidence: 0.82 })
+    expect(g.reasoning).toBe('the only food word on the board')
+  })
+
+  /** Nobody is asked to justify a tap, so the player's guesses carry neither. */
+  it('leaves both off a guess made without them', () => {
+    let s = clue(newGame(), 'player', 2)
+    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'green') })
+    const g = s.clueHistory[0]!.guesses[0]!
+    expect(g.reasoning).toBeUndefined()
+    expect(g.confidence).toBeUndefined()
+    expect(Object.keys(g).sort()).toEqual(['result', 'wordId'])
+  })
+
+  it('carries them through a turn that ends on the guess', () => {
+    let s = clue(newGame(), 'player', 1)
+    s = applyEvent(s, {
+      type: 'GUESS',
+      wordId: findGuessable(s, 'player', 'green'),
+      reasoning: 'ends the turn',
+      confidence: 0.4,
+    })
+    expect(s.phase).toBe('aiClueInput')
+    expect(s.clueHistory[0]!.guesses[0]!.reasoning).toBe('ends the turn')
+  })
+
+  it('and through the one that ends the round', () => {
+    let s = clue(newGame(), 'player', 2)
+    s = applyEvent(s, {
+      type: 'GUESS',
+      wordId: findGuessable(s, 'player', 'forbidden'),
+      reasoning: 'I was not sure at all',
+      confidence: 0.11,
+    })
+    expect(s.outcome?.result).toBe('lost')
+    expect(s.clueHistory[0]!.guesses[0]!.reasoning).toBe('I was not sure at all')
+    expect(s.clueHistory[0]!.guesses[0]!.confidence).toBe(0.11)
+  })
+})

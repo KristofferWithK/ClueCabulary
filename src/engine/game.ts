@@ -184,7 +184,14 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
       const key = giver === 'player' ? s.playerKey : s.aiKey
       const role = key[event.wordId]
       if (!role) throw new IllegalEventError(`unknown word ${event.wordId}`)
-      clue.guesses.push({ wordId: event.wordId, result: role })
+      clue.guesses.push({
+        wordId: event.wordId,
+        result: role,
+        // Undefined for the player's own taps; the AI's account of its own
+        // guess rides along and is kept for the debrief.
+        ...(event.reasoning ? { reasoning: event.reasoning } : {}),
+        ...(event.confidence !== undefined ? { confidence: event.confidence } : {}),
+      })
 
       if (role === 'green') {
         s.reveals[event.wordId] = { kind: 'green' }

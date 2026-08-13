@@ -1,3 +1,4 @@
+import { articleLabel, genderLabel } from '../../data/gender'
 import type { CardRole, GameState, Reveal } from '../../engine/types'
 import { isGuessable } from '../../engine/game'
 
@@ -82,7 +83,7 @@ export function BoardGrid({
                 showKey ? `mykey-${myRole}` : '',
               ].join(' ')}
               disabled={!guessable && !tapLooksUp}
-              aria-label={`${w.article ? `${w.article} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
+              aria-label={`${genderLabel(w) ? `${genderLabel(w)} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
                 tapLooksUp ? '. Tap to look up' : ''
               }`}
               aria-pressed={selectedWordId === w.wordId}
@@ -107,7 +108,7 @@ export function BoardGrid({
                   padding came back when the key dot went, and the word is now
                   sized off the card rather than the viewport. */}
               <span className="card-da" lang="da">
-                {w.article && <span className="card-article">{w.article}</span>}
+                {articleLabel(w) && <span className="card-article">{articleLabel(w)}</span>}
                 {/* The Danish word alone, so a selector can still ask for it
                     without the article coming along in the text. */}
                 <span className="card-word">{w.da}</span>

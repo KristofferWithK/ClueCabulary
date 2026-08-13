@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { articleLabel } from '../../data/gender'
 import { wordById } from '../../data/words'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
@@ -38,7 +39,7 @@ export function DictionarySheet() {
         <div className="sheet-handle" />
         <div className="sheet-head">
           <h2 id="sheet-title" lang="da">
-            {entry.pos === 'noun' && entry.article ? `${entry.article} ` : ''}
+            {articleLabel(entry) ? `${articleLabel(entry)} ` : ''}
             {entry.da}
           </h2>
           <span className="pos-badge">{entry.pos}</span>

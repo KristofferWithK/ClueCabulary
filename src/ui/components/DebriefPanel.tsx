@@ -179,33 +179,64 @@ export function DebriefPanel({ game }: { game: GameState }) {
         )}
       </section>
 
+      {/* Every decision Klaus made, with his account of it.
+          This used to be a one-line score-strip — «mad ✓  hus ·» — which said
+          WHAT he did and never why. The model had always written a reason for
+          each guess and the engine dropped it on the floor, so the one question
+          a player kept asking ("why that word?") was the one question the app
+          had thrown away. A clue's rationale now carries what he steered AWAY
+          from too, which is the half a learner cannot reconstruct alone. */}
       <section className="debrief-section">
-        <h3>Clue history</h3>
-        <ul className="clue-log">
-          {game.clueHistory.map((c, i) => (
-            <li key={i}>
-              <strong>{c.by === 'player' ? 'You' : 'Klaus'}:</strong> «{c.text}» ({c.number})
-              {c.by === 'ai' && c.targets && (
-                <span className="dim">
-                  {' '}
-                  meant{' '}
-                  <span lang="da">
-                    {c.targets.map((t) => game.words.find((w) => w.wordId === t)?.da).join(', ')}
-                  </span>
-                </span>
-              )}
-              <span className="clue-log-guesses" lang="da">
-                {c.guesses
-                  .map((g) => {
-                    const da = game.words.find((w) => w.wordId === g.wordId)?.da
-                    const mark = g.result === 'green' ? '✓' : g.result === 'bystander' ? '·' : '☠'
-                    return `${da} ${mark}`
-                  })
-                  .join('  ')}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <h3>What was said, and why</h3>
+        <ol className="turn-log">
+          {game.clueHistory.map((c, i) => {
+            const da = (id: string) => game.words.find((w) => w.wordId === id)?.da ?? id
+            return (
+              <li key={i}>
+                <p className="turn-clue">
+                  <strong>{c.by === 'player' ? 'You' : 'Klaus'}:</strong> «{c.text}» ({c.number})
+                  {c.by === 'ai' && c.targets && (
+                    <span className="dim">
+                      {' '}
+                      for <span lang="da">{c.targets.map(da).join(', ')}</span>
+                    </span>
+                  )}
+                </p>
+                {c.rationale && <p className="turn-why">{c.rationale}</p>}
+                <ul className="turn-guesses">
+                  {c.guesses.map((g, gi) => (
+                    <li key={gi} className={`guess-${g.result}`}>
+                      <span className="result-mark" aria-hidden="true">
+                        {g.result === 'green' ? '✓' : g.result === 'bystander' ? '·' : '☠'}
+                      </span>
+                      <span lang="da" className="guess-word">
+                        {da(g.wordId)}
+                      </span>
+                      <span className="visually-hidden">
+                        {g.result === 'green'
+                          ? ' — correct'
+                          : g.result === 'bystander'
+                            ? ' — neutral'
+                            : ' — forbidden'}
+                      </span>
+                      {g.reasoning && <span className="turn-why guess-why">{g.reasoning}</span>}
+                      {g.confidence !== undefined && (
+                        // Said out loud because it is the number that decided
+                        // the ORDER, and the first guess is played whatever it
+                        // is — so a guess Klaus was never sure of should look
+                        // like one rather than like a considered choice.
+                        <span className="guess-confidence">
+                          {Math.round(g.confidence * 100)}% sure
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                  {c.guesses.length === 0 && <li className="dim">no guess made</li>}
+                </ul>
+              </li>
+            )
+          })}
+        </ol>
       </section>
 
       <div className="debrief-actions">

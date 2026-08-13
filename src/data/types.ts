@@ -13,8 +13,21 @@ export interface WordEntry {
   /** English glosses, most common first. Verbs in bare form ("run", not "to run"). */
   en: string[]
   pos: PartOfSpeech
-  /** Danish gender article, nouns only. */
+  /**
+   * The indefinite article, nouns only — and only where one exists. A few
+   * nouns are plurale tantum (penge, bukser, briller): there is no "en penge",
+   * so there is no article to show.
+   */
   article?: 'en' | 'et'
+  /**
+   * The gender, on every noun including the ones with no article.
+   *
+   * A learner needs the gender whether or not the word can be counted — it is
+   * what decides the definite ending and every agreeing adjective. Showing
+   * nothing at all beside «bukser» taught nothing; it now says (com), from the
+   * singular that does exist (en buks).
+   */
+  gender?: 'common' | 'neuter'
   exampleDa: string
   exampleEn: string
   /** 1 = most common in Danish. Real corpus frequency; never reordered. */

@@ -321,7 +321,7 @@ function PlayerGuessBar({ game }: { game: GameState }) {
       )}
       {/* Klaus clues in Danish when asked to, and a clue you cannot read is
           not a clue. Prefilled from his, one tap. */}
-      <TranslateBox klausClue={clue.text} />
+      <TranslateBox prefill={{ term: clue.text, label: "Klaus's clue" }} />
       {made > 0 && (
         <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
           Stop guessing (keep what we have)

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AiError } from '../../ai/client'
 import type { TranslationResponse } from '../../ai/schemas'
+import { articleLabel } from '../../data/gender'
 import { lookupLocal } from '../../data/lookup'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
@@ -19,7 +20,11 @@ import { canSpeak, speakDanish } from '../speak'
  * every board word. Klaus is asked only for what is outside them, and only on
  * a tap: a request per keystroke would be someone else's bill.
  */
-export function TranslateBox({ klausClue }: { klausClue?: string }) {
+/**
+ * `prefill` puts a word one tap away: Klaus's clue while you are guessing, or
+ * the English word you just tried to clue with while you are cluing.
+ */
+export function TranslateBox({ prefill }: { prefill?: { term: string; label: string } }) {
   const [term, setTerm] = useState('')
   const [asked, setAsked] = useState<TranslationResponse | null>(null)
   const [asking, setAsking] = useState(false)
@@ -114,9 +119,9 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
           enterKeyHint="search"
           onChange={(e) => setTerm(e.target.value)}
         />
-        {klausClue && (
-          <button className="btn btn-small" onClick={() => setTerm(klausClue)}>
-            Klaus's clue
+        {prefill && (
+          <button className="btn btn-small" onClick={() => setTerm(prefill.term)}>
+            {prefill.label}
           </button>
         )}
       </div>
@@ -126,7 +131,7 @@ export function TranslateBox({ klausClue }: { klausClue?: string }) {
           {local.slice(0, 4).map((m) => (
             <li key={m.entry.id} className={onBoard.has(m.entry.id) ? 'hit-on-board' : undefined}>
               <span lang="da">
-                {m.entry.pos === 'noun' && m.entry.article ? `${m.entry.article} ` : ''}
+                {articleLabel(m.entry) ? `${articleLabel(m.entry)} ` : ''}
                 {m.entry.da}
               </span>
               {say(m.entry.da)} — {m.entry.en.join(', ')}

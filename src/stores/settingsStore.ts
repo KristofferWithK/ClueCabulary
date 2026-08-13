@@ -42,9 +42,15 @@ interface SettingsState {
  * middleware would be testing nothing.
  */
 export function migrateSettings(persisted: unknown, from: number): unknown {
-  if (from >= 2) return persisted
-  const s = (persisted ?? {}) as { studyPhase?: StudyMode }
-  return s.studyPhase === 'auto' ? { ...s, studyPhase: 'never' } : s
+  if (from >= 3) return persisted
+  const s = { ...((persisted ?? {}) as { studyPhase?: StudyMode; clueLanguage?: 'da' | 'en' }) }
+  // v1 -> v2: the study phase stopped being the default.
+  if (from < 2 && s.studyPhase === 'auto') s.studyPhase = 'never'
+  // v2 -> v3: Klaus clues in Danish. Same shape of trap as the study phase —
+  // changing a default does nothing for a device that already stored one, and
+  // this one had every existing player still getting English clues.
+  if (from < 3 && s.clueLanguage === 'en') s.clueLanguage = 'da'
+  return s
 }
 
 export const useSettings = create<SettingsState>()(
@@ -54,7 +60,12 @@ export const useSettings = create<SettingsState>()(
       baseUrl: DEFAULT_BASE_URL,
       model: DEFAULT_MODEL,
       gridSize: 'beginner',
-      clueLanguage: 'en',
+      // Danish, both ways. The player has always been asked for "ét dansk ord"
+      // by the clue dock; this setting governed only KLAUS's clues, and its
+      // default had him answering in English on a Danish board. Both sides
+      // speak Danish now, and the setting is the escape hatch rather than the
+      // norm.
+      clueLanguage: 'da',
       // Off. Opening every round with all twelve translations on screen
       // clutters the board you are about to read, and the lookup box and ⓘ
       // both answer the same question on demand. 'auto' and 'always' are
@@ -75,7 +86,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'cluecab-settings-v1',
-      version: 2,
+      version: 3,
       migrate: migrateSettings,
     },
   ),

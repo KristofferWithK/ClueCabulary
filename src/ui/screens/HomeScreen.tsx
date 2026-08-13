@@ -1,3 +1,4 @@
+import { articleLabel } from '../../data/gender'
 import { WORDS } from '../../data/words'
 import { GRID_CONFIGS, type GridSize } from '../../engine/config'
 import { mulberry32 } from '../../engine/rng'
@@ -359,7 +360,7 @@ export function HomeScreen() {
           <span lang="da">Dagens ord</span> · word of the day
         </span>
         <span className="wotd-da" lang="da">
-          {wotd.pos === 'noun' && wotd.article ? `${wotd.article} ` : ''}
+          {articleLabel(wotd) ? `${articleLabel(wotd)} ` : ''}
           {wotd.da}
         </span>
         <span className="wotd-en">{wotd.en[0]}</span>

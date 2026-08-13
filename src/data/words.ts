@@ -42,3 +42,34 @@ const GLOSSES: ReadonlySet<string> = new Set(
 )
 
 export const isKnownGloss = (normalized: string): boolean => GLOSSES.has(normalized)
+
+/** The normalization GLOSSES was built with, so callers can match it exactly. */
+export const normalizeGloss = (s: string): string =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/^(to|a|an|the) /, '')
+
+const HEADWORDS: ReadonlySet<string> = new Set(WORDS.map((w) => w.da.toLowerCase()))
+
+/** One of the shipped thousand, as a Danish headword. */
+export const isDanishWord = (normalized: string): boolean => HEADWORDS.has(normalized)
+
+/**
+ * Does this look like the player reached for English?
+ *
+ * True only for a word that IS one of our English glosses and is NOT one of our
+ * Danish headwords — so the sixty-one words that are both (arm, kind, sky, mad,
+ * salt, fast, time, hold, land…) are never flagged, which is most of what an
+ * eager check would get wrong.
+ *
+ * It cannot be complete in the other direction: a Danish word outside the
+ * shipped thousand that happens to be spelled like one of our glosses would be
+ * flagged wrongly. The lookup box is one tap away and says so, which is the
+ * right cost for a check that stops Klaus being handed a word he cannot read.
+ */
+export const looksEnglish = (raw: string): boolean => {
+  const n = normalizeGloss(raw)
+  return n.length > 0 && GLOSSES.has(n) && !HEADWORDS.has(n)
+}
