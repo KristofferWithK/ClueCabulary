@@ -115,6 +115,32 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
 export const MAX_CLUE_NUMBER = 4
 
 /**
+ * The last chance — translate every unsolved word, one shot, all or nothing —
+ * only opens once this many clues have been given. Before that a forbidden
+ * word ends the round where it stands.
+ *
+ * A round is a clue, so on the boards as they stand the last chance is live on
+ * the 5th clue of 5 (3x4), the 5th and 6th of 6 (3x5), and the 5th through 8th
+ * of 8 (4x5).
+ *
+ * Two things are worth knowing before this number is moved again, both
+ * measured over 300 games a board rather than reasoned about:
+ *
+ * - The guessing side alternates strictly with the clue index. The player
+ *   opens, so ODD clues are Klaus guessing and EVEN clues are the player. At 4
+ *   the first eligible clue is the 5th — odd — so on the 3x4 board, where the
+ *   5th is also the last, the player is not the one guessing in the only round
+ *   that can reach the last chance (168 of 171 games; the other 3 come from
+ *   endTurn handing the same side a second clue when the other has no greens
+ *   left). Set this to 3 and the player's own 4th-clue turn qualifies too.
+ * - It does not shorten the challenge much. Words still unsolved when a
+ *   forbidden word lands: 11.6 of 12 on the opening clue, 9.3 of 12 on the
+ *   5th. The last chance was never a short quiz; what this changes is when it
+ *   is offered at all, not how much typing it is.
+ */
+export const REDEMPTION_AFTER_ROUND = 4
+
+/**
  * Greens that must be found to win — shared ones count once.
  *
  * Note what is NOT subtracted: a word that is forbidden on one key and green
@@ -157,6 +183,19 @@ export function assertConfigConsistent(c: GridConfig): void {
     throw new Error(
       `${c.turnTokens} tokens cannot clear ${distinctGreens(c)} greens: ` +
         `${MAX_CLUE_NUMBER + 1} guesses per clue means at least ${needed}`,
+    )
+  }
+  // A board with no clue after the threshold can never reach the last chance,
+  // and would take RedemptionView, the redemption grader and the 'redeemed'
+  // ending out of the game silently — every screen still shipping, none of
+  // them reachable. Not hypothetical: beginner had four tokens until recently,
+  // and the request that set this threshold arrived in the same conversation
+  // as a request to give it four again.
+  if (c.turnTokens <= REDEMPTION_AFTER_ROUND) {
+    throw new Error(
+      `${c.turnTokens} tokens with the last chance opening after ` +
+        `${REDEMPTION_AFTER_ROUND} means it never opens — lower ` +
+        `REDEMPTION_AFTER_ROUND or give the board another clue`,
     )
   }
 }

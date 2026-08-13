@@ -25,7 +25,16 @@ interface UiState {
   closeLetter: () => void
 }
 
-const HOWTO_KEY = 'cluecab-howto-v1'
+/**
+ * Bumped when a rule in the dialog changes, because this dialog opens itself
+ * exactly once ever and there is no other moment the app states the rules.
+ *
+ * v2: a forbidden word now ends the round outright until four clues have been
+ * given. Without the bump, everyone who has already played keeps "hit a
+ * forbidden word and one chance remains" as the last thing the app told them,
+ * and then loses a round to a rule no screen ever showed them.
+ */
+const HOWTO_KEY = 'cluecab-howto-v2'
 const LETTER_KEY = 'cluecab-letter-v1'
 
 /**

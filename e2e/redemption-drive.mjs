@@ -1,92 +1,225 @@
-// Drives the forbidden-word → redemption → win path against the built app.
-// The test peeks at the persisted game state in localStorage to find a word
-// that is forbidden on the AI's key, taps it deliberately during the player's
-// guessing turn, then answers the translation challenge correctly.
+// The two endings a forbidden word can have, both driven through the real UI.
+//
+// A forbidden word used to mean one thing: the last chance, whenever it
+// happened. It now means two, split by the clue count — before the threshold
+// the round ends where it stands, after it the last chance opens as before.
+// Both halves are here because the interesting failure is not the engine
+// getting the count wrong (unit tests hold that) but the app showing the wrong
+// screen: a debrief with no explanation, a redemption form that never appears,
+// a banner keyed to an ending nobody wrote copy for.
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 
 const PORT = 4174
 const preview = await startPreview(PORT)
-import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
+const REDEMPTION_AFTER_ROUND = 4
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
 })
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
-page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
+const crashes = []
+page.on('pageerror', (e) => crashes.push(e.message))
+
+const fail = []
+const check = (name, ok, detail = '') => {
+  console.log(`${ok ? 'OK  ' : 'FAIL'} ${name}${detail ? ` — ${detail}` : ''}`)
+  if (!ok) fail.push(name)
+}
 
 const readGame = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.game)
 
-try {
-  await page.goto(preview.base + '?mock=1&seed=11&howto=0')
-  await page.waitForSelector('h1:has-text("ClueCabulary")')
-  await page.click('.grid-card:first-child')
+const caption = () => page.locator('.phase-caption').textContent()
+
+/** Fresh round on the given board, past the study phase. */
+async function start(gridIndex, seed) {
+  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&letter=0`)
+  await page.waitForSelector('.city-card')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&letter=0`)
+  await page.waitForSelector('.city-card')
+  await page.locator('.grid-card').nth(gridIndex).click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
+}
 
-  // Round-trip one player clue. Two valid routes into redemption from here:
-  // the mock AI stumbles onto a forbidden word itself, or we reach our own
-  // guessing turn and deliberately tap one.
+/** Tap a specific board word and confirm it. */
+async function guessWord(da) {
+  await page.click(`.word-card:has(.card-word:text-is("${da}"))`)
+  await page.click('.guess-confirm .btn-primary')
+}
+
+const wordFor = (game, id) => game.words.find((w) => w.wordId === id)
+
+/** A word forbidden on the key the player's guess is judged against. */
+const forbiddenForPlayerTurn = (game) =>
+  Object.entries(game.aiKey).find(
+    ([id, role]) => role === 'forbidden' && game.reveals[id].kind === 'hidden',
+  )?.[0]
+
+try {
+  // ---- before the threshold: the round ends where it stands ----------------
+  await start(0, 11)
   await page.fill('.clue-input input', 'huskeliste')
   await page.click('.clue-input .btn-primary')
   await page.waitForFunction(
-    () =>
-      document.querySelector('.redemption') !== null ||
-      document.querySelector('.phase-caption')?.textContent === 'Your turn to guess',
+    () => document.querySelector('.phase-caption')?.textContent === 'Your turn to guess',
     undefined,
-    { timeout: 30000 },
+    { timeout: 30_000 },
   )
+  let game = await readGame()
+  // Two: the player opens and Klaus answers with his own clue, so the player's
+  // first turn to guess is already the second clue of the round.
+  check(
+    'few enough clues given that the last chance is shut',
+    game.clueHistory.length <= REDEMPTION_AFTER_ROUND,
+    `${game.clueHistory.length} given`,
+  )
+  // The screen says so before it can cost anything.
+  const stake = await page.locator('.stake-note').textContent()
+  check('and the guess bar says what a forbidden word costs now', /ends the round/.test(stake), stake)
 
-  if (!(await page.locator('.redemption').isVisible())) {
-    const game = await readGame()
-    if (!game) throw new Error('no persisted game found')
-    const forbidden = Object.entries(game.aiKey).find(
-      ([id, role]) => role === 'forbidden' && game.reveals[id].kind === 'hidden',
-    )
-    if (!forbidden) throw new Error('no hidden AI-forbidden word (unexpected)')
-    const word = game.words.find((w) => w.wordId === forbidden[0])
-    console.log(`deliberately guessing forbidden word: ${word.da}`)
-    await page.click(`.word-card:has(.card-word:text-is("${word.da}"))`)
-    await page.click('.guess-confirm .btn-primary')
-  } else {
-    console.log('mock AI hit a forbidden word on its own — proceeding to redemption')
-  }
-  await page.waitForSelector('.redemption')
-  await page.screenshot({ path: `${SHOT_DIR}/r1-redemption.png` })
+  const doomed = forbiddenForPlayerTurn(game)
+  if (!doomed) throw new Error('no hidden forbidden word on Klaus’s key')
+  const doomedDa = wordFor(game, doomed).da
+  await guessWord(doomedDa)
+  await page.waitForSelector('.outcome-banner', { timeout: 15_000 })
+  await page.screenshot({ path: `${SHOT_DIR}/r1-early-hit.png` })
 
-  // Dictionary must be locked: no ⓘ buttons and the Aa toggle disabled.
-  if ((await page.locator('.card-info').count()) > 0) throw new Error('dictionary not locked!')
-
-  const current = await readGame()
-  const prompted = current.words.filter((w) => current.redemption.promptWordIds.includes(w.wordId))
-  console.log(`answering ${prompted.length} words`)
-  for (const w of prompted) {
-    await page.fill(`.redemption-item:has(.redemption-da:text-is("${w.da}")) input`, w.en[0])
-  }
-  await page.screenshot({ path: `${SHOT_DIR}/r2-filled.png` })
-  await page.click('.btn-danger')
-  await page.waitForSelector('.outcome-banner')
+  check('no last chance is offered', (await page.locator('.redemption').count()) === 0)
   const title = await page.locator('.outcome-banner h2').textContent()
-  console.log('outcome:', title)
-  await page.screenshot({ path: `${SHOT_DIR}/r3-outcome.png` })
-  if (!title?.includes('Redeemed')) throw new Error(`expected redemption win, got: ${title}`)
-
-  // SRS must have recorded the round.
-  const srs = await page.evaluate(() =>
-    Object.keys(JSON.parse(localStorage.getItem('cluecab-srs-v1') ?? '{}').state?.stats ?? {}),
+  check('the debrief names the ending', title === 'Forbidden word', title)
+  // The board unmounts when the round finishes, so the banner has to say which
+  // card did it — otherwise the shortest round in the game explains nothing.
+  const culprit = await page.locator('.outcome-culprit').textContent()
+  check('and names the word that ended it', culprit.includes(doomedDa), culprit)
+  check('and who named it', /^You named/.test(culprit), culprit)
+  game = await readGame()
+  check(
+    'the engine recorded the new ending, not the challenge one',
+    game.outcome.reason === 'forbidden-hit',
+    JSON.stringify(game.outcome),
   )
-  if (srs.length === 0) throw new Error('SRS did not record the round')
-  console.log(`SRS recorded ${srs.length} words`)
-  console.log('REDEMPTION DRIVE OK')
+  check('and no redemption was set up', game.redemption === undefined)
+
+  // The round still counts: a board seen is a board the scheduler knows about.
+  const srsAfterEarly = await page.evaluate(
+    () => Object.keys(JSON.parse(localStorage.getItem('cluecab-srs-v1') ?? '{}').state?.stats ?? {}).length,
+  )
+  check('and the round was still recorded', srsAfterEarly > 0, `${srsAfterEarly} words`)
+
+  // ---- after it: the last chance, exactly as before ------------------------
+  // Driven on the 4x5 board, where the player has two guessing turns past the
+  // threshold (clues 6 and 8). On the 3x4 the only eligible clue is the 5th,
+  // which is always Klaus's turn to guess — the player cannot reach this
+  // ending there at all, which is a real consequence of the rule and not
+  // something a drive should paper over.
+  let reached = false
+  for (const seed of [3, 5, 8, 13, 21, 34]) {
+    await start(2, seed)
+    for (let turn = 0; turn < 24 && !reached; turn++) {
+      const cap = await caption()
+      game = await readGame()
+      if (!game || game.phase === 'finished' || game.phase === 'redemption') break
+      if (game.phase === 'suddenDeath') break
+
+      if (cap === 'Give Klaus a clue') {
+        await page.fill('.clue-input input', `huskeliste${turn}`)
+        await page.click('.clue-input .btn-primary')
+        await page
+          .waitForFunction(
+            (was) => document.querySelector('.phase-caption')?.textContent !== was,
+            cap,
+            { timeout: 30_000 },
+          )
+          .catch(() => {})
+        continue
+      }
+
+      if (cap === 'Your turn to guess') {
+        if (game.clueHistory.length > REDEMPTION_AFTER_ROUND) {
+          reached = true
+          break
+        }
+        // Burn the turn on a neutral: it ends the turn without finding a green
+        // and without ending the round.
+        const dull = Object.entries(game.aiKey).find(
+          ([id, role]) => role === 'bystander' && game.reveals[id].kind === 'hidden',
+        )
+        if (!dull) break
+        await guessWord(wordFor(game, dull[0]).da)
+        await page
+          .waitForFunction(
+            () => document.querySelector('.phase-caption')?.textContent !== 'Your turn to guess',
+            undefined,
+            { timeout: 30_000 },
+          )
+          .catch(() => {})
+        continue
+      }
+      // Klaus's turn: wait for him.
+      await page
+        .waitForFunction(
+          (was) => document.querySelector('.phase-caption')?.textContent !== was,
+          cap,
+          { timeout: 30_000 },
+        )
+        .catch(() => {})
+    }
+    if (reached) {
+      console.log(`reached a player turn past the threshold on seed ${seed}`)
+      break
+    }
+  }
+  check('a player guessing turn past the threshold is reachable', reached)
+
+  if (reached) {
+    game = await readGame()
+    check(
+      'the guess bar now promises the last chance',
+      /last chance/.test(await page.locator('.stake-note').textContent()),
+    )
+    const late = forbiddenForPlayerTurn(game)
+    if (!late) throw new Error('no hidden forbidden word left')
+    await guessWord(wordFor(game, late).da)
+    await page.waitForSelector('.redemption', { timeout: 15_000 })
+    await page.screenshot({ path: `${SHOT_DIR}/r2-redemption.png` })
+    check('the last chance opens past the threshold', true)
+
+    // Dictionary must be locked: no ⓘ buttons on the challenge.
+    check('the dictionary is locked', (await page.locator('.card-info').count()) === 0)
+
+    const current = await readGame()
+    const prompted = current.words.filter((w) =>
+      current.redemption.promptWordIds.includes(w.wordId),
+    )
+    console.log(`answering ${prompted.length} words`)
+    for (const w of prompted) {
+      await page.fill(`.redemption-item:has(.redemption-da:text-is("${w.da}")) input`, w.en[0])
+    }
+    await page.click('.btn-danger')
+    await page.waitForSelector('.outcome-banner')
+    const redeemed = await page.locator('.outcome-banner h2').textContent()
+    await page.screenshot({ path: `${SHOT_DIR}/r3-redeemed.png` })
+    check('and answering it correctly still wins the round', redeemed.includes('Redeemed'), redeemed)
+  }
+
+  check('no page errors', crashes.length === 0, crashes.join(' | '))
 } catch (e) {
   await page.screenshot({ path: `${SHOT_DIR}/r9-failure.png` }).catch(() => {})
-  console.log('REDEMPTION DRIVE FAILED:', e.message)
-  process.exitCode = 1
+  console.log('REDEMPTION DRIVE THREW:', e.message)
+  fail.push(e.message)
 } finally {
   await browser.close()
   preview.stop()
 }
+
+if (fail.length) {
+  console.error(`\nFAILED: ${fail.join(', ')}`)
+  process.exit(1)
+}
+console.log('\nREDEMPTION DRIVE OK')

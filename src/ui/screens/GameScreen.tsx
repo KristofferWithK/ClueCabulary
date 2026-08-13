@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { REDEMPTION_AFTER_ROUND } from '../../engine/config'
 import { currentClue } from '../../engine/game'
 import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
@@ -91,7 +92,11 @@ export function GameScreen() {
           ←
         </button>
         <div className="game-header-mid">
-          <TurnTokens total={game.config.turnTokens} left={game.turnsLeft} />
+          <TurnTokens
+            total={game.config.turnTokens}
+            left={game.turnsLeft}
+            given={game.clueHistory.length}
+          />
           <p className="phase-caption" role="status">
             {PHASE_CAPTION[game.phase]}
           </p>
@@ -270,12 +275,21 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   const made = clue.guesses.length
   const left = clue.number + 1 - made
   const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
+  // What a forbidden tap costs changes partway through the round, and this is
+  // the screen where it is spent. Sudden death says its stake in place (below);
+  // this one never did, which was tolerable only while the answer never moved.
+  const lastChanceOpen = game.clueHistory.length > REDEMPTION_AFTER_ROUND
 
   return (
     <div className="dock guess-bar">
       <p className="dock-title">
         Klaus's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
         {left === 1 ? '' : 'es'}
+      </p>
+      <p className="dim stake-note">
+        {lastChanceOpen
+          ? 'A forbidden word now leaves you the last chance.'
+          : 'A forbidden word ends the round.'}
       </p>
       {selected ? (
         <div className="guess-confirm">

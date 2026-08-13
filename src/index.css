@@ -1000,7 +1000,22 @@ select:focus {
 
 .turn-tokens {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.token-row {
+  display: flex;
   gap: 7px;
+}
+
+/* The number the last-chance rule turns on, small enough to sit under the pips
+   without competing with the phase caption beside them. */
+.token-count {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
 }
 
 .token {
@@ -1582,6 +1597,20 @@ select:focus {
 .outcome-banner p {
   margin-top: 8px;
   line-height: 1.45;
+}
+
+/* The card that ended the round. The board unmounts when the round finishes,
+   so without this the player is told a rule and shown nothing that happened. */
+.outcome-culprit {
+  font-weight: 600;
+}
+
+/* What a wrong tap costs, on the screen where it is spent. Small: it is a
+   standing condition, not the instruction, and the guess dock is already tall
+   enough on a 320px phone to push the confirm button under the fold. */
+.stake-note {
+  font-size: 0.8rem;
+  margin-top: -4px;
 }
 
 .outcome-won {

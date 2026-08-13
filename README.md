@@ -42,8 +42,19 @@ words are green it stops counting attempts.
    Running out is not the end: the clues stop but the board does not, and
    **sudden death** lets you keep naming words with nothing left to go on. Name
    a green and you are still alive; name anything else and the round is over.
-   Hit a forbidden word at any point and there is one way out: **translate every
-   unsolved word on the board** — dictionary locked, one shot, all or nothing.
+   Name a forbidden word — either of you can — and the round ends there. Once
+   **four clues** have been given, one last chance opens instead: **translate
+   every unsolved word on the board** — dictionary locked, one shot, all or
+   nothing. It closes again when the clues run out; in sudden death a forbidden
+   word simply ends it.
+
+   That threshold is `REDEMPTION_AFTER_ROUND` in `src/engine/config.ts`, and
+   two measured facts sit beside it there. The guessing side alternates
+   strictly with the clue index — you open, so odd clues are Klaus guessing —
+   which on the 3×4 board makes the fifth clue, the only eligible one, always
+   his; and the board is barely more solved by then (9.3 of 12 words still
+   unsolved at clue five, against 11.6 at clue one), so what the threshold
+   changes is when the last chance is offered, not how long it takes.
 4. **Clue in Danish.** Tap ⓘ on any board word for the built-in dictionary
    (translation, gender, example sentence), or open **Look up a word** in the
    clue dock to go the other way — English in, Danish out — which is the
@@ -122,6 +133,9 @@ npm install
 npm run dev            # local dev server
 npm test               # engine, SRS, AI-layer and firewall tests
 npm run build          # typecheck + production build
+npm run typecheck      # the typecheck alone — and note it is `tsc -b`, not
+                       # `tsc --noEmit`, which silently checks NOTHING here:
+                       # the root tsconfig is files:[] with project references
 npm run validate:words # dataset sanity checks
 node scripts/make-map.mjs # regenerate the Denmark outline
 node scripts/make-story.mjs story/story.json  # regenerate champions.ts + letter.ts
@@ -139,7 +153,9 @@ server, so `npm run build` first:
 
 ```bash
 node e2e/smoke-drive.mjs      # a round played end to end
-node e2e/redemption-drive.mjs # hit a forbidden word, translate the board back
+node e2e/redemption-drive.mjs # a forbidden word both sides of the threshold:
+                              # the round ending on the spot, and the last
+                              # chance opening and being translated back
 node e2e/journey-drive.mjs    # travel exam → stempel → travel → arrival
 node e2e/collection-drive.mjs # the Pokedex, a failed exam, a passed one
 node e2e/key-visible-drive.mjs # your own key is drawn on the board

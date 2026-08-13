@@ -67,7 +67,15 @@ export interface RedemptionResult {
 
 export type Outcome =
   | { result: 'won'; reason: 'all-greens' | 'redeemed' }
-  | { result: 'lost'; reason: 'timeout' | 'sudden-death' | 'forbidden-failed' }
+  /**
+   * 'forbidden-hit' is the word ending the round on the spot, before the last
+   * chance opens; 'forbidden-failed' is the last chance opening and being
+   * failed. Two different endings, and they must stay two, because every
+   * sentence written for the second one — "the forbidden word won this round",
+   * "you lost on the translation challenge" — describes a quiz that never
+   * happened in the first.
+   */
+  | { result: 'lost'; reason: 'timeout' | 'sudden-death' | 'forbidden-hit' | 'forbidden-failed' }
 
 export interface GameState {
   config: GridConfig

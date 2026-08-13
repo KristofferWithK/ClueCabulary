@@ -1,4 +1,4 @@
-import type { GridConfig } from './config'
+import { REDEMPTION_AFTER_ROUND, type GridConfig } from './config'
 import { distinctGreenIds, generateKeys, type KeyBias } from './keygen'
 import { checkClueLegality, type LegalityVerdict } from './legality'
 import { gradeRedemption } from './redemption'
@@ -208,8 +208,28 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
         return endTurn(s, giver)
       }
 
-      // Forbidden: one chance left — translate everything not already solved.
+      // Forbidden. Written first either way, so the ending is legible.
       s.reveals[event.wordId] = { kind: 'forbidden' }
+
+      /**
+       * The last chance is a late-game rule now: before the threshold the word
+       * simply ends the round.
+       *
+       * clueHistory.length, not turnsLeft, and no adjustment to either. The
+       * clue was pushed at SUBMIT_CLUE above and turnsLeft is only decremented
+       * by endTurn, which this branch never reaches — so at this statement the
+       * count is already the 1-based number of the round being guessed on,
+       * while turnsLeft still lags it by one. (turnsLeft is also the field the
+       * e2e harnesses fabricate, so it is the wrong one to build a rule on.)
+       */
+      if (s.clueHistory.length <= REDEMPTION_AFTER_ROUND) {
+        s.phase = 'finished'
+        s.outcome = { result: 'lost', reason: 'forbidden-hit' }
+        return s
+      }
+
+      // One chance left — translate everything not already solved. The word
+      // just hit is in the list too: its reveal is 'forbidden', not 'green'.
       s.phase = 'redemption'
       s.redemption = {
         promptWordIds: s.words
