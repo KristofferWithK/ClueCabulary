@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { DEFAULT_BASE_URL, DEFAULT_MODEL } from '../ai/client'
-import { useSettings } from './settingsStore'
+import { migrateSettings, useSettings } from './settingsStore'
 
 /**
  * klausVerifiedAt is what tells Home the difference between "no key" and "a key
@@ -61,5 +61,46 @@ describe('settingsStore: has Klaus ever answered?', () => {
     expect(useSettings.getState().klausVerifiedAt).toBeNull()
     useSettings.getState().markKlausVerified(NOW + 1000)
     expect(useSettings.getState().klausVerifiedAt).toBe(NOW + 1000)
+  })
+})
+
+/**
+ * The board opens on Danish words and nothing else. Asked for twice: "there
+ * should be no global translation at the beginning, it's cluttering it", and
+ * then again once it kept happening anyway.
+ *
+ * Changing the default was not enough, and that is the whole point of these.
+ * Settings persist, so a device that stored studyPhase before the default moved
+ * kept the old value and kept opening every round with the whole board
+ * translated — measured on a v1 save: study dock present, 12 of 12 glosses on
+ * screen. The default is only the value a device that has never stored one gets.
+ */
+describe('the study phase, which the board should no longer open with', () => {
+  const migrate = migrateSettings
+
+  it('is off for anyone who has never stored a setting', () => {
+    expect(useSettings.getInitialState().studyPhase).toBe('never')
+  })
+
+  it('and is turned off on a v1 save that still holds the old default', () => {
+    const upgraded = migrate({ studyPhase: 'auto', apiKey: 'k' }, 1) as Record<string, unknown>
+    expect(upgraded.studyPhase).toBe('never')
+    // Everything else survives: this is one field, not a reset.
+    expect(upgraded.apiKey).toBe('k')
+  })
+
+  it('but a deliberate "always" is left alone — it was never a default', () => {
+    expect((migrate({ studyPhase: 'always' }, 1) as Record<string, unknown>).studyPhase).toBe(
+      'always',
+    )
+  })
+
+  it('and a v2 save is passed through untouched', () => {
+    expect((migrate({ studyPhase: 'auto' }, 2) as Record<string, unknown>).studyPhase).toBe('auto')
+  })
+
+  it('survives a save with no studyPhase at all', () => {
+    expect(() => migrate({ apiKey: 'k' }, 1)).not.toThrow()
+    expect(() => migrate(undefined, 1)).not.toThrow()
   })
 })

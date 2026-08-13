@@ -27,6 +27,26 @@ interface SettingsState {
   markKlausVerified: (now: number) => void
 }
 
+/**
+ * v1's default was 'auto' — the whole board translated for the first five
+ * cities. Changing the default fixed nothing for anyone already playing:
+ * settings persist, so every existing device kept 'auto' and kept opening every
+ * round with twelve English glosses on screen. Measured on a v1 save: study
+ * dock present, 12 of 12 translations shown.
+ *
+ * Only 'auto' is rewritten. 'always' was never a default, so a device holding
+ * it chose it, and that choice survives.
+ *
+ * Exported so it can be tested directly: under vitest there is no localStorage,
+ * persist quietly becomes a passthrough, and a test reaching through the
+ * middleware would be testing nothing.
+ */
+export function migrateSettings(persisted: unknown, from: number): unknown {
+  if (from >= 2) return persisted
+  const s = (persisted ?? {}) as { studyPhase?: StudyMode }
+  return s.studyPhase === 'auto' ? { ...s, studyPhase: 'never' } : s
+}
+
 export const useSettings = create<SettingsState>()(
   persist(
     (set) => ({
@@ -53,6 +73,10 @@ export const useSettings = create<SettingsState>()(
         }),
       markKlausVerified: (now) => set({ klausVerifiedAt: now }),
     }),
-    { name: 'cluecab-settings-v1', version: 1 },
+    {
+      name: 'cluecab-settings-v1',
+      version: 2,
+      migrate: migrateSettings,
+    },
   ),
 )

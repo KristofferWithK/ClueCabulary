@@ -36,8 +36,12 @@ export interface Companion {
 
 /**
  * Guess execution plan: the model proposes, this disposes. Confidence order,
- * hard cap at number+1, stop below 0.35, and the bonus (number+1)-th guess
- * only when the model is genuinely sure (≥ 0.7) — keeps any model fun to play.
+ * hard cap at the clue number, stop below 0.35 — keeps any model fun to play.
+ *
+ * The cap follows the engine, which ends the turn on the number-th correct
+ * guess. It used to allow a bonus (number+1)-th when the model was sure; with
+ * the bonus gone from the rules, planning one would only queue a guess the
+ * engine refuses, in a phase that has already moved on.
  */
 export function planGuessExecution(
   guesses: GuessResponse['guesses'],
@@ -46,8 +50,7 @@ export function planGuessExecution(
   const ordered = [...guesses].sort((a, b) => b.confidence - a.confidence)
   const plan: GuessResponse['guesses'] = []
   for (const g of ordered) {
-    if (plan.length >= clueNumber + 1) break
-    if (plan.length >= clueNumber && g.confidence < 0.7) break
+    if (plan.length >= clueNumber) break
     if (plan.length >= 1 && g.confidence < 0.35) break
     plan.push(g)
   }

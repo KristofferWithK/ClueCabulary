@@ -90,6 +90,57 @@ try {
     `${await page.locator('.word-card').count()}`,
   )
 
+  // ---- a turn ends itself on the last guess the clue asked for ---------------
+  // "when you have guessed the amount of words Klaus gives you the turn ends
+  // automatically". Before this the number bought one guess more than it said,
+  // so finding everything the clue promised left the turn open with nothing to
+  // do in it — which reads as the app having stopped rather than as a bonus.
+  //
+  // Driven from a forced state rather than by playing on: reaching a Klaus clue
+  // of a known number, with that many of his greens still on the board, is a
+  // matter of luck with the mock companion.
+  await start(0)
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
+    const g = raw.state.game
+    g.phase = 'playerGuessing'
+    g.clueHistory = [{ by: 'ai', text: 'mok', number: 2, guesses: [] }]
+    localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
+  })
+  await page.reload()
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.guess-bar', { timeout: 15_000 })
+  const turn = await game()
+  const hisGreens = turn.words
+    .filter((w) => turn.aiKey[w.wordId] === 'green' && turn.reveals[w.wordId].kind === 'hidden')
+    .map((w) => w.da)
+  check('the bar offers exactly the number, not the number plus one', /up to 2 more guesses/.test(
+    await page.locator('.guess-bar .dock-title').textContent(),
+  ), await page.locator('.guess-bar .dock-title').textContent())
+
+  await name(hisGreens[0])
+  check(
+    'one of two keeps the turn alive',
+    (await page.locator('.guess-bar').count()) === 1,
+    (await game()).phase,
+  )
+  await name(hisGreens[1])
+  // No Stop button was pressed; the turn has to end on its own.
+  const ended = await game()
+  check(
+    'and the second ends the turn with nothing to press',
+    ended.phase !== 'playerGuessing',
+    ended.phase,
+  )
+  check('the clue is spent', ended.turnsLeft === ended.config.turnTokens - 1, `${ended.turnsLeft}`)
+  check(
+    'both words were banked',
+    hisGreens.slice(0, 2).every((da) => {
+      const w = ended.words.find((x) => x.da === da)
+      return ended.reveals[w.wordId].kind === 'green'
+    }),
+  )
+
   // ---- sudden death: the winning end -----------------------------------------
   await start(0)
   await forceSuddenDeath()

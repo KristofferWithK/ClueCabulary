@@ -279,7 +279,7 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   const { selectedWordId } = useGame()
   const clue = currentClue(game)!
   const made = clue.guesses.length
-  const left = clue.number + 1 - made
+  const left = clue.number - made
   const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
   // What a forbidden tap costs changes partway through the round, and this is
   // the screen where it is spent. Sudden death says its stake in place (below);

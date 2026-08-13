@@ -207,15 +207,16 @@ export function assertConfigConsistent(c: GridConfig): void {
     throw new Error(`key slots (${used}) exceed board size (${c.totalWords})`)
   }
   // Cutting tokens shortens the game, and past a point it stops being a game
-  // at all: every clue is capped at MAX_CLUE_NUMBER + 1 guesses, so below this
-  // many tokens the board cannot be cleared by a perfect player on a perfect
-  // day. A loose bound on purpose — it catches an impossible config, not a
-  // hard one, which is a judgement no assertion should be making.
-  const needed = Math.ceil(distinctGreens(c) / (MAX_CLUE_NUMBER + 1))
+  // at all: a clue of N ends the turn on the Nth correct guess, so no clue can
+  // ever take more than MAX_CLUE_NUMBER words and below this many tokens the
+  // board cannot be cleared by a perfect player on a perfect day. A loose bound
+  // on purpose — it catches an impossible config, not a hard one, which is a
+  // judgement no assertion should be making.
+  const needed = Math.ceil(distinctGreens(c) / MAX_CLUE_NUMBER)
   if (c.turnTokens < needed) {
     throw new Error(
       `${c.turnTokens} tokens cannot clear ${distinctGreens(c)} greens: ` +
-        `${MAX_CLUE_NUMBER + 1} guesses per clue means at least ${needed}`,
+        `${MAX_CLUE_NUMBER} guesses per clue means at least ${needed}`,
     )
   }
   // A board with no clue after the threshold can never reach the last chance,

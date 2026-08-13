@@ -104,7 +104,9 @@ describe('projection helpers', () => {
     const bystander = Object.keys(s.playerKey).find((w) => s.playerKey[w] === 'bystander')!
     s = applyEvent(s, { type: 'GUESS', wordId: bystander })
     // Re-enter an AI-guessing phase to build a guess view with history present.
-    s = applyEvent(s, { type: 'SUBMIT_CLUE', by: 'ai', text: 'zonk', number: 1 })
+    // Clued as 2 so the deliberate stop below is still a choice: the number is
+    // the whole allowance now, and a 1 would have ended the turn on the guess.
+    s = applyEvent(s, { type: 'SUBMIT_CLUE', by: 'ai', text: 'zonk', number: 2 })
     const greenOnAi = Object.keys(s.aiKey).find((w) => s.aiKey[w] === 'green')!
     s = applyEvent(s, { type: 'GUESS', wordId: greenOnAi })
     s = applyEvent(s, { type: 'STOP_GUESSING' })

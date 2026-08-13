@@ -42,9 +42,10 @@ export function HowToPlay() {
             peek at yours.
           </li>
           <li>
-            A clue comes with a number: the guesser gets at most that many guesses plus one bonus.
-            Green guesses keep the turn alive up to that cap; a neutral word ends it at once.
-            Every clue spends one shared token (the dots at the top), however the turn ends.
+            A clue comes with a number, and that number is the allowance: guess that many right
+            and the turn ends itself. A neutral word ends it sooner, and you can always stop early
+            and keep what you have. Every clue spends one shared token (the dots at the top),
+            however the turn ends.
           </li>
           <li>
             A neutral is only spent for the side that hit it. A word Klaus burned may still be
