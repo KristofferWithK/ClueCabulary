@@ -2517,3 +2517,60 @@ select:focus {
   flex-basis: 100%;
   line-height: 1.4;
 }
+
+/* ---------- look up a word ---------- */
+
+.translate-box {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  background: var(--bg);
+}
+
+.translate-box > summary {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.translate-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.translate-row input {
+  flex: 1;
+  padding: 10px;
+}
+
+.translate-hits {
+  list-style: none;
+  margin: 10px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.translate-hits [lang='da'] {
+  font-weight: 700;
+}
+
+.translate-note {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.translate-ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}

@@ -144,3 +144,29 @@ Write your debrief JSON now.`
     { role: 'user', content: user },
   ]
 }
+
+/**
+ * Translate one word, in whichever direction it needs.
+ *
+ * Takes a bare string and nothing else — no view, no board, no key. The player
+ * asks this while composing a clue, so a prompt that could see the board would
+ * be a hole straight through the game.
+ */
+export function buildTranslatePrompt(term: string): ChatMessage[] {
+  const system = `You translate single words between Danish and English for someone learning Danish. Work out the direction yourself from the word you are given.
+
+- Give the citation form: a noun in the singular indefinite, a verb as the bare infinitive, an adjective in the common gender.
+- For a noun, say whether it takes "en" or "et".
+- The note is for the one thing that would trip a learner: a false friend, a register that is wrong for everyday speech, a sense that is not the obvious one. Most words need none — leave it out rather than pad it.
+- If the word is Danish, "da" is that word, tidied to its citation form. If it is English, "da" is the Danish for it.
+
+Respond with ONLY a JSON object: {"da": string, "en": string, "article": "en" | "et" (nouns only), "note": string (optional)}
+
+Example for "cykel": {"da": "cykel", "en": "bicycle", "article": "en"}
+Example for "afternoon": {"da": "eftermiddag", "en": "afternoon", "article": "en"}`
+
+  return [
+    { role: 'system', content: system },
+    { role: 'user', content: `Translate: ${term}` },
+  ]
+}

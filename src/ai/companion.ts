@@ -8,20 +8,30 @@ import {
   type AiGuessView,
   type DebriefView,
 } from './projections'
-import { buildCluePrompt, buildDebriefPrompt, buildGuessPrompt, type ChatMessage } from './prompts'
+import {
+  buildCluePrompt,
+  buildDebriefPrompt,
+  buildGuessPrompt,
+  buildTranslatePrompt,
+  type ChatMessage,
+} from './prompts'
 import {
   ClueResponseSchema,
   DebriefResponseSchema,
   GuessResponseSchema,
+  TranslationResponseSchema,
   type ClueResponse,
   type DebriefResponse,
   type GuessResponse,
+  type TranslationResponse,
 } from './schemas'
 
 export interface Companion {
   getClue(view: AiClueView): Promise<ClueResponse>
   getGuesses(view: AiGuessView): Promise<GuessResponse>
   getDebrief(view: DebriefView): Promise<DebriefResponse>
+  /** One word, either direction. Takes no view: it must not see the board. */
+  translate(term: string): Promise<TranslationResponse>
 }
 
 /**
@@ -143,6 +153,22 @@ export class OllamaCompanion implements Companion {
         return { ok: true, value: { guesses } }
       },
       0.3,
+    )
+  }
+
+  async translate(term: string): Promise<TranslationResponse> {
+    return askValidated(
+      this.chat,
+      this.settings,
+      buildTranslatePrompt(term),
+      (raw) => {
+        const parsed = TranslationResponseSchema.safeParse(raw)
+        return parsed.success
+          ? { ok: true, value: parsed.data }
+          : { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
+      },
+      // A dictionary should not be imaginative.
+      0.1,
     )
   }
 
