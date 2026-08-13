@@ -121,6 +121,34 @@ check('and is opaque, so content passes behind it', !/rgba\(0, 0, 0, 0\)|transpa
 await page.goBack()
 await page.waitForTimeout(250)
 
+// Typing a provider's base URL on a phone is a miserable way to find out
+// whether it works, so switching service is one tap.
+await open('?mock=1&howto=0&city=0')
+await page.locator('.home-screen .btn').last().click()
+await page.waitForSelector('.settings-screen')
+const chips = page.locator('.provider-list .chip')
+check('the service chips are there', (await chips.count()) === 2, `${await chips.count()} chips`)
+const row = await page.locator('.provider-list').boundingBox()
+check(
+  'and fit the phone',
+  row.x >= -0.5 && row.x + row.width <= PHONE.width + 0.5,
+  `${row.width.toFixed(0)}px on ${PHONE.width}px`,
+)
+await chips.filter({ hasText: 'Gemini' }).click()
+await page.waitForTimeout(400)
+const baseUrl = await page.locator('input[type="url"]').inputValue()
+check(
+  'tapping Gemini sets its base URL',
+  baseUrl === 'https://generativelanguage.googleapis.com/v1beta/openai',
+  baseUrl,
+)
+const modelAfter = await page.locator('.settings-section input[type="text"]').first().inputValue()
+// Cleared on purpose: the two services publish conflicting model ids, and a
+// wrong one is a 404 that reads as a broken endpoint. The server is asked.
+check('and clears the model rather than guessing one', modelAfter === '', `"${modelAfter}"`)
+await page.goBack()
+await page.waitForTimeout(250)
+
 // A screenshot of Settings has to say which build it is, or "have you got the
 // update yet?" cannot be answered.
 await open('?mock=1&howto=0&city=0')

@@ -57,25 +57,36 @@ or a wholesale replace. The file never contains your API key.
 ## Setup
 
 The app is a PWA — open the deployed page on your phone and "Add to Home
-Screen". Then, in **Settings**, paste an
-[Ollama API key](https://ollama.com/settings/keys) and tap **Test connection**.
+Screen". Then, in **Settings**, pick a service, paste its key, and tap **List
+models this server accepts**. Model names coming back means it works from that
+phone; pick one and play.
 
-If that works, you are done. If it reports a CORS problem, you need the small
-proxy in [`proxy/`](proxy/README.md): a browser is reported to be unable to
-call ollama.com at all, because its API answers the CORS preflight with a
-redirect and browsers refuse to follow one. No key, model name or app setting
-changes that; `curl` works only because `curl` sends no preflight.
+Two services are preset, and they are not equal:
 
-Deploying it needs no terminal. Add three secrets to this repository
-(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `OLLAMA_API_KEY`) and run the
-**Deploy the AI proxy** workflow from the Actions tab; its summary prints the
-Base URL to paste. The key is uploaded as a Worker secret, so it lives at
-Cloudflare rather than in this repository, the app bundle, or your phone —
-leave the app's API key field empty. Settings carries the same steps, each one
-a tappable link.
+- **Gemini** — its [OpenAI-compatible endpoint](https://ai.google.dev/gemini-api/docs/openai)
+  speaks exactly what this app sends, and its keys can be
+  [restricted to one HTTP referrer](https://ai.google.dev/gemini-api/docs/api-key),
+  which is what makes a key held in a browser reasonable. Whether it allows
+  browser requests at all is untested here — tapping the chip is how you find
+  out. [Key](https://aistudio.google.com/apikey).
+- **Ollama Cloud** — measured on a real phone to refuse browser requests
+  outright. Its API answers the CORS preflight with a redirect, which browsers
+  will not follow, so no key or model name helps. This one needs the proxy.
+  [Key](https://ollama.com/settings/keys).
 
-Then tap **List models this server accepts** and pick one, rather than guessing
-between `gpt-oss:120b` and `gpt-oss:120b-cloud`.
+If the service you want reports a CORS problem, deploy the small worker in
+[`proxy/`](proxy/README.md). It needs no terminal: add three secrets to this
+repository (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `OLLAMA_API_KEY`)
+and run the **Deploy the AI proxy** workflow from the Actions tab. Its summary
+prints the Base URL to paste, and the key is uploaded as a Worker secret, so it
+lives at Cloudflare rather than on your phone — leave the app's key field empty.
+One worker serves either service: set `UPSTREAM` to
+`https://generativelanguage.googleapis.com` for Gemini.
+
+`src/ai/bundled-key.ts` is the one place to paste a key that ships with the
+build, if you would rather not enter one on the device. It is empty by default,
+and worth knowing before you fill it: this is a static site, so anything in the
+bundle is readable by anyone who opens the page.
 
 ## Development
 

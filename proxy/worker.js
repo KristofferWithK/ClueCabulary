@@ -23,7 +23,14 @@
  * `npx wrangler secret put OLLAMA_API_KEY`.
  */
 
-const UPSTREAM = 'https://ollama.com'
+/**
+ * Where requests are forwarded. Set UPSTREAM as a Worker variable to front a
+ * different OpenAI-compatible service without editing this file — e.g.
+ * https://generativelanguage.googleapis.com for Gemini, whose compatibility
+ * layer wants the same Bearer token this worker already sends. The app's Base
+ * URL keeps the path (/v1, or /v1beta/openai), so only the host moves.
+ */
+const DEFAULT_UPSTREAM = 'https://ollama.com'
 
 function corsHeaders(env) {
   // Optionally lock this to the origin you play from, e.g.
@@ -66,9 +73,10 @@ export default {
     }
 
     const url = new URL(request.url)
+    const base = (env?.UPSTREAM || DEFAULT_UPSTREAM).replace(/\/+$/, '')
     let upstream
     try {
-      upstream = await fetch(`${UPSTREAM}${url.pathname}${url.search}`, {
+      upstream = await fetch(`${base}${url.pathname}${url.search}`, {
         method: request.method,
         headers: { 'Content-Type': 'application/json', Authorization: auth },
         body: request.method === 'POST' ? request.body : undefined,

@@ -65,9 +65,10 @@ describe('resolveEndpoint', () => {
 })
 
 /**
- * With no key the request used to go out anyway. Against ollama.com from a
- * browser that comes back as a CORS refusal, whose message tells the player to
- * deploy a proxy — advice that cannot help, for a problem they do not have.
+ * This build bundles no key (src/ai/bundled-key.ts is empty), so an empty
+ * Settings field still means "no key". The other branch — a build that does
+ * carry one — is in bundled-key.test.ts, which mocks the module, because
+ * vi.mock is file-scoped and both branches deserve a real test.
  */
 describe('chatJson with no API key', () => {
   afterEach(() => vi.unstubAllGlobals())

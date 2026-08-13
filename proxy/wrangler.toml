@@ -9,6 +9,14 @@ compatibility_date = "2026-01-01"
 [vars]
 ALLOWED_ORIGIN = "https://kristofferwithk.github.io"
 
+# Which service this worker fronts. One worker serves either: Gemini's
+# OpenAI-compatible layer wants the same Bearer token, so only the host moves
+# and the app's Base URL supplies the path (/v1, or /v1beta/openai).
+#
+#   UPSTREAM = "https://generativelanguage.googleapis.com"
+#
+# Left unset it forwards to https://ollama.com.
+
 # On a phone: run the "Deploy the AI proxy" workflow from this repository's
 # Actions tab — see .github/workflows/deploy-proxy.yml for the three secrets it
 # needs. Nothing below is required.

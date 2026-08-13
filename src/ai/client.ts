@@ -1,3 +1,4 @@
+import { effectiveKey } from './bundled-key'
 import type { ChatMessage } from './prompts'
 
 export interface AiSettings {
@@ -90,7 +91,9 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       `No model chosen. Set one in Settings — “List models this server accepts” fills it in, and the usual default is ${DEFAULT_MODEL}.`,
     )
   }
-  if (!settings.apiKey.trim() && endpoint.hostname === 'ollama.com') {
+  // What the player typed, else the key shipped with the build.
+  const key = effectiveKey(settings.apiKey)
+  if (!key && endpoint.hostname === 'ollama.com') {
     throw new AiError(
       'auth',
       'No API key. Add one above, or point the Base URL at a proxy that holds the key — the steps are at the top of this screen.',
@@ -104,7 +107,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
           'Content-Type': 'application/json',
           // Omitted entirely when empty: a bare "Bearer " would shadow the
           // key a proxy holds as its own secret.
-          ...(settings.apiKey.trim() ? { Authorization: `Bearer ${settings.apiKey}` } : {}),
+          ...(key ? { Authorization: `Bearer ${key}` } : {}),
         },
         body: JSON.stringify({
           model: settings.model,
@@ -180,8 +183,9 @@ export async function listModels(settings: AiSettings): Promise<string[]> {
   const endpoint = new URL(resolveEndpoint(settings.baseUrl).href.replace(/\/chat\/completions$/, '/models'))
   let res: Response
   try {
+    const key = effectiveKey(settings.apiKey)
     res = await fetch(endpoint, {
-      headers: settings.apiKey.trim() ? { Authorization: `Bearer ${settings.apiKey}` } : {},
+      headers: key ? { Authorization: `Bearer ${key}` } : {},
     })
   } catch {
     throw new AiError(

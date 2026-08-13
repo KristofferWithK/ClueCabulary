@@ -18,10 +18,14 @@ export function ConnectKlaus({ verified }: { verified: boolean }) {
       </summary>
 
       <p className="connect-lede">
-        Try <strong>Test connection</strong> below first. If it works, you are done. If it reports a
-        CORS problem, ollama.com is refusing the browser — other projects hit the same wall — and no
-        key or model name gets around it. You need a small proxy of your own, and you can deploy one
-        from this phone without a terminal.
+        Pick a service above, paste its key, and tap <strong>List models this server accepts</strong>
+        . Model names coming back means it works from this phone and you are done.
+      </p>
+      <p className="connect-lede">
+        <strong>Ollama Cloud will not work directly</strong> — measured on this phone, it refuses
+        browser requests, and no key or model name gets around it. <strong>Gemini</strong> is the one
+        worth trying first, because it may need nothing further. If both report a CORS problem, you
+        need a small proxy of your own — and you can deploy one from here without a terminal.
       </p>
 
       <ol className="connect-steps">
@@ -57,7 +61,9 @@ export function ConnectKlaus({ verified }: { verified: boolean }) {
         </li>
         <li>
           Paste that address into <strong>Base URL</strong> below and leave <strong>API key</strong>{' '}
-          empty — the proxy holds the key, so it never sits on this phone.
+          empty — the proxy holds the key, so it never sits on this phone. For Gemini, set{' '}
+          <code>UPSTREAM</code> on the worker to{' '}
+          <code>https://generativelanguage.googleapis.com</code>; one worker serves either service.
         </li>
         <li>
           Tap <strong>List models this server accepts</strong>, pick one, and play.

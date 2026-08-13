@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { AiError, DEFAULT_MODEL, listModels, resolveEndpoint, testConnection } from '../../ai/client'
+import { hasBundledKey } from '../../ai/bundled-key'
+import { PROVIDERS, providerFor, type Provider } from '../../ai/providers'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import type { StudyMode } from '../../journey/progress'
@@ -19,6 +21,7 @@ export function SettingsScreen() {
   const [test, setTest] = useState<'idle' | 'testing' | 'ok' | string>('idle')
   const [models, setModels] = useState<string[] | null>(null)
   const [modelsError, setModelsError] = useState<string | null>(null)
+  const provider = providerFor(settings.baseUrl)
 
   // Say it while they are typing, not after a request has already carried the
   // key somewhere. A relative Base URL would post it to whatever serves the app.
@@ -52,6 +55,20 @@ export function SettingsScreen() {
     }
   }
 
+  // Switching service clears the model on purpose: Ollama and Gemini publish
+  // conflicting ids for the same model, and a wrong one returns a 404 that
+  // reads as a broken endpoint. Ask the server instead — which also means this
+  // one tap is the fastest test of whether the service talks to browsers.
+  const pickProvider = (p: Provider) => {
+    settings.set({ baseUrl: p.baseUrl, model: '' })
+    setTest('idle')
+    setModels(null)
+    setModelsError(null)
+    void listModels({ baseUrl: p.baseUrl, apiKey: settings.apiKey, model: '' })
+      .then(setModels)
+      .catch((e) => setModelsError(e instanceof AiError ? e.message : 'Could not list models.'))
+  }
+
   const runTest = async () => {
     setTest('testing')
     try {
@@ -79,28 +96,62 @@ export function SettingsScreen() {
       <section className="settings-section">
         <h3>AI companion</h3>
         <ConnectKlaus verified={settings.klausVerifiedAt !== null} />
+        <div className="field">
+          <span>Service</span>
+          <div className="provider-list">
+            {PROVIDERS.map((p) => (
+              <button
+                key={p.id}
+                className={`chip${provider?.id === p.id ? ' chip-on' : ''}`}
+                onClick={() => pickProvider(p)}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <small>{provider ? provider.note : 'A custom Base URL — your own proxy, or a local Ollama.'}</small>
+        </div>
         <label className="field">
-          <span>Ollama API key</span>
+          <span>API key</span>
           <input
             type="password"
             value={settings.apiKey}
-            placeholder="paste your key from ollama.com/settings/keys"
+            placeholder={hasBundledKey ? 'using the key bundled with this build' : 'paste your key'}
             autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             onChange={(e) => settings.set({ apiKey: e.target.value })}
           />
-          <small>Stored only on this device, sent only to the Base URL below.</small>
+          <small>
+            Stored only on this device, sent only to the Base URL below.
+            {provider && (
+              <>
+                {' '}
+                <a href={provider.keysAt} target="_blank" rel="noreferrer">
+                  Get a {provider.label} key
+                </a>
+                .
+              </>
+            )}
+            {hasBundledKey && !settings.apiKey.trim() && (
+              <> Empty, so the key shipped with this build is used.</>
+            )}
+          </small>
         </label>
         <label className="field">
           <span>Base URL</span>
           <input
             type="url"
             value={settings.baseUrl}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             onChange={(e) => settings.set({ baseUrl: e.target.value })}
           />
           <small>
-            Your proxy's address plus <code>/v1</code>, or{' '}
-            <code>https://ollama.com/v1</code> to try the cloud directly. Must start with
-            https://, since your API key is sent to it.
+            Set by the buttons above, or type your proxy's address plus <code>/v1</code>. Must
+            start with https://, since your API key is sent to it.
           </small>
           {baseUrlProblem && <p className="test-fail">{baseUrlProblem}</p>}
         </label>
