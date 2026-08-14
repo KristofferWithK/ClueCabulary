@@ -159,7 +159,7 @@ try {
   await page.waitForSelector('.ai-guess-line, .guess-bar', { timeout: 25000 })
   await sleep(2000)
   check('a round plays through the proxy', (await page.locator('.error-banner').count()) === 0)
-  check('and Klaus really answered over the wire', fake.received.length >= 1, `${fake.received.length} upstream calls`)
+  check('and Cluey really answered over the wire', fake.received.length >= 1, `${fake.received.length} upstream calls`)
 
   // ---- the worker's own contract, without a browser in the way ----------------
   const pre = await fetch(`${worker.base}/v1/chat/completions`, {

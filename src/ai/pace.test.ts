@@ -43,13 +43,13 @@ const cluePrompt = (grid: 'beginner' | 'middle' | 'standard', spend = 0) => {
 }
 
 /**
- * Klaus was giving clues of 1 on a board where that cannot win — beginner is
+ * Cluey was giving clues of 1 on a board where that cannot win — beginner is
  * four clues for eight greens — and the prompt was the reason: it told him
  * "caution beats greed" and "one word your partner will certainly find beats
  * two where the second is a coin flip", with nothing anywhere about the clock.
  * He had the numbers to work it out and no instruction to.
  */
-describe('the clue prompt tells Klaus the pace he has to keep', () => {
+describe('the clue prompt tells Cluey the pace he has to keep', () => {
   it('states how many of his greens are left and how many clues remain', () => {
     const { text, view } = cluePrompt('beginner')
     const mine = aiTargetableIds(view).length
@@ -105,7 +105,7 @@ describe('the clue prompt tells Klaus the pace he has to keep', () => {
   /**
    * The last clue is the only information the player will ever get about the
    * greens it does not mention. Running out of clues opens sudden death, where
-   * they name words with nothing new to go on — so a green Klaus never pointed
+   * they name words with nothing new to go on — so a green Cluey never pointed
    * at is one they cannot find, and a narrow last clue does not cost a word,
    * it costs the round.
    */
@@ -162,7 +162,7 @@ describe('the clue prompt tells Klaus the pace he has to keep', () => {
  * The debrief is written from a one-line account of how the round ended, and
  * that line came from a ternary chain with a catch-all. Sudden death — added
  * later — fell off the end of it into "lost on the translation challenge after
- * hitting a forbidden word", so on the most common losing ending Klaus was
+ * hitting a forbidden word", so on the most common losing ending Cluey was
  * told, as fact, about a forbidden word the player never hit and a challenge
  * that never ran. The banner above his text said "Sudden death"; his text
  * explained a different round.

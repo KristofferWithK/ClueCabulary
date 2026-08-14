@@ -10,7 +10,7 @@ import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { BackupPanel } from '../components/BackupPanel'
 import { BuildFooter } from '../components/BuildFooter'
-import { ConnectKlaus } from '../components/ConnectKlaus'
+import { ConnectCluey } from '../components/ConnectCluey'
 
 export function SettingsScreen() {
   const goTo = useUi((s) => s.goTo)
@@ -77,7 +77,7 @@ export function SettingsScreen() {
         apiKey: settings.apiKey,
         model: settings.model,
       })
-      settings.markKlausVerified(Date.now())
+      settings.markClueyVerified(Date.now())
       setTest('ok')
     } catch (e) {
       setTest(e instanceof AiError ? e.message : 'Connection failed.')
@@ -95,7 +95,7 @@ export function SettingsScreen() {
 
       <section className="settings-section">
         <h3>AI companion</h3>
-        <ConnectKlaus verified={settings.klausVerifiedAt !== null} />
+        <ConnectCluey verified={settings.klausVerifiedAt !== null} />
         <div className="field">
           <span>Service</span>
           <div className="provider-list">
@@ -192,7 +192,7 @@ export function SettingsScreen() {
         >
           {test === 'testing' ? 'Testing…' : 'Test connection'}
         </button>
-        {test === 'ok' && <p className="test-ok">✓ Connected — Klaus is awake.</p>}
+        {test === 'ok' && <p className="test-ok">✓ Connected — Cluey is awake.</p>}
         {test !== 'idle' && test !== 'testing' && test !== 'ok' && (
           <p className="test-fail">{test}</p>
         )}

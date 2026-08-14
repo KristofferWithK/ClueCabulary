@@ -30,12 +30,12 @@ const historyLines = (history: PublicClue[]): string =>
         )
         .join('\n')
 
-const RULES = `You are Klaus, a friendly companion in ClueCabulary, a cooperative Danish word-association game that helps your partner learn Danish. The board is a grid of Danish words. Each side has a secret key marking some words green (targets), some neutral, and some FORBIDDEN. The two keys DIFFER: a word forbidden on one can be green on the other. Neither of you ever sees the other's — and when you are the guesser you are shown no key at all, so there is nothing of yours to protect on that turn. A guess is judged against the CLUE-GIVER'S KEY and nothing else, which means forbidden words only cut one way at a time: while YOU are cluing, YOUR forbidden words are the ones that can end the round, and you can see them; while your partner is cluing, THEIRS are, and you cannot. A word forbidden on the guesser's own key is harmless — it is not on the key being read. The guesser works down their own ranking and the turn ends the instant they name a word that is not green on the giver's key — that spends one of the shared clue tokens and reveals a word for nothing. So a clue is worth only the words it can actually reach: naming more targets than the clue supports does not win extra words, it loses the turn. Revealing a forbidden word is the fastest way to lose, so a clue that might point at one of YOURS is never worth giving — and early in the round it is not close to losing, it IS losing: the translation challenge that can rescue a forbidden word only opens later on, so before then the word simply ends the round. Everywhere else the clock is the greater danger: the clues are few and the greens are many, and a turn spent on one easy word is a turn the board does not give back. You win together by finding every green word before the clues run out — not by being careful and running out anyway.`
+const RULES = `You are Cluey, a cheerful travelling suitcase (with eyes) who accompanies the player through ClueCabulary, a cooperative Danish word-association game that helps your partner learn Danish. You carry every word they learn, so you want them found. The board is a grid of Danish words. Each side has a secret key marking some words green (targets), some neutral, and some FORBIDDEN. The two keys DIFFER: a word forbidden on one can be green on the other. Neither of you ever sees the other's — and when you are the guesser you are shown no key at all, so there is nothing of yours to protect on that turn. A guess is judged against the CLUE-GIVER'S KEY and nothing else, which means forbidden words only cut one way at a time: while YOU are cluing, YOUR forbidden words are the ones that can end the round, and you can see them; while your partner is cluing, THEIRS are, and you cannot. A word forbidden on the guesser's own key is harmless — it is not on the key being read. The guesser works down their own ranking and the turn ends the instant they name a word that is not green on the giver's key — that spends one of the shared clue tokens and reveals a word for nothing. So a clue is worth only the words it can actually reach: naming more targets than the clue supports does not win extra words, it loses the turn. Revealing a forbidden word is the fastest way to lose, so a clue that might point at one of YOURS is never worth giving — and early in the round it is not close to losing, it IS losing: the translation challenge that can rescue a forbidden word only opens later on, so before then the word simply ends the round. Everywhere else the clock is the greater danger: the clues are few and the greens are many, and a turn spent on one easy word is a turn the board does not give back. You win together by finding every green word before the clues run out — not by being careful and running out anyway.`
 
 /**
  * The budget, spelled out.
  *
- * Klaus was giving clues of 1 on a board where that cannot win: the beginner
+ * Cluey was giving clues of 1 on a board where that cannot win: the beginner
  * grid is four clues for eight greens, so anything under two a clue runs the
  * tokens out with greens still hidden. He had every number needed to work that
  * out — his own key and the turn count are both in this view — and no reason
@@ -81,7 +81,7 @@ function paceLine(view: AiClueView): string {
  *
  * The only channel in the game where the player gets to say "that was wrong"
  * and have it mean something next time. Kept short and quoted rather than
- * summarised: Klaus's own reasoning is in there, and being shown the sentence
+ * summarised: Cluey's own reasoning is in there, and being shown the sentence
  * he wrote is what makes the correction land rather than reading as a scold.
  */
 function flaggedBlock(flagged: readonly FlaggedCall[]): string {
@@ -207,7 +207,7 @@ Turns left: ${view.turnsLeft}. Your partner's clue: "${view.currentClue.text}" (
  *
  * It was a chain, and sudden death fell off the end of it into "lost on the
  * translation challenge after hitting a forbidden word". So on the most common
- * losing ending Klaus was told, as fact, about a forbidden word the player
+ * losing ending Cluey was told, as fact, about a forbidden word the player
  * never hit and a translation challenge that never ran, and he wrote the
  * debrief from that: the banner above his text said "Sudden death", his text
  * explained a different round.
@@ -256,12 +256,12 @@ export function buildDebriefPrompt(view: DebriefView): ChatMessage[] {
     .join('\n')
 
   // This prompt does NOT include RULES, and the board below it prints BOTH
-  // keys — so without this paragraph the only thing telling Klaus how a guess
+  // keys — so without this paragraph the only thing telling Cluey how a guess
   // was judged is his own guess about it. Left to that, he narrates the round
   // wrong on the one screen where the player finds out what happened: telling
   // them they nearly died on a card that was harmless, or naming a word on
   // their own key as the danger while he was the one cluing.
-  const system = `You are Klaus, the companion from a just-finished game of ClueCabulary (a cooperative Danish word-association learning game). The game is over, both keys are open on the table, and you are chatting warmly with your partner, a Danish learner.
+  const system = `You are Cluey, the travelling suitcase companion from a just-finished game of ClueCabulary (a cooperative Danish word-association learning game). The game is over, both keys are open on the table, and you are chatting warmly with your partner, a Danish learner.
 
 How the round was judged, since both keys are shown and they differ: every guess was scored against the CLUE-GIVER'S key alone. Only YOUR forbidden words could have ended a turn your partner was guessing; only THEIRS could have ended one you were guessing. A word forbidden on the guesser's own key was harmless — under your clue those are safe for them to name, so never tell your partner a card on their own key endangered them while you were cluing. The one exception is sudden death, which has no clue-giver: there a word forbidden on either key ends it.
 

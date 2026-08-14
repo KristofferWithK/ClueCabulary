@@ -185,7 +185,7 @@ if (await study.isVisible().catch(() => false)) await study.click()
 await page.fill('.clue-input input', 'huskeliste')
 await page.click('.clue-input .btn-primary')
 await page.waitForFunction(
-  () => !document.querySelector('.phase-caption')?.textContent?.includes('Klaus is guessing'),
+  () => !document.querySelector('.phase-caption')?.textContent?.includes('Cluey is guessing'),
   undefined,
   { timeout: 20000 },
 )
@@ -220,7 +220,7 @@ const greens = await page.locator('.word-card.mykey-green').count()
   console.log('SKIP round did not reach a debrief on this seed')
 }
 
-// Klaus's whole turn used to happen in silence: no live region existed
+// Cluey's whole turn used to happen in silence: no live region existed
 // anywhere in the game loop.
 await open('?mock=1&howto=0&seed=7&city=0')
 await page.locator('.grid-card').first().click()
@@ -266,7 +266,7 @@ check('Escape closes the letter', (await page.locator('.letter').count()) === 0)
 await open('?mock=1&howto=0&city=0')
 check('no setup nudge with the practice companion', (await page.locator('.setup-nudge').count()) === 0)
 
-// Connecting Klaus is the one thing a stuck player must be able to do from the
+// Connecting Cluey is the one thing a stuck player must be able to do from the
 // phone in their hand, so the steps live in the app rather than behind a link
 // to a markdown file. They have to fit the screen and be reachable.
 await page.evaluate(() => {
@@ -277,9 +277,9 @@ await page.evaluate(() => {
 await open('?howto=0&city=0')
 await page.locator('.setup-nudge').first().click()
 await page.waitForSelector('.settings-screen')
-const panel = page.locator('.connect-klaus')
+const panel = page.locator('.connect-cluey')
 check('the setup steps are in the app', (await panel.count()) === 1)
-check('and open while Klaus has never answered', await panel.evaluate((el) => el.open))
+check('and open while Cluey has never answered', await panel.evaluate((el) => el.open))
 const steps = await page.locator('.connect-steps li').count()
 check('with every step listed', steps === 6, `${steps} steps`)
 const box = await panel.boundingBox()
@@ -291,7 +291,7 @@ check(
 const links = await page.locator('.connect-steps a').count()
 check('and its links are tappable, not a wall of prose', links >= 4, `${links} links`)
 
-// Once Klaus has answered it is history, and must stop eating the screen.
+// Once Cluey has answered it is history, and must stop eating the screen.
 await page.evaluate(() => {
   const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1'))
   raw.state.klausVerifiedAt = Date.now()
@@ -305,8 +305,8 @@ if ((await page.locator('.settings-screen').count()) === 0) {
 }
 await page.waitForSelector('.settings-screen', { timeout: 5000 })
 check(
-  'and collapses once Klaus has answered',
-  (await page.locator('.connect-klaus').evaluate((el) => el.open)) === false,
+  'and collapses once Cluey has answered',
+  (await page.locator('.connect-cluey').evaluate((el) => el.open)) === false,
 )
 
 check('no page errors', errors.length === 0, errors.join(' | '))

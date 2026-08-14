@@ -11,7 +11,7 @@ import { migrateSettings, useSettings } from './settingsStore'
  */
 const NOW = 1_700_000_000_000
 
-describe('settingsStore: has Klaus ever answered?', () => {
+describe('settingsStore: has Cluey ever answered?', () => {
   beforeEach(() => {
     useSettings.setState({
       apiKey: 'key-one',
@@ -50,17 +50,17 @@ describe('settingsStore: has Klaus ever answered?', () => {
     expect(useSettings.getState().klausVerifiedAt).toBe(NOW)
   })
 
-  it('markKlausVerified records the moment', () => {
+  it('markClueyVerified records the moment', () => {
     useSettings.setState({ klausVerifiedAt: null })
-    useSettings.getState().markKlausVerified(NOW + 500)
+    useSettings.getState().markClueyVerified(NOW + 500)
     expect(useSettings.getState().klausVerifiedAt).toBe(NOW + 500)
   })
 
   it('a credential change after a success re-arms the nudge', () => {
-    useSettings.getState().markKlausVerified(NOW)
+    useSettings.getState().markClueyVerified(NOW)
     useSettings.getState().set({ apiKey: 'rotated' })
     expect(useSettings.getState().klausVerifiedAt).toBeNull()
-    useSettings.getState().markKlausVerified(NOW + 1000)
+    useSettings.getState().markClueyVerified(NOW + 1000)
     expect(useSettings.getState().klausVerifiedAt).toBe(NOW + 1000)
   })
 })
@@ -108,7 +108,7 @@ describe('the study phase, which the board should no longer open with', () => {
 
 /**
  * "Why did it pick hvid at foster?" — one candidate answer was that the player
- * was not talking to Klaus at all. `?mock=1` writes useMock permanently into
+ * was not talking to Cluey at all. `?mock=1` writes useMock permanently into
  * persisted settings, and the practice companion ranks guesses by
  * djb2(clue + wordId): measured statistically indistinguishable from naming a
  * card at random, and at chance on greens too.
@@ -118,7 +118,7 @@ describe('the study phase, which the board should no longer open with', () => {
  * Home's setup warnings — so a player with no API key and this switched on was
  * told nothing anywhere.
  */
-describe('knowing when Klaus is not playing', () => {
+describe('knowing when Cluey is not playing', () => {
   it('the practice companion is announced by either route to it', () => {
     useSettings.setState({ useMock: false })
     expect(onPracticeCompanion(false)).toBe(false)
@@ -132,15 +132,15 @@ describe('knowing when Klaus is not playing', () => {
 
 
 /**
- * "Also the clues Klaus sends should be in danish as well."
+ * "Also the clues Cluey sends should be in danish as well."
  *
  * The clue dock has always asked the PLAYER for "ét dansk ord"; this setting
- * governed only Klaus's own clues, and its default had him answering in English
+ * governed only Cluey's own clues, and its default had him answering in English
  * on a Danish board. Same shape of trap as the study phase: moving the default
  * does nothing for a device that already stored one, which is every device that
  * has ever opened Settings.
  */
-describe('which language Klaus clues in', () => {
+describe('which language Cluey clues in', () => {
   const migrate = migrateSettings
 
   it('is Danish for anyone who has never stored a setting', () => {

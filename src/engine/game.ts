@@ -21,7 +21,7 @@ export function createGame(opts: {
   /** Steers which words become recall practice vs. hazards. */
   bias?: KeyBias
 }): GameState {
-  // The player opens. Klaus opened for one build, on the reasoning that a
+  // The player opens. Cluey opened for one build, on the reasoning that a
   // round beginning with a guess lets the player meet the words before having
   // to compose a Danish clue about them. Played, it was worse: the round
   // starts with waiting, and the study phase already does the meeting. Back to
@@ -143,10 +143,10 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
        * a word counts if it is green on EITHER key, and anything else loses on
        * the spot. Duet has the two players keep guessing on each other's cards
        * here, which needs a partner who can guess with no clue to go on —
-       * Klaus cannot, and inventing a clueless AI turn would be a worse game
+       * Cluey cannot, and inventing a clueless AI turn would be a worse game
        * than letting the player name the board themselves. The greens on your
        * own key are the ones you can already see, so the tension is real: what
-       * is left is whatever Klaus was pointing at and you never worked out.
+       * is left is whatever Cluey was pointing at and you never worked out.
        */
       if (s.phase === 'suddenDeath') {
         if (!isGuessable(s, event.wordId)) {
@@ -208,9 +208,9 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
          * followed them — but the bonus is there to pick up a word left over
          * from an EARLIER clue, which is a move a player has to be told about to
          * ever make. In practice it read as the turn not ending: you guessed the
-         * two words Klaus asked for, both green, and then nothing happened until
+         * two words Cluey asked for, both green, and then nothing happened until
          * you found "Stop guessing". Asked for directly: "when you have guessed
-         * the amount of words Klaus gives you the turn ends automatically."
+         * the amount of words Cluey gives you the turn ends automatically."
          *
          * Stopping short is still yours to do — the button remains, and stopping
          * after one of three is a real decision. It is only the guess past the

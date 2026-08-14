@@ -126,6 +126,6 @@ if (chatOk && preflightOk) {
 if (problems.length) {
   console.log('\n  ' + problems.map((p) => `- ${p}`).join('\n  '))
 }
-console.log('\nNext: node e2e/live-drive.mjs plays a real round and prints the clue Klaus gives,')
+console.log('\nNext: node e2e/live-drive.mjs plays a real round and prints the clue Cluey gives,')
 console.log('which is the other thing no test here can settle. Same env vars.')
 process.exitCode = chatOk ? 0 : 1

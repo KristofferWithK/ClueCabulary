@@ -67,7 +67,7 @@ export default function App() {
     if (seed && /^\d+$/.test(seed)) {
       useUi.setState({ pendingSeed: Number(seed) })
     }
-    // ?first=player makes the player open the round. Klaus opens by default,
+    // ?first=player makes the player open the round. Cluey opens by default,
     // and a drive that is about the AI client rather than the turn order needs
     // to get to the clue box without spending a guess first.
     const first = params.get('first')

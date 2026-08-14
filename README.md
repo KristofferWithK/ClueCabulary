@@ -2,7 +2,7 @@
 
 Learn Danish one clue at a time. ClueCabulary is a single-player, mobile-first
 word game inspired by cooperative word-association games: a board of Danish
-words, a secret key, and an AI companion — Klaus — who gives and guesses clues
+words, a secret key, and an AI companion — Cluey — who gives and guesses clues
 **without ever seeing your key**. Vocabulary sticks because every clue forces
 you to build connections between words.
 
@@ -43,20 +43,20 @@ words are green it stops counting attempts.
    stays, because *en øl*, *et brød*, *en ost*, *et hår* and *et papir* are all
    things Danes say and they teach the gender in the form a learner meets. The
    validator refuses any drift between the module and the data. Words outside
-   the shipped thousand get the same treatment from Klaus, who is asked for
+   the shipped thousand get the same treatment from Cluey, who is asked for
    gender and countability along with the translation — *trafik* comes back
    `(com)`, not `en trafik`.
 
    Your own key is the card's border:
    solid green for a target, dashed black for forbidden **on your key** — which
-   is a word Klaus must never be led to, not a word you must never tap.
-2. You open: you give a one-word clue, Klaus guesses — then Klaus clues and you
+   is a word Cluey must never be led to, not a word you must never tap.
+2. You open: you give a one-word clue, Cluey guesses — then Cluey clues and you
    guess. A clue's number is the whole allowance: guess that many right and the
    turn ends itself. (There is no Codenames-style bonus guess. It existed to
    pick up a word left over from an earlier clue, and in practice only read as
    the turn refusing to end once you had found everything the clue promised.)
    Stopping short is still yours to choose. Guesses are judged against the
-   clue-giver's key. Klaus is told how
+   clue-giver's key. Cluey is told how
    many of his greens are left against how many clues remain, so he aims for
    two or three words a clue rather than picking off one at a time — and on his
    last clue, for everything he has left, since a green he never points at is
@@ -68,7 +68,7 @@ words are green it stops counting attempts.
    a green and you are still alive; name anything else and the round is over.
    **Forbidden words cut one way at a time**, because a guess is judged against
    the clue-giver's key and nothing else. Your dashed cards end the round only
-   when *Klaus* names one under *your* clue — they are safe for you to tap while
+   when *Cluey* names one under *your* clue — they are safe for you to tap while
    you guess his, where it is his forbidden words that are fatal and you cannot
    see those. (Sudden death is the exception: no clue-giver, so either key ends
    it. `game.test.ts` pins the whole rule; two mutations of the engine were
@@ -79,7 +79,7 @@ words are green it stops counting attempts.
    nothing: **9.9%** of guesses on 3×4, **7.9%** on 3×5, **15.9%** on 4×5,
    ending 31%, 27% and 47% of games. That is the floor any guesser starts from,
    so "the AI keeps hitting forbidden words" is the expected shape unless it is
-   beating it. Giving Klaus his own key while guessing was measured and is
+   beating it. Giving Cluey his own key while guessing was measured and is
    **not** the fix: on 3×4 and 3×5 nothing is forbidden on both keys, so his own
    hazard is harmless to the player, and removing it from his pool makes him
    *worse* (9.9% → 11.1%).
@@ -92,7 +92,7 @@ words are green it stops counting attempts.
    That threshold is `REDEMPTION_AFTER_ROUND` in `src/engine/config.ts`, and it
    is worth more than it looks because of a measured fact sitting beside it
    there: the guessing side alternates with the clue index, and you open, so
-   **odd clues are Klaus guessing and even ones are you**. At four the first
+   **odd clues are Cluey guessing and even ones are you**. At four the first
    eligible clue was the fifth — odd — and the 3×4 board has no even clue past
    it, so on the first board a learner meets the player could not reach this
    ending at all. At three the first eligible clue is the fourth, which is
@@ -121,10 +121,10 @@ words are green it stops counting attempts.
    direction composing a clue actually needs. It is a field, not a drawer: it
    was a `<details>` and the lid cost a tap every turn, because the dock
    unmounts with the phase and a `<details>` keeps its open state on the element
-   rather than in React. Klaus clues in Danish too, and one tap loads his clue
+   rather than in React. Cluey clues in Danish too, and one tap loads his clue
    into the same box. **Both sides speak Danish**: type an
    English word into the clue box and it says so, with the lookup one tap away,
-   because Klaus is handed the clue as a bare string beside a Danish board and
+   because Cluey is handed the clue as a bare string beside a Danish board and
    an English word there is one he cannot place.
 
    The thousand settle most of it offline and recognise far more Danish than
@@ -134,7 +134,7 @@ words are green it stops counting attempts.
    rather than suspicion: that is where every Danish word we do not ship lives,
    *trafik* included. Only a word that looks positively English is questioned,
    and even then the offline guess is never the last word — the button becomes
-   *Give clue anyway* and Klaus judges it, so a Danish word we happen not to
+   *Give clue anyway* and Cluey judges it, so a Danish word we happen not to
    ship is never refused by a list.
    Toggle **Aa** to overlay every translation — off to start with, so the board
    opens as a grid of Danish words rather than twice as many lines of text, and there
@@ -145,12 +145,12 @@ words are green it stops counting attempts.
    lookup box, which costs exactly what tapping ⓘ costs, and neither is
    available during the translation challenge or a travel exam. A clue may be
    any Danish word, so the lookup answers any word: the shipped thousand come
-   back instantly and offline, and anything else is asked of Klaus without
+   back instantly and offline, and anything else is asked of Cluey without
    being asked twice. A hit that is already on the board says so, since it is
    the right translation and an illegal clue.
-6. After each round Klaus debriefs: what his clues meant and which words
+6. After each round Cluey debriefs: what his clues meant and which words
    deserve another look. The review page also shows **what was said, and why** —
-   every clue and every guess with the reasoning behind it, including what Klaus
+   every clue and every guess with the reasoning behind it, including what Cluey
    deliberately steered away from and how sure he was of each guess. Tap ⚑ on
    anything of his that was a bad call: flags are kept (newest 24) and quoted
    back to him in later rounds, with his own sentence attached, so the
@@ -165,10 +165,10 @@ weighted toward the three that went worst, and no word may carry twice running
 — so a board is mostly new without ever dropping what you just struggled with.
 
 The same signal steers the deal itself: words you keep forgetting become
-Klaus's green targets, so you have to recall them, while words you know well
+Cluey's green targets, so you have to recall them, while words you know well
 become the forbidden hazards you must knowingly avoid. A word is never both at
 once on the 3×4 and 3×5 boards: nothing there is forbidden for one side and
-green for the other, because Klaus cannot see your key and so cannot steer a
+green for the other, because Cluey cannot see your key and so cannot steer a
 clue around a hazard only you can see.
 
 ### Keeping your collection
@@ -258,7 +258,7 @@ node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
                               # and the two rules that stop it reading the board
 node e2e/article-drive.mjs    # en/et on every card, across all ten cities, on
                               # a 360px phone — and costing the word no line
-node e2e/endgame-drive.mjs    # Klaus opens; the 3x5 board; and sudden death
+node e2e/endgame-drive.mjs    # Cluey opens; the 3x5 board; and sudden death
                               # won, lost and walked away from
 node e2e/repeat-drive.mjs     # every board shares exactly three words with the
                               # one before it — across a reload and a v1 save
@@ -296,7 +296,7 @@ Second, whether the clues are any good:
 OLLAMA_API_KEY=... node e2e/live-drive.mjs
 ```
 
-It plays one round and prints the clue Klaus actually gave, so the prompts can
+It plays one round and prints the clue Cluey actually gave, so the prompts can
 be judged against real output. Without a key it prints `LIVE DRIVE SKIPPED` and
 exits 0. Set `OLLAMA_BASE_URL` to your Cloudflare Worker (see
 [`proxy/README.md`](proxy/README.md)) if ollama.com refuses browser requests,
@@ -304,7 +304,7 @@ and `OLLAMA_MODEL` to try another model. The key is read from the environment,
 never placed in a URL and never printed.
 
 Useful dev URLs: `?mock=1` forces the offline companion, `?seed=N` fixes the
-board, `?first=player` makes the player open the round instead of Klaus,
+board, `?first=player` makes the player open the round instead of Cluey,
 `?howto=0` skips the rules overlay, and `?city=N&learned=K&almost=K&stamps=G`
 jumps the journey to a given stop with K words green (or one handling short of
 it) and G stempler already earned.

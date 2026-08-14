@@ -26,7 +26,7 @@ const stateText = (r: Reveal): string => {
   if (r.kind === 'green') return ', found'
   if (r.kind === 'forbidden') return ', forbidden'
   if (r.against.length === 2) return ', neutral for both sides'
-  return r.against[0] === 'player' ? ', neutral under your clues' : ", neutral under Klaus's clues"
+  return r.against[0] === 'player' ? ', neutral under your clues' : ", neutral under Cluey's clues"
 }
 
 /** Your own key — the private information you play from, like a Duet key card. */

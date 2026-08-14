@@ -45,7 +45,7 @@ try {
   const label = await page.locator('.word-card.mykey-green').first().getAttribute('aria-label')
   if (!label?.includes('your target')) throw new Error(`target not announced: ${label}`)
 
-  // A dashed card is forbidden ON your key: a word Klaus must never be led to,
+  // A dashed card is forbidden ON your key: a word Cluey must never be led to,
   // NOT a word you must never tap. Under his clue it is judged against his key
   // and is perfectly safe. The legend said "forbidden for you", which reads as
   // the opposite and disagreed with the screen-reader name beside it.

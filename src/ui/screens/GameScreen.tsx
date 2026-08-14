@@ -14,9 +14,9 @@ import { RedemptionView } from '../components/RedemptionView'
 import { TurnTokens } from '../components/TurnTokens'
 
 const PHASE_CAPTION: Record<GameState['phase'], string> = {
-  playerClueInput: 'Give Klaus a clue',
-  aiGuessing: 'Klaus is guessing',
-  aiClueInput: 'Klaus prepares a clue',
+  playerClueInput: 'Give Cluey a clue',
+  aiGuessing: 'Cluey is guessing',
+  aiClueInput: 'Cluey prepares a clue',
   playerGuessing: 'Your turn to guess',
   suddenDeath: 'Sudden death — no clues left',
   redemption: 'Last chance',
@@ -64,10 +64,10 @@ export function GameScreen() {
       if (word && result) {
         const outcome =
           result === 'green' ? 'correct' : result === 'forbidden' ? 'forbidden' : 'neutral'
-        return `Klaus guessed ${word.da} — ${outcome}.`
+        return `Cluey guessed ${word.da} — ${outcome}.`
       }
     }
-    if (aiBusy) return 'Klaus is thinking.'
+    if (aiBusy) return 'Cluey is thinking.'
     return PHASE_CAPTION[game.phase]
   })()
 
@@ -124,7 +124,7 @@ export function GameScreen() {
         </button>
       </header>
 
-      {/* Klaus's whole turn happened in silence: every status message in the
+      {/* Cluey's whole turn happened in silence: every status message in the
           loop was a plain paragraph that never took focus, so no screen reader
           had reason to speak it. This region is mounted for the whole round —
           a live region that appears with its content does not announce. */}
@@ -143,7 +143,7 @@ export function GameScreen() {
                 blocked — and the board is already dealt. This finishes the
                 round offline rather than throwing it away. */}
             <button className="btn btn-small" onClick={fallBackToPractice}>
-              Play on without Klaus
+              Play on without Cluey
             </button>
           </div>
         </div>
@@ -151,11 +151,11 @@ export function GameScreen() {
 
       {onPracticeCompanion(practiceFallback) && !error && (
         // Say it for as long as it is true: these clues and guesses are not
-        // Klaus's, and the player should not judge the AI companion by them.
+        // Cluey's, and the player should not judge the AI companion by them.
         // Keyed on the companion actually in use, not on the fallback flag —
         // the settings route reached the same object and said nothing.
         <p className="practice-note">
-          Practice companion — its clues are «mok1» and its guesses are random. Klaus is not
+          Practice companion — its clues are «mok1» and its guesses are random. Cluey is not
           playing. Settings → Practice companion turns it off.
         </p>
       )}
@@ -185,7 +185,7 @@ export function GameScreen() {
           <span className="legend-swatch legend-target" aria-hidden="true" /> your target
           <span className="legend-sep">·</span>
           {/* "forbidden for you" read as "you must not name this", which is
-              backwards: it is forbidden ON your key, meaning Klaus must not be
+              backwards: it is forbidden ON your key, meaning Cluey must not be
               led to it. BoardGrid's screen-reader name has always said "on your
               key"; the visible legend now agrees with it. */}
           <span className="legend-swatch legend-forbidden" aria-hidden="true" /> forbidden on your
@@ -195,9 +195,9 @@ export function GameScreen() {
           {game.phase === 'playerGuessing' && (
             <>
               <br />
-              Klaus's key judges this guess, so a dashed word is safe to tap — it is your own
+              Cluey's key judges this guess, so a dashed word is safe to tap — it is your own
               clues that must keep away from it. A crossed-out word is spent for you; a neutral
-              Klaus burned is still yours to guess.
+              Cluey burned is still yours to guess.
             </>
           )}
         </p>
@@ -240,7 +240,7 @@ export function GameScreen() {
  * what the clues already meant, and one wrong name ends it.
  *
  * The greens on your own key are the ones you can already see, so what is left
- * is whatever Klaus was pointing at and you never worked out. No target count
+ * is whatever Cluey was pointing at and you never worked out. No target count
  * is shown on purpose — knowing how many remain is most of the puzzle.
  */
 function SuddenDeathBar({ game }: { game: GameState }) {
@@ -292,17 +292,17 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   return (
     <div className="dock guess-bar">
       <p className="dock-title">
-        Klaus's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
+        Cluey's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
         {left === 1 ? '' : 'es'}
       </p>
       {/* Whose forbidden words, not "a forbidden word". This sits above a board
           whose only forbidden markings are the player's own dashed cards, and
-          under Klaus's clue those are the safe ones — the guess is read off HIS
+          under Cluey's clue those are the safe ones — the guess is read off HIS
           key. Unqualified, the sentence warns about exactly the wrong cards. */}
       <p className="dim stake-note">
         {lastChanceOpen
-          ? "Klaus's forbidden words now leave you the last chance. You cannot see them."
-          : "Klaus's forbidden words end the round. You cannot see them."}
+          ? "Cluey's forbidden words now leave you the last chance. You cannot see them."
+          : "Cluey's forbidden words end the round. You cannot see them."}
       </p>
       {selected ? (
         <div className="guess-confirm">
@@ -317,11 +317,11 @@ function PlayerGuessBar({ game }: { game: GameState }) {
           </button>
         </div>
       ) : (
-        <p className="dim">Tap a word you think Klaus means.</p>
+        <p className="dim">Tap a word you think Cluey means.</p>
       )}
-      {/* Klaus clues in Danish when asked to, and a clue you cannot read is
+      {/* Cluey clues in Danish when asked to, and a clue you cannot read is
           not a clue. Prefilled from his, one tap. */}
-      <TranslateBox prefill={{ term: clue.text, label: "Klaus's clue" }} />
+      <TranslateBox prefill={{ term: clue.text, label: "Cluey's clue" }} />
       {made > 0 && (
         <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
           Stop guessing (keep what we have)

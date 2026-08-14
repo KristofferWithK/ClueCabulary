@@ -22,13 +22,13 @@ const start = (): GameState =>
   })
 
 // The instructions are the system message and the board is the user message;
-// what Klaus reads is both, so these assertions read both.
+// what Cluey reads is both, so these assertions read both.
 const textOf = (msgs: { content: string }[]) => msgs.map((m) => m.content).join('\n')
 const promptFor = (s: GameState) => textOf(buildCluePrompt(buildAiClueView(s, 'en')))
 const lineFor = (text: string, id: string) =>
   text.split('\n').find((l) => l.startsWith(`${id} |`)) ?? `(no row for ${id})`
 
-/** Play until one of Klaus's own greens has been found, so it is spent. */
+/** Play until one of Cluey's own greens has been found, so it is spent. */
 function findOneOfHisGreens(s: GameState): { state: GameState; found: string } {
   const target = s.words.map((w) => w.wordId).find((id) => s.aiKey[id] === 'green')!
   let next = applyEvent(s, { type: 'SUBMIT_CLUE', by: 'ai', text: 'klods', number: 1 })
@@ -37,7 +37,7 @@ function findOneOfHisGreens(s: GameState): { state: GameState; found: string } {
 }
 
 /**
- * Reported from a real game, twice over: Klaus asked for a word he had already
+ * Reported from a real game, twice over: Cluey asked for a word he had already
  * found, the validator refused it, the one corrective retry made the same
  * mistake, and the round ended on "The AI kept answering invalidly: w1 (bog) is
  * not an unrevealed GREEN word on your key".
@@ -59,7 +59,7 @@ describe('the clue prompt says which words are actually targetable', () => {
     }
   })
 
-  it('marks a green Klaus has already found as spent, in words, on its own row', () => {
+  it('marks a green Cluey has already found as spent, in words, on its own row', () => {
     const { state, found } = findOneOfHisGreens(start())
     const text = promptFor(state)
     const row = lineFor(text, found)
@@ -81,7 +81,7 @@ describe('the clue prompt says which words are actually targetable', () => {
 })
 
 /**
- * Also reported: "Klaus gave kitchen and I said food but that was forbidden."
+ * Also reported: "Cluey gave kitchen and I said food but that was forbidden."
  *
  * A guess is judged against the clue-giver's key alone, so «food» was forbidden
  * on KLAUS's key — a word he could see, under a clue he chose. That is what
@@ -140,7 +140,7 @@ describe('the clue prompt makes the forbidden words hard to walk past', () => {
 })
 
 /**
- * The board can be dealt so that every one of Klaus's greens is also a word he
+ * The board can be dealt so that every one of Cluey's greens is also a word he
  * cannot reach — the prompt still has to be a legal string. Guarded because the
  * targetable list is interpolated from an array that the caller has already
  * refused to let be empty, and a guard that only exists in the caller is one
@@ -161,14 +161,14 @@ describe('the prompt survives a board with nothing to say', () => {
  * other calls forbidden.
  *
  * This block used to be titled "no board word is both a target and an instant
- * loss" and justified by the claim that a forbidden-for-player, green-for-Klaus
+ * loss" and justified by the claim that a forbidden-for-player, green-for-Cluey
  * card is "his best clue and the player's instant loss". That is false: under
- * Klaus's clue the card is read off HIS key, where it is green, and it scores.
+ * Cluey's clue the card is read off HIS key, where it is green, and it scores.
  *
  * The shape actually worth excluding is its mirror, which forbiddenVsGreen
- * deals in the same breath: green on the player's key, forbidden on Klaus's.
- * There the player's own key marks the card as a target while Klaus's key ends
- * the round on it, and while they are guessing nothing on screen says so. Klaus
+ * deals in the same breath: green on the player's key, forbidden on Cluey's.
+ * There the player's own key marks the card as a target while Cluey's key ends
+ * the round on it, and while they are guessing nothing on screen says so. Cluey
  * can see it — it is forbidden on his own key — so a good clue steers around
  * it, but that is the only protection there is.
  *

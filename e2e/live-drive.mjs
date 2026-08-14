@@ -1,4 +1,4 @@
-// One real round against a real model, and a look at what Klaus actually says.
+// One real round against a real model, and a look at what Cluey actually says.
 //
 //   OLLAMA_API_KEY=... node e2e/live-drive.mjs
 //
@@ -77,17 +77,17 @@ try {
   const board = await page.locator('.word-card .card-word').allTextContents()
   console.log(`board: ${board.join(', ')}\n`)
 
-  // Your clue first, so Klaus has to guess before he has to invent.
+  // Your clue first, so Cluey has to guess before he has to invent.
   const clue = process.env.LIVE_CLUE ?? 'hverdag'
   console.log(`you clue: «${clue}» (2)`)
   await page.fill('.clue-input input', clue)
   await page.locator('.clue-input .stepper button').last().click()
   await page.click('.clue-input .btn-primary')
 
-  // Klaus guessing, then Klaus clueing. A real model is slow; be patient.
+  // Cluey guessing, then Cluey clueing. A real model is slow; be patient.
   const deadline = Date.now() + 120_000
   let sawGuess = false
-  let klausClue = null
+  let clueyClue = null
   while (Date.now() < deadline) {
     const err = await currentError()
     if (err) {
@@ -104,12 +104,12 @@ try {
     if (!sawGuess && (await page.locator('.ai-guess-line').count())) {
       const line = (await page.locator('.ai-guess-line').textContent()).replace(/\s+/g, ' ').trim()
       if (line && !/choosing/i.test(line)) {
-        console.log(`klaus guesses: ${line}`)
+        console.log(`cluey guesses: ${line}`)
         sawGuess = true
       }
     }
     if (await page.locator('.guess-bar .dock-title').count()) {
-      klausClue = (await page.locator('.guess-bar .dock-title').textContent())
+      clueyClue = (await page.locator('.guess-bar .dock-title').textContent())
         .replace(/\s+/g, ' ')
         .trim()
       break
@@ -117,9 +117,9 @@ try {
     await sleep(1000)
   }
 
-  if (klausClue) {
-    console.log(`\nklaus clues: ${klausClue}`)
-    console.log('\nLIVE DRIVE OK — Klaus answered, and the round advanced.')
+  if (clueyClue) {
+    console.log(`\ncluey clues: ${clueyClue}`)
+    console.log('\nLIVE DRIVE OK — Cluey answered, and the round advanced.')
   } else if (process.exitCode !== 1) {
     console.log('\nLIVE DRIVE TIMED OUT — no answer inside two minutes and no error shown.')
     process.exitCode = 1

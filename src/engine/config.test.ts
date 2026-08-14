@@ -44,7 +44,7 @@ describe('the shipped boards', () => {
   })
 
   it('count a shared green once, since finding it once is all the game asks', () => {
-    // beginner: 2 on both keys + 3 only-player + 3 only-Klaus
+    // beginner: 2 on both keys + 3 only-player + 3 only-Cluey
     expect(distinctGreens(GRID_CONFIGS.beginner)).toBe(8)
     expect(distinctGreens(GRID_CONFIGS.standard)).toBe(12)
   })

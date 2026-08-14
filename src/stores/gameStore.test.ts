@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 /**
- * The practice fallback exists so a round is not lost when Klaus cannot be
+ * The practice fallback exists so a round is not lost when Cluey cannot be
  * reached — no key yet, the wrong key, or a browser that will not talk to
  * ollama.com. Three rules make it a rescue rather than a trap: it must not
  * touch settings, it must not survive into the next round, and it must survive
@@ -29,7 +29,7 @@ const { useGame } = await import('./gameStore')
 const { useSettings } = await import('./settingsStore')
 const { useSrs } = await import('./srsStore')
 
-describe('gameStore: finishing a round without Klaus', () => {
+describe('gameStore: finishing a round without Cluey', () => {
   beforeEach(() => {
     useSettings.setState({ apiKey: 'a-key', useMock: false })
     useGame.getState().abandonGame()
@@ -46,7 +46,7 @@ describe('gameStore: finishing a round without Klaus', () => {
     expect(useGame.getState().error).toBeNull()
   })
 
-  it('changes no setting — the next round still tries Klaus', () => {
+  it('changes no setting — the next round still tries Cluey', () => {
     useGame.getState().fallBackToPractice()
     expect(useSettings.getState().useMock).toBe(false)
     expect(useSettings.getState().apiKey).toBe('a-key')

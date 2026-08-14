@@ -87,7 +87,7 @@ describe('planGuessExecution', () => {
    *
    * This is correct, and for a long time the prompt said the opposite: "under
    * 0.35: do not guess this", to a model whose 0.05 pick was named on the board
-   * anyway. A player asked why Klaus answered «hvid» to the clue «foster», and
+   * anyway. A player asked why Cluey answered «hvid» to the clue «foster», and
    * the answer is that he did not think they were related — he was made to say
    * it. The prompt now tells him the ranking is the decision.
    */
@@ -171,7 +171,7 @@ describe('OllamaCompanion.getClue', () => {
       (e: unknown) => e as AiError,
     )
     expect(err).toBeInstanceOf(AiError)
-    expect(err!.message).toBe('Klaus could not settle on a clue for the words he is holding.')
+    expect(err!.message).toBe('Cluey could not settle on a clue for the words he is holding.')
     expect(err!.message).not.toMatch(/GREEN|wordId|JSON|schema|invalid/i)
     // …but the diagnostic is not thrown away.
     expect(vi.mocked(console.warn).mock.calls[0]![0]).toContain('bil')
@@ -179,7 +179,7 @@ describe('OllamaCompanion.getClue', () => {
 
   /**
    * One retry was not enough on the boards where the check actually fires: the
-   * strongest association belongs to a word that is not Klaus's, so his second
+   * strongest association belongs to a word that is not Cluey's, so his second
    * answer tends to be his first answer again. The third and fourth attempts
    * are the ones that land.
    */
@@ -279,7 +279,7 @@ describe('OllamaCompanion.getGuesses', () => {
 })
 
 /**
- * Reported from a real game: "Klaus clued ocean twice and each time I took
+ * Reported from a real game: "Cluey clued ocean twice and each time I took
  * something obvious like water or fish and it was wrong."
  *
  * He had named water, fish and beach as his targets; only beach was green on
@@ -288,7 +288,7 @@ describe('OllamaCompanion.getGuesses', () => {
  * where water and fish are the two most obvious ocean words and neither scores.
  * The clue pointed away from the only word it could pay for.
  *
- * This is not a corner case. The deal makes Klaus's greens the words the player
+ * This is not a corner case. The deal makes Cluey's greens the words the player
  * knows least and the hazards the ones they know best, so the obvious referent
  * of a clue is disproportionately not his to give.
  */

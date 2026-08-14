@@ -75,24 +75,24 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
    * THE RULE THIS TURNS ON, because the first version of this comment got it
    * backwards: outside sudden death a guess is judged against the CLUE-GIVER's
    * key and nothing else (game.ts, the GUESS case). So the player's forbidden
-   * words can only end the round while the PLAYER is cluing and Klaus is
+   * words can only end the round while the PLAYER is cluing and Cluey is
    * guessing. A card the player's own key marks forbidden is harmless for them
-   * to tap under Klaus's clue — it is read off aiKey, where it is a green or a
+   * to tap under Cluey's clue — it is read off aiKey, where it is a green or a
    * bystander. In the player's words, which are right: "my forbidden word is a
    * word he is not allowed to pick when he gets my clue."
    *
    * forbiddenVsGreen deals BOTH directions (keygen.ts), one card each, and they
    * are nothing alike:
    *
-   * - (forbidden for the player, GREEN for Klaus) is not a trap at all. Klaus
+   * - (forbidden for the player, GREEN for Cluey) is not a trap at all. Cluey
    *   clues toward it because it is his green, the player taps it, and it
    *   SCORES. keygen already agrees — it files that card under the `recall`
    *   tier, not `hazard`. It is dangerous only as a word the player must not
    *   aim their OWN clue near, and the board draws it dashed from playerKey, so
    *   the side that has to steer is the side that can see it.
-   * - (GREEN for the player, forbidden for Klaus) is the one worth cutting. The
-   *   player's own key paints it as a target; Klaus's key ends the round on it;
-   *   and while the player is guessing there is no marking to warn them. Klaus
+   * - (GREEN for the player, forbidden for Cluey) is the one worth cutting. The
+   *   player's own key paints it as a target; Cluey's key ends the round on it;
+   *   and while the player is guessing there is no marking to warn them. Cluey
    *   can see it on his own key and should steer his clues away, exactly as a
    *   human partner would — but that is the only protection, and it is only as
    *   good as his clue.
@@ -103,9 +103,9 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
    * above intact, while vsGreen 1 / vsBystander 0 drops it to 11 and doubles
    * the neutrals to four.
    *
-   * (The report that prompted the change — Klaus clued «kitchen», the player
+   * (The report that prompted the change — Cluey clued «kitchen», the player
    * answered «food», «food» was forbidden — cannot have been either vsGreen
-   * card. Under Klaus's clue a word forbidden on the PLAYER's key reveals green
+   * card. Under Cluey's clue a word forbidden on the PLAYER's key reveals green
    * or neutral and play carries on. «food» was forbidden on KLAUS's key, which
    * is the vsBystander card this cut leaves in place: a clue-quality problem,
    * answered in prompts.ts, not a board-shape one. What the player saw was the
@@ -113,7 +113,7 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
    * this" — which is why the legend now says "forbidden on your key".)
    *
    * standard still ships forbiddenVsGreen: 1, so the (green for the player,
-   * forbidden for Klaus) card is still dealt there. Deliberate: it is the big
+   * forbidden for Cluey) card is still dealt there. Deliberate: it is the big
    * board, and Duet's own ratios keep it.
    */
   middle: {
@@ -160,7 +160,7 @@ export const MAX_CLUE_NUMBER = 4
  * measured over 300 games a board rather than reasoned about:
  *
  * - The guessing side alternates with the clue index. The player opens, so ODD
- *   clues are Klaus guessing and EVEN clues are the player. (The one exception
+ *   clues are Cluey guessing and EVEN clues are the player. (The one exception
  *   is endTurn handing the same side a second clue when the other has no greens
  *   left — 3 games in 171 when it was last measured.) This is why the number
  *   matters more than it looks. At 4 the first eligible clue was the 5th — odd

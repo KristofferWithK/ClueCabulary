@@ -162,7 +162,7 @@ export function HomeScreen() {
   // instead: the practice note now fires for this route too, on the screen
   // where a random-looking guess is actually confusing someone.
   const needsSetup = !settings.apiKey && !settings.useMock
-  const unverifiedKlaus = !needsSetup && !settings.useMock && settings.klausVerifiedAt === null
+  const unverifiedCluey = !needsSetup && !settings.useMock && settings.klausVerifiedAt === null
 
   const play = (gridSize?: GridSize) => {
     if (gridSize) settings.set({ gridSize })
@@ -199,13 +199,13 @@ export function HomeScreen() {
 
       {needsSetup && (
         <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Add your Ollama API key in Settings to wake Klaus up →
+          Add your Ollama API key in Settings to wake Cluey up →
         </button>
       )}
 
-      {unverifiedKlaus && (
+      {unverifiedCluey && (
         <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Klaus has not answered yet — tap Test connection in Settings before you start a round →
+          Cluey has not answered yet — tap Test connection in Settings before you start a round →
         </button>
       )}
 

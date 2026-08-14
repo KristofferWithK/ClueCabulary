@@ -1,20 +1,20 @@
 const REPO = 'https://github.com/KristofferWithK/ClueCabulary'
 
 /**
- * How to wake Klaus up, on the device you are holding.
+ * How to wake Cluey up, on the device you are holding.
  *
  * This used to be a paragraph of small print ending in a link to a markdown
  * file on GitHub — which on a phone means squinting, then leaving the app to
  * read a wall of text, then coming back. The steps are short and every one of
  * them is a tap, so they belong here.
  *
- * Collapsed once Klaus has actually answered: at that point it is history.
+ * Collapsed once Cluey has actually answered: at that point it is history.
  */
-export function ConnectKlaus({ verified }: { verified: boolean }) {
+export function ConnectCluey({ verified }: { verified: boolean }) {
   return (
-    <details className="connect-klaus" open={!verified}>
+    <details className="connect-cluey" open={!verified}>
       <summary>
-        {verified ? 'Connected. How this was set up' : 'Klaus is not connected — 30 seconds to fix'}
+        {verified ? 'Connected. How this was set up' : 'Cluey is not connected — 30 seconds to fix'}
       </summary>
 
       <p className="connect-lede">

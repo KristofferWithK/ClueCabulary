@@ -1,6 +1,6 @@
 # Working on ClueCabulary
 
-A Danish vocabulary game played solo on a phone against an AI companion, Klaus.
+A Danish vocabulary game played solo on a phone against an AI companion, Cluey.
 Vite + React + TypeScript, shipped as a PWA to GitHub Pages. `README.md` is the
 design document — the rules, the measured numbers behind them, and why each one
 is what it is. This file is the shorter thing: what will waste your time if you
@@ -55,7 +55,7 @@ git fetch origin main && git checkout -B <branch> origin/main
 
 A guess is judged against the **clue-giver's** key and nothing else.
 
-Your dashed cards are forbidden *on your key*, which means Klaus must never be
+Your dashed cards are forbidden *on your key*, which means Cluey must never be
 led to one by your clue. They are **safe for you to tap** while you guess his,
 where it is *his* forbidden words that end the round and you cannot see those.
 Sudden death is the only exception — no clue-giver, so either key ends it.
@@ -90,7 +90,7 @@ commits that added them.
 Numbers in comments and in `README.md` are measured, not estimated. If you
 change something they describe, re-measure rather than reasoning about it —
 several confident predictions here have been reversed by a probe, including one
-where giving Klaus his own key while guessing made him measurably *worse*.
+where giving Cluey his own key while guessing made him measurably *worse*.
 
 ## Environment
 

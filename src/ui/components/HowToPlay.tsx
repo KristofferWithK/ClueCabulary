@@ -21,7 +21,7 @@ export function HowToPlay() {
       >
         <h2 id="howto-title">How to Play</h2>
         <p className="howto-sub">
-          Find every green word with Klaus, your AI partner — and learn Danish on the way.
+          Find every green word with Cluey, your AI partner — and learn Danish on the way.
         </p>
 
         <div className="howto-tiles" aria-hidden="true">
@@ -32,13 +32,13 @@ export function HowToPlay() {
 
         <ol>
           <li>
-            The board is a grid of Danish words. You and Klaus each hold a secret key: some words
+            The board is a grid of Danish words. You and Cluey each hold a secret key: some words
             are <strong>green</strong> (targets), most are neutral, a few are{' '}
             <strong>forbidden</strong>.
           </li>
           <li>
-            Take turns: you give a one-word clue and Klaus guesses — then Klaus clues and you
-            guess. A guess is judged against the <em>clue-giver's</em> key, so Klaus can never
+            Take turns: you give a one-word clue and Cluey guesses — then Cluey clues and you
+            guess. A guess is judged against the <em>clue-giver's</em> key, so Cluey can never
             peek at yours.
           </li>
           <li>
@@ -48,14 +48,14 @@ export function HowToPlay() {
             however the turn ends.
           </li>
           <li>
-            A neutral is only spent for the side that hit it. A word Klaus burned may still be
+            A neutral is only spent for the side that hit it. A word Cluey burned may still be
             green on <em>his</em> key — and his key is the one that scores while you are guessing,
             so spent words are crossed out and the rest are still yours to take.
           </li>
           <li>
             <strong>Forbidden words cut one way at a time</strong>, because a guess is judged on
             the clue-giver's key. The dashed cards are forbidden on <em>your</em> key: safe for you
-            to tap, but never lead Klaus to one with your clue. While you guess <em>his</em> clue
+            to tap, but never lead Cluey to one with your clue. While you guess <em>his</em> clue
             it is <em>his</em> forbidden words that end the round — and you cannot see those.
           </li>
           <li>

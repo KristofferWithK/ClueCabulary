@@ -1187,7 +1187,7 @@ select:focus {
 /* ---------- your own key ---------- */
 
 /* Your private key card, drawn onto the board: a green dot marks a word you
-   must get Klaus to guess, a cross marks one that is forbidden for you. Shape
+   must get Cluey to guess, a cross marks one that is forbidden for you. Shape
    plus color, never color alone. */
 .study-dock {
   border: 1px solid var(--text);
@@ -1758,7 +1758,7 @@ select:focus {
   margin-bottom: 3px;
 }
 
-/* Klaus's own words, set apart from the score so the two do not read as one
+/* Cluey's own words, set apart from the score so the two do not read as one
    sentence. Serif because it is prose and everything around it is data. */
 .turn-why {
   font-family: var(--serif);
@@ -2633,16 +2633,16 @@ select:focus {
   font-weight: 600;
 }
 
-/* ---------- connect Klaus ---------- */
+/* ---------- connect Cluey ---------- */
 
-.connect-klaus {
+.connect-cluey {
   background: var(--surface);
   border: 1px solid var(--line-soft);
   border-radius: var(--radius);
   padding: 12px 14px;
 }
 
-.connect-klaus > summary {
+.connect-cluey > summary {
   font-weight: 600;
   font-size: 0.92rem;
   cursor: pointer;
@@ -2678,7 +2678,7 @@ select:focus {
   overflow-wrap: anywhere;
 }
 
-.connect-klaus a {
+.connect-cluey a {
   color: var(--blue);
 }
 
