@@ -106,13 +106,30 @@ export function selectBoardWords(
      * mechanism exists to answer, arriving by a different route.
      */
     recentBoards?: readonly ReadonlySet<string>[]
+    /**
+     * Words to keep off this board where the pool allows: the board a reroll
+     * threw away.
+     *
+     * This is not the carry-over rule wearing a different hat. recentBoards is
+     * about boards the player PLAYED, and the whole point of it is that three
+     * words come back. A rejected board is the opposite request — the player
+     * looked at those words and could not connect them, so the one thing a
+     * reroll must not do is hand most of them straight back. Measured before
+     * this existed: a reroll of a 3x4 board returned 7 of the same 12 words.
+     *
+     * Soft, not absolute. It is dropped wherever honouring it would starve a
+     * pool, because a board that cannot be dealt is worse than a board with a
+     * familiar word on it.
+     */
+    avoid?: ReadonlySet<string>
   },
   rng: Rng,
   now: number,
 ): WordEntry[] {
-  const { totalWords, maxNewWordsPerBoard, collected, recentBoards } = opts
+  const { totalWords, maxNewWordsPerBoard, collected, recentBoards, avoid } = opts
   const previousBoard = recentBoards?.[0]
   const boardBefore = recentBoards?.[1]
+  const shunned = (w: WordEntry) => avoid?.has(w.id) ?? false
   if (all.length < totalWords) {
     throw new Error(`need at least ${totalWords} words, dataset has ${all.length}`)
   }
@@ -133,10 +150,17 @@ export function selectBoardWords(
   // board, and again. Measured in the app: ten of twelve words repeated, board
   // after board. The unit tests missed it because they hand the sampler an SRS
   // map where everything is already seen.
-  const carryPool = all.filter((w) => onLastBoard(w) && !alreadyCarried(w)).map(weigh)
-  const seen = all.filter((w) => w.id in srs && !onLastBoard(w))
+  const carryable = all.filter((w) => onLastBoard(w) && !alreadyCarried(w))
+  // The rejected board is kept off the carry-over too, where the last played
+  // board has enough words left to fill the quota without it. A reroll that
+  // came back with the same three words would read as a shuffle.
+  const carryUnshunned = carryable.filter((w) => !shunned(w))
+  const carryPool = (
+    carryUnshunned.length >= Math.min(CARRY_OVER, totalWords) ? carryUnshunned : carryable
+  ).map(weigh)
+  const seen = all.filter((w) => w.id in srs && !onLastBoard(w) && !shunned(w))
   const unseen = all
-    .filter((w) => !(w.id in srs) && !onLastBoard(w))
+    .filter((w) => !(w.id in srs) && !onLastBoard(w) && !shunned(w))
     .sort((a, b) => curriculumRank(a) - curriculumRank(b))
   const freshPool = seen.map(weigh)
 
@@ -179,11 +203,13 @@ export function selectBoardWords(
   // Last resort: exclusion rules made the board unfillable — relax them rather
   // than fail (duplicate glosses are unfortunate, an unplayable app is worse).
   if (chosen.length < totalWords) {
-    // `seen` and `unseen` already exclude the last board, so it is only the
-    // tail here: the quota is exceeded when — and only when — the pool
-    // genuinely cannot fill a board without going back to it. A city of a
-    // hundred words never gets here; a hand-made test dataset can.
-    const lastResort = [...seen, ...unseen, ...all.filter(onLastBoard)]
+    // `seen` and `unseen` already exclude the last board and anything shunned,
+    // so those are the tail here: each is exceeded when — and only when — the
+    // pool genuinely cannot fill a board without it. Shunned words come back
+    // before last-board ones because a word off a board the player rejected
+    // ten seconds ago is a smaller sin than breaking the carry-over quota. A
+    // city of a hundred words never gets here; a hand-made test dataset can.
+    const lastResort = [...seen, ...unseen, ...all.filter(shunned), ...all.filter(onLastBoard)]
     for (const w of lastResort) {
       if (chosen.length === totalWords) break
       if (!chosen.includes(w)) chosen.push(w)

@@ -19,6 +19,12 @@ export function ClueInput({ game, onSubmit }: Props) {
   const [cleared, setCleared] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
   const judgeDanish = useGame((s) => s.judgeDanish)
+  const dailyKey = useGame((s) => s.dailyKey)
+  // "A reroll button at the beginning to reroll the board if I have no idea on
+  // how to connect the words." The beginning is this screen with nothing behind
+  // it: no clue given, so nothing has been spent and nothing is being undone.
+  // The daily challenge is excluded — it is one shared board per date.
+  const canReroll = game.clueHistory.length === 0 && !dailyKey
 
   const trimmed = text.trim()
   const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
@@ -140,6 +146,20 @@ export function ClueInput({ game, onSubmit }: Props) {
       <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
         {asking ? 'Asking Klaus…' : english ? 'Give clue anyway' : 'Give clue'}
       </button>
+      {canReroll && (
+        <button
+          className="btn btn-ghost reroll-btn"
+          onClick={() => {
+            // The dock stays mounted across a re-deal, so a half-typed clue for
+            // the old board would otherwise sit there aimed at nothing.
+            setText('')
+            setCleared(null)
+            useGame.getState().rerollBoard()
+          }}
+        >
+          <span lang="da">Nye ord</span> — deal a different board
+        </button>
+      )}
     </div>
   )
 }

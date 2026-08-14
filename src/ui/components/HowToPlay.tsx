@@ -69,6 +69,13 @@ export function HowToPlay() {
             last chance out there.
           </li>
           <li>
+            Nothing on the board connects? Before you give the first clue, <strong lang="da">
+            Nye ord
+            </strong>{' '}
+            deals a different board of the same size. It costs nothing — no clue has been given
+            yet — and the words you turned down do not come back on it.
+          </li>
+          <li>
             Tap <strong>ⓘ</strong> on a word for the dictionary, or <strong>Aa</strong> to show all
             translations. Every lookup tells the app which words to bring back next round.
           </li>

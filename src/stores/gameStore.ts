@@ -9,7 +9,7 @@ import {
   buildDebriefView,
 } from '../ai/projections'
 import type { DebriefResponse, GuessResponse, TranslationResponse } from '../ai/schemas'
-import { GRID_CONFIGS, type GridSize } from '../engine/config'
+import { GRID_CONFIGS, type GridConfig, type GridSize } from '../engine/config'
 import { applyEvent, createGame, currentClue } from '../engine/game'
 import { mulberry32 } from '../engine/rng'
 import type { GameState } from '../engine/types'
@@ -88,6 +88,15 @@ interface GameStore {
   fallBackToPractice: () => void
 
   newGame: (opts?: NewGameOptions) => void
+  /**
+   * Throw this board away and deal another of the same size.
+   *
+   * "I want a reroll button at the beginning to reroll the board if I have no
+   * idea on how to connect the words." Only before the first clue, and never on
+   * the daily challenge, which is one shared board per date — a rerolled daily
+   * would be nobody's board.
+   */
+  rerollBoard: () => void
   endStudy: () => void
   abandonGame: () => void
   submitPlayerClue: (text: string, number: number) => void
@@ -149,6 +158,113 @@ export function onPracticeCompanion(practiceFallback: boolean): boolean {
 const aiMessage = (e: unknown): string =>
   e instanceof AiError ? e.message : 'Something went wrong talking to the AI companion.'
 
+/**
+ * Deal a board.
+ *
+ * `priorBoards` is what the carry-over rule reads: the boards that came BEFORE
+ * this one, newest first. Split out of newGame so a reroll can hand it a
+ * different answer to that question — see rerollBoard, where the board being
+ * thrown away must not count as one the player has played.
+ */
+function dealBoard(
+  config: GridConfig,
+  seed: number,
+  dailyKey: string | null,
+  priorBoards: string[][],
+  avoid?: ReadonlySet<string>,
+): { game: GameState; wordIds: string[] } {
+  // The daily challenge is the same board for everyone on that date: a seeded
+  // uniform draw over the whole dataset, ignoring personal SRS. Journey rounds
+  // (and free play) draw only from words the player has travelled far enough to
+  // unlock; the daily challenge stays global so everyone gets the same board.
+  const pool = unlockedWords(WORDS, useJourney.getState().cityIndex)
+  const entries = dailyKey
+    ? selectDailyWords(WORDS, config.totalWords, mulberry32(seed ^ 0x9e3779b9))
+    : selectBoardWords(
+        pool,
+        useSrs.getState().stats,
+        {
+          totalWords: config.totalWords,
+          maxNewWordsPerBoard: config.maxNewWordsPerBoard,
+          collected: new Set(Object.keys(useJourney.getState().banked)),
+          // Whatever the SRS weights want, exactly three words of the last
+          // board come back and the rest of this one avoids both — a board that
+          // repeats the last one does not feel like a new board, and one that
+          // repeats nothing forgets too fast.
+          recentBoards: priorBoards.map((b) => new Set(b)),
+          // A rejected board is the opposite of a played one: the player said
+          // they could not read those words, so they stay off this deal.
+          ...(avoid ? { avoid } : {}),
+        },
+        mulberry32(seed ^ 0x9e3779b9),
+        Date.now(),
+      )
+  // Steer the deal: words the player still struggles with become Klaus's
+  // greens (so the player has to recall them), well-known ones become the
+  // forbidden hazards. The daily challenge stays an unbiased shared board.
+  const srsStats = useSrs.getState().stats
+  const banked = useJourney.getState().banked
+  const bias = dailyKey
+    ? undefined
+    : {
+        need: Object.fromEntries(
+          entries.map((w) => [
+            w.id,
+            practiceNeed(srsStats[w.id], isLearned(srsStats[w.id], w.id in banked), Date.now()),
+          ]),
+        ),
+      }
+
+  const game = createGame({
+    config,
+    words: entries.map((w) => ({
+      wordId: w.id,
+      da: w.da,
+      en: w.en,
+      pos: w.pos,
+      article: w.article,
+      gender: w.gender,
+      countable: w.countable,
+    })),
+    seed,
+    bias,
+    ...(useUi.getState().pendingFirstGiver
+      ? { firstGiver: useUi.getState().pendingFirstGiver! }
+      : {}),
+  })
+  return { game, wordIds: entries.map((w) => w.id) }
+}
+
+/**
+ * Everything a new board resets, whether it arrives from newGame or a reroll.
+ *
+ * A function rather than a constant: the empty array and object literals in
+ * here would otherwise be one shared instance handed to every round.
+ */
+const freshRound = () => ({
+  lookedUp: [] as string[],
+  roundRecorded: false,
+  debrief: null,
+  debriefFailed: false,
+  newlyLearned: [] as string[],
+  redemptionDraft: {} as Record<string, string>,
+  // Every round gets a fresh chance at Klaus.
+  practiceFallback: false,
+  aiGuessQueue: [] as PlannedGuess[],
+  planForClueIndex: null,
+  lastAiGuess: null,
+  error: null,
+  selectedWordId: null,
+  aiBusy: false,
+})
+
+/**
+ * A different board from the same starting point. An LCG step rather than the
+ * clock, so a round dealt from ?seed= still rerolls reproducibly — and so a
+ * reroll can never land on the seed it came from.
+ */
+const nextSeed = (seed: number) => (Math.imul(seed, 1664525) + 1013904223) >>> 0
+
 const buzz = (result: 'green' | 'bystander' | 'forbidden') => {
   if (typeof navigator === 'undefined' || !navigator.vibrate) return
   navigator.vibrate(result === 'green' ? 15 : result === 'bystander' ? 40 : [70, 50, 70])
@@ -179,63 +295,9 @@ export const useGame = create<GameStore>()(
         const settings = useSettings.getState()
         const config = GRID_CONFIGS[opts?.gridSize ?? settings.gridSize]
         const actualSeed = opts?.seed ?? (Date.now() % 0xffffffff)
-        // The daily challenge is the same board for everyone on that date:
-        // a seeded uniform draw over the whole dataset, ignoring personal SRS.
-        // Journey rounds (and free play) draw only from words the player has
-        // travelled far enough to unlock; the daily challenge stays global so
-        // everyone gets the same board.
-        const pool = unlockedWords(WORDS, useJourney.getState().cityIndex)
-        const entries = opts?.dailyKey
-          ? selectDailyWords(WORDS, config.totalWords, mulberry32(actualSeed ^ 0x9e3779b9))
-          : selectBoardWords(
-              pool,
-              useSrs.getState().stats,
-              {
-                totalWords: config.totalWords,
-                maxNewWordsPerBoard: config.maxNewWordsPerBoard,
-                collected: new Set(Object.keys(useJourney.getState().banked)),
-                // Whatever the SRS weights want, exactly three words of the
-                // last board come back and the rest of this one avoids both —
-                // a board that repeats the last one does not feel like a new
-                // board, and one that repeats nothing forgets too fast.
-                recentBoards: get().recentBoards.map((b) => new Set(b)),
-              },
-              mulberry32(actualSeed ^ 0x9e3779b9),
-              Date.now(),
-            )
-        // Steer the deal: words the player still struggles with become Klaus's
-        // greens (so the player has to recall them), well-known ones become the
-        // forbidden hazards. The daily challenge stays an unbiased shared board.
-        const srsStats = useSrs.getState().stats
-        const banked = useJourney.getState().banked
-        const bias = opts?.dailyKey
-          ? undefined
-          : {
-              need: Object.fromEntries(
-                entries.map((w) => [
-                  w.id,
-                  practiceNeed(srsStats[w.id], isLearned(srsStats[w.id], w.id in banked), Date.now()),
-                ]),
-              ),
-            }
-
-        const game = createGame({
-          config,
-          words: entries.map((w) => ({
-            wordId: w.id,
-            da: w.da,
-            en: w.en,
-            pos: w.pos,
-            article: w.article,
-            gender: w.gender,
-            countable: w.countable,
-          })),
-          seed: actualSeed,
-          bias,
-          ...(useUi.getState().pendingFirstGiver
-            ? { firstGiver: useUi.getState().pendingFirstGiver! }
-            : {}),
-        })
+        const dailyKey = opts?.dailyKey ?? null
+        const prior = get().recentBoards
+        const { game, wordIds } = dealBoard(config, actualSeed, dailyKey, prior)
         // A translation overlay left on would show answers from second one
         // without ever counting as lookups — every round starts covered.
         useUi.getState().resetTranslations()
@@ -243,25 +305,65 @@ export const useGame = create<GameStore>()(
           game,
           // Remembered for the NEXT deal, not this one. Two deep, which is all
           // the "a word may not carry over twice running" rule can use.
-          recentBoards: [entries.map((w) => w.id), ...get().recentBoards].slice(0, 2),
-          lookedUp: [],
-          roundRecorded: false,
-          dailyKey: opts?.dailyKey ?? null,
+          recentBoards: [wordIds, ...prior].slice(0, 2),
+          dailyKey,
           // A deliberate preview is presentation, not a crutch, so it records
           // no lookups — the clean-guess credit survives it.
           studying: studyPhaseEnabled(settings.studyPhase, useJourney.getState().cityIndex),
-          debrief: null,
-          debriefFailed: false,
-          newlyLearned: [],
-          redemptionDraft: {},
-          // Every round gets a fresh chance at Klaus.
-          practiceFallback: false,
-          aiGuessQueue: [],
-          planForClueIndex: null,
-          lastAiGuess: null,
-          error: null,
-          selectedWordId: null,
-          aiBusy: false,
+          ...freshRound(),
+        })
+      },
+
+      rerollBoard: () => {
+        const { game, dailyKey } = get()
+        if (!game) return
+        // Only at the beginning. Once a clue is on the table the round has a
+        // history — tokens spent, words revealed, an SRS result owed — and
+        // re-dealing under it would be a way to unsee a bad guess rather than a
+        // way to read the board.
+        if (game.clueHistory.length > 0) return
+        // One shared board per date. A rerolled daily is nobody's board.
+        if (dailyKey) return
+
+        // REPLACE the head of recentBoards rather than push onto it. What the
+        // carry-over rule is about is the board the player actually played, and
+        // a board dealt ten seconds ago and rejected is not one. Pushing would
+        // cost twice: the board before it would fall off the two-deep window,
+        // losing the "a word may not carry over twice running" check, and the
+        // reroll would come back holding three words of the very board the
+        // player just said they could not read.
+        //
+        // One thing this genuinely gives up, and it is worth being explicit:
+        // the window is two deep, so dropping the rejected board leaves the
+        // sampler ONE board of history for this deal, and the "a word may not
+        // carry over twice running" check has nothing to read. The board before
+        // last was already gone — it fell off the window when the rejected
+        // board was dealt — so the alternative is a three-deep persisted
+        // window, which is a lot of shape for one relaxed check on one deal.
+        const prior = get().recentBoards.slice(1)
+        // And the board being thrown away is kept OFF the new one. Without
+        // this the reroll answered the wrong question: it avoided the board
+        // before and had no opinion about the one on screen, so a 3x4 reroll
+        // came back measuring 7 of the same 12 words.
+        const rejected = new Set(game.words.map((w) => w.wordId))
+        const { game: next, wordIds } = dealBoard(
+          game.config,
+          nextSeed(game.seed),
+          null,
+          prior,
+          rejected,
+        )
+        useUi.getState().resetTranslations()
+        set({
+          game: next,
+          recentBoards: [wordIds, ...prior].slice(0, 2),
+          // Recomputed, not carried: a new board gets whatever opening the
+          // setting asks for, even if the discarded one was already studied.
+          studying: studyPhaseEnabled(
+            useSettings.getState().studyPhase,
+            useJourney.getState().cityIndex,
+          ),
+          ...freshRound(),
         })
       },
 

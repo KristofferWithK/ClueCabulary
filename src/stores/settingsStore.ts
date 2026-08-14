@@ -42,14 +42,35 @@ interface SettingsState {
  * middleware would be testing nothing.
  */
 export function migrateSettings(persisted: unknown, from: number): unknown {
-  if (from >= 3) return persisted
-  const s = { ...((persisted ?? {}) as { studyPhase?: StudyMode; clueLanguage?: 'da' | 'en' }) }
+  if (from >= 4) return persisted
+  const s = {
+    ...((persisted ?? {}) as {
+      studyPhase?: StudyMode
+      clueLanguage?: 'da' | 'en'
+      gridSize?: GridSize
+    }),
+  }
   // v1 -> v2: the study phase stopped being the default.
   if (from < 2 && s.studyPhase === 'auto') s.studyPhase = 'never'
   // v2 -> v3: Klaus clues in Danish. Same shape of trap as the study phase —
   // changing a default does nothing for a device that already stored one, and
   // this one had every existing player still getting English clues.
   if (from < 3 && s.clueLanguage === 'en') s.clueLanguage = 'da'
+  // v3 -> v4: 3x5 is the board «Spil videre» deals.
+  //
+  // This one is not clean, and the dishonest thing would be to pretend it is.
+  // 'always' could be left alone in the study-phase migration because it was
+  // never a default, so holding it proved somebody chose it. 'beginner' was the
+  // default AND is a real choice, and the persisted blob cannot tell them
+  // apart: this store has no partialize, so every save ever written carries a
+  // gridSize whether the player ever touched the picker or not.
+  //
+  // So it moves everyone, and the cost is asymmetric on purpose. Someone who
+  // wanted 3x4 is one tap from it — the picker is on Home, above the fold, and
+  // tapping it stores the choice for good. Someone who is not moved never gets
+  // the board that was asked for, which is exactly the trap this app has fallen
+  // into three times now.
+  if (from < 4 && s.gridSize === 'beginner') s.gridSize = 'middle'
   return s
 }
 
@@ -59,7 +80,10 @@ export const useSettings = create<SettingsState>()(
       apiKey: '',
       baseUrl: DEFAULT_BASE_URL,
       model: DEFAULT_MODEL,
-      gridSize: 'beginner',
+      // 3x5. Fifteen words, six clues, one forbidden word a side — the board
+      // the game is actually tuned around, and the one «Spil videre» deals.
+      // 3x4 is still a tap away in the picker for a first sitting.
+      gridSize: 'middle',
       // Danish, both ways. The player has always been asked for "ét dansk ord"
       // by the clue dock; this setting governed only KLAUS's clues, and its
       // default had him answering in English on a Danish board. Both sides
@@ -86,7 +110,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'cluecab-settings-v1',
-      version: 3,
+      version: 4,
       migrate: migrateSettings,
     },
   ),

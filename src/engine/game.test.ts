@@ -128,14 +128,20 @@ describe('full game flows', () => {
   })
 
   /**
-   * "The last chance redemption should only be triggered after round 4."
+   * "The last chance redemption should only be triggered after round 4", and
+   * then "the last chance should be available after 3 rounds".
    *
    * A round is a clue. Before the threshold a forbidden word ends the round
    * where it stands, with its own ending — not 'forbidden-failed', which every
    * screen describes as losing a translation challenge that in this case never
    * ran.
+   *
+   * Written against the constant rather than the number, so moving it again is
+   * one edit. What the number is worth is in config.ts: at 4 the first eligible
+   * clue was odd, i.e. Klaus's turn to guess, and the 3x4 board has no even one
+   * past it — so the player could not reach this ending at all there.
    */
-  describe('the last chance opens only after four clues', () => {
+  describe('the last chance opens only after three clues', () => {
     const hitForbidden = (s: GameState) => {
       const giver = giverOf(s.phase)
       return applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'forbidden') })
@@ -148,18 +154,43 @@ describe('full game flows', () => {
       expect(s.redemption).toBeUndefined()
     })
 
-    it('and on the fourth, the last clue before it opens', () => {
+    it('and on the third, the last clue before it opens', () => {
       let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND - 1)
       s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
       expect(s.clueHistory.length).toBe(REDEMPTION_AFTER_ROUND)
       expect(hitForbidden(s).outcome).toEqual({ result: 'lost', reason: 'forbidden-hit' })
     })
 
-    it('opens on the fifth', () => {
+    it('opens on the fourth', () => {
       let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND)
       s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
       expect(hitForbidden(s).phase).toBe('redemption')
     })
+
+    /**
+     * What lowering the threshold from 4 to 3 actually bought, pinned on every
+     * shipped board.
+     *
+     * The guessing side alternates with the clue index and the player opens, so
+     * ODD clues are Klaus guessing and EVEN clues are the player. The first
+     * eligible clue is therefore the player's own turn — where at 4 it was
+     * Klaus's, and the 3x4 board has no even clue past the 5th, so the ending
+     * the last chance exists for could not be reached there by the side it is
+     * written for. This is the test that fails if the threshold goes back to an
+     * even number.
+     */
+    it.each(['beginner', 'middle', 'standard'] as GridSize[])(
+      'and on %s it is the player guessing on the first clue that can reach it',
+      (grid) => {
+        let s = burnClues(newGame(grid), REDEMPTION_AFTER_ROUND)
+        s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 1)
+        expect(s.clueHistory.length).toBe(REDEMPTION_AFTER_ROUND + 1)
+        expect(s.phase).toBe('playerGuessing')
+        // And the board still has the clue to spare that this needs.
+        expect(GRID_CONFIGS[grid].turnTokens).toBeGreaterThan(REDEMPTION_AFTER_ROUND)
+        expect(hitForbidden(s).phase).toBe('redemption')
+      },
+    )
 
     /** The card is shown either way, so the debrief can name what ended it. */
     it('reveals the word whichever side of the line it falls', () => {

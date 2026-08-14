@@ -266,6 +266,21 @@ select:focus {
   font-size: 0.85rem;
 }
 
+/* The board «Spil videre» deals. Marked by a second border rather than a
+   colour, so it reads the same to anyone who cannot tell the two apart. */
+.grid-card-current {
+  border-color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+
+.grid-card-tag {
+  margin-top: 2px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
 /* ---------- journey ---------- */
 
 .visually-hidden {
