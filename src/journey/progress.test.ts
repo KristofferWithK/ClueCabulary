@@ -28,6 +28,7 @@ import {
   stampsFor,
   studyPhaseEnabled,
   unlockedWords,
+  wordLifecycle,
   wordState,
   wordsForCity,
   type JourneyState,
@@ -108,6 +109,8 @@ describe('the three collection states', () => {
           wordId: w.id,
           guessedGreen: (round + i) % 3 !== 0,
           guessedWrong: (round + i) % 3 === 0,
+          greenByOwnClue: (round + i) % 2 === 0 && (round + i) % 3 !== 0,
+          greenByOwnGuess: (round + i) % 2 !== 0 && (round + i) % 3 !== 0,
           lookedUp: (round + i) % 5 === 0,
         })),
         NOW + round * 1000,
@@ -131,6 +134,48 @@ describe('the three collection states', () => {
     expect(counts.discovered).toBe(25)
     expect(counts.undiscovered).toBe(60)
     expect(counts.learned + counts.discovered + counts.undiscovered).toBe(counts.total)
+  })
+})
+
+describe('the four-state lifecycle', () => {
+  const cases: [WordStats | undefined, boolean, string, string][] = [
+    [undefined, false, 'undiscovered', 'never met'],
+    [stats(), false, 'discovered', 'seen but never green'],
+    [stats({ greenByClue: 2 }), false, 'discovered', 'clued twice, never guessed'],
+    [stats({ greenByGuess: 2 }), false, 'discovered', 'guessed twice, never clued'],
+    [stats({ greenByClue: 1, greenByGuess: 1 }), false, 'collected', 'one green each way'],
+    [stats({ greenByClue: 1, greenByGuess: 1, misses: 9 }), false, 'collected', 'misses cannot uncollect'],
+    [stats(), true, 'wrapped', 'the ledger outranks the counters'],
+    [undefined, true, 'wrapped', 'wrapped even with no stats'],
+  ]
+  it.each(cases)('%#: %s', (s, wrapped, expected) => {
+    expect(wordLifecycle(s, wrapped)).toBe(expected)
+  })
+
+  it('never regresses: the counters only rise and the ledger only grows', () => {
+    const order = ['undiscovered', 'discovered', 'collected', 'wrapped']
+    let srs: SrsMap = {}
+    let best = 0
+    for (let round = 0; round < 50; round++) {
+      srs = applyRoundResults(
+        srs,
+        [
+          {
+            wordId: 'w',
+            guessedGreen: round % 3 !== 0,
+            guessedWrong: round % 3 === 0,
+            greenByOwnClue: round % 2 === 0 && round % 3 !== 0,
+            greenByOwnGuess: round % 2 !== 0 && round % 3 !== 0,
+            lookedUp: false,
+          },
+        ],
+        NOW + round * 1000,
+      )
+      const now = order.indexOf(wordLifecycle(srs.w, false))
+      expect(now).toBeGreaterThanOrEqual(best)
+      best = now
+    }
+    expect(best).toBe(order.indexOf('collected'))
   })
 })
 

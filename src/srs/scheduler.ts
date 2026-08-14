@@ -29,6 +29,8 @@ export function newStats(now: number): WordStats {
     lookups: 0,
     redemptionRight: 0,
     redemptionWrong: 0,
+    greenByClue: 0,
+    greenByGuess: 0,
   }
 }
 
@@ -47,6 +49,8 @@ export function applyRoundResults(map: SrsMap, results: RoundWordResult[], now: 
 
     if (r.guessedGreen) s.correctGuesses += 1
     if (r.guessedWrong) s.misses += 1
+    if (r.greenByOwnClue) s.greenByClue += 1
+    if (r.greenByOwnGuess) s.greenByGuess += 1
     if (r.lookedUp) s.lookups += 1
     if (r.redemption === 'right') s.redemptionRight += 1
     if (r.redemption === 'wrong') s.redemptionWrong += 1

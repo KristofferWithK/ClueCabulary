@@ -92,6 +92,8 @@ export function GateExamScreen() {
       wordId: r.word.id,
       guessedGreen: false,
       guessedWrong: false,
+      greenByOwnClue: false,
+      greenByOwnGuess: false,
       lookedUp: false,
       redemption: r.accepted ? 'right' : 'wrong',
     }))

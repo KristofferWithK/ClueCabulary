@@ -8,6 +8,16 @@ export interface WordStats {
   lookups: number
   redemptionRight: number
   redemptionWrong: number
+  /**
+   * Directional green counts. `correctGuesses` says a word ended a round
+   * green; these say which side's work earned it — Cluey finding it under the
+   * player's clue (`greenByClue`) or the player naming it under Cluey's
+   * (`greenByGuess`). A word is *collected* once both are non-zero: it has
+   * been given as a clue target and recognised as a guess, one interaction of
+   * each kind.
+   */
+  greenByClue: number
+  greenByGuess: number
 }
 
 export type SrsMap = Record<string, WordStats>
@@ -19,6 +29,10 @@ export interface RoundWordResult {
   guessedGreen: boolean
   /** Guessed and revealed bystander/forbidden — confused with something else. */
   guessedWrong: boolean
+  /** Revealed green under the player's own clue — Cluey was led to it. */
+  greenByOwnClue: boolean
+  /** Revealed green by the player's own tap — under Cluey's clue, or in sudden death. */
+  greenByOwnGuess: boolean
   lookedUp: boolean
   redemption?: 'right' | 'wrong'
 }

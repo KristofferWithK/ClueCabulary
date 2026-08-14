@@ -607,6 +607,19 @@ export const useGame = create<GameStore>()(
         const redemptionByWord = new Map(
           (game.redemption?.results ?? []).map((r) => [r.wordId, r.accepted]),
         )
+        // A guess record's result is judged against the CLUE-GIVER's key
+        // (engine/game.ts), so a green under a clue `by: 'player'` is Cluey
+        // finding the player's word — the player's CLUE earned it — and a
+        // green under `by: 'ai'` is the player's own tap. Sudden death pushes
+        // no guess record at all (the reducer writes the reveal and returns),
+        // so a green reveal that appears in no clue's guesses was named by the
+        // player with no clue-giver: guess credit.
+        const greenUnder = (side: 'player' | 'ai', wordId: string) =>
+          game.clueHistory.some(
+            (c) =>
+              c.by === side &&
+              c.guesses.some((g) => g.wordId === wordId && g.result === 'green'),
+          )
         const results: RoundWordResult[] = game.words.map((w) => {
           const guessedGreen = game.reveals[w.wordId]!.kind === 'green'
           // Only the player's own wrong guesses count against a word.
@@ -615,6 +628,8 @@ export const useGame = create<GameStore>()(
               c.by === 'ai' &&
               c.guesses.some((g) => g.wordId === w.wordId && g.result !== 'green'),
           )
+          const greenByOwnClue = greenUnder('player', w.wordId)
+          const greenByOwnGuess = greenUnder('ai', w.wordId) || (guessedGreen && !greenByOwnClue)
           const redemption = redemptionByWord.has(w.wordId)
             ? redemptionByWord.get(w.wordId)
               ? ('right' as const)
@@ -624,6 +639,8 @@ export const useGame = create<GameStore>()(
             wordId: w.wordId,
             guessedGreen,
             guessedWrong,
+            greenByOwnClue,
+            greenByOwnGuess,
             lookedUp: lookedUp.includes(w.wordId),
             redemption,
           }

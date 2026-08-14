@@ -78,6 +78,24 @@ export function wordState(stats: WordStats | undefined, banked: boolean): WordSt
   return stats.correctGuesses >= LEARN_REPS ? 'learned' : 'discovered'
 }
 
+/**
+ * The four-state life of a word on its way into the suitcase:
+ * - `undiscovered` — never met
+ * - `discovered`   — seen on a board
+ * - `collected`    — clued once AND guessed once (one green earned each way)
+ * - `wrapped`      — packed safely in a wrap-up round; add-only, like banking
+ *
+ * Monotonic like its predecessor: the counters only rise and the wrapped
+ * ledger only grows, so the collection can never regress on its own.
+ */
+export type WordLifecycle = 'undiscovered' | 'discovered' | 'collected' | 'wrapped'
+
+export function wordLifecycle(stats: WordStats | undefined, wrapped: boolean): WordLifecycle {
+  if (wrapped) return 'wrapped'
+  if (!stats) return 'undiscovered'
+  return stats.greenByClue >= 1 && stats.greenByGuess >= 1 ? 'collected' : 'discovered'
+}
+
 export function isLearned(stats: WordStats | undefined, banked: boolean): boolean {
   return wordState(stats, banked) === 'learned'
 }

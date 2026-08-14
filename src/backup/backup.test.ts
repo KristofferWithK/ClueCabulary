@@ -113,6 +113,37 @@ describe('export and parse', () => {
     bad.srs.stats.hus.box = 9
     expect(parseBackup(JSON.stringify(bad)).ok).toBe(false)
   })
+
+  /**
+   * Files written before the directional counters existed have no
+   * greenByClue/greenByGuess. They restore by the same rule migrateSrs uses
+   * on a v1 store: a record the old model called learned arrives collected,
+   * anything short arrives with zeroes.
+   */
+  it('normalizes a counter-less file with the migration seeding rule', () => {
+    const file = buildBackup(
+      snapshot({
+        stats: {
+          learned: stats({ correctGuesses: 3 }),
+          part: stats({ correctGuesses: 2 }),
+        },
+      }),
+      NOW,
+    )
+    const json = JSON.parse(JSON.stringify(file)) as {
+      srs: { stats: Record<string, Record<string, number>> }
+    }
+    delete json.srs.stats.learned!.greenByClue
+    delete json.srs.stats.learned!.greenByGuess
+    delete json.srs.stats.part!.greenByClue
+    delete json.srs.stats.part!.greenByGuess
+    const parsed = parseBackup(JSON.stringify(json))
+    expect(parsed.ok).toBe(true)
+    if (parsed.ok) {
+      expect(parsed.backup.srs.stats.learned).toMatchObject({ greenByClue: 1, greenByGuess: 1 })
+      expect(parsed.backup.srs.stats.part).toMatchObject({ greenByClue: 0, greenByGuess: 0 })
+    }
+  })
 })
 
 describe('betterRecord', () => {

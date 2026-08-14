@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CITIES } from '../journey/cities'
+import { LEARN_REPS } from '../journey/progress'
 import type { GamesTally } from '../stores/srsStore'
 import type { SrsMap, WordStats } from '../srs/types'
 
@@ -16,16 +17,27 @@ import type { SrsMap, WordStats } from '../srs/types'
 export const BACKUP_FORMAT = 1
 export const BACKUP_FILENAME = 'cluecabulary-collection.json'
 
-const WordStatsSchema = z.object({
-  box: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
-  lastSeenAt: z.number(),
-  seen: z.number(),
-  correctGuesses: z.number(),
-  misses: z.number(),
-  lookups: z.number(),
-  redemptionRight: z.number(),
-  redemptionWrong: z.number(),
-})
+const WordStatsSchema = z
+  .object({
+    box: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
+    lastSeenAt: z.number(),
+    seen: z.number(),
+    correctGuesses: z.number(),
+    misses: z.number(),
+    lookups: z.number(),
+    redemptionRight: z.number(),
+    redemptionWrong: z.number(),
+    // Absent from files written before the directional counters existed.
+    greenByClue: z.number().optional(),
+    greenByGuess: z.number().optional(),
+  })
+  // Same seeding rule as migrateSrs (srsStore.ts): a record the old model
+  // called learned restores as collected; anything short arrives with zeroes.
+  .transform((s) => ({
+    ...s,
+    greenByClue: s.greenByClue ?? (s.correctGuesses >= LEARN_REPS ? 1 : 0),
+    greenByGuess: s.greenByGuess ?? (s.correctGuesses >= LEARN_REPS ? 1 : 0),
+  }))
 
 const TallySchema = z.object({
   played: z.number(),

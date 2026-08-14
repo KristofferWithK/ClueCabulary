@@ -27,6 +27,7 @@ Object.defineProperty(globalThis, 'window', {
 
 const { useGame } = await import('./gameStore')
 const { useSettings } = await import('./settingsStore')
+const { useSrs } = await import('./srsStore')
 
 describe('gameStore: finishing a round without Klaus', () => {
   beforeEach(() => {
@@ -167,5 +168,103 @@ describe('gameStore: rerolling the board before the first clue', () => {
     useGame.getState().abandonGame()
     expect(() => useGame.getState().rerollBoard()).not.toThrow()
     expect(useGame.getState().game).toBeNull()
+  })
+})
+
+/**
+ * Collection depends on knowing whose work earned each green, and finishRound
+ * is the only place that can still tell: a guess is judged against the
+ * clue-giver's key, so a green under a clue `by: 'player'` is Cluey finding
+ * the player's word (clue credit), a green under `by: 'ai'` is the player's
+ * own tap (guess credit), and a green reveal that appears in NO clue's guess
+ * list was named in sudden death — the reducer writes that reveal without a
+ * guess record — which is the player naming it with no clue-giver at all.
+ *
+ * Mutation-checked: swapping the two `by` comparisons fails the first two
+ * tests; dropping the sudden-death fallback fails the third.
+ */
+describe('gameStore: which side earned each green', () => {
+  const word = (id: string) => ({ wordId: id, da: id, en: [id], pos: 'noun' })
+
+  const finishedGame = () =>
+    ({
+      config: { rows: 2, cols: 2, totalWords: 4 },
+      seed: 1,
+      words: ['a', 'b', 'c', 'd'].map(word),
+      reveals: {
+        a: { kind: 'green' },
+        b: { kind: 'green' },
+        c: { kind: 'green' },
+        d: { kind: 'hidden' },
+      },
+      playerKey: { a: 'green', b: 'bystander', c: 'green', d: 'bystander' },
+      aiKey: { a: 'bystander', b: 'green', c: 'green', d: 'green' },
+      phase: 'finished',
+      turnsLeft: 0,
+      clueHistory: [
+        { by: 'player', text: 'x', number: 1, guesses: [{ wordId: 'a', result: 'green' }] },
+        { by: 'ai', text: 'y', number: 2, guesses: [{ wordId: 'b', result: 'green' }] },
+        // 'c' is revealed green but appears in no guess list: sudden death.
+      ],
+      outcome: { result: 'lost', reason: 'sudden-death' },
+    }) as never
+
+  beforeEach(() => {
+    useSettings.setState({ useMock: true })
+    useSrs.getState().reset()
+    useGame.getState().abandonGame()
+  })
+
+  it("credits the player's clue when Cluey finds the word", () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.a).toMatchObject({ greenByClue: 1, greenByGuess: 0 })
+  })
+
+  it("credits the player's guess when they find Cluey's word", () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.b).toMatchObject({ greenByClue: 0, greenByGuess: 1 })
+  })
+
+  it('a sudden-death green is the player naming it: guess credit', () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.c).toMatchObject({ greenByClue: 0, greenByGuess: 1 })
+  })
+
+  it('an unrevealed word earns neither', () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.d).toMatchObject({ greenByClue: 0, greenByGuess: 0 })
+  })
+
+  it('a redemption answer never advances the collection', () => {
+    const game = finishedGame() as {
+      reveals: Record<string, unknown>
+      redemption?: unknown
+      outcome: unknown
+      clueHistory: unknown[]
+    }
+    game.clueHistory.length = 0
+    game.reveals = {
+      a: { kind: 'forbidden' },
+      b: { kind: 'hidden' },
+      c: { kind: 'hidden' },
+      d: { kind: 'hidden' },
+    }
+    game.redemption = {
+      promptWordIds: ['a', 'b', 'c', 'd'],
+      results: [
+        { wordId: 'b', given: 'b', accepted: true },
+        { wordId: 'c', given: 'wrong', accepted: false },
+      ],
+    }
+    game.outcome = { result: 'won', reason: 'redeemed' }
+    useGame.setState({ game: game as never, roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    const stats = useSrs.getState().stats
+    expect(stats.b).toMatchObject({ greenByClue: 0, greenByGuess: 0, redemptionRight: 1 })
+    expect(stats.c).toMatchObject({ greenByClue: 0, greenByGuess: 0, redemptionWrong: 1 })
   })
 })

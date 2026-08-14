@@ -94,6 +94,8 @@ export default function App() {
           lookups: 0,
           redemptionRight: 0,
           redemptionWrong: 0,
+          greenByClue: 1,
+          greenByGuess: 1,
         }
       }
       useSrs.setState({ stats })
@@ -115,6 +117,10 @@ export default function App() {
           lookups: 0,
           redemptionRight: 0,
           redemptionWrong: 0,
+          // One handling short *and* one interaction short of collected: the
+          // guess is in hand, the clue is what the driven round must supply.
+          greenByClue: 0,
+          greenByGuess: 1,
         }
       }
       useSrs.setState({ stats })

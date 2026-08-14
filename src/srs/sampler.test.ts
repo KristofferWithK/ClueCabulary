@@ -222,6 +222,8 @@ describe('how much a board repeats the last one', () => {
           wordId: id,
           guessedGreen: i % 3 === 0,
           guessedWrong: i % 5 === 0,
+          greenByOwnClue: i % 6 === 0,
+          greenByOwnGuess: i % 3 === 0 && i % 6 !== 0,
           lookedUp: i % 7 === 0,
         })),
         now,
@@ -280,7 +282,14 @@ describe('how much a board repeats the last one', () => {
     const first = selectBoardWords(city, srs, { totalWords: 12, maxNewWordsPerBoard: 4 }, rng, now)
     srs = applyRoundResults(
       srs,
-      first.map((w) => ({ wordId: w.id, guessedGreen: false, guessedWrong: true, lookedUp: false })),
+      first.map((w) => ({
+        wordId: w.id,
+        guessedGreen: false,
+        guessedWrong: true,
+        greenByOwnClue: false,
+        greenByOwnGuess: false,
+        lookedUp: false,
+      })),
       now,
     )
     const second = selectBoardWords(
@@ -325,6 +334,8 @@ describe('how much a board repeats the last one', () => {
         wordId: w.id,
         guessedGreen: w.id === easy.id,
         guessedWrong: w.id !== easy.id,
+        greenByOwnClue: false,
+        greenByOwnGuess: w.id === easy.id,
         lookedUp: false,
       })),
       now,
@@ -373,7 +384,14 @@ describe('how much a board repeats the last one', () => {
       recent = [new Set(ids), ...recent].slice(0, 2)
       srs = applyRoundResults(
         srs,
-        ids.map((id) => ({ wordId: id, guessedGreen: false, guessedWrong: true, lookedUp: false })),
+        ids.map((id) => ({
+          wordId: id,
+          guessedGreen: false,
+          guessedWrong: true,
+          greenByOwnClue: false,
+          greenByOwnGuess: false,
+          lookedUp: false,
+        })),
         now + r * 5 * 60_000,
       )
     }
