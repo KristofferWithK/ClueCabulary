@@ -29,11 +29,23 @@ words are green it stops counting attempts.
 
 1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words
    from the ~1000 most common, each noun with its gender in front of it —
-   **et hus**, the way the pair is learned — and where a noun has no indefinite
-   article at all (penge, bukser, briller are plural-only), the card says the
-   gender instead: **(com)** or **(neut)**. Gender is what decides the definite
-   ending and every agreeing adjective, so it is shown whether or not the word
-   can be counted. Your own key is the card's border:
+   **et hus**, the way the pair is learned — and where a noun has no ordinary
+   indefinite singular, the card says the gender instead: **(com)** or
+   **(neut)**. Gender decides the definite ending and every agreeing adjective,
+   so it is shown whether or not the word can be counted.
+
+   Countability is a rule applied to all 433 nouns, not a list of exceptions
+   (`src/data/countability.ts`): a noun is uncountable when "en X" / "et X"
+   would be wrong or clearly odd in everyday Danish — mass and abstract nouns,
+   plus the plural-only ones. Where **both** readings are ordinary the article
+   stays, because *en øl*, *et brød*, *en ost*, *et hår* and *et papir* are all
+   things Danes say and they teach the gender in the form a learner meets. The
+   validator refuses any drift between the module and the data. Words outside
+   the shipped thousand get the same treatment from Klaus, who is asked for
+   gender and countability along with the translation — *trafik* comes back
+   `(com)`, not `en trafik`.
+
+   Your own key is the card's border:
    solid green for a target, dashed black for forbidden **on your key** — which
    is a word Klaus must never be led to, not a word you must never tap.
 2. You open: you give a one-word clue, Klaus guesses — then Klaus clues and you
@@ -87,12 +99,19 @@ words are green it stops counting attempts.
    clue dock to go the other way — English in, Danish out — which is the
    direction composing a clue actually needs. Klaus clues in Danish too, and one
    tap loads his clue into the same box. **Both sides speak Danish**: type an
-   English word into the clue box and it is refused with the lookup one tap
-   away, because Klaus is handed the clue as a bare string beside a Danish
-   board and an English word there is one he cannot place. The check is narrow
-   on purpose — a word must be one of our English glosses AND not one of our
-   Danish headwords, so the sixty-one that are both (arm, kind, sky, mad, salt,
-   time…) are never refused.
+   English word into the clue box and it says so, with the lookup one tap away,
+   because Klaus is handed the clue as a bare string beside a Danish board and
+   an English word there is one he cannot place.
+
+   The thousand settle most of it offline and recognise far more Danish than
+   they contain — æ/ø/å can only be Danish, an inflection of a headword is that
+   headword (*hunden*, *bilerne*), and a compound of two of them is Danish
+   (*dyreliv*, *morgenmad*). Anything else is **unknown**, which is permission
+   rather than suspicion: that is where every Danish word we do not ship lives,
+   *trafik* included. Only a word that looks positively English is questioned,
+   and even then the offline guess is never the last word — the button becomes
+   *Give clue anyway* and Klaus judges it, so a Danish word we happen not to
+   ship is never refused by a list.
    Toggle **Aa** to overlay every translation — off to start with, so the board
    opens as twelve Danish words rather than twenty-four lines of text, and there
    is no opening study phase either (Settings can turn one back on; a save from

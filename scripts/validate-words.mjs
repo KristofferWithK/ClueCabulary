@@ -3,6 +3,20 @@
 // for things a human/model review pass should look at.
 import { readFileSync } from 'node:fs'
 
+/**
+ * The uncountable list, read out of the TypeScript module rather than copied,
+ * so the classification has exactly one home. A plain regex over the quoted
+ * strings above the export is enough — the file is a list of literals by
+ * design, and a validator that needs a bundler is a validator nobody runs.
+ */
+const countabilitySrc = readFileSync(
+  new URL('../src/data/countability.ts', import.meta.url),
+  'utf8',
+)
+const UNCOUNTABLE = new Set(
+  [...countabilitySrc.split('export const UNCOUNTABLE')[0].matchAll(/'([^']+)'/g)].map((m) => m[1]),
+)
+
 const PATH = new URL('../src/data/words.da.json', import.meta.url)
 const POS = new Set(['noun', 'verb', 'adjective', 'adverb', 'numeral', 'interjection'])
 const DA_TOKEN = /^[a-zA-ZæøåÆØÅé]+$/
@@ -76,8 +90,15 @@ for (const [i, w] of words.entries()) {
   if (w.pos === 'noun' && !w.article) {
     warnings.push(`${at}: noun with no article — shown as (${w.gender === 'neuter' ? 'neut' : 'com'})`)
   }
-  if (w.pos !== 'noun' && (w.article || w.gender)) {
-    warnings.push(`${at}: non-noun with article or gender`)
+  if (w.pos !== 'noun' && (w.article || w.gender || w.countable !== undefined)) {
+    warnings.push(`${at}: non-noun with article, gender or countability`)
+  }
+  // The countability classification lives in src/data/countability.ts and is
+  // applied to the whole noun set, so the data and the module must not drift.
+  if (w.pos === 'noun' && (w.countable === false) !== UNCOUNTABLE.has(w.da)) {
+    errors.push(
+      `${at}: countable=${w.countable} disagrees with countability.ts (listed: ${UNCOUNTABLE.has(w.da)})`,
+    )
   }
   if (w.en?.some((g) => /^to /.test(g))) warnings.push(`${at}: gloss with leading "to " (${w.en})`)
   // The example should contain the headword or a recognizable inflection.

@@ -295,14 +295,17 @@ export function buildTranslatePrompt(term: string): ChatMessage[] {
   const system = `You translate single words between Danish and English for someone learning Danish. Work out the direction yourself from the word you are given.
 
 - Give the citation form: a noun in the singular indefinite, a verb as the bare infinitive, an adjective in the common gender.
-- For a noun, say whether it takes "en" or "et".
+- For a NOUN, always give the gender: "common" (en-word) or "neuter" (et-word). Give "article" as well ONLY when the noun has an ordinary indefinite singular — most do.
+- Mass and abstract nouns do not: nobody says "en trafik", "et blod", "en mælk", "en kærlighed". For those set "countable": false and give no article, just the gender. Where BOTH readings are ordinary Danish the noun IS countable and keeps its article — "en øl" (a beer), "et brød" (a loaf), "en ost" (a whole cheese), "et hår" (a single hair) are all things Danes say, so do not strip those.
 - The note is for the one thing that would trip a learner: a false friend, a register that is wrong for everyday speech, a sense that is not the obvious one. Most words need none — leave it out rather than pad it.
 - If the word is Danish, "da" is that word, tidied to its citation form. If it is English, "da" is the Danish for it.
 
-Respond with ONLY a JSON object: {"da": string, "en": string, "article": "en" | "et" (nouns only), "note": string (optional)}
+Respond with ONLY a JSON object: {"da": string, "en": string, "article": "en" | "et" (countable nouns only), "gender": "common" | "neuter" (all nouns), "countable": boolean (nouns only), "note": string (optional)}
 
-Example for "cykel": {"da": "cykel", "en": "bicycle", "article": "en"}
-Example for "afternoon": {"da": "eftermiddag", "en": "afternoon", "article": "en"}`
+Example for "cykel": {"da": "cykel", "en": "bicycle", "article": "en", "gender": "common", "countable": true}
+Example for "afternoon": {"da": "eftermiddag", "en": "afternoon", "article": "en", "gender": "common", "countable": true}
+Example for "trafik": {"da": "trafik", "en": "traffic", "gender": "common", "countable": false}
+Example for "at cykle": {"da": "cykle", "en": "to cycle"}`
 
   return [
     { role: 'system', content: system },

@@ -39,8 +39,18 @@ export const TranslationResponseSchema = z.object({
   da: z.string().trim().min(1),
   /** The English meaning. */
   en: z.string().trim().min(1),
-  /** en/et for a noun, when it is one. */
+  /** en/et for a noun, when it is one AND it can be counted. */
   article: z.enum(['en', 'et']).optional(),
+  /**
+   * The gender, on every noun — including the mass and abstract ones that take
+   * no indefinite article. "trafik" is not something you can have one of, but
+   * it is still common gender, and the definite form and every agreeing
+   * adjective turn on that. The shipped thousand carry this in the data; a word
+   * from outside them has only Klaus to ask.
+   */
+  gender: z.enum(['common', 'neuter']).optional(),
+  /** False for a noun with no ordinary indefinite singular. */
+  countable: z.boolean().optional(),
   /** One short line where the word needs it — false friends, register, usage. */
   note: z.string().trim().optional(),
 })
