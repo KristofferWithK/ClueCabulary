@@ -14,7 +14,7 @@ import type { SrsMap, WordStats } from '../srs/types'
  * Deliberately NOT exported: the Ollama API key. A backup file gets mailed to
  * yourself and synced to three clouds; a secret must not ride along.
  */
-export const BACKUP_FORMAT = 1
+export const BACKUP_FORMAT = 2
 export const BACKUP_FILENAME = 'cluecabulary-collection.json'
 
 const WordStatsSchema = z
@@ -46,11 +46,24 @@ const TallySchema = z.object({
   lost: z.number(),
 })
 
+// Bounded, not just numeric: cityAt throws outside the route, and a restore
+// writes this straight into the store, so an out-of-range value would blank
+// the app on every load with no way back in.
+const CityIndexSchema = z.number().int().min(0).max(CITIES.length - 1)
+
 const JourneySchema = z.object({
-  // Bounded, not just numeric: cityAt throws outside the route, and a restore
-  // writes this straight into the store, so an out-of-range value would blank
-  // the app on every load with no way back in.
-  cityIndex: z.number().int().min(0).max(CITIES.length - 1),
+  cityIndex: CityIndexSchema,
+  wrapped: z.record(z.string(), z.number()),
+  arrivedAt: z.record(z.string(), z.number()),
+})
+
+/**
+ * The journey as format-1 files carry it. Read so an old file still restores
+ * in full: banked words become wrapped by the same rule the store migration
+ * uses, and the exam economy (stamps, attempts) has nothing to become.
+ */
+const JourneyV1Schema = z.object({
+  cityIndex: CityIndexSchema,
   stamps: z.record(z.string(), z.number()),
   banked: z.record(z.string(), z.number()),
   trialsSpent: z.record(z.string(), z.number()),
@@ -66,12 +79,23 @@ const PrefsSchema = z.object({
   studyPhase: z.enum(['auto', 'always', 'never']),
 })
 
+const SrsSchema = z.object({ stats: z.record(z.string(), WordStatsSchema), games: TallySchema })
+
 export const BackupSchema = z.object({
   app: z.literal('cluecabulary'),
   format: z.number(),
   exportedAt: z.number(),
-  srs: z.object({ stats: z.record(z.string(), WordStatsSchema), games: TallySchema }),
+  srs: SrsSchema,
   journey: JourneySchema,
+  prefs: PrefsSchema,
+})
+
+const BackupV1Schema = z.object({
+  app: z.literal('cluecabulary'),
+  format: z.number(),
+  exportedAt: z.number(),
+  srs: SrsSchema,
+  journey: JourneyV1Schema,
   prefs: PrefsSchema,
 })
 
@@ -80,9 +104,7 @@ export type BackupPrefs = z.infer<typeof PrefsSchema>
 
 export interface JourneyBackup {
   cityIndex: number
-  stamps: Record<number, number>
-  banked: Record<string, number>
-  trialsSpent: Record<number, number>
+  wrapped: Record<string, number>
   arrivedAt: Record<number, number>
 }
 
@@ -101,9 +123,7 @@ export function buildBackup(s: Snapshot, now: number): Backup {
     srs: { stats: s.stats, games: s.games },
     journey: {
       cityIndex: s.journey.cityIndex,
-      stamps: numKeyed(s.journey.stamps),
-      banked: { ...s.journey.banked },
-      trialsSpent: numKeyed(s.journey.trialsSpent),
+      wrapped: { ...s.journey.wrapped },
       arrivedAt: numKeyed(s.journey.arrivedAt),
     },
     prefs: s.prefs,
@@ -130,17 +150,24 @@ export function parseBackup(text: string): ParseResult {
     return { ok: false, error: 'That file is not JSON. Pick the file you exported from here.' }
   }
   const parsed = BackupSchema.safeParse(json)
-  if (!parsed.success) {
-    const shape = json && typeof json === 'object' && 'app' in json ? '' : ' It may be from another app.'
-    return { ok: false, error: `That file is not a ClueCabulary backup.${shape}` }
-  }
-  if (parsed.data.format > BACKUP_FORMAT) {
-    return {
-      ok: false,
-      error: 'That backup was written by a newer version of ClueCabulary. Update the app first.',
+  if (parsed.success) {
+    if (parsed.data.format > BACKUP_FORMAT) {
+      return {
+        ok: false,
+        error: 'That backup was written by a newer version of ClueCabulary. Update the app first.',
+      }
     }
+    return { ok: true, backup: parsed.data }
   }
-  return { ok: true, backup: parsed.data }
+  // Not the current shape — a format-1 file restores upgraded in memory.
+  const v1 = BackupV1Schema.safeParse(json)
+  if (v1.success && v1.data.format <= 1) {
+    const { stamps, trialsSpent, banked, ...journey } = v1.data.journey
+    void stamps, trialsSpent
+    return { ok: true, backup: { ...v1.data, journey: { ...journey, wrapped: banked } } }
+  }
+  const shape = json && typeof json === 'object' && 'app' in json ? '' : ' It may be from another app.'
+  return { ok: false, error: `That file is not a ClueCabulary backup.${shape}` }
 }
 
 /**
@@ -148,22 +175,17 @@ export function parseBackup(text: string): ParseResult {
  * field-by-field blend: the fields are internally consistent and mixing them
  * would invent a history that never happened.
  *
- * The tie-break order guarantees the invariant that matters — a merge can never
- * turn a green word back to grey — because correctGuesses is what greens it.
+ * Collectedness leads the tie-break, because it is now what the collection
+ * runs on. Ordered by correctGuesses alone — the old rule — a record with
+ * three greens all earned one way could replace one with a green each way,
+ * and the merge would quietly un-collect the word.
  */
 export function betterRecord(a: WordStats, b: WordStats): WordStats {
+  const collected = (s: WordStats) => (s.greenByClue > 0 ? 1 : 0) + (s.greenByGuess > 0 ? 1 : 0)
+  if (collected(a) !== collected(b)) return collected(a) > collected(b) ? a : b
   if (a.correctGuesses !== b.correctGuesses) return a.correctGuesses > b.correctGuesses ? a : b
   if (a.seen !== b.seen) return a.seen > b.seen ? a : b
   return a.lastSeenAt >= b.lastSeenAt ? a : b
-}
-
-const maxByKey = (
-  a: Record<string, number>,
-  b: Record<string, number>,
-): Record<string, number> => {
-  const out: Record<string, number> = { ...a }
-  for (const [k, v] of Object.entries(b)) out[k] = Math.max(out[k] ?? v, v)
-  return out
 }
 
 const earliestByKey = (
@@ -181,9 +203,8 @@ const earliestByKey = (
  * they had a moment ago:
  *
  * - words keep whichever record knows them better
- * - banked words union, keeping the first time each was banked
- * - stamps and the furthest city take the maximum
- * - attempts spent take the maximum, so a restore cannot refund attempts
+ * - wrapped words union, keeping the first time each was packed
+ * - the furthest city wins
  * - the games tally takes the maximum, so restoring your own file twice does
  *   not double your record
  *
@@ -220,17 +241,16 @@ export function mergeJourney(
 ): JourneyBackup {
   const j = incoming as unknown as {
     cityIndex: number
-    stamps: Record<string, number>
-    banked: Record<string, number>
-    trialsSpent: Record<string, number>
+    wrapped: Record<string, number>
     arrivedAt: Record<string, number>
   }
   return {
     cityIndex: Math.max(current.cityIndex, j.cityIndex),
-    stamps: maxByKey(numKeyed(current.stamps), j.stamps),
-    banked: earliestByKey(current.banked, j.banked),
-    trialsSpent: maxByKey(numKeyed(current.trialsSpent), j.trialsSpent),
-    arrivedAt: earliestByKey(numKeyed(current.arrivedAt), j.arrivedAt),
+    wrapped: earliestByKey(current.wrapped, j.wrapped),
+    arrivedAt: earliestByKey(numKeyed(current.arrivedAt), j.arrivedAt) as unknown as Record<
+      number,
+      number
+    >,
   }
 }
 
@@ -241,10 +261,8 @@ export function replaceSnapshot(incoming: Backup): Snapshot {
     games: incoming.srs.games,
     journey: {
       cityIndex: incoming.journey.cityIndex,
-      stamps: incoming.journey.stamps,
-      banked: incoming.journey.banked,
-      trialsSpent: incoming.journey.trialsSpent,
-      arrivedAt: incoming.journey.arrivedAt,
+      wrapped: incoming.journey.wrapped,
+      arrivedAt: incoming.journey.arrivedAt as unknown as Record<number, number>,
     },
     prefs: incoming.prefs,
   }
@@ -252,27 +270,24 @@ export function replaceSnapshot(incoming: Backup): Snapshot {
 
 export interface BackupSummary {
   words: number
-  learned: number
-  banked: number
-  stamps: number
+  collected: number
+  wrapped: number
   cityIndex: number
   exportedAt: number
   games: number
 }
 
 /** What the file holds, shown before anything is written. */
-export function summarize(b: Backup, learnReps: number): BackupSummary {
-  const stats = Object.values(b.srs.stats)
-  const banked = Object.keys(b.journey.banked)
-  const green = new Set(banked)
+export function summarize(b: Backup): BackupSummary {
+  const wrapped = new Set(Object.keys(b.journey.wrapped))
+  let collected = 0
   for (const [id, s] of Object.entries(b.srs.stats)) {
-    if (s.correctGuesses >= learnReps) green.add(id)
+    if (!wrapped.has(id) && s.greenByClue > 0 && s.greenByGuess > 0) collected++
   }
   return {
-    words: stats.length,
-    learned: green.size,
-    banked: banked.length,
-    stamps: Object.values(b.journey.stamps).reduce((a, n) => a + n, 0),
+    words: Object.keys(b.srs.stats).length,
+    collected,
+    wrapped: wrapped.size,
     cityIndex: b.journey.cityIndex,
     exportedAt: b.exportedAt,
     games: b.srs.games.played,

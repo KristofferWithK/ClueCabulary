@@ -6,19 +6,17 @@ import { planRescue } from './rescue'
 const NOW = 1_700_000_000_000
 const DAY = 86_400_000
 
-const empty = (): JourneyBackup => ({
-  cityIndex: 0,
-  stamps: {},
-  banked: {},
-  trialsSpent: {},
-  arrivedAt: {},
-})
+const empty = (): JourneyBackup => ({ cityIndex: 0, wrapped: {}, arrivedAt: {} })
 
-const v1 = (state: Partial<JourneyBackup>) =>
-  JSON.stringify({ state: { ...empty(), ...state }, version: 1 })
+/** The raw v1 blob keeps its ORIGINAL shape — that is what the old key holds. */
+const v1 = (state: Partial<Record<string, unknown>>) =>
+  JSON.stringify({
+    state: { cityIndex: 0, stamps: {}, banked: {}, trialsSpent: {}, arrivedAt: {}, ...state },
+    version: 1,
+  })
 
 describe('rescuing progress stranded by the v1 -> v2 key rename', () => {
-  it('gives back a journey the rename abandoned', () => {
+  it('gives back a journey the rename abandoned, banked words arriving wrapped', () => {
     const r = planRescue(
       v1({
         cityIndex: 3,
@@ -31,30 +29,22 @@ describe('rescuing progress stranded by the v1 -> v2 key rename', () => {
     )
     expect(r.outcome).toBe('rescued')
     expect(r.journey!.cityIndex).toBe(3)
-    expect(r.journey!.stamps).toEqual({ 0: 5, 1: 5, 2: 5, 3: 2 })
-    expect(Object.keys(r.journey!.banked).sort()).toEqual(['hus', 'kat'])
-    expect(r.recovered).toEqual({ cityIndex: 3, stamps: 17, banked: 2 })
+    expect(r.journey!.wrapped).toEqual({ hus: NOW - DAY, kat: NOW })
+    expect(r.recovered).toEqual({ cityIndex: 3, banked: 2 })
   })
 
   it('can only add: progress made since the rename survives', () => {
     const since: JourneyBackup = {
       cityIndex: 5,
-      stamps: { 0: 5, 4: 5, 5: 3 },
-      banked: { ost: NOW },
-      trialsSpent: { 5: 9 },
+      wrapped: { ost: NOW },
       arrivedAt: { 5: NOW },
     }
-    const r = planRescue(
-      v1({ cityIndex: 2, stamps: { 0: 5, 1: 5, 2: 1 }, banked: { hus: NOW - DAY }, trialsSpent: { 5: 1 } }),
-      since,
-    )
+    const r = planRescue(v1({ cityIndex: 2, banked: { hus: NOW - DAY } }), since)
     expect(r.outcome).toBe('rescued')
-    // Never travels the player backwards, and never refunds an attempt.
+    // Never travels the player backwards.
     expect(r.journey!.cityIndex).toBe(5)
-    expect(r.journey!.trialsSpent[5]).toBe(9)
-    // Keeps both sets of stamps and both banked words.
-    expect(r.journey!.stamps).toEqual({ 0: 5, 1: 5, 2: 1, 4: 5, 5: 3 })
-    expect(Object.keys(r.journey!.banked).sort()).toEqual(['hus', 'ost'])
+    // Keeps both sets of packed words.
+    expect(Object.keys(r.journey!.wrapped).sort()).toEqual(['hus', 'ost'])
   })
 
   it('does nothing when there is nothing to give back', () => {
@@ -67,26 +57,15 @@ describe('rescuing progress stranded by the v1 -> v2 key rename', () => {
   it('does nothing when the old key holds less than the player already has', () => {
     const ahead: JourneyBackup = {
       cityIndex: 4,
-      stamps: { 0: 5, 1: 5 },
-      banked: { hus: NOW, kat: NOW },
-      trialsSpent: {},
+      wrapped: { hus: NOW, kat: NOW },
       arrivedAt: {},
     }
-    const r = planRescue(v1({ cityIndex: 1, stamps: { 0: 5 }, banked: { hus: NOW } }), ahead)
+    const r = planRescue(v1({ cityIndex: 1, banked: { hus: NOW } }), ahead)
     expect(r.outcome).toBe('nothing-to-rescue')
   })
 
-  it('a paper drawn for the old city must not follow the player to the new one', () => {
-    // The exam screen stamps the paper's own city, and the rescue drops any
-    // paper that no longer belongs where the player stands — together those
-    // stop a Sonderborg paper stamping Aarhus.
-    const r = planRescue(v1({ cityIndex: 3, stamps: { 3: 1 } }), empty())
-    expect(r.outcome).toBe('rescued')
-    expect(r.journey!.cityIndex).toBe(3)
-  })
-
   it('is idempotent: rescuing the result again changes nothing', () => {
-    const blob = v1({ cityIndex: 3, stamps: { 0: 5, 3: 1 }, banked: { hus: NOW } })
+    const blob = v1({ cityIndex: 3, banked: { hus: NOW } })
     const once = planRescue(blob, empty())
     const twice = planRescue(blob, once.journey!)
     expect(twice.outcome).toBe('nothing-to-rescue')
@@ -95,7 +74,7 @@ describe('rescuing progress stranded by the v1 -> v2 key rename', () => {
   it('clamps a city index that would blank the app', () => {
     // cityAt throws outside the route; a corrupted old blob must not become a
     // permanent white screen.
-    const r = planRescue(v1({ cityIndex: 99, stamps: { 0: 5 } }), empty())
+    const r = planRescue(v1({ cityIndex: 99, banked: { hus: NOW } }), empty())
     expect(r.outcome).toBe('rescued')
     expect(r.journey!.cityIndex).toBeLessThanOrEqual(CITIES.length - 1)
     expect(r.journey!.cityIndex).toBeGreaterThanOrEqual(0)
@@ -117,6 +96,6 @@ describe('rescuing progress stranded by the v1 -> v2 key rename', () => {
     const r = planRescue(half, empty())
     expect(r.outcome).toBe('rescued')
     expect(r.journey!.cityIndex).toBe(4)
-    expect(Object.keys(r.journey!.banked)).toEqual(['hus'])
+    expect(Object.keys(r.journey!.wrapped)).toEqual(['hus'])
   })
 })

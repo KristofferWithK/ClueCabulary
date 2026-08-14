@@ -123,30 +123,6 @@ try {
     (await page.locator('.translate-box').count()) === 0,
   )
 
-  // A travel exam is the other moment the game says "no dictionary", and it is
-  // the one the component missed: the store's translate() refused, but the
-  // shipped-dictionary half is read straight from the component, so it answered
-  // the paper's own words offline and — since noteLookup also declines during
-  // an exam — charged nothing for them. A paper can be suspended with the gate
-  // screen's back arrow and the round resumed underneath it.
-  await page.evaluate(() => {
-    const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
-    raw.state.game.phase = 'playerClueInput'
-    localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
-    const j = JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{"state":{},"version":2}')
-    j.state.activeExam = { cityIndex: 0, wordIds: ['da-hund'], answers: {} }
-    localStorage.setItem('cluecab-journey-v2', JSON.stringify(j))
-  })
-  await page.reload()
-  await page.getByRole('button', { name: 'Continue game' }).click()
-  await page.waitForSelector('.clue-input', { timeout: 15000 })
-  check(
-    'and gone while a travel exam paper is out, which is the same promise',
-    // On the clue screen, where it normally lives — so its absence means the
-    // lock, not the wrong screen.
-    (await page.locator('.clue-input').count()) === 1 &&
-      (await page.locator('.translate-box').count()) === 0,
-  )
 
   check('no page errors', crashes.length === 0, crashes.join(' | '))
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nTRANSLATE DRIVE OK')

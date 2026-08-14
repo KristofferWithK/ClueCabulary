@@ -1,23 +1,10 @@
-// The collection: three word states, the Pokédex, and stamps earned by exam.
+// The collection: four word states — discovered, collected, wrapped, and the
+// slots still to find — on Home and in the collection view.
 import { chromium } from 'playwright'
-import { readFileSync } from 'node:fs'
 import { startPreview } from './preview-server.mjs'
-
-/**
- * The dataset. The retry used to be answered by scraping the answer key off
- * the failed paper and typing it back positionally — which only worked because
- * the retry WAS the failed paper. This drive passed because of that defect.
- */
-const GLOSS = new Map(
-  JSON.parse(readFileSync(new URL('../src/data/words.da.json', import.meta.url))).map((w) => [
-    w.da,
-    w.en[0],
-  ]),
-)
 
 const PORT = 4179
 const preview = await startPreview(PORT)
-import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
 const BASE = preview.base
@@ -29,97 +16,49 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
-  // 30 words green in the first city.
-  await page.goto(`${BASE}?mock=1&howto=0&city=0&learned=30`)
+  // 10 words wrapped, the next 20 collected on top (?wrapped seeds the first
+  // K, ?collected the first K — so 10 overlap and 20 are collected-only),
+  // and 5 more one interaction short.
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&wrapped=10&collected=30&almost=35`)
   await page.waitForSelector('.city-card')
   await page.waitForSelector('.home-map')
   const count = await page.locator('.collect-count').textContent()
   console.log('home:', count?.replace(/\s+/g, ' ').trim())
-  if (!count?.includes('30')) throw new Error('home did not show 30 learned')
+  if (!count?.includes('10 wrapped')) throw new Error('home did not show 10 wrapped')
+  if (!count?.includes('20 collected')) throw new Error('home did not show 20 collected')
   await page.screenshot({ path: `${SHOT_DIR}/c1-home.png` })
 
-  // The Pokédex: learned, discovered and empty slots all present.
-  await page.click('.btn:has-text("Samlingen")')
+  // The collection view: all four states rendered as distinct slots.
+  await page.click('.btn:has-text("Kufferten")')
   await page.waitForSelector('.word-dex')
-  const learned = await page.locator('.dex-learned').count()
+  const wrapped = await page.locator('.dex-wrapped').count()
+  const collected = await page.locator('.dex-collected').count()
+  const discovered = await page.locator('.dex-discovered').count()
   const unknown = await page.locator('.dex-unknown').count()
-  console.log(`dex: ${learned} learned, ${unknown} still to find`)
-  if (learned !== 30) throw new Error(`expected 30 green slots, saw ${learned}`)
-  if (unknown !== 70) throw new Error(`expected 70 empty slots, saw ${unknown}`)
+  console.log(`dex: ${wrapped} wrapped, ${collected} collected, ${discovered} discovered, ${unknown} to find`)
+  if (wrapped !== 10) throw new Error(`expected 10 wrapped slots, saw ${wrapped}`)
+  if (collected !== 20) throw new Error(`expected 20 collected slots, saw ${collected}`)
+  if (discovered !== 5) throw new Error(`expected 5 discovered slots, saw ${discovered}`)
+  if (unknown !== 65) throw new Error(`expected 65 empty slots, saw ${unknown}`)
   await page.screenshot({ path: `${SHOT_DIR}/c2-collection.png` })
-  await page.click('.icon-btn')
 
-  // A brand-new city keeps the exam shut until half a paper could be green.
-  await page.goto(`${BASE}?mock=1&howto=0&city=1`)
+  // A real word tile opens the dictionary sheet; a ? slot is not a button.
+  await page.locator('.dex-collected').first().click()
+  await page.waitForSelector('.sheet', { timeout: 4000 })
+  console.log('a collected tile opens the dictionary')
+  await page.click('.sheet .btn')
+  await page.screenshot({ path: `${SHOT_DIR}/c3-sheet.png` })
+
+  // The wrapped ledger survives a reload — it is the permanent record.
+  await page.reload()
   await page.waitForSelector('.city-card')
-  if (await page.locator('.btn-gate').isEnabled()) throw new Error('exam open with no attempts earned')
-  console.log('untouched city:', (await page.locator('.gate-paper').textContent())?.trim())
-
-  // Back to the seeded city: the exam is open and passing it stamps the passport.
-  await page.goto(`${BASE}?mock=1&howto=0&city=0&learned=30`)
-  await page.waitForSelector('.city-card')
-  await page.click('.btn-gate')
-  await page.waitForSelector('.gate-list')
-  const words = await page.locator('.gate-list .gate-da').count()
-  if (words !== 20) throw new Error(`expected a 20-word paper, got ${words}`)
-  for (let i = 0; i < 20; i++) await page.locator('.gate-item input').nth(i).fill('zzz')
-  await page.click('.btn-primary')
-  await page.waitForSelector('.gate-results')
-  if (await page.locator('.stamp-award').count()) throw new Error('a failed exam awarded a stamp')
-  const left = await page.locator('.trials-left').textContent()
-  console.log('after failing:', left?.replace(/\s+/g, ' ').trim())
-  const spent = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent,
-  )
-  if (spent?.['0'] !== 1) throw new Error(`drawing the paper did not spend a trial: ${JSON.stringify(spent)}`)
-  await page.screenshot({ path: `${SHOT_DIR}/c3-exam-failed.png` })
-
-  const failedPaper = await page.locator('.gate-results .gate-da').allTextContents()
-  await page.click('.btn-primary') // retry — a second attempt, and it costs one
-  await page.waitForSelector('.gate-list')
-  const retryPaper = await page.locator('.gate-list .gate-da').allTextContents()
-  if (retryPaper.every((w) => failedPaper.includes(w)))
-    throw new Error('the retry re-served the paper whose answers were just printed')
-  for (let i = 0; i < 20; i++) {
-    const gloss = GLOSS.get(retryPaper[i].trim())
-    if (!gloss) throw new Error(`no gloss for exam word "${retryPaper[i]}"`)
-    await page.locator('.gate-item input').nth(i).fill(gloss)
-  }
-  await page.click('.btn-primary')
-  await page.waitForSelector('.stamp-award')
-  console.log('stamp:', (await page.locator('.stamp-award').textContent())?.replace(/\s+/g, ' ').trim())
-
   const state = await page.evaluate(
     () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state,
   )
-  // Every drawn paper costs an attempt, the passed one included.
-  if (state.trialsSpent?.['0'] !== 2) {
-    throw new Error(`retry + pass should have spent 2, got ${JSON.stringify(state.trialsSpent)}`)
+  if (Object.keys(state.wrapped ?? {}).length !== 10) {
+    throw new Error(`the wrapped ledger did not survive a reload: ${JSON.stringify(state.wrapped)}`)
   }
-  if (state.stamps?.['0'] !== 1) throw new Error(`expected 1 stamp, got ${JSON.stringify(state.stamps)}`)
-  if (Object.keys(state.banked ?? {}).length !== 20) throw new Error('exam did not bank its 20 words')
-
-  // A marked paper must never be markable again. The results screen lives in
-  // component state, so a reload used to hand the filled-in paper straight back
-  // and a second submit awarded a second stempel from one correct answer sheet.
-  // A marked paper is now finished the moment you leave it.
-  await page.reload()
-  await page.waitForSelector('.city-card')
-  if (await page.locator('.exam-resume').count()) {
-    throw new Error('a marked paper came back as unfinished work')
-  }
-  const after = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state,
-  )
-  if (after.activeExam) throw new Error('a marked paper is still active after a reload')
-  if (after.stamps?.['0'] !== 1) {
-    throw new Error(`the stamps moved on reload: ${JSON.stringify(after.stamps)}`)
-  }
-  // ...and the dictionary it was locking is open again.
-  await page.locator('.wotd').click()
-  await page.waitForSelector('.sheet', { timeout: 4000 })
-  console.log('a marked paper is finished, and unlocks the dictionary')
-  await page.screenshot({ path: `${SHOT_DIR}/c4-stamped.png` })
+  console.log('the wrapped ledger survives a reload')
 
   console.log('COLLECTION DRIVE OK')
 } catch (e) {

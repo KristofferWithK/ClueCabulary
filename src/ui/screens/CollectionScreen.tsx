@@ -13,7 +13,7 @@ export function CollectionScreen() {
   const journey = useJourney()
   const [openCity, setOpenCity] = useState<number>(journey.cityIndex)
 
-  const total = countCollection(WORDS, srs, journey.banked)
+  const total = countCollection(WORDS, srs, journey.wrapped)
 
   return (
     <div className="screen collection-screen">
@@ -28,7 +28,7 @@ export function CollectionScreen() {
 
       <section className="collection-summary">
         <p className="collection-headline">
-          <strong>{total.learned}</strong> learned
+          <strong>{total.wrapped}</strong> wrapped · <strong>{total.collected}</strong> collected
         </p>
         <p className="collection-sub">
           {total.discovered} discovered · {total.undiscovered} still out there
@@ -36,7 +36,7 @@ export function CollectionScreen() {
         <div className="collect-bar" aria-hidden="true">
           <div
             className="collect-fill collect-learned"
-            style={{ width: `${(total.learned / WORDS.length) * 100}%` }}
+            style={{ width: `${((total.wrapped + total.collected) / WORDS.length) * 100}%` }}
           />
           <div
             className="collect-fill collect-discovered"
@@ -44,7 +44,7 @@ export function CollectionScreen() {
           />
         </div>
         <p className="collection-legend">
-          <span className="swatch swatch-learned" aria-hidden="true" /> learned
+          <span className="swatch swatch-learned" aria-hidden="true" /> collected
           <span className="swatch swatch-discovered" aria-hidden="true" /> discovered
           <span className="swatch swatch-unknown" aria-hidden="true" /> not yet found
         </p>
@@ -52,7 +52,7 @@ export function CollectionScreen() {
 
       {CITIES.map((city, index) => {
         const words = wordsForCity(WORDS, index)
-        const counts = countCollection(words, srs, journey.banked)
+        const counts = countCollection(words, srs, journey.wrapped)
         const reached = index <= journey.cityIndex
         const open = openCity === index
 
@@ -70,7 +70,7 @@ export function CollectionScreen() {
                 {city.name}
               </span>
               <span className="collection-city-count">
-                {counts.learned} / {WORDS_PER_CITY}
+                {counts.wrapped + counts.collected} / {WORDS_PER_CITY}
                 {counts.discovered > 0 && (
                   // A half-met city read as an untouched one without this.
                   <span className="collection-city-grey"> · {counts.discovered} grey</span>
@@ -82,7 +82,7 @@ export function CollectionScreen() {
             {open && (
               <ul className="word-dex">
                 {words.map((w) => {
-                  const state = wordState(srs[w.id], w.id in journey.banked)
+                  const state = wordState(srs[w.id], w.id in journey.wrapped)
                   if (state === 'undiscovered') {
                     return (
                       <li key={w.id} className="dex-slot dex-unknown" aria-label="Undiscovered word">
@@ -110,8 +110,8 @@ export function CollectionScreen() {
       })}
 
       <p className="collection-foot">
-        Words turn green when you have clued or guessed them three times, or banked them by
-        passing a <span lang="da">rejseprøve</span>.
+        A word is collected once you have clued it and guessed it — one green earned each way
+        — and wrapped when a wrap-up round packs it safely into the suitcase.
       </p>
 
       <button className="btn" onClick={() => goTo('home')}>

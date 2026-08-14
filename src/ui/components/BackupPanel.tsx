@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { backupText, downloadBackup, restore, type RestoreMode } from '../../backup/apply'
 import { parseBackup, summarize, type Backup } from '../../backup/backup'
 import { cityAt } from '../../journey/cities'
-import { LEARN_REPS } from '../../journey/progress'
 
 type Status =
   | { kind: 'idle' }
@@ -39,7 +38,7 @@ export function BackupPanel() {
 
   const apply = (mode: RestoreMode) => {
     if (!pending) return
-    const sum = summarize(pending, LEARN_REPS)
+    const sum = summarize(pending)
     if (
       mode === 'replace' &&
       !window.confirm(
@@ -56,12 +55,12 @@ export function BackupPanel() {
       kind: 'restored',
       message:
         mode === 'merge'
-          ? `Merged. Nothing you had was lost — ${sum.learned} learned words folded in.`
-          : `Restored ${sum.learned} learned words and ${sum.stamps} stempler.`,
+          ? `Merged. Nothing you had was lost — ${sum.collected + sum.wrapped} collected words folded in.`
+          : `Restored ${sum.collected} collected and ${sum.wrapped} wrapped words.`,
     })
   }
 
-  const sum = pending ? summarize(pending, LEARN_REPS) : null
+  const sum = pending ? summarize(pending) : null
 
   return (
     <>
@@ -155,10 +154,10 @@ export function BackupPanel() {
           <h4>This backup holds</h4>
           <ul>
             <li>
-              <strong>{sum.learned}</strong> learned words, {sum.words} met in all
+              <strong>{sum.collected + sum.wrapped}</strong> collected words, {sum.words} met in all
             </li>
             <li>
-              <strong>{sum.stamps}</strong> stempler · {cityAt(sum.cityIndex).name}
+              <strong>{sum.wrapped}</strong> wrapped · {cityAt(sum.cityIndex).name}
             </li>
             <li>
               {sum.games} {sum.games === 1 ? 'round' : 'rounds'} played · saved{' '}

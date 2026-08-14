@@ -8,7 +8,7 @@ const preview = await startPreview(PORT)
 /**
  * Layout and journey-edge regressions that only show up in a real browser:
  * the end of the road, map labels near the viewBox edge, the primary action's
- * position on small phones, a leaked exam, and the board's ⓘ overlapping words.
+ * position on small phones, and the board's ⓘ overlapping words.
  */
 const EXE = '/opt/pw-browsers/chromium'
 const BASE = preview.base
@@ -32,8 +32,8 @@ async function open(query) {
 }
 
 // The final city used to ask cityAt() for a stop past the end, which throws
-// and blanks the app for good — cityIndex and stamps are both persisted.
-await open('?mock=1&howto=0&city=9&stamps=5&learned=100')
+// and blanks the app for good — cityIndex and the suitcase are both persisted.
+await open('?mock=1&howto=0&city=9&wrapped=100')
 check('the end of the journey renders', (await page.locator('.journey-done').count()) === 1)
 check('no page errors at the final city', errors.length === 0, errors.join(' | '))
 
@@ -72,32 +72,6 @@ for (const vp of [
   )
 }
 await page.setViewportSize(PHONE)
-
-// An exam put down mid-paper survives a relaunch — the attempt was already
-// spent, so the paper has to come back. It locks the dictionary app-wide while
-// it is open, so Home must surface it, let you resume, and let you drop it.
-await page.evaluate(() => {
-  const raw = JSON.parse(localStorage.getItem('cluecab-journey-v2'))
-  raw.state.activeExam = { cityIndex: 0, wordIds: ['w1', 'w2', 'w3'], answers: { w1: 'the' } }
-  localStorage.setItem('cluecab-journey-v2', JSON.stringify(raw))
-})
-await open('?mock=1&howto=0')
-check('a suspended exam is surfaced on home', (await page.locator('.exam-resume').count()) === 1)
-const spentBefore = await page.evaluate(
-  () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent?.['0'] ?? 0,
-)
-await page.locator('.exam-resume .btn-gate').click()
-await page.waitForTimeout(350)
-check('resuming reopens the same paper', (await page.locator('.gate-list').count()) === 1)
-const spentAfter = await page.evaluate(
-  () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent?.['0'] ?? 0,
-)
-check('resuming does not spend a second attempt', spentBefore === spentAfter, `${spentBefore} -> ${spentAfter}`)
-await page.goBack()
-await page.waitForTimeout(350)
-await page.locator('.btn-quiet').click()
-await page.waitForTimeout(250)
-check('abandoning it clears the lock', (await page.locator('.exam-resume').count()) === 0)
 
 // Installed, there is no browser chrome above the page, so a scrolled screen
 // used to draw its own title under the phone's clock.

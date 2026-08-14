@@ -1,51 +1,31 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS, curriculumRank } from '../data/words'
 import type { WordEntry } from '../data/types'
-import { mulberry32 } from '../engine/rng'
 import { applyRoundResults, newStats } from '../srs/scheduler'
 import type { SrsMap, WordStats } from '../srs/types'
+import { CITIES, STUDY_UNTIL_CITY, WORDS_PER_CITY } from './cities'
 import {
-  CITIES,
-  GATES_PER_CITY,
-  GATE_SIZE,
-  STUDY_UNTIL_CITY,
-  UNLIMITED_TRIALS_AT,
-  WORDS_PER_CITY,
-} from './cities'
-import {
-  GREENS_PER_TRIAL,
-  LEARN_REPS,
+  WRAP_TO_TRAVEL,
   canTravel,
   cityBand,
   countCollection,
-  examComposition,
-  examTrials,
-  examUnlocked,
-  greensToNextTrial,
-  examWords,
+  countWrapped,
+  isCollected,
   isJourneyComplete,
-  isLearned,
-  stampsFor,
   studyPhaseEnabled,
   unlockedWords,
-  wordLifecycle,
   wordState,
   wordsForCity,
-  type JourneyState,
 } from './progress'
 
 const NOW = 1_700_000_000_000
 const stats = (over: Partial<WordStats> = {}): WordStats => ({ ...newStats(NOW), ...over })
-const journey = (over: Partial<JourneyState> = {}): JourneyState => ({
-  cityIndex: 0,
-  stamps: {},
-  banked: {},
-  trialsSpent: {},
-  ...over,
-})
 
 const srsWith = (words: readonly WordEntry[], over: Partial<WordStats>): SrsMap =>
   Object.fromEntries(words.map((w) => [w.id, stats(over)]))
+
+/** A word that has earned its green each way. */
+const COLLECTED: Partial<WordStats> = { greenByClue: 1, greenByGuess: 1 }
 
 describe('city bands', () => {
   it('cover the dataset exactly once, 100 words per city', () => {
@@ -82,77 +62,30 @@ describe('unlockedWords', () => {
   })
 })
 
-describe('the three collection states', () => {
-  const cases: [WordStats | undefined, boolean, string, string][] = [
-    [undefined, false, 'undiscovered', 'never met'],
-    [stats(), false, 'discovered', 'seen but never handled'],
-    [stats({ correctGuesses: 1 }), false, 'discovered', 'handled once'],
-    [stats({ correctGuesses: LEARN_REPS - 1 }), false, 'discovered', 'one short'],
-    [stats({ correctGuesses: LEARN_REPS }), false, 'learned', 'handled enough'],
-    [stats({ correctGuesses: 0 }), true, 'learned', 'banked by an exam'],
-    [undefined, true, 'learned', 'banked even if never played'],
-    [stats({ correctGuesses: LEARN_REPS, misses: 9 }), false, 'learned', 'misses do not unlearn'],
-  ]
-  it.each(cases)('%#: %s', (s, banked, expected) => {
-    expect(wordState(s, banked)).toBe(expected)
-  })
-
-  it('never regresses across many rounds of real SRS updates', () => {
-    const city = wordsForCity(WORDS, 0)
-    let srs: SrsMap = {}
-    let learned = 0
-    for (let round = 0; round < 200; round++) {
-      const picks = city.slice((round * 7) % 80, ((round * 7) % 80) + 12)
-      srs = applyRoundResults(
-        srs,
-        picks.map((w, i) => ({
-          wordId: w.id,
-          guessedGreen: (round + i) % 3 !== 0,
-          guessedWrong: (round + i) % 3 === 0,
-          greenByOwnClue: (round + i) % 2 === 0 && (round + i) % 3 !== 0,
-          greenByOwnGuess: (round + i) % 2 !== 0 && (round + i) % 3 !== 0,
-          lookedUp: (round + i) % 5 === 0,
-        })),
-        NOW + round * 1000,
-      )
-      const now = countCollection(city, srs, {}).learned
-      expect(now).toBeGreaterThanOrEqual(learned)
-      learned = now
-    }
-    expect(learned).toBeGreaterThan(0)
-  })
-
-  it('counts split cleanly and always sum to the whole', () => {
-    const city = wordsForCity(WORDS, 0)
-    const srs = {
-      ...srsWith(city.slice(0, 10), { correctGuesses: LEARN_REPS }),
-      ...srsWith(city.slice(10, 35), { correctGuesses: 1 }),
-    }
-    const banked = Object.fromEntries(city.slice(90, 95).map((w) => [w.id, NOW]))
-    const counts = countCollection(city, srs, banked)
-    expect(counts.learned).toBe(15) // 10 by play + 5 banked
-    expect(counts.discovered).toBe(25)
-    expect(counts.undiscovered).toBe(60)
-    expect(counts.learned + counts.discovered + counts.undiscovered).toBe(counts.total)
-  })
-})
-
-describe('the four-state lifecycle', () => {
+describe('the four collection states', () => {
   const cases: [WordStats | undefined, boolean, string, string][] = [
     [undefined, false, 'undiscovered', 'never met'],
     [stats(), false, 'discovered', 'seen but never green'],
     [stats({ greenByClue: 2 }), false, 'discovered', 'clued twice, never guessed'],
     [stats({ greenByGuess: 2 }), false, 'discovered', 'guessed twice, never clued'],
-    [stats({ greenByClue: 1, greenByGuess: 1 }), false, 'collected', 'one green each way'],
-    [stats({ greenByClue: 1, greenByGuess: 1, misses: 9 }), false, 'collected', 'misses cannot uncollect'],
+    [stats({ correctGuesses: 9 }), false, 'discovered', 'greens alone do not collect'],
+    [stats(COLLECTED), false, 'collected', 'one green each way'],
+    [stats({ ...COLLECTED, misses: 9 }), false, 'collected', 'misses cannot uncollect'],
     [stats(), true, 'wrapped', 'the ledger outranks the counters'],
     [undefined, true, 'wrapped', 'wrapped even with no stats'],
   ]
   it.each(cases)('%#: %s', (s, wrapped, expected) => {
-    expect(wordLifecycle(s, wrapped)).toBe(expected)
+    expect(wordState(s, wrapped)).toBe(expected)
   })
 
-  it('never regresses: the counters only rise and the ledger only grows', () => {
+  it('isCollected is collected-or-better', () => {
+    expect(isCollected(stats(COLLECTED), false)).toBe(true)
+    expect(isCollected(stats(), true)).toBe(true)
+    expect(isCollected(stats({ greenByClue: 3 }), false)).toBe(false)
+    expect(isCollected(undefined, false)).toBe(false)
+  })
+
+  it('never regresses across many rounds of real SRS updates', () => {
     const order = ['undiscovered', 'discovered', 'collected', 'wrapped']
     let srs: SrsMap = {}
     let best = 0
@@ -171,140 +104,61 @@ describe('the four-state lifecycle', () => {
         ],
         NOW + round * 1000,
       )
-      const now = order.indexOf(wordLifecycle(srs.w, false))
+      const now = order.indexOf(wordState(srs.w, false))
       expect(now).toBeGreaterThanOrEqual(best)
       best = now
     }
     expect(best).toBe(order.indexOf('collected'))
   })
-})
 
-describe('the travel exam is never locked', () => {
-  const city = wordsForCity(WORDS, 0)
-  const rng = () => mulberry32(99)
-
-  it('always offers a full paper, even on an untouched city', () => {
-    expect(examWords(WORDS, {}, {}, 0, rng()).length).toBe(GATE_SIZE)
-  })
-
-  it('takes every green first, then fills with grey, then the unknown', () => {
-    const greens = [city[70]!, city[40]!, city[95]!, city[12]!]
-    const greys = city.slice(0, 6)
+  it('counts split cleanly and always sum to the whole', () => {
+    const city = wordsForCity(WORDS, 0)
     const srs = {
-      ...srsWith(greens, { correctGuesses: LEARN_REPS }),
-      ...srsWith(greys, { correctGuesses: 1 }),
+      ...srsWith(city.slice(0, 10), COLLECTED),
+      ...srsWith(city.slice(10, 35), { greenByGuess: 1 }),
     }
-    const paper = examWords(WORDS, srs, {}, 0, rng())
-    const ids = new Set(paper.map((w) => w.id))
-    // All four greens and all six greys make the cut before any unknown word.
-    for (const w of [...greens, ...greys]) expect(ids.has(w.id)).toBe(true)
-    expect(paper.length).toBe(GATE_SIZE)
-
-    const comp = examComposition(WORDS, srs, {}, 0)
-    expect(comp).toEqual({ learned: 4, discovered: 6, undiscovered: 10, total: GATE_SIZE })
-  })
-
-  it('is a fair test once twenty words are green', () => {
-    const srs = srsWith(city.slice(0, 25), { correctGuesses: LEARN_REPS })
-    const comp = examComposition(WORDS, srs, {}, 0)
-    expect(comp).toEqual({ learned: 20, discovered: 0, undiscovered: 0, total: GATE_SIZE })
-    const paper = examWords(WORDS, srs, {}, 0, rng())
-    for (const w of paper) expect(isLearned(srs[w.id], false)).toBe(true)
-  })
-
-  /**
-   * The retry used to be the same paper. Green words were a deterministic
-   * prefix of a rank-sorted list and no exam outcome can change that list, so
-   * failing, reading the answers the results screen prints beside every miss,
-   * and tapping "Try again" handed back the identical twenty words — a
-   * guaranteed pass that banked twenty words the player had just failed.
-   */
-  describe('and never re-serves the paper whose answers it just printed', () => {
-    it('gives a different paper to a player with words to spare', () => {
-      const srs = srsWith(city.slice(0, 40), { correctGuesses: LEARN_REPS })
-      const first = examWords(WORDS, srs, {}, 0, rng()).map((w) => w.id)
-      const second = examWords(WORDS, srs, {}, 0, rng(), new Set(first)).map((w) => w.id)
-      expect(second.length).toBe(GATE_SIZE)
-      for (const id of second) expect(first).not.toContain(id)
-    })
-
-    it('and shares as few as it must when the city cannot fill a fresh one', () => {
-      // Exactly GATE_SIZE unbanked greens: the paper is *defined* as all of
-      // them, so a repeat is unavoidable — but a short paper would be worse,
-      // and the words must come back only to fill.
-      const srs = srsWith(city.slice(0, GATE_SIZE), { correctGuesses: LEARN_REPS })
-      const first = examWords(WORDS, srs, {}, 0, rng()).map((w) => w.id)
-      const second = examWords(WORDS, srs, {}, 0, rng(), new Set(first))
-      expect(second.length).toBe(GATE_SIZE)
-      // Grey and unknown words are pulled in ahead of any repeat.
-      const repeats = second.filter((w) => first.includes(w.id))
-      expect(repeats.length).toBeLessThan(GATE_SIZE)
-      for (const w of second.filter((x) => !first.includes(x.id))) {
-        expect(isLearned(srs[w.id], false)).toBe(false)
-      }
-    })
-
-    it('still fills the paper when literally every candidate was just seen', () => {
-      const banked = Object.fromEntries(city.slice(GATE_SIZE).map((w) => [w.id, NOW]))
-      const first = examWords(WORDS, {}, banked, 0, rng()).map((w) => w.id)
-      const second = examWords(WORDS, {}, banked, 0, rng(), new Set(first))
-      expect(second.length).toBe(first.length)
-    })
-  })
-
-  it('never re-tests a banked word', () => {
-    const banked = Object.fromEntries(city.slice(0, 20).map((w) => [w.id, NOW]))
-    const paper = examWords(WORDS, {}, banked, 0, rng())
-    expect(paper.length).toBe(GATE_SIZE)
-    for (const w of paper) expect(w.id in banked).toBe(false)
-  })
-
-  it('shrinks its paper only when a city is nearly exhausted', () => {
-    const banked = Object.fromEntries(city.slice(0, 95).map((w) => [w.id, NOW]))
-    expect(examWords(WORDS, {}, banked, 0, rng()).length).toBe(5)
-    expect(examComposition(WORDS, {}, banked, 0).total).toBe(5)
-  })
-
-  it('varies which unknown words it draws between attempts', () => {
-    const a = examWords(WORDS, {}, {}, 0, mulberry32(1)).map((w) => w.id).join()
-    const b = examWords(WORDS, {}, {}, 0, mulberry32(2)).map((w) => w.id).join()
-    expect(a).not.toBe(b)
-  })
-})
-
-describe('stamps and travel', () => {
-  it('needs a full passport page', () => {
-    for (let n = 0; n < GATES_PER_CITY; n++) {
-      expect(canTravel(journey({ stamps: { 0: n } }), 0)).toBe(false)
-    }
-    expect(canTravel(journey({ stamps: { 0: GATES_PER_CITY } }), 0)).toBe(true)
-  })
-
-  it('is tracked per city', () => {
-    const j = journey({ cityIndex: 1, stamps: { 0: GATES_PER_CITY } })
-    expect(canTravel(j, 0)).toBe(true)
-    expect(canTravel(j, 1)).toBe(false)
-    expect(stampsFor(j, 1)).toBe(0)
-  })
-
-  it('the journey completes only after the final city', () => {
-    const last = CITIES.length - 1
-    expect(isJourneyComplete(journey({ cityIndex: last }))).toBe(false)
+    const wrapped = Object.fromEntries(city.slice(90, 95).map((w) => [w.id, NOW]))
+    const counts = countCollection(city, srs, wrapped)
+    expect(counts.collected).toBe(10)
+    expect(counts.wrapped).toBe(5)
+    expect(counts.discovered).toBe(25)
+    expect(counts.undiscovered).toBe(60)
     expect(
-      isJourneyComplete(journey({ cityIndex: last, stamps: { [last]: GATES_PER_CITY } })),
-    ).toBe(true)
+      counts.collected + counts.wrapped + counts.discovered + counts.undiscovered,
+    ).toBe(counts.total)
   })
 
-  it('five full papers bank a whole city', () => {
-    expect(GATES_PER_CITY * GATE_SIZE).toBe(WORDS_PER_CITY)
+  it('a collected word that gets wrapped counts once, as wrapped', () => {
+    const city = wordsForCity(WORDS, 0)
+    const srs = srsWith(city.slice(0, 3), COLLECTED)
+    const wrapped = { [city[0]!.id]: NOW }
+    const counts = countCollection(city.slice(0, 3), srs, wrapped)
+    expect(counts).toMatchObject({ wrapped: 1, collected: 2, total: 3 })
   })
 })
 
-describe('isLearned', () => {
-  it('matches wordState', () => {
-    expect(isLearned(stats({ correctGuesses: LEARN_REPS }), false)).toBe(true)
-    expect(isLearned(stats({ correctGuesses: 1 }), false)).toBe(false)
-    expect(isLearned(undefined, true)).toBe(true)
+describe('wrapping and travel', () => {
+  const city = wordsForCity(WORDS, 0)
+  const wrappedOf = (n: number) => Object.fromEntries(city.slice(0, n).map((w) => [w.id, NOW]))
+
+  it('the road opens at exactly WRAP_TO_TRAVEL wrapped words, not one sooner', () => {
+    expect(canTravel(WORDS, wrappedOf(WRAP_TO_TRAVEL - 1), 0)).toBe(false)
+    expect(canTravel(WORDS, wrappedOf(WRAP_TO_TRAVEL), 0)).toBe(true)
+  })
+
+  it('counts only the city in question', () => {
+    // A packed Sønderborg says nothing about Ribe.
+    expect(canTravel(WORDS, wrappedOf(WRAP_TO_TRAVEL), 1)).toBe(false)
+    expect(countWrapped(wordsForCity(WORDS, 1), wrappedOf(WRAP_TO_TRAVEL))).toBe(0)
+  })
+
+  it('the journey completes only after the final city packs its suitcase', () => {
+    const last = CITIES.length - 1
+    const lastCity = wordsForCity(WORDS, last)
+    const wrapped = Object.fromEntries(lastCity.map((w) => [w.id, NOW]))
+    expect(isJourneyComplete(WORDS, {}, last)).toBe(false)
+    expect(isJourneyComplete(WORDS, wrapped, last)).toBe(true)
+    expect(isJourneyComplete(WORDS, wrapped, last - 1)).toBe(false)
   })
 })
 
@@ -337,99 +191,5 @@ describe('cities data', () => {
     expect(CITIES[0]!.name).toBe('Sønderborg')
     expect(CITIES[CITIES.length - 1]!.name).toBe('København')
     expect(Math.min(...CITIES.map((c) => c.lat))).toBe(CITIES[0]!.lat)
-  })
-})
-
-describe('exam trials', () => {
-  const city = wordsForCity(WORDS, 0)
-  const greens = (n: number) => srsWith(city.slice(0, n), { correctGuesses: LEARN_REPS })
-
-  it('earns one attempt per ten green words', () => {
-    expect(examTrials(WORDS, {}, {}, journey(), 0).earned).toBe(0)
-    expect(examTrials(WORDS, greens(GREENS_PER_TRIAL - 1), {}, journey(), 0).earned).toBe(0)
-    expect(examTrials(WORDS, greens(GREENS_PER_TRIAL), {}, journey(), 0).earned).toBe(1)
-    expect(examTrials(WORDS, greens(35), {}, journey(), 0).earned).toBe(3)
-    expect(examTrials(WORDS, greens(100), {}, journey(), 0).earned).toBe(10)
-  })
-
-  it('the first attempt arrives at exactly half a paper green', () => {
-    expect(examUnlocked(WORDS, greens(GREENS_PER_TRIAL - 1), {}, journey(), 0)).toBe(false)
-    expect(examUnlocked(WORDS, greens(GREENS_PER_TRIAL), {}, journey(), 0)).toBe(true)
-    expect(GREENS_PER_TRIAL).toBe(GATE_SIZE / 2)
-  })
-
-  it('an attempt taken shuts the exam again', () => {
-    const srs = greens(GREENS_PER_TRIAL)
-    const spent = journey({ trialsSpent: { 0: 1 } })
-    expect(examTrials(WORDS, srs, {}, spent, 0).available).toBe(0)
-    expect(examUnlocked(WORDS, srs, {}, spent, 0)).toBe(false)
-  })
-
-  it('passing pays for itself: each stamp banks twenty, earning two for one', () => {
-    // Ten greens buys the first attempt. Passing banks the paper's twenty
-    // words, which are worth two more attempts — so a clean run never stalls.
-    let state = journey()
-    let srs = greens(GREENS_PER_TRIAL)
-    let banked: Record<string, number> = {}
-    for (let stamp = 1; stamp <= GATES_PER_CITY; stamp++) {
-      expect(examUnlocked(WORDS, srs, banked, state, 0)).toBe(true)
-      state = journey({ trialsSpent: { 0: (state.trialsSpent[0] ?? 0) + 1 } })
-      banked = {
-        ...banked,
-        ...Object.fromEntries(city.slice(0, stamp * GATE_SIZE).map((w) => [w.id, NOW])),
-      }
-      srs = {}
-    }
-    expect(examTrials(WORDS, srs, banked, state, 0).spent).toBe(GATES_PER_CITY)
-  })
-
-  it('banked words keep counting toward attempts', () => {
-    const banked = Object.fromEntries(city.slice(0, 20).map((w) => [w.id, NOW]))
-    expect(examTrials(WORDS, {}, banked, journey(), 0).earned).toBe(2)
-  })
-
-  it('stops counting once the city is nine-tenths green, however many were burnt', () => {
-    const srs = greens(UNLIMITED_TRIALS_AT)
-    const burnt = journey({ trialsSpent: { 0: 99 } })
-    const trials = examTrials(WORDS, srs, {}, burnt, 0)
-    expect(trials.available).toBe(0)
-    expect(trials.unlimited).toBe(true)
-    expect(examUnlocked(WORDS, srs, {}, burnt, 0)).toBe(true)
-  })
-
-  it('one green short of the threshold is still rationed', () => {
-    const srs = greens(UNLIMITED_TRIALS_AT - 1)
-    const burnt = journey({ trialsSpent: { 0: 99 } })
-    expect(examTrials(WORDS, srs, {}, burnt, 0).unlimited).toBe(false)
-    expect(examUnlocked(WORDS, srs, {}, burnt, 0)).toBe(false)
-  })
-
-  it('banked words count toward the threshold too', () => {
-    const banked = Object.fromEntries(
-      city.slice(0, UNLIMITED_TRIALS_AT).map((w) => [w.id, NOW]),
-    )
-    expect(examTrials(WORDS, {}, banked, journey({ trialsSpent: { 0: 99 } }), 0).unlimited).toBe(
-      true,
-    )
-  })
-
-  it('play can always buy another attempt, so no city can strand a player', () => {
-    // Every attempt burnt at every green count below the threshold: greening
-    // ten more words always reopens the exam.
-    const burnt = (n: number) => journey({ trialsSpent: { 0: n } })
-    for (let learned = 0; learned < UNLIMITED_TRIALS_AT; learned += GREENS_PER_TRIAL) {
-      const srs = greens(learned)
-      const allSpent = burnt(Math.floor(learned / GREENS_PER_TRIAL))
-      expect(examUnlocked(WORDS, srs, {}, allSpent, 0)).toBe(false)
-      // ...and ten more greens opens it again.
-      expect(
-        examUnlocked(WORDS, greens(learned + GREENS_PER_TRIAL), {}, allSpent, 0),
-      ).toBe(true)
-    }
-  })
-
-  it('reports how many greens remain before the next attempt', () => {
-    expect(greensToNextTrial(WORDS, {}, {}, 0)).toBe(GREENS_PER_TRIAL)
-    expect(greensToNextTrial(WORDS, greens(7), {}, 0)).toBe(3)
   })
 })

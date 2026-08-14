@@ -1,29 +1,15 @@
-// Drives the journey: home → a failed travel exam blocks the road → a perfect
-// exam passes the fifth gate → travel to the next city unlocks its 100 words.
+// Drives the journey: home → a packed suitcase opens the road → travel to the
+// next city unlocks its 100 words.
+//
+// TEMPORARILY REDUCED: the suitcase is packed by dev switch (?wrapped=100)
+// rather than by playing a wrap-up round, because the wrap-up mode lands in
+// the next change. The full loop — collect → wrap in play → travel — returns
+// with it.
 import { chromium } from 'playwright'
-import { readFileSync } from 'node:fs'
 import { startPreview } from './preview-server.mjs'
-
-/**
- * The dataset, so the retry can be answered on its own terms.
- *
- * This drive used to scrape the answer key off the failed paper and type it
- * back positionally, which only worked because the retry WAS the failed paper —
- * the defect that let a player fail an exam, read the answers printed beside
- * every miss, and pass the identical twenty words. The drive passed because of
- * the bug. Now the retry is a different paper, so answer it from the dictionary
- * like someone who actually knows the words.
- */
-const GLOSS = new Map(
-  JSON.parse(readFileSync(new URL('../src/data/words.da.json', import.meta.url))).map((w) => [
-    w.da,
-    w.en[0],
-  ]),
-)
 
 const PORT = 4177
 const preview = await startPreview(PORT)
-import { setTimeout as sleep } from 'node:timers/promises'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
 const BASE = preview.base
@@ -37,91 +23,50 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 const journeyState = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state)
 
-/** The exam's words, in order, read from the rendered rows. */
-const examWords = () => page.locator('.gate-list .gate-da').allTextContents()
-
 try {
   // A fresh journey starts in the far south with nothing collected.
   await page.goto(`${BASE}?mock=1&howto=0`)
   await page.waitForSelector('.city-card')
   const start = await page.locator('.city-name').textContent()
   if (start?.trim() !== 'Sønderborg') throw new Error(`expected to start in Sønderborg, got ${start}`)
+  if (await page.locator('.btn-travel').count()) throw new Error('travel offered with nothing wrapped')
   await page.screenshot({ path: `${SHOT_DIR}/j1-home-start.png` })
 
-  // Jump to a city with four gates behind us and every word collected.
-  await page.goto(`${BASE}?mock=1&howto=0&city=0&learned=100&stamps=4`)
+  // One word short of a packed suitcase: the road stays shut.
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&wrapped=99`)
   await page.waitForSelector('.city-card')
-  const collected = await page.locator('.collect-count').textContent()
-  console.log('progress:', collected?.replace(/\s+/g, ' ').trim())
-  if (!collected?.includes('100')) throw new Error('learned count did not reach 100')
-  await page.screenshot({ path: `${SHOT_DIR}/j2-home-ready.png` })
+  const almost = await page.locator('.collect-count').textContent()
+  console.log('progress at 99:', almost?.replace(/\s+/g, ' ').trim())
+  if (!almost?.includes('99')) throw new Error('wrapped count did not reach 99')
+  if (await page.locator('.btn-travel').count())
+    throw new Error('travel offered at 99 of 100 wrapped')
+  await page.screenshot({ path: `${SHOT_DIR}/j2-almost.png` })
 
-  // Four stamps already in the passport; the fifth exam is offered.
-  const earned = await page.locator('.stamp.stamp-earned').count()
-  if (earned !== 4) throw new Error(`expected 4 stamps, saw ${earned}`)
-  await page.click('.btn-gate')
-  await page.waitForSelector('.gate-list')
-  const words = await examWords()
-  if (words.length !== 20) throw new Error(`expected 20 exam words, got ${words.length}`)
-  await page.screenshot({ path: `${SHOT_DIR}/j3-exam.png` })
+  // The hundredth word wraps → the road north opens on Home.
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&wrapped=100`)
+  await page.waitForSelector('.btn-travel')
+  await page.screenshot({ path: `${SHOT_DIR}/j3-travel-open.png` })
 
-  // The dictionary must be locked app-wide while an exam is open.
-  if ((await page.locator('.card-info').count()) > 0) throw new Error('dictionary reachable in exam')
-
-  // Wrong answers everywhere → exam fails and the road stays shut.
-  for (let i = 0; i < 20; i++) {
-    await page.locator('.gate-item input').nth(i).fill('zzz')
-  }
-  await page.click('.btn-primary')
-  await page.waitForSelector('.gate-results')
-  const rejected = await page.locator('.gate-results .rejected').count()
-  console.log(`failed exam: ${rejected} / 20 marked wrong`)
-  if (rejected !== 20) throw new Error('a wrong answer was accepted')
-  if (await page.locator('.btn-travel, .travel-callout').count())
-    throw new Error('travel offered despite a failed exam')
-  await page.screenshot({ path: `${SHOT_DIR}/j4-exam-failed.png` })
-
-  // The results screen prints the right answer beside every miss, so the retry
-  // must not be able to reuse them: a different paper is the whole point.
-  const failedPaper = words
-  await page.click('.btn-primary') // Try the test again
-  await page.waitForSelector('.gate-list')
-  const retryPaper = await examWords()
-  const carriedOver = retryPaper.filter((w) => failedPaper.includes(w))
-  console.log(`retry paper shares ${carriedOver.length}/20 with the one just marked`)
-  if (carriedOver.length === retryPaper.length)
-    throw new Error('the retry re-served the paper whose answers were just printed')
-
-  // Answer it properly, from the dictionary rather than from the answer key.
-  for (let i = 0; i < 20; i++) {
-    const gloss = GLOSS.get(retryPaper[i].trim())
-    if (!gloss) throw new Error(`no gloss for exam word "${retryPaper[i]}"`)
-    await page.locator('.gate-item input').nth(i).fill(gloss)
-  }
-  await page.click('.btn-primary')
-  await page.waitForSelector('.gate-results')
-  const accepted = await page.locator('.gate-results .accepted').count()
-  console.log(`retry: ${accepted} / 20 accepted`)
-  if (accepted !== 20) throw new Error('perfect answers were not all accepted')
-
-  // Fifth gate passed → the road north opens.
-  await page.waitForSelector('.travel-callout')
-  await page.screenshot({ path: `${SHOT_DIR}/j5-travel-open.png` })
-  await page.click('.gate-actions .btn-primary')
+  // Travel happens on the map, and lands on the arrival screen.
+  await page.click('.btn-travel')
+  await page.waitForSelector('.denmark-map')
+  await page.click('.map-screen .btn-primary')
   await page.waitForSelector('.arrival-city')
   const arrived = await page.locator('.arrival-city').textContent()
   console.log('arrived in:', arrived)
   if (arrived?.trim() !== 'Ribe') throw new Error(`expected to arrive in Ribe, got ${arrived}`)
-  await page.screenshot({ path: `${SHOT_DIR}/j6-arrival.png` })
+  await page.screenshot({ path: `${SHOT_DIR}/j4-arrival.png` })
 
   const state = await journeyState()
   if (state.cityIndex !== 1) throw new Error(`journey did not advance: ${JSON.stringify(state)}`)
   if (!state.arrivedAt?.['1']) throw new Error('arrival was not logged')
+  if (Object.keys(state.wrapped ?? {}).length !== 100)
+    throw new Error('the packed suitcase did not travel with the player')
 
   // The map shows the new position.
   await page.click('.arrival-screen .btn:not(.btn-primary)')
   await page.waitForSelector('.denmark-map')
-  await page.screenshot({ path: `${SHOT_DIR}/j7-map.png` })
+  await page.screenshot({ path: `${SHOT_DIR}/j5-map.png` })
 
   console.log('JOURNEY DRIVE OK')
 } catch (e) {

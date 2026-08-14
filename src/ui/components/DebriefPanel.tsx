@@ -108,9 +108,10 @@ export function DebriefPanel({ game }: { game: GameState }) {
   const { debrief, debriefFailed, aiBusy, newGame, newlyLearned } = useGame()
   const goTo = useUi((s) => s.goTo)
   const cityIndex = useJourney((s) => s.cityIndex)
-  const banked = useJourney((s) => s.banked)
+  const wrapped = useJourney((s) => s.wrapped)
   const srs = useSrs((s) => s.stats)
-  const cityLearned = countCollection(wordsForCity(WORDS, cityIndex), srs, banked).learned
+  const cityCounts = countCollection(wordsForCity(WORDS, cityIndex), srs, wrapped)
+  const cityCollected = cityCounts.collected + cityCounts.wrapped
   const outcome = game.outcome!
   const copy = OUTCOME_COPY[`${outcome.result}:${outcome.reason}` as OutcomeKey]
   const aiClues = game.clueHistory.filter((c) => c.by === 'ai' && c.rationale)
@@ -144,9 +145,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
           shown either way — and it is the only place the collection speaks. */}
       {newlyLearned.length > 0 && (
         <section className="debrief-section collected-section">
-          <h3>
-            Added to <span lang="da">samlingen</span>
-          </h3>
+          <h3>Collected for Cluey</h3>
           <ul className="collected-words">
             {newlyLearned.map((id) => {
               const w = game.words.find((x) => x.wordId === id)
@@ -163,8 +162,8 @@ export function DebriefPanel({ game }: { game: GameState }) {
             })}
           </ul>
           <p className="collected-note">
-            {newlyLearned.length === 1 ? 'One word' : `${newlyLearned.length} words`} turned green
-            — {cityLearned} of {WORDS_PER_CITY} in {cityAt(cityIndex).name}.
+            {newlyLearned.length === 1 ? 'One word' : `${newlyLearned.length} words`} collected —{' '}
+            {cityCollected} of {WORDS_PER_CITY} in {cityAt(cityIndex).name}.
           </p>
         </section>
       )}

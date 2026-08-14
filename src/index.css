@@ -554,10 +554,18 @@ select:focus {
   word-break: break-word;
 }
 
-.dex-learned {
+.dex-learned,
+.dex-wrapped {
   background: var(--green-tile);
   border: 1px solid var(--green-tile);
   color: #fff;
+}
+
+/* Collected but not yet packed: green like the goal, hollow like the gap. */
+.dex-collected {
+  background: var(--green-soft);
+  border: 1px solid var(--green-tile);
+  color: var(--text);
 }
 
 .dex-discovered {

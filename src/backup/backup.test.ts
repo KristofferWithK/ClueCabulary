@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { LEARN_REPS } from '../journey/progress'
 import { newStats } from '../srs/scheduler'
 import type { SrsMap, WordStats } from '../srs/types'
 import {
@@ -18,10 +17,13 @@ const DAY = 86_400_000
 
 const stats = (patch: Partial<WordStats> = {}): WordStats => ({ ...newStats(NOW), ...patch })
 
+/** One green each way — the collected threshold. */
+const COLLECTED: Partial<WordStats> = { greenByClue: 1, greenByGuess: 1, correctGuesses: 2 }
+
 const snapshot = (patch: Partial<Snapshot> = {}): Snapshot => ({
   stats: {},
   games: { played: 0, won: 0, redeemed: 0, lost: 0 },
-  journey: { cityIndex: 0, stamps: {}, banked: {}, trialsSpent: {}, arrivedAt: {} },
+  journey: { cityIndex: 0, wrapped: {}, arrivedAt: {} },
   prefs: { gridSize: 'beginner', clueLanguage: 'en', studyPhase: 'auto' },
   ...patch,
 })
@@ -39,16 +41,14 @@ describe('export and parse', () => {
       games: { played: 9, won: 4, redeemed: 1, lost: 4 },
       journey: {
         cityIndex: 2,
-        stamps: { 0: 5, 1: 5, 2: 1 },
-        banked: { hus: NOW - DAY },
-        trialsSpent: { 2: 3 },
+        wrapped: { hus: NOW - DAY },
         arrivedAt: { 1: NOW - 5 * DAY, 2: NOW - DAY },
       },
     })
     const back = roundTrip(s)
     expect(back.format).toBe(BACKUP_FORMAT)
     expect(back.srs.stats.hus).toEqual(s.stats.hus)
-    expect(back.journey.stamps).toEqual({ 0: 5, 1: 5, 2: 1 })
+    expect(back.journey.wrapped).toEqual({ hus: NOW - DAY })
     expect(back.journey.cityIndex).toBe(2)
     expect(back.srs.games.played).toBe(9)
   })
@@ -115,12 +115,51 @@ describe('export and parse', () => {
   })
 
   /**
-   * Files written before the directional counters existed have no
-   * greenByClue/greenByGuess. They restore by the same rule migrateSrs uses
-   * on a v1 store: a record the old model called learned arrives collected,
-   * anything short arrives with zeroes.
+   * A format-1 file is months of someone's progress. It restores upgraded in
+   * memory: banked -> wrapped by the store-migration rule, stamps and spent
+   * attempts dropped, counter-less records seeded like migrateSrs.
    */
-  it('normalizes a counter-less file with the migration seeding rule', () => {
+  it('upgrades a format-1 file: banked words arrive wrapped', () => {
+    const v1 = {
+      app: 'cluecabulary',
+      format: 1,
+      exportedAt: NOW,
+      srs: {
+        stats: {
+          learned: {
+            box: 3,
+            lastSeenAt: NOW,
+            seen: 5,
+            correctGuesses: 3,
+            misses: 0,
+            lookups: 0,
+            redemptionRight: 0,
+            redemptionWrong: 0,
+          },
+        },
+        games: { played: 9, won: 4, redeemed: 1, lost: 4 },
+      },
+      journey: {
+        cityIndex: 2,
+        stamps: { 0: 5, 1: 5, 2: 1 },
+        banked: { hus: NOW - DAY, kat: NOW },
+        trialsSpent: { 2: 3 },
+        arrivedAt: { 2: NOW - DAY },
+      },
+      prefs: { gridSize: 'middle', clueLanguage: 'da', studyPhase: 'never' },
+    }
+    const parsed = parseBackup(JSON.stringify(v1))
+    expect(parsed.ok).toBe(true)
+    if (parsed.ok) {
+      expect(parsed.backup.journey.wrapped).toEqual({ hus: NOW - DAY, kat: NOW })
+      expect(parsed.backup.journey).not.toHaveProperty('stamps')
+      // The legacy learned record restores collected, per the seeding rule.
+      expect(parsed.backup.srs.stats.learned).toMatchObject({ greenByClue: 1, greenByGuess: 1 })
+      expect(parsed.backup.prefs.gridSize).toBe('middle')
+    }
+  })
+
+  it('normalizes a counter-less current-format file with the migration seeding rule', () => {
     const file = buildBackup(
       snapshot({
         stats: {
@@ -147,9 +186,19 @@ describe('export and parse', () => {
 })
 
 describe('betterRecord', () => {
-  it('prefers the record that knows the word better', () => {
-    const weak = stats({ correctGuesses: 1, seen: 9 })
-    const strong = stats({ correctGuesses: 3, seen: 3 })
+  it('collectedness outranks raw greens — a merge must never un-collect', () => {
+    // Three greens all earned one way against a green each way: the second
+    // record is the collected one, whatever the totals say. Mutation check:
+    // put correctGuesses back in front and this fails.
+    const oneWay = stats({ correctGuesses: 3, greenByClue: 3, greenByGuess: 0, seen: 9 })
+    const eachWay = stats({ correctGuesses: 2, greenByClue: 1, greenByGuess: 1, seen: 2 })
+    expect(betterRecord(oneWay, eachWay)).toBe(eachWay)
+    expect(betterRecord(eachWay, oneWay)).toBe(eachWay)
+  })
+
+  it('prefers the record that knows the word better at equal collectedness', () => {
+    const weak = stats({ correctGuesses: 1, greenByGuess: 1, seen: 9 })
+    const strong = stats({ correctGuesses: 3, greenByGuess: 3, seen: 3 })
     expect(betterRecord(weak, strong)).toBe(strong)
     expect(betterRecord(strong, weak)).toBe(strong)
   })
@@ -165,28 +214,28 @@ describe('betterRecord', () => {
   })
 
   it('returns a whole record, never a blend of two', () => {
-    const a = stats({ correctGuesses: 3, seen: 3, misses: 0, box: 4 })
+    const a = stats({ correctGuesses: 3, greenByClue: 2, greenByGuess: 1, seen: 3, box: 4 })
     const b = stats({ correctGuesses: 1, seen: 20, misses: 12, box: 0 })
     expect(betterRecord(a, b)).toEqual(a)
   })
 })
 
 describe('merge', () => {
-  it('cannot turn a green word grey — in either direction', () => {
-    const green = stats({ correctGuesses: LEARN_REPS })
+  it('cannot un-collect a word — in either direction', () => {
+    const collected = stats(COLLECTED)
     const grey = stats({ correctGuesses: 1 })
 
     const fromFile = mergeSnapshot(
       snapshot({ stats: { hus: grey } }),
-      roundTrip(snapshot({ stats: { hus: green } })),
+      roundTrip(snapshot({ stats: { hus: collected } })),
     )
-    expect(fromFile.stats.hus!.correctGuesses).toBe(LEARN_REPS)
+    expect(fromFile.stats.hus).toMatchObject({ greenByClue: 1, greenByGuess: 1 })
 
     const onDevice = mergeSnapshot(
-      snapshot({ stats: { hus: green } }),
+      snapshot({ stats: { hus: collected } }),
       roundTrip(snapshot({ stats: { hus: grey } })),
     )
-    expect(onDevice.stats.hus!.correctGuesses).toBe(LEARN_REPS)
+    expect(onDevice.stats.hus).toMatchObject({ greenByClue: 1, greenByGuess: 1 })
   })
 
   it('keeps words that exist on only one side', () => {
@@ -197,45 +246,24 @@ describe('merge', () => {
     expect(Object.keys(merged.stats).sort()).toEqual(['hus', 'kat'])
   })
 
-  it('unions banked words and keeps the first time each was banked', () => {
+  it('unions wrapped words and keeps the first time each was packed', () => {
     const merged = mergeSnapshot(
-      snapshot({ journey: { cityIndex: 0, stamps: {}, trialsSpent: {}, arrivedAt: {}, banked: { hus: NOW } } }),
+      snapshot({ journey: { cityIndex: 0, arrivedAt: {}, wrapped: { hus: NOW } } }),
       roundTrip(
         snapshot({
-          journey: {
-            cityIndex: 0,
-            stamps: {},
-            trialsSpent: {},
-            arrivedAt: {},
-            banked: { hus: NOW - DAY, kat: NOW },
-          },
+          journey: { cityIndex: 0, arrivedAt: {}, wrapped: { hus: NOW - DAY, kat: NOW } },
         }),
       ),
     )
-    expect(merged.journey.banked).toEqual({ hus: NOW - DAY, kat: NOW })
+    expect(merged.journey.wrapped).toEqual({ hus: NOW - DAY, kat: NOW })
   })
 
-  it('takes the furthest city and the most stamps', () => {
+  it('takes the furthest city', () => {
     const merged = mergeSnapshot(
-      snapshot({ journey: { cityIndex: 1, stamps: { 0: 5, 1: 2 }, banked: {}, trialsSpent: {}, arrivedAt: {} } }),
-      roundTrip(
-        snapshot({
-          journey: { cityIndex: 3, stamps: { 0: 5, 1: 5, 2: 5 }, banked: {}, trialsSpent: {}, arrivedAt: {} },
-        }),
-      ),
+      snapshot({ journey: { cityIndex: 1, wrapped: {}, arrivedAt: {} } }),
+      roundTrip(snapshot({ journey: { cityIndex: 3, wrapped: {}, arrivedAt: {} } })),
     )
     expect(merged.journey.cityIndex).toBe(3)
-    expect(merged.journey.stamps).toEqual({ 0: 5, 1: 5, 2: 5 })
-  })
-
-  it('never refunds spent attempts', () => {
-    const merged = mergeSnapshot(
-      snapshot({ journey: { cityIndex: 0, stamps: {}, banked: {}, trialsSpent: { 0: 7 }, arrivedAt: {} } }),
-      roundTrip(
-        snapshot({ journey: { cityIndex: 0, stamps: {}, banked: {}, trialsSpent: { 0: 1 }, arrivedAt: {} } }),
-      ),
-    )
-    expect(merged.journey.trialsSpent).toEqual({ 0: 7 })
   })
 
   it('restoring your own file twice does not double your record', () => {
@@ -256,14 +284,14 @@ describe('merge', () => {
 
   it('is idempotent: merging the same file twice changes nothing', () => {
     const mine = snapshot({
-      stats: { hus: stats({ correctGuesses: 1 }), kat: stats({ correctGuesses: 3 }) },
-      journey: { cityIndex: 1, stamps: { 0: 5 }, banked: { kat: NOW }, trialsSpent: { 1: 2 }, arrivedAt: { 1: NOW } },
+      stats: { hus: stats({ correctGuesses: 1 }), kat: stats(COLLECTED) },
+      journey: { cityIndex: 1, wrapped: { kat: NOW }, arrivedAt: { 1: NOW } },
       games: { played: 4, won: 2, redeemed: 0, lost: 2 },
     })
     const file = roundTrip(
       snapshot({
-        stats: { hus: stats({ correctGuesses: 3 }), ost: stats({ correctGuesses: 2 }) },
-        journey: { cityIndex: 2, stamps: { 0: 5, 1: 3 }, banked: { hus: NOW - DAY }, trialsSpent: { 1: 5 }, arrivedAt: { 2: NOW } },
+        stats: { hus: stats(COLLECTED), ost: stats({ correctGuesses: 2 }) },
+        journey: { cityIndex: 2, wrapped: { hus: NOW - DAY }, arrivedAt: { 2: NOW } },
         games: { played: 9, won: 5, redeemed: 1, lost: 3 },
       }),
     )
@@ -279,7 +307,7 @@ describe('replace', () => {
       snapshot({
         stats: { hus: stats({ correctGuesses: 3 }) },
         prefs: { gridSize: 'standard', clueLanguage: 'da', studyPhase: 'never' },
-        journey: { cityIndex: 4, stamps: { 0: 5 }, banked: {}, trialsSpent: {}, arrivedAt: {} },
+        journey: { cityIndex: 4, wrapped: { hus: NOW }, arrivedAt: {} },
       }),
     )
     const out = replaceSnapshot(file)
@@ -296,33 +324,34 @@ describe('replace', () => {
 })
 
 describe('summarize', () => {
-  it('counts a word green whether it was played or banked', () => {
+  it('splits the collection into collected and wrapped', () => {
     const srs: SrsMap = {
-      played: stats({ correctGuesses: LEARN_REPS }),
-      halfway: stats({ correctGuesses: 1 }),
-      banked: stats({ correctGuesses: 0 }),
+      loose: stats(COLLECTED),
+      halfway: stats({ greenByGuess: 1 }),
+      packed: stats(COLLECTED),
     }
     const file = roundTrip(
       snapshot({
         stats: srs,
-        journey: { cityIndex: 1, stamps: { 0: 5, 1: 2 }, banked: { banked: NOW }, trialsSpent: {}, arrivedAt: {} },
+        journey: { cityIndex: 1, wrapped: { packed: NOW }, arrivedAt: {} },
       }),
     )
-    const sum = summarize(file, LEARN_REPS)
+    const sum = summarize(file)
     expect(sum.words).toBe(3)
-    expect(sum.learned).toBe(2)
-    expect(sum.banked).toBe(1)
-    expect(sum.stamps).toBe(7)
+    expect(sum.collected).toBe(1)
+    expect(sum.wrapped).toBe(1)
     expect(sum.cityIndex).toBe(1)
   })
 
-  it('does not double-count a word that is both played green and banked', () => {
+  it('does not double-count a word that is both collected in stats and wrapped', () => {
     const file = roundTrip(
       snapshot({
-        stats: { hus: stats({ correctGuesses: LEARN_REPS }) },
-        journey: { cityIndex: 0, stamps: {}, banked: { hus: NOW }, trialsSpent: {}, arrivedAt: {} },
+        stats: { hus: stats(COLLECTED) },
+        journey: { cityIndex: 0, wrapped: { hus: NOW }, arrivedAt: {} },
       }),
     )
-    expect(summarize(file, LEARN_REPS).learned).toBe(1)
+    const sum = summarize(file)
+    expect(sum.collected).toBe(0)
+    expect(sum.wrapped).toBe(1)
   })
 })

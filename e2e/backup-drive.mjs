@@ -29,7 +29,7 @@ const learnedOnHome = async () => {
   await page.locator('.settings-screen .icon-btn').click()
   await page.waitForSelector('.city-card')
   const text = await page.locator('.collect-count').textContent()
-  return Number(text.trim().match(/^(\d+)/)[1])
+  return Number(text.trim().match(/(\d+) collected/)[1])
 }
 
 try {

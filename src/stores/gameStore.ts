@@ -17,7 +17,7 @@ import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
 import { WORDS, isKnownGloss } from '../data/words'
-import { isLearned, studyPhaseEnabled, unlockedWords } from '../journey/progress'
+import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { useFeedback } from './feedbackStore'
 import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
@@ -186,7 +186,7 @@ function dealBoard(
         {
           totalWords: config.totalWords,
           maxNewWordsPerBoard: config.maxNewWordsPerBoard,
-          collected: new Set(Object.keys(useJourney.getState().banked)),
+          collected: new Set(Object.keys(useJourney.getState().wrapped)),
           // Whatever the SRS weights want, exactly three words of the last
           // board come back and the rest of this one avoids both — a board that
           // repeats the last one does not feel like a new board, and one that
@@ -203,14 +203,14 @@ function dealBoard(
   // greens (so the player has to recall them), well-known ones become the
   // forbidden hazards. The daily challenge stays an unbiased shared board.
   const srsStats = useSrs.getState().stats
-  const banked = useJourney.getState().banked
+  const wrapped = useJourney.getState().wrapped
   const bias = dailyKey
     ? undefined
     : {
         need: Object.fromEntries(
           entries.map((w) => [
             w.id,
-            practiceNeed(srsStats[w.id], isLearned(srsStats[w.id], w.id in banked), Date.now()),
+            practiceNeed(srsStats[w.id], isCollected(srsStats[w.id], w.id in wrapped), Date.now()),
           ]),
         ),
       }
@@ -455,17 +455,16 @@ export const useGame = create<GameStore>()(
       noteLookup: (term) => {
         const { game } = get()
         if (!game || game.phase === 'redemption') return
-        if (useJourney.getState().activeExam) return
         const hit = boardWordFor(term, game.words.map((w) => w.wordId))
         if (hit) get().recordLookup(hit)
       },
 
       translate: async (term) => {
         const { game, practiceFallback } = get()
-        // The redemption challenge IS "translate the board with no dictionary",
-        // and a travel exam is the same bargain. A translate field open during
-        // either would not be a feature, it would be the answer key.
-        if (game?.phase === 'redemption' || useJourney.getState().activeExam) {
+        // The redemption challenge IS "translate the board with no dictionary".
+        // A translate field open during it would not be a feature, it would be
+        // the answer key.
+        if (game?.phase === 'redemption') {
           throw new AiError('invalid-response', 'The dictionary is closed until this is finished.')
         }
         const result = await companion(practiceFallback).translate(term)
@@ -646,19 +645,22 @@ export const useGame = create<GameStore>()(
           }
         })
         const finishedAt = Date.now()
-        // Turning a word green is the loop's atomic reward, and it happens
-        // inside recordRound where nothing can see it. Straddle the call so the
-        // round can tell the player what it earned them.
-        const banked = useJourney.getState().banked
+        // Collecting a word is the loop's atomic reward, and it happens inside
+        // recordRound where nothing can see it. Straddle the call so the round
+        // can tell the player what it earned them. (The persisted field keeps
+        // its old name; renaming it buys a migration for a label.)
+        const wrapped = useJourney.getState().wrapped
         const before = useSrs.getState().stats
-        const wasLearned = new Set(
-          game.words.filter((w) => isLearned(before[w.wordId], w.wordId in banked)).map((w) => w.wordId),
+        const wasCollected = new Set(
+          game.words
+            .filter((w) => isCollected(before[w.wordId], w.wordId in wrapped))
+            .map((w) => w.wordId),
         )
         useSrs.getState().recordRound(results, finishedAt)
         const after = useSrs.getState().stats
         const newlyLearned = game.words
           .map((w) => w.wordId)
-          .filter((id) => !wasLearned.has(id) && isLearned(after[id], id in banked))
+          .filter((id) => !wasCollected.has(id) && isCollected(after[id], id in wrapped))
         useSrs.getState().recordGame(game.outcome!)
         const { dailyKey } = get()
         if (dailyKey) {

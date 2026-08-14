@@ -11,17 +11,8 @@ export interface City {
   blurbEn: string
 }
 
-/** Words each city owns, split into GATES_PER_CITY waves of GATE_SIZE. */
+/** Words each city owns — the suitcase-load to collect and wrap before moving on. */
 export const WORDS_PER_CITY = 100
-export const GATE_SIZE = 20
-export const GATES_PER_CITY = WORDS_PER_CITY / GATE_SIZE
-
-/**
- * Green words at which a city stops rationing exam attempts. Someone who knows
- * nine words in ten has proved the point; making them wait for another token is
- * bookkeeping, not teaching.
- */
-export const UNLIMITED_TRIALS_AT = Math.round(WORDS_PER_CITY * 0.9)
 
 /**
  * The route: from the far south, up Jutland to the tip where two seas meet,

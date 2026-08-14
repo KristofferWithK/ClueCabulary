@@ -39,7 +39,6 @@ const screen = () =>
     if (document.querySelector('.map-screen')) return 'map'
     if (document.querySelector('.collection-screen')) return 'stats'
     if (document.querySelector('.settings-screen')) return 'settings'
-    if (document.querySelector('.gate-screen')) return 'gate'
     if (document.querySelector('.game-screen')) return 'game'
     return 'home'
   })
@@ -88,12 +87,12 @@ check('no orphaned entry after closing a sheet', onSentinel(), page.url())
 
 // 5. Two layers deep: system Back peels exactly one at a time.
 await fresh()
-await page.locator('.btn:has-text("Samlingen")').click()
+await page.locator('.btn:has-text("Kufferten")').click()
 await page.waitForTimeout(300)
 check('collection opens', (await screen()) === 'stats')
 // The current city's row is already expanded on arrival.
 await page.waitForTimeout(250)
-await page.locator('.dex-slot.dex-learned').first().click()
+await page.locator('.dex-slot.dex-collected').first().click()
 await page.waitForTimeout(350)
 check('sheet opens over collection', (await page.locator('.sheet').count()) === 1)
 await back()
@@ -115,7 +114,7 @@ await page.waitForTimeout(250)
 await page.locator('.btn:has-text("Back")').click()
 await page.waitForTimeout(250)
 check('map to home via the in-page Back', (await screen()) === 'home')
-await page.locator('.btn:has-text("Samlingen")').click()
+await page.locator('.btn:has-text("Kufferten")').click()
 await page.waitForTimeout(250)
 await page.locator('.collection-screen .icon-btn').click()
 await page.waitForTimeout(300)

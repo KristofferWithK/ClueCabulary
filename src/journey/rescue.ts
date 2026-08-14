@@ -32,12 +32,14 @@ export interface RescueResult {
   outcome: RescueOutcome
   journey?: JourneyBackup
   /** What was actually recovered, for telling the player. */
-  recovered?: { cityIndex: number; stamps: number; banked: number }
+  recovered?: { cityIndex: number; banked: number }
 }
 
 /**
  * Pure half: given the raw v1 blob and the journey as it stands, decide what
- * the journey should become.
+ * the journey should become. The v1 blob predates the wrapped ledger, so its
+ * banked words come back as wrapped — the same rule the store migration
+ * applies — and its stamps and spent attempts have nothing to become.
  */
 export function planRescue(raw: string | null, current: JourneyBackup): RescueResult {
   if (!raw) return { outcome: 'nothing-to-rescue' }
@@ -51,25 +53,26 @@ export function planRescue(raw: string | null, current: JourneyBackup): RescueRe
   if (!v1.success) return { outcome: 'nothing-to-rescue' }
 
   const old = v1.data.state
-  const stampTotal = Object.values(old.stamps).reduce((a, n) => a + n, 0)
   const bankedCount = Object.keys(old.banked).length
   // Nothing worth rescuing is not a failure — most players never travelled.
-  if (old.cityIndex === 0 && stampTotal === 0 && bankedCount === 0) {
+  if (old.cityIndex === 0 && bankedCount === 0) {
     return { outcome: 'nothing-to-rescue' }
   }
 
-  const merged = mergeJourney(current, old)
+  const merged = mergeJourney(current, {
+    cityIndex: old.cityIndex,
+    wrapped: old.banked,
+    arrivedAt: old.arrivedAt,
+  })
   const gained =
     merged.cityIndex > current.cityIndex ||
-    Object.keys(merged.banked).length > Object.keys(current.banked).length ||
-    Object.values(merged.stamps).reduce((a, n) => a + n, 0) >
-      Object.values(current.stamps).reduce((a, n) => a + n, 0)
+    Object.keys(merged.wrapped).length > Object.keys(current.wrapped).length
   if (!gained) return { outcome: 'nothing-to-rescue' }
 
   return {
     outcome: 'rescued',
     journey: merged,
-    recovered: { cityIndex: old.cityIndex, stamps: stampTotal, banked: bankedCount },
+    recovered: { cityIndex: old.cityIndex, banked: bankedCount },
   }
 }
 

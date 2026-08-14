@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useGame } from '../../stores/gameStore'
-import { useJourney } from '../../stores/journeyStore'
+
 
 /** How often an installed app looks for a new version. */
 const CHECK_EVERY_MS = 60 * 60 * 1000
@@ -45,12 +45,11 @@ export function UpdateBanner() {
     return () => clearTimeout(t)
   }, [offlineReady, setOfflineReady])
 
-  // Never interrupt a round in progress or an exam being sat — both are states
-  // a reload would spoil, and the update will still be there afterwards.
+  // Never interrupt a round in progress — a state a reload would spoil, and
+  // the update will still be there afterwards.
   const busy = useGame((s) => !!s.game && s.game.phase !== 'finished')
-  const sitting = useJourney((s) => s.activeExam !== null)
 
-  if (needRefresh && !dismissed && !busy && !sitting) {
+  if (needRefresh && !dismissed && !busy) {
     return (
       <div className="update-banner" role="status">
         <span>A new version of ClueCabulary is ready.</span>

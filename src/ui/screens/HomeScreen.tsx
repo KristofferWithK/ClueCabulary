@@ -1,26 +1,14 @@
 import { articleLabel } from '../../data/gender'
 import { WORDS } from '../../data/words'
 import { GRID_CONFIGS, type GridSize } from '../../engine/config'
-import { mulberry32 } from '../../engine/rng'
-import {
-  CITIES,
-  FINAL_CITY_INDEX,
-  GATES_PER_CITY,
-  WORDS_PER_CITY,
-  cityAt,
-} from '../../journey/cities'
+import { CITIES, FINAL_CITY_INDEX, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
 import {
+  WRAP_TO_TRAVEL,
   canTravel,
   countCollection,
-  examComposition,
-  examTrials,
-  examUnlocked,
-  examWords,
-  greensToNextTrial,
   isJourneyComplete,
-  stampsFor,
   unlockedWords,
   wordsForCity,
 } from '../../journey/progress'
@@ -122,30 +110,16 @@ export function HomeScreen() {
   const journey = useJourney()
 
   const city = cityAt(journey.cityIndex)
-  const cityCounts = countCollection(wordsForCity(WORDS, journey.cityIndex), srs, journey.banked)
-  const allCounts = countCollection(WORDS, srs, journey.banked)
-  const stamps = stampsFor(journey, journey.cityIndex)
-  const paper = examComposition(WORDS, srs, journey.banked, journey.cityIndex)
-  const paperUnknown = paper.discovered + paper.undiscovered
-  const paperLine =
-    paperUnknown === 0
-      ? `all ${paper.learned} green`
-      : `${paper.learned} you know · ${paperUnknown} you don't`
-  const examOpen = examUnlocked(WORDS, srs, journey.banked, journey, journey.cityIndex)
-  const trials = examTrials(WORDS, srs, journey.banked, journey, journey.cityIndex)
-  const toNextTrial = greensToNextTrial(WORDS, srs, journey.banked, journey.cityIndex)
-  // København has no next stop at all, stamps or no stamps. Every place that
-  // names the next city has to ask this, not journeyDone — journeyDone also
-  // wants a full passport, so at the last city with four stamps it is false
-  // while cityAt(cityIndex + 1) still throws and blanks the app.
+  const cityCounts = countCollection(wordsForCity(WORDS, journey.cityIndex), srs, journey.wrapped)
+  const allCounts = countCollection(WORDS, srs, journey.wrapped)
+  // København has no next stop at all, packed suitcase or not. Every place
+  // that names the next city has to ask this, not journeyDone — journeyDone
+  // also wants the suitcase full, so at the last city it can be false while
+  // cityAt(cityIndex + 1) still throws and blanks the app.
   const atRoadsEnd = journey.cityIndex >= FINAL_CITY_INDEX
   const nextCity = atRoadsEnd ? null : cityAt(journey.cityIndex + 1)
-  const journeyDone = isJourneyComplete(journey)
-  const travelReady = canTravel(journey, journey.cityIndex) && !atRoadsEnd
-
-  const examAnswered = journey.activeExam
-    ? Object.values(journey.activeExam.answers).filter((a) => a.trim().length > 0).length
-    : 0
+  const journeyDone = isJourneyComplete(WORDS, journey.wrapped, journey.cityIndex)
+  const travelReady = canTravel(WORDS, journey.wrapped, journey.cityIndex) && !atRoadsEnd
 
   const wotd = wordOfTheDay(journey.cityIndex)
   const daily = dailyChallenge()
@@ -167,26 +141,6 @@ export function HomeScreen() {
     if (gridSize) settings.set({ gridSize })
     newGame({ seed: pendingSeed ?? undefined, gridSize })
     goTo('game')
-  }
-
-  const openExam = () => {
-    const words = examWords(
-      WORDS,
-      srs,
-      journey.banked,
-      journey.cityIndex,
-      mulberry32(Date.now() % 0xffffffff),
-      // Leaving a marked paper and drawing a new one from here must not be the
-      // way to get back the words whose answers were just printed.
-      new Set(journey.lastPaper),
-    )
-    // Nothing left unbanked in this city: an empty paper would pass vacuously.
-    if (words.length === 0) return
-    journey.startExam(
-      journey.cityIndex,
-      words.map((w) => w.id),
-    )
-    goTo('gate')
   }
 
   return (
@@ -225,7 +179,7 @@ export function HomeScreen() {
         <div className="collect-bar" aria-hidden="true">
           <div
             className="collect-fill collect-learned"
-            style={{ width: `${(cityCounts.learned / WORDS_PER_CITY) * 100}%` }}
+            style={{ width: `${((cityCounts.wrapped + cityCounts.collected) / WORDS_PER_CITY) * 100}%` }}
           />
           <div
             className="collect-fill collect-discovered"
@@ -233,28 +187,22 @@ export function HomeScreen() {
           />
         </div>
         <p className="collect-count">
-          <strong>{cityCounts.learned}</strong> learned ·{' '}
+          <strong>{cityCounts.wrapped}</strong> wrapped ·{' '}
+          <span className="dim">{cityCounts.collected} collected</span> ·{' '}
           <span className="dim">{cityCounts.discovered} discovered</span> ·{' '}
           <span className="dim">{cityCounts.undiscovered} to find</span>
         </p>
 
         <p className="passport-label">
-          <span lang="da">Rejsepas</span>
+          <span lang="da">Pak kufferten</span>
           <span className="passport-gloss">
             {' '}
             —{' '}
             {nextCity
-              ? `${GATES_PER_CITY} stempler open the road to ${nextCity.name}`
-              : `${GATES_PER_CITY} stempler and the collection is complete`}
+              ? `wrap all ${WRAP_TO_TRAVEL} words to open the road to ${nextCity.name}`
+              : `wrap all ${WRAP_TO_TRAVEL} words and the collection is complete`}
           </span>
         </p>
-        <ul className="stamp-row" aria-label={`${stamps} of ${GATES_PER_CITY} stamps`}>
-          {Array.from({ length: GATES_PER_CITY }, (_, i) => (
-            <li key={i} className={`stamp ${i < stamps ? 'stamp-earned' : ''}`}>
-              <span aria-hidden="true">{i < stamps ? '✓' : '○'}</span>
-            </li>
-          ))}
-        </ul>
       </section>
 
       {game && game.phase !== 'finished' ? (
@@ -269,49 +217,18 @@ export function HomeScreen() {
 
       {journeyDone ? (
         <p className="journey-done">
-          <span lang="da">Rejsen er slut</span> — you filled the passport in København.{' '}
-          {allCounts.learned} of {WORDS.length} words learned.
+          <span lang="da">Rejsen er slut</span> — you packed the last suitcase in København.{' '}
+          {allCounts.wrapped} of {WORDS.length} words wrapped.
         </p>
-      ) : journey.activeExam ? (
-        // A relaunch loses the screen but not the exam, and an open exam locks
-        // the dictionary. Surface it so the lock always has a visible cause.
-        <div className="exam-resume">
-          <button className="btn btn-gate" onClick={() => goTo('gate')}>
-            <span lang="da">Fortsæt rejseprøven</span>
-            <span className="gate-paper">
-              {examAnswered} of {journey.activeExam.wordIds.length} answered · the dictionary
-              stays closed until you finish
-            </span>
-          </button>
-          <button className="btn btn-quiet" onClick={() => journey.endExam()}>
-            Abandon it
-          </button>
-        </div>
       ) : travelReady ? (
         <button className="btn btn-travel" onClick={() => goTo('map')}>
           <span lang="da">Rejs videre</span> → {nextCity?.name}
         </button>
-      ) : (
-        <button className="btn btn-gate" onClick={openExam} disabled={!examOpen || paper.total === 0}>
-          <span lang="da">Rejseprøve</span>
-          <span className="gate-paper">
-            {!examOpen
-              ? `${toNextTrial} more green ${toNextTrial === 1 ? 'word' : 'words'} earns an attempt`
-              : trials.unlimited
-                ? `Unlimited attempts · ${paperLine}`
-                : `${trials.available} ${
-                    trials.available === 1 ? 'attempt' : 'attempts'
-                  } left · ${paperLine}`}
-          </span>
-          {examOpen && !trials.unlimited && (
-            // Said before the tap, because the tap is what spends it.
-            <span className="gate-cost">Opening the paper spends one</span>
-          )}
-        </button>
-      )}
+      ) : null}
 
       <button className="btn" onClick={() => goTo('stats')}>
-        <span lang="da">Samlingen</span> — {allCounts.learned} of {WORDS.length} learned
+        <span lang="da">Kufferten</span> — {allCounts.wrapped} wrapped ·{' '}
+        {allCounts.collected} collected
       </button>
 
       <p className="section-divider">

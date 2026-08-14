@@ -4,7 +4,7 @@ import type { TranslationResponse } from '../../ai/schemas'
 import { articleLabel } from '../../data/gender'
 import { lookupLocal } from '../../data/lookup'
 import { useGame } from '../../stores/gameStore'
-import { useJourney } from '../../stores/journeyStore'
+
 import { canSpeak, speakDanish } from '../speak'
 
 /**
@@ -32,12 +32,6 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   const [error, setError] = useState<string | null>(null)
   const translate = useGame((s) => s.translate)
   const noteLookup = useGame((s) => s.noteLookup)
-  // A suspended travel exam is still an exam. Both store actions already refuse
-  // while one is out, but the shipped dictionary is read straight from this
-  // component, so without this the offline half answered the paper's own words
-  // — for free, since noteLookup declines to charge during an exam too. The
-  // ⓘ sheet has locked itself this way all along; this is the same lock.
-  const examOut = useJourney((s) => s.activeExam !== null)
   // The words in play, so a hit that is one of them can say so. Selected as the
   // store's own array and turned into a Set here: zustand 5 dropped the
   // equality-function argument, so a selector building a new Set each render
@@ -46,7 +40,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   const onBoard = useMemo(() => new Set((boardWords ?? []).map((w) => w.wordId)), [boardWords])
 
   const trimmed = term.trim()
-  const local = trimmed && !examOut ? lookupLocal(trimmed) : []
+  const local = trimmed ? lookupLocal(trimmed) : []
 
   // Typing again invalidates an answer about the previous word.
   useEffect(() => {
@@ -85,13 +79,13 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   // coming from. Asked automatically once typing settles, so it is one request
   // per word rather than one per keystroke.
   useEffect(() => {
-    if (examOut || !trimmed || local.length > 0) return
+    if (!trimmed || local.length > 0) return
     // Two letters is a prefix on the way somewhere, not a word.
     if (trimmed.length < 3) return
     const t = setTimeout(() => void ask(trimmed), 700)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trimmed, local.length, examOut])
+  }, [trimmed, local.length])
 
   const say = (da: string) =>
     canSpeak() ? (
@@ -99,10 +93,6 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
         🔊
       </button>
     ) : null
-
-  // After the hooks, so the order stays stable when a paper is drawn mid-round.
-  // Offering a disabled box would only advertise the way around the lock.
-  if (examOut) return null
 
   return (
     // A field, not a drawer. It was a <details> and the lid cost a tap every
