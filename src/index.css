@@ -2805,3 +2805,171 @@ select:focus {
 .translate-hits .hit-on-board {
   color: var(--text-dim);
 }
+/* ---------- the suitcase (Kufferten) ---------- */
+
+.suitcase-screen {
+  gap: 12px;
+}
+
+.case-city-pager {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.case-city-name {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  min-width: 84px;
+  text-align: center;
+}
+
+.icon-btn-small {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  font-size: 1rem;
+}
+
+.case-band {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.case-band-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.case-band-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.case-pager {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.case-page-count {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  min-width: 32px;
+  text-align: center;
+}
+
+.case-tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.case-tile {
+  width: 100%;
+  min-height: 36px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-word;
+}
+
+.case-discovered {
+  background: var(--grey-soft);
+  border: 1px solid var(--grey-tile);
+  color: var(--text);
+}
+
+.case-collected {
+  background: var(--green-soft);
+  border: 1px solid var(--green-tile);
+  color: var(--text);
+}
+
+.case-wrapped {
+  background: var(--green-tile);
+  border: 1px solid var(--green-tile);
+  color: #fff;
+}
+
+.case-unknown {
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  color: var(--text-dim);
+}
+
+.case-empty {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+/* The open case: two compartments in one lidless frame, handle on top. */
+.suitcase-open {
+  border: 2px solid var(--text);
+  border-radius: 14px;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  background: var(--surface);
+}
+
+.suitcase-open::before {
+  /* The handle — the one flourish the pencil pass will inherit. */
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 20px;
+  border: 2px solid var(--text);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+}
+
+.suitcase-open .case-band + .case-band {
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+
+.case-locked {
+  color: var(--text-dim);
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.case-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.case-hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+}

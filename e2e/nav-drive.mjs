@@ -37,7 +37,7 @@ const onSentinel = () => page.url().includes('sentinel')
 const screen = () =>
   page.evaluate(() => {
     if (document.querySelector('.map-screen')) return 'map'
-    if (document.querySelector('.collection-screen')) return 'stats'
+    if (document.querySelector('.suitcase-screen')) return 'stats'
     if (document.querySelector('.settings-screen')) return 'settings'
     if (document.querySelector('.game-screen')) return 'game'
     return 'home'
@@ -92,7 +92,7 @@ await page.waitForTimeout(300)
 check('collection opens', (await screen()) === 'stats')
 // The current city's row is already expanded on arrival.
 await page.waitForTimeout(250)
-await page.locator('.dex-slot.dex-collected').first().click()
+await page.locator('.case-tile.case-collected').first().click()
 await page.waitForTimeout(350)
 check('sheet opens over collection', (await page.locator('.sheet').count()) === 1)
 await back()
@@ -116,7 +116,9 @@ await page.waitForTimeout(250)
 check('map to home via the in-page Back', (await screen()) === 'home')
 await page.locator('.btn:has-text("Kufferten")').click()
 await page.waitForTimeout(250)
-await page.locator('.collection-screen .icon-btn').click()
+// aria-label, not bare .icon-btn: the header now holds the city pager's
+// arrows too, and a five-match locator fails strict mode.
+await page.locator('.suitcase-screen .icon-btn[aria-label="Back"]').click()
 await page.waitForTimeout(300)
 check('collection to home', (await screen()) === 'home')
 await back()

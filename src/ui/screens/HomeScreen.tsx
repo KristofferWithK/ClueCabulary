@@ -246,7 +246,7 @@ export function HomeScreen() {
         </button>
       ) : null}
 
-      <button className="btn" onClick={() => goTo('stats')}>
+      <button className="btn" onClick={() => goTo('suitcase')}>
         <span lang="da">Kufferten</span> — {allCounts.wrapped} wrapped ·{' '}
         {allCounts.collected} collected
       </button>

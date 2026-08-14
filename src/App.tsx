@@ -18,7 +18,7 @@ import { GameScreen } from './ui/screens/GameScreen'
 
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { MapScreen } from './ui/screens/MapScreen'
-import { CollectionScreen } from './ui/screens/CollectionScreen'
+import { SuitcaseScreen } from './ui/screens/SuitcaseScreen'
 import { SettingsScreen } from './ui/screens/SettingsScreen'
 
 export default function App() {
@@ -170,7 +170,7 @@ export default function App() {
       {screen === 'home' && <HomeScreen />}
       {screen === 'game' && <GameScreen />}
       {screen === 'settings' && <SettingsScreen />}
-      {screen === 'stats' && <CollectionScreen />}
+      {screen === 'suitcase' && <SuitcaseScreen />}
       {screen === 'map' && <MapScreen />}
       {rescued && (
         <div className="update-banner" role="status">
