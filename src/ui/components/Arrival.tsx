@@ -2,8 +2,8 @@ import { WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { useUi } from '../../stores/uiStore'
 
 /**
- * The moment a city is reached. Both roads out of a full passport — the exam
- * screen and the map — land here, so travelling is never silent.
+ * The moment a city is reached. Travelling happens on the map — Home's travel
+ * button only leads there — and the map lands here, so it is never silent.
  */
 export function Arrival({
   cityIndex,

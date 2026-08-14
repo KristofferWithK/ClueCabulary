@@ -84,7 +84,7 @@ describe('the clue prompt says which words are actually targetable', () => {
  * Also reported: "Cluey gave kitchen and I said food but that was forbidden."
  *
  * A guess is judged against the clue-giver's key alone, so «food» was forbidden
- * on KLAUS's key — a word he could see, under a clue he chose. That is what
+ * on CLUEY's key — a word he could see, under a clue he chose. That is what
  * makes his own forbidden words dangerous while he is the giver: his key is the
  * one every guess of the player's is read against. (The first version of this
  * comment said "either side's forbidden word ends the round, whoever names it",

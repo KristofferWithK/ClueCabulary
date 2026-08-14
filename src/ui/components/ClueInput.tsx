@@ -119,7 +119,7 @@ export function ClueInput({ game, onSubmit }: Props) {
           autoComplete="off"
           // The one field in the app that asks for DANISH and the only one that
           // was leaving the phone keyboard's English autocorrect on — every
-          // other free-text field (TranslateBox, the exam paper, Settings,
+          // other free-text field (TranslateBox, the packing dock, Settings,
           // Backup) sets both of these. On an English keyboard a Danish word is
           // rewritten at the space or submit boundary, and what arrives is an
           // English dictionary word the player never typed.

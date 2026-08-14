@@ -106,7 +106,7 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
    * (The report that prompted the change — Cluey clued «kitchen», the player
    * answered «food», «food» was forbidden — cannot have been either vsGreen
    * card. Under Cluey's clue a word forbidden on the PLAYER's key reveals green
-   * or neutral and play carries on. «food» was forbidden on KLAUS's key, which
+   * or neutral and play carries on. «food» was forbidden on CLUEY's key, which
    * is the vsBystander card this cut leaves in place: a clue-quality problem,
    * answered in prompts.ts, not a board-shape one. What the player saw was the
    * dashed border on their own key, and they reasonably read it as "never touch

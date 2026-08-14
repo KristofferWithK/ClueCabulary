@@ -89,8 +89,8 @@ export const useSettings = create<SettingsState>()(
       // 3x4 is still a tap away in the picker for a first sitting.
       gridSize: 'middle',
       // Danish, both ways. The player has always been asked for "ét dansk ord"
-      // by the clue dock; this setting governed only KLAUS's clues, and its
-      // default had him answering in English on a Danish board. Both sides
+      // by the clue dock; this setting governs only CLUEY's clues, and its
+      // old default had him answering in English on a Danish board. Both sides
       // speak Danish now, and the setting is the escape hatch rather than the
       // norm.
       clueLanguage: 'da',

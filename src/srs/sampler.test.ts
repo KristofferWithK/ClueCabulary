@@ -98,40 +98,40 @@ describe('selectBoardWords', () => {
     expect(() => selectBoardWords(makeDataset(5), {}, OPTS, mulberry32(1), NOW)).toThrow()
   })
 
-  describe('banked words', () => {
+  describe('wrapped words', () => {
     // Every word seen and identically scheduled, so the only thing that can
-    // separate them in the draw is whether they are banked.
+    // separate them in the draw is whether they are wrapped.
     const all = makeDataset(60)
     const srs: SrsMap = {}
     for (const w of all) srs[w.id] = { ...newStats(NOW - 2 * DAY), seen: 1 }
     const collected = new Set(all.slice(0, 30).map((w) => w.id))
 
-    const bankedShare = (opts: typeof OPTS & { collected?: ReadonlySet<string> }) => {
-      let banked = 0
+    const wrappedShare = (opts: typeof OPTS & { collected?: ReadonlySet<string> }) => {
+      let wrapped = 0
       let total = 0
       for (let seed = 1; seed <= 300; seed++) {
         const board = selectBoardWords(all, srs, opts, mulberry32(seed), NOW)
         for (const w of board) {
           total++
-          if (collected.has(w.id)) banked++
+          if (collected.has(w.id)) wrapped++
         }
       }
-      return banked / total
+      return wrapped / total
     }
 
-    it('draws banked words less often than unbanked ones', () => {
-      // Half the pool is banked, so an unaware sampler sits at ~0.5.
-      expect(bankedShare(OPTS)).toBeGreaterThan(0.45)
-      expect(bankedShare({ ...OPTS, collected })).toBeLessThan(0.35)
+    it('draws wrapped words less often than unwrapped ones', () => {
+      // Half the pool is wrapped, so an unaware sampler sits at ~0.5.
+      expect(wrappedShare(OPTS)).toBeGreaterThan(0.45)
+      expect(wrappedShare({ ...OPTS, collected })).toBeLessThan(0.35)
     })
 
-    it('still brings banked words back — damped, not excluded', () => {
-      expect(bankedShare({ ...OPTS, collected })).toBeGreaterThan(0.15)
+    it('still brings wrapped words back — damped, not excluded', () => {
+      expect(wrappedShare({ ...OPTS, collected })).toBeGreaterThan(0.15)
     })
 
-    it('fills a full board even when every word is banked', () => {
-      const allBanked = new Set(all.map((w) => w.id))
-      const board = selectBoardWords(all, srs, { ...OPTS, collected: allBanked }, mulberry32(7), NOW)
+    it('fills a full board even when every word is wrapped', () => {
+      const allWrapped = new Set(all.map((w) => w.id))
+      const board = selectBoardWords(all, srs, { ...OPTS, collected: allWrapped }, mulberry32(7), NOW)
       expect(board.length).toBe(OPTS.totalWords)
       expect(new Set(board.map((w) => w.id)).size).toBe(OPTS.totalWords)
     })

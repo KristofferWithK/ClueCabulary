@@ -92,9 +92,10 @@ export function selectBoardWords(
     totalWords: number
     maxNewWordsPerBoard: number
     /**
-     * Words already banked by a passed exam. They are permanently green, so a
-     * board full of them moves no counter — but dropping them outright would
-     * throw away the review they still need. Damped, not excluded.
+     * Words already wrapped in the suitcase. They are packed for good, so a
+     * board full of them moves the journey nowhere — but dropping them
+     * outright would throw away the review they still need. Damped, not
+     * excluded.
      */
     collected?: ReadonlySet<string>
     /**

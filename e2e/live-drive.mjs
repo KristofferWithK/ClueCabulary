@@ -91,7 +91,7 @@ try {
   while (Date.now() < deadline) {
     const err = await currentError()
     if (err) {
-      console.log(`\nKLAUS FAILED: ${err}`)
+      console.log(`\nCLUEY FAILED: ${err}`)
       if (/CORS/i.test(err)) {
         console.log(
           '\nThat is ollama.com refusing a browser request. Deploy the worker in\n' +

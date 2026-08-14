@@ -114,7 +114,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
   const srs = useSrs((s) => s.stats)
   const cityCounts = countCollection(wordsForCity(WORDS, cityIndex), srs, wrapped)
   const cityCollected = cityCounts.collected + cityCounts.wrapped
-  // What a wrap-up round banked: packed AND found green, mirror of finishRound.
+  // What a wrap-up round wrapped: packed AND found green, mirror of finishRound.
   const wrappedWords =
     mode === 'wrapup'
       ? game.words.filter(

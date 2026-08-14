@@ -10,26 +10,34 @@ you to build connections between words.
 
 ClueCabulary is a journey through Denmark: ten stops from **Sønderborg** in the
 far south, up Jutland to the tip at **Skagen**, then back across Funen and
-Zealand to **København**. Each city owns 100 words — the most frequent hundred
-first — and only words from the cities you have reached appear on your boards.
+Zealand to **København** — made with **Cluey**, the suitcase with eyes who is
+also the companion cluing and guessing beside you. Each city owns 100 words —
+the most frequent hundred first — and only words from the cities you have
+reached appear on your boards.
 
-Every word is in one of three states, tracked like a Pokédex in **Samlingen**:
-**undiscovered** until you meet it, **grey** once you have, and **green** after
-you have clued or guessed it three times — or banked it by passing an exam.
+Every word is in one of four states, leafed through in **Kufferten** (tap
+Cluey on Home): **undiscovered** until you meet it, **discovered** once you
+have, **collected** after it has earned a green each way — once under your
+clue, once by your own guess — and **wrapped** once a wrap-up round has packed
+it safely.
 
-Every ten green words in a city buys one attempt at a **rejseprøve**: twenty
-words — your green ones first, then whatever the paper needs to fill up —
-translated into English with no mistakes and no dictionary. Drawing the paper
-spends the attempt whether you pass or fail. Passing banks those twenty words
-and earns a **stempel**; five stempler fill the passport page and open the road
-north, unlocking the next city's hundred words. Once ninety of a city's hundred
-words are green it stops counting attempts.
+Collected words still break on the road; **wrap-up rounds** are how you pack
+them. A wrap-up board is 4×5, dealt entirely from the city's collected words,
+and every card starts English-side up: type the Danish to pack a card before
+the clues begin — the dictionary is closed, the first miss on a word is
+remembered — or start early and leave cards unpacked at your own risk, playing
+English-side up all round and ineligible to wrap. Every packed word that ends
+the round green is wrapped for good, win or lose. The board's clue economy is
+deliberately the forgiving one (16 distinct greens over 10 shared tokens, the
+beginner ratio; a measured 6.4% know-nothing forbidden floor against the
+standard 4×5's 16.0%) because the packing gate is the difficulty. Wrap all
+hundred words of a city — `WRAP_TO_TRAVEL` in `src/journey/progress.ts` — and
+the road onward opens.
 
 ## How a round works
 
 1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words —
-   **3×5 by default**, and the picker on Home marks whichever one *Spil videre*
-   will deal —
+   **3×5 by default**, chosen under Settings → Board size —
    from the ~1000 most common, each noun with its gender in front of it —
    **et hus**, the way the pair is learned — and where a noun has no ordinary
    indefinite singular, the card says the gender instead: **(com)** or
@@ -143,7 +151,7 @@ words are green it stops counting attempts.
    old behaviour alive long after the default moved). Every lookup tells the practice
    scheduler which words to bring back sooner — including one done in the
    lookup box, which costs exactly what tapping ⓘ costs, and neither is
-   available during the translation challenge or a travel exam. A clue may be
+   available during the translation challenge or a wrap-up packing phase. A clue may be
    any Danish word, so the lookup answers any word: the shipped thousand come
    back instantly and offline, and anything else is asked of Cluey without
    being asked twice. A hit that is already on the board says so, since it is
@@ -224,15 +232,8 @@ npm run typecheck      # the typecheck alone — and note it is `tsc -b`, not
                        # the root tsconfig is files:[] with project references
 npm run validate:words # dataset sanity checks
 node scripts/make-map.mjs # regenerate the Denmark outline
-node scripts/make-story.mjs story/story.json  # regenerate champions.ts + letter.ts
 node scripts/make-icons.mjs                   # regenerate the PWA icons
 ```
-
-The narrative — the opening letter and the ten city champions — is authored in
-`story/story.json` and generated into `src/journey/letter.ts` and
-`src/journey/champions.ts`. The generator refuses a roster that would read
-badly: two champions sharing a name, a surname, a motif, a trade, or a first
-name that differs only by spellings Danish tolerates.
 
 Playwright drives run against the built app and each start their own preview
 server, so `npm run build` first:
@@ -242,14 +243,14 @@ node e2e/smoke-drive.mjs      # a round played end to end
 node e2e/redemption-drive.mjs # a forbidden word both sides of the threshold:
                               # the round ending on the spot, and the last
                               # chance opening and being translated back
-node e2e/journey-drive.mjs    # travel exam → stempel → travel → arrival
-node e2e/collection-drive.mjs # the Pokedex, a failed exam, a passed one
+node e2e/journey-drive.mjs    # a packed suitcase opens the road → travel → arrival
+node e2e/suitcase-drive.mjs   # Kufferten: four word states, paging, the wrap-up button
 node e2e/key-visible-drive.mjs # your own key is drawn on the board
 node e2e/backup-drive.mjs     # export, wipe, restore, merge without loss
 node e2e/update-drive.mjs     # a new service worker is noticed and applied
-node e2e/story-drive.mjs      # the letter opens, a champion sets the exam
 node e2e/nav-drive.mjs        # system Back peels one layer at a time
-node e2e/layout-drive.mjs     # fold, map labels, journey's end
+node e2e/layout-drive.mjs     # fold, map labels, journey's end — and the
+                              # no-scroll rule: every screen fits the phone
 node e2e/offline-drive.mjs    # the dictionary works with the network off
 node e2e/ai-drive.mjs         # the real AI client against a fake Ollama:
                               # messy JSON, retries, the HTTP error taxonomy,
@@ -305,9 +306,10 @@ never placed in a URL and never printed.
 
 Useful dev URLs: `?mock=1` forces the offline companion, `?seed=N` fixes the
 board, `?first=player` makes the player open the round instead of Cluey,
-`?howto=0` skips the rules overlay, and `?city=N&learned=K&almost=K&stamps=G`
-jumps the journey to a given stop with K words green (or one handling short of
-it) and G stempler already earned.
+`?howto=0` skips the rules overlay, `?grid=middle` picks the board *Spil
+videre* deals, and `?city=N&collected=K&almost=K&wrapped=W` jumps the journey
+to a given stop with K words collected (or one interaction short of it) and W
+already wrapped into the suitcase.
 
 ### Architecture notes
 
@@ -321,9 +323,9 @@ it) and G stempler already earned.
 - `src/srs/` — Leitner scheduler + board sampler (frequency-ordered
   introduction bounded by the journey, overdue/struggling words oversampled).
 - `src/journey/` — pure progression logic: the ten cities, word bands, the
-  three word states, the exam paper and its attempt economy, and travel rules.
-  Both routes to green only ever move forward, so the collection cannot
-  regress. `denmark.ts` is
+  four word states, the wrap-up board draw and travel rules. Every route
+  forward is monotonic — counters only rise, the wrapped ledger only grows —
+  so the collection cannot regress. `denmark.ts` is
   generated by `scripts/make-map.mjs` from the official DAGI region polygons,
   simplified into an inline SVG path so the map needs no runtime fetch.
 - `src/backup/` — pure export, validation and merge of a saved collection,

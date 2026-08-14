@@ -139,7 +139,7 @@ export function MapScreen() {
             </p>
             {/* The suitcase answers the question the map raises: how far to
                 the next city? This many words still to wrap. */}
-            <p className="map-stamp-note">
+            <p className="map-case-note">
               {state === 'visited'
                 ? 'suitcase packed'
                 : counts.wrapped >= WRAP_TO_TRAVEL
