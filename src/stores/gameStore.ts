@@ -108,6 +108,15 @@ interface GameStore {
    * offline half of the lookup field reads the board for free.
    */
   noteLookup: (term: string) => void
+  /**
+   * Is this word Danish? Asked of Klaus when the shipped thousand cannot say.
+   *
+   * No new endpoint: translate() already tidies a Danish word to its citation
+   * form and returns it as `da`, so a word that comes back as itself was
+   * Danish and one that comes back as something else was not. «trafik» returns
+   * trafik; «water» returns vand.
+   */
+  judgeDanish: (term: string) => Promise<boolean>
   runAiGuesses: () => Promise<void>
   stepAiGuess: () => void
   runAiClue: () => Promise<void>
@@ -219,6 +228,7 @@ export const useGame = create<GameStore>()(
             pos: w.pos,
             article: w.article,
             gender: w.gender,
+            countable: w.countable,
           })),
           seed: actualSeed,
           bias,
@@ -365,6 +375,12 @@ export const useGame = create<GameStore>()(
           if (hit) get().recordLookup(hit)
         }
         return result
+      },
+
+      judgeDanish: async (term) => {
+        const asked = await companion(get().practiceFallback).translate(term)
+        const norm = (x: string) => x.trim().toLowerCase()
+        return norm(asked.da) === norm(term)
       },
 
       runAiGuesses: async () => {

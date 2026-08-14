@@ -22,6 +22,8 @@ export interface BoardWord {
    * gender they are. See src/data/gender.ts for what gets printed.
    */
   gender?: 'common' | 'neuter'
+  /** False for a mass noun: the card shows the gender, not an article. */
+  countable?: boolean
 }
 
 export type Reveal =

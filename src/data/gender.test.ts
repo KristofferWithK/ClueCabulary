@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { articleLabel, genderLabel } from './gender'
-import { WORDS, looksEnglish } from './words'
+import { WORDS, classifyClue, looksEnglish } from './words'
+import { UNCOUNTABLE, UNCOUNTABLE_CLASSES, isUncountable } from './countability'
 
 /**
  * "Some nouns are not countable and thus don't have an en or et. But we should
@@ -14,9 +15,22 @@ import { WORDS, looksEnglish } from './words'
  * exist (en buks, en brille), so all three are common.
  */
 describe('what gets printed in front of a noun', () => {
-  it('the article, when the noun has one', () => {
+  it('the article, when the noun has one and can be counted', () => {
     expect(articleLabel({ pos: 'noun', article: 'en', gender: 'common' })).toBe('en')
     expect(articleLabel({ pos: 'noun', article: 'et', gender: 'neuter' })).toBe('et')
+  })
+
+  /**
+   * The article in the data is the gender, recorded the only way the source
+   * had. Printing it in front of a mass noun says you can count it.
+   */
+  it('the gender instead, when the noun cannot be counted', () => {
+    expect(articleLabel({ pos: 'noun', article: 'en', gender: 'common', countable: false })).toBe(
+      '(com)',
+    )
+    expect(articleLabel({ pos: 'noun', article: 'et', gender: 'neuter', countable: false })).toBe(
+      '(neut)',
+    )
   })
 
   it('the gender in brackets, when it has none', () => {
@@ -112,5 +126,126 @@ describe('spotting a clue the player reached for in English', () => {
   it('and says nothing about an empty box', () => {
     expect(looksEnglish('')).toBe(false)
     expect(looksEnglish('   ')).toBe(false)
+  })
+})
+
+
+/**
+ * "Similarly can't you judge all nouns based on their countability/mass?
+ * Trafik for example is also not really countable. You are the danish master.
+ * This should not be a word by word patchwork coming from me."
+ *
+ * So it is a rule applied to all 433, not a list of complaints. A noun is
+ * uncountable when "en X" / "et X" would be wrong or clearly odd in everyday
+ * Danish — and where BOTH readings are ordinary the article stays, because
+ * "en øl" and "et brød" are things Danes say and they teach the gender in the
+ * form a learner meets.
+ */
+describe('which nouns can be counted', () => {
+  const nouns = WORDS.filter((w) => w.pos === 'noun')
+
+  it('the mass and abstract core shows its gender, not an article', () => {
+    for (const da of ['mælk', 'vand', 'blod', 'kærlighed', 'viden', 'tøj', 'vejr', 'musik']) {
+      const w = WORDS.find((x) => x.da === da)!
+      expect(w.countable, da).toBe(false)
+      expect(articleLabel(w), da).toMatch(/^\((com|neut)\)$/)
+    }
+  })
+
+  /**
+   * Named individually because each is a judgement, and the danger of a rule
+   * like this is over-applying it: every one of these has a common, ordinary
+   * indefinite singular and losing it would teach the learner less, not more.
+   */
+  it('and the ones that are countable in ordinary Danish keep theirs', () => {
+    for (const da of ['øl', 'kaffe', 'brød', 'ost', 'hår', 'papir', 'glas', 'is', 'frugt', 'krig']) {
+      const w = WORDS.find((x) => x.da === da)!
+      expect(w.countable, da).not.toBe(false)
+      expect(articleLabel(w), da).toMatch(/^(en|et)$/)
+    }
+  })
+
+  it('every listed word is a real noun in the dataset', () => {
+    const missing = [...UNCOUNTABLE].filter((da) => !nouns.some((w) => w.da === da))
+    expect(missing).toEqual([])
+  })
+
+  it('and the classes together are the whole list', () => {
+    const fromClasses = new Set(UNCOUNTABLE_CLASSES.flatMap(([, words]) => words))
+    expect([...fromClasses].sort()).toEqual([...UNCOUNTABLE].sort())
+  })
+
+  it('the data agrees with the module, both ways', () => {
+    for (const w of nouns) {
+      expect(w.countable === false, w.da).toBe(isUncountable(w.da))
+    }
+  })
+
+  /** A rule that swallowed the board would be worse than the patchwork. */
+  it('leaves the great majority countable', () => {
+    const uncountable = nouns.filter((w) => w.countable === false).length
+    expect(uncountable / nouns.length).toBeLessThan(0.2)
+    expect(uncountable).toBeGreaterThan(40)
+  })
+})
+
+/**
+ * "If it's ambiguous words outside of the thousand words can't the llm just
+ * judge it?"
+ *
+ * Yes — but most clues should never need him. Danish compounds freely, so the
+ * shipped thousand recognise far more Danish than they contain, and 'unknown'
+ * is permission rather than suspicion.
+ */
+describe('classifying a clue without asking anybody', () => {
+  it('æ, ø and å can only be Danish', () => {
+    for (const w of ['kæledyr', 'øjeblik', 'århundrede', 'særlig']) {
+      expect(classifyClue(w), w).toBe('danish')
+    }
+  })
+
+  it('an inflection of a word we ship is that word', () => {
+    for (const w of ['hunden', 'huset', 'bilerne', 'skoler']) {
+      expect(classifyClue(w), w).toBe('danish')
+    }
+  })
+
+  /**
+   * Both halves have to be words we ship — «dyreliv» resolves through the
+   * linking -e-, «boghandel» does not, because «handel» is outside the
+   * thousand. That one lands in 'unknown', which is allowed, so the limit
+   * costs nothing.
+   */
+  it('and a compound of two of them is Danish', () => {
+    for (const w of ['dyreliv', 'morgenmad', 'sommerhus', 'bordben']) {
+      expect(classifyClue(w), w).toBe('danish')
+    }
+    for (const w of ['boghandel', 'huskeliste']) {
+      expect(classifyClue(w), w).toBe('unknown')
+    }
+  })
+
+  it('a plain English word is English', () => {
+    for (const w of ['water', 'apple', 'animal', 'answer']) {
+      expect(classifyClue(w), w).toBe('english')
+    }
+  })
+
+  it('a word that is both stays Danish', () => {
+    for (const w of ['arm', 'kind', 'sky', 'mad', 'salt', 'time', 'hold', 'land']) {
+      expect(classifyClue(w), w).toBe('danish')
+    }
+  })
+
+  /** Where every Danish word we do not ship lives — including «trafik». */
+  it('and anything else is unknown, which the clue box treats as allowed', () => {
+    for (const w of ['trafik', 'zebra', 'gymnasium', 'kvalitet']) {
+      expect(classifyClue(w), w).toBe('unknown')
+    }
+  })
+
+  it('says nothing about an empty box', () => {
+    expect(classifyClue('')).toBe('unknown')
+    expect(looksEnglish('')).toBe(false)
   })
 })

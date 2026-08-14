@@ -67,22 +67,27 @@ try {
   // English word there is one he cannot place. The box says so and puts the
   // lookup one tap away rather than passing the English along.
   await page.fill('.clue-input input', 'water')
-  const blocked = await page.evaluate(() => ({
-    disabled: document.querySelector('.clue-input .btn-primary').disabled,
+  const warned = await page.evaluate(() => ({
+    label: document.querySelector('.clue-input .btn-primary').textContent,
     error: document.querySelector('.clue-error')?.textContent ?? '',
     lookup: [...document.querySelectorAll('.clue-input .btn-small')].map((b) => b.textContent),
   }))
-  if (!blocked.disabled) throw new Error('an English clue was submittable')
-  if (!/is English/.test(blocked.error)) throw new Error(`no English warning: ${blocked.error}`)
-  if (!blocked.lookup.some((l) => l.includes('water'))) {
-    throw new Error(`no one-tap lookup offered: ${JSON.stringify(blocked.lookup)}`)
+  if (!/looks English/.test(warned.error)) throw new Error(`no English warning: ${warned.error}`)
+  if (!/anyway/.test(warned.label)) throw new Error(`no override offered: ${warned.label}`)
+  if (!warned.lookup.some((l) => l.includes('water'))) {
+    throw new Error(`no one-tap lookup offered: ${JSON.stringify(warned.lookup)}`)
   }
-  // …but a Danish word that happens to be an English word too is not English.
-  await page.fill('.clue-input input', 'salt')
-  if (await page.locator('.clue-input .btn-primary').isDisabled()) {
-    throw new Error('a Danish/English homograph was rejected as English')
+
+  // Everything the shipped thousand can settle offline must never reach that
+  // path: a homograph that is also Danish, a compound of two known words, and
+  // a Danish word we simply do not ship — 'unknown' is permission, not
+  // suspicion, which is where «trafik» and most real clues live.
+  for (const ok of ['salt', 'dyreliv', 'trafik', 'kæledyr', 'hunden']) {
+    await page.fill('.clue-input input', ok)
+    const label = await page.locator('.clue-input .btn-primary').textContent()
+    if (/anyway/.test(label ?? '')) throw new Error(`«${ok}» was treated as English`)
   }
-  console.log('English clue blocked, Danish homograph allowed')
+  console.log('English clue warned with an override; Danish forms pass untouched')
 
   // Player clue round
   await page.fill('.clue-input input', 'huskeliste')

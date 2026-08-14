@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useGame } from '../../stores/gameStore'
 import { MAX_CLUE_NUMBER } from '../../engine/config'
-import { looksEnglish } from '../../data/words'
+import { classifyClue } from '../../data/words'
 import { checkClueLegality } from '../../engine/legality'
 import type { GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
@@ -13,15 +14,48 @@ interface Props {
 export function ClueInput({ game, onSubmit }: Props) {
   const [text, setText] = useState('')
   const [number, setNumber] = useState(2)
+  // A word Klaus has confirmed is Danish, so the offline guess does not get to
+  // refuse it twice.
+  const [cleared, setCleared] = useState<string | null>(null)
+  const [asking, setAsking] = useState(false)
+  const judgeDanish = useGame((s) => s.judgeDanish)
 
   const trimmed = text.trim()
   const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
-  // Klaus reads a Danish board and is handed the clue as a bare string. An
-  // English word there is one he cannot place — and the whole point of the
-  // round is reaching for the Danish, so the box says so and puts the lookup
-  // one tap away rather than passing the English along.
-  const english = looksEnglish(trimmed)
-  const canSubmit = trimmed.length > 0 && verdict?.legal === true && !english
+  // Klaus reads a Danish board and is handed the clue as a bare string, so an
+  // English word there is one he cannot place. The shipped thousand settle most
+  // of it offline — æ/ø/å, an inflection, a compound of two known words — and
+  // 'unknown' means permission rather than suspicion, since every Danish word
+  // we do not ship lives there. Only a word that looks positively English is
+  // stopped, and even then Klaus gets the final say on submit.
+  const english = classifyClue(trimmed) === 'english' && cleared !== trimmed.toLowerCase()
+  const canSubmit = trimmed.length > 0 && verdict?.legal === true && !asking
+
+  const submit = async () => {
+    if (english) {
+      // The offline guess can be wrong about a Danish word we do not ship, so
+      // it is never the last word: ask before refusing.
+      setAsking(true)
+      try {
+        if (await judgeDanish(trimmed)) {
+          setCleared(trimmed.toLowerCase())
+          onSubmit(trimmed, number)
+          setText('')
+        }
+      } catch {
+        // Klaus unreachable: trust the player rather than block the round on a
+        // guess made from a thousand-word list.
+        setCleared(trimmed.toLowerCase())
+        onSubmit(trimmed, number)
+        setText('')
+      } finally {
+        setAsking(false)
+      }
+      return
+    }
+    onSubmit(trimmed, number)
+    setText('')
+  }
 
   const last = game.clueHistory[game.clueHistory.length - 1]
   const mark = { green: '✓', bystander: '·', forbidden: '☠' } as const
@@ -96,21 +130,15 @@ export function ClueInput({ game, onSubmit }: Props) {
       )}
       {english && (
         <p className="clue-error" id="clue-error" role="alert">
-          «{trimmed}» is English. Look it up below and clue Klaus with the Danish.
+          «{trimmed}» looks English. Look it up below for the Danish — or give the clue anyway and
+          Klaus will check.
         </p>
       )}
       {/* Clueing in Danish means needing a word you do not have yet — which is
           the moment to be able to look one up, not after abandoning the turn. */}
       <TranslateBox prefill={english ? { term: trimmed, label: `Look up «${trimmed}»` } : undefined} />
-      <button
-        className="btn btn-primary"
-        disabled={!canSubmit}
-        onClick={() => {
-          onSubmit(trimmed, number)
-          setText('')
-        }}
-      >
-        Give clue
+      <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
+        {asking ? 'Asking Klaus…' : english ? 'Give clue anyway' : 'Give clue'}
       </button>
     </div>
   )

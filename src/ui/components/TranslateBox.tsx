@@ -164,7 +164,10 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
         <ul className="translate-hits">
           <li>
             <span lang="da">
-              {asked.article ? `${asked.article} ` : ''}
+              {/* Klaus answers for the words outside the shipped thousand, so
+                  his answer has to say the same thing the data does: an article
+                  when the noun can be counted, the gender when it cannot. */}
+              {articleLabel({ pos: 'noun', ...asked }) ? `${articleLabel({ pos: 'noun', ...asked })} ` : ''}
               {asked.da}
             </span>
             {say(asked.da)} — {asked.en}

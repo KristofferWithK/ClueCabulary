@@ -69,7 +69,65 @@ export const isDanishWord = (normalized: string): boolean => HEADWORDS.has(norma
  * flagged wrongly. The lookup box is one tap away and says so, which is the
  * right cost for a check that stops Klaus being handed a word he cannot read.
  */
-export const looksEnglish = (raw: string): boolean => {
-  const n = normalizeGloss(raw)
-  return n.length > 0 && GLOSSES.has(n) && !HEADWORDS.has(n)
+/** Endings that make a Danish headword into another form of itself. */
+const INFLECTIONS = ['en', 'et', 'er', 'ene', 'erne', 'e', 'r', 'ede', 'te', 's']
+
+/** A linking morpheme between the halves of a Danish compound: hus-e-lejer. */
+const LINKERS = ['', 's', 'e']
+
+/**
+ * Danish, English, or not decidable from the shipped thousand.
+ *
+ * The old check was a single test — an English gloss that is not a Danish
+ * headword — which is right about the obvious cases and silent about everything
+ * else. Everything else is most good clues: Danish compounds freely, so
+ * «dyreliv», «morgenmad» and «huskeliste» are all outside the thousand.
+ *
+ * So this recognises Danish first, three ways, and only then asks whether the
+ * word looks English:
+ *
+ *  - æ, ø or å can only be Danish;
+ *  - an inflection of a headword is the headword (hunden, husene, cyklede);
+ *  - a compound of two headwords is Danish (dyre+liv, morgen+mad), with the
+ *    linking -s- and -e- Danish puts between the halves.
+ *
+ * 'unknown' is a real answer and the caller must treat it as permission: it is
+ * where every Danish word we do not ship lives. Klaus settles those.
+ */
+export type ClueLanguage = 'danish' | 'english' | 'unknown'
+
+const isInflection = (n: string): boolean =>
+  INFLECTIONS.some((suffix) => {
+    if (!n.endsWith(suffix) || n.length - suffix.length < 3) return false
+    const stem = n.slice(0, n.length - suffix.length)
+    // "hus" -> "huset", and "cykle" -> "cyklede" where the stem lost its -e.
+    return HEADWORDS.has(stem) || HEADWORDS.has(`${stem}e`)
+  })
+
+const isCompound = (n: string): boolean => {
+  for (let i = 3; i <= n.length - 3; i++) {
+    const head = n.slice(0, i)
+    if (!HEADWORDS.has(head) && !HEADWORDS.has(`${head}e`)) continue
+    for (const link of LINKERS) {
+      const tail = n.slice(i)
+      if (tail.startsWith(link) && tail.length - link.length >= 3) {
+        const rest = tail.slice(link.length)
+        if (HEADWORDS.has(rest) || isInflection(rest)) return true
+      }
+    }
+  }
+  return false
 }
+
+export function classifyClue(raw: string): ClueLanguage {
+  const n = normalizeGloss(raw)
+  if (n.length === 0) return 'unknown'
+  if (/[æøå]/.test(n)) return 'danish'
+  if (HEADWORDS.has(n)) return 'danish'
+  if (isInflection(n) || isCompound(n)) return 'danish'
+  if (GLOSSES.has(n)) return 'english'
+  return 'unknown'
+}
+
+/** Kept for the tests that name it; the classifier is the thing to use. */
+export const looksEnglish = (raw: string): boolean => classifyClue(raw) === 'english'

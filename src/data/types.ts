@@ -28,6 +28,13 @@ export interface WordEntry {
    * singular that does exist (en buks).
    */
   gender?: 'common' | 'neuter'
+  /**
+   * False for a noun with no ordinary indefinite singular — mass and abstract
+   * nouns, where "en mælk" / "et blod" promise a counting the language does not
+   * do. Those show their gender instead. See countability.ts for the rule and
+   * for the words deliberately left countable.
+   */
+  countable?: boolean
   exampleDa: string
   exampleEn: string
   /** 1 = most common in Danish. Real corpus frequency; never reordered. */
