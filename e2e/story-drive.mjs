@@ -20,7 +20,7 @@ const preview = await startPreview(PORT)
 
 const BASE = preview.base
 const browser = await chromium.launch({
-  executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
   // Lets one context pretend to be a deployed origin: every drive so far has
   // run on 127.0.0.1, which the app treats as local, so anything gated on
   // "is this a real deployment" was never exercised.
