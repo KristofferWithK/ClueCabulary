@@ -37,7 +37,7 @@ const persisted = () =>
 
 /** Deal a board and return its word ids, in board order. */
 async function deal(gridIndex) {
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0`)
   await page.waitForSelector('.city-card')
   await page.locator('.grid-card').nth(gridIndex).click()
   await page.waitForSelector('.board-grid')
@@ -50,7 +50,7 @@ async function deal(gridIndex) {
 const shared = (a, b) => a.filter((id) => b.includes(id))
 
 try {
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.clear())
 
@@ -165,7 +165,7 @@ try {
   // surviving a full guessing turn, and a forbidden word ends the round on
   // roughly a tenth of them. The clue-count gate is held in gameStore.test.ts,
   // where the store can simply be asked.
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0`)
   await page.waitForSelector('.city-card')
   await page.click('.daily-card')
   await page.waitForSelector('.clue-input')

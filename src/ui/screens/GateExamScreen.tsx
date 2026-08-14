@@ -11,7 +11,7 @@ import {
   stampsFor,
   wordState,
 } from '../../journey/progress'
-import { championAt } from '../../journey/champions'
+
 import { mulberry32 } from '../../engine/rng'
 import { WORDS } from '../../data/words'
 import { useJourney } from '../../stores/journeyStore'
@@ -48,9 +48,6 @@ export function GateExamScreen() {
   // it was drawn for.
   const examCity = exam.cityIndex
   const city = cityAt(examCity)
-  // The champion sets the paper and stamps the passport. Everything the exam
-  // says is said by a person.
-  const champion = championAt(examCity)
   // The exact words drawn when the exam opened, so playing elsewhere cannot
   // change the paper mid-sitting.
   const words = exam.wordIds.map((id) => wordById(id)).filter((w): w is WordEntry => !!w)
@@ -170,25 +167,6 @@ export function GateExamScreen() {
         }. Translate every one to English — no mistakes, and the dictionary is closed.`}
       </p>
 
-      <div className="champion-says">
-        <span className="champion-motif-inline" aria-hidden="true">
-          {champion.motif}
-        </span>
-        {graded ? (
-          <>
-            <p className="champion-line" lang="da">
-              {passed ? champion.passDa : champion.failDa}
-            </p>
-            <p className="champion-line-en">{passed ? champion.passEn : champion.failEn}</p>
-          </>
-        ) : (
-          <p className="champion-line-en">{champion.examIntroEn}</p>
-        )}
-        <p className="champion-attrib">
-          {champion.name}, <span lang="da">{champion.titleDa}</span>
-        </p>
-      </div>
-
       {graded ? (
         <>
           <ul className="gate-results">
@@ -226,11 +204,6 @@ export function GateExamScreen() {
                 <span lang="da">Stempel</span> {stamps} / {GATES_PER_CITY} ·{' '}
                 {words.length} words banked
               </p>
-              {/* A full page is a full page whether or not there is a road out
-                  of it. Gating the farewell on nextCity made the last
-                  champion's line — the one line in the game that fires exactly
-                  once — fire zero times, and ended the whole journey on a
-                  system sentence back on Home. */}
               {readyToTravel ? (
                 <>
                   <p className="travel-callout">
@@ -238,13 +211,6 @@ export function GateExamScreen() {
                       ? 'The passport page is full. The road is open.'
                       : 'The passport is full. A thousand words.'}
                   </p>
-                  <div className="champion-says champion-says-farewell">
-                    <p className="champion-line" lang="da">
-                      {champion.farewellDa}
-                    </p>
-                    <p className="champion-line-en">{champion.farewellEn}</p>
-                    <p className="champion-attrib">{champion.name}</p>
-                  </div>
                   {nextCity ? (
                     <button
                       className="btn btn-primary btn-big"

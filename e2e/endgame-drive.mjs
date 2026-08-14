@@ -32,10 +32,10 @@ const game = () =>
 
 /** Start a round on the given board, past the study phase. */
 async function start(gridIndex, seed = 5) {
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0&seed=${seed}`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0&seed=${seed}`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.locator('.grid-card').nth(gridIndex).click()
   await page.waitForSelector('.board-grid')

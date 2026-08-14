@@ -83,7 +83,7 @@ const measure = () =>
 
 /** Deal a board and read it. `learned` pushes the sampler deeper into a city. */
 const boardAt = async ({ city, learned, grid, translations }) => {
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0&seed=7&city=${city}&learned=${learned}`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=7&city=${city}&learned=${learned}`)
   await page.waitForSelector('.city-card')
   await page.locator('.grid-card').nth(grid).click()
   await page.waitForSelector('.board-grid')
@@ -188,7 +188,7 @@ try {
 
   // --- The article must not be mistakable for part of the word. That is the
   // one way this could mislead: a clue containing a board word is illegal.
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0&seed=5`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=5`)
   await page.waitForSelector('.city-card')
   await page.locator('.grid-card').first().click()
   await page.waitForSelector('.board-grid')

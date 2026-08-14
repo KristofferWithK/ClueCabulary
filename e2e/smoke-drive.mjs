@@ -19,13 +19,8 @@ try {
   await page.goto(preview.base + '?mock=1&seed=5')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
 
-  // First visit opens with the letter, which hands over to the rules.
-  await page.waitForSelector('.letter', { timeout: 8000 })
-  await page.screenshot({ path: `${SHOT_DIR}/00-letter.png` })
-  await page.click('.letter-go')
-
-  // Then the How-to-play overlay — read it like a new player would.
-  await page.waitForSelector('.howto', { timeout: 5000 })
+  // First visit opens with the How-to-play overlay — read it like a new player would.
+  await page.waitForSelector('.howto', { timeout: 8000 })
   await page.screenshot({ path: `${SHOT_DIR}/00-howto.png` })
   await page.click('.howto .btn-primary')
   await page.screenshot({ path: `${SHOT_DIR}/01-home.png` })
@@ -158,7 +153,7 @@ try {
     localStorage.clear()
     localStorage.setItem('cluecab-settings-v1', blob)
   }, V1_SETTINGS)
-  await page.goto(preview.base + '?mock=1&seed=5&howto=0&letter=0')
+  await page.goto(preview.base + '?mock=1&seed=5&howto=0')
   await page.waitForSelector('.city-card')
   await page.click('.grid-card:first-child')
   await page.waitForSelector('.board-grid')
@@ -195,7 +190,7 @@ try {
   // away. Played out here rather than asserted on a fixture, because the value
   // only exists if the reasoning survives the engine and the store.
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(preview.base + '?mock=1&seed=11&howto=0&letter=0')
+  await page.goto(preview.base + '?mock=1&seed=11&howto=0')
   await page.waitForSelector('.city-card')
   await page.click('.grid-card:first-child')
   await page.waitForSelector('.board-grid')

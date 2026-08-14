@@ -9,11 +9,9 @@ import {
   consumeSelfPop,
   devSwitchesAllowed,
   shouldShowHowTo,
-  shouldShowLetter,
   useUi,
 } from './stores/uiStore'
 import { DictionarySheet } from './ui/components/DictionarySheet'
-import { GrandmotherLetter } from './ui/components/GrandmotherLetter'
 import { HowToPlay } from './ui/components/HowToPlay'
 import { UpdateBanner } from './ui/components/UpdateBanner'
 import { GameScreen } from './ui/screens/GameScreen'
@@ -41,17 +39,14 @@ export default function App() {
     if (useJourney.getState().activeExam?.gradedAt) useJourney.getState().endExam()
   }, [])
 
-  // The invitation comes before the rules: the letter opens, and closing it
-  // hands over to How to Play. Its own effect, because it must run for every
-  // player — it used to sit below the dev-switch guard in the effect beneath
-  // this one, which returns early on any deployed origin, so on the live site
-  // neither the letter nor the rules ever opened.
+  // The rules open themselves exactly once. Its own effect, because it must
+  // run for every player — it used to sit below the dev-switch guard in the
+  // effect beneath this one, which returns early on any deployed origin, so
+  // on the live site the rules never opened.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const skip = params.get('howto') === '0' || params.get('letter') === '0'
-    if (skip) return
-    if (shouldShowLetter()) useUi.getState().openLetter()
-    else if (shouldShowHowTo()) useUi.getState().openHowTo()
+    if (params.get('howto') === '0') return
+    if (shouldShowHowTo()) useUi.getState().openHowTo()
   }, [])
 
   // Dev/e2e switches: ?mock=1 selects the offline companion, ?seed=N fixes the board.
@@ -143,8 +138,6 @@ export default function App() {
       const ui = useUi.getState()
       if (ui.sheetWordId) {
         useUi.setState({ sheetWordId: null })
-      } else if (ui.letterOpen) {
-        useUi.setState({ letterOpen: false })
       } else if (ui.howToOpen) {
         ui.closeHowTo()
       } else if (ui.screen !== 'home') {
@@ -184,7 +177,6 @@ export default function App() {
         </div>
       )}
       <DictionarySheet />
-      <GrandmotherLetter />
       <HowToPlay />
       <UpdateBanner />
     </main>

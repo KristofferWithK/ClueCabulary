@@ -9,7 +9,7 @@ import {
   WORDS_PER_CITY,
   cityAt,
 } from '../../journey/cities'
-import { championAt } from '../../journey/champions'
+
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
 import {
   canTravel,
@@ -29,7 +29,7 @@ import { useJourney } from '../../stores/journeyStore'
 import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
-import { LETTER } from '../../journey/letter'
+
 
 /** Deterministic pick that changes daily — drawn from words already unlocked. */
 function wordOfTheDay(cityIndex: number) {
@@ -122,7 +122,6 @@ export function HomeScreen() {
   const journey = useJourney()
 
   const city = cityAt(journey.cityIndex)
-  const champion = championAt(journey.cityIndex)
   const cityCounts = countCollection(wordsForCity(WORDS, journey.cityIndex), srs, journey.banked)
   const allCounts = countCollection(WORDS, srs, journey.banked)
   const stamps = stampsFor(journey, journey.cityIndex)
@@ -194,7 +193,7 @@ export function HomeScreen() {
     <div className="screen home-screen">
       <div className="home-hero">
         <h1>ClueCabulary</h1>
-        <p className="home-tagline">{LETTER.tagline}</p>
+        <p className="home-tagline">Learn Danish one clue at a time.</p>
       </div>
 
       {needsSetup && (
@@ -223,14 +222,6 @@ export function HomeScreen() {
         <p className="city-blurb" lang="da">
           {city.blurbDa}
         </p>
-        <p className="city-champion">
-          <span className="champion-motif-inline" aria-hidden="true">
-            {champion.motif}
-          </span>{' '}
-          {champion.name} — <span lang="da">{champion.titleDa}</span> holds the{' '}
-          <span lang="da">stempel</span> here
-        </p>
-
         <div className="collect-bar" aria-hidden="true">
           <div
             className="collect-fill collect-learned"
@@ -373,10 +364,6 @@ export function HomeScreen() {
           {wotd.da}
         </span>
         <span className="wotd-en">{wotd.en[0]}</span>
-      </button>
-
-      <button className="howto-link" onClick={() => useUi.getState().openLetter()}>
-        Read <span lang="da">{LETTER.fromShort}</span>'s letter again
       </button>
 
       <button className="howto-link" onClick={() => useUi.getState().openHowTo()}>

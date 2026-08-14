@@ -251,16 +251,16 @@ check('and in the accessible name, not only the pips', /clues given/.test(header
 check('and the pips do not read out twice', header.pipsHidden)
 check('the label says where the last chance stands', /last chance/i.test(header.label), header.label)
 
-// The letter claims role=dialog aria-modal; it has to behave like one.
+// The rules overlay claims role=dialog aria-modal; it has to behave like one.
 await page.goto(BASE + '?mock=1', { waitUntil: 'networkidle' })
-await page.waitForSelector('.letter')
+await page.waitForSelector('.howto')
 const focusedInside = await page.evaluate(
-  () => document.querySelector('.letter-screen')?.contains(document.activeElement) ?? false,
+  () => document.querySelector('.howto')?.contains(document.activeElement) ?? false,
 )
-check('the letter takes focus when it opens', focusedInside)
+check('the rules take focus when they open', focusedInside)
 await page.keyboard.press('Escape')
 await page.waitForTimeout(400)
-check('Escape closes the letter', (await page.locator('.letter').count()) === 0)
+check('Escape closes the rules', (await page.locator('.howto').count()) === 0)
 
 // The practice companion needs no key, so neither nudge belongs on Home.
 await open('?mock=1&howto=0&city=0')
