@@ -46,10 +46,22 @@ try {
   // It lives where the clue is written, not behind a menu.
   const box = page.locator('.clue-input .translate-box')
   check('the lookup is in the clue dock', (await box.count()) === 1)
-  await box.locator('summary').click()
+
+  // And it is a field, not a drawer: typeable with no tap of its own first.
+  // It was a <details>, which cost a tap every turn — the component remounts
+  // with the phase and a <details> keeps its open state on the element, so it
+  // shut itself again each time. This fill would time out against that.
+  check(
+    'and it is a field you can just type into',
+    await box
+      .locator('input')
+      .fill('dog', { timeout: 3000 })
+      .then(() => true, () => false),
+  )
+  check('with its own label naming it', (await box.locator('.translate-label').count()) === 1)
+  check('and no disclosure to open first', (await box.locator('summary').count()) === 0)
 
   // English in, Danish out — the direction a Danish clue actually needs.
-  await box.locator('input').fill('dog')
   await sleep(250)
   const hits = await box.locator('.translate-hits li').allTextContents()
   check('an English word gives the Danish', hits.join(' ').includes('hund'), hits[0] ?? '(none)')

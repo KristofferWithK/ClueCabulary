@@ -2705,24 +2705,28 @@ select:focus {
   background: var(--bg);
 }
 
-.translate-box > summary {
+/* Sits above an input that is always there, so it names the field rather than
+   opening it. Small and dim on purpose: two text inputs share this dock and
+   the clue is the one being asked for. The prefill button shares this line so
+   the field itself keeps the full width. */
+.translate-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 26px;
+}
+
+.translate-label {
   font-size: 0.85rem;
   color: var(--text-dim);
   font-weight: 600;
-  padding: 6px 0;
-  cursor: pointer;
 }
 
-.translate-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.translate-row input {
-  flex: 1;
+.translate-input {
+  width: 100%;
   padding: 10px;
+  margin-top: 6px;
 }
 
 .translate-hits {

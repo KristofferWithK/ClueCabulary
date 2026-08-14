@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 import { AiError } from '../../ai/client'
 import type { TranslationResponse } from '../../ai/schemas'
 import { articleLabel } from '../../data/gender'
@@ -25,6 +25,7 @@ import { canSpeak, speakDanish } from '../speak'
  * the English word you just tried to clue with while you are cluing.
  */
 export function TranslateBox({ prefill }: { prefill?: { term: string; label: string } }) {
+  const inputId = useId()
   const [term, setTerm] = useState('')
   const [asked, setAsked] = useState<TranslationResponse | null>(null)
   const [asking, setAsking] = useState(false)
@@ -104,27 +105,47 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   if (examOut) return null
 
   return (
-    <details className="translate-box">
-      <summary>Look up a word</summary>
-
-      <div className="translate-row">
-        <input
-          type="text"
-          value={term}
-          placeholder="dansk eller engelsk"
-          aria-label="Word to translate, Danish or English"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          enterKeyHint="search"
-          onChange={(e) => setTerm(e.target.value)}
-        />
+    // A field, not a drawer. It was a <details> and the lid cost a tap every
+    // time — and not once: the component unmounts and remounts with the phase,
+    // so a <details> (whose open state lives on the element, not in React) shut
+    // itself again on every turn. The word you need is the reason you are stuck
+    // mid-clue, so the box has to be somewhere your thumb already is, open.
+    <div className="translate-box">
+      {/* The prefill button rides the label line rather than the input's. It
+          used to sit beside the field, which cost it 141px of a 312px row —
+          measured at 360px, the input came out 123px wide, about ten
+          characters. That was survivable while the field was behind a lid and
+          is not now that it is the thing you type into. */}
+      <div className="translate-head">
+        <label className="translate-label" htmlFor={inputId}>
+          Look up a word
+        </label>
         {prefill && (
-          <button className="btn btn-small" onClick={() => setTerm(prefill.term)}>
+          <button
+            className="btn btn-small"
+            // The visible label is short because the line above already says
+            // "Look up"; a screen reader gets the whole sentence.
+            aria-label={`Look up ${prefill.term}`}
+            onClick={() => setTerm(prefill.term)}
+          >
             {prefill.label}
           </button>
         )}
       </div>
+
+      <input
+        id={inputId}
+        className="translate-input"
+        type="text"
+        value={term}
+        placeholder="dansk eller engelsk"
+        aria-label="Word to translate, Danish or English"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        enterKeyHint="search"
+        onChange={(e) => setTerm(e.target.value)}
+      />
 
       {local.length > 0 && (
         <ul className="translate-hits">
@@ -177,6 +198,6 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
       )}
 
       {error && <p className="test-fail">{error}</p>}
-    </details>
+    </div>
   )
 }

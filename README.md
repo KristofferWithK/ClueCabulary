@@ -116,10 +116,13 @@ words are green it stops counting attempts.
    only three words off the played one and the quota can be drawn from the other
    nine.
 5. **Clue in Danish.** Tap ⓘ on any board word for the built-in dictionary
-   (translation, gender, example sentence), or open **Look up a word** in the
-   clue dock to go the other way — English in, Danish out — which is the
-   direction composing a clue actually needs. Klaus clues in Danish too, and one
-   tap loads his clue into the same box. **Both sides speak Danish**: type an
+   (translation, gender, example sentence), or type into **Look up a word** in
+   the clue dock to go the other way — English in, Danish out — which is the
+   direction composing a clue actually needs. It is a field, not a drawer: it
+   was a `<details>` and the lid cost a tap every turn, because the dock
+   unmounts with the phase and a `<details>` keeps its open state on the element
+   rather than in React. Klaus clues in Danish too, and one tap loads his clue
+   into the same box. **Both sides speak Danish**: type an
    English word into the clue box and it says so, with the lookup one tap away,
    because Klaus is handed the clue as a bare string beside a Danish board and
    an English word there is one he cannot place.
