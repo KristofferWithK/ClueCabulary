@@ -28,7 +28,7 @@ export interface PublicClue {
  * What the player marked as a bad call in a past round's review.
  *
  * Carries no key data of any kind — a clue word, a Danish board word, and the
- * account Klaus himself gave — so it passes the firewall by construction. It
+ * account Cluey himself gave — so it passes the firewall by construction. It
  * is here rather than in the store because prompts may only read projections.
  */
 export interface FlaggedCall {

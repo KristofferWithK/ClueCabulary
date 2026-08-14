@@ -22,9 +22,7 @@ export function readSnapshot(): Snapshot {
     games: srs.games,
     journey: {
       cityIndex: j.cityIndex,
-      stamps: j.stamps,
-      banked: j.banked,
-      trialsSpent: j.trialsSpent,
+      wrapped: j.wrapped,
       arrivedAt: j.arrivedAt,
     },
     prefs: { gridSize: s.gridSize, clueLanguage: s.clueLanguage, studyPhase: s.studyPhase },
@@ -38,13 +36,8 @@ function writeSnapshot(next: Snapshot, restorePrefs: boolean) {
   useSrs.setState({ stats: next.stats, games: next.games })
   useJourney.setState({
     cityIndex: next.journey.cityIndex,
-    stamps: asNumberKeys(next.journey.stamps as Record<string, number>),
-    banked: next.journey.banked,
-    trialsSpent: asNumberKeys(next.journey.trialsSpent as Record<string, number>),
-    arrivedAt: asNumberKeys(next.journey.arrivedAt as Record<string, number>),
-    // A restored exam would be a paper drawn on another device, with an
-    // attempt spent there. Never carry one across.
-    activeExam: null,
+    wrapped: next.journey.wrapped,
+    arrivedAt: asNumberKeys(next.journey.arrivedAt as unknown as Record<string, number>),
   })
   if (restorePrefs) {
     useSettings.getState().set({

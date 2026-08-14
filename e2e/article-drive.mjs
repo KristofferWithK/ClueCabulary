@@ -24,6 +24,7 @@ import { readFileSync } from 'node:fs'
 import { startPreview } from './preview-server.mjs'
 
 const PORT = 4199
+const SIZES = ['beginner', 'middle', 'standard']
 const preview = await startPreview(PORT)
 
 // The dataset decides the worst case, so read it rather than hard-coding one.
@@ -83,9 +84,11 @@ const measure = () =>
 
 /** Deal a board and read it. `learned` pushes the sampler deeper into a city. */
 const boardAt = async ({ city, learned, grid, translations }) => {
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0&seed=7&city=${city}&learned=${learned}`)
+  await page.goto(
+    `${preview.base}?mock=1&howto=0&seed=7&city=${city}&learned=${learned}&grid=${SIZES[grid]}`,
+  )
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').nth(grid).click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
@@ -188,9 +191,9 @@ try {
 
   // --- The article must not be mistakable for part of the word. That is the
   // one way this could mislead: a clue containing a board word is illegal.
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0&seed=5`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=5&grid=beginner`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()

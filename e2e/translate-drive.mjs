@@ -9,7 +9,7 @@ import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
-const PORT = 4198
+const PORT = 4197
 const preview = await startPreview(PORT)
 
 const browser = await chromium.launch({
@@ -30,9 +30,9 @@ const lookedUp = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.lookedUp ?? [])
 
 try {
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=5`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=5&grid=beginner`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
@@ -67,7 +67,7 @@ try {
   check('an English word gives the Danish', hits.join(' ').includes('hund'), hits[0] ?? '(none)')
 
   // And no request was needed: the thousand words answer offline.
-  check('with no Ask Klaus needed', (await box.locator('.translate-ask').count()) === 0)
+  check('with no Ask Cluey needed', (await box.locator('.translate-ask').count()) === 0)
 
   // Looking up an English word whose Danish is ON the board. This is the case
   // that read as a broken dictionary from a phone: "wood" answers "et træ",
@@ -83,11 +83,11 @@ try {
     `${boardEn} → ${(await box.locator('.translate-hits li').allTextContents()).join(' | ')}`,
   )
 
-  // A word outside the set offers Klaus rather than inventing something.
+  // A word outside the set offers Cluey rather than inventing something.
   await box.locator('input').fill('helicopter')
   await sleep(250)
   check(
-    'a word outside the set offers to ask Klaus',
+    'a word outside the set offers to ask Cluey',
     (await box.locator('.translate-ask').count()) === 1,
   )
   check('and claims nothing on its own', (await box.locator('.translate-hits').count()) === 0)
@@ -123,30 +123,6 @@ try {
     (await page.locator('.translate-box').count()) === 0,
   )
 
-  // A travel exam is the other moment the game says "no dictionary", and it is
-  // the one the component missed: the store's translate() refused, but the
-  // shipped-dictionary half is read straight from the component, so it answered
-  // the paper's own words offline and — since noteLookup also declines during
-  // an exam — charged nothing for them. A paper can be suspended with the gate
-  // screen's back arrow and the round resumed underneath it.
-  await page.evaluate(() => {
-    const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
-    raw.state.game.phase = 'playerClueInput'
-    localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
-    const j = JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{"state":{},"version":2}')
-    j.state.activeExam = { cityIndex: 0, wordIds: ['da-hund'], answers: {} }
-    localStorage.setItem('cluecab-journey-v2', JSON.stringify(j))
-  })
-  await page.reload()
-  await page.getByRole('button', { name: 'Continue game' }).click()
-  await page.waitForSelector('.clue-input', { timeout: 15000 })
-  check(
-    'and gone while a travel exam paper is out, which is the same promise',
-    // On the clue screen, where it normally lives — so its absence means the
-    // lock, not the wrong screen.
-    (await page.locator('.clue-input').count()) === 1 &&
-      (await page.locator('.translate-box').count()) === 0,
-  )
 
   check('no page errors', crashes.length === 0, crashes.join(' | '))
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nTRANSLATE DRIVE OK')

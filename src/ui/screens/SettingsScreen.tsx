@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AiError, listModels, resolveEndpoint, testConnection } from '../../ai/client'
 import { hasBundledKey } from '../../ai/bundled-key'
 import { PROVIDERS, providerFor, type Provider } from '../../ai/providers'
+import type { GridSize } from '../../engine/config'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import type { StudyMode } from '../../journey/progress'
@@ -10,7 +11,7 @@ import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { BackupPanel } from '../components/BackupPanel'
 import { BuildFooter } from '../components/BuildFooter'
-import { ConnectKlaus } from '../components/ConnectKlaus'
+import { ConnectCluey } from '../components/ConnectCluey'
 
 export function SettingsScreen() {
   const goTo = useUi((s) => s.goTo)
@@ -77,7 +78,7 @@ export function SettingsScreen() {
         apiKey: settings.apiKey,
         model: settings.model,
       })
-      settings.markKlausVerified(Date.now())
+      settings.markClueyVerified(Date.now())
       setTest('ok')
     } catch (e) {
       setTest(e instanceof AiError ? e.message : 'Connection failed.')
@@ -93,9 +94,13 @@ export function SettingsScreen() {
         <h1>Settings</h1>
       </header>
 
+      {/* Settings is the one screen with more to say than a phone is tall.
+          The DOCUMENT still must not scroll — this container does, under a
+          header that stays put by construction. */}
+      <div className="screen-scroll">
       <section className="settings-section">
         <h3>AI companion</h3>
-        <ConnectKlaus verified={settings.klausVerifiedAt !== null} />
+        <ConnectCluey verified={settings.klausVerifiedAt !== null} />
         <div className="field">
           <span>Service</span>
           <div className="provider-list">
@@ -192,7 +197,7 @@ export function SettingsScreen() {
         >
           {test === 'testing' ? 'Testing…' : 'Test connection'}
         </button>
-        {test === 'ok' && <p className="test-ok">✓ Connected — Klaus is awake.</p>}
+        {test === 'ok' && <p className="test-ok">✓ Connected — Cluey is awake.</p>}
         {test !== 'idle' && test !== 'testing' && test !== 'ok' && (
           <p className="test-fail">{test}</p>
         )}
@@ -208,6 +213,19 @@ export function SettingsScreen() {
 
       <section className="settings-section">
         <h3>Game</h3>
+        <label className="field">
+          <span>Board size</span>
+          <select
+            value={settings.gridSize}
+            onChange={(e) => settings.set({ gridSize: e.target.value as GridSize })}
+          >
+            <option value="beginner">3×4 — Beginner, 5 clues</option>
+            <option value="middle">3×5 — Middle, 6 clues</option>
+            <option value="standard">4×5 — Standard, 8 clues</option>
+          </select>
+          <small>What «Spil videre» deals. Wrap-up rounds bring their own board.</small>
+        </label>
+
         <label className="field">
           <span>Clue language</span>
           <select
@@ -263,6 +281,7 @@ export function SettingsScreen() {
         </button>
         <BuildFooter />
       </section>
+      </div>
     </div>
   )
 }

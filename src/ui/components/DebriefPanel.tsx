@@ -70,7 +70,7 @@ const OUTCOME_COPY: Record<OutcomeKey, { title: string; sub: string }> = {
  * One tap to say "that was a bad call", on the screen where the reasoning is.
  *
  * A toggle, not a report form: the player is looking at a finished round and
- * the useful signal is cheap to give. Everything needed to show Klaus what he
+ * the useful signal is cheap to give. Everything needed to show Cluey what he
  * did — the word, the clue it was made under, and his own account of it — is
  * on screen already, so the flag carries it rather than a bare thumbs-down.
  */
@@ -106,11 +106,21 @@ function FlagButton({
 
 export function DebriefPanel({ game }: { game: GameState }) {
   const { debrief, debriefFailed, aiBusy, newGame, newlyLearned } = useGame()
+  const mode = useGame((s) => s.mode)
+  const packed = useGame((s) => s.packed)
   const goTo = useUi((s) => s.goTo)
   const cityIndex = useJourney((s) => s.cityIndex)
-  const banked = useJourney((s) => s.banked)
+  const wrapped = useJourney((s) => s.wrapped)
   const srs = useSrs((s) => s.stats)
-  const cityLearned = countCollection(wordsForCity(WORDS, cityIndex), srs, banked).learned
+  const cityCounts = countCollection(wordsForCity(WORDS, cityIndex), srs, wrapped)
+  const cityCollected = cityCounts.collected + cityCounts.wrapped
+  // What a wrap-up round wrapped: packed AND found green, mirror of finishRound.
+  const wrappedWords =
+    mode === 'wrapup'
+      ? game.words.filter(
+          (w) => packed.includes(w.wordId) && game.reveals[w.wordId]?.kind === 'green',
+        )
+      : []
   const outcome = game.outcome!
   const copy = OUTCOME_COPY[`${outcome.result}:${outcome.reason}` as OutcomeKey]
   const aiClues = game.clueHistory.filter((c) => c.by === 'ai' && c.rationale)
@@ -125,7 +135,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
   // Otherwise the guesser is whoever did not give the last clue.
   const namedBySelf =
     outcome.reason === 'sudden-death' || game.clueHistory.at(-1)?.by === 'ai'
-  const fatalBy = namedBySelf ? 'You named' : 'Klaus named'
+  const fatalBy = namedBySelf ? 'You named' : 'Cluey named'
 
   return (
     <div className="debrief">
@@ -140,13 +150,42 @@ export function DebriefPanel({ game }: { game: GameState }) {
         )}
       </div>
 
+      {/* The point of a wrap-up round: what went into the suitcase for good.
+          Shown either way — a lost round keeps every word it wrapped. */}
+      {mode === 'wrapup' && (
+        <section className="debrief-section collected-section">
+          <h3>Wrapped and packed</h3>
+          {wrappedWords.length > 0 ? (
+            <>
+              <ul className="collected-words">
+                {wrappedWords.map((w) => (
+                  <li key={w.wordId} className="collected-word">
+                    <span className="collected-mark" aria-hidden="true">
+                      ●
+                    </span>
+                    <span lang="da">{w.da}</span>
+                    <span className="collected-en">{w.en[0]}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="collected-note">
+                {wrappedWords.length === 1 ? 'One word' : `${wrappedWords.length} words`} wrapped —{' '}
+                {cityCounts.wrapped} of {WORDS_PER_CITY} packed in {cityAt(cityIndex).name}.
+              </p>
+            </>
+          ) : (
+            <p className="collected-note">
+              Nothing wrapped this time — a word is packed when it was translated AND found green.
+            </p>
+          )}
+        </section>
+      )}
+
       {/* The point of the round. A loss can still green a word, so this is
           shown either way — and it is the only place the collection speaks. */}
       {newlyLearned.length > 0 && (
         <section className="debrief-section collected-section">
-          <h3>
-            Added to <span lang="da">samlingen</span>
-          </h3>
+          <h3>Collected for Cluey</h3>
           <ul className="collected-words">
             {newlyLearned.map((id) => {
               const w = game.words.find((x) => x.wordId === id)
@@ -163,8 +202,8 @@ export function DebriefPanel({ game }: { game: GameState }) {
             })}
           </ul>
           <p className="collected-note">
-            {newlyLearned.length === 1 ? 'One word' : `${newlyLearned.length} words`} turned green
-            — {cityLearned} of {WORDS_PER_CITY} in {cityAt(cityIndex).name}.
+            {newlyLearned.length === 1 ? 'One word' : `${newlyLearned.length} words`} collected —{' '}
+            {cityCollected} of {WORDS_PER_CITY} in {cityAt(cityIndex).name}.
           </p>
         </section>
       )}
@@ -191,7 +230,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
       )}
 
       <section className="debrief-section">
-        <h3>Klaus debriefs</h3>
+        <h3>Cluey debriefs</h3>
         {debrief ? (
           <>
             <p>{debrief.summary}</p>
@@ -203,7 +242,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
           </>
         ) : aiBusy ? (
           <p className="thinking">
-            <span className="dots" /> Klaus is gathering his thoughts…
+            <span className="dots" /> Cluey is gathering his thoughts…
           </p>
         ) : debriefFailed && aiClues.length > 0 ? (
           <ul className="takeaways">
@@ -218,7 +257,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
         )}
       </section>
 
-      {/* Every decision Klaus made, with his account of it.
+      {/* Every decision Cluey made, with his account of it.
           This used to be a one-line score-strip — «mad ✓  hus ·» — which said
           WHAT he did and never why. The model had always written a reason for
           each guess and the engine dropped it on the floor, so the one question
@@ -229,10 +268,10 @@ export function DebriefPanel({ game }: { game: GameState }) {
         <h3>What was said, and why</h3>
         {/* Flagging lives here and nowhere else: this is the only screen where
             the reasoning is visible, and a verdict on a clue is only worth
-            anything next to the account Klaus gave of it. Klaus's own turns
+            anything next to the account Cluey gave of it. Cluey's own turns
             only — flagging your own clue would be marking your own homework. */}
         <p className="dim log-hint">
-          Tap ⚑ on anything of Klaus's that was a bad call. He is shown the ones you flag.
+          Tap ⚑ on anything of Cluey's that was a bad call. He is shown the ones you flag.
         </p>
         <ol className="turn-log">
           {game.clueHistory.map((c, i) => {
@@ -241,7 +280,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
             return (
               <li key={i}>
                 <p className="turn-clue">
-                  <strong>{c.by === 'player' ? 'You' : 'Klaus'}:</strong> «{c.text}» ({c.number})
+                  <strong>{c.by === 'player' ? 'You' : 'Cluey'}:</strong> «{c.text}» ({c.number})
                   {c.by === 'ai' && c.targets && (
                     <span className="dim">
                       {' '}
@@ -254,7 +293,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
                       kind="clue"
                       what={c.text}
                       why={c.rationale}
-                      label={`Klaus's clue «${c.text}»`}
+                      label={`Cluey's clue «${c.text}»`}
                     />
                   )}
                 </p>
@@ -279,7 +318,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
                       {g.confidence !== undefined && (
                         // Said out loud because it is the number that decided
                         // the ORDER, and the first guess is played whatever it
-                        // is — so a guess Klaus was never sure of should look
+                        // is — so a guess Cluey was never sure of should look
                         // like one rather than like a considered choice.
                         <span className="guess-confidence">
                           {Math.round(g.confidence * 100)}% sure
@@ -294,7 +333,7 @@ export function DebriefPanel({ game }: { game: GameState }) {
                           what={da(g.wordId)}
                           underClue={c.text}
                           why={g.reasoning}
-                          label={`Klaus's guess «${da(g.wordId)}»`}
+                          label={`Cluey's guess «${da(g.wordId)}»`}
                         />
                       )}
                     </li>

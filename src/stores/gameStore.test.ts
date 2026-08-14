@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 /**
- * The practice fallback exists so a round is not lost when Klaus cannot be
+ * The practice fallback exists so a round is not lost when Cluey cannot be
  * reached — no key yet, the wrong key, or a browser that will not talk to
  * ollama.com. Three rules make it a rescue rather than a trap: it must not
  * touch settings, it must not survive into the next round, and it must survive
@@ -26,9 +26,14 @@ Object.defineProperty(globalThis, 'window', {
 })
 
 const { useGame } = await import('./gameStore')
+const { useJourney } = await import('./journeyStore')
 const { useSettings } = await import('./settingsStore')
+const { useSrs } = await import('./srsStore')
+const { WORDS } = await import('../data/words')
+const { newStats } = await import('../srs/scheduler')
+const { wordsForCity } = await import('../journey/progress')
 
-describe('gameStore: finishing a round without Klaus', () => {
+describe('gameStore: finishing a round without Cluey', () => {
   beforeEach(() => {
     useSettings.setState({ apiKey: 'a-key', useMock: false })
     useGame.getState().abandonGame()
@@ -45,7 +50,7 @@ describe('gameStore: finishing a round without Klaus', () => {
     expect(useGame.getState().error).toBeNull()
   })
 
-  it('changes no setting — the next round still tries Klaus', () => {
+  it('changes no setting — the next round still tries Cluey', () => {
     useGame.getState().fallBackToPractice()
     expect(useSettings.getState().useMock).toBe(false)
     expect(useSettings.getState().apiKey).toBe('a-key')
@@ -167,5 +172,273 @@ describe('gameStore: rerolling the board before the first clue', () => {
     useGame.getState().abandonGame()
     expect(() => useGame.getState().rerollBoard()).not.toThrow()
     expect(useGame.getState().game).toBeNull()
+  })
+})
+
+/**
+ * Collection depends on knowing whose work earned each green, and finishRound
+ * is the only place that can still tell: a guess is judged against the
+ * clue-giver's key, so a green under a clue `by: 'player'` is Cluey finding
+ * the player's word (clue credit), a green under `by: 'ai'` is the player's
+ * own tap (guess credit), and a green reveal that appears in NO clue's guess
+ * list was named in sudden death — the reducer writes that reveal without a
+ * guess record — which is the player naming it with no clue-giver at all.
+ *
+ * Mutation-checked: swapping the two `by` comparisons fails the first two
+ * tests; dropping the sudden-death fallback fails the third.
+ */
+describe('gameStore: which side earned each green', () => {
+  const word = (id: string) => ({ wordId: id, da: id, en: [id], pos: 'noun' })
+
+  const finishedGame = () =>
+    ({
+      config: { rows: 2, cols: 2, totalWords: 4 },
+      seed: 1,
+      words: ['a', 'b', 'c', 'd'].map(word),
+      reveals: {
+        a: { kind: 'green' },
+        b: { kind: 'green' },
+        c: { kind: 'green' },
+        d: { kind: 'hidden' },
+      },
+      playerKey: { a: 'green', b: 'bystander', c: 'green', d: 'bystander' },
+      aiKey: { a: 'bystander', b: 'green', c: 'green', d: 'green' },
+      phase: 'finished',
+      turnsLeft: 0,
+      clueHistory: [
+        { by: 'player', text: 'x', number: 1, guesses: [{ wordId: 'a', result: 'green' }] },
+        { by: 'ai', text: 'y', number: 2, guesses: [{ wordId: 'b', result: 'green' }] },
+        // 'c' is revealed green but appears in no guess list: sudden death.
+      ],
+      outcome: { result: 'lost', reason: 'sudden-death' },
+    }) as never
+
+  beforeEach(() => {
+    useSettings.setState({ useMock: true })
+    useSrs.getState().reset()
+    useGame.getState().abandonGame()
+  })
+
+  it("credits the player's clue when Cluey finds the word", () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.a).toMatchObject({ greenByClue: 1, greenByGuess: 0 })
+  })
+
+  it("credits the player's guess when they find Cluey's word", () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.b).toMatchObject({ greenByClue: 0, greenByGuess: 1 })
+  })
+
+  it('a sudden-death green is the player naming it: guess credit', () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.c).toMatchObject({ greenByClue: 0, greenByGuess: 1 })
+  })
+
+  it('an unrevealed word earns neither', () => {
+    useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    expect(useSrs.getState().stats.d).toMatchObject({ greenByClue: 0, greenByGuess: 0 })
+  })
+
+  it('a redemption answer never advances the collection', () => {
+    const game = finishedGame() as {
+      reveals: Record<string, unknown>
+      redemption?: unknown
+      outcome: unknown
+      clueHistory: unknown[]
+    }
+    game.clueHistory.length = 0
+    game.reveals = {
+      a: { kind: 'forbidden' },
+      b: { kind: 'hidden' },
+      c: { kind: 'hidden' },
+      d: { kind: 'hidden' },
+    }
+    game.redemption = {
+      promptWordIds: ['a', 'b', 'c', 'd'],
+      results: [
+        { wordId: 'b', given: 'b', accepted: true },
+        { wordId: 'c', given: 'wrong', accepted: false },
+      ],
+    }
+    game.outcome = { result: 'won', reason: 'redeemed' }
+    useGame.setState({ game: game as never, roundRecorded: false, lookedUp: [] })
+    useGame.getState().finishRound()
+    const stats = useSrs.getState().stats
+    expect(stats.b).toMatchObject({ greenByClue: 0, greenByGuess: 0, redemptionRight: 1 })
+    expect(stats.c).toMatchObject({ greenByClue: 0, greenByGuess: 0, redemptionWrong: 1 })
+  })
+})
+
+/**
+ * The wrap-up round: dealt from collected words, opened by a packing phase,
+ * and the reason the mode exists — packed words found green go into the
+ * suitcase for good.
+ *
+ * Mutation-checked: dropping the `packed.includes` conjunct in finishRound's
+ * wrap step fails "a skipped card ... does NOT wrap"; letting the deal write
+ * recentBoards fails its test; loosening the reroll guard fails that one.
+ */
+describe('gameStore: wrap-up rounds', () => {
+  const city = wordsForCity(WORDS, 0)
+
+  const collectCity = (n: number) => {
+    const stats = Object.fromEntries(
+      city.slice(0, n).map((w) => [
+        w.id,
+        { ...newStats(1_700_000_000_000), greenByClue: 1, greenByGuess: 1 },
+      ]),
+    )
+    useSrs.setState({ stats })
+  }
+
+  beforeEach(() => {
+    useSettings.setState({ apiKey: 'a-key', useMock: true })
+    useJourney.getState().reset()
+    useSrs.getState().reset()
+    useGame.getState().abandonGame()
+    useGame.setState({ recentBoards: [] })
+    collectCity(40)
+  })
+
+  it('deals a full board of collected words, English-side up, packing open', () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const s = useGame.getState()
+    expect(s.game).not.toBeNull()
+    expect(s.game!.words).toHaveLength(20)
+    expect(s.mode).toBe('wrapup')
+    expect(s.packingDone).toBe(false)
+    expect(s.packed).toEqual([])
+    const collected = new Set(city.slice(0, 40).map((w) => w.id))
+    for (const w of s.game!.words) expect(collected.has(w.wordId)).toBe(true)
+  })
+
+  it('refuses to deal below a full board of collected words', () => {
+    useSrs.getState().reset()
+    collectCity(10)
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    expect(useGame.getState().game).toBeNull()
+  })
+
+  it('neither reads nor writes recentBoards — wrap-ups live outside the carry-over rule', () => {
+    useGame.getState().newGame({ seed: 1 })
+    const prior = useGame.getState().recentBoards
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    expect(useGame.getState().recentBoards).toEqual(prior)
+  })
+
+  it('packing a card right flips it; the last card opens the round', () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const words = useGame.getState().game!.words
+    for (const [i, w] of words.entries()) {
+      expect(useGame.getState().submitPacking(w.wordId, w.da)).toBe(true)
+      expect(useGame.getState().packed).toContain(w.wordId)
+      expect(useGame.getState().packingDone).toBe(i === words.length - 1)
+    }
+    expect(useGame.getState().packingMissed).toEqual([])
+  })
+
+  it('a miss is recorded once, and retries are free', () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const w = useGame.getState().game!.words[0]!
+    expect(useGame.getState().submitPacking(w.wordId, 'zzzz')).toBe(false)
+    expect(useGame.getState().submitPacking(w.wordId, 'zzzz')).toBe(false)
+    expect(useGame.getState().packingMissed).toEqual([w.wordId])
+    expect(useGame.getState().submitPacking(w.wordId, w.da)).toBe(true)
+    expect(useGame.getState().packed).toContain(w.wordId)
+    // Packed after a miss: the miss stands.
+    expect(useGame.getState().packingMissed).toEqual([w.wordId])
+  })
+
+  it('starting early opens the round with cards still unpacked', () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const w = useGame.getState().game!.words[0]!
+    useGame.getState().submitPacking(w.wordId, w.da)
+    useGame.getState().startRoundEarly()
+    expect(useGame.getState().packingDone).toBe(true)
+    expect(useGame.getState().packed).toEqual([w.wordId])
+  })
+
+  it('the dictionary is closed while packing — it would be the answer key', async () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const w = useGame.getState().game!.words[0]!
+    await expect(useGame.getState().translate(w.da)).rejects.toThrow(/closed/i)
+    useGame.getState().recordLookup(w.wordId)
+    expect(useGame.getState().lookedUp).toEqual([])
+    // Open again once the packing is done.
+    useGame.getState().startRoundEarly()
+    useGame.getState().recordLookup(w.wordId)
+    expect(useGame.getState().lookedUp).toEqual([w.wordId])
+  })
+
+  it('rerolls only before the first packing attempt — a miss is owed, not unseen', () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const before = useGame.getState().game!.words.map((w) => w.wordId)
+    useGame.getState().rerollBoard()
+    const after = useGame.getState().game!.words.map((w) => w.wordId)
+    expect(after).not.toEqual(before)
+    expect(useGame.getState().mode).toBe('wrapup')
+    expect(useGame.getState().packingDone).toBe(false)
+
+    // One MISS is an attempt: the board must now stand.
+    const w = useGame.getState().game!.words[0]!
+    useGame.getState().submitPacking(w.wordId, 'zzzz')
+    const dealt = useGame.getState().game!.words.map((x) => x.wordId)
+    useGame.getState().rerollBoard()
+    expect(useGame.getState().game!.words.map((x) => x.wordId)).toEqual(dealt)
+  })
+
+  const finishWrapUp = (
+    reveal: (wordId: string, i: number) => 'green' | 'hidden',
+  ) => {
+    const game = useGame.getState().game!
+    const reveals = Object.fromEntries(
+      game.words.map((w, i) => [w.wordId, { kind: reveal(w.wordId, i) }]),
+    )
+    useGame.setState({
+      game: {
+        ...game,
+        phase: 'finished',
+        reveals,
+        outcome: { result: 'lost', reason: 'timeout' },
+      } as never,
+      roundRecorded: false,
+    })
+    useGame.getState().finishRound()
+  }
+
+  it('a packed word found green is wrapped — win or lose', () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const words = useGame.getState().game!.words
+    useGame.getState().submitPacking(words[0]!.wordId, words[0]!.da)
+    useGame.getState().submitPacking(words[1]!.wordId, words[1]!.da)
+    useGame.getState().startRoundEarly()
+    // words[0] green, words[1] never revealed, everything else green too.
+    finishWrapUp((id) => (id === words[1]!.wordId ? 'hidden' : 'green'))
+    const wrapped = useJourney.getState().wrapped
+    expect(wrapped).toHaveProperty(words[0]!.wordId)
+    // Packed but never found: not wrapped.
+    expect(wrapped).not.toHaveProperty(words[1]!.wordId)
+  })
+
+  it('a skipped card revealed green does NOT wrap — the risk the skip buys', () => {
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const words = useGame.getState().game!.words
+    useGame.getState().submitPacking(words[0]!.wordId, words[0]!.da)
+    useGame.getState().startRoundEarly()
+    finishWrapUp(() => 'green')
+    const wrapped = useJourney.getState().wrapped
+    expect(wrapped).toHaveProperty(words[0]!.wordId)
+    for (const w of words.slice(1)) expect(wrapped).not.toHaveProperty(w.wordId)
+  })
+
+  it('a normal round wraps nothing, whatever is revealed', () => {
+    useGame.getState().newGame({ seed: 5 })
+    useGame.getState().endStudy()
+    finishWrapUp(() => 'green')
+    expect(Object.keys(useJourney.getState().wrapped)).toHaveLength(0)
   })
 })

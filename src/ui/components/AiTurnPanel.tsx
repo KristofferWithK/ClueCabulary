@@ -28,7 +28,7 @@ export function AiTurnPanel({ game }: { game: GameState }) {
     return (
       <div className="dock ai-panel">
         <p className="thinking">
-          <span className="dots" /> Klaus is thinking…
+          <span className="dots" /> Cluey is thinking…
         </p>
       </div>
     )
@@ -57,7 +57,7 @@ export function AiTurnPanel({ game }: { game: GameState }) {
         </p>
       ) : (
         <p className="ai-guess-line">
-          Klaus is choosing {aiGuessQueue.length > 0 ? 'a word' : 'whether to guess'}…
+          Cluey is choosing {aiGuessQueue.length > 0 ? 'a word' : 'whether to guess'}…
         </p>
       )}
     </div>

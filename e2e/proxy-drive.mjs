@@ -148,9 +148,9 @@ try {
   fake.reset()
   await useBaseUrl(`${worker.base}/v1`)
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?howto=0&seed=5`)
+  await page.goto(`${preview.base}?howto=0&seed=5&grid=beginner`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
@@ -159,7 +159,7 @@ try {
   await page.waitForSelector('.ai-guess-line, .guess-bar', { timeout: 25000 })
   await sleep(2000)
   check('a round plays through the proxy', (await page.locator('.error-banner').count()) === 0)
-  check('and Klaus really answered over the wire', fake.received.length >= 1, `${fake.received.length} upstream calls`)
+  check('and Cluey really answered over the wire', fake.received.length >= 1, `${fake.received.length} upstream calls`)
 
   // ---- the worker's own contract, without a browser in the way ----------------
   const pre = await fetch(`${worker.base}/v1/chat/completions`, {

@@ -85,10 +85,10 @@ describe('the dataset says what gender every noun is', () => {
 })
 
 /**
- * "The clue Klaus gets must be always danish. If someone types an English word
+ * "The clue Cluey gets must be always danish. If someone types an English word
  * they are prompted to use the dictionary."
  *
- * Klaus is handed the clue as a bare string beside a Danish board, so an
+ * Cluey is handed the clue as a bare string beside a Danish board, so an
  * English word there is one he cannot place — and reaching for the Danish is
  * the point of the round. The check is deliberately narrow: a word must be one
  * of our English glosses AND not one of our Danish headwords.

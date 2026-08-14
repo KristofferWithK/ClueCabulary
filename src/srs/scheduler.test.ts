@@ -1,16 +1,25 @@
 import { describe, expect, it } from 'vitest'
 import { applyRoundResults, newStats, reviewWeight } from './scheduler'
-import type { SrsMap } from './types'
+import type { RoundWordResult, SrsMap } from './types'
 
 const NOW = 1_700_000_000_000
 const DAY = 24 * 60 * 60 * 1000
 
 const base = (over: Partial<ReturnType<typeof newStats>> = {}) => ({ ...newStats(NOW - 10 * DAY), ...over })
 
+const res = (over: Partial<RoundWordResult> & { wordId: string }): RoundWordResult => ({
+  guessedGreen: false,
+  guessedWrong: false,
+  greenByOwnClue: false,
+  greenByOwnGuess: false,
+  lookedUp: false,
+  ...over,
+})
+
 describe('applyRoundResults', () => {
   it('promotes a clean correct guess', () => {
     const map: SrsMap = { w1: base({ box: 1 }) }
-    const next = applyRoundResults(map, [{ wordId: 'w1', guessedGreen: true, guessedWrong: false, lookedUp: false }], NOW)
+    const next = applyRoundResults(map, [res({ wordId: 'w1', guessedGreen: true })], NOW)
     expect(next.w1!.box).toBe(2)
     expect(next.w1!.correctGuesses).toBe(1)
     expect(next.w1!.lastSeenAt).toBe(NOW)
@@ -18,7 +27,7 @@ describe('applyRoundResults', () => {
 
   it('does not promote a correct guess that needed a lookup', () => {
     const map: SrsMap = { w1: base({ box: 1 }) }
-    const next = applyRoundResults(map, [{ wordId: 'w1', guessedGreen: true, guessedWrong: false, lookedUp: true }], NOW)
+    const next = applyRoundResults(map, [res({ wordId: 'w1', guessedGreen: true, lookedUp: true })], NOW)
     expect(next.w1!.box).toBe(1)
     expect(next.w1!.lookups).toBe(1)
   })
@@ -28,8 +37,8 @@ describe('applyRoundResults', () => {
     const next = applyRoundResults(
       map,
       [
-        { wordId: 'w1', guessedGreen: false, guessedWrong: true, lookedUp: false },
-        { wordId: 'w2', guessedGreen: true, guessedWrong: false, lookedUp: false, redemption: 'wrong' },
+        res({ wordId: 'w1', guessedWrong: true }),
+        res({ wordId: 'w2', guessedGreen: true, redemption: 'wrong' }),
       ],
       NOW,
     )
@@ -42,8 +51,8 @@ describe('applyRoundResults', () => {
     const next = applyRoundResults(
       map,
       [
-        { wordId: 'hi', guessedGreen: true, guessedWrong: false, lookedUp: false },
-        { wordId: 'lo', guessedGreen: false, guessedWrong: true, lookedUp: false },
+        res({ wordId: 'hi', guessedGreen: true }),
+        res({ wordId: 'lo', guessedWrong: true }),
       ],
       NOW,
     )
@@ -54,21 +63,45 @@ describe('applyRoundResults', () => {
   it('lookup-only exposure keeps the word due (lastSeenAt unchanged)', () => {
     const then = NOW - 10 * DAY
     const map: SrsMap = { w1: base({ lastSeenAt: then }) }
-    const next = applyRoundResults(map, [{ wordId: 'w1', guessedGreen: false, guessedWrong: false, lookedUp: true }], NOW)
+    const next = applyRoundResults(map, [res({ wordId: 'w1', lookedUp: true })], NOW)
     expect(next.w1!.lastSeenAt).toBe(then)
     expect(next.w1!.seen).toBe(1)
   })
 
   it('creates stats for first-time words', () => {
-    const next = applyRoundResults({}, [{ wordId: 'new', guessedGreen: false, guessedWrong: false, lookedUp: false }], NOW)
+    const next = applyRoundResults({}, [res({ wordId: 'new' })], NOW)
     expect(next.new).toMatchObject({ box: 0, seen: 1, lastSeenAt: NOW })
   })
 
   it('does not mutate the input map', () => {
     const map: SrsMap = { w1: base({ box: 1 }) }
     const snapshot = JSON.stringify(map)
-    applyRoundResults(map, [{ wordId: 'w1', guessedGreen: true, guessedWrong: false, lookedUp: false }], NOW)
+    applyRoundResults(map, [res({ wordId: 'w1', guessedGreen: true })], NOW)
     expect(JSON.stringify(map)).toBe(snapshot)
+  })
+
+  it('counts each green for the side whose work earned it', () => {
+    const next = applyRoundResults(
+      {},
+      [
+        res({ wordId: 'clued', guessedGreen: true, greenByOwnClue: true }),
+        res({ wordId: 'guessed', guessedGreen: true, greenByOwnGuess: true }),
+        res({ wordId: 'untouched' }),
+      ],
+      NOW,
+    )
+    expect(next.clued).toMatchObject({ greenByClue: 1, greenByGuess: 0 })
+    expect(next.guessed).toMatchObject({ greenByClue: 0, greenByGuess: 1 })
+    expect(next.untouched).toMatchObject({ greenByClue: 0, greenByGuess: 0 })
+  })
+
+  it('directional counts only accumulate, never reset', () => {
+    let map: SrsMap = {}
+    for (let i = 0; i < 3; i++) {
+      map = applyRoundResults(map, [res({ wordId: 'w', guessedGreen: true, greenByOwnClue: true })], NOW + i)
+    }
+    map = applyRoundResults(map, [res({ wordId: 'w', guessedWrong: true })], NOW + 3)
+    expect(map.w).toMatchObject({ greenByClue: 3, greenByGuess: 0 })
   })
 })
 

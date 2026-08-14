@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware'
 /**
  * A clue or a guess the player marked as bad, from the review page.
  *
- * `what` is what Klaus did, `why` is the account he gave of it — both kept,
+ * `what` is what Cluey did, `why` is the account he gave of it — both kept,
  * because a flag with only the verdict in it is not usable feedback. The
  * reasoning is the half that says WHERE he went wrong, and it is the half he
  * can be shown next time.
@@ -25,7 +25,7 @@ export interface Flag {
 /**
  * How many flags are kept, newest first.
  *
- * They are shown back to Klaus, so this is a prompt-size budget as much as a
+ * They are shown back to Cluey, so this is a prompt-size budget as much as a
  * storage one: enough that a repeated habit is visible, few enough that the
  * list never crowds out the board he is supposed to be reading.
  */
@@ -46,7 +46,7 @@ export const useFeedback = create<FeedbackStore>()(
         set((s) => {
           const without = s.flags.filter((f) => f.id !== flag.id)
           // Tapping a flagged item again takes it back — a mis-tap on a phone
-          // must not be a permanent judgement about Klaus.
+          // must not be a permanent judgement about Cluey.
           if (without.length !== s.flags.length) return { flags: without }
           return { flags: [{ ...flag, at: Date.now() }, ...without].slice(0, MAX_FLAGS) }
         }),

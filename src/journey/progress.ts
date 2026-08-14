@@ -1,15 +1,7 @@
 import type { WordEntry } from '../data/types'
 import { curriculumRank } from '../data/words'
-import { shuffle, type Rng } from '../engine/rng'
 import type { SrsMap, WordStats } from '../srs/types'
-import {
-  CITIES,
-  GATES_PER_CITY,
-  GATE_SIZE,
-  STUDY_UNTIL_CITY,
-  UNLIMITED_TRIALS_AT,
-  WORDS_PER_CITY,
-} from './cities'
+import { CITIES, STUDY_UNTIL_CITY, WORDS_PER_CITY } from './cities'
 
 export type StudyMode = 'auto' | 'always' | 'never'
 
@@ -20,34 +12,32 @@ export function studyPhaseEnabled(mode: StudyMode, cityIndex: number): boolean {
   return cityIndex < STUDY_UNTIL_CITY
 }
 
-/** Successful handlings — clued or guessed — that turn a word green. */
+/**
+ * The old play-route threshold to green: clued or guessed this many times.
+ * The lifecycle no longer counts to three, but every migration still reads
+ * this — a v1 record at LEARN_REPS correct guesses is what arrives collected.
+ */
 export const LEARN_REPS = 3
 
 /**
- * Green words that earn one attempt at a travel exam. The first arrives at ten
- * greens — half a paper — so an exam is never twenty words you have never met,
- * and every ten after that buys another try.
- */
-export const GREENS_PER_TRIAL = GATE_SIZE / 2
-
-/**
- * A word's place in the collection:
+ * The four-state life of a word on its way into the suitcase:
  * - `undiscovered` — never met
- * - `discovered`   — seen on a board, not yet secure
- * - `learned`      — handled LEARN_REPS times, or banked by passing an exam
+ * - `discovered`   — seen on a board
+ * - `collected`    — clued once AND guessed once (one green earned each way)
+ * - `wrapped`      — packed safely in a wrap-up round; add-only, like the old
+ *                    exam banking
+ *
+ * Monotonic: the counters only rise and the wrapped ledger only grows, so the
+ * collection can never regress on its own.
  */
-export type WordState = 'undiscovered' | 'discovered' | 'learned'
+export type WordState = 'undiscovered' | 'discovered' | 'collected' | 'wrapped'
 
-/** Words banked by a passed travel exam: wordId -> when. Add-only. */
-export type BankedWords = Readonly<Record<string, number>>
+/** Words packed safely in wrap-up rounds: wordId -> when. Add-only. */
+export type WrappedWords = Readonly<Record<string, number>>
 
 export interface JourneyState {
   cityIndex: number
-  /** cityIndex -> travel stamps earned (0..GATES_PER_CITY). */
-  stamps: Record<number, number>
-  banked: Record<string, number>
-  /** cityIndex -> failed attempts, each of which spent a trial. */
-  trialsSpent: Record<number, number>
+  wrapped: Record<string, number>
 }
 
 /** Inclusive curriculumRank range owned by a city. City 0 holds 1..100. */
@@ -68,196 +58,76 @@ export function unlockedWords(all: readonly WordEntry[], cityIndex: number): Wor
   return all.filter((w) => curriculumRank(w) <= hi).sort(byRank)
 }
 
-/**
- * Both routes to green are monotonic — handling counts only rise and a banked
- * word stays banked — so the collection can never regress on its own.
- */
-export function wordState(stats: WordStats | undefined, banked: boolean): WordState {
-  if (banked) return 'learned'
+export function wordState(stats: WordStats | undefined, wrapped: boolean): WordState {
+  if (wrapped) return 'wrapped'
   if (!stats) return 'undiscovered'
-  return stats.correctGuesses >= LEARN_REPS ? 'learned' : 'discovered'
+  return stats.greenByClue >= 1 && stats.greenByGuess >= 1 ? 'collected' : 'discovered'
 }
 
-export function isLearned(stats: WordStats | undefined, banked: boolean): boolean {
-  return wordState(stats, banked) === 'learned'
+/** Collected or better — the pool a wrap-up round deals from. */
+export function isCollected(stats: WordStats | undefined, wrapped: boolean): boolean {
+  const state = wordState(stats, wrapped)
+  return state === 'collected' || state === 'wrapped'
 }
 
 export interface CollectionCounts {
   total: number
-  discovered: number // met but not yet learned
-  learned: number
+  discovered: number // met, but an interaction still missing
+  collected: number // clued and guessed, not yet packed
+  wrapped: number
   undiscovered: number
 }
 
 export function countCollection(
   words: readonly WordEntry[],
   srs: SrsMap,
-  banked: BankedWords,
+  wrapped: WrappedWords,
 ): CollectionCounts {
   let discovered = 0
-  let learned = 0
+  let collected = 0
+  let packed = 0
   for (const w of words) {
-    const state = wordState(srs[w.id], w.id in banked)
-    if (state === 'learned') learned++
+    const state = wordState(srs[w.id], w.id in wrapped)
+    if (state === 'wrapped') packed++
+    else if (state === 'collected') collected++
     else if (state === 'discovered') discovered++
   }
   return {
     total: words.length,
     discovered,
-    learned,
-    undiscovered: words.length - discovered - learned,
-  }
-}
-
-/** Unbanked words of a city, split by how well the player knows them. */
-function unbankedByState(
-  all: readonly WordEntry[],
-  srs: SrsMap,
-  banked: BankedWords,
-  cityIndex: number,
-) {
-  const pool = wordsForCity(all, cityIndex).filter((w) => !(w.id in banked))
-  return {
-    learned: pool.filter((w) => wordState(srs[w.id], false) === 'learned'),
-    discovered: pool.filter((w) => wordState(srs[w.id], false) === 'discovered'),
-    undiscovered: pool.filter((w) => wordState(srs[w.id], false) === 'undiscovered'),
+    collected,
+    wrapped: packed,
+    undiscovered: words.length - discovered - collected - packed,
   }
 }
 
 /**
- * What the next paper will hold, without drawing it — so the player can judge
- * the risk before committing. Green words come first, then grey, then words
- * never met, which makes the exam self-balancing: at twenty greens the paper is
- * entirely green and a fair test; take it earlier and you are gambling on words
- * you may not know.
+ * Wrapped words that open the road onward — THE pacing tunable. All hundred,
+ * per the design: a city is left with its whole suitcase packed. Collecting
+ * needs a green each way per word and wrapping needs a wrap-up round finding
+ * it, so lowering this is the one-line lever if a city runs long.
  */
-export function examComposition(
-  all: readonly WordEntry[],
-  srs: SrsMap,
-  banked: BankedWords,
-  cityIndex: number,
-): { learned: number; discovered: number; undiscovered: number; total: number } {
-  const pool = unbankedByState(all, srs, banked, cityIndex)
-  const learned = Math.min(pool.learned.length, GATE_SIZE)
-  const discovered = Math.min(pool.discovered.length, GATE_SIZE - learned)
-  const undiscovered = Math.min(
-    pool.undiscovered.length,
-    GATE_SIZE - learned - discovered,
-  )
-  return { learned, discovered, undiscovered, total: learned + discovered + undiscovered }
+export const WRAP_TO_TRAVEL = WORDS_PER_CITY
+
+export function countWrapped(words: readonly WordEntry[], wrapped: WrappedWords): number {
+  let n = 0
+  for (const w of words) if (w.id in wrapped) n++
+  return n
 }
 
-export interface ExamTrials {
-  earned: number
-  spent: number
-  available: number
-  /** Past UNLIMITED_TRIALS_AT the city stops rationing, and `available` is moot. */
-  unlimited: boolean
-}
-
-/**
- * Attempts at a travel exam: one per ten green words in the city, banked ones
- * included, minus the attempts already taken. Drawing a paper costs one whether
- * you pass or fail — an attempt you can retake for nothing is not an attempt,
- * and it made the whole economy decorative.
- *
- * Nothing here can strand a player. Attempts are earned by play, which always
- * has more words to green; and once nine words in ten are green the city gives
- * up counting.
- */
-export function examTrials(
+/** The road onward opens when the city's words are packed. */
+export function canTravel(
   all: readonly WordEntry[],
-  srs: SrsMap,
-  banked: BankedWords,
-  journey: JourneyState,
-  cityIndex: number,
-): ExamTrials {
-  const learned = countCollection(wordsForCity(all, cityIndex), srs, banked).learned
-  const earned = Math.floor(learned / GREENS_PER_TRIAL)
-  const spent = journey.trialsSpent[cityIndex] ?? 0
-  return {
-    earned,
-    spent,
-    available: Math.max(0, earned - spent),
-    unlimited: learned >= UNLIMITED_TRIALS_AT,
-  }
-}
-
-/** An exam needs an attempt in hand — unless the city has stopped counting. */
-export function examUnlocked(
-  all: readonly WordEntry[],
-  srs: SrsMap,
-  banked: BankedWords,
-  journey: JourneyState,
+  wrapped: WrappedWords,
   cityIndex: number,
 ): boolean {
-  const trials = examTrials(all, srs, banked, journey, cityIndex)
-  return trials.unlimited || trials.available > 0
+  return countWrapped(wordsForCity(all, cityIndex), wrapped) >= WRAP_TO_TRAVEL
 }
 
-/** Green words still needed before the next trial is earned. */
-export function greensToNextTrial(
+export function isJourneyComplete(
   all: readonly WordEntry[],
-  srs: SrsMap,
-  banked: BankedWords,
+  wrapped: WrappedWords,
   cityIndex: number,
-): number {
-  const learned = countCollection(wordsForCity(all, cityIndex), srs, banked).learned
-  return GREENS_PER_TRIAL - (learned % GREENS_PER_TRIAL)
-}
-
-/**
- * Draw the paper. Never re-tests a banked word.
- *
- * `avoid` is the paper that was just marked, and it matters more than it looks:
- * the results screen prints the right answer beside every miss, so any word
- * carried over to the next attempt arrives with its answer already given. The
- * green portion used to be `pool.learned.slice(0, GATE_SIZE)` — a deterministic
- * prefix of a rank-sorted list, with only the grey filler shuffled — and since
- * no exam outcome can change `pool.learned` (correctGuesses only moves on a
- * green GUESS, never on a paper), the retry came back byte-identical to the
- * paper whose answers had just been read out. Passing it banked twenty words
- * the player had just failed.
- *
- * So avoided words go to the back of every queue rather than being dropped: a
- * player with exactly GATE_SIZE unbanked greens has a paper that is *defined*
- * as "all of them", and a short paper would be a worse answer than a repeat.
- * They are spent last, and only to fill.
- */
-export function examWords(
-  all: readonly WordEntry[],
-  srs: SrsMap,
-  banked: BankedWords,
-  cityIndex: number,
-  rng: Rng,
-  avoid: ReadonlySet<string> = new Set(),
-): WordEntry[] {
-  const pool = unbankedByState(all, srs, banked, cityIndex)
-  const fresh = (ws: readonly WordEntry[]) => ws.filter((w) => !avoid.has(w.id))
-  const stale = (ws: readonly WordEntry[]) => ws.filter((w) => avoid.has(w.id))
-
-  const paper = fresh(pool.learned).slice(0, GATE_SIZE)
-  for (const group of [pool.discovered, pool.undiscovered]) {
-    if (paper.length >= GATE_SIZE) break
-    paper.push(...shuffle(fresh(group), rng).slice(0, GATE_SIZE - paper.length))
-  }
-  // Only now, and only because the paper would otherwise be short.
-  for (const group of [pool.learned, pool.discovered, pool.undiscovered]) {
-    if (paper.length >= GATE_SIZE) break
-    paper.push(...shuffle(stale(group), rng).slice(0, GATE_SIZE - paper.length))
-  }
-  return paper.sort((a, b) => curriculumRank(a) - curriculumRank(b))
-}
-
-export function stampsFor(journey: JourneyState, cityIndex: number): number {
-  return journey.stamps[cityIndex] ?? 0
-}
-
-/** A full passport page opens the road onward. */
-export function canTravel(journey: JourneyState, cityIndex: number): boolean {
-  return stampsFor(journey, cityIndex) >= GATES_PER_CITY
-}
-
-export function isJourneyComplete(journey: JourneyState): boolean {
-  return journey.cityIndex >= CITIES.length - 1 && canTravel(journey, CITIES.length - 1)
+): boolean {
+  return cityIndex >= CITIES.length - 1 && canTravel(all, wrapped, CITIES.length - 1)
 }

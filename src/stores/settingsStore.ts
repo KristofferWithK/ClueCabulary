@@ -15,16 +15,20 @@ interface SettingsState {
   /** Play against the deterministic offline companion (dev/e2e). */
   useMock: boolean
   /**
-   * When Klaus last actually answered — a passed connection test, or a real
+   * When Cluey last actually answered — a passed connection test, or a real
    * clue or guess in play. Null means the credentials here have never been
    * shown to work, which is different from having none at all: a key that is
    * present but wrong, or blocked by CORS, otherwise announces itself only
    * after the player has committed to a board.
+   *
+   * The field keeps the name it was persisted under when the companion was
+   * Klaus: settings has no partialize, so every saved blob carries it, and
+   * renaming a stored field buys a migration for a label nobody sees.
    */
   klausVerifiedAt: number | null
   set: (patch: Partial<Omit<SettingsState, 'set'>>) => void
-  /** Record that Klaus answered. Cheap enough to call on every reply. */
-  markKlausVerified: (now: number) => void
+  /** Record that Cluey answered. Cheap enough to call on every reply. */
+  markClueyVerified: (now: number) => void
 }
 
 /**
@@ -52,7 +56,7 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   }
   // v1 -> v2: the study phase stopped being the default.
   if (from < 2 && s.studyPhase === 'auto') s.studyPhase = 'never'
-  // v2 -> v3: Klaus clues in Danish. Same shape of trap as the study phase —
+  // v2 -> v3: Cluey clues in Danish. Same shape of trap as the study phase —
   // changing a default does nothing for a device that already stored one, and
   // this one had every existing player still getting English clues.
   if (from < 3 && s.clueLanguage === 'en') s.clueLanguage = 'da'
@@ -85,8 +89,8 @@ export const useSettings = create<SettingsState>()(
       // 3x4 is still a tap away in the picker for a first sitting.
       gridSize: 'middle',
       // Danish, both ways. The player has always been asked for "ét dansk ord"
-      // by the clue dock; this setting governed only KLAUS's clues, and its
-      // default had him answering in English on a Danish board. Both sides
+      // by the clue dock; this setting governs only CLUEY's clues, and its
+      // old default had him answering in English on a Danish board. Both sides
       // speak Danish now, and the setting is the escape hatch rather than the
       // norm.
       clueLanguage: 'da',
@@ -106,7 +110,7 @@ export const useSettings = create<SettingsState>()(
             (patch.model !== undefined && patch.model !== s.model)
           return touched ? { ...patch, klausVerifiedAt: null } : patch
         }),
-      markKlausVerified: (now) => set({ klausVerifiedAt: now }),
+      markClueyVerified: (now) => set({ klausVerifiedAt: now }),
     }),
     {
       name: 'cluecab-settings-v1',

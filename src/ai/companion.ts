@@ -62,7 +62,7 @@ export function planGuessExecution(
  * How many corrective attempts a call gets before the round gives up.
  *
  * One was not enough. The clue check rejects a reply whose targets are not all
- * Klaus's own unrevealed greens, and on the boards where that fires the model
+ * Cluey's own unrevealed greens, and on the boards where that fires the model
  * usually makes the same mistake twice: the strongest association on the board
  * belongs to a word that is not his, and asking again in the same breath gets
  * the same word back. A player reported the consequence — the round stopping on
@@ -121,7 +121,7 @@ async function askValidated<T>(
     conversation.push({ role: 'assistant', content: JSON.stringify(raw) }, correctionTurn(problem))
   }
 
-  console.warn(`[klaus] gave up after ${MAX_CORRECTIONS} corrections: ${problem}`)
+  console.warn(`[cluey] gave up after ${MAX_CORRECTIONS} corrections: ${problem}`)
   throw new AiError('invalid-response', giveUpMessage)
 }
 
@@ -135,7 +135,7 @@ export class OllamaCompanion implements Companion {
     const targetable = new Set(aiTargetableIds(view))
     if (targetable.size === 0) {
       // The engine's turn rotation prevents this; guard against a doomed call.
-      throw new AiError('invalid-response', 'Klaus has no words left to clue this round.')
+      throw new AiError('invalid-response', 'Cluey has no words left to clue this round.')
     }
     const boardWords: BoardWord[] = view.words.map((w) => ({
       wordId: w.id,
@@ -155,17 +155,17 @@ export class OllamaCompanion implements Companion {
         if (!verdict.legal) return { ok: false, problem: `illegal clue: ${verdict.reason}` }
         /**
          * A clue is only worth what its targets are worth, so a reply naming a
-         * word that is not Klaus's green is rejected rather than trimmed.
+         * word that is not Cluey's green is rejected rather than trimmed.
          *
          * Trimming is what this used to do, and it produced the worst kind of
          * clue: the text stayed, the words it was chosen for were dropped, and
-         * the number was quietly rewritten to whatever survived. Klaus would
+         * the number was quietly rewritten to whatever survived. Cluey would
          * mean "ocean" for water, fish and beach, only beach would be green on
          * his key, and the player was shown «ocean» (1) on a board where water
          * and fish sit in plain sight and score nothing. The clue actively
          * pointed away from the only word it could pay for.
          *
-         * That is not a rare shape either: the deal makes Klaus's greens the
+         * That is not a rare shape either: the deal makes Cluey's greens the
          * words the player knows least and the hazards the ones they know
          * best, so the obvious referent of any clue is disproportionately NOT
          * his to give. He has to pick a clue that fits the words he actually
@@ -201,7 +201,7 @@ export class OllamaCompanion implements Companion {
         }
       },
       0.6,
-      'Klaus could not settle on a clue for the words he is holding.',
+      'Cluey could not settle on a clue for the words he is holding.',
     )
   }
 
@@ -219,7 +219,7 @@ export class OllamaCompanion implements Companion {
         return { ok: true, value: { guesses } }
       },
       0.3,
-      'Klaus could not work out which words your clue points at.',
+      'Cluey could not work out which words your clue points at.',
     )
   }
 
@@ -252,7 +252,7 @@ export class OllamaCompanion implements Companion {
           : { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
       },
       0.7,
-      'Klaus could not put the round into words.',
+      'Cluey could not put the round into words.',
     )
   }
 }

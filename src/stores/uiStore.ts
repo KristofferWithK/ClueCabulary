@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type Screen = 'home' | 'game' | 'settings' | 'stats' | 'map' | 'gate'
+export type Screen = 'home' | 'game' | 'settings' | 'suitcase' | 'map'
 
 interface UiState {
   screen: Screen
@@ -12,8 +12,6 @@ interface UiState {
   /** Dev switch only: ?first=player starts the round with the player cluing. */
   pendingFirstGiver: 'player' | 'ai' | null
   howToOpen: boolean
-  /** The grandmother's letter — the very first screen, and re-readable after. */
-  letterOpen: boolean
   goTo: (screen: Screen) => void
   openSheet: (wordId: string) => void
   closeSheet: () => void
@@ -21,8 +19,6 @@ interface UiState {
   resetTranslations: () => void
   openHowTo: () => void
   closeHowTo: () => void
-  openLetter: () => void
-  closeLetter: () => void
 }
 
 /**
@@ -33,9 +29,12 @@ interface UiState {
  * given. Without the bump, everyone who has already played keeps "hit a
  * forbidden word and one chance remains" as the last thing the app told them,
  * and then loses a round to a rule no screen ever showed them.
+ *
+ * v3: the whole meta-game changed — collect by cluing AND guessing, wrap in
+ * wrap-up rounds, travel on a packed suitcase. Everyone gets the rules once
+ * more.
  */
-const HOWTO_KEY = 'cluecab-howto-v2'
-const LETTER_KEY = 'cluecab-letter-v1'
+const HOWTO_KEY = 'cluecab-howto-v3'
 
 /**
  * Each screen/overlay pushes a history entry so the Android back gesture (and
@@ -100,7 +99,6 @@ export const useUi = create<UiState>((set, get) => ({
   pendingSeed: null,
   pendingFirstGiver: null,
   howToOpen: false,
-  letterOpen: false,
   goTo: (screen) => {
     const from = get().screen
     // Home is the floor. Hopping screen to screen used to push a second entry
@@ -129,20 +127,6 @@ export const useUi = create<UiState>((set, get) => ({
     if (get().howToOpen) popHistory()
     set({ howToOpen: false })
   },
-  openLetter: () => {
-    if (!get().letterOpen) pushHistory()
-    set({ letterOpen: true })
-  },
-  closeLetter: () => {
-    localStorage.setItem(LETTER_KEY, 'read')
-    // First read only: the rules follow the invitation, never precede it. When
-    // they do, the how-to inherits the letter's history entry rather than
-    // popping one and pushing another — history.back() lands a tick later, so
-    // the two would race and the pushed entry would be the one it swallowed.
-    const chain = get().howToOpen === false && shouldShowHowTo()
-    if (get().letterOpen && !chain) popHistory()
-    set({ letterOpen: false, howToOpen: chain })
-  },
 }))
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', ''])
@@ -162,9 +146,4 @@ export function devSwitchesAllowed(): boolean {
 /** First visit: show the rules once, NYT-style. */
 export function shouldShowHowTo(): boolean {
   return localStorage.getItem(HOWTO_KEY) === null
-}
-
-/** The letter opens the game, once. It stays re-readable from Home after that. */
-export function shouldShowLetter(): boolean {
-  return localStorage.getItem(LETTER_KEY) === null
 }

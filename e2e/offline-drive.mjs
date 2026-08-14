@@ -18,7 +18,7 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
   // First visit online: let the service worker install and precache.
-  await page.goto(preview.base + '?mock=1&howto=0')
+  await page.goto(preview.base + '?mock=1&howto=0&collected=5')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
   await page.waitForFunction(
     async () => {
@@ -37,7 +37,9 @@ try {
   await page.waitForSelector('h1:has-text("ClueCabulary")', { timeout: 15000 })
 
   // The dictionary must work offline too (bundled data).
-  await page.click('.wotd')
+  await page.click('.cluey-button')
+  await page.waitForSelector('.suitcase-screen')
+  await page.locator('.case-tile.case-collected').first().click()
   await page.waitForSelector('.sheet')
   const word = await page.locator('.sheet h2').textContent()
   console.log('offline dictionary lookup:', word?.trim())

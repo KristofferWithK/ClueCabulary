@@ -15,6 +15,7 @@ import { startPreview } from './preview-server.mjs'
 
 const PORT = 4198
 const preview = await startPreview(PORT)
+const SIZES = ['beginner', 'middle', 'standard']
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -37,9 +38,9 @@ const persisted = () =>
 
 /** Deal a board and return its word ids, in board order. */
 async function deal(gridIndex) {
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0&fresh=1&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').nth(gridIndex).click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
@@ -50,7 +51,7 @@ async function deal(gridIndex) {
 const shared = (a, b) => a.filter((id) => b.includes(id))
 
 try {
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.clear())
 
@@ -165,9 +166,10 @@ try {
   // surviving a full guessing turn, and a forbidden word ends the round on
   // roughly a tenth of them. The clue-count gate is held in gameStore.test.ts,
   // where the store can simply be asked.
-  await page.goto(`${preview.base}?mock=1&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0&fresh=1`)
   await page.waitForSelector('.city-card')
-  await page.click('.daily-card')
+  // The daily challenge is the star beside Play now.
+  await page.click('.home-daily')
   await page.waitForSelector('.clue-input')
   check(
     'and the daily challenge, which is one shared board, offers no reroll',

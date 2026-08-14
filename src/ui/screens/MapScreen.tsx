@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { WORDS } from '../../data/words'
-import { CITIES, GATES_PER_CITY, WORDS_PER_CITY, cityAt } from '../../journey/cities'
+import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
-import { canTravel, countCollection, stampsFor, wordsForCity } from '../../journey/progress'
-import { championAt } from '../../journey/champions'
+import { WRAP_TO_TRAVEL, canTravel, countCollection, wordsForCity } from '../../journey/progress'
+
 import { Arrival } from '../components/Arrival'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
@@ -39,12 +39,11 @@ export function MapScreen() {
     .join(' ')
 
   const city = cityAt(selected)
-  const counts = countCollection(wordsForCity(WORDS, selected), srs, journey.banked)
-  const selectedStamps = stampsFor(journey, selected)
-  const champion = championAt(selected)
+  const counts = countCollection(wordsForCity(WORDS, selected), srs, journey.wrapped)
+
   const state =
     selected < journey.cityIndex ? 'visited' : selected === journey.cityIndex ? 'current' : 'ahead'
-  const travelReady = canTravel(journey, journey.cityIndex)
+  const travelReady = canTravel(WORDS, journey.wrapped, journey.cityIndex)
   const nextCity = journey.cityIndex + 1 < CITIES.length ? cityAt(journey.cityIndex + 1) : null
 
   if (arrivedIndex !== null) {
@@ -121,20 +120,6 @@ export function MapScreen() {
           {city.blurbDa}
         </p>
         <p className="city-blurb-en">{city.blurbEn}</p>
-        {/* Who is waiting there. Named once you have arrived; before that the
-            letter's promise is all the player gets. */}
-        {state === 'ahead' ? (
-          <p className="map-champion map-champion-ahead">
-            Someone in {city.name} knew her.
-          </p>
-        ) : (
-          <p className="map-champion">
-            <span className="champion-motif-inline" aria-hidden="true">
-              {champion.motif}
-            </span>{' '}
-            {champion.name} — <span lang="da">{champion.titleDa}</span>
-          </p>
-        )}
 
         {state === 'ahead' ? (
           <p className="map-locked">
@@ -143,8 +128,8 @@ export function MapScreen() {
         ) : (
           <>
             <p className="map-collected">
-              <strong>{counts.learned}</strong> / {WORDS_PER_CITY} learned ·{' '}
-              {counts.discovered} discovered
+              <strong>{counts.wrapped}</strong> / {WORDS_PER_CITY} wrapped ·{' '}
+              {counts.collected} collected · {counts.discovered} discovered
               {journey.arrivedAt[selected] && (
                 <>
                   {' · arrived '}
@@ -152,26 +137,16 @@ export function MapScreen() {
                 </>
               )}
             </p>
-            {/* The passport answers the question the map raises: how far to the
-                next city? Five stamps, and it is this many. */}
-            <ul
-              className="stamp-row stamp-row-map"
-              aria-label={`${selectedStamps} of ${GATES_PER_CITY} stamps in ${city.name}`}
-            >
-              {Array.from({ length: GATES_PER_CITY }, (_, i) => (
-                <li key={i} className={`stamp ${i < selectedStamps ? 'stamp-earned' : ''}`}>
-                  <span aria-hidden="true">{i < selectedStamps ? '✓' : '○'}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="map-stamp-note">
+            {/* The suitcase answers the question the map raises: how far to
+                the next city? This many words still to wrap. */}
+            <p className="map-case-note">
               {state === 'visited'
-                ? 'passport page filled'
-                : selectedStamps >= GATES_PER_CITY
-                  ? 'The page is full — the road onward is open.'
-                  : `${GATES_PER_CITY - selectedStamps} more ${
-                      GATES_PER_CITY - selectedStamps === 1 ? 'stempel' : 'stempler'
-                    } to leave ${city.name}.`}
+                ? 'suitcase packed'
+                : counts.wrapped >= WRAP_TO_TRAVEL
+                  ? 'The suitcase is packed — the road onward is open.'
+                  : `${WRAP_TO_TRAVEL - counts.wrapped} more ${
+                      WRAP_TO_TRAVEL - counts.wrapped === 1 ? 'word' : 'words'
+                    } to wrap before leaving ${city.name}.`}
             </p>
           </>
         )}

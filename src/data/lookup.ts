@@ -7,12 +7,12 @@ import { WORDS } from './words'
  *
  * The dictionary sheet answers "what does this board word mean?". This answers
  * the other question, the one a player composing a Danish clue actually has:
- * "what is the Danish for X?" — and the reverse, when Klaus clues in Danish and
+ * "what is the Danish for X?" — and the reverse, when Cluey clues in Danish and
  * the word is new.
  *
  * Local first, always: a thousand words covers every board word and everything
  * the player is being taught, it is instant, it costs nothing, and it works on
- * a train. Anything outside it goes to Klaus, but only when asked.
+ * a train. Anything outside it goes to Cluey, but only when asked.
  */
 export interface LocalMatch {
   entry: WordEntry
@@ -44,7 +44,7 @@ for (const w of WORDS) {
 
 /**
  * Everything the dataset knows about a term, best match first. Empty when the
- * word is outside the thousand — which is when Klaus is worth asking.
+ * word is outside the thousand — which is when Cluey is worth asking.
  */
 export function lookupLocal(term: string): LocalMatch[] {
   const t = normalizeGloss(term)
@@ -58,8 +58,8 @@ export function lookupLocal(term: string): LocalMatch[] {
     return glossHits.map((entry) => ({ entry, matched: 'en' as const, approximate: false }))
   }
 
-  // "hunden" should still find "hund"; the exam grader is strict, a dictionary
-  // need not be.
+  // "hunden" should still find "hund"; the redemption grader is strict, a
+  // dictionary need not be.
   const stemHits = byStem.get(danishStem(term))
   if (stemHits?.length) {
     return stemHits.map((entry) => ({ entry, matched: 'da' as const, approximate: true }))

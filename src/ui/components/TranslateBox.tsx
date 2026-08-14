@@ -4,7 +4,7 @@ import type { TranslationResponse } from '../../ai/schemas'
 import { articleLabel } from '../../data/gender'
 import { lookupLocal } from '../../data/lookup'
 import { useGame } from '../../stores/gameStore'
-import { useJourney } from '../../stores/journeyStore'
+
 import { canSpeak, speakDanish } from '../speak'
 
 /**
@@ -14,14 +14,14 @@ import { canSpeak, speakDanish } from '../speak'
  * word you want is usually one you do not have yet. The dictionary sheet
  * answers "what is this board word?", which is the question you have already
  * been given the answer to. This answers "what is the Danish for X?" — and
- * reads Klaus's clue back when he gives one you do not know.
+ * reads Cluey's clue back when he gives one you do not know.
  *
  * The thousand shipped words answer instantly, offline, for free, and cover
- * every board word. Klaus is asked only for what is outside them, and only on
+ * every board word. Cluey is asked only for what is outside them, and only on
  * a tap: a request per keystroke would be someone else's bill.
  */
 /**
- * `prefill` puts a word one tap away: Klaus's clue while you are guessing, or
+ * `prefill` puts a word one tap away: Cluey's clue while you are guessing, or
  * the English word you just tried to clue with while you are cluing.
  */
 export function TranslateBox({ prefill }: { prefill?: { term: string; label: string } }) {
@@ -32,12 +32,6 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   const [error, setError] = useState<string | null>(null)
   const translate = useGame((s) => s.translate)
   const noteLookup = useGame((s) => s.noteLookup)
-  // A suspended travel exam is still an exam. Both store actions already refuse
-  // while one is out, but the shipped dictionary is read straight from this
-  // component, so without this the offline half answered the paper's own words
-  // — for free, since noteLookup declines to charge during an exam too. The
-  // ⓘ sheet has locked itself this way all along; this is the same lock.
-  const examOut = useJourney((s) => s.activeExam !== null)
   // The words in play, so a hit that is one of them can say so. Selected as the
   // store's own array and turned into a Set here: zustand 5 dropped the
   // equality-function argument, so a selector building a new Set each render
@@ -46,7 +40,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   const onBoard = useMemo(() => new Set((boardWords ?? []).map((w) => w.wordId)), [boardWords])
 
   const trimmed = term.trim()
-  const local = trimmed && !examOut ? lookupLocal(trimmed) : []
+  const local = trimmed ? lookupLocal(trimmed) : []
 
   // Typing again invalidates an answer about the previous word.
   useEffect(() => {
@@ -79,19 +73,19 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
 
   // A clue may be any word in the language, so the lookup has to answer any
   // word in the language. The shipped thousand are the instant, free, offline
-  // half; everything else is Klaus, and it should not need a second tap to say
+  // half; everything else is Cluey, and it should not need a second tap to say
   // yes — being told "not among the thousand words this app teaches" reads as
   // a refusal when it was only ever meant as a note about where the answer is
   // coming from. Asked automatically once typing settles, so it is one request
   // per word rather than one per keystroke.
   useEffect(() => {
-    if (examOut || !trimmed || local.length > 0) return
+    if (!trimmed || local.length > 0) return
     // Two letters is a prefix on the way somewhere, not a word.
     if (trimmed.length < 3) return
     const t = setTimeout(() => void ask(trimmed), 700)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trimmed, local.length, examOut])
+  }, [trimmed, local.length])
 
   const say = (da: string) =>
     canSpeak() ? (
@@ -99,10 +93,6 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
         🔊
       </button>
     ) : null
-
-  // After the hooks, so the order stays stable when a paper is drawn mid-round.
-  // Offering a disabled box would only advertise the way around the lock.
-  if (examOut) return null
 
   return (
     // A field, not a drawer. It was a <details> and the lid cost a tap every
@@ -172,10 +162,10 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
       {trimmed && local.length === 0 && !asked && (
         <div className="translate-ask">
           {asking ? (
-            <p className="translate-note">Asking Klaus…</p>
+            <p className="translate-note">Asking Cluey…</p>
           ) : (
             <button className="btn btn-small" onClick={() => void ask(trimmed)}>
-              Ask Klaus
+              Ask Cluey
             </button>
           )}
         </div>
@@ -185,7 +175,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
         <ul className="translate-hits">
           <li>
             <span lang="da">
-              {/* Klaus answers for the words outside the shipped thousand, so
+              {/* Cluey answers for the words outside the shipped thousand, so
                   his answer has to say the same thing the data does: an article
                   when the noun can be counted, the gender when it cannot. */}
               {articleLabel({ pos: 'noun', ...asked }) ? `${articleLabel({ pos: 'noun', ...asked })} ` : ''}

@@ -138,7 +138,7 @@ describe('full game flows', () => {
    *
    * Written against the constant rather than the number, so moving it again is
    * one edit. What the number is worth is in config.ts: at 4 the first eligible
-   * clue was odd, i.e. Klaus's turn to guess, and the 3x4 board has no even one
+   * clue was odd, i.e. Cluey's turn to guess, and the 3x4 board has no even one
    * past it — so the player could not reach this ending at all there.
    */
   describe('the last chance opens only after three clues', () => {
@@ -172,9 +172,9 @@ describe('full game flows', () => {
      * shipped board.
      *
      * The guessing side alternates with the clue index and the player opens, so
-     * ODD clues are Klaus guessing and EVEN clues are the player. The first
+     * ODD clues are Cluey guessing and EVEN clues are the player. The first
      * eligible clue is therefore the player's own turn — where at 4 it was
-     * Klaus's, and the 3x4 board has no even clue past the 5th, so the ending
+     * Cluey's, and the 3x4 board has no even clue past the 5th, so the ending
      * the last chance exists for could not be reached there by the side it is
      * written for. This is the test that fails if the threshold goes back to an
      * even number.
@@ -266,7 +266,7 @@ describe('full game flows', () => {
    * That is right, and it is what these pin.
    */
   describe('a guess is judged against the clue-giver key, and only that key', () => {
-    it('the player may tap a word their OWN key forbids, under Klaus clue', () => {
+    it('the player may tap a word their OWN key forbids, under Cluey clue', () => {
       let s = newGame('standard', 7, 'ai')
       const mine = Object.keys(s.playerKey).find(
         (w) => s.playerKey[w] === 'forbidden' && s.aiKey[w] !== 'forbidden',
@@ -278,7 +278,7 @@ describe('full game flows', () => {
       expect(s.reveals[mine]!.kind).not.toBe('forbidden')
     })
 
-    it('and it SCORES when Klaus key calls it green', () => {
+    it('and it SCORES when Cluey key calls it green', () => {
       // standard still deals forbiddenVsGreen, which is the only place this
       // card exists — the whole point being that it is a green, not a trap.
       expect(GRID_CONFIGS.standard.forbiddenVsGreen).toBe(1)
@@ -293,7 +293,7 @@ describe('full game flows', () => {
       expect(s.outcome).toBeUndefined()
     })
 
-    it('but Klaus OWN forbidden word, under his clue, ends the round', () => {
+    it('but Cluey OWN forbidden word, under his clue, ends the round', () => {
       let s = newGame('standard', 7, 'ai')
       const his = Object.keys(s.aiKey).find((w) => s.aiKey[w] === 'forbidden')!
       s = clue(s, 'ai', 2)
@@ -302,7 +302,7 @@ describe('full game flows', () => {
       expect(s.outcome?.result).toBe('lost')
     })
 
-    it('and the mirror: Klaus naming the player forbidden word under the player clue ends it', () => {
+    it('and the mirror: Cluey naming the player forbidden word under the player clue ends it', () => {
       let s = newGame('standard', 7, 'player')
       const mine = Object.keys(s.playerKey).find((w) => s.playerKey[w] === 'forbidden')!
       s = clue(s, 'player', 2)
@@ -380,7 +380,7 @@ describe('full game flows', () => {
 
   /**
    * The number is the whole allowance: no bonus (number + 1)-th guess. Asked
-   * for as "when you have guessed the amount of words Klaus gives you the turn
+   * for as "when you have guessed the amount of words Cluey gives you the turn
    * ends automatically", after the old rule read on a phone as the turn simply
    * not ending once you had found everything the clue promised.
    */

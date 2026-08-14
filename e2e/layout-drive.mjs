@@ -8,7 +8,7 @@ const preview = await startPreview(PORT)
 /**
  * Layout and journey-edge regressions that only show up in a real browser:
  * the end of the road, map labels near the viewBox edge, the primary action's
- * position on small phones, a leaked exam, and the board's ⓘ overlapping words.
+ * position on small phones, and the board's ⓘ overlapping words.
  */
 const EXE = '/opt/pw-browsers/chromium'
 const BASE = preview.base
@@ -32,8 +32,8 @@ async function open(query) {
 }
 
 // The final city used to ask cityAt() for a stop past the end, which throws
-// and blanks the app for good — cityIndex and stamps are both persisted.
-await open('?mock=1&howto=0&city=9&stamps=5&learned=100')
+// and blanks the app for good — cityIndex and the suitcase are both persisted.
+await open('?mock=1&howto=0&city=9&wrapped=100')
 check('the end of the journey renders', (await page.locator('.journey-done').count()) === 1)
 check('no page errors at the final city', errors.length === 0, errors.join(' | '))
 
@@ -73,46 +73,33 @@ for (const vp of [
 }
 await page.setViewportSize(PHONE)
 
-// An exam put down mid-paper survives a relaunch — the attempt was already
-// spent, so the paper has to come back. It locks the dictionary app-wide while
-// it is open, so Home must surface it, let you resume, and let you drop it.
-await page.evaluate(() => {
-  const raw = JSON.parse(localStorage.getItem('cluecab-journey-v2'))
-  raw.state.activeExam = { cityIndex: 0, wordIds: ['w1', 'w2', 'w3'], answers: { w1: 'the' } }
-  localStorage.setItem('cluecab-journey-v2', JSON.stringify(raw))
-})
-await open('?mock=1&howto=0')
-check('a suspended exam is surfaced on home', (await page.locator('.exam-resume').count()) === 1)
-const spentBefore = await page.evaluate(
-  () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent?.['0'] ?? 0,
-)
-await page.locator('.exam-resume .btn-gate').click()
-await page.waitForTimeout(350)
-check('resuming reopens the same paper', (await page.locator('.gate-list').count()) === 1)
-const spentAfter = await page.evaluate(
-  () => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state?.trialsSpent?.['0'] ?? 0,
-)
-check('resuming does not spend a second attempt', spentBefore === spentAfter, `${spentBefore} -> ${spentAfter}`)
-await page.goBack()
-await page.waitForTimeout(350)
-await page.locator('.btn-quiet').click()
-await page.waitForTimeout(250)
-check('abandoning it clears the lock', (await page.locator('.exam-resume').count()) === 0)
-
-// Installed, there is no browser chrome above the page, so a scrolled screen
-// used to draw its own title under the phone's clock.
+// Settings is the one screen with more to say than a phone is tall. The
+// DOCUMENT must not scroll — its internal container does, under a header
+// that stays put.
 await open('?mock=1&howto=0&city=0')
-await page.locator('.home-screen .btn').last().click()
+await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const headerTop = async () => (await page.locator('.screen-header').boundingBox()).y
 const atRest = await headerTop()
-await page.evaluate(() => window.scrollTo(0, 600))
+await page.evaluate(() => {
+  document.querySelector('.screen-scroll').scrollTo(0, 600)
+})
 await page.waitForTimeout(250)
 const scrolled = await headerTop()
 check(
-  'the settings header stays put when the page scrolls',
+  'the settings header stays put when its scroller scrolls',
   scrolled <= atRest + 0.5 && scrolled >= -0.5,
   `${atRest.toFixed(0)}px at rest, ${scrolled.toFixed(0)}px scrolled`,
+)
+const settingsDoc = await page.evaluate(() => ({
+  sh: document.scrollingElement.scrollHeight,
+  ih: window.innerHeight,
+  inner: document.querySelector('.screen-scroll').scrollTop,
+}))
+check(
+  'and the scroll happened inside, never on the document',
+  settingsDoc.sh <= settingsDoc.ih + 1 && settingsDoc.inner > 0,
+  `document ${settingsDoc.sh} vs ${settingsDoc.ih}, scroller at ${settingsDoc.inner}`,
 )
 const opaque = await page
   .locator('.screen-header')
@@ -124,7 +111,7 @@ await page.waitForTimeout(250)
 // Typing a provider's base URL on a phone is a miserable way to find out
 // whether it works, so switching service is one tap.
 await open('?mock=1&howto=0&city=0')
-await page.locator('.home-screen .btn').last().click()
+await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const chips = page.locator('.provider-list .chip')
 check('the service chips are there', (await chips.count()) === 2, `${await chips.count()} chips`)
@@ -152,7 +139,7 @@ await page.waitForTimeout(250)
 // A screenshot of Settings has to say which build it is, or "have you got the
 // update yet?" cannot be answered.
 await open('?mock=1&howto=0&city=0')
-await page.locator('.home-screen .btn').last().click()
+await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const stamp = (await page.locator('.build-footer').innerText()).trim()
 check('Settings names the build', /Build \S+/.test(stamp), stamp.split('\n')[0])
@@ -165,8 +152,8 @@ await page.waitForTimeout(250)
 
 // The ⓘ must not be drawn over the word it belongs to, or it steals taps meant
 // for a guess.
-await open('?mock=1&howto=0&seed=7&city=0')
-await page.locator('.grid-card').first().click()
+await open('?mock=1&howto=0&seed=7&city=0&grid=beginner')
+await page.locator('.home-play').click()
 await page.waitForTimeout(700)
 const info = await page.locator('.card-info').first().boundingBox()
 const word = await page.locator('.card-da').first().boundingBox()
@@ -177,15 +164,15 @@ check(
 
 // Turning a word green is the loop's whole reward and used to happen silently.
 // Play a mock round to the end with every word one handling short of green.
-await open('?mock=1&howto=0&seed=5&city=0&almost=100')
-await page.locator('.grid-card').first().click()
+await open('?mock=1&howto=0&seed=5&city=0&almost=100&grid=beginner')
+await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const study = page.locator('.study-dock .btn-primary')
 if (await study.isVisible().catch(() => false)) await study.click()
 await page.fill('.clue-input input', 'huskeliste')
 await page.click('.clue-input .btn-primary')
 await page.waitForFunction(
-  () => !document.querySelector('.phase-caption')?.textContent?.includes('Klaus is guessing'),
+  () => !document.querySelector('.phase-caption')?.textContent?.includes('Cluey is guessing'),
   undefined,
   { timeout: 20000 },
 )
@@ -220,10 +207,10 @@ const greens = await page.locator('.word-card.mykey-green').count()
   console.log('SKIP round did not reach a debrief on this seed')
 }
 
-// Klaus's whole turn used to happen in silence: no live region existed
+// Cluey's whole turn used to happen in silence: no live region existed
 // anywhere in the game loop.
-await open('?mock=1&howto=0&seed=7&city=0')
-await page.locator('.grid-card').first().click()
+await open('?mock=1&howto=0&seed=7&city=0&grid=beginner')
+await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const studyBtn = page.locator('.study-dock .btn-primary')
 if (await studyBtn.isVisible().catch(() => false)) await studyBtn.click()
@@ -251,22 +238,22 @@ check('and in the accessible name, not only the pips', /clues given/.test(header
 check('and the pips do not read out twice', header.pipsHidden)
 check('the label says where the last chance stands', /last chance/i.test(header.label), header.label)
 
-// The letter claims role=dialog aria-modal; it has to behave like one.
+// The rules overlay claims role=dialog aria-modal; it has to behave like one.
 await page.goto(BASE + '?mock=1', { waitUntil: 'networkidle' })
-await page.waitForSelector('.letter')
+await page.waitForSelector('.howto')
 const focusedInside = await page.evaluate(
-  () => document.querySelector('.letter-screen')?.contains(document.activeElement) ?? false,
+  () => document.querySelector('.howto')?.contains(document.activeElement) ?? false,
 )
-check('the letter takes focus when it opens', focusedInside)
+check('the rules take focus when they open', focusedInside)
 await page.keyboard.press('Escape')
 await page.waitForTimeout(400)
-check('Escape closes the letter', (await page.locator('.letter').count()) === 0)
+check('Escape closes the rules', (await page.locator('.howto').count()) === 0)
 
 // The practice companion needs no key, so neither nudge belongs on Home.
 await open('?mock=1&howto=0&city=0')
 check('no setup nudge with the practice companion', (await page.locator('.setup-nudge').count()) === 0)
 
-// Connecting Klaus is the one thing a stuck player must be able to do from the
+// Connecting Cluey is the one thing a stuck player must be able to do from the
 // phone in their hand, so the steps live in the app rather than behind a link
 // to a markdown file. They have to fit the screen and be reachable.
 await page.evaluate(() => {
@@ -277,9 +264,9 @@ await page.evaluate(() => {
 await open('?howto=0&city=0')
 await page.locator('.setup-nudge').first().click()
 await page.waitForSelector('.settings-screen')
-const panel = page.locator('.connect-klaus')
+const panel = page.locator('.connect-cluey')
 check('the setup steps are in the app', (await panel.count()) === 1)
-check('and open while Klaus has never answered', await panel.evaluate((el) => el.open))
+check('and open while Cluey has never answered', await panel.evaluate((el) => el.open))
 const steps = await page.locator('.connect-steps li').count()
 check('with every step listed', steps === 6, `${steps} steps`)
 const box = await panel.boundingBox()
@@ -291,7 +278,7 @@ check(
 const links = await page.locator('.connect-steps a').count()
 check('and its links are tappable, not a wall of prose', links >= 4, `${links} links`)
 
-// Once Klaus has answered it is history, and must stop eating the screen.
+// Once Cluey has answered it is history, and must stop eating the screen.
 await page.evaluate(() => {
   const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1'))
   raw.state.klausVerifiedAt = Date.now()
@@ -301,13 +288,77 @@ await open('?howto=0&city=0')
 await page.locator('.btn').filter({ hasText: 'Settings' }).first().click().catch(() => {})
 if ((await page.locator('.settings-screen').count()) === 0) {
   await page.evaluate(() => window.history.pushState({}, '', location.href))
-  await page.locator('.home-screen .btn').last().click()
+  await page.locator('.icon-btn[aria-label="Settings"]').click()
 }
 await page.waitForSelector('.settings-screen', { timeout: 5000 })
 check(
-  'and collapses once Klaus has answered',
-  (await page.locator('.connect-klaus').evaluate((el) => el.open)) === false,
+  'and collapses once Cluey has answered',
+  (await page.locator('.connect-cluey').evaluate((el) => el.open)) === false,
 )
+
+// ---- The no-scroll principle, measured. -----------------------------------
+// Every core screen fits the phone: document.scrollingElement.scrollHeight
+// must not exceed the viewport, on the smallest phone we serve, in every
+// game phase a player can sit in. The shell deliberately never clips
+// (overflow stays visible), so any screen that outgrows the phone becomes
+// document scroll and fails here — inflate any dock to prove the check bites.
+const noScroll = async (name) => {
+  const r = await page.evaluate(() => ({
+    sh: document.scrollingElement.scrollHeight,
+    ih: window.innerHeight,
+  }))
+  check(`no-scroll: ${name}`, r.sh <= r.ih + 1, `${r.sh} vs ${r.ih}`)
+}
+
+for (const vp of [
+  { width: 360, height: 640, name: '360x640' },
+  { width: 375, height: 667, name: '375x667' },
+  { width: 390, height: 844, name: '390x844' },
+]) {
+  await page.setViewportSize({ width: vp.width, height: vp.height })
+
+  await open('?mock=1&howto=0&city=0&collected=30')
+  await noScroll(`home @${vp.name}`)
+
+  await page.locator('.cluey-button').click()
+  await page.waitForSelector('.suitcase-screen')
+  await noScroll(`suitcase @${vp.name}`)
+
+  await open('?mock=1&howto=0')
+  await page.locator('.map-button').click()
+  await page.waitForSelector('.denmark-map')
+  await noScroll(`map @${vp.name}`)
+
+  await open('?mock=1&howto=0')
+  await page.locator('.icon-btn[aria-label="Settings"]').click()
+  await page.waitForSelector('.settings-screen')
+  await noScroll(`settings @${vp.name}`)
+
+  // The game, in the phase measured tallest (the opening clue dock), on the
+  // widest board.
+  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await page.locator('.home-play').click()
+  await page.waitForSelector('.board-grid')
+  const studyBtn2 = page.locator('.study-dock .btn-primary')
+  if (await studyBtn2.isVisible().catch(() => false)) await studyBtn2.click()
+  await page.waitForTimeout(300)
+  await noScroll(`game clue dock 4x5 @${vp.name}`)
+
+  // And the wrap-up packing phase, the new dock.
+  await open('?mock=1&howto=0&city=0&collected=40&seed=9')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await open('?mock=1&howto=0&city=0&collected=40&seed=9')
+  await page.locator('.cluey-button').click()
+  await page.waitForSelector('.suitcase-screen')
+  await page.locator('.case-actions .btn-primary').click()
+  await page.waitForSelector('.packing-dock')
+  await page.locator('.card-face-en').first().click()
+  await page.waitForTimeout(200)
+  await noScroll(`wrap-up packing @${vp.name}`)
+}
+await page.setViewportSize(PHONE)
 
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()

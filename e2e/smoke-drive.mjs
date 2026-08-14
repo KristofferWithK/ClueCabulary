@@ -16,21 +16,16 @@ page.on('console', (m) => m.type() === 'error' && console.log('PAGE ERROR:', m.t
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
-  await page.goto(preview.base + '?mock=1&seed=5')
+  await page.goto(preview.base + '?mock=1&seed=5&grid=beginner')
   await page.waitForSelector('h1:has-text("ClueCabulary")')
 
-  // First visit opens with the letter, which hands over to the rules.
-  await page.waitForSelector('.letter', { timeout: 8000 })
-  await page.screenshot({ path: `${SHOT_DIR}/00-letter.png` })
-  await page.click('.letter-go')
-
-  // Then the How-to-play overlay — read it like a new player would.
-  await page.waitForSelector('.howto', { timeout: 5000 })
+  // First visit opens with the How-to-play overlay — read it like a new player would.
+  await page.waitForSelector('.howto', { timeout: 8000 })
   await page.screenshot({ path: `${SHOT_DIR}/00-howto.png` })
   await page.click('.howto .btn-primary')
   await page.screenshot({ path: `${SHOT_DIR}/01-home.png` })
 
-  await page.click('.grid-card:first-child') // beginner 3x4
+  await page.locator('.home-play').click() // beginner 3x4, via ?grid=
   await page.waitForSelector('.board-grid')
   await page.screenshot({ path: `${SHOT_DIR}/02-board.png` })
   const cards = await page.locator('.word-card .card-word').allTextContents()
@@ -63,7 +58,7 @@ try {
     throw new Error(`clue box still autocorrects: ${JSON.stringify(clueAttrs)}`)
   }
 
-  // Klaus reads a Danish board and gets the clue as a bare string, so an
+  // Cluey reads a Danish board and gets the clue as a bare string, so an
   // English word there is one he cannot place. The box says so and puts the
   // lookup one tap away rather than passing the English along.
   await page.fill('.clue-input input', 'water')
@@ -95,7 +90,7 @@ try {
   console.log('clue submitted; waiting for AI guesses…')
   // Wait until phase leaves aiGuessing (AI finishes its guesses)
   await page.waitForFunction(
-    () => !document.querySelector('.phase-caption')?.textContent?.includes('Klaus is guessing'),
+    () => !document.querySelector('.phase-caption')?.textContent?.includes('Cluey is guessing'),
     undefined,
     { timeout: 20000 },
   )
@@ -158,9 +153,9 @@ try {
     localStorage.clear()
     localStorage.setItem('cluecab-settings-v1', blob)
   }, V1_SETTINGS)
-  await page.goto(preview.base + '?mock=1&seed=5&howto=0&letter=0')
+  await page.goto(preview.base + '?mock=1&seed=5&howto=0&grid=beginner')
   await page.waitForSelector('.city-card')
-  await page.click('.grid-card:first-child')
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   if (await page.locator('.study-dock').count()) {
     throw new Error('an upgraded save still opens with the study phase')
@@ -179,13 +174,13 @@ try {
   // This whole drive runs on ?mock=1, which writes useMock into settings. The
   // in-round note used to key on the FALLBACK flag alone, so this route — the
   // one a stray URL puts a player on permanently — produced random guesses
-  // under Klaus's name with nothing on screen saying so, while also suppressing
+  // under Cluey's name with nothing on screen saying so, while also suppressing
   // both of Home's setup warnings.
   const note = await page.locator('.practice-note').textContent()
   if (!/Practice companion/.test(note ?? '')) {
     throw new Error(`no practice note while on the mock: ${note}`)
   }
-  if (!/Klaus is not playing/.test(note)) throw new Error(`note is too coy: ${note}`)
+  if (!/Cluey is not playing/.test(note)) throw new Error(`note is too coy: ${note}`)
   console.log('practice companion says so:', note.replace(/\s+/g, ' ').trim().slice(0, 60) + '…')
 
   // ---- the debrief shows why, not only what -------------------------------
@@ -195,13 +190,13 @@ try {
   // away. Played out here rather than asserted on a fixture, because the value
   // only exists if the reasoning survives the engine and the store.
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(preview.base + '?mock=1&seed=11&howto=0&letter=0')
+  await page.goto(preview.base + '?mock=1&seed=11&howto=0&grid=beginner')
   await page.waitForSelector('.city-card')
-  await page.click('.grid-card:first-child')
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   for (let i = 0; i < 30 && (await page.locator('.debrief').count()) === 0; i++) {
     const cap = await page.locator('.phase-caption').textContent().catch(() => '')
-    if (cap === 'Give Klaus a clue') {
+    if (cap === 'Give Cluey a clue') {
       await page.fill('.clue-input input', `huskeliste${i}`)
       await page.click('.clue-input .btn-primary')
     } else if (cap === 'Your turn to guess' || cap?.includes('Sudden')) {
@@ -244,7 +239,7 @@ try {
   )
 
   // ---- flagging a bad call, on the one screen that shows the reasoning ------
-  // The flag is only worth tapping because Klaus is shown it next round, so
+  // The flag is only worth tapping because Cluey is shown it next round, so
   // this checks it reaches storage rather than just toggling a glyph.
   const flags = page.locator('.flag-btn')
   const flagCount = await flags.count()

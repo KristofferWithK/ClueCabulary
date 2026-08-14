@@ -36,8 +36,11 @@ export const CARRY_OVER = 3
 /**
  * Board-time exclusions: no shared stems, no near-identical Danish forms, and
  * no shared English gloss (ambiguous clues + unfair redemption grading).
+ * Exported for the wrap-up draw, where a shared gloss would be worse still:
+ * that board starts every card English-side up, so two words sharing a gloss
+ * would be two identical cards.
  */
-function conflicts(a: WordEntry, b: WordEntry): boolean {
+export function conflicts(a: WordEntry, b: WordEntry): boolean {
   const aDa = normalize(a.da)
   const bDa = normalize(b.da)
   if (danishStem(aDa) === danishStem(bDa)) return true
@@ -89,9 +92,10 @@ export function selectBoardWords(
     totalWords: number
     maxNewWordsPerBoard: number
     /**
-     * Words already banked by a passed exam. They are permanently green, so a
-     * board full of them moves no counter — but dropping them outright would
-     * throw away the review they still need. Damped, not excluded.
+     * Words already wrapped in the suitcase. They are packed for good, so a
+     * board full of them moves the journey nowhere — but dropping them
+     * outright would throw away the review they still need. Damped, not
+     * excluded.
      */
     collected?: ReadonlySet<string>
     /**

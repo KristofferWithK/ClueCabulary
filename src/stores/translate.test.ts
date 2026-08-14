@@ -6,8 +6,11 @@ import { beforeEach, describe, expect, it } from 'vitest'
  *
  *  - looking up a BOARD word here costs exactly what tapping ⓘ costs, or the
  *    clean-guess credit and the practice scheduler can be dodged for free;
- *  - it is shut during redemption and travel exams, which are precisely the
- *    two moments the game asks you to translate the board WITHOUT a dictionary.
+ *  - it is shut during the redemption challenge, which is precisely the moment
+ *    the game asks you to translate the board WITHOUT a dictionary.
+ *
+ * (The wrap-up packing phase is the other no-dictionary moment; its lock lands
+ * with the mode itself and is pinned beside it.)
  */
 const written = new Map<string, string>()
 Object.defineProperty(globalThis, 'window', {
@@ -71,18 +74,6 @@ describe('translating during a round', () => {
     expect(useGame.getState().lookedUp).toEqual([])
   })
 
-  it('notes nothing while an exam is open', () => {
-    const board = useGame.getState().game!.words
-    useJourney.getState().startExam(0, ['a'])
-    useGame.getState().noteLookup(board[0]!.da)
-    expect(useGame.getState().lookedUp).toEqual([])
-  })
-
-  it('refuses while a travel exam is open', async () => {
-    useJourney.getState().startExam(0, ['a', 'b'])
-    await expect(useGame.getState().translate('hund')).rejects.toThrow(/closed/i)
-  })
-
   it('refuses during the redemption challenge', async () => {
     const game = useGame.getState().game!
     useGame.setState({ game: { ...game, phase: 'redemption' } })
@@ -95,34 +86,5 @@ describe('translating during a round', () => {
     useGame.setState({ game: { ...game, phase: 'redemption' } })
     await useGame.getState().translate(board[0]!.da).catch(() => undefined)
     expect(useGame.getState().lookedUp).toEqual([])
-  })
-})
-
-/**
- * The store actions refused during an exam all along; the component did not.
- * TranslateBox reads the shipped dictionary directly, so the offline half
- * answered the exam paper's own words — and noteLookup declines to charge
- * during an exam, so it cost nothing either. These lock the store side; the
- * component side is asserted in e2e/translate-drive.mjs, where the box has to
- * actually disappear.
- */
-describe('the dictionary is closed while a paper is out', () => {
-  beforeEach(() => {
-    useSettings.setState({ useMock: true })
-    useJourney.getState().reset()
-    useGame.getState().abandonGame()
-    useGame.getState().newGame({ seed: 5 })
-    useGame.getState().endStudy()
-  })
-
-  it('refuses to translate a word that is on the paper', async () => {
-    useJourney.getState().startExam(0, ['a', 'b'])
-    await expect(useGame.getState().translate('hus')).rejects.toThrow(/closed/i)
-  })
-
-  it('refuses even with no game in progress, so leaving the round is no way round it', async () => {
-    useGame.getState().abandonGame()
-    useJourney.getState().startExam(0, ['a', 'b'])
-    await expect(useGame.getState().translate('hus')).rejects.toThrow(/closed/i)
   })
 })

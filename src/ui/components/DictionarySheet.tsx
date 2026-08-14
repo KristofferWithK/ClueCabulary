@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { articleLabel } from '../../data/gender'
 import { wordById } from '../../data/words'
 import { useGame } from '../../stores/gameStore'
-import { useJourney } from '../../stores/journeyStore'
+
 import { useUi } from '../../stores/uiStore'
 import { canSpeak, speakDanish } from '../speak'
 import { useDialog } from '../useDialog'
@@ -10,12 +10,10 @@ import { useDialog } from '../useDialog'
 export function DictionarySheet() {
   const { sheetWordId, closeSheet } = useUi()
   const phase = useGame((s) => s.game?.phase)
-  const examOpen = useJourney((s) => s.activeExam !== null)
 
-  // An open sheet must not survive into a test — it would display the answer
-  // to a prompted word while the dictionary is "locked". The travel exam locks
-  // it app-wide, so the word of the day is not a back door either.
-  const locked = phase === 'redemption' || examOpen
+  // An open sheet must not survive into the challenge — it would display the
+  // answer to a prompted word while the dictionary is "locked".
+  const locked = phase === 'redemption'
   useEffect(() => {
     if (locked && sheetWordId) closeSheet()
   }, [locked, sheetWordId, closeSheet])

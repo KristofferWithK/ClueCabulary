@@ -1,4 +1,4 @@
-// One real round against a real model, and a look at what Klaus actually says.
+// One real round against a real model, and a look at what Cluey actually says.
 //
 //   OLLAMA_API_KEY=... node e2e/live-drive.mjs
 //
@@ -67,9 +67,9 @@ try {
   console.log(`model:    ${MODEL}`)
   console.log('key:      (from OLLAMA_API_KEY, not shown)\n')
 
-  await page.goto(`${BASE}?howto=0`)
+  await page.goto(`${BASE}?howto=0&grid=beginner`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
@@ -77,21 +77,21 @@ try {
   const board = await page.locator('.word-card .card-word').allTextContents()
   console.log(`board: ${board.join(', ')}\n`)
 
-  // Your clue first, so Klaus has to guess before he has to invent.
+  // Your clue first, so Cluey has to guess before he has to invent.
   const clue = process.env.LIVE_CLUE ?? 'hverdag'
   console.log(`you clue: «${clue}» (2)`)
   await page.fill('.clue-input input', clue)
   await page.locator('.clue-input .stepper button').last().click()
   await page.click('.clue-input .btn-primary')
 
-  // Klaus guessing, then Klaus clueing. A real model is slow; be patient.
+  // Cluey guessing, then Cluey clueing. A real model is slow; be patient.
   const deadline = Date.now() + 120_000
   let sawGuess = false
-  let klausClue = null
+  let clueyClue = null
   while (Date.now() < deadline) {
     const err = await currentError()
     if (err) {
-      console.log(`\nKLAUS FAILED: ${err}`)
+      console.log(`\nCLUEY FAILED: ${err}`)
       if (/CORS/i.test(err)) {
         console.log(
           '\nThat is ollama.com refusing a browser request. Deploy the worker in\n' +
@@ -104,12 +104,12 @@ try {
     if (!sawGuess && (await page.locator('.ai-guess-line').count())) {
       const line = (await page.locator('.ai-guess-line').textContent()).replace(/\s+/g, ' ').trim()
       if (line && !/choosing/i.test(line)) {
-        console.log(`klaus guesses: ${line}`)
+        console.log(`cluey guesses: ${line}`)
         sawGuess = true
       }
     }
     if (await page.locator('.guess-bar .dock-title').count()) {
-      klausClue = (await page.locator('.guess-bar .dock-title').textContent())
+      clueyClue = (await page.locator('.guess-bar .dock-title').textContent())
         .replace(/\s+/g, ' ')
         .trim()
       break
@@ -117,9 +117,9 @@ try {
     await sleep(1000)
   }
 
-  if (klausClue) {
-    console.log(`\nklaus clues: ${klausClue}`)
-    console.log('\nLIVE DRIVE OK — Klaus answered, and the round advanced.')
+  if (clueyClue) {
+    console.log(`\ncluey clues: ${clueyClue}`)
+    console.log('\nLIVE DRIVE OK — Cluey answered, and the round advanced.')
   } else if (process.exitCode !== 1) {
     console.log('\nLIVE DRIVE TIMED OUT — no answer inside two minutes and no error shown.')
     process.exitCode = 1

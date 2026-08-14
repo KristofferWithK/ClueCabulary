@@ -31,7 +31,7 @@ const check = (name, ok, detail = '') => {
   if (!ok) fail.push(name)
 }
 
-// Klaus talks to the fake, not to Ollama, and not through the mock.
+// Cluey talks to the fake, not to Ollama, and not through the mock.
 await page.addInitScript(
   ({ baseUrl }) => {
     localStorage.setItem(
@@ -59,18 +59,18 @@ const gameState = () =>
 /**
  * A fresh beginner round with the PLAYER cluing first.
  *
- * Klaus opens by default now, which would spend the first queued fake response
+ * Cluey opens by default now, which would spend the first queued fake response
  * on his opening clue and shift every scenario below by one. ?first=player is
  * a local-only dev switch for exactly this: these tests are about the AI
  * client's parsing, retries and error taxonomy, not about who goes first.
  */
 async function freshRound(seed = 5) {
-  await page.goto(`${BASE}?howto=0&first=player&seed=${seed}`)
+  await page.goto(`${BASE}?howto=0&first=player&grid=beginner&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${BASE}?howto=0&first=player&seed=${seed}`)
+  await page.goto(`${BASE}?howto=0&first=player&grid=beginner&seed=${seed}`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
@@ -192,7 +192,7 @@ try {
   // answering invalidly".
   check(
     'and the message is written for the player, not for the model',
-    /^Klaus could not/.test(neverValid) && !/JSON|schema|wordId|invalid/i.test(neverValid),
+    /^Cluey could not/.test(neverValid) && !/JSON|schema|wordId|invalid/i.test(neverValid),
     neverValid,
   )
 
@@ -220,7 +220,7 @@ try {
   check('a 500 is retried and the round continues', (await page.locator('.error-banner').count()) === 0)
   check('and it was retried exactly once', fake.received.length >= 2, `${fake.received.length} calls`)
 
-  // ---- a Klaus who never answers must not cost the board ---------------------
+  // ---- a Cluey who never answers must not cost the board ---------------------
   // Retry alone is a dead end when the key is wrong, missing, or blocked by
   // CORS — and the board is already dealt. This is the first round a new player
   // ever plays, so it had better not end here.
@@ -236,7 +236,7 @@ try {
     actions.x >= banner.x - 0.5 && actions.x + actions.width <= banner.x + banner.width + 0.5,
     `${actions.width.toFixed(0)}px inside ${banner.width.toFixed(0)}px`,
   )
-  await page.getByRole('button', { name: 'Play on without Klaus' }).click()
+  await page.getByRole('button', { name: 'Play on without Cluey' }).click()
   await page.waitForSelector('.practice-note', { timeout: 20000 })
   await sleep(2000)
   check('the round carries on with the practice companion', (await page.locator('.error-banner').count()) === 0)
@@ -258,7 +258,7 @@ try {
   fake.queue(guessReply([round.ids[0]]), clueReply(round.aiGreens.slice(0, 2)))
   await submitClue()
   await sleep(2500)
-  check('the next round goes back to Klaus', fake.received.length >= 1, `${fake.received.length} calls`)
+  check('the next round goes back to Cluey', fake.received.length >= 1, `${fake.received.length} calls`)
 
   void debriefReply
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nAI DRIVE OK')

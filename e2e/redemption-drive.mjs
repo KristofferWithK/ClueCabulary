@@ -12,6 +12,7 @@ import { startPreview } from './preview-server.mjs'
 
 const PORT = 4174
 const preview = await startPreview(PORT)
+const SIZES = ['beginner', 'middle', 'standard']
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
 // Kept in step with src/engine/config.ts by hand — a drive cannot import it.
@@ -37,12 +38,12 @@ const caption = () => page.locator('.phase-caption').textContent()
 
 /** Fresh round on the given board, past the study phase. */
 async function start(gridIndex, seed) {
-  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&letter=0`)
+  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').nth(gridIndex).click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
@@ -73,7 +74,7 @@ try {
     { timeout: 30_000 },
   )
   let game = await readGame()
-  // Two: the player opens and Klaus answers with his own clue, so the player's
+  // Two: the player opens and Cluey answers with his own clue, so the player's
   // first turn to guess is already the second clue of the round.
   check(
     'few enough clues given that the last chance is shut',
@@ -86,10 +87,10 @@ try {
   // keep passing on the unqualified sentence that made this wrong.
   const stake = await page.locator('.stake-note').textContent()
   check('the guess bar says what a forbidden word costs now', /end the round/.test(stake), stake)
-  check("and whose forbidden words it means", /Klaus/.test(stake), stake)
+  check("and whose forbidden words it means", /Cluey/.test(stake), stake)
 
   const doomed = forbiddenForPlayerTurn(game)
-  if (!doomed) throw new Error('no hidden forbidden word on Klaus’s key')
+  if (!doomed) throw new Error('no hidden forbidden word on Cluey’s key')
   const doomedDa = wordFor(game, doomed).da
   await guessWord(doomedDa)
   await page.waitForSelector('.outcome-banner', { timeout: 15_000 })
@@ -133,7 +134,7 @@ try {
       if (!game || game.phase === 'finished' || game.phase === 'redemption') break
       if (game.phase === 'suddenDeath') break
 
-      if (cap === 'Give Klaus a clue') {
+      if (cap === 'Give Cluey a clue') {
         await page.fill('.clue-input input', `huskeliste${turn}`)
         await page.click('.clue-input .btn-primary')
         await page
@@ -167,7 +168,7 @@ try {
           .catch(() => {})
         continue
       }
-      // Klaus's turn: wait for him.
+      // Cluey's turn: wait for him.
       await page
         .waitForFunction(
           (was) => document.querySelector('.phase-caption')?.textContent !== was,
