@@ -74,20 +74,27 @@ check('system back returns home', !onSentinel() && (await screen()) === 'home')
 await back()
 check('a second back then leaves the app', onSentinel(), page.url())
 
-// 4. A sheet dismissed in-app must not swallow the next system Back.
+// 4. A sheet dismissed in-app must not swallow the next system Back. The
+//    sheet lives a screen deep now (a suitcase tile opens it), so the ladder
+//    is one rung taller: close in-app, then back to home, then back out.
 await fresh()
-await page.locator('.wotd').click()
+await page.locator('.cluey-button').click()
+await page.waitForTimeout(300)
+await page.locator('.case-tile.case-collected').first().click()
 await page.waitForTimeout(300)
 check('sheet opens', (await page.locator('.sheet').count()) === 1)
 await page.locator('.sheet-backdrop').click({ position: { x: 10, y: 10 } })
 await page.waitForTimeout(400)
 check('sheet closes in-app', (await page.locator('.sheet').count()) === 0)
 await back()
+await page.waitForTimeout(300)
+check('back then returns home, not a swallowed entry', (await screen()) === 'home')
+await back()
 check('no orphaned entry after closing a sheet', onSentinel(), page.url())
 
 // 5. Two layers deep: system Back peels exactly one at a time.
 await fresh()
-await page.locator('.btn:has-text("Kufferten")').click()
+await page.locator('.cluey-button').click()
 await page.waitForTimeout(300)
 check('collection opens', (await screen()) === 'stats')
 // The current city's row is already expanded on arrival.
@@ -114,7 +121,7 @@ await page.waitForTimeout(250)
 await page.locator('.btn:has-text("Back")').click()
 await page.waitForTimeout(250)
 check('map to home via the in-page Back', (await screen()) === 'home')
-await page.locator('.btn:has-text("Kufferten")').click()
+await page.locator('.cluey-button').click()
 await page.waitForTimeout(250)
 // aria-label, not bare .icon-btn: the header now holds the city pager's
 // arrows too, and a five-match locator fails strict mode.

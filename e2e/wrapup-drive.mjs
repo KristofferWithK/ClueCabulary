@@ -80,7 +80,10 @@ try {
   // ---- The skip path: pack two, start early, nothing else may wrap. -------
   await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=9`)
   await page.waitForSelector('.city-card')
-  await page.click('.btn-gate:has-text("Wrap up words")')
+  // The wrap-up button lives in the open suitcase — tap Cluey to get there.
+  await page.click('.cluey-button')
+  await page.waitForSelector('.suitcase-screen')
+  await page.click('.case-actions .btn-primary')
   await page.waitForSelector('.packing-dock')
   check('the board opens all English-side up', (await page.locator('.card-face-en').count()) === 20)
   check('the dictionary is gone while packing', (await page.locator('.card-info').count()) === 0)
@@ -146,7 +149,10 @@ try {
   await page.evaluate(() => localStorage.clear())
   await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=31`)
   await page.waitForSelector('.city-card')
-  await page.click('.btn-gate:has-text("Wrap up words")')
+  // The wrap-up button lives in the open suitcase — tap Cluey to get there.
+  await page.click('.cluey-button')
+  await page.waitForSelector('.suitcase-screen')
+  await page.click('.case-actions .btn-primary')
   await page.waitForSelector('.packing-dock')
   const words2 = await gameWords()
   for (const w of words2) await pack(w, w.da)

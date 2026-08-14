@@ -67,9 +67,9 @@ try {
   console.log(`model:    ${MODEL}`)
   console.log('key:      (from OLLAMA_API_KEY, not shown)\n')
 
-  await page.goto(`${BASE}?howto=0`)
+  await page.goto(`${BASE}?howto=0&grid=beginner`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()

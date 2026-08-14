@@ -65,12 +65,12 @@ const gameState = () =>
  * client's parsing, retries and error taxonomy, not about who goes first.
  */
 async function freshRound(seed = 5) {
-  await page.goto(`${BASE}?howto=0&first=player&seed=${seed}`)
+  await page.goto(`${BASE}?howto=0&first=player&grid=beginner&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${BASE}?howto=0&first=player&seed=${seed}`)
+  await page.goto(`${BASE}?howto=0&first=player&grid=beginner&seed=${seed}`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()

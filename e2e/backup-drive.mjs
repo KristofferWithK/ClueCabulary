@@ -22,7 +22,7 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 const openSettings = async (query) => {
   await page.goto(BASE + query)
   await page.waitForSelector('.city-card')
-  await page.locator('.home-nav .btn').click()
+  await page.locator('.icon-btn[aria-label="Settings"]').click()
   await page.waitForSelector('.settings-screen')
 }
 const learnedOnHome = async () => {
@@ -55,7 +55,7 @@ try {
   console.log('after reset: 0 learned')
 
   // Restore, and check every part came back.
-  await page.locator('.home-nav .btn').click()
+  await page.locator('.icon-btn[aria-label="Settings"]').click()
   await page.waitForSelector('.settings-screen')
   await page.locator('.backup-fallback').first().click()
   await page.locator('.backup-paste textarea').fill(saved)
@@ -95,7 +95,7 @@ try {
   console.log(`merged 10 + 34 → ${merged} learned, nothing lost`)
 
   // A file from somewhere else must be refused, not half-eaten.
-  await page.locator('.home-nav .btn').click()
+  await page.locator('.icon-btn[aria-label="Settings"]').click()
   await page.waitForSelector('.settings-screen')
   await page.locator('.backup-fallback').first().click()
   await page.locator('.backup-paste textarea').fill('{"some":"other app"}')

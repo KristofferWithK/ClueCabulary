@@ -60,6 +60,12 @@ export default function App() {
     // to get to the clue box without spending a guess first.
     const first = params.get('first')
     if (first === 'player' || first === 'ai') useUi.setState({ pendingFirstGiver: first })
+    // ?grid= picks the board «Spil videre» deals. The picker left Home for
+    // Settings, and a drive cannot type into a select mid-run.
+    const grid = params.get('grid')
+    if (grid === 'beginner' || grid === 'middle' || grid === 'standard') {
+      useSettings.getState().set({ gridSize: grid })
+    }
     // Journey dev switches, so the travel screens can be driven in tests:
     // ?city=N jumps to a stop, ?collected=K collects K of its words,
     // ?wrapped=K packs K of them into the suitcase.

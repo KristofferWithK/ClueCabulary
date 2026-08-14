@@ -27,8 +27,9 @@ try {
   // A fresh journey starts in the far south with nothing collected.
   await page.goto(`${BASE}?mock=1&howto=0`)
   await page.waitForSelector('.city-card')
-  const start = await page.locator('.city-name').textContent()
-  if (start?.trim() !== 'Sønderborg') throw new Error(`expected to start in Sønderborg, got ${start}`)
+  // Home carries the city in its eyebrow line now; the big name lives on the map.
+  const start = await page.locator('.city-eyebrow').textContent()
+  if (!start?.includes('Sønderborg')) throw new Error(`expected to start in Sønderborg, got ${start}`)
   if (await page.locator('.btn-travel').count()) throw new Error('travel offered with nothing wrapped')
   await page.screenshot({ path: `${SHOT_DIR}/j1-home-start.png` })
 

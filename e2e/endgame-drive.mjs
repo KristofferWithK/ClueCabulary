@@ -12,6 +12,7 @@ import { startPreview } from './preview-server.mjs'
 
 const PORT = 4195
 const preview = await startPreview(PORT)
+const SIZES = ['beginner', 'middle', 'standard']
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -32,12 +33,12 @@ const game = () =>
 
 /** Start a round on the given board, past the study phase. */
 async function start(gridIndex, seed = 5) {
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').nth(gridIndex).click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()

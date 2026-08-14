@@ -2380,7 +2380,10 @@ select:focus {
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
+  /* Top, not bottom: Home anchors its primary action to the bottom edge now,
+     and a bottom banner sat exactly on top of Play — measured by a drive
+     whose click it swallowed. */
+  top: calc(12px + env(safe-area-inset-top));
   z-index: 60;
   max-width: 456px;
   margin: 0 auto;
@@ -2972,4 +2975,141 @@ select:focus {
   font-size: 0.8rem;
   color: var(--text-dim);
   text-align: center;
+}
+
+/* ---------- home in three bands ---------- */
+
+.home-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.home-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.home-progress-band {
+  gap: 8px;
+}
+
+.home-progress-band .collect-bar {
+  margin-top: 2px;
+}
+
+/* Cluey's band: the bubble speaks above him, he sits centred below. */
+.cluey-band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  justify-content: center;
+  min-height: 0;
+}
+
+.cluey-bubble {
+  position: relative;
+  max-width: 300px;
+  background: var(--surface);
+  border: 1px solid var(--text);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.cluey-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 14px;
+  height: 14px;
+  background: var(--surface);
+  border-right: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+
+.cluey-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 10px 18px 4px;
+  border-radius: var(--radius);
+}
+
+.cluey-button:active .cluey-svg {
+  transform: translateY(1px);
+}
+
+.cluey-svg {
+  width: min(150px, 24vh);
+  height: auto;
+  display: block;
+}
+
+.cluey-body {
+  fill: var(--beige);
+  stroke: var(--text);
+  stroke-width: 3;
+}
+
+.cluey-line {
+  stroke: var(--text);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.cluey-latch {
+  fill: var(--text);
+}
+
+.cluey-eye {
+  fill: #fff;
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+
+.cluey-pupil {
+  fill: var(--text);
+}
+
+.cluey-sticker {
+  fill: var(--green-soft);
+  stroke: var(--green-tile);
+  stroke-width: 2;
+}
+
+.cluey-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+/* Bottom band: the daily star, Play stretched between, the rules. */
+.home-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.home-play {
+  flex: 1;
+}
+
+.home-daily {
+  border-color: var(--text);
+}
+
+.home-daily-done {
+  background: var(--green-soft);
+  border-color: var(--green-tile);
 }

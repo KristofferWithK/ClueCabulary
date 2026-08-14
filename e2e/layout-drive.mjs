@@ -76,7 +76,7 @@ await page.setViewportSize(PHONE)
 // Installed, there is no browser chrome above the page, so a scrolled screen
 // used to draw its own title under the phone's clock.
 await open('?mock=1&howto=0&city=0')
-await page.locator('.home-screen .btn').last().click()
+await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const headerTop = async () => (await page.locator('.screen-header').boundingBox()).y
 const atRest = await headerTop()
@@ -98,7 +98,7 @@ await page.waitForTimeout(250)
 // Typing a provider's base URL on a phone is a miserable way to find out
 // whether it works, so switching service is one tap.
 await open('?mock=1&howto=0&city=0')
-await page.locator('.home-screen .btn').last().click()
+await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const chips = page.locator('.provider-list .chip')
 check('the service chips are there', (await chips.count()) === 2, `${await chips.count()} chips`)
@@ -126,7 +126,7 @@ await page.waitForTimeout(250)
 // A screenshot of Settings has to say which build it is, or "have you got the
 // update yet?" cannot be answered.
 await open('?mock=1&howto=0&city=0')
-await page.locator('.home-screen .btn').last().click()
+await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const stamp = (await page.locator('.build-footer').innerText()).trim()
 check('Settings names the build', /Build \S+/.test(stamp), stamp.split('\n')[0])
@@ -139,8 +139,8 @@ await page.waitForTimeout(250)
 
 // The ⓘ must not be drawn over the word it belongs to, or it steals taps meant
 // for a guess.
-await open('?mock=1&howto=0&seed=7&city=0')
-await page.locator('.grid-card').first().click()
+await open('?mock=1&howto=0&seed=7&city=0&grid=beginner')
+await page.locator('.home-play').click()
 await page.waitForTimeout(700)
 const info = await page.locator('.card-info').first().boundingBox()
 const word = await page.locator('.card-da').first().boundingBox()
@@ -151,8 +151,8 @@ check(
 
 // Turning a word green is the loop's whole reward and used to happen silently.
 // Play a mock round to the end with every word one handling short of green.
-await open('?mock=1&howto=0&seed=5&city=0&almost=100')
-await page.locator('.grid-card').first().click()
+await open('?mock=1&howto=0&seed=5&city=0&almost=100&grid=beginner')
+await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const study = page.locator('.study-dock .btn-primary')
 if (await study.isVisible().catch(() => false)) await study.click()
@@ -196,8 +196,8 @@ const greens = await page.locator('.word-card.mykey-green').count()
 
 // Cluey's whole turn used to happen in silence: no live region existed
 // anywhere in the game loop.
-await open('?mock=1&howto=0&seed=7&city=0')
-await page.locator('.grid-card').first().click()
+await open('?mock=1&howto=0&seed=7&city=0&grid=beginner')
+await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const studyBtn = page.locator('.study-dock .btn-primary')
 if (await studyBtn.isVisible().catch(() => false)) await studyBtn.click()
@@ -275,7 +275,7 @@ await open('?howto=0&city=0')
 await page.locator('.btn').filter({ hasText: 'Settings' }).first().click().catch(() => {})
 if ((await page.locator('.settings-screen').count()) === 0) {
   await page.evaluate(() => window.history.pushState({}, '', location.href))
-  await page.locator('.home-screen .btn').last().click()
+  await page.locator('.icon-btn[aria-label="Settings"]').click()
 }
 await page.waitForSelector('.settings-screen', { timeout: 5000 })
 check(

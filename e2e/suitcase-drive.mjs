@@ -26,7 +26,7 @@ try {
   // 10 wrapped, 20 more collected, 5 discovered — every band populated.
   await page.goto(`${BASE}?mock=1&howto=0&city=0&wrapped=10&collected=30&almost=35`)
   await page.waitForSelector('.city-card')
-  await page.click('.btn:has-text("Kufferten")')
+  await page.click('.cluey-button')
   await page.waitForSelector('.suitcase-screen')
   await page.screenshot({ path: `${SHOT_DIR}/s1-suitcase.png` })
 
@@ -77,7 +77,7 @@ try {
   await page.evaluate(() => localStorage.clear())
   await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=10`)
   await page.waitForSelector('.city-card')
-  await page.click('.btn:has-text("Kufferten")')
+  await page.click('.cluey-button')
   await page.waitForSelector('.suitcase-screen')
   check(
     'below a boardful it waits',

@@ -65,7 +65,7 @@ try {
   // Mid-round the banner must hold its tongue: a reload would spoil the game.
   await page.reload()
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()

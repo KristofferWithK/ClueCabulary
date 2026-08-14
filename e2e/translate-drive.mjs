@@ -30,9 +30,9 @@ const lookedUp = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.lookedUp ?? [])
 
 try {
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=5`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=5&grid=beginner`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').first().click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()

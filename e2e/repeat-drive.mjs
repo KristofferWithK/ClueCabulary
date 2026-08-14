@@ -15,6 +15,7 @@ import { startPreview } from './preview-server.mjs'
 
 const PORT = 4198
 const preview = await startPreview(PORT)
+const SIZES = ['beginner', 'middle', 'standard']
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -37,9 +38,9 @@ const persisted = () =>
 
 /** Deal a board and return its word ids, in board order. */
 async function deal(gridIndex) {
-  await page.goto(`${preview.base}?mock=1&howto=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').nth(gridIndex).click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()

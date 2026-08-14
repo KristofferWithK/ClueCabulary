@@ -12,6 +12,7 @@ import { startPreview } from './preview-server.mjs'
 
 const PORT = 4174
 const preview = await startPreview(PORT)
+const SIZES = ['beginner', 'middle', 'standard']
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
 // Kept in step with src/engine/config.ts by hand — a drive cannot import it.
@@ -37,12 +38,12 @@ const caption = () => page.locator('.phase-caption').textContent()
 
 /** Fresh round on the given board, past the study phase. */
 async function start(gridIndex, seed) {
-  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0`)
+  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0`)
+  await page.goto(`${preview.base}?mock=1&seed=${seed}&howto=0&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
-  await page.locator('.grid-card').nth(gridIndex).click()
+  await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
