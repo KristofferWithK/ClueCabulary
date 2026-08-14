@@ -38,7 +38,7 @@ const persisted = () =>
 
 /** Deal a board and return its word ids, in board order. */
 async function deal(gridIndex) {
-  await page.goto(`${preview.base}?mock=1&howto=0&grid=${SIZES[gridIndex]}`)
+  await page.goto(`${preview.base}?mock=1&howto=0&fresh=1&grid=${SIZES[gridIndex]}`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
@@ -166,9 +166,10 @@ try {
   // surviving a full guessing turn, and a forbidden word ends the round on
   // roughly a tenth of them. The clue-count gate is held in gameStore.test.ts,
   // where the store can simply be asked.
-  await page.goto(`${preview.base}?mock=1&howto=0`)
+  await page.goto(`${preview.base}?mock=1&howto=0&fresh=1`)
   await page.waitForSelector('.city-card')
-  await page.click('.daily-card')
+  // The daily challenge is the star beside Play now.
+  await page.click('.home-daily')
   await page.waitForSelector('.clue-input')
   check(
     'and the daily challenge, which is one shared board, offers no reroll',

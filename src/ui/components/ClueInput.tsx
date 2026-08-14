@@ -82,10 +82,30 @@ export function ClueInput({ game, onSubmit }: Props) {
               ))}
         </p>
       )}
-      <p className="dock-title">
-        Your clue — <strong lang="da">ét dansk ord</strong> leading Cluey to your{' '}
-        <span className="legend-target">●</span> targets
-      </p>
+      <div className="dock-head">
+        <p className="dock-title">
+          Your clue — <strong lang="da">ét dansk ord</strong> for your{' '}
+          <span className="legend-target">●</span> targets
+        </p>
+        {/* The reroll rides the title line: it exists only before the first
+            clue, exactly when the dock is at its tallest, and a full-width
+            button of its own was 48px the board could not spare on a 640px
+            phone. */}
+        {canReroll && (
+          <button
+            className="btn btn-small btn-ghost reroll-btn"
+            onClick={() => {
+              // The dock stays mounted across a re-deal, so a half-typed clue
+              // for the old board would otherwise sit there aimed at nothing.
+              setText('')
+              setCleared(null)
+              useGame.getState().rerollBoard()
+            }}
+          >
+            <span lang="da">Nye ord</span>
+          </button>
+        )}
+      </div>
       <div className="clue-row">
         <input
           id="clue-word"
@@ -148,20 +168,6 @@ export function ClueInput({ game, onSubmit }: Props) {
       <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
         {asking ? 'Asking Cluey…' : english ? 'Give clue anyway' : 'Give clue'}
       </button>
-      {canReroll && (
-        <button
-          className="btn btn-ghost reroll-btn"
-          onClick={() => {
-            // The dock stays mounted across a re-deal, so a half-typed clue for
-            // the old board would otherwise sit there aimed at nothing.
-            setText('')
-            setCleared(null)
-            useGame.getState().rerollBoard()
-          }}
-        >
-          <span lang="da">Nye ord</span> — deal a different board
-        </button>
-      )}
     </div>
   )
 }

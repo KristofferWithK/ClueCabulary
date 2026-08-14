@@ -29,8 +29,12 @@ interface UiState {
  * given. Without the bump, everyone who has already played keeps "hit a
  * forbidden word and one chance remains" as the last thing the app told them,
  * and then loses a round to a rule no screen ever showed them.
+ *
+ * v3: the whole meta-game changed — collect by cluing AND guessing, wrap in
+ * wrap-up rounds, travel on a packed suitcase. Everyone gets the rules once
+ * more.
  */
-const HOWTO_KEY = 'cluecab-howto-v2'
+const HOWTO_KEY = 'cluecab-howto-v3'
 
 /**
  * Each screen/overlay pushes a history entry so the Android back gesture (and

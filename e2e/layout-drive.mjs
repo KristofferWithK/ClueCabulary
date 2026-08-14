@@ -73,20 +73,33 @@ for (const vp of [
 }
 await page.setViewportSize(PHONE)
 
-// Installed, there is no browser chrome above the page, so a scrolled screen
-// used to draw its own title under the phone's clock.
+// Settings is the one screen with more to say than a phone is tall. The
+// DOCUMENT must not scroll — its internal container does, under a header
+// that stays put.
 await open('?mock=1&howto=0&city=0')
 await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const headerTop = async () => (await page.locator('.screen-header').boundingBox()).y
 const atRest = await headerTop()
-await page.evaluate(() => window.scrollTo(0, 600))
+await page.evaluate(() => {
+  document.querySelector('.screen-scroll').scrollTo(0, 600)
+})
 await page.waitForTimeout(250)
 const scrolled = await headerTop()
 check(
-  'the settings header stays put when the page scrolls',
+  'the settings header stays put when its scroller scrolls',
   scrolled <= atRest + 0.5 && scrolled >= -0.5,
   `${atRest.toFixed(0)}px at rest, ${scrolled.toFixed(0)}px scrolled`,
+)
+const settingsDoc = await page.evaluate(() => ({
+  sh: document.scrollingElement.scrollHeight,
+  ih: window.innerHeight,
+  inner: document.querySelector('.screen-scroll').scrollTop,
+}))
+check(
+  'and the scroll happened inside, never on the document',
+  settingsDoc.sh <= settingsDoc.ih + 1 && settingsDoc.inner > 0,
+  `document ${settingsDoc.sh} vs ${settingsDoc.ih}, scroller at ${settingsDoc.inner}`,
 )
 const opaque = await page
   .locator('.screen-header')
@@ -282,6 +295,70 @@ check(
   'and collapses once Cluey has answered',
   (await page.locator('.connect-cluey').evaluate((el) => el.open)) === false,
 )
+
+// ---- The no-scroll principle, measured. -----------------------------------
+// Every core screen fits the phone: document.scrollingElement.scrollHeight
+// must not exceed the viewport, on the smallest phone we serve, in every
+// game phase a player can sit in. The shell deliberately never clips
+// (overflow stays visible), so any screen that outgrows the phone becomes
+// document scroll and fails here — inflate any dock to prove the check bites.
+const noScroll = async (name) => {
+  const r = await page.evaluate(() => ({
+    sh: document.scrollingElement.scrollHeight,
+    ih: window.innerHeight,
+  }))
+  check(`no-scroll: ${name}`, r.sh <= r.ih + 1, `${r.sh} vs ${r.ih}`)
+}
+
+for (const vp of [
+  { width: 360, height: 640, name: '360x640' },
+  { width: 375, height: 667, name: '375x667' },
+  { width: 390, height: 844, name: '390x844' },
+]) {
+  await page.setViewportSize({ width: vp.width, height: vp.height })
+
+  await open('?mock=1&howto=0&city=0&collected=30')
+  await noScroll(`home @${vp.name}`)
+
+  await page.locator('.cluey-button').click()
+  await page.waitForSelector('.suitcase-screen')
+  await noScroll(`suitcase @${vp.name}`)
+
+  await open('?mock=1&howto=0')
+  await page.locator('.map-button').click()
+  await page.waitForSelector('.denmark-map')
+  await noScroll(`map @${vp.name}`)
+
+  await open('?mock=1&howto=0')
+  await page.locator('.icon-btn[aria-label="Settings"]').click()
+  await page.waitForSelector('.settings-screen')
+  await noScroll(`settings @${vp.name}`)
+
+  // The game, in the phase measured tallest (the opening clue dock), on the
+  // widest board.
+  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await page.locator('.home-play').click()
+  await page.waitForSelector('.board-grid')
+  const studyBtn2 = page.locator('.study-dock .btn-primary')
+  if (await studyBtn2.isVisible().catch(() => false)) await studyBtn2.click()
+  await page.waitForTimeout(300)
+  await noScroll(`game clue dock 4x5 @${vp.name}`)
+
+  // And the wrap-up packing phase, the new dock.
+  await open('?mock=1&howto=0&city=0&collected=40&seed=9')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await open('?mock=1&howto=0&city=0&collected=40&seed=9')
+  await page.locator('.cluey-button').click()
+  await page.waitForSelector('.suitcase-screen')
+  await page.locator('.case-actions .btn-primary').click()
+  await page.waitForSelector('.packing-dock')
+  await page.locator('.card-face-en').first().click()
+  await page.waitForTimeout(200)
+  await noScroll(`wrap-up packing @${vp.name}`)
+}
+await page.setViewportSize(PHONE)
 
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()

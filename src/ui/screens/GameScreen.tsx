@@ -165,8 +165,7 @@ export function GameScreen() {
         // Keyed on the companion actually in use, not on the fallback flag —
         // the settings route reached the same object and said nothing.
         <p className="practice-note">
-          Practice companion — its clues are «mok1» and its guesses are random. Cluey is not
-          playing. Settings → Practice companion turns it off.
+          Practice companion — random guesses, Cluey is not playing. Settings turns it off.
         </p>
       )}
 
@@ -192,30 +191,19 @@ export function GameScreen() {
 
       {showBoard && (
         <p className="key-legend">
-          {/* The legend promised a ● and a ✖ that were removed when the card's
-              border took over the job of showing your key. Neither existed on
-              the board any more — and its ✖ collided with the ✕ the board does
-              still draw, on already-revealed neutrals, so the one mark a
-              player could find meant the opposite of what the legend said.
-              Shows the borders themselves now. */}
+          {/* One line, always: the long dashed-word explanation moved into the
+              guess bar's stake note, because the legend sits between the board
+              and the dock on a screen that must FIT a 640px phone. */}
           <span className="legend-swatch legend-target" aria-hidden="true" /> your target
           <span className="legend-sep">·</span>
           {/* "forbidden for you" read as "you must not name this", which is
               backwards: it is forbidden ON your key, meaning Cluey must not be
               led to it. BoardGrid's screen-reader name has always said "on your
-              key"; the visible legend now agrees with it. */}
+              key"; the visible legend agrees with it. */}
           <span className="legend-swatch legend-forbidden" aria-hidden="true" /> forbidden on your
           key
           <span className="legend-sep">·</span>
           <span aria-hidden="true">ⓘ</span> look up
-          {game.phase === 'playerGuessing' && (
-            <>
-              <br />
-              Cluey's key judges this guess, so a dashed word is safe to tap — it is your own
-              clues that must keep away from it. A crossed-out word is spent for you; a neutral
-              Cluey burned is still yours to guess.
-            </>
-          )}
         </p>
       )}
 
@@ -319,8 +307,9 @@ function PlayerGuessBar({ game }: { game: GameState }) {
           key. Unqualified, the sentence warns about exactly the wrong cards. */}
       <p className="dim stake-note">
         {lastChanceOpen
-          ? "Cluey's forbidden words now leave you the last chance. You cannot see them."
-          : "Cluey's forbidden words end the round. You cannot see them."}
+          ? "Cluey's forbidden words now leave you the last chance. You cannot see them — "
+          : "Cluey's forbidden words end the round. You cannot see them — "}
+        your own dashed cards are safe to tap here.
       </p>
       {selected ? (
         <div className="guess-confirm">

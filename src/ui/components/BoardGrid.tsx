@@ -58,7 +58,12 @@ export function BoardGrid({
   return (
     <div
       className="board-grid"
-      style={{ gridTemplateColumns: `repeat(${game.config.cols}, 1fr)` }}
+      style={{
+        gridTemplateColumns: `repeat(${game.config.cols}, 1fr)`,
+        // Rows shrink together with the phase's dock: minmax(0, 1fr) lets a
+        // short phone flatten the cards instead of scrolling the screen.
+        gridTemplateRows: `repeat(${game.config.rows}, minmax(0, 1fr))`,
+      }}
     >
       {game.words.map((w) => {
         const reveal = game.reveals[w.wordId]!

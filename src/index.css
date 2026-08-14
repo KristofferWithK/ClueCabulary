@@ -90,18 +90,32 @@ select:focus {
   margin: 0 auto;
   /* 100% of the body's content box — the body's safe-area padding is already
      subtracted; 100dvh here would double-count the notch insets and force a
-     permanent overflow scroll in standalone mode. */
-  min-height: 100%;
+     permanent overflow scroll in standalone mode. `height`, not `min-height`:
+     screens are built to FIT the phone now, and a shell that grows with its
+     content would let an overflowing screen scroll instead of failing the
+     drive that measures it. Deliberately no overflow:hidden anywhere on the
+     shell — clipping would make document.scrollingElement.scrollHeight lie,
+     and the honest wiring is exact-fit columns whose overflow becomes the
+     scroll the layout drive catches. */
+  height: 100%;
   display: flex;
   flex-direction: column;
+  /* The containing block for every absolutely-positioned descendant that
+     names no other — the visually-hidden file input in Settings used to
+     resolve against <html> itself, parking a 1px box 2400px down and handing
+     the document a scrollbar no visible element asked for. */
+  position: relative;
 }
 
 .screen {
   flex: 1;
+  /* Shrinkable, so a screen's flexible band (the board, Cluey) gives way
+     instead of pushing the actions off the phone. */
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  gap: 16px;
+  padding: 12px 16px;
+  gap: 12px;
 }
 
 .dim {
@@ -184,7 +198,7 @@ select:focus {
 /* ---------- home ---------- */
 
 .home-screen {
-  gap: 16px;
+  gap: 12px;
 }
 
 .home-hero {
@@ -368,7 +382,7 @@ select:focus {
   height: auto;
   /* Uncapped, Denmark's 1000x812 shape pushed the primary action below the
      fold on 640-667px phones. preserveAspectRatio letterboxes the rest. */
-  max-height: 26vh;
+  max-height: 20vh;
   display: block;
 }
 
@@ -542,7 +556,7 @@ select:focus {
 
 .dex-slot {
   width: 100%;
-  min-height: 38px;
+  min-height: 44px;
   border-radius: 7px;
   font-size: 0.78rem;
   font-weight: 600;
@@ -695,6 +709,7 @@ select:focus {
 .denmark-map {
   width: 100%;
   height: auto;
+  max-height: 32vh;
   display: block;
 }
 
@@ -1058,7 +1073,8 @@ select:focus {
 /* ---------- board ---------- */
 
 .board-area {
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
   display: flex;
   align-items: center;
 }
@@ -1067,18 +1083,33 @@ select:focus {
   display: grid;
   gap: 8px;
   width: 100%;
+  /* Rows share whatever height the phase's dock leaves over (BoardGrid sets
+     the row count inline beside the columns), so the board shrinks instead
+     of scrolling. */
+  height: 100%;
+  min-height: 0;
 }
 
 .word-card-wrap {
   position: relative;
+  min-height: 0;
+  display: flex;
 }
 
 .word-card {
   position: relative;
   width: 100%;
+  /* The shape a card wants; max-height lets the row overrule it on short
+     phones — cards go flatter, never clipped, and cqw font sizing is off the
+     width so the word is unaffected. */
   aspect-ratio: 5 / 4;
+  max-height: 100%;
+  /* The floor under "flatter, never clipped": one 16px line inside the
+     padding box with a 3px key border on both edges still clears. */
+  min-height: 44px;
+  align-self: center;
   /* The word is sized off the CARD, not the viewport — see .card-da. */
-  container-type: inline-size;
+  container-type: size;
   border-radius: 8px;
   background: var(--bg);
   border: 2px solid var(--line);
@@ -1092,7 +1123,7 @@ select:focus {
   /* The top strip used to reserve room for a key dot as well as ⓘ; the dot
      is gone, and the room came back to the word — which is what pays for the
      article now sitting in front of it. */
-  padding: 11px 4px 4px;
+  padding: 11px 4px 2px;
   overflow: hidden;
   transition: transform 0.1s ease, background 0.25s ease, border-color 0.25s ease;
 }
@@ -1154,6 +1185,21 @@ select:focus {
 .card-en {
   font-size: 0.72rem;
   color: var(--text-dim);
+}
+
+/* A card riding its height floor: drop the word to the size where two lines
+   fit inside it, and spend no line on the gloss. Height-queried off the card
+   itself, which is why the container tracks size, not inline-size. */
+@container (max-height: 46px) {
+  .card-da {
+    /* Two lines of the dataset's longest noun inside a floored card that is
+       also paying a 3px key border on both edges — measured, not estimated. */
+    font-size: clamp(0.62rem, 16cqw, 0.72rem);
+    line-height: 1;
+  }
+  .card-en {
+    display: none;
+  }
 }
 
 /* Disabled cards must keep full-contrast text (UA gray would dim the board
@@ -1244,7 +1290,7 @@ select:focus {
 
 .key-legend {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-dim);
   line-height: 1.5;
 }
@@ -1358,14 +1404,26 @@ select:focus {
   background: var(--surface);
   border: 1px solid var(--line-soft);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .dock-title {
-  line-height: 1.45;
+  line-height: 1.35;
+  font-size: 0.92rem;
+}
+
+.dock-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dock-head .dock-title {
+  flex: 1;
 }
 
 .clue-row {
@@ -1483,6 +1541,8 @@ select:focus {
 }
 
 .practice-note {
+  font-size: 0.75rem;
+  line-height: 1.35;
   font-size: 0.82rem;
   color: var(--text-dim);
   background: var(--surface);
@@ -1881,6 +1941,8 @@ select:focus {
 }
 
 .sheet {
+  max-height: 82dvh;
+  overflow-y: auto;
   background: var(--bg);
   border-radius: 16px 16px 0 0;
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
@@ -2382,9 +2444,12 @@ select:focus {
   right: 12px;
   /* Top, not bottom: Home anchors its primary action to the bottom edge now,
      and a bottom banner sat exactly on top of Play — measured by a drive
-     whose click it swallowed. */
+     whose click it swallowed. And click-through except for its own buttons,
+     because up here it overlays headers and back arrows instead: a toast
+     must never eat a tap aimed at what it happens to float over. */
   top: calc(12px + env(safe-area-inset-top));
   z-index: 60;
+  pointer-events: none;
   max-width: 456px;
   margin: 0 auto;
   background: var(--text);
@@ -2409,6 +2474,10 @@ select:focus {
   background: #fff;
   border-color: #fff;
   color: var(--text);
+}
+
+.update-banner button {
+  pointer-events: auto;
 }
 
 .update-actions {
@@ -2744,10 +2813,8 @@ select:focus {
 /* ---------- look up a word ---------- */
 
 .translate-box {
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius);
-  padding: 8px 12px;
-  background: var(--bg);
+  border-top: 1px solid var(--line-soft);
+  padding-top: 6px;
 }
 
 /* Sits above an input that is always there, so it names the field rather than
@@ -2759,7 +2826,7 @@ select:focus {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 26px;
+  min-height: 20px;
 }
 
 .translate-label {
@@ -2770,8 +2837,8 @@ select:focus {
 
 .translate-input {
   width: 100%;
-  padding: 10px;
-  margin-top: 6px;
+  padding: 8px 10px;
+  margin-top: 4px;
 }
 
 .translate-hits {
@@ -3112,4 +3179,22 @@ select:focus {
 .home-daily-done {
   background: var(--green-soft);
   border-color: var(--green-tile);
+}
+
+/* ---------- the internal scroller ---------- */
+
+/* The one sanctioned scroll region: a screen with more to say than a phone
+   is tall (Settings) scrolls INSIDE this, never the document. */
+.screen-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* Absolutely-positioned descendants (the hidden file input) stay inside
+     this scroller's coordinate space, where its own scrollbar owns them. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Keep the last control clear of home-indicator bars. */
+  padding-bottom: 4px;
 }

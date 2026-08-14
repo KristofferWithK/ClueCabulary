@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { WORDS } from './data/words'
 import { cityAt } from './journey/cities'
 import { LEARN_REPS, wordsForCity } from './journey/progress'
+import { useGame } from './stores/gameStore'
 import { rescueStrandedJourney, useJourney } from './stores/journeyStore'
 import { useSettings } from './stores/settingsStore'
 import { useSrs } from './stores/srsStore'
@@ -66,6 +67,10 @@ export default function App() {
     if (grid === 'beginner' || grid === 'middle' || grid === 'standard') {
       useSettings.getState().set({ gridSize: grid })
     }
+    // ?fresh=1 abandons any round in flight so Play deals anew — but keeps
+    // recentBoards, which is the point: the carry-over drive deals board
+    // after board and must not have its window wiped between them.
+    if (params.get('fresh') === '1') useGame.getState().abandonGame()
     // Journey dev switches, so the travel screens can be driven in tests:
     // ?city=N jumps to a stop, ?collected=K collects K of its words,
     // ?wrapped=K packs K of them into the suitcase.

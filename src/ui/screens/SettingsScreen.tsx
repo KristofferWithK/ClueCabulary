@@ -94,6 +94,10 @@ export function SettingsScreen() {
         <h1>Settings</h1>
       </header>
 
+      {/* Settings is the one screen with more to say than a phone is tall.
+          The DOCUMENT still must not scroll — this container does, under a
+          header that stays put by construction. */}
+      <div className="screen-scroll">
       <section className="settings-section">
         <h3>AI companion</h3>
         <ConnectCluey verified={settings.klausVerifiedAt !== null} />
@@ -277,6 +281,7 @@ export function SettingsScreen() {
         </button>
         <BuildFooter />
       </section>
+      </div>
     </div>
   )
 }

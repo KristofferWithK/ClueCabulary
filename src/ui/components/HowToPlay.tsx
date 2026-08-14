@@ -80,18 +80,19 @@ export function HowToPlay() {
             translations. Every lookup tells the app which words to bring back next round.
           </li>
           <li>
-            You are travelling Denmark, south to north and home to København. Each city holds{' '}
-            <strong>100 words</strong>. A word you meet turns grey; clue or guess it{' '}
-            <strong>three times</strong> and it turns <strong>green</strong>.
+            You are travelling Denmark, south to north and home to København, with{' '}
+            <strong>Cluey the suitcase</strong> carrying every word you learn. Each city holds{' '}
+            <strong>100 words</strong>. A word you meet is <em>discovered</em>; clue it once{' '}
+            <em>and</em> guess it once — a green earned each way — and it is{' '}
+            <strong>collected</strong> into the case.
           </li>
           <li>
-            Every ten green words buys one attempt at a <strong lang="da">rejseprøve</strong>:
-            twenty words — your green ones first, then whatever the paper needs to fill up —
-            translated to English with no mistakes and no dictionary. Drawing the paper spends
-            the attempt whether you pass or fail, so take it when you are ready. Passing banks
-            those twenty and earns a <strong lang="da">stempel</strong>; five stempler fill your{' '}
-            <span lang="da">rejsepas</span> and open the road north. Once ninety of a city's
-            hundred words are green it stops counting attempts altogether.
+            Collected words still break on the road. <strong>Wrap-up rounds</strong> pack them
+            safely: a big board dealt from your collected words, every card starting in{' '}
+            <em>English</em>. Type the Danish to pack a card before the clues begin — skip one and
+            it plays on, English-side up, but cannot be wrapped that round. Every packed word
+            found green is <strong>wrapped</strong> for good, win or lose. Wrap all hundred and
+            the road onward opens.
           </li>
         </ol>
 
