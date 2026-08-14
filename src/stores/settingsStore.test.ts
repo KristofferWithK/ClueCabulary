@@ -152,12 +152,64 @@ describe('which language Klaus clues in', () => {
     expect((migrate({ clueLanguage: 'en' }, 1) as Record<string, unknown>).clueLanguage).toBe('da')
   })
 
-  it('a v3 save is left alone, whatever it holds', () => {
+  it('a v3 save keeps its clue language, whatever it holds', () => {
     expect((migrate({ clueLanguage: 'en' }, 3) as Record<string, unknown>).clueLanguage).toBe('en')
   })
 
   it('and the v1 study-phase fix still happens on the way past', () => {
     const up = migrate({ studyPhase: 'auto', clueLanguage: 'en' }, 1) as Record<string, unknown>
     expect(up).toMatchObject({ studyPhase: 'never', clueLanguage: 'da' })
+  })
+})
+
+/**
+ * "3x5 grid is now the default."
+ *
+ * Third time this exact trap has been laid: settings persist, so the default is
+ * only what a device that has never stored one gets, and this store has no
+ * partialize — every save ever written carries a gridSize whether the player
+ * touched the picker or not. Moving the default alone would have left every
+ * existing device dealing 3x4 from «Spil videre» forever.
+ *
+ * Unlike the study phase, the old value cannot be told apart from a deliberate
+ * choice of it, so this migration moves everyone. That is a decision, recorded
+ * here rather than discovered later: 3x4 is one tap away on Home and the tap
+ * sticks, whereas not moving means the board that was asked for never arrives.
+ */
+describe('which board «Spil videre» deals', () => {
+  const migrate = migrateSettings
+
+  it('is 3x5 for anyone who has never stored a setting', () => {
+    expect(useSettings.getInitialState().gridSize).toBe('middle')
+  })
+
+  it.each([1, 2, 3])('and a v%i save holding the old default is moved to it', (from) => {
+    expect((migrate({ gridSize: 'beginner' }, from) as Record<string, unknown>).gridSize).toBe(
+      'middle',
+    )
+  })
+
+  it('a deliberate 4x5 survives — it was never a default', () => {
+    expect((migrate({ gridSize: 'standard' }, 3) as Record<string, unknown>).gridSize).toBe(
+      'standard',
+    )
+  })
+
+  it('a v4 save is left alone entirely', () => {
+    expect((migrate({ gridSize: 'beginner' }, 4) as Record<string, unknown>).gridSize).toBe(
+      'beginner',
+    )
+  })
+
+  it('and every other field survives the trip', () => {
+    const up = migrate({ gridSize: 'beginner', apiKey: 'k', model: 'm' }, 3) as Record<
+      string,
+      unknown
+    >
+    expect(up).toMatchObject({ gridSize: 'middle', apiKey: 'k', model: 'm' })
+  })
+
+  it('survives a save with no gridSize at all', () => {
+    expect((migrate({ apiKey: 'k' }, 1) as Record<string, unknown>).gridSize).toBeUndefined()
   })
 })

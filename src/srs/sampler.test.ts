@@ -440,3 +440,102 @@ describe('how much a board repeats the last one', () => {
     expect(sitting(10, 5, 1).worst).toBeLessThanOrEqual(6)
   })
 })
+
+/**
+ * "I want a reroll button at the beginning to reroll the board if I have no
+ * idea on how to connect the words."
+ *
+ * The reroll is not the carry-over rule wearing a different hat, and the first
+ * version of it got that wrong: it passed the rejected board through the
+ * recentBoards window, which asks the sampler to bring three words BACK, and
+ * otherwise had no opinion about the words on screen. Measured through the app,
+ * a 3x4 reroll returned 7 of the same 12 words — the button re-shuffled a board
+ * the player had just said they could not read.
+ *
+ * `avoid` is the other request, stated separately because it is the opposite
+ * one: keep these off, and the rejected board is what a reroll passes to it.
+ */
+describe('a board dealt to replace one the player rejected', () => {
+  const city = [...WORDS].sort((a, b) => curriculumRank(a) - curriculumRank(b)).slice(0, 100)
+
+  /** An SRS where every city word has been seen, so the review pool is real. */
+  const allSeen = (): SrsMap =>
+    Object.fromEntries(city.map((w) => [w.id, newStats(NOW - 5 * DAY)]))
+
+  it('keeps the rejected words off entirely when the pool has room', () => {
+    const rejected = selectBoardWords(city, allSeen(), OPTS, mulberry32(1), NOW)
+    const replacement = selectBoardWords(
+      city,
+      allSeen(),
+      { ...OPTS, avoid: new Set(rejected.map((w) => w.id)) },
+      mulberry32(2),
+      NOW,
+    )
+    expect(replacement).toHaveLength(12)
+    expect(replacement.filter((w) => rejected.some((r) => r.id === w.id))).toEqual([])
+  })
+
+  /**
+   * Both rules at once, which is the shape a real reroll has: three words come
+   * back from the board actually PLAYED, and none from the one just rejected —
+   * except where those overlap, since the rejected board carried three from the
+   * same place.
+   */
+  it('still owes its three to the last board played', () => {
+    const srs = allSeen()
+    const played = selectBoardWords(city, srs, OPTS, mulberry32(1), NOW)
+    const playedIds = new Set(played.map((w) => w.id))
+    const rejected = selectBoardWords(
+      city,
+      srs,
+      { ...OPTS, recentBoards: [playedIds] },
+      mulberry32(2),
+      NOW,
+    )
+    const replacement = selectBoardWords(
+      city,
+      srs,
+      { ...OPTS, recentBoards: [playedIds], avoid: new Set(rejected.map((w) => w.id)) },
+      mulberry32(3),
+      NOW,
+    )
+    expect(replacement).toHaveLength(12)
+    expect(replacement.filter((w) => playedIds.has(w.id))).toHaveLength(CARRY_OVER)
+    // Zero, not "at most three". The carry-over pool honours `avoid` too, and
+    // it can always afford to: the rejected board took only CARRY_OVER words
+    // from the played one, so at least nine are left to draw the quota from.
+    // Without that the three would come back unchanged — they are drawn by
+    // practice need, and the need has not moved since the board was rejected —
+    // and the reroll would read as a shuffle of the same three.
+    expect(replacement.filter((w) => rejected.some((r) => r.id === w.id))).toEqual([])
+  })
+
+  /**
+   * Soft, not absolute. A pool too small to honour it must still deal a board:
+   * a familiar word is a disappointment, an app that cannot deal is a bug.
+   */
+  it('is given up rather than starving a board that cannot be filled without it', () => {
+    const tiny = makeDataset(14)
+    const board = selectBoardWords(
+      tiny,
+      {},
+      { ...OPTS, avoid: new Set(tiny.slice(0, 10).map((w) => w.id)) },
+      mulberry32(4),
+      NOW,
+    )
+    expect(board).toHaveLength(12)
+    expect(new Set(board.map((w) => w.id)).size).toBe(12)
+  })
+
+  it('and changes nothing at all when it is not passed', () => {
+    const withOut = selectBoardWords(city, allSeen(), OPTS, mulberry32(7), NOW)
+    const withEmpty = selectBoardWords(
+      city,
+      allSeen(),
+      { ...OPTS, avoid: new Set() },
+      mulberry32(7),
+      NOW,
+    )
+    expect(withEmpty.map((w) => w.id)).toEqual(withOut.map((w) => w.id))
+  })
+})

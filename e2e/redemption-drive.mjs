@@ -14,7 +14,8 @@ const PORT = 4174
 const preview = await startPreview(PORT)
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
-const REDEMPTION_AFTER_ROUND = 4
+// Kept in step with src/engine/config.ts by hand — a drive cannot import it.
+const REDEMPTION_AFTER_ROUND = 3
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -117,11 +118,12 @@ try {
   check('and the round was still recorded', srsAfterEarly > 0, `${srsAfterEarly} words`)
 
   // ---- after it: the last chance, exactly as before ------------------------
-  // Driven on the 4x5 board, where the player has two guessing turns past the
-  // threshold (clues 6 and 8). On the 3x4 the only eligible clue is the 5th,
-  // which is always Klaus's turn to guess — the player cannot reach this
-  // ending there at all, which is a real consequence of the rule and not
-  // something a drive should paper over.
+  // Driven on the 4x5 board, where the player has three guessing turns past
+  // the threshold (clues 4, 6 and 8), so the loop below has room to find one
+  // with a hidden forbidden word still on it. The threshold moved from 4 to 3
+  // and every board now has an eligible player turn — game.test.ts pins that
+  // arithmetic on all three; this drive is about which SCREEN appears, and the
+  // widest board is the one that reaches the state most reliably.
   let reached = false
   for (const seed of [3, 5, 8, 13, 21, 34]) {
     await start(2, seed)

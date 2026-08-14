@@ -153,25 +153,28 @@ export const MAX_CLUE_NUMBER = 4
  * word ends the round where it stands.
  *
  * A round is a clue, so on the boards as they stand the last chance is live on
- * the 5th clue of 5 (3x4), the 5th and 6th of 6 (3x5), and the 5th through 8th
- * of 8 (4x5).
+ * the 4th and 5th clue of 5 (3x4), the 4th through 6th of 6 (3x5), and the 4th
+ * through 8th of 8 (4x5).
  *
  * Two things are worth knowing before this number is moved again, both
  * measured over 300 games a board rather than reasoned about:
  *
- * - The guessing side alternates strictly with the clue index. The player
- *   opens, so ODD clues are Klaus guessing and EVEN clues are the player. At 4
- *   the first eligible clue is the 5th — odd — so on the 3x4 board, where the
- *   5th is also the last, the player is not the one guessing in the only round
- *   that can reach the last chance (168 of 171 games; the other 3 come from
- *   endTurn handing the same side a second clue when the other has no greens
- *   left). Set this to 3 and the player's own 4th-clue turn qualifies too.
+ * - The guessing side alternates with the clue index. The player opens, so ODD
+ *   clues are Klaus guessing and EVEN clues are the player. (The one exception
+ *   is endTurn handing the same side a second clue when the other has no greens
+ *   left — 3 games in 171 when it was last measured.) This is why the number
+ *   matters more than it looks. At 4 the first eligible clue was the 5th — odd
+ *   — and on the 3x4 board, where the 5th is also the last, that made the
+ *   player's own guessing turn all but ineligible: the ending the last chance
+ *   exists for was unreachable on the first board a learner meets. At 3 the
+ *   first eligible clue is the 4th, which is the player's, and re-measuring
+ *   over 300 games a board finds it on every one of them, on all three boards.
  * - It does not shorten the challenge much. Words still unsolved when a
  *   forbidden word lands: 11.6 of 12 on the opening clue, 9.3 of 12 on the
  *   5th. The last chance was never a short quiz; what this changes is when it
  *   is offered at all, not how much typing it is.
  */
-export const REDEMPTION_AFTER_ROUND = 4
+export const REDEMPTION_AFTER_ROUND = 3
 
 /**
  * Greens that must be found to win — shared ones count once.

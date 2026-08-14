@@ -27,7 +27,9 @@ words are green it stops counting attempts.
 
 ## How a round works
 
-1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words
+1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words —
+   **3×5 by default**, and the picker on Home marks whichever one *Spil videre*
+   will deal —
    from the ~1000 most common, each noun with its gender in front of it —
    **et hus**, the way the pair is learned — and where a noun has no ordinary
    indefinite singular, the card says the gender instead: **(com)** or
@@ -82,19 +84,38 @@ words are green it stops counting attempts.
    hazard is harmless to the player, and removing it from his pool makes him
    *worse* (9.9% → 11.1%).
 
-   Once **four clues** have been given, a forbidden word leaves one last chance
+   Once **three clues** have been given, a forbidden word leaves one last chance
    instead of ending the round: **translate every unsolved word on the board** —
    dictionary locked, one shot, all or nothing. It closes again when the clues
    run out.
 
-   That threshold is `REDEMPTION_AFTER_ROUND` in `src/engine/config.ts`, and
-   two measured facts sit beside it there. The guessing side alternates
-   strictly with the clue index — you open, so odd clues are Klaus guessing —
-   which on the 3×4 board makes the fifth clue, the only eligible one, always
-   his; and the board is barely more solved by then (9.3 of 12 words still
-   unsolved at clue five, against 11.6 at clue one), so what the threshold
-   changes is when the last chance is offered, not how long it takes.
-4. **Clue in Danish.** Tap ⓘ on any board word for the built-in dictionary
+   That threshold is `REDEMPTION_AFTER_ROUND` in `src/engine/config.ts`, and it
+   is worth more than it looks because of a measured fact sitting beside it
+   there: the guessing side alternates with the clue index, and you open, so
+   **odd clues are Klaus guessing and even ones are you**. At four the first
+   eligible clue was the fifth — odd — and the 3×4 board has no even clue past
+   it, so on the first board a learner meets the player could not reach this
+   ending at all. At three the first eligible clue is the fourth, which is
+   yours, on every board; `game.test.ts` pins that for all three. What the
+   threshold does *not* change much is the size of the challenge — 9.3 of 12
+   words are still unsolved at clue five against 11.6 at clue one — so this is
+   about when the last chance is offered, not how long it takes.
+4. **Reroll before you start.** If nothing on the board connects, **Nye ord**
+   in the clue dock deals a different board of the same size. Only before the
+   first clue — once one is on the table the round has a history, and re-dealing
+   under it would be a way to unsee a bad guess — and never on the daily
+   challenge, which is one shared board per date.
+
+   Two rules meet here and they pull opposite ways. Every board carries exactly
+   three words out of the last one (`CARRY_OVER` in `src/srs/sampler.ts`), and a
+   rejected board is precisely the one whose words must *not* come back. So the
+   reroll replaces the head of the two-board window rather than pushing onto it,
+   and passes the rejected board to the sampler's `avoid` set. Before that
+   second half existed a 3×4 reroll came back measuring **7 of the same 12
+   words**; it is 0 now, carry-over included, because the rejected board took
+   only three words off the played one and the quota can be drawn from the other
+   nine.
+5. **Clue in Danish.** Tap ⓘ on any board word for the built-in dictionary
    (translation, gender, example sentence), or open **Look up a word** in the
    clue dock to go the other way — English in, Danish out — which is the
    direction composing a clue actually needs. Klaus clues in Danish too, and one
@@ -113,7 +134,7 @@ words are green it stops counting attempts.
    *Give clue anyway* and Klaus judges it, so a Danish word we happen not to
    ship is never refused by a list.
    Toggle **Aa** to overlay every translation — off to start with, so the board
-   opens as twelve Danish words rather than twenty-four lines of text, and there
+   opens as a grid of Danish words rather than twice as many lines of text, and there
    is no opening study phase either (Settings can turn one back on; a save from
    before that default changed is migrated, since a persisted setting kept the
    old behaviour alive long after the default moved). Every lookup tells the practice
@@ -124,7 +145,7 @@ words are green it stops counting attempts.
    back instantly and offline, and anything else is asked of Klaus without
    being asked twice. A hit that is already on the board says so, since it is
    the right translation and an illegal clue.
-5. After each round Klaus debriefs: what his clues meant and which words
+6. After each round Klaus debriefs: what his clues meant and which words
    deserve another look. The review page also shows **what was said, and why** —
    every clue and every guess with the reasoning behind it, including what Klaus
    deliberately steered away from and how sure he was of each guess. Tap ⚑ on

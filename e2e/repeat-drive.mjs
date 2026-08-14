@@ -106,6 +106,74 @@ try {
     `${state.recentBoards[0]?.length} vs ${bigger.length}`,
   )
 
+  // ---- a reroll is not a board the player played --------------------------
+  // "A reroll button at the beginning to reroll the board if I have no idea on
+  // how to connect the words." The button re-deals; the hazard is what it tells
+  // the NEXT deal. A board dealt and rejected in ten seconds is not one the
+  // player played, so it has to REPLACE the head of the two-deep window rather
+  // than push onto it — otherwise the genuinely-previous board falls out of the
+  // window and the reroll comes back holding three words of the very board the
+  // player just said they could not read. Unit tests hold that in the store;
+  // this is the same claim through the button.
+  const beforeReroll = await deal(0)
+  const played = (await persisted()).state.recentBoards[1]
+  const reroll = page.locator('.reroll-btn')
+  check('the reroll button is offered before the first clue', await reroll.isVisible())
+  await reroll.click()
+  await page.waitForFunction(
+    (was) =>
+      JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.game?.words?.[0]
+        ?.wordId !== was,
+    beforeReroll[0],
+    { timeout: 15_000 },
+  )
+  const rerolled = (await persisted()).state.game.words.map((w) => w.wordId)
+  check(
+    'it deals a different board of the same size',
+    rerolled.length === beforeReroll.length &&
+      JSON.stringify(rerolled) !== JSON.stringify(beforeReroll),
+    `${rerolled.length} words`,
+  )
+  const after = (await persisted()).state.recentBoards
+  check(
+    'the rejected board is not remembered',
+    JSON.stringify(after[0]) === JSON.stringify(rerolled) &&
+      JSON.stringify(after[1]) === JSON.stringify(played),
+    `[${after[0]?.length}, ${after[1]?.length}]`,
+  )
+  check(
+    'and it carried its three words from the last board actually played',
+    shared(rerolled, played).length === CARRY_OVER,
+    `${shared(rerolled, played).length} from played`,
+  )
+  // The point of the whole button. Before the sampler was told which board had
+  // been rejected it answered the wrong question — it avoided the board BEFORE
+  // and had no opinion about the one on screen — and a 3x4 reroll came back
+  // measuring 7 of the same 12 words. Zero now, including the carry-over: the
+  // rejected board took only three words off the played one, so the quota can
+  // always be drawn from the other nine.
+  const stale = shared(rerolled, beforeReroll).length
+  check(
+    'and it does not hand back the board the player just rejected',
+    stale === 0,
+    `${stale} of ${rerolled.length} words in common`,
+  )
+
+  // The other gate: one shared board per date, so a rerolled daily is nobody's
+  // board. Checked here rather than the clue-count gate because this one is
+  // deterministic — getting back to the clue dock with a clue behind you means
+  // surviving a full guessing turn, and a forbidden word ends the round on
+  // roughly a tenth of them. The clue-count gate is held in gameStore.test.ts,
+  // where the store can simply be asked.
+  await page.goto(`${preview.base}?mock=1&howto=0&letter=0`)
+  await page.waitForSelector('.city-card')
+  await page.click('.daily-card')
+  await page.waitForSelector('.clue-input')
+  check(
+    'and the daily challenge, which is one shared board, offers no reroll',
+    (await page.locator('.reroll-btn').count()) === 0,
+  )
+
   // ---- a v1 save upgrades rather than breaking ----------------------------
   // v1 kept one board under `lastBoard`. An installed PWA updates under the
   // player, so the old shape has to survive the change: it becomes the board to

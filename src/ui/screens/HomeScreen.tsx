@@ -51,6 +51,13 @@ function dailyChallenge() {
   }
 }
 
+/** The three boards, in the order the picker shows them: the difficulty ramp. */
+const GRIDS: ReadonlyArray<{ size: GridSize; label: string; name: string }> = [
+  { size: 'beginner', label: '3×4', name: 'Beginner' },
+  { size: 'middle', label: '3×5', name: 'Middle' },
+  { size: 'standard', label: '4×5', name: 'Standard' },
+]
+
 const DAILY_BADGE: Record<string, string> = {
   won: '✓ solved',
   redeemed: '🔥 redeemed',
@@ -320,28 +327,30 @@ export function HomeScreen() {
         <span lang="da">også</span>
       </p>
 
+      {/* Tapping one of these stores it, so the picker is also the answer to
+          "what will «Spil videre» deal?" — a question the screen used to leave
+          unanswered while quietly holding a value. The order is the difficulty
+          ramp and stays fixed whatever the default is; several drives address
+          these cards by index. */}
       <div className="grid-picker">
-        <button className="grid-card" onClick={() => play('beginner')}>
-          <span className="grid-card-size">3×4</span>
-          <span className="grid-card-name">Beginner</span>
-          <span className="grid-card-desc">
-            12 words · {GRID_CONFIGS.beginner.turnTokens} clues
-          </span>
-        </button>
-        <button className="grid-card" onClick={() => play('middle')}>
-          <span className="grid-card-size">3×5</span>
-          <span className="grid-card-name">Middle</span>
-          <span className="grid-card-desc">
-            15 words · {GRID_CONFIGS.middle.turnTokens} clues
-          </span>
-        </button>
-        <button className="grid-card" onClick={() => play('standard')}>
-          <span className="grid-card-size">4×5</span>
-          <span className="grid-card-name">Standard</span>
-          <span className="grid-card-desc">
-            20 words · {GRID_CONFIGS.standard.turnTokens} clues
-          </span>
-        </button>
+        {GRIDS.map((g) => {
+          const current = settings.gridSize === g.size
+          return (
+            <button
+              key={g.size}
+              className={`grid-card ${current ? 'grid-card-current' : ''}`}
+              aria-current={current ? 'true' : undefined}
+              onClick={() => play(g.size)}
+            >
+              <span className="grid-card-size">{g.label}</span>
+              <span className="grid-card-name">{g.name}</span>
+              <span className="grid-card-desc">
+                {GRID_CONFIGS[g.size].totalWords} words · {GRID_CONFIGS[g.size].turnTokens} clues
+              </span>
+              {current && <span className="grid-card-tag">your board</span>}
+            </button>
+          )
+        })}
       </div>
 
       <button className="daily-card" onClick={() => {

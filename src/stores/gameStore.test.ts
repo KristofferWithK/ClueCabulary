@@ -70,3 +70,102 @@ describe('gameStore: finishing a round without Klaus', () => {
     })
   })
 })
+
+/**
+ * "I want a reroll button at the beginning to reroll the board if I have no
+ * idea on how to connect the words."
+ *
+ * The interesting part is not dealing a second board — newGame already does
+ * that — it is what the reroll tells the NEXT deal. Exactly three words of the
+ * last board come back on every board, and the store remembers two boards deep
+ * so a carried word has to sit one out before it can carry again. A board dealt
+ * and rejected in ten seconds is not a board the player played, so it must
+ * REPLACE the head of that window rather than push onto it. Pushing costs
+ * twice: the genuinely-previous board falls out of the two-deep window, and the
+ * reroll comes back holding three words of the board just rejected.
+ */
+describe('gameStore: rerolling the board before the first clue', () => {
+  const ids = () => useGame.getState().game!.words.map((w) => w.wordId)
+
+  beforeEach(() => {
+    useSettings.setState({ apiKey: 'a-key', useMock: true })
+    useGame.getState().abandonGame()
+    useGame.setState({ recentBoards: [] })
+  })
+
+  it('deals a different board of the same size', () => {
+    useGame.getState().newGame({ seed: 11, gridSize: 'standard' })
+    const before = ids()
+    const { seed: seedBefore, config: configBefore } = useGame.getState().game!
+    useGame.getState().rerollBoard()
+    const after = ids()
+    expect(after).not.toEqual(before)
+    expect(seedBefore).not.toBe(useGame.getState().game!.seed)
+    // A reroll is a new deal, not a new difficulty: the board it came from
+    // chooses the size, which is why rerollBoard never reads settings.gridSize.
+    expect(useGame.getState().game!.config).toEqual(configBefore)
+    expect(after).toHaveLength(before.length)
+  })
+
+  it('and the round it deals is untouched — no clue, nothing spent', () => {
+    useGame.getState().newGame({ seed: 11 })
+    useGame.setState({ lookedUp: ['x'], practiceFallback: true, error: 'boom' })
+    useGame.getState().rerollBoard()
+    const s = useGame.getState()
+    expect(s.game!.clueHistory).toEqual([])
+    expect(s.lookedUp).toEqual([])
+    expect(s.practiceFallback).toBe(false)
+    expect(s.error).toBeNull()
+  })
+
+  it('replaces the board it threw away rather than remembering it', () => {
+    useGame.getState().newGame({ seed: 1 })
+    const first = ids()
+    useGame.getState().newGame({ seed: 2 })
+    const second = ids()
+    expect(useGame.getState().recentBoards).toEqual([second, first])
+
+    useGame.getState().rerollBoard()
+    const rerolled = ids()
+    // The rejected board is gone; the one actually played is still there, so
+    // the "may not carry over twice running" rule still has something to read.
+    expect(useGame.getState().recentBoards).toEqual([rerolled, first])
+  })
+
+  /**
+   * The consequence of the line above, stated as a behaviour rather than as a
+   * data structure: the reroll carries words back from the last board the
+   * player PLAYED, not from the one they just said they could not read.
+   */
+  it('so the new board carries its three words from the last board played', () => {
+    useGame.getState().newGame({ seed: 1 })
+    const played = ids()
+    useGame.getState().newGame({ seed: 2 })
+    useGame.getState().rerollBoard()
+    const rerolled = ids()
+    expect(rerolled.filter((id) => played.includes(id))).toHaveLength(3)
+  })
+
+  it('refuses once a clue is on the table', () => {
+    useGame.getState().newGame({ seed: 11 })
+    useGame.getState().submitPlayerClue('klods', 2)
+    const dealt = ids()
+    useGame.getState().rerollBoard()
+    expect(ids()).toEqual(dealt)
+  })
+
+  /** One shared board per date. A rerolled daily is nobody's board. */
+  it('refuses on the daily challenge', () => {
+    useGame.getState().newGame({ seed: 20260814, dailyKey: '2026-08-14' })
+    const dealt = ids()
+    useGame.getState().rerollBoard()
+    expect(ids()).toEqual(dealt)
+    expect(useGame.getState().dailyKey).toBe('2026-08-14')
+  })
+
+  it('and does nothing at all with no game', () => {
+    useGame.getState().abandonGame()
+    expect(() => useGame.getState().rerollBoard()).not.toThrow()
+    expect(useGame.getState().game).toBeNull()
+  })
+})
