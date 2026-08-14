@@ -142,7 +142,9 @@ export function ClueInput({ game, onSubmit }: Props) {
       )}
       {/* Clueing in Danish means needing a word you do not have yet — which is
           the moment to be able to look one up, not after abandoning the turn. */}
-      <TranslateBox prefill={english ? { term: trimmed, label: `Look up «${trimmed}»` } : undefined} />
+      {/* The button rides the lookup's own "Look up a word" line, so the label
+          is the word alone; TranslateBox spells it out for a screen reader. */}
+      <TranslateBox prefill={english ? { term: trimmed, label: `«${trimmed}»` } : undefined} />
       <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
         {asking ? 'Asking Klaus…' : english ? 'Give clue anyway' : 'Give clue'}
       </button>
