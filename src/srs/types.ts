@@ -35,4 +35,6 @@ export interface RoundWordResult {
   greenByOwnGuess: boolean
   lookedUp: boolean
   redemption?: 'right' | 'wrong'
+  /** Wrap-up packing: the first translation attempt on this word missed. */
+  packingMissed?: boolean
 }

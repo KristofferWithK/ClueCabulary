@@ -9,7 +9,7 @@ import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
-const PORT = 4198
+const PORT = 4197
 const preview = await startPreview(PORT)
 
 const browser = await chromium.launch({

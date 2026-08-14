@@ -144,6 +144,42 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
   },
 }
 
+/**
+ * The wrap-up board: 4×5, every word already collected, dealt only by
+ * newWrapUpGame — deliberately NOT a GridSize. The union reaches settings,
+ * the Settings select and the backup PrefsSchema (whose enum hard-rejects
+ * unknown values), and the wrap-up round is a mode you enter, not a
+ * difficulty you keep.
+ *
+ * Ten greens a side and ten shared tokens is five clue-givings each — the
+ * shape this board was asked for. Sixteen distinct greens over ten tokens is
+ * 1.60 greens per clue, the beginner ratio, and that is deliberate: the
+ * packing phase (every card starts in English) is this round's added
+ * difficulty, so the clue economy stays forgiving. One forbidden word a side,
+ * bystander-cross like the learner boards.
+ *
+ * Measured over 3000 know-nothing games each (the selfplay harness's hash
+ * guesser): 6.4% of guesses on this board name a forbidden word and 20% of
+ * games end on one before the last chance — against 8.0% / 26% on the 3×5
+ * and 16.0% / 46% on standard's 4×5 with its three forbidden a side. The
+ * big board is only as harsh as its hazards, and this one carries two in
+ * twenty cards.
+ */
+export const WRAPUP_CONFIG: GridConfig = {
+  rows: 5,
+  cols: 4,
+  totalWords: 20,
+  greensPerSide: 10,
+  greenOverlap: 4, // 16 distinct greens
+  forbiddenPerSide: 1,
+  forbiddenBothSides: 0,
+  forbiddenVsGreen: 0,
+  forbiddenVsBystander: 1,
+  turnTokens: 10,
+  // Every word on a wrap-up board is collected; nothing is ever new.
+  maxNewWordsPerBoard: 0,
+}
+
 /** The largest number the clue stepper offers; a clue of N allows N+1 guesses. */
 export const MAX_CLUE_NUMBER = 4
 

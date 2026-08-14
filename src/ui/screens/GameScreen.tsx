@@ -9,6 +9,7 @@ import { BoardGrid } from '../components/BoardGrid'
 import { ClueInput } from '../components/ClueInput'
 import { DebriefPanel } from '../components/DebriefPanel'
 import { useOpenDictionary } from '../components/DictionarySheet'
+import { PackingDock } from '../components/PackingDock'
 import { TranslateBox } from '../components/TranslateBox'
 import { RedemptionView } from '../components/RedemptionView'
 import { TurnTokens } from '../components/TurnTokens'
@@ -26,6 +27,9 @@ const PHASE_CAPTION: Record<GameState['phase'], string> = {
 export function GameScreen() {
   const game = useGame((s) => s.game)
   const studying = useGame((s) => s.studying)
+  const mode = useGame((s) => s.mode)
+  const packed = useGame((s) => s.packed)
+  const packingDone = useGame((s) => s.packingDone)
   const { error, aiBusy, planForClueIndex, selectedWordId, clearError } = useGame()
   const practiceFallback = useGame((s) => s.practiceFallback)
   const fallBackToPractice = useGame((s) => s.fallBackToPractice)
@@ -33,10 +37,16 @@ export function GameScreen() {
   const { translationsOn, toggleTranslations, goTo } = useUi()
   const openDictionary = useOpenDictionary()
 
+  // The wrap-up packing phase: cards English-side up until translated.
+  const packing = mode === 'wrapup' && !packingDone
+  // Skipped cards keep their English face for the WHOLE round — the visible
+  // mark of "cannot wrap this time".
+  const englishFace = mode === 'wrapup' ? (id: string) => !packed.includes(id) : undefined
+
   // Drive the AI side of the loop off the game phase. Guards inside the store
   // actions make this safe under StrictMode double-invocation and reloads.
   useEffect(() => {
-    if (!game || studying) return // nobody plays until the board has been read
+    if (!game || studying || packing) return // nobody plays until the board has been read
     const s = useGame.getState()
     if (
       game.phase === 'aiGuessing' &&
@@ -48,7 +58,7 @@ export function GameScreen() {
     }
     if (game.phase === 'aiClueInput' && !s.aiBusy && !s.error) void s.runAiClue()
     if (game.phase === 'finished' && !s.roundRecorded) s.finishRound()
-  }, [game, studying, error, aiBusy, planForClueIndex])
+  }, [game, studying, packing, error, aiBusy, planForClueIndex])
 
   useEffect(() => {
     if (!game) goTo('home')
@@ -98,7 +108,7 @@ export function GameScreen() {
             given={game.clueHistory.length}
           />
           <p className="phase-caption" role="status">
-            {PHASE_CAPTION[game.phase]}
+            {packing ? 'Pack the board' : PHASE_CAPTION[game.phase]}
           </p>
         </div>
         <button
@@ -165,11 +175,17 @@ export function GameScreen() {
           <BoardGrid
             game={game}
             translationsOn={translationsOn || studying}
-            canGuess={!studying && (game.phase === 'playerGuessing' || game.phase === 'suddenDeath')}
+            canGuess={
+              !studying &&
+              !packing &&
+              (game.phase === 'playerGuessing' || game.phase === 'suddenDeath')
+            }
             selectedWordId={selectedWordId}
             onCardTap={(id) => useGame.getState().selectWord(id)}
             onInfoTap={openDictionary}
-            dictionaryLocked={false}
+            dictionaryLocked={packing}
+            englishFace={englishFace}
+            packingSelectable={packing}
           />
         </div>
       )}
@@ -218,14 +234,16 @@ export function GameScreen() {
         </div>
       )}
 
-      {!studying && game.phase === 'playerClueInput' && (
+      {packing && <PackingDock game={game} />}
+
+      {!studying && !packing && game.phase === 'playerClueInput' && (
         <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
       )}
-      {!studying && (game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
+      {!studying && !packing && (game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
         <AiTurnPanel game={game} />
       )}
-      {!studying && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
-      {!studying && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
+      {!studying && !packing && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
+      {!studying && !packing && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
       {game.phase === 'redemption' && (
         <RedemptionView game={game} onSubmit={(a) => useGame.getState().submitRedemption(a)} />
       )}

@@ -12,6 +12,7 @@ import {
   unlockedWords,
   wordsForCity,
 } from '../../journey/progress'
+import { WRAP_UP_UNLOCK, wrapUpUnlocked } from '../../journey/wrapup'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import { useSettings } from '../../stores/settingsStore'
@@ -120,6 +121,7 @@ export function HomeScreen() {
   const nextCity = atRoadsEnd ? null : cityAt(journey.cityIndex + 1)
   const journeyDone = isJourneyComplete(WORDS, journey.wrapped, journey.cityIndex)
   const travelReady = canTravel(WORDS, journey.wrapped, journey.cityIndex) && !atRoadsEnd
+  const wrapUpReady = wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
 
   const wotd = wordOfTheDay(journey.cityIndex)
   const daily = dailyChallenge()
@@ -212,6 +214,24 @@ export function HomeScreen() {
       ) : (
         <button className="btn btn-primary btn-big" onClick={() => play()}>
           <span lang="da">Spil videre</span>
+        </button>
+      )}
+
+      {!journeyDone && (!game || game.phase === 'finished') && (
+        <button
+          className="btn btn-gate"
+          disabled={!wrapUpReady}
+          onClick={() => {
+            useGame.getState().newWrapUpGame()
+            goTo('game')
+          }}
+        >
+          Wrap up words
+          <span className="gate-paper">
+            {wrapUpReady
+              ? `A ${WRAP_UP_UNLOCK}-word board from your collected words — they start in English`
+              : `Collect ${WRAP_UP_UNLOCK} words in ${city.name} to open wrap-up rounds`}
+          </span>
         </button>
       )}
 

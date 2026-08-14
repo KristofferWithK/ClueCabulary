@@ -9,15 +9,17 @@ import {
   buildDebriefView,
 } from '../ai/projections'
 import type { DebriefResponse, GuessResponse, TranslationResponse } from '../ai/schemas'
-import { GRID_CONFIGS, type GridConfig, type GridSize } from '../engine/config'
+import { GRID_CONFIGS, WRAPUP_CONFIG, type GridConfig, type GridSize } from '../engine/config'
 import { applyEvent, createGame, currentClue } from '../engine/game'
+import { matchesDanishAnswer } from '../engine/packing'
 import { mulberry32 } from '../engine/rng'
 import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
-import { WORDS, isKnownGloss } from '../data/words'
+import { WORDS, isDanishWord, isKnownGloss } from '../data/words'
 import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
+import { wrapUpBias, wrapUpWords } from '../journey/wrapup'
 import { useFeedback } from './feedbackStore'
 import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
@@ -56,6 +58,18 @@ interface GameStore {
   dailyKey: string | null
   /** Opening study phase: the whole board shown translated, before play. */
   studying: boolean
+  /**
+   * Wrap-up rounds deal from the city's collected words with every card
+   * English-side up; the packing phase below is how they turn over. All
+   * persisted: a wrap-up put down mid-packing resumes as itself.
+   */
+  mode: 'normal' | 'wrapup'
+  /** Word ids translated to Danish during packing — face-up, wrappable. */
+  packed: string[]
+  /** Words whose FIRST packing attempt missed (an SRS demotion each). */
+  packingMissed: string[]
+  /** Set when every card is packed, or the player starts early regardless. */
+  packingDone: boolean
   debrief: DebriefResponse | null
   debriefFailed: boolean
   /** Words this round pushed over the line into the collection's green. */
@@ -88,6 +102,22 @@ interface GameStore {
   fallBackToPractice: () => void
 
   newGame: (opts?: NewGameOptions) => void
+  /**
+   * A wrap-up round: WRAPUP_CONFIG, every word collected, nothing carried
+   * over or remembered by the normal deal (recentBoards is untouched in both
+   * directions — a carry-over quota could force uncollected words onto this
+   * board, and remembering it would distort the next normal one).
+   */
+  newWrapUpGame: (opts?: { seed?: number }) => void
+  /**
+   * Grade one packing attempt. A hit flips the card; the first miss on a word
+   * is recorded (SRS demotion at round end); retries are free — the gate
+   * teaches, the round tests. Returns whether the answer packed the word.
+   */
+  submitPacking: (wordId: string, text: string) => boolean
+  /** Start the clues with cards still unpacked — they stay English-side up
+   *  all round and cannot wrap this round, even revealed green. */
+  startRoundEarly: () => void
   /**
    * Throw this board away and deal another of the same size.
    *
@@ -256,6 +286,11 @@ const freshRound = () => ({
   error: null,
   selectedWordId: null,
   aiBusy: false,
+  // A normal round has nothing to pack; newWrapUpGame overrides all four.
+  mode: 'normal' as const,
+  packed: [] as string[],
+  packingMissed: [] as string[],
+  packingDone: true,
 })
 
 /**
@@ -279,6 +314,10 @@ export const useGame = create<GameStore>()(
       roundRecorded: false,
       dailyKey: null,
       studying: false,
+      mode: 'normal',
+      packed: [],
+      packingMissed: [],
+      packingDone: true,
       debrief: null,
       debriefFailed: false,
       newlyLearned: [],
@@ -314,8 +353,78 @@ export const useGame = create<GameStore>()(
         })
       },
 
+      newWrapUpGame: (opts) => {
+        const journey = useJourney.getState()
+        const seed = opts?.seed ?? useUi.getState().pendingSeed ?? Date.now() % 0xffffffff
+        const entries = wrapUpWords(
+          WORDS,
+          useSrs.getState().stats,
+          journey.wrapped,
+          journey.cityIndex,
+          mulberry32(seed ^ 0x9e3779b9),
+        )
+        // The CTA gates on wrapUpUnlocked; refusing here too keeps a stray
+        // call from dealing a board the mode's invariant does not hold on.
+        if (entries.length < WRAPUP_CONFIG.totalWords) return
+        const game = createGame({
+          config: WRAPUP_CONFIG,
+          words: entries.map((w) => ({
+            wordId: w.id,
+            da: w.da,
+            en: w.en,
+            pos: w.pos,
+            article: w.article,
+            gender: w.gender,
+            countable: w.countable,
+          })),
+          seed,
+          bias: wrapUpBias(entries, journey.wrapped),
+        })
+        useUi.getState().resetTranslations()
+        set({
+          game,
+          // recentBoards deliberately untouched: the carry-over rule is about
+          // normal boards, and a wrap-up board is neither read from it nor
+          // remembered by it.
+          dailyKey: null,
+          // Packing IS this round's study phase.
+          studying: false,
+          ...freshRound(),
+          mode: 'wrapup',
+          packingDone: false,
+        })
+      },
+
+      submitPacking: (wordId, text) => {
+        const { game, mode, packingDone, packed, packingMissed } = get()
+        if (!game || mode !== 'wrapup' || packingDone) return false
+        const word = game.words.find((w) => w.wordId === wordId)
+        if (!word || packed.includes(wordId)) return false
+        if (matchesDanishAnswer(text, word.da, isDanishWord)) {
+          const nextPacked = [...packed, wordId]
+          set({
+            packed: nextPacked,
+            // The last card packed opens the round by itself.
+            packingDone: nextPacked.length === game.words.length,
+          })
+          buzz('green')
+          return true
+        }
+        // The first miss is the honest signal; retries after reading the
+        // right shape of the word teach, but they must not erase it.
+        if (!packingMissed.includes(wordId)) set({ packingMissed: [...packingMissed, wordId] })
+        buzz('bystander')
+        return false
+      },
+
+      startRoundEarly: () => {
+        const { game, mode } = get()
+        if (!game || mode !== 'wrapup') return
+        set({ packingDone: true })
+      },
+
       rerollBoard: () => {
-        const { game, dailyKey } = get()
+        const { game, dailyKey, mode, packed, packingMissed } = get()
         if (!game) return
         // Only at the beginning. Once a clue is on the table the round has a
         // history — tokens spent, words revealed, an SRS result owed — and
@@ -324,6 +433,40 @@ export const useGame = create<GameStore>()(
         if (game.clueHistory.length > 0) return
         // One shared board per date. A rerolled daily is nobody's board.
         if (dailyKey) return
+        // A wrap-up rerolls only before the first packing ATTEMPT, hit or
+        // miss: a miss is an SRS demotion owed, and re-dealing under it would
+        // be a way to unsee it — the same reasoning as the clue rule above.
+        if (mode === 'wrapup') {
+          if (packed.length > 0 || packingMissed.length > 0) return
+          const journey = useJourney.getState()
+          const rejected = new Set(game.words.map((w) => w.wordId))
+          const entries = wrapUpWords(
+            WORDS,
+            useSrs.getState().stats,
+            journey.wrapped,
+            journey.cityIndex,
+            mulberry32(nextSeed(game.seed) ^ 0x9e3779b9),
+            rejected,
+          )
+          if (entries.length < WRAPUP_CONFIG.totalWords) return
+          const next = createGame({
+            config: WRAPUP_CONFIG,
+            words: entries.map((w) => ({
+              wordId: w.id,
+              da: w.da,
+              en: w.en,
+              pos: w.pos,
+              article: w.article,
+              gender: w.gender,
+              countable: w.countable,
+            })),
+            seed: nextSeed(game.seed),
+            bias: wrapUpBias(entries, journey.wrapped),
+          })
+          useUi.getState().resetTranslations()
+          set({ game: next, ...freshRound(), mode: 'wrapup', packingDone: false })
+          return
+        }
 
         // REPLACE the head of recentBoards rather than push onto it. What the
         // carry-over rule is about is the board the player actually played, and
@@ -376,20 +519,9 @@ export const useGame = create<GameStore>()(
         useUi.getState().resetTranslations()
         set({
           game: null,
-          lookedUp: [],
-          roundRecorded: false,
           dailyKey: null,
           studying: false,
-          debrief: null,
-          debriefFailed: false,
-          newlyLearned: [],
-          redemptionDraft: {},
-          practiceFallback: false,
-          aiGuessQueue: [],
-          planForClueIndex: null,
-          lastAiGuess: null,
-          error: null,
-          selectedWordId: null,
+          ...freshRound(),
         })
       },
 
@@ -442,8 +574,11 @@ export const useGame = create<GameStore>()(
       },
 
       recordLookup: (wordId) => {
-        const { game, lookedUp, studying } = get()
+        const { game, lookedUp, studying, mode, packingDone } = get()
         if (!game || game.phase === 'redemption') return
+        // The packing phase IS "type the Danish with no dictionary" — an open
+        // dictionary during it would be the answer key.
+        if (mode === 'wrapup' && !packingDone) return
         // The opening study phase shows every translation anyway, so a tap
         // during it reveals nothing and must not spend the round's credit —
         // which is what Settings promises. Guarded here, not at the call site,
@@ -453,18 +588,20 @@ export const useGame = create<GameStore>()(
       },
 
       noteLookup: (term) => {
-        const { game } = get()
+        const { game, mode, packingDone } = get()
         if (!game || game.phase === 'redemption') return
+        if (mode === 'wrapup' && !packingDone) return
         const hit = boardWordFor(term, game.words.map((w) => w.wordId))
         if (hit) get().recordLookup(hit)
       },
 
       translate: async (term) => {
-        const { game, practiceFallback } = get()
-        // The redemption challenge IS "translate the board with no dictionary".
-        // A translate field open during it would not be a feature, it would be
-        // the answer key.
-        if (game?.phase === 'redemption') {
+        const { game, practiceFallback, mode, packingDone } = get()
+        // The redemption challenge IS "translate the board with no dictionary",
+        // and the packing phase is the same bargain in the other direction. A
+        // translate field open during either would not be a feature, it would
+        // be the answer key.
+        if (game?.phase === 'redemption' || (game && mode === 'wrapup' && !packingDone)) {
           throw new AiError('invalid-response', 'The dictionary is closed until this is finished.')
         }
         const result = await companion(practiceFallback).translate(term)
@@ -601,7 +738,7 @@ export const useGame = create<GameStore>()(
       },
 
       finishRound: () => {
-        const { game, lookedUp, roundRecorded } = get()
+        const { game, lookedUp, roundRecorded, mode, packed, packingMissed } = get()
         if (!game || game.phase !== 'finished' || roundRecorded) return
         const redemptionByWord = new Map(
           (game.redemption?.results ?? []).map((r) => [r.wordId, r.accepted]),
@@ -642,9 +779,20 @@ export const useGame = create<GameStore>()(
             greenByOwnGuess,
             lookedUp: lookedUp.includes(w.wordId),
             redemption,
+            ...(mode === 'wrapup' ? { packingMissed: packingMissed.includes(w.wordId) } : {}),
           }
         })
         const finishedAt = Date.now()
+        // The point of a wrap-up: every word that was PACKED (translated, not
+        // skipped) and ended the round green goes into the suitcase for good.
+        // The outcome beyond the reveals is irrelevant — what you packed stays
+        // packed, win or lose.
+        if (mode === 'wrapup') {
+          const toWrap = game.words
+            .filter((w) => packed.includes(w.wordId) && game.reveals[w.wordId]!.kind === 'green')
+            .map((w) => w.wordId)
+          if (toWrap.length > 0) useJourney.getState().wrapWords(toWrap, finishedAt)
+        }
         // Collecting a word is the loop's atomic reward, and it happens inside
         // recordRound where nothing can see it. Straddle the call so the round
         // can tell the player what it earned them. (The persisted field keeps
@@ -684,17 +832,30 @@ export const useGame = create<GameStore>()(
     }),
     {
       name: 'cluecab-game-v1',
-      version: 2,
+      version: 3,
       /**
        * v1 remembered one board under `lastBoard`. Without this the upgrade
        * would silently lose it — harmless (one board deals without a carry-over
        * quota) but avoidable, and an installed PWA updates under the player
        * rather than at a moment they chose.
+       *
+       * v2 -> v3: the wrap-up fields. An in-flight round from the old build is
+       * by definition a normal one with nothing to pack, and resumes as such.
        */
       migrate: (persisted, from) => {
-        if (from >= 2) return persisted
-        const { lastBoard, ...rest } = (persisted ?? {}) as { lastBoard?: string[] }
-        return { ...rest, recentBoards: lastBoard?.length ? [lastBoard] : [] }
+        if (from >= 3) return persisted
+        let p = persisted
+        if (from < 2) {
+          const { lastBoard, ...rest } = (p ?? {}) as { lastBoard?: string[] }
+          p = { ...rest, recentBoards: lastBoard?.length ? [lastBoard] : [] }
+        }
+        return {
+          ...(p as Record<string, unknown>),
+          mode: 'normal',
+          packed: [],
+          packingMissed: [],
+          packingDone: true,
+        }
       },
       partialize: (s) => ({
         game: s.game,
@@ -703,6 +864,10 @@ export const useGame = create<GameStore>()(
         roundRecorded: s.roundRecorded,
         dailyKey: s.dailyKey,
         studying: s.studying,
+        mode: s.mode,
+        packed: s.packed,
+        packingMissed: s.packingMissed,
+        packingDone: s.packingDone,
         debrief: s.debrief,
         debriefFailed: s.debriefFailed,
         newlyLearned: s.newlyLearned,

@@ -1208,6 +1208,40 @@ select:focus {
   line-height: 1.45;
 }
 
+/* ---------- wrap-up packing ---------- */
+
+/* A card still English-side up: paper-coloured, the face to turn over. The
+   gloss keeps the Danish word's slot and sizing so the board holds its shape
+   as cards flip. */
+.card-face-en {
+  background: var(--beige);
+  border-color: var(--beige-deep);
+}
+
+.card-word-en {
+  font-style: italic;
+  color: var(--text);
+}
+
+.packing-dock {
+  border: 1px solid var(--text);
+  background: var(--bg);
+}
+
+.packing-prompt {
+  font-size: 0.95rem;
+}
+
+.packing-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.packing-miss {
+  color: var(--red);
+  font-size: 0.85rem;
+}
+
 .key-legend {
   text-align: center;
   font-size: 0.75rem;

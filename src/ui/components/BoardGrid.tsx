@@ -10,8 +10,16 @@ interface Props {
   selectedWordId: string | null
   onCardTap: (wordId: string) => void
   onInfoTap: (wordId: string) => void
-  /** Dictionary access is locked during redemption. */
+  /** Dictionary access is locked during redemption and wrap-up packing. */
   dictionaryLocked: boolean
+  /**
+   * Wrap-up rounds: which cards are still English-side up. An unpacked card
+   * shows its gloss where the Danish goes — for the whole round, if it was
+   * skipped: the English face is the visible mark of "cannot wrap this time".
+   */
+  englishFace?: (wordId: string) => boolean
+  /** Packing phase: unpacked cards are tappable to select for packing. */
+  packingSelectable?: boolean
 }
 
 const revealKind = (game: GameState, wordId: string): string => {
@@ -44,6 +52,8 @@ export function BoardGrid({
   onCardTap,
   onInfoTap,
   dictionaryLocked,
+  englishFace,
+  packingSelectable,
 }: Props) {
   return (
     <div
@@ -59,9 +69,11 @@ export function BoardGrid({
         // still in play (hidden, or neutral in only one direction) you need to
         // see it to give clues.
         const showKey = reveal.kind === 'hidden' || reveal.kind === 'bystander'
+        const faceDown = englishFace?.(w.wordId) ?? false
+        const packable = (packingSelectable ?? false) && faceDown
         // Outside your guessing turn a tap has nothing else to do, so let the
         // whole card open the dictionary rather than hiding that behind ⓘ.
-        const tapLooksUp = !guessable && !dictionaryLocked
+        const tapLooksUp = !guessable && !packable && !dictionaryLocked
 
         return (
           <div key={w.wordId} className={`word-card-wrap wrap-${kind}`}>
@@ -81,14 +93,19 @@ export function BoardGrid({
                   : '',
                 selectedWordId === w.wordId ? 'card-selected' : '',
                 showKey ? `mykey-${myRole}` : '',
+                faceDown ? 'card-face-en' : '',
               ].join(' ')}
-              disabled={!guessable && !tapLooksUp}
-              aria-label={`${genderLabel(w) ? `${genderLabel(w)} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
-                tapLooksUp ? '. Tap to look up' : ''
-              }`}
+              disabled={!guessable && !tapLooksUp && !packable}
+              aria-label={
+                faceDown
+                  ? `${w.en[0]}${packable ? ', not yet packed. Tap to type the Danish' : ', unpacked'}${stateText(reveal)}`
+                  : `${genderLabel(w) ? `${genderLabel(w)} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
+                      tapLooksUp ? '. Tap to look up' : ''
+                    }`
+              }
               aria-pressed={selectedWordId === w.wordId}
               onClick={() => {
-                if (guessable) onCardTap(w.wordId)
+                if (guessable || packable) onCardTap(w.wordId)
                 else if (tapLooksUp) onInfoTap(w.wordId)
               }}
             >
@@ -107,13 +124,22 @@ export function BoardGrid({
                   none is clipped — the article is small, the strip's old
                   padding came back when the key dot went, and the word is now
                   sized off the card rather than the viewport. */}
-              <span className="card-da" lang="da">
-                {articleLabel(w) && <span className="card-article">{articleLabel(w)}</span>}
-                {/* The Danish word alone, so a selector can still ask for it
-                    without the article coming along in the text. */}
-                <span className="card-word">{w.da}</span>
-              </span>
-              {(translationsOn || reveal.kind === 'green') && (
+              {faceDown ? (
+                // The English face: what a card looks like before it is packed.
+                // Same slot and sizing as the Danish, so the board keeps its
+                // shape as cards flip.
+                <span className="card-da">
+                  <span className="card-word card-word-en">{w.en[0]}</span>
+                </span>
+              ) : (
+                <span className="card-da" lang="da">
+                  {articleLabel(w) && <span className="card-article">{articleLabel(w)}</span>}
+                  {/* The Danish word alone, so a selector can still ask for it
+                      without the article coming along in the text. */}
+                  <span className="card-word">{w.da}</span>
+                </span>
+              )}
+              {!faceDown && (translationsOn || reveal.kind === 'green') && (
                 <span className="card-en">{w.en[0]}</span>
               )}
               {reveal.kind === 'bystander' && (

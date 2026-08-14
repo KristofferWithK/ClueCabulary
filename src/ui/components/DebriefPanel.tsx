@@ -106,12 +106,21 @@ function FlagButton({
 
 export function DebriefPanel({ game }: { game: GameState }) {
   const { debrief, debriefFailed, aiBusy, newGame, newlyLearned } = useGame()
+  const mode = useGame((s) => s.mode)
+  const packed = useGame((s) => s.packed)
   const goTo = useUi((s) => s.goTo)
   const cityIndex = useJourney((s) => s.cityIndex)
   const wrapped = useJourney((s) => s.wrapped)
   const srs = useSrs((s) => s.stats)
   const cityCounts = countCollection(wordsForCity(WORDS, cityIndex), srs, wrapped)
   const cityCollected = cityCounts.collected + cityCounts.wrapped
+  // What a wrap-up round banked: packed AND found green, mirror of finishRound.
+  const wrappedWords =
+    mode === 'wrapup'
+      ? game.words.filter(
+          (w) => packed.includes(w.wordId) && game.reveals[w.wordId]?.kind === 'green',
+        )
+      : []
   const outcome = game.outcome!
   const copy = OUTCOME_COPY[`${outcome.result}:${outcome.reason}` as OutcomeKey]
   const aiClues = game.clueHistory.filter((c) => c.by === 'ai' && c.rationale)
@@ -140,6 +149,37 @@ export function DebriefPanel({ game }: { game: GameState }) {
           </p>
         )}
       </div>
+
+      {/* The point of a wrap-up round: what went into the suitcase for good.
+          Shown either way — a lost round keeps every word it wrapped. */}
+      {mode === 'wrapup' && (
+        <section className="debrief-section collected-section">
+          <h3>Wrapped and packed</h3>
+          {wrappedWords.length > 0 ? (
+            <>
+              <ul className="collected-words">
+                {wrappedWords.map((w) => (
+                  <li key={w.wordId} className="collected-word">
+                    <span className="collected-mark" aria-hidden="true">
+                      ●
+                    </span>
+                    <span lang="da">{w.da}</span>
+                    <span className="collected-en">{w.en[0]}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="collected-note">
+                {wrappedWords.length === 1 ? 'One word' : `${wrappedWords.length} words`} wrapped —{' '}
+                {cityCounts.wrapped} of {WORDS_PER_CITY} packed in {cityAt(cityIndex).name}.
+              </p>
+            </>
+          ) : (
+            <p className="collected-note">
+              Nothing wrapped this time — a word is packed when it was translated AND found green.
+            </p>
+          )}
+        </section>
+      )}
 
       {/* The point of the round. A loss can still green a word, so this is
           shown either way — and it is the only place the collection speaks. */}

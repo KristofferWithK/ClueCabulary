@@ -54,8 +54,12 @@ export function applyRoundResults(map: SrsMap, results: RoundWordResult[], now: 
     if (r.lookedUp) s.lookups += 1
     if (r.redemption === 'right') s.redemptionRight += 1
     if (r.redemption === 'wrong') s.redemptionWrong += 1
+    if (r.packingMissed) s.misses += 1
 
-    const demote = r.guessedWrong || r.redemption === 'wrong'
+    // A packing miss demotes and never promotes: getting the word right on
+    // the second try proves the first look told you the answer, same as a
+    // lookup netting out a green.
+    const demote = r.guessedWrong || r.redemption === 'wrong' || r.packingMissed === true
     const promote = (r.guessedGreen && !r.lookedUp) || r.redemption === 'right'
     if (demote) s.box = clampBox(s.box - 1)
     else if (promote) s.box = clampBox(s.box + 1)

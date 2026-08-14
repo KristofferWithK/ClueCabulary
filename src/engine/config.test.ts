@@ -3,6 +3,7 @@ import {
   GRID_CONFIGS,
   MAX_CLUE_NUMBER,
   REDEMPTION_AFTER_ROUND,
+  WRAPUP_CONFIG,
   assertConfigConsistent,
   distinctGreens,
   type GridConfig,
@@ -13,6 +14,22 @@ import type { BoardWord } from './types'
 describe('the shipped boards', () => {
   it('are internally consistent', () => {
     for (const c of Object.values(GRID_CONFIGS)) assertConfigConsistent(c)
+    assertConfigConsistent(WRAPUP_CONFIG)
+  })
+
+  /**
+   * The wrap-up board's shape, pinned like the others: five clue-givings a
+   * side, sixteen distinct greens over ten shared tokens = the beginner ratio.
+   * The packing phase is the round's added difficulty, so the clue economy is
+   * deliberately the forgiving one — and its know-nothing forbidden floor was
+   * measured (config.ts) at 6.4% of guesses against standard 4x5's 16.0%.
+   */
+  it('give the wrap-up board the beginner ratio on the big grid', () => {
+    expect(WRAPUP_CONFIG.turnTokens).toBe(10)
+    expect(distinctGreens(WRAPUP_CONFIG)).toBe(16)
+    expect(+(distinctGreens(WRAPUP_CONFIG) / WRAPUP_CONFIG.turnTokens).toFixed(2)).toBe(1.6)
+    // Nothing on a wrap-up board is ever new — the pool is collected words.
+    expect(WRAPUP_CONFIG.maxNewWordsPerBoard).toBe(0)
   })
 
   /**
