@@ -31,7 +31,7 @@ const WORDS = JSON.parse(readFileSync(new URL('../src/data/words.da.json', impor
 const longest = WORDS.filter((w) => w.article).sort((a, b) => b.da.length - a.da.length)[0]
 
 const browser = await chromium.launch({
-  executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
 })
 // 360px is the narrowest phone the layout claims to support; a 4-wide board
 // there gives each card 76 CSS pixels and the word inside it 64, which is
