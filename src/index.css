@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #ffffff;
   /* Collection greys: 'discovered' is grey everywhere, never the board's beige. */
   --grey-tile: #9a9da1;
@@ -8,7 +8,7 @@
   --line-soft: #e6e6e6;
   --text: #121212;
   --text-dim: #6e6e6e;
-  --green: #6aaa64; /* decorative only — fails 4.5:1 with white text */
+  --green: #6aaa64; /* decorative only â€” fails 4.5:1 with white text */
   --green-tile: #4e8449; /* dark enough for white tile text (~4.6:1) */
   --green-deep: #3a7a34; /* green text on white surfaces */
   --green-soft: #eaf3e9;
@@ -88,20 +88,20 @@ select:focus {
 .app-shell {
   max-width: 480px;
   margin: 0 auto;
-  /* 100% of the body's content box — the body's safe-area padding is already
+  /* 100% of the body's content box â€” the body's safe-area padding is already
      subtracted; 100dvh here would double-count the notch insets and force a
      permanent overflow scroll in standalone mode. `height`, not `min-height`:
      screens are built to FIT the phone now, and a shell that grows with its
      content would let an overflowing screen scroll instead of failing the
      drive that measures it. Deliberately no overflow:hidden anywhere on the
-     shell — clipping would make document.scrollingElement.scrollHeight lie,
+     shell â€” clipping would make document.scrollingElement.scrollHeight lie,
      and the honest wiring is exact-fit columns whose overflow becomes the
      scroll the layout drive catches. */
   height: 100%;
   display: flex;
   flex-direction: column;
   /* The containing block for every absolutely-positioned descendant that
-     names no other — the visually-hidden file input in Settings used to
+     names no other â€” the visually-hidden file input in Settings used to
      resolve against <html> itself, parking a 1px box 2400px down and handing
      the document a scrollbar no visible element asked for. */
   position: relative;
@@ -227,7 +227,7 @@ select:focus {
 }
 
 .home-progress::before {
-  content: '● ';
+  content: 'â— ';
   color: var(--green-deep);
 }
 
@@ -280,7 +280,7 @@ select:focus {
   font-size: 0.85rem;
 }
 
-/* The board «Spil videre» deals. Marked by a second border rather than a
+/* The board Â«Spil videreÂ» deals. Marked by a second border rather than a
    colour, so it reads the same to anyone who cannot tell the two apart. */
 .grid-card-current {
   border-color: var(--text);
@@ -506,7 +506,7 @@ select:focus {
   background: var(--green-tile);
 }
 
-/* Keys the grey tiles and the grey bar segment, so it has to be the same grey —
+/* Keys the grey tiles and the grey bar segment, so it has to be the same grey â€”
    and never the board's beige, which the tutorial teaches as a spent turn. */
 .swatch-discovered {
   background: var(--grey-soft);
@@ -1100,7 +1100,7 @@ select:focus {
   position: relative;
   width: 100%;
   /* The shape a card wants; max-height lets the row overrule it on short
-     phones — cards go flatter, never clipped, and cqw font sizing is off the
+     phones â€” cards go flatter, never clipped, and cqw font sizing is off the
      width so the word is unaffected. */
   aspect-ratio: 5 / 4;
   max-height: 100%;
@@ -1108,7 +1108,7 @@ select:focus {
      padding box with a 3px key border on both edges still clears. */
   min-height: 44px;
   align-self: center;
-  /* The word is sized off the CARD, not the viewport — see .card-da. */
+  /* The word is sized off the CARD, not the viewport â€” see .card-da. */
   container-type: size;
   border-radius: 8px;
   background: var(--bg);
@@ -1118,10 +1118,10 @@ select:focus {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  /* Top padding reserves the strip the key mark and the ⓘ live in, so the word
+  /* Top padding reserves the strip the key mark and the â“˜ live in, so the word
      is never drawn underneath either of them. */
-  /* The top strip used to reserve room for a key dot as well as ⓘ; the dot
-     is gone, and the room came back to the word — which is what pays for the
+  /* The top strip used to reserve room for a key dot as well as â“˜; the dot
+     is gone, and the room came back to the word â€” which is what pays for the
      article now sitting in front of it. */
   padding: 11px 4px 2px;
   overflow: hidden;
@@ -1132,7 +1132,7 @@ select:focus {
   font-weight: 700;
   /* Sized off the card rather than the viewport. At 4vw every board got the
      same 14.4px word, but a 4-wide card is a quarter narrower than a 3-wide
-     one — so the standard board was breaking seven-letter words with a single
+     one â€” so the standard board was breaking seven-letter words with a single
      letter left over ("smert/e", "levend/e") while the beginner board had
      room to spare. In cqw the word shrinks only where the card is tight: 12.8px
      on a 4-wide 360px board, and clamped up to 16px on the 3-wide ones, which
@@ -1152,7 +1152,7 @@ select:focus {
    Inline it is not free. On a 4-wide board at 360px the word has 64px and
    this takes about 13 of them, so 71 of the 430 nouns in the set gain a
    second line. Measured across all of them, none is clipped. Demoted three
-   ways — smaller, lighter, greyer — so it reads at a glance without being
+   ways â€” smaller, lighter, greyer â€” so it reads at a glance without being
    what the eye lands on when scanning twelve cards for a match. The gap is
    sized in rem off the WORD, not in em off the article, or it comes out
    narrower than a real word space and reads as "ethus". */
@@ -1160,7 +1160,7 @@ select:focus {
   font-size: 0.5rem;
   font-weight: 500;
   line-height: 1;
-  /* Set against the darkest ground it sits on — --beige on a bystander tile,
+  /* Set against the darkest ground it sits on â€” --beige on a bystander tile,
      not the white card: 5.18:1 there, 6.9:1 on white. */
   color: #5a5a5a;
   margin-right: 0.2rem;
@@ -1193,7 +1193,7 @@ select:focus {
 @container (max-height: 46px) {
   .card-da {
     /* Two lines of the dataset's longest noun inside a floored card that is
-       also paying a 3px key border on both edges — measured, not estimated. */
+       also paying a 3px key border on both edges â€” measured, not estimated. */
     font-size: clamp(0.62rem, 16cqw, 0.72rem);
     line-height: 1;
   }
@@ -1296,7 +1296,7 @@ select:focus {
 }
 
 /* Miniatures of the card border itself, since that is what the board draws.
-   The legend used to show a ● and a ✖ that no longer exist anywhere on it. */
+   The legend used to show a â— and a âœ– that no longer exist anywhere on it. */
 .legend-swatch {
   display: inline-block;
   width: 15px;
@@ -1410,216 +1410,6 @@ select:focus {
   gap: 8px;
 }
 
-/* ---- the composer: two fields, one line ----
-
-   A clue is one short word, so the field does not need a row of its own — and
-   the word you are hunting for goes in the field beside it. Two lines of
-   composer instead of five is what makes it sit ON the keyboard: the shorter
-   it is, the less of the board it covers, and the less there is to move. */
-.composer-fields {
-  display: flex;
-  gap: 8px;
-  align-items: start;
-}
-
-.composer-fields > * {
-  /* Equal halves that may both shrink: min-width auto would let a long
-     dictionary answer widen its column and squeeze the clue field. */
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.composer-field {
-  display: flex;
-  flex-direction: column;
-}
-
-.composer-label {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px;
-  font-size: 0.62rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 3px;
-  min-height: 14px;
-}
-
-/* A small inline action on a label line — re-dealing the board, or sending the
-   word you just typed to the dictionary. Small enough to ride the line, still
-   a real tap target via padding. Named for the shape rather than either job,
-   because it does both. */
-.composer-link {
-  font-size: 0.68rem;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--green-deep);
-  text-decoration: underline;
-  padding: 4px 0;
-  white-space: nowrap;
-}
-
-.composer-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.composer-actions .btn-primary {
-  flex: 1;
-}
-
-.composer-actions .stepper {
-  flex: none;
-}
-
-/* The dictionary's answers hang under its own field, where the eye already
-   is, rather than pushing the send button down a line. */
-.composer-fields .translate-box {
-  display: flex;
-  flex-direction: column;
-}
-
-.composer-fields .translate-hits {
-  margin-top: 4px;
-  font-size: 0.72rem;
-}
-
-/* ---- typing, with a keyboard in the way ----
-
-   How much of the viewport the keyboard covers, published by
-   src/ui/keyboard.ts. Zero whenever there is no keyboard, which is every
-   desktop and every drive, so nothing below does anything until someone types
-   on a phone. */
-:root {
-  --kb: 0px;
-}
-
-/* Messenger behaviour, third design, and the reasoning matters because the
-   first two lost:
-
-   A transform on the in-flow dock lost to Safari scrolling the document to
-   reveal the input before any style applied. Plain position:fixed lost to the
-   iOS visual-viewport PAN: fixed anchors to the layout viewport, the pan moves
-   that under the keyboard, and a fixed bar slides away with it — plus, in an
-   installed PWA the whole webview resizes, so the exact-fit shell reflowed and
-   the board rearranged.
-
-   So, three defences, one per failure mode (see src/ui/keyboard.ts):
-
-   - The focused dock pins to the VISUAL viewport — top: (--vvt + --vvh), i.e.
-     the keyboard's actual top edge wherever the pan puts it — and rides along.
-   - The shell freezes at its keyboard-closed height (--app-h), so the webview
-     shrinking cannot reflow the board. The covered part sits under the
-     keyboard, which is the design: the grid never changes, it only gets
-     overlapped.
-   - Scrolling is locked while the keyboard is up, and the lifted dock leaves a
-     placeholder its own height behind (--dock-h), so the board neither scrolls
-     nor grows into the vacated space. The grid is bit-identical throughout —
-     asserted by layout-drive against the board's bounding boxes. */
-.kb-open,
-.kb-open body {
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
-.kb-open .app-shell {
-  height: var(--app-h, 100%);
-}
-
-/* The dock used to leave a placeholder its own height behind, so the flex
-   column kept its shape when the dock left the flow. The backdrop makes that
-   unnecessary — the board is not on screen to reshape — and a measured
-   placeholder that is even slightly off is a reflow of its own. Removed: what
-   matters is that the board comes back identical, which the layout drive
-   asserts before and after. */
-
-/* The composer goes to the TOP, and that is the entire idea.
-
-   Every version before this one placed it just above the keyboard, which
-   means its position depended on the keyboard's height — a number the web
-   only learns after the keyboard has already moved. That dependency is what
-   produced all three failures: a guess that lands too low leaves the field in
-   the strip iOS wants to reveal, so iOS pans the page; a guess corrected
-   afterwards arrives a frame late, so the bar lags behind the keyboard.
-
-   Pinned to the top, the position depends on nothing. There is no keyboard at
-   the top of the screen, so iOS has no reason to pan; there is no height to
-   learn, so there is nothing to arrive late. The keyboard covers the bottom of
-   a screen the composer is not on. */
-/* .composing, not :focus-within: the dock has to be at the top BEFORE the
-   field takes focus, and at that instant nothing inside it is focused yet.
-   Keying the lift on focus meant the backdrop appeared while the composer was
-   still at the bottom — covering the very input the tap was aimed at, so the
-   focus never landed and the screen went white. */
-.kb-open .dock.composing {
-  position: fixed;
-  left: 50%;
-  top: calc(env(safe-area-inset-top) + 10px);
-  transform: translateX(-50%);
-  /* The shell is 480px at most with 16px padding a side: the same width the
-     dock had in flow, so lifting must not appear to resize it. */
-  width: min(calc(100% - 20px), 452px);
-  /* Its own scroll before it ever pushes the page, if a lookup answers with
-     more than the space between it and the keyboard. */
-  max-height: calc(var(--vvh, 100vh) - 20px);
-  overflow-y: auto;
-  z-index: 60;
-  margin: 0;
-  box-shadow: 0 4px 26px rgba(18, 18, 18, 0.14);
-}
-
-/* Paper over the board while composing.
-
-   Not decoration: it is what makes the promise keepable. A board that cannot
-   be seen cannot be seen to move, so whatever iOS does with the viewport
-   underneath is invisible and irrelevant. It is also honest about what is
-   happening — the board is not gone, it is behind this, and it comes back
-   untouched the moment the keyboard does. */
-.composer-backdrop {
-  display: none;
-}
-
-.kb-open .composer-backdrop {
-  display: block;
-  position: fixed;
-  inset: 0;
-  background: var(--bg);
-  z-index: 55;
-}
-
-/* The words you are cluing FOR, which is what the board was being consulted
-   about anyway — so the space between the composer and the keyboard says
-   something useful instead of sitting empty. Your own key, already visible as
-   green borders on the board; nothing new is revealed. */
-.composer-targets {
-  display: none;
-}
-
-.kb-open .dock.composing .composer-targets {
-  display: block;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line-soft);
-  font-size: 0.82rem;
-  line-height: 1.6;
-  color: var(--text-dim);
-}
-
-.composer-targets b {
-  color: var(--text);
-  font-weight: 700;
-}
-
-/* What happened last turn is context for choosing a clue, not for typing one.
-   Once the keyboard is up it is a line of height spent on something already
-   read — and height is exactly what the lifted composer cannot spare. */
-.kb-open .dock.composing .last-turn {
-  display: none;
-}
-
 .dock-title {
   line-height: 1.35;
   font-size: 0.92rem;
@@ -1673,7 +1463,7 @@ select:focus {
 }
 
 /* One line, always. It is a recap, and a recap that wraps to two lines takes
-   its height from the board and moves everything under it — on a long clue
+   its height from the board and moves everything under it â€” on a long clue
    with three guessed words it wrapped every time. Truncated with an ellipsis
    instead: the words nearest the start are the clue itself, which is the part
    worth reading, and the full sentence is in the debrief afterwards. */
@@ -1708,7 +1498,7 @@ select:focus {
 }
 
 .dots::after {
-  content: '●●●';
+  content: 'â—â—â—';
   letter-spacing: 3px;
   animation: pulse 1.2s infinite;
 }
@@ -2004,7 +1794,7 @@ select:focus {
 }
 
 .takeaways li::before {
-  content: '→';
+  content: 'â†’';
   position: absolute;
   left: 0;
   color: var(--green-deep);
@@ -2041,7 +1831,7 @@ select:focus {
 }
 
 /* One tap to mark a bad call, on the row it belongs to. Sized for a thumb
-   rather than for the text it sits beside — 44px of target under a 0.9rem
+   rather than for the text it sits beside â€” 44px of target under a 0.9rem
    glyph, which is why the padding is negative-margined back out. */
 .flag-btn {
   font-size: 0.95rem;
@@ -2065,7 +1855,7 @@ select:focus {
 }
 
 /* The turn log: what was said, and why. Replaces .clue-log, whose one-line
-   «mad ✓  hus ·» strip said what happened and never why. */
+   Â«mad âœ“  hus Â·Â» strip said what happened and never why. */
 .turn-log {
   list-style: none;
   display: flex;
@@ -2254,7 +2044,7 @@ select:focus {
   align-items: center;
   gap: 12px;
   /* Installed on a phone there is no browser chrome, so a scrolled page draws
-     straight under the status bar — the back button and the title end up
+     straight under the status bar â€” the back button and the title end up
      behind the clock. Pin the header and give it its own inset and an opaque
      background, so it covers the content instead of the clock covering it. */
   position: sticky;
@@ -2454,7 +2244,7 @@ select:focus {
   .confetti-piece,
   /* Cluey's life, all of it. This list is an allowlist rather than a wildcard,
      so anything animated and not named here keeps moving for someone who asked
-     for stillness — which is the easy mistake to make when adding a face. */
+     for stillness â€” which is the easy mistake to make when adding a face. */
   .cluey-figure,
   .cluey-eye-g,
   .cluey-pupil {
@@ -2567,7 +2357,7 @@ select:focus {
 
    A neutral ends the turn of whoever hit it, but stays guessable for the other
    side. The directional gradients alone sit at ~1.35:1 against white, which is
-   invisible on a phone — so during your guessing turn, say which is which.  */
+   invisible on a phone â€” so during your guessing turn, say which is which.  */
 
 .card-still-live {
   border-color: var(--text);
@@ -2578,7 +2368,7 @@ select:focus {
   opacity: 0.35;
 }
 
-/* A spent card is still an enabled button — tapping it opens the dictionary —
+/* A spent card is still an enabled button â€” tapping it opens the dictionary â€”
    so it cannot be dimmed with opacity: that dropped its Danish to 4.0:1 and its
    gloss to 2.1:1. "Spent" is carried by the strike-through, the flat fill and
    the card's accessible name instead. */
@@ -2679,7 +2469,7 @@ select:focus {
   left: 12px;
   right: 12px;
   /* Top, not bottom: Home anchors its primary action to the bottom edge now,
-     and a bottom banner sat exactly on top of Play — measured by a drive
+     and a bottom banner sat exactly on top of Play â€” measured by a drive
      whose click it swallowed. And click-through except for its own buttons,
      because up here it overlays headers and back arrows instead: a toast
      must never eat a tap aimed at what it happens to float over. */
@@ -3241,7 +3031,7 @@ select:focus {
 }
 
 .suitcase-open::before {
-  /* The handle — the one flourish the pencil pass will inherit. */
+  /* The handle â€” the one flourish the pencil pass will inherit. */
   content: '';
   position: absolute;
   top: -12px;
@@ -3604,7 +3394,7 @@ select:focus {
 
 /* ================= the pencil pass =================
 
-   Everything the app draws now reads as drawn — by hand, in pencil, on paper —
+   Everything the app draws now reads as drawn â€” by hand, in pencil, on paper â€”
    without a single new asset, font or image. Three techniques, chosen for what
    they cost rather than for how they look in isolation:
 
@@ -3614,7 +3404,7 @@ select:focus {
 
    2. WOBBLED EDGES, on chrome only. A displacement filter on a border drawn in
       a pseudo-element, so the wobble never touches text. Reserved for things
-      there are a handful of — docks, panels, buttons, Cluey — never the board.
+      there are a handful of â€” docks, panels, buttons, Cluey â€” never the board.
 
    3. THE BOARD, WITHOUT FILTERS. Twenty cards each running a displacement map,
       re-rasterising on every tap and transition, is the kind of cost nothing in
@@ -3642,14 +3432,14 @@ select:focus {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  /* Above the page background, below everything drawn on it — and below is the
+  /* Above the page background, below everything drawn on it â€” and below is the
      whole job, so it takes the negative index rather than making every other
      layer in the app claim a positive one. */
   z-index: -1;
   opacity: 0.85;
 }
 
-/* Defs only — nothing to see, but display:none would stop some engines
+/* Defs only â€” nothing to see, but display:none would stop some engines
    resolving the filters referenced from CSS. */
 .pencil-defs {
   position: absolute;
@@ -3658,7 +3448,7 @@ select:focus {
   overflow: hidden;
 }
 
-/* Nothing else is touched to put the grain behind — it goes behind itself.
+/* Nothing else is touched to put the grain behind â€” it goes behind itself.
    Lifting every child of the shell to z-index: 1 instead was tried, and it
    outranked the dictionary sheet's own stacking by specificity: the backdrop
    ended up under the screen, and tapping it stopped closing the sheet. The
@@ -3672,7 +3462,7 @@ select:focus {
    too little to read as broken.
 
    Note .word-card has overflow: hidden, so a pseudo-element pushed outward
-   would be clipped by its own parent — the reason the wobble lives in the
+   would be clipped by its own parent â€” the reason the wobble lives in the
    card's geometry rather than in an extra layer. */
 .word-card {
   border-radius: 14px 8px 12px 9px / 9px 12px 8px 14px;
@@ -3761,7 +3551,7 @@ select:focus {
 
 /* Buttons: the same trick, gentler. A pill is a 999px radius, and displacement
    that reads as "drawn by hand" on a panel's soft corner reads as "scratched
-   out" on a tight curve — measured by looking at it, at scale 5, on «Nye ord». */
+   out" on a tight curve â€” measured by looking at it, at scale 5, on Â«Nye ordÂ». */
 .btn,
 .chip,
 .icon-btn {

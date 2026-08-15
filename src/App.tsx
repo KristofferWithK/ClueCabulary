@@ -12,7 +12,6 @@ import {
   shouldShowHowTo,
   useUi,
 } from './stores/uiStore'
-import { useKeyboardInset } from './ui/keyboard'
 import { DictionarySheet } from './ui/components/DictionarySheet'
 import { HowToPlay } from './ui/components/HowToPlay'
 import { UpdateBanner } from './ui/components/UpdateBanner'
@@ -72,10 +71,6 @@ function PencilDefs() {
 export default function App() {
   const screen = useUi((s) => s.screen)
   const [rescued, setRescued] = useState<{ cityIndex: number; banked: number } | null>(null)
-
-  // The software keyboard, kept from turning an exact-fit app into a scrolling
-  // one. See src/ui/keyboard.ts.
-  useKeyboardInset()
 
   // Before anything reads the journey: give back what the v1 -> v2 key rename
   // took. Merges, never replaces, and runs once per device.
@@ -230,23 +225,6 @@ export default function App() {
   return (
     <main className="app-shell">
       <PencilDefs />
-      {/* Covers the board while a field is being typed into. It is what makes
-          "the grid never moves" keepable rather than aspirational: a board
-          that cannot be seen cannot be seen to move, so whatever iOS does to
-          the viewport underneath stops mattering. Tapping it puts the keyboard
-          away.
-
-          It lives here, at the root, and not inside the dock it belongs to:
-          the lifted dock is transformed, and a transformed ancestor turns a
-          fixed child into an absolute one — the backdrop then covered the
-          composer instead of the board, which a screenshot caught. */}
-      <div
-        className="composer-backdrop"
-        aria-hidden="true"
-        onPointerDown={() => {
-          if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
-        }}
-      />
       {screen === 'home' && <HomeScreen />}
       {screen === 'game' && <GameScreen />}
       {screen === 'settings' && <SettingsScreen />}

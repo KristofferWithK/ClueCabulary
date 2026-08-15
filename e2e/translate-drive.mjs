@@ -58,9 +58,7 @@ try {
       .fill('dog', { timeout: 3000 })
       .then(() => true, () => false),
   )
-  // "Dictionary", on the composer's own label line — it shares the row with
-  // the clue field now, so it wears the same label style as everything else.
-  check('with its own label naming it', (await box.locator('.composer-label').count()) === 1)
+  check('with its own label naming it', (await box.locator('.translate-label').count()) === 1)
   check('and no disclosure to open first', (await box.locator('summary').count()) === 0)
 
   // English in, Danish out — the direction a Danish clue actually needs.
