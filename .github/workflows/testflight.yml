@@ -71,9 +71,98 @@ jobs:
       - name: Write the App Store Connect key
         env:
           P8: ${{ secrets.ASC_KEY_P8 }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          set -o pipefail
           mkdir -p ~/asc
-          printf '%s' "$P8" > ~/asc/key.p8
+          # Strip carriage returns and guarantee a trailing newline: a .p8
+          # opened in a Windows editor on the way to the clipboard arrives with
+          # CRLF, and a PEM with CRLF fails to parse — which Apple reports only
+          # as a 401, with nothing to say the key was the problem.
+          printf '%s\n' "$P8" | tr -d '\r' > ~/asc/key.p8
+          chmod 600 ~/asc/key.p8
+
+          # Prove the key is a key before spending ten minutes finding out it
+          # is not. None of this prints the secret.
+          fail=""
+          head -1 ~/asc/key.p8 | grep -q 'BEGIN PRIVATE KEY' \
+            || fail="$fail\n- ASC_KEY_P8 does not start with -----BEGIN PRIVATE KEY-----. Paste the WHOLE .p8 file, including the BEGIN and END lines."
+          openssl pkey -in ~/asc/key.p8 -noout 2>/dev/null \
+            || fail="$fail\n- ASC_KEY_P8 is not a private key OpenSSL can read. Re-copy the file; it can only be downloaded once, so generate a new key if it was lost."
+          [ ${#KEY_ID} -eq 10 ] \
+            || fail="$fail\n- ASC_KEY_ID is ${#KEY_ID} characters; a Key ID is 10 (it is the code in the .p8 filename, AuthKey_XXXXXXXXXX.p8)."
+          printf '%s' "$ISSUER" | grep -Eq '^[0-9a-fA-F-]{36}$' \
+            || fail="$fail\n- ASC_ISSUER_ID is not a 36-character UUID. It is at the TOP of the Integrations > App Store Connect API page, not next to the key."
+          if [ -n "$fail" ]; then
+            {
+              echo "### The App Store Connect credentials are not usable"
+              echo
+              printf "$fail\n"
+            } >> "$GITHUB_STEP_SUMMARY"
+            printf "$fail\n" >&2
+            exit 1
+          fi
+          echo "key parses, key id is 10 chars, issuer is a uuid"
+
+      - name: Ask Apple whether the key works
+        env:
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -o pipefail
+          # xcodebuild reports a rejected key as "Communication with Apple
+          # failed ... (401)" ten minutes into a build, which says nothing
+          # about which of the three values is wrong. This asks the API the
+          # same question in a second, with the same credentials.
+          python3 - "$KEY_ID" "$ISSUER" <<'PY' > /tmp/asc.jwt
+          import sys, json, time, base64, subprocess
+          kid, iss = sys.argv[1], sys.argv[2]
+          def b64(d): return base64.urlsafe_b64encode(d).rstrip(b'=')
+          header = b64(json.dumps({"alg":"ES256","kid":kid,"typ":"JWT"}).encode())
+          payload = b64(json.dumps({"iss":iss,"iat":int(time.time()),
+                                    "exp":int(time.time())+600,
+                                    "aud":"appstoreconnect-v1"}).encode())
+          signing = header + b'.' + payload
+          der = subprocess.run(["openssl","dgst","-sha256","-sign",
+                                f"{__import__('os').path.expanduser('~')}/asc/key.p8"],
+                               input=signing, capture_output=True, check=True).stdout
+          # DER (r,s) -> raw 64-byte JOSE signature
+          def ints(d):
+              i = 2 + (1 if d[1] < 0x80 else 1 + (d[1] & 0x7f))
+              out = []
+              for _ in range(2):
+                  ln = d[i+1]; out.append(d[i+2:i+2+ln].lstrip(b'\x00').rjust(32,b'\x00')); i += 2 + ln
+              return b''.join(out)
+          sys.stdout.write((signing + b'.' + b64(ints(der))).decode())
+          PY
+          code=$(curl -s -o /tmp/asc.json -w '%{http_code}' \
+            -H "Authorization: Bearer $(cat /tmp/asc.jwt)" \
+            'https://api.appstoreconnect.apple.com/v1/apps?limit=200&fields[apps]=bundleId,name')
+          if [ "$code" != "200" ]; then
+            {
+              echo "### Apple refused these credentials (HTTP $code)"
+              echo
+              echo "The key, the Key ID and the Issuer ID are a matching set — one of the three is from somewhere else. Most common causes:"
+              echo "- The **Issuer ID** was copied from beside the key instead of from the top of the **Integrations → App Store Connect API** page."
+              echo "- The key was generated under **Users and Access → Integrations**, but with a role below **App Manager**."
+              echo "- The \`.p8\` belongs to a different, older key than the Key ID given."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "App Store Connect returned $code" >&2
+            exit 1
+          fi
+          # Does the app record exist, with the bundle id the shell is built for?
+          if ! grep -q 'com.kristofferwithk.cluecabulary' /tmp/asc.json; then
+            {
+              echo "### The credentials work, but there is no app with this bundle ID"
+              echo
+              echo "Apple accepted the key and listed your apps, and none of them is \`com.kristofferwithk.cluecabulary\`."
+              echo "Create it at **App Store Connect → My Apps → + → New App**, with exactly that bundle ID, then run this again."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "no app record for com.kristofferwithk.cluecabulary" >&2
+            exit 1
+          fi
+          echo "Apple accepted the key, and the app record exists."
 
       - name: Archive
         env:
@@ -81,6 +170,11 @@ jobs:
           KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ISSUER: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          # pipefail, because piping xcodebuild into tail takes tail's exit
+          # code — the first run "passed" a failed archive and then failed
+          # confusingly at export, looking for a file the archive never wrote.
+          set -o pipefail
+          mkdir -p "$PWD/ios/App/output"
           xcodebuild -workspace ios/App/App.xcodeproj/project.xcworkspace \
             -scheme App -configuration Release \
             -destination 'generic/platform=iOS' \
@@ -100,6 +194,8 @@ jobs:
           KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ISSUER: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          set -o pipefail
+          mkdir -p "$PWD/ios/App/output"
           cat > "$PWD/ios/App/output/export.plist" <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
