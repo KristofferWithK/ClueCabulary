@@ -286,6 +286,34 @@ jobs:
             -authenticationKeyIssuerID "$ISSUER" \
             | tail -20
 
+      - name: Wait for Apple to process the build
+        # The upload succeeding is not the build existing. Apple processes it
+        # for a few minutes and can still reject it afterwards — an invalid
+        # binary, a missing export-compliance answer — none of which appears in
+        # this log, which would otherwise end on a success that had not
+        # happened yet.
+        env:
+          KEY_ID: ${{ env.KEY_ID_CLEAN }}
+          ISSUER: ${{ env.ISSUER_CLEAN }}
+          ASC_KEY_ID: ${{ env.KEY_ID_CLEAN }}
+          ASC_ISSUER_ID: ${{ env.ISSUER_CLEAN }}
+        run: |
+          set -o pipefail
+          export ASC_KEY_P8="$(cat ~/asc/key.p8)"
+          for attempt in $(seq 1 20); do
+            out=$(node scripts/asc-builds.mjs 2>&1) || true
+            echo "$out"
+            state=$(printf '%s' "$out" | grep -oE 'build ${{ github.run_number }} +[A-Z]+' | awk '{print $3}' | head -1)
+            case "$state" in
+              VALID) echo "processed"; break ;;
+              INVALID|FAILED)
+                echo "### Apple rejected build ${{ github.run_number }} after upload" >> "$GITHUB_STEP_SUMMARY"
+                echo "The reason is in App Store Connect under TestFlight > Builds." >> "$GITHUB_STEP_SUMMARY"
+                exit 1 ;;
+            esac
+            sleep 30
+          done
+
       - name: Say what happens next
         run: |
           {
