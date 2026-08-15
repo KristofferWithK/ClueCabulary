@@ -121,7 +121,13 @@ export function SettingsScreen() {
           <input
             type="password"
             value={settings.apiKey}
-            placeholder={hasBundledKey ? 'using the key bundled with this build' : 'paste your key'}
+            placeholder={
+              hasBundledKey
+                ? 'using the key bundled with this build'
+                : provider && !provider.keysAt
+                  ? 'not needed — leave empty'
+                  : 'paste your key'
+            }
             autoComplete="off"
             autoCapitalize="none"
             autoCorrect="off"
@@ -130,7 +136,7 @@ export function SettingsScreen() {
           />
           <small>
             Stored only on this device, sent only to the Base URL below.
-            {provider && (
+            {provider?.keysAt && (
               <>
                 {' '}
                 <a href={provider.keysAt} target="_blank" rel="noreferrer">
@@ -138,6 +144,11 @@ export function SettingsScreen() {
                 </a>
                 .
               </>
+            )}
+            {/* A key sent from here overrides the one the proxy holds, which is
+                worth saying where it can be typed by accident. */}
+            {provider && !provider.keysAt && (
+              <> This service needs none; anything typed here is used instead of its own.</>
             )}
             {hasBundledKey && !settings.apiKey.trim() && (
               <> Empty, so the key shipped with this build is used.</>

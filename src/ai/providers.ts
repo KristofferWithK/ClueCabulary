@@ -16,13 +16,22 @@ export interface Provider {
   label: string
   /** Base URL; the client appends /chat/completions and /models. */
   baseUrl: string
-  /** Where to get a key, for the link next to the field. */
-  keysAt: string
+  /**
+   * Where to get a key, for the link next to the field. Absent where the
+   * service needs no key from the player — the proxy holds its own.
+   */
+  keysAt?: string
   /** What is actually known about using it from a browser. */
   note: string
 }
 
 export const PROVIDERS: readonly Provider[] = [
+  {
+    id: 'cluecabulary',
+    label: 'Cluey',
+    baseUrl: 'https://cluecabulary-proxy.kristoffer-kai.workers.dev/v1',
+    note: 'No key needed — this one is set up for you. The default, and the one to come back to.',
+  },
   {
     id: 'gemini',
     label: 'Gemini',

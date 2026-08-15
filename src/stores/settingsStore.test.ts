@@ -213,3 +213,84 @@ describe('which board «Spil videre» deals', () => {
     expect((migrate({ apiKey: 'k' }, 1) as Record<string, unknown>).gridSize).toBeUndefined()
   })
 })
+
+/**
+ * Cluey answers a fresh install with no key typed anywhere.
+ *
+ * The proxy holds the key as a Cloudflare secret, so the default Base URL now
+ * points at it. Fourth outing of the persisted-default trap — and the first
+ * where the old value CAN be told apart from a deliberate choice: a save
+ * holding the Gemini default with an empty key has never had a working Cluey
+ * and could not have, because the build bundles no key and Gemini direct
+ * answers nothing without one. That group is pure gain to move. A typed key or
+ * a hand-entered Base URL is a decision, possibly on a paid account, and
+ * survives untouched.
+ */
+describe('which server a device talks to', () => {
+  const migrate = migrateSettings
+  const GEMINI_DIRECT = 'https://generativelanguage.googleapis.com/v1beta/openai'
+
+  it('is the proxy for anyone who has never stored a setting', () => {
+    expect(useSettings.getInitialState().baseUrl).toBe(DEFAULT_BASE_URL)
+    expect(useSettings.getInitialState().model).toBe(DEFAULT_MODEL)
+    expect(useSettings.getInitialState().apiKey).toBe('')
+  })
+
+  it.each([1, 2, 3, 4])('and a v%i save that never had a key is moved to it', (from) => {
+    const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: '', model: '' }, from) as Record<
+      string,
+      unknown
+    >
+    expect(up).toMatchObject({ baseUrl: DEFAULT_BASE_URL, model: DEFAULT_MODEL })
+  })
+
+  it('a save with no baseUrl at all is moved too — same position, older shape', () => {
+    const up = migrate({ apiKey: '' }, 3) as Record<string, unknown>
+    expect(up.baseUrl).toBe(DEFAULT_BASE_URL)
+  })
+
+  it('but a typed key is left alone, server and all', () => {
+    const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: 'their-own-key' }, 4) as Record<
+      string,
+      unknown
+    >
+    expect(up).toMatchObject({ baseUrl: GEMINI_DIRECT, apiKey: 'their-own-key' })
+  })
+
+  it('and so is a Base URL somebody typed themselves', () => {
+    const up = migrate({ baseUrl: 'https://my-own-proxy.example.com/v1', apiKey: '' }, 4) as Record<
+      string,
+      unknown
+    >
+    expect(up.baseUrl).toBe('https://my-own-proxy.example.com/v1')
+    expect(up.model).toBeUndefined()
+  })
+
+  it('a whitespace key counts as no key', () => {
+    const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: '   ' }, 4) as Record<string, unknown>
+    expect(up.baseUrl).toBe(DEFAULT_BASE_URL)
+  })
+
+  it('a trailing slash does not hide the old default', () => {
+    const up = migrate({ baseUrl: `${GEMINI_DIRECT}/`, apiKey: '' }, 4) as Record<string, unknown>
+    expect(up.baseUrl).toBe(DEFAULT_BASE_URL)
+  })
+
+  it('a v5 save is left alone entirely', () => {
+    const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: '' }, 5) as Record<string, unknown>
+    expect(up.baseUrl).toBe(GEMINI_DIRECT)
+  })
+
+  it('and the older fixes still happen on the way past', () => {
+    const up = migrate({ studyPhase: 'auto', clueLanguage: 'en', gridSize: 'beginner' }, 1) as Record<
+      string,
+      unknown
+    >
+    expect(up).toMatchObject({
+      studyPhase: 'never',
+      clueLanguage: 'da',
+      gridSize: 'middle',
+      baseUrl: DEFAULT_BASE_URL,
+    })
+  })
+})

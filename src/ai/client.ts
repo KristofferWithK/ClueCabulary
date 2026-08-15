@@ -28,22 +28,38 @@ export class AiError extends Error {
 }
 
 /**
- * Gemini, because it is the one measured to work.
+ * The project's own proxy, because it is the only default that needs no setup.
  *
- * This was ollama.com until a real phone settled it: ollama.com refuses
- * browser requests outright, so every fresh install started on a service that
- * could not answer and needed a Cloudflare Worker before it could. Gemini's
- * OpenAI-compatible endpoint answers a browser directly — confirmed by playing
- * a round on the device, not inferred from anyone's bug tracker.
+ * Gemini was the default while it was the one measured to answer a browser at
+ * all, but it still asked every new player for an API key before Cluey could
+ * say a word. This worker holds the key as a Cloudflare secret, so a fresh
+ * install plays immediately with the key field left empty.
+ *
+ * Measured against the deployed worker on 2026-08-15, not inferred: the CORS
+ * preflight ollama.com answers with a redirect comes back 204 here with
+ * Access-Control-Allow-Origin for the Pages origin, /models lists 18 ids, and a
+ * real round played through it — clue «hverdag» guessed, «familie» (3) back.
+ *
+ * The worker is origin-locked to the deployed app (ALLOWED_ORIGIN in
+ * proxy/wrangler.toml). Anyone typing their own key or Base URL overrides this
+ * and never touches the proxy; see proxy/README.md.
  */
-export const DEFAULT_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai'
+export const DEFAULT_BASE_URL = 'https://cluecabulary-proxy.kristoffer-kai.workers.dev/v1'
 
 /**
- * Empty on purpose. Ollama and Gemini publish conflicting ids for the same
- * model, and a wrong default returns a 404 that reads as a broken endpoint —
- * so Settings asks the server instead, and says so until one is chosen.
+ * Named now, where it used to be empty.
+ *
+ * The reason it was empty was that Ollama and Gemini publish conflicting ids
+ * for the same model, so any default was wrong against one of them and its 404
+ * read as a broken endpoint. The default Base URL above is a proxy fronting one
+ * known service, which makes the id unambiguous — and a default nobody has to
+ * choose is the difference between a fresh install playing and a fresh install
+ * staring at a model picker.
+ *
+ * gpt-oss:120b because it is the one played through the worker. Switching
+ * provider in Settings still clears this, because then it IS ambiguous again.
  */
-export const DEFAULT_MODEL = ''
+export const DEFAULT_MODEL = 'gpt-oss:120b'
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])
 
