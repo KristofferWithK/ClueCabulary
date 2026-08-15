@@ -22,22 +22,24 @@ const config: CapacitorConfig = {
   appName: 'ClueCabulary',
   webDir: 'dist',
   /**
-   * Early-access mode: the shell renders the DEPLOYED site rather than a
-   * bundled copy, so every push to main reaches the phone the moment Pages
-   * deploys — the same instant loop as the PWA, with the native keyboard.
+   * Deliberately BUNDLED — no server.url.
    *
-   * The costs are known and accepted for internal TestFlight: network is
-   * needed on launch, and the offline dictionary lives only in the PWA.
-   * Before an App Store release this line is DELETED — the app then ships
-   * bundled (offline-capable, review-clean), and instant updates come back as
-   * an OTA layer if wanted.
+   * Pointing the webview at the deployed site would keep the instant update
+   * loop, and it was configured that way for one commit. Capacitor's own docs
+   * retired the idea: server.url is "intended for use with live-reload
+   * servers" and "not intended for use in production", and whether the native
+   * bridge reaches a remote page is not documented at all.
    *
-   * The worker's origin lock already admits both callers: in this mode the
-   * webview's origin IS the Pages origin; bundled, it is capacitor://localhost.
+   * The no-resize guarantee below would hold either way, since it is native
+   * config rather than something the page asks for. The keyboard HEIGHT
+   * listener would not: it needs the bridge. Three web-side keyboard designs
+   * have already failed on this device, so the build that finally settles it
+   * rests on nothing undocumented.
+   *
+   * Instant iteration stays where it is documented to work: the PWA for web
+   * changes, `npx cap run ios --live-reload` for native development, and an
+   * OTA layer later if TestFlight rebuilds start to chafe.
    */
-  server: {
-    url: 'https://kristofferwithk.github.io/ClueCabulary/',
-  },
   plugins: {
     Keyboard: {
       resize: 'none',
