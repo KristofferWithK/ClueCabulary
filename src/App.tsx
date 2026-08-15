@@ -230,6 +230,23 @@ export default function App() {
   return (
     <main className="app-shell">
       <PencilDefs />
+      {/* Covers the board while a field is being typed into. It is what makes
+          "the grid never moves" keepable rather than aspirational: a board
+          that cannot be seen cannot be seen to move, so whatever iOS does to
+          the viewport underneath stops mattering. Tapping it puts the keyboard
+          away.
+
+          It lives here, at the root, and not inside the dock it belongs to:
+          the lifted dock is transformed, and a transformed ancestor turns a
+          fixed child into an absolute one — the backdrop then covered the
+          composer instead of the board, which a screenshot caught. */}
+      <div
+        className="composer-backdrop"
+        aria-hidden="true"
+        onPointerDown={() => {
+          if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+        }}
+      />
       {screen === 'home' && <HomeScreen />}
       {screen === 'game' && <GameScreen />}
       {screen === 'settings' && <SettingsScreen />}
