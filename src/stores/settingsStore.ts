@@ -46,12 +46,15 @@ interface SettingsState {
  * middleware would be testing nothing.
  */
 export function migrateSettings(persisted: unknown, from: number): unknown {
-  if (from >= 4) return persisted
+  if (from >= 5) return persisted
   const s = {
     ...((persisted ?? {}) as {
       studyPhase?: StudyMode
       clueLanguage?: 'da' | 'en'
       gridSize?: GridSize
+      apiKey?: string
+      baseUrl?: string
+      model?: string
     }),
   }
   // v1 -> v2: the study phase stopped being the default.
@@ -75,6 +78,27 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   // the board that was asked for, which is exactly the trap this app has fallen
   // into three times now.
   if (from < 4 && s.gridSize === 'beginner') s.gridSize = 'middle'
+  // v4 -> v5: the proxy is the default, so Cluey answers with no key at all.
+  //
+  // The fourth outing of the same trap, but the first one where the old value
+  // can be told apart from a choice. A device sitting on the Gemini default
+  // with an EMPTY key has never had a working Cluey and could not have: no key
+  // means no answers from Gemini direct, and the build bundles none. Moving
+  // exactly that group costs them nothing and hands them a partner.
+  //
+  // Anyone who typed a key, or typed a Base URL of their own, made a decision —
+  // possibly on a paid account — and is left alone. The model comes along only
+  // where the URL does, because an Ollama id on a Gemini endpoint is a 404 that
+  // reads as a broken server.
+  const GEMINI_DIRECT = 'https://generativelanguage.googleapis.com/v1beta/openai'
+  if (
+    from < 5 &&
+    !(s.apiKey ?? '').trim() &&
+    [GEMINI_DIRECT, '', undefined].includes((s.baseUrl ?? '').trim().replace(/\/+$/, '') || '')
+  ) {
+    s.baseUrl = DEFAULT_BASE_URL
+    s.model = DEFAULT_MODEL
+  }
   return s
 }
 
@@ -114,7 +138,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'cluecab-settings-v1',
-      version: 4,
+      version: 5,
       migrate: migrateSettings,
     },
   ),

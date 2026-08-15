@@ -114,7 +114,8 @@ await open('?mock=1&howto=0&city=0')
 await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const chips = page.locator('.provider-list .chip')
-check('the service chips are there', (await chips.count()) === 2, `${await chips.count()} chips`)
+// Three since the proxy became the default: Cluey (no key), Gemini, Ollama.
+check('the service chips are there', (await chips.count()) === 3, `${await chips.count()} chips`)
 const row = await page.locator('.provider-list').boundingBox()
 check(
   'and fit the phone',
