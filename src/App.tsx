@@ -12,6 +12,7 @@ import {
   shouldShowHowTo,
   useUi,
 } from './stores/uiStore'
+import { useKeyboardInset } from './ui/keyboard'
 import { DictionarySheet } from './ui/components/DictionarySheet'
 import { HowToPlay } from './ui/components/HowToPlay'
 import { UpdateBanner } from './ui/components/UpdateBanner'
@@ -71,6 +72,10 @@ function PencilDefs() {
 export default function App() {
   const screen = useUi((s) => s.screen)
   const [rescued, setRescued] = useState<{ cityIndex: number; banked: number } | null>(null)
+
+  // The software keyboard, kept from turning an exact-fit app into a scrolling
+  // one. See src/ui/keyboard.ts.
+  useKeyboardInset()
 
   // Before anything reads the journey: give back what the v1 -> v2 key rename
   // took. Merges, never replaces, and runs once per device.

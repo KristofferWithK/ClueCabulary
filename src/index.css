@@ -1410,6 +1410,34 @@ select:focus {
   gap: 8px;
 }
 
+/* ---- typing, with a keyboard in the way ----
+
+   How much of the viewport the keyboard covers, published by
+   src/ui/keyboard.ts. Zero whenever there is no keyboard, which is every
+   desktop and every drive, so nothing below does anything until someone types
+   on a phone. */
+:root {
+  --kb: 0px;
+}
+
+/* The dock being typed into lifts clear of the keyboard; everything else stays
+   exactly where it was. transform rather than position, deliberately: it moves
+   no layout, so the board keeps its size and the shell keeps fitting the phone
+   — the thing that broke here was the app growing taller than the screen and
+   becoming scrollable, and a translate cannot do that.
+
+   The board ends up behind the keyboard. That is the right thing to cover:
+   while typing a clue you are reading what you typed, and the board is one tap
+   away again the moment the keyboard closes. */
+.kb-open .dock:focus-within {
+  transform: translateY(calc(-1 * var(--kb)));
+  transition: transform 0.16s ease-out;
+  /* Above the board it now sits on top of — the dock has a background, but a
+     card's own stacking would otherwise show through at the edges. */
+  position: relative;
+  z-index: 5;
+}
+
 .dock-title {
   line-height: 1.35;
   font-size: 0.92rem;

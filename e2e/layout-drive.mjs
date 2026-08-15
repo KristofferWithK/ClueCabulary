@@ -364,6 +364,47 @@ for (const vp of [
 }
 await page.setViewportSize(PHONE)
 
+// ---- Typing, with a keyboard in the way. -----------------------------------
+// A software keyboard is the one thing that breaks the no-scroll principle
+// from outside the app: the visual viewport shrinks underneath it and the
+// browser scrolls the page to reveal the focused input, which turned typing a
+// clue into a scrolling board. Headless Chromium has no keyboard, so this
+// stands one up: --kb is exactly what src/ui/keyboard.ts publishes, and the
+// class is what it toggles.
+await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+await page.locator('.home-play').click()
+await page.waitForSelector('.board-grid')
+const studyBtn3 = page.locator('.study-dock .btn-primary')
+if (await studyBtn3.isVisible().catch(() => false)) await studyBtn3.click()
+
+const KB = 320
+const dockBefore = await page.locator('.clue-input').boundingBox()
+await page.locator('.clue-input input').first().focus()
+await page.evaluate((kb) => {
+  document.documentElement.style.setProperty('--kb', `${kb}px`)
+  document.documentElement.classList.add('kb-open')
+}, KB)
+await page.waitForTimeout(300)
+
+const dockAfter = await page.locator('.clue-input').boundingBox()
+check(
+  'the clue dock lifts clear of the keyboard',
+  Math.round(dockBefore.y - dockAfter.y) === KB,
+  `moved ${Math.round(dockBefore.y - dockAfter.y)}px, keyboard ${KB}px`,
+)
+// The whole point: it moves without making the page taller.
+await noScroll('game with the keyboard open')
+check(
+  'and the page has not been scrolled',
+  (await page.evaluate(() => document.scrollingElement.scrollTop)) === 0,
+)
+await page.evaluate(() => {
+  document.documentElement.classList.remove('kb-open')
+  document.documentElement.style.removeProperty('--kb')
+})
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.stop()
