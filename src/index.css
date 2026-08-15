@@ -1410,6 +1410,44 @@ select:focus {
   gap: 8px;
 }
 
+/* ---- the keyboard, in the native shell ----
+
+   Nothing here runs on the web: --kb is only ever set by the native listener
+   in src/ui/nativeKeyboard.ts, and it is the height the OS says the keyboard
+   is about to occupy, reported before the animation starts.
+
+   With Keyboard.resize 'none' the webview is never resized, panned or
+   scrolled, so the board keeps its exact size and position and the keyboard
+   simply covers its lower half. All that is left is to raise the dock being
+   typed into by that height, which is a transform: it moves no layout, so
+   nothing behind it can reflow. */
+.dock.kb-lifted {
+  transform: translateY(calc(-1 * var(--kb, 0px)));
+  /* The keyboard's own animation is about a quarter of a second; matching it
+     is what makes the composer look attached to the keyboard rather than
+     chasing it. */
+  transition: transform 0.25s cubic-bezier(0.17, 0.59, 0.4, 1);
+  position: relative;
+  z-index: 5;
+}
+
+/* While it is up there it floats over the board, so it needs an edge of its
+   own — and the recap of last turn is a line of height better spent on the
+   part of the board still visible. */
+.kb-up .dock.kb-lifted {
+  box-shadow: 0 4px 22px rgba(18, 18, 18, 0.18);
+}
+
+.kb-up .dock.kb-lifted .last-turn {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock.kb-lifted {
+    transition: none;
+  }
+}
+
 .dock-title {
   line-height: 1.35;
   font-size: 0.92rem;

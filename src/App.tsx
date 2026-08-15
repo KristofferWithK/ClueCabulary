@@ -12,6 +12,7 @@ import {
   shouldShowHowTo,
   useUi,
 } from './stores/uiStore'
+import { useNativeKeyboard } from './ui/nativeKeyboard'
 import { DictionarySheet } from './ui/components/DictionarySheet'
 import { HowToPlay } from './ui/components/HowToPlay'
 import { UpdateBanner } from './ui/components/UpdateBanner'
@@ -71,6 +72,10 @@ function PencilDefs() {
 export default function App() {
   const screen = useUi((s) => s.screen)
   const [rescued, setRescued] = useState<{ cityIndex: number; banked: number } | null>(null)
+
+  // Native shell only. On the mobile web this does nothing at all — see
+  // src/ui/nativeKeyboard.ts for why that is deliberate.
+  useNativeKeyboard()
 
   // Before anything reads the journey: give back what the v1 -> v2 key rename
   // took. Merges, never replaces, and runs once per device.

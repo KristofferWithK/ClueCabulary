@@ -303,7 +303,10 @@ jobs:
           for attempt in $(seq 1 20); do
             out=$(node scripts/asc-builds.mjs 2>&1) || true
             echo "$out"
-            state=$(printf '%s' "$out" | grep -oE 'build ${{ github.run_number }} +[A-Z]+' | awk '{print $3}' | head -1)
+            # || true, because pipefail turns "grep found nothing" into a
+            # failed assignment and ends the step — which is the normal state
+            # for the first minute after an upload.
+            state=$(printf '%s' "$out" | grep -oE "build ${{ github.run_number }} +[A-Z]+" | awk '{print $3}' | head -1 || true)
             case "$state" in
               VALID) echo "processed"; break ;;
               INVALID|FAILED)
