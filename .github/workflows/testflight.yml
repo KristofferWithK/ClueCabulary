@@ -33,6 +33,8 @@ jobs:
       - name: Check the secrets are present
         env:
           TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          # The RAW secrets here: this step runs before anything has been
+          # trimmed, and its only question is whether they exist at all.
           KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ISSUER: ${{ secrets.ASC_ISSUER_ID }}
           P8: ${{ secrets.ASC_KEY_P8 }}
@@ -83,6 +85,22 @@ jobs:
           printf '%s\n' "$P8" | tr -d '\r' > ~/asc/key.p8
           chmod 600 ~/asc/key.p8
 
+          # Trim: a value pasted into the secret box arrives with whatever
+          # whitespace, newline or stray quote came with it, and a check that
+          # rejects those is rejecting a correct credential.
+          clean() { printf '%s' "$1" | tr -d '\r\n"'"'" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'; }
+          KEY_ID=$(clean "$KEY_ID")
+          ISSUER=$(clean "$ISSUER")
+          # Later steps use the trimmed values, not the raw secrets.
+          echo "KEY_ID_CLEAN=$KEY_ID" >> "$GITHUB_ENV"
+          echo "ISSUER_CLEAN=$ISSUER" >> "$GITHUB_ENV"
+
+          # The shape of what is stored, with every hex digit masked — enough
+          # to see WHICH value is wrong without printing any of it.
+          shape() { printf '%s' "$1" | sed 's/[0-9a-fA-F]/x/g'; }
+          echo "ASC_KEY_ID:    ${#KEY_ID} chars, shape $(shape "$KEY_ID")"
+          echo "ASC_ISSUER_ID: ${#ISSUER} chars, shape $(shape "$ISSUER")"
+
           # Prove the key is a key before spending ten minutes finding out it
           # is not. None of this prints the secret.
           fail=""
@@ -92,8 +110,9 @@ jobs:
             || fail="$fail\n- ASC_KEY_P8 is not a private key OpenSSL can read. Re-copy the file; it can only be downloaded once, so generate a new key if it was lost."
           [ ${#KEY_ID} -eq 10 ] \
             || fail="$fail\n- ASC_KEY_ID is ${#KEY_ID} characters; a Key ID is 10 (it is the code in the .p8 filename, AuthKey_XXXXXXXXXX.p8)."
-          printf '%s' "$ISSUER" | grep -Eq '^[0-9a-fA-F-]{36}$' \
-            || fail="$fail\n- ASC_ISSUER_ID is not a 36-character UUID. It is at the TOP of the Integrations > App Store Connect API page, not next to the key."
+          # 8-4-4-4-12, the shape of a UUID, rather than a bare length.
+          printf '%s' "$ISSUER" | grep -Eiq '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' \
+            || fail="$fail\n- ASC_ISSUER_ID is ${#ISSUER} characters, shape $(shape "$ISSUER") — not a UUID like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx. It is at the TOP of Users and Access > Integrations > App Store Connect API, above the list of keys, NOT the Key ID next to your key."
           if [ -n "$fail" ]; then
             {
               echo "### The App Store Connect credentials are not usable"
@@ -107,8 +126,8 @@ jobs:
 
       - name: Ask Apple whether the key works
         env:
-          KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_ID: ${{ env.KEY_ID_CLEAN }}
+          ISSUER: ${{ env.ISSUER_CLEAN }}
         run: |
           set -o pipefail
           # xcodebuild reports a rejected key as "Communication with Apple
@@ -167,8 +186,8 @@ jobs:
       - name: Archive
         env:
           TEAM: ${{ secrets.APPLE_TEAM_ID }}
-          KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_ID: ${{ env.KEY_ID_CLEAN }}
+          ISSUER: ${{ env.ISSUER_CLEAN }}
         run: |
           # pipefail, because piping xcodebuild into tail takes tail's exit
           # code — the first run "passed" a failed archive and then failed
@@ -191,8 +210,8 @@ jobs:
 
       - name: Upload to TestFlight
         env:
-          KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_ID: ${{ env.KEY_ID_CLEAN }}
+          ISSUER: ${{ env.ISSUER_CLEAN }}
         run: |
           set -o pipefail
           mkdir -p "$PWD/ios/App/output"
