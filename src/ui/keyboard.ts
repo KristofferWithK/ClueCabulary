@@ -31,7 +31,55 @@ import { useEffect } from 'react'
  * "rearranging" this exists to end.
  */
 export function useKeyboardInset() {
+  // Inside the native shell the OS is the source of truth instead: with
+  // Keyboard.resize 'none' the webview is never resized or panned — the three
+  // failure modes above simply do not exist — and the keyboard's exact height
+  // arrives as an event. That height feeds the very same CSS variables, so the
+  // composer CSS has one implementation with two informants.
   useEffect(() => {
+    const cap = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
+    if (!cap?.isNativePlatform?.()) return
+
+    const root = document.documentElement
+    // The lifted dock's seat-holder needs the dock's height here too.
+    const onFocusIn = (e: FocusEvent) => {
+      const dock = e.target instanceof HTMLElement ? e.target.closest('.dock') : null
+      if (dock) root.style.setProperty('--dock-h', `${Math.round(dock.getBoundingClientRect().height)}px`)
+    }
+    window.addEventListener('focusin', onFocusIn)
+    let cleanup: (() => void) | undefined
+    let gone = false
+    void import('@capacitor/keyboard').then(({ Keyboard }) => {
+      if (gone) return
+      const show = Keyboard.addListener('keyboardWillShow', (info) => {
+        const kb = Math.round(info.keyboardHeight)
+        root.style.setProperty('--vvh', `${window.innerHeight - kb}px`)
+        root.style.setProperty('--vvt', '0px')
+        root.style.setProperty('--app-h', `${window.innerHeight}px`)
+        root.classList.add('kb-open')
+      })
+      const hide = Keyboard.addListener('keyboardWillHide', () => {
+        root.classList.remove('kb-open')
+      })
+      cleanup = () => {
+        void show.then((h) => h.remove())
+        void hide.then((h) => h.remove())
+      }
+    })
+    return () => {
+      gone = true
+      cleanup?.()
+      window.removeEventListener('focusin', onFocusIn)
+      root.classList.remove('kb-open')
+    }
+  }, [])
+
+  useEffect(() => {
+    // The web informant. It must stand down entirely in the shell: with the
+    // webview never resizing, it would compute "no keyboard" on every focus
+    // and strip the class the native listener just set.
+    const cap = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
+    if (cap?.isNativePlatform?.()) return
     const vv = window.visualViewport
     if (!vv) return
 

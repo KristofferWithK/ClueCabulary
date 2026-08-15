@@ -10,12 +10,20 @@ import { VitePWA } from 'vite-plugin-pwa'
 const BUILD_STAMP =
   process.env.GITHUB_SHA?.slice(0, 7) ?? new Date().toISOString().slice(0, 16).replace('T', ' ')
 
+// CAP_BUILD=1 builds for the native shell instead of GitHub Pages: assets are
+// served from the app bundle, so the base is relative rather than the Pages
+// project path, and the service worker stays out — updates ride TestFlight
+// builds there, and a worker inside a WKWebView is a second update mechanism
+// fighting the first.
+const CAP = process.env.CAP_BUILD === '1'
+
 export default defineConfig({
-  base: '/ClueCabulary/',
+  base: CAP ? './' : '/ClueCabulary/',
   define: { __BUILD_STAMP__: JSON.stringify(BUILD_STAMP) },
   plugins: [
     react(),
     VitePWA({
+      disable: CAP,
       // 'prompt', not 'autoUpdate': autoUpdate can swap the app out from under
       // a round in progress, and it gave the player no way to know a new
       // version existed. UpdateBanner asks instead.

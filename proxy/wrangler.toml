@@ -6,8 +6,10 @@ compatibility_date = "2026-01-01"
 # the API key: without the lock, any website could spend your subscription
 # through it. Change this if you serve the app from somewhere else, or delete
 # the line to allow any origin.
+# Two callers: the deployed page, and the native shell — a WKWebView serving
+# the same app from the bundle sends capacitor://localhost as its Origin.
 [vars]
-ALLOWED_ORIGIN = "https://kristofferwithk.github.io"
+ALLOWED_ORIGIN = "https://kristofferwithk.github.io, capacitor://localhost"
 
 # What the app asks for instead of a model name. The app sends "cluey" and this
 # decides what answers, so changing Cluey's brain is a proxy deploy rather than
