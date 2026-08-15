@@ -1420,22 +1420,38 @@ select:focus {
   --kb: 0px;
 }
 
-/* The dock being typed into lifts clear of the keyboard; everything else stays
-   exactly where it was. transform rather than position, deliberately: it moves
-   no layout, so the board keeps its size and the shell keeps fitting the phone
-   — the thing that broke here was the app growing taller than the screen and
-   becoming scrollable, and a translate cannot do that.
+/* Messenger behaviour: the dock being typed into sits ON the keyboard, the
+   board goes behind it, and the page does not move at all.
 
-   The board ends up behind the keyboard. That is the right thing to cover:
-   while typing a clue you are reading what you typed, and the board is one tap
-   away again the moment the keyboard closes. */
+   Lifting the dock with a transform was tried first and is not enough on iOS.
+   Safari scrolls the document to reveal a focused input before any of this
+   runs, and an in-flow dock scrolls away with it — so the field being typed
+   into ended up under the keyboard anyway, on the one platform this is for.
+
+   Fixed positioning is immune to that, because it anchors to the layout
+   viewport, which the keyboard does not move. Locking the document's overflow
+   removes the scroll Safari was trying to perform in the first place: with
+   nowhere to scroll to, the composer stays where it is put. */
+.kb-open,
+.kb-open body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .kb-open .dock:focus-within {
-  transform: translateY(calc(-1 * var(--kb)));
-  transition: transform 0.16s ease-out;
-  /* Above the board it now sits on top of — the dock has a background, but a
-     card's own stacking would otherwise show through at the edges. */
-  position: relative;
-  z-index: 5;
+  position: fixed;
+  left: 50%;
+  /* The shell is 480px wide at most with 16px of padding either side, so this
+     is the same width the dock had in flow — it must not appear to change
+     size as it lifts. */
+  width: min(calc(100% - 32px), 448px);
+  transform: translateX(-50%);
+  bottom: calc(var(--kb) + 8px);
+  z-index: 50;
+  margin: 0;
+  /* It now floats over the board rather than sitting under the fold, so it
+     needs an edge of its own to read against the cards behind it. */
+  box-shadow: 0 6px 22px rgba(18, 18, 18, 0.16);
 }
 
 .dock-title {

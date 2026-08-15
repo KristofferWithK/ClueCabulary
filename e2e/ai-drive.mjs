@@ -46,7 +46,10 @@ await page.addInitScript(
           studyPhase: 'never',
           useMock: false,
         },
-        version: 1,
+        // Current version on purpose: as version 1 this is run through every
+        // migration on the way in, and v7 clears the API key this drive is
+        // here to watch travel.
+        version: 7,
       }),
     )
   },
@@ -198,7 +201,8 @@ try {
 
   // ---- the HTTP error taxonomy ----------------------------------------------
   const httpCases = [
-    [401, /API key/i, 'auth'],
+    // No longer "check the API key in Settings": there is no key and no field.
+    [401, /refused the request/i, 'auth'],
     [404, /Model or endpoint/i, 'not-found'],
     [429, /Rate limited/i, 'rate-limit'],
   ]

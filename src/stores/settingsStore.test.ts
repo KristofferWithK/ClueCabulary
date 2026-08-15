@@ -84,10 +84,14 @@ describe('the study phase, which the board should no longer open with', () => {
   })
 
   it('and is turned off on a v1 save that still holds the old default', () => {
-    const upgraded = migrate({ studyPhase: 'auto', apiKey: 'k' }, 1) as Record<string, unknown>
+    const upgraded = migrate({ studyPhase: 'auto', gridSize: 'standard' }, 1) as Record<
+      string,
+      unknown
+    >
     expect(upgraded.studyPhase).toBe('never')
-    // Everything else survives: this is one field, not a reset.
-    expect(upgraded.apiKey).toBe('k')
+    // Everything else survives: this is one field, not a reset. (The API key
+    // is the exception, and only because v7 retires it outright.)
+    expect(upgraded.gridSize).toBe('standard')
   })
 
   it('but a deliberate "always" is left alone — it was never a default', () => {
@@ -202,11 +206,13 @@ describe('which board «Spil videre» deals', () => {
   })
 
   it('and every other field survives the trip', () => {
-    const up = migrate({ gridSize: 'beginner', apiKey: 'k', model: 'm' }, 3) as Record<
+    // Not the model: a save with no Base URL is one the v5 rule moves to the
+    // proxy, and the model comes along with the server it belongs to.
+    const up = migrate({ gridSize: 'beginner', clueLanguage: 'da', studyPhase: 'never' }, 3) as Record<
       string,
       unknown
     >
-    expect(up).toMatchObject({ gridSize: 'middle', apiKey: 'k', model: 'm' })
+    expect(up).toMatchObject({ gridSize: 'middle', clueLanguage: 'da', studyPhase: 'never' })
   })
 
   it('survives a save with no gridSize at all', () => {
@@ -249,12 +255,14 @@ describe('which server a device talks to', () => {
     expect(up.baseUrl).toBe(DEFAULT_BASE_URL)
   })
 
-  it('but a typed key is left alone, server and all', () => {
+  it('but a typed key means the server was a decision, and that survives', () => {
+    // The key itself does not: v7 retires it. What a typed key still proves is
+    // that this device chose where to talk to, so the Base URL is not moved.
     const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: 'their-own-key' }, 4) as Record<
       string,
       unknown
     >
-    expect(up).toMatchObject({ baseUrl: GEMINI_DIRECT, apiKey: 'their-own-key' })
+    expect(up.baseUrl).toBe(GEMINI_DIRECT)
   })
 
   it('and so is a Base URL somebody typed themselves', () => {
@@ -349,11 +357,53 @@ describe('the model name, once the proxy resolves it', () => {
     expect(up.model).toBe('gpt-oss:120b')
   })
 
-  it('a v6 save keeps whatever it holds', () => {
-    const up = migrate({ baseUrl: DEFAULT_BASE_URL, model: 'gpt-oss:120b' }, 6) as Record<
+  it('a v7 save keeps whatever it holds', () => {
+    const up = migrate({ baseUrl: DEFAULT_BASE_URL, model: 'gpt-oss:120b' }, 7) as Record<
       string,
       unknown
     >
     expect(up.model).toBe('gpt-oss:120b')
+  })
+})
+
+/**
+ * The API key, retired — and a stale one cleared out with it.
+ *
+ * A key typed in an older build overrides the one the proxy holds. That was
+ * deliberate, so another service could be used without a code change, and it
+ * is why the v5 migration treated a typed key as a decision and left it alone.
+ * For a key that had since been revoked, "left alone" meant it kept being
+ * sent, kept being forwarded ahead of the proxy's own, and kept coming back
+ * rejected — mid-round, pointing the player at a Settings field for a key the
+ * app no longer needs. Observed on a real phone.
+ */
+describe('the API key, now that nothing asks for one', () => {
+  const migrate = migrateSettings
+
+  it('is empty for anyone who has never stored a setting', () => {
+    expect(useSettings.getInitialState().apiKey).toBe('')
+  })
+
+  it.each([1, 2, 3, 4, 5, 6])('and is cleared out of a v%i save', (from) => {
+    const up = migrate({ apiKey: 'a-revoked-key', baseUrl: DEFAULT_BASE_URL }, from) as Record<
+      string,
+      unknown
+    >
+    expect(up.apiKey).toBe('')
+  })
+
+  it('including one pointing somewhere else entirely', () => {
+    const up = migrate({ apiKey: 'k', baseUrl: 'https://my-own.example/v1' }, 6) as Record<
+      string,
+      unknown
+    >
+    expect(up.apiKey).toBe('')
+    // Their endpoint is still their decision; only the credential goes.
+    expect(up.baseUrl).toBe('https://my-own.example/v1')
+  })
+
+  it('and a v7 save is not touched again', () => {
+    const up = migrate({ apiKey: 'still-here' }, 7) as Record<string, unknown>
+    expect(up.apiKey).toBe('still-here')
   })
 })

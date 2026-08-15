@@ -380,7 +380,6 @@ const studyBtn3 = page.locator('.study-dock .btn-primary')
 if (await studyBtn3.isVisible().catch(() => false)) await studyBtn3.click()
 
 const KB = 320
-const dockBefore = await page.locator('.clue-input').boundingBox()
 await page.locator('.clue-input input').first().focus()
 await page.evaluate((kb) => {
   document.documentElement.style.setProperty('--kb', `${kb}px`)
@@ -388,11 +387,21 @@ await page.evaluate((kb) => {
 }, KB)
 await page.waitForTimeout(300)
 
-const dockAfter = await page.locator('.clue-input').boundingBox()
+// The whole dock — the field being typed into and the button that sends it —
+// has to clear the keyboard, not merely move up. Measured against where the
+// keyboard's top edge would be.
+const dock = await page.locator('.clue-input').boundingBox()
+const keyboardTop = PHONE.height - KB
 check(
-  'the clue dock lifts clear of the keyboard',
-  Math.round(dockBefore.y - dockAfter.y) === KB,
-  `moved ${Math.round(dockBefore.y - dockAfter.y)}px, keyboard ${KB}px`,
+  'the clue dock clears the keyboard entirely',
+  dock.y + dock.height <= keyboardTop + 1,
+  `dock ends at ${Math.round(dock.y + dock.height)}, keyboard starts at ${keyboardTop}`,
+)
+const field = await page.locator('.clue-input input').first().boundingBox()
+check(
+  'and so does the field itself',
+  field.y + field.height <= keyboardTop + 1,
+  `field ends at ${Math.round(field.y + field.height)}`,
 )
 // The whole point: it moves without making the page taller.
 await noScroll('game with the keyboard open')

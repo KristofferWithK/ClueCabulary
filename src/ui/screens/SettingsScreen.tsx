@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { AiError, listModels, resolveEndpoint, testConnection } from '../../ai/client'
-import { hasBundledKey } from '../../ai/bundled-key'
 import { PROVIDERS, providerFor, type Provider } from '../../ai/providers'
 import type { GridSize } from '../../engine/config'
 import { useGame } from '../../stores/gameStore'
@@ -116,45 +115,20 @@ export function SettingsScreen() {
           </div>
           <small>{provider ? provider.note : 'A custom Base URL — your own proxy, or a local Ollama.'}</small>
         </div>
-        <label className="field">
-          <span>API key</span>
-          <input
-            type="password"
-            value={settings.apiKey}
-            placeholder={
-              hasBundledKey
-                ? 'using the key bundled with this build'
-                : provider && !provider.keysAt
-                  ? 'not needed — leave empty'
-                  : 'paste your key'
-            }
-            autoComplete="off"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            onChange={(e) => settings.set({ apiKey: e.target.value })}
-          />
-          <small>
-            Stored only on this device, sent only to the Base URL below.
-            {provider?.keysAt && (
-              <>
-                {' '}
-                <a href={provider.keysAt} target="_blank" rel="noreferrer">
-                  Get a {provider.label} key
-                </a>
-                .
-              </>
-            )}
-            {/* A key sent from here overrides the one the proxy holds, which is
-                worth saying where it can be typed by accident. */}
-            {provider && !provider.keysAt && (
-              <> This service needs none; anything typed here is used instead of its own.</>
-            )}
-            {hasBundledKey && !settings.apiKey.trim() && (
-              <> Empty, so the key shipped with this build is used.</>
-            )}
-          </small>
-        </label>
+        {/* There was an API key field here, and retiring it fixed a real
+            failure rather than tidying one away.
+
+            A key typed here has always overridden the one the proxy holds, on
+            purpose, so that another service could be used without a code
+            change. Once the proxy became the only service, that rule turned
+            into a trap: a key left behind from an older setup kept being sent,
+            the proxy forwarded it in preference to its own, and the upstream
+            rejected it. What the player saw mid-round was "The API key was
+            rejected. Check it in Settings" — pointing at a field they had not
+            touched in weeks, for a key the app no longer needs at all.
+
+            Nothing here needs a key now: the proxy holds one, at Cloudflare,
+            for everybody. */}
         <label className="field">
           <span>Base URL</span>
           <input
@@ -166,8 +140,8 @@ export function SettingsScreen() {
             onChange={(e) => settings.set({ baseUrl: e.target.value })}
           />
           <small>
-            Set by the buttons above, or type your proxy's address plus <code>/v1</code>. Must
-            start with https://, since your API key is sent to it.
+            Set by the button above, or type your own proxy's address plus <code>/v1</code>. Must
+            start with https://, so nothing about your game travels in the clear.
           </small>
           {baseUrlProblem && <p className="test-fail">{baseUrlProblem}</p>}
         </label>

@@ -64,6 +64,21 @@ export const DEFAULT_BASE_URL = 'https://cluecabulary-proxy.kristoffer-kai.worke
  */
 export const DEFAULT_MODEL = 'cluey'
 
+/**
+ * What a 401 says now that there is no key to check.
+ *
+ * It used to read "The API key was rejected. Check it in Settings." — which was
+ * true when every player pasted their own key, and became a wild goose chase
+ * the moment the proxy started holding one: a player saw it mid-round and was
+ * sent to a field they had never filled in, for a credential the app does not
+ * have. (Seen on a real phone, which is what retired the field.)
+ *
+ * So it says what is actually true: the server refused, and it is not
+ * something the person playing can fix from here.
+ */
+const AUTH_REFUSED =
+  'Cluey’s server refused the request. Nothing to fix on this phone — try again in a moment, or play on without Cluey.'
+
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])
 
 /**
@@ -169,7 +184,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
 
   if (!res.ok) {
     if (res.status === 401 || res.status === 403) {
-      throw new AiError('auth', 'The API key was rejected. Check it in Settings.')
+      throw new AiError('auth', AUTH_REFUSED)
     }
     if (res.status === 404) {
       throw new AiError('not-found', 'Model or endpoint not found. Check the model name and Base URL in Settings.')
