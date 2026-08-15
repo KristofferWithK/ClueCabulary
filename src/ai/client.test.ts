@@ -30,21 +30,37 @@ async function kindOf(promise: Promise<unknown>): Promise<string> {
 }
 
 describe('chatJson error taxonomy', () => {
-  it('maps a fetch rejection to cors, and names what ollama.com actually does', async () => {
-    // ollama.com is reported to answer the CORS preflight with a redirect,
-    // which browsers will not follow — so for that host the advice is "you
-    // need the proxy", not "check your settings". For any other host it is the
-    // reverse. Stated as reported rather than measured: this session cannot
-    // reach ollama.com, and the app's own Test connection is what settles it.
+  it('blames CORS only for the host where CORS is the known problem', async () => {
+    // ollama.com answers the CORS preflight with a redirect, which browsers
+    // will not follow — measured on a real phone — so for that host the advice
+    // is "you need the proxy".
+    //
+    // Everywhere else it is NOT the diagnosis. That message used to blame CORS
+    // for every fetch rejection, and a player on one bar of signal, whose
+    // request simply died, was told to check a Base URL that was working. A
+    // dropped connection is the common case; a policy problem is not.
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
     const ollama = await catchError(chatJson({ ...settings, baseUrl: 'https://ollama.com/v1' }, messages))
     expect(ollama.kind).toBe('cors')
     expect(ollama.message).toMatch(/preflight/i)
     expect(ollama.message).toMatch(/proxy/i)
 
+    // A rejected fetch is a TypeError either way — the browser will not say
+    // which — so both causes are named, with the likelier one first.
     const other = await catchError(chatJson(settings, messages))
-    expect(other.kind).toBe('cors')
-    expect(other.message).toMatch(/Base URL/i)
+    expect(other.message).toMatch(/connection dropped/i)
+    expect(other.message.indexOf('connection dropped')).toBeLessThan(other.message.indexOf('CORS'))
+  })
+
+  it('says a stalled request timed out rather than leaving it hanging', async () => {
+    // No timeout at all meant a request on a weak connection hung until the
+    // network gave up on its own, with "Cluey is thinking…" on screen and
+    // nothing to retry.
+    const timeout = new DOMException('The operation was aborted', 'TimeoutError')
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(timeout))
+    const e = await catchError(chatJson(settings, messages))
+    expect(e.kind).toBe('network')
+    expect(e.message).toMatch(/took longer/i)
   })
 
   it.each([

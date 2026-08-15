@@ -11,8 +11,13 @@ name: TestFlight build
 #   2. appstoreconnect.apple.com → My Apps → “+” → New App → iOS, name
 #      ClueCabulary, that bundle ID, any SKU.
 #   3. appstoreconnect.apple.com → Users and Access → Integrations
-#      → App Store Connect API → Team Keys → Generate (role: App Manager).
-#      Note the Key ID and Issuer ID, download the .p8 once.
+#      → App Store Connect API → Team Keys → Generate, role ADMIN. Not App
+#      Manager: that key archives fine and then cannot create the iOS
+#      Distribution certificate, which Apple reports as "Cloud signing
+#      permission error" only at the upload step.
+#      The Key ID sits next to the key; the ISSUER ID is at the TOP of that
+#      page, above the list, and is a UUID rather than a 10-character code.
+#      Download the .p8 once.
 #   4. developer.apple.com → Membership → note the Team ID.
 #   5. Settings → Secrets and variables → Actions on this repository, add:
 #        APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID,

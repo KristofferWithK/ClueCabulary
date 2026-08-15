@@ -35,9 +35,17 @@ export function TurnTokens({
           : `The last chance opens after ${REDEMPTION_AFTER_ROUND}.`)
       }
     >
+      {/* Drawn from `given`, not from `left`, so the pips and the sentence
+          beneath them can never disagree.
+
+          They used to come from turnsLeft, which the engine decrements when a
+          turn ENDS rather than when a clue is given — so between submitting a
+          clue and the guessing finishing, the screen read "1/6 clues given"
+          above six untouched pips. Both numbers were true and the pair was
+          not, and it reads as a clue that failed to register. */}
       <span className="token-row" aria-hidden="true">
         {Array.from({ length: total }, (_, i) => (
-          <span key={i} className={`token ${i < left ? 'token-full' : 'token-spent'}`} />
+          <span key={i} className={`token ${i < total - given ? 'token-full' : 'token-spent'}`} />
         ))}
       </span>
       <span className="token-count" aria-hidden="true">

@@ -79,6 +79,17 @@ export const DEFAULT_MODEL = 'cluey'
 const AUTH_REFUSED =
   'Cluey’s server refused the request. Nothing to fix on this phone — try again in a moment, or play on without Cluey.'
 
+/**
+ * How long to wait for a clue before giving up on it.
+ *
+ * Generous, because a large model composing a clue from a 1,800-token prompt
+ * is genuinely slow and cutting it off early would be worse than waiting. But
+ * finite: with no timeout at all a request on a weak mobile connection hangs
+ * until the network gives up on its own, and the app sits on "Cluey is
+ * thinking…" with nothing to retry.
+ */
+const REQUEST_TIMEOUT_MS = 90_000
+
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])
 
 /**
@@ -164,17 +175,36 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
           temperature: opts?.temperature ?? 0.5,
           response_format: { type: 'json_object' },
         }),
+        // A clue from a large model is slow, and a phone on one bar can hold a
+        // request open indefinitely. Without this, a stalled call showed
+        // "Cluey is thinking…" forever, then failed — seen on the device.
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       })
-    } catch {
-      // fetch rejects without an HTTP status: offline or blocked by CORS.
+    } catch (e) {
+      // fetch rejects without an HTTP status. Which of the possible reasons
+      // gets named matters: this message used to blame CORS for all of them,
+      // which sent a player to check a Base URL that was working, on a phone
+      // that had simply lost its connection mid-request.
       if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         throw new AiError('network', 'You appear to be offline.')
       }
+      if (e instanceof DOMException && e.name === 'TimeoutError') {
+        throw new AiError(
+          'network',
+          `Cluey took longer than ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds and the request was dropped. Retry, or play on without him.`,
+        )
+      }
+      // A rejected fetch is a TypeError either way: the browser does not tell
+      // a page whether a request was refused by policy or died on the network.
+      // So both are named, in the order they actually happen — on a phone mid
+      // round, a lost connection is the common case and a policy problem is
+      // not, and leading with CORS sent a player to check a Base URL that was
+      // working perfectly.
       throw new AiError(
         'cors',
         endpoint.hostname === 'ollama.com'
           ? 'ollama.com refused the browser request. It is reported to answer the CORS preflight with a redirect, which browsers will not follow — a key or model name cannot fix that. Deploy the small proxy and set it as the Base URL; Settings has the steps.'
-          : 'The AI server refused the browser request (likely CORS). Check the Base URL in Settings.',
+          : 'Could not reach Cluey — the connection dropped, or the server refused the browser request (CORS). Retry, or play on without him; if it keeps happening, check the Base URL in Settings.',
       )
     }
   }
