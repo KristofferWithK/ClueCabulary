@@ -169,9 +169,12 @@ jobs:
 
           sys.stdout.write((signing + b'.' + b64(jose(der))).decode())
           PY
+          # No square brackets in the URL: curl reads [ ] as its own globbing
+          # syntax and refuses the whole thing as malformed (exit 3) before it
+          # ever reaches Apple. bundleId is in the default response anyway.
           code=$(curl -s -o /tmp/asc.json -w '%{http_code}' \
             -H "Authorization: Bearer $(cat /tmp/asc.jwt)" \
-            'https://api.appstoreconnect.apple.com/v1/apps?limit=200&fields[apps]=bundleId,name')
+            'https://api.appstoreconnect.apple.com/v1/apps?limit=200')
           if [ "$code" != "200" ]; then
             {
               echo "### Apple refused these credentials (HTTP $code)"
