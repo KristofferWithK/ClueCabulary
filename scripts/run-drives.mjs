@@ -65,9 +65,9 @@ if (missing.length) {
   process.exit(2)
 }
 
-const run = (cmd, args, env = {}) =>
+const run = (cmd, args, env = {}, shell = false) =>
   new Promise((done) => {
-    const p = spawn(cmd, args, { cwd: ROOT, env: { ...process.env, ...env } })
+    const p = spawn(cmd, args, { cwd: ROOT, env: { ...process.env, ...env }, shell })
     let out = ''
     p.stdout.on('data', (d) => (out += d))
     p.stderr.on('data', (d) => (out += d))
@@ -98,7 +98,9 @@ mkdirSync(SHOT_DIR, { recursive: true })
 
 if (!noBuild) {
   process.stdout.write('building… ')
-  const built = await run('npm', ['run', 'build'])
+  // npm is npm.cmd on Windows, which spawn() cannot exec without a shell.
+  const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+  const built = await run(npm, ['run', 'build'], {}, process.platform === 'win32')
   if (built.code !== 0) {
     console.log('FAILED\n')
     console.log(built.out.split('\n').slice(-30).join('\n'))

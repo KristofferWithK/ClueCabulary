@@ -10,7 +10,7 @@ const preview = await startPreview(PORT)
  * the end of the road, map labels near the viewBox edge, the primary action's
  * position on small phones, and the board's ⓘ overlapping words.
  */
-const EXE = '/opt/pw-browsers/chromium'
+const EXE = process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium'
 const BASE = preview.base
 const PHONE = { width: 390, height: 844 }
 

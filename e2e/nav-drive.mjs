@@ -5,7 +5,7 @@ import { setTimeout as sleep } from 'node:timers/promises'
 const PORT = 4181
 const preview = await startPreview(PORT)
 
-const EXE = '/opt/pw-browsers/chromium'
+const EXE = process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium'
 const ROOT = preview.base
 const SENTINEL = ROOT + '?sentinel=1'
 const APP = ROOT + '?mock=1&howto=0&city=2&learned=34'
