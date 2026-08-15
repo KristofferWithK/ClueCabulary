@@ -170,10 +170,18 @@ export function useKeyboardInset() {
       return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement
     }
 
+    // The dock carries the composing state itself, so the lift does not depend
+    // on :focus-within — which is not true yet at pointerdown, when the move
+    // has to have already happened.
+    const stopComposing = () => {
+      for (const d of document.querySelectorAll('.dock.composing')) d.classList.remove('composing')
+    }
+
     const apply = () => {
       raf = 0
       if (!editableFocused()) {
         preLifted = false
+        stopComposing()
         fullH = Math.max(window.innerHeight, vv.height)
       }
       const covered = Math.max(0, fullH - vv.height)
@@ -223,16 +231,32 @@ export function useKeyboardInset() {
     const onPointerDown = (e: PointerEvent) => {
       const el = e.target
       if (!(el instanceof HTMLElement)) return
-      const field = el.closest('input, textarea')
+      const field = el.closest<HTMLElement>('input, textarea')
       const dock = el.closest('.dock')
       if (!field || !dock) return
+      // Already typing here: leave the tap alone so the caret can be placed.
+      if (document.activeElement === field) return
+
+      // Take the tap over. The default action would focus the field where it
+      // currently sits — at the bottom, in the strip iOS is about to cover —
+      // and the pan is decided at that instant. So: move first, focus second,
+      // both before the keyboard exists.
+      e.preventDefault()
       preLifted = true
       fullH = window.innerHeight
       root.style.setProperty('--app-h', `${Math.round(fullH)}px`)
-      root.style.setProperty('--dock-h', `${Math.round(dock.getBoundingClientRect().height)}px`)
+      dock.classList.add('composing')
       root.classList.add('kb-open')
-      // A tap that never becomes a focus — a scroll, a cancelled press — must
-      // not leave the app in the composing state.
+      // Read the box back to force the move to be laid out NOW, so the focus
+      // below happens with the field already at the top.
+      dock.getBoundingClientRect()
+      // Synchronously, inside this handler: iOS opens the keyboard only for a
+      // focus that happens within the gesture that asked for it. A frame later
+      // — via requestAnimationFrame — is outside it, and the keyboard never
+      // appears. preventScroll stops the browser adding its own reveal.
+      field.focus({ preventScroll: true })
+      // A tap that never becomes a focus — a cancelled press, a stray touch —
+      // must not leave the app composing.
       setTimeout(schedule, 700)
     }
 
@@ -253,6 +277,7 @@ export function useKeyboardInset() {
       window.removeEventListener('focusout', schedule)
       cancelAnimationFrame(raf)
       root.classList.remove('kb-open')
+      stopComposing()
       for (const p of ['--vvh', '--vvt', '--app-h', '--dock-h']) root.style.removeProperty(p)
     }
   }, [])
