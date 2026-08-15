@@ -1410,6 +1410,34 @@ select:focus {
   gap: 8px;
 }
 
+/* ---- typing, with a keyboard in the way ----
+
+   How much of the viewport the keyboard covers, published by
+   src/ui/keyboard.ts. Zero whenever there is no keyboard, which is every
+   desktop and every drive, so nothing below does anything until someone types
+   on a phone. */
+:root {
+  --kb: 0px;
+}
+
+/* The dock being typed into lifts clear of the keyboard; everything else stays
+   exactly where it was. transform rather than position, deliberately: it moves
+   no layout, so the board keeps its size and the shell keeps fitting the phone
+   — the thing that broke here was the app growing taller than the screen and
+   becoming scrollable, and a translate cannot do that.
+
+   The board ends up behind the keyboard. That is the right thing to cover:
+   while typing a clue you are reading what you typed, and the board is one tap
+   away again the moment the keyboard closes. */
+.kb-open .dock:focus-within {
+  transform: translateY(calc(-1 * var(--kb)));
+  transition: transform 0.16s ease-out;
+  /* Above the board it now sits on top of — the dock has a background, but a
+     card's own stacking would otherwise show through at the edges. */
+  position: relative;
+  z-index: 5;
+}
+
 .dock-title {
   line-height: 1.35;
   font-size: 0.92rem;
@@ -2227,9 +2255,21 @@ select:focus {
   .sheet,
   .howto,
   .word-card,
-  .confetti-piece {
+  .confetti-piece,
+  /* Cluey's life, all of it. This list is an allowlist rather than a wildcard,
+     so anything animated and not named here keeps moving for someone who asked
+     for stillness — which is the easy mistake to make when adding a face. */
+  .cluey-figure,
+  .cluey-eye-g,
+  .cluey-pupil {
     animation: none !important;
     transition: none !important;
+  }
+
+  /* Blinking is the one that matters most: frozen mid-blink is a squint, so
+     the eye is put back rather than merely stopped. */
+  .cluey-eye-g {
+    transform: none !important;
   }
 }
 
@@ -3158,6 +3198,422 @@ select:focus {
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.02em;
+}
+
+/* ---------- Cluey, alive ----------
+
+   A face that holds still is a picture of a suitcase. Four things make it a
+   character, and none of them are big: he blinks, his eyes drift, he breathes,
+   and he reacts to how the round is going.
+
+   transform-box: fill-box on every animated shape is load-bearing. An SVG
+   child's transform origin is the viewBox corner by default, so scaling an eye
+   to blink without it swings the eye across the lid instead of closing it. */
+
+.cluey-hatch line {
+  stroke: rgba(18, 18, 18, 0.26);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+/* The mood parts ride along in the markup and are switched here, so changing
+   expression never remounts the SVG mid-animation. */
+.cluey-arc,
+.cluey-brow,
+.cluey-mouth-o {
+  display: none;
+  stroke: var(--text);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.cluey-mouth-o {
+  stroke-width: 2.6;
+}
+
+.cluey-eye-g,
+.cluey-pupil,
+.cluey-figure {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.cluey-figure {
+  /* Bottom-centre, so a hop lifts him off the ground rather than about his
+     middle, and a breath settles rather than shrinks. */
+  transform-origin: 50% 92%;
+  animation: cluey-breathe 3.6s ease-in-out infinite;
+}
+
+.cluey-eye-g {
+  animation: cluey-blink 5.2s infinite;
+}
+
+/* A second face on screen blinking in lockstep with the first reads as a
+   machine, so the small one is offset. */
+.cluey-mini .cluey-eye-g {
+  animation-duration: 4.3s;
+}
+
+.cluey-pupil {
+  animation: cluey-wander 9s ease-in-out infinite;
+}
+
+/* While the pointer is near him the eyes follow it, so the drift stands down
+   rather than fighting the inline transform the handler writes. The class goes
+   on the wrapper, which is what the handler holds a ref to. */
+.cluey-live {
+  display: block;
+}
+
+.cluey-looking .cluey-pupil {
+  animation: none;
+  transition: transform 0.12s ease-out;
+}
+
+@keyframes cluey-blink {
+  0%,
+  92%,
+  95%,
+  100% {
+    transform: scaleY(1);
+  }
+  93.5% {
+    transform: scaleY(0.06);
+  }
+}
+
+@keyframes cluey-wander {
+  0%,
+  16% {
+    transform: translate(0, 0);
+  }
+  22%,
+  40% {
+    transform: translate(-2.1px, 0.4px);
+  }
+  46%,
+  64% {
+    transform: translate(2.1px, -0.3px);
+  }
+  70%,
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes cluey-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(0.8px) scaleY(0.988);
+  }
+}
+
+/* Happy: the eyes become arcs and he hops. Used when a guess lands green, and
+   on a tap, because a mascot that never reacts to being poked is furniture. */
+.mood-happy .cluey-eye,
+.mood-happy .cluey-pupil {
+  display: none;
+}
+
+.mood-happy .cluey-arc {
+  display: block;
+}
+
+.mood-happy .cluey-figure {
+  animation: cluey-hop 0.6s ease-in-out;
+}
+
+@keyframes cluey-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  30% {
+    transform: translateY(-7px) scale(0.98, 1.03);
+  }
+  60% {
+    transform: translateY(0) scale(1.03, 0.96);
+  }
+}
+
+/* Thinking: eyes up and away, one brow raised, a slow sway. This is the state
+   the player watches while a model is answering, so it has to be worth
+   watching for a couple of seconds without becoming a distraction. */
+.mood-thinking .cluey-pupil {
+  animation: none;
+  transform: translate(-1.6px, -2.1px);
+}
+
+.mood-thinking .cluey-brow {
+  display: block;
+}
+
+.mood-thinking .cluey-figure {
+  animation: cluey-sway 2.8s ease-in-out infinite;
+}
+
+@keyframes cluey-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(1.4deg);
+  }
+}
+
+/* Caught out: small pupils, round mouth, a flinch. */
+.mood-oops .cluey-pupil {
+  animation: none;
+  transform: scale(0.62);
+}
+
+.mood-oops .cluey-smile {
+  display: none;
+}
+
+.mood-oops .cluey-mouth-o {
+  display: block;
+}
+
+.mood-oops .cluey-figure {
+  animation: cluey-shake 0.42s linear;
+}
+
+@keyframes cluey-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2.5px);
+  }
+  50% {
+    transform: translateX(2.2px);
+  }
+  75% {
+    transform: translateX(-1.4px);
+  }
+}
+
+/* Cluey in a dock, next to what he is saying. */
+.cluey-mini {
+  width: 44px;
+  flex: none;
+}
+
+/* ================= the pencil pass =================
+
+   Everything the app draws now reads as drawn — by hand, in pencil, on paper —
+   without a single new asset, font or image. Three techniques, chosen for what
+   they cost rather than for how they look in isolation:
+
+   1. PAPER. One fixed feTurbulence rect behind the whole app (see PencilDefs in
+      App.tsx). A texture per card would be the same picture rendered twenty
+      times; this is one filtered element for every screen.
+
+   2. WOBBLED EDGES, on chrome only. A displacement filter on a border drawn in
+      a pseudo-element, so the wobble never touches text. Reserved for things
+      there are a handful of — docks, panels, buttons, Cluey — never the board.
+
+   3. THE BOARD, WITHOUT FILTERS. Twenty cards each running a displacement map,
+      re-rasterising on every tap and transition, is the kind of cost nothing in
+      this repo would catch. The cards get their hand-drawn edge from geometry
+      instead: an irregular border-radius and a hair of rotation. It survives
+      being tapped sixty times a round, which the filter version might not.
+
+   Two things this pass must not break, both of them load-bearing:
+
+   - THE KEY IS THE BORDER. .mykey-green is solid green, .mykey-forbidden is
+     dashed black, and the comment above them records that they differ in style
+     as well as colour so nothing rests on telling greens apart. Both are left
+     exactly as they were; only the corner geometry changes, which is why the
+     cards keep a real border rather than moving to a pseudo-element.
+
+   - THE TILE FILLS STAY SOLID. --green-tile measures 4.45:1 against white and
+     article-drive.mjs asserts a 4.4 floor across five grounds, reading the
+     palette straight out of :root. Hatching or lightening a tile that carries
+     white text fails that drive, correctly. So the pencil goes on the EDGES of
+     the board, and the fills are not touched. */
+
+.pencil-grain {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Above the page background, below everything drawn on it — and below is the
+     whole job, so it takes the negative index rather than making every other
+     layer in the app claim a positive one. */
+  z-index: -1;
+  opacity: 0.85;
+}
+
+/* Defs only — nothing to see, but display:none would stop some engines
+   resolving the filters referenced from CSS. */
+.pencil-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Nothing else is touched to put the grain behind — it goes behind itself.
+   Lifting every child of the shell to z-index: 1 instead was tried, and it
+   outranked the dictionary sheet's own stacking by specificity: the backdrop
+   ended up under the screen, and tapping it stopped closing the sheet. The
+   nav drive caught it. */
+
+/* ---- the board: hand-drawn without filters ----
+
+   The corner radii are deliberately uneven and mismatched on each axis, which
+   is what a box drawn by hand does and a box drawn by a computer never does.
+   The rotation is under a degree: enough to break the grid's perfect alignment,
+   too little to read as broken.
+
+   Note .word-card has overflow: hidden, so a pseudo-element pushed outward
+   would be clipped by its own parent — the reason the wobble lives in the
+   card's geometry rather than in an extra layer. */
+.word-card {
+  border-radius: 14px 8px 12px 9px / 9px 12px 8px 14px;
+}
+
+.word-card-wrap:nth-child(2n) .word-card {
+  transform: rotate(0.45deg);
+}
+
+.word-card-wrap:nth-child(3n) .word-card {
+  transform: rotate(-0.5deg);
+}
+
+.word-card-wrap:nth-child(5n) .word-card {
+  transform: rotate(0.3deg);
+}
+
+/* A tap still presses in: the existing transition covers transform, so this
+   has to restate the rotation or a tapped card snaps square. */
+.card-guessable:active {
+  transform: scale(0.97) rotate(0deg);
+}
+
+/* The legend and the how-to tiles are miniature copies of a card. They pick up
+   the same hand-drawn corners, or the legend stops matching the board it is
+   explaining. */
+.legend-swatch,
+.demo-tile {
+  border-radius: 9px 5px 8px 6px / 6px 8px 5px 9px;
+}
+
+/* ---- chrome: the wobble proper ----
+
+   Drawn on a pseudo-element rather than the element, so the filter has only a
+   border to displace and never any text. The host keeps its own background and
+   radius; the border it used to draw moves here. */
+.dock,
+.study-dock,
+.packing-dock,
+.city-card,
+.daily-card,
+.grid-card,
+.settings-section,
+.cluey-bubble,
+.error-banner,
+.connect-cluey,
+.practice-note,
+.setup-nudge {
+  border-color: transparent;
+  position: relative;
+}
+
+.dock::before,
+.study-dock::before,
+.packing-dock::before,
+.city-card::before,
+.daily-card::before,
+.grid-card::before,
+.settings-section::before,
+.cluey-bubble::before,
+.error-banner::before,
+.connect-cluey::before,
+.practice-note::before,
+.setup-nudge::before {
+  content: '';
+  position: absolute;
+  /* Inset by a hair: the displacement pushes the stroke outward, and a border
+     sitting exactly on the edge would have its wobble clipped by any ancestor
+     that hides overflow. */
+  inset: 1px;
+  border: 1.6px solid var(--line);
+  border-radius: inherit;
+  filter: url(#pencil-edge);
+  pointer-events: none;
+}
+
+.study-dock::before,
+.packing-dock::before,
+.cluey-bubble::before {
+  border-color: var(--text);
+}
+
+.error-banner::before {
+  border-color: var(--red);
+}
+
+/* Buttons: the same trick, gentler. A pill is a 999px radius, and displacement
+   that reads as "drawn by hand" on a panel's soft corner reads as "scratched
+   out" on a tight curve — measured by looking at it, at scale 5, on «Nye ord». */
+.btn,
+.chip,
+.icon-btn {
+  border-color: transparent;
+  position: relative;
+}
+
+.btn::before,
+.chip::before,
+.icon-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.6px solid var(--text);
+  border-radius: inherit;
+  filter: url(#pencil-edge-fine);
+  pointer-events: none;
+}
+
+.chip::before,
+.icon-btn::before {
+  border-color: var(--line);
+  border-width: 1.4px;
+}
+
+/* A filled button already reads as a shape; its outline would only muddy the
+   edge, and on --text it is invisible anyway. */
+.btn-primary::before,
+.icon-btn-active::before,
+.btn-danger::before {
+  display: none;
+}
+
+/* Cluey is drawn by the same hand as everything else. He is one element, so he
+   can afford the filter the board cannot. */
+.cluey-svg {
+  filter: url(#pencil-edge);
+}
+
+.cluey-body {
+  fill: #ece7da;
+}
+
+/* The speech tail is a rotated square with two borders; filtering it as well
+   makes the join with the bubble mushy, so it stays crisp and only the bubble
+   itself wobbles. */
+.cluey-bubble::after {
+  filter: none;
 }
 
 /* Bottom band: the daily star, Play stretched between, the rules. */

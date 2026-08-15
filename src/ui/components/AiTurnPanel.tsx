@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { currentClue } from '../../engine/game'
 import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
+import { ClueyFace, type ClueyMood } from './Cluey'
 
 const GUESS_INTERVAL_MS = 1100
 
@@ -27,6 +28,7 @@ export function AiTurnPanel({ game }: { game: GameState }) {
   if (game.phase === 'aiClueInput' || aiBusy) {
     return (
       <div className="dock ai-panel">
+        <ClueyFace mood="thinking" className="cluey-mini" />
         <p className="thinking">
           <span className="dots" /> Cluey is thinking…
         </p>
@@ -42,9 +44,17 @@ export function AiTurnPanel({ game }: { game: GameState }) {
       )
     : undefined
   const lastWord = lastAiGuess ? game.words.find((w) => w.wordId === lastAiGuess.wordId) : undefined
+  // How the last guess landed is already computed for the sentence below; the
+  // face reads the same variable rather than deriving anything of its own.
+  const mood: ClueyMood = !lastResult
+    ? 'thinking'
+    : lastResult.result === 'green'
+      ? 'happy'
+      : 'oops'
 
   return (
     <div className="dock ai-panel">
+      <ClueyFace mood={mood} className="cluey-mini" />
       <p className="dock-title">
         Your clue: <strong>«{clue.text}»</strong> ({clue.number})
       </p>
