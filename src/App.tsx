@@ -22,6 +22,52 @@ import { MapScreen } from './ui/screens/MapScreen'
 import { SuitcaseScreen } from './ui/screens/SuitcaseScreen'
 import { SettingsScreen } from './ui/screens/SettingsScreen'
 
+/**
+ * The paper the app is drawn on, and the two wobbles that draw it.
+ *
+ * One <svg> for the whole app rather than a filter per component: a filter is
+ * referenced by id from CSS, so these only have to exist once in the document.
+ * The grain is a single fixed rect — one filtered element for every screen —
+ * because a texture repeated per card is the same picture rendered forty times.
+ *
+ * The wobbles are used on chrome only (docks, panels, buttons, Cluey), never on
+ * the board: twenty cards each running a displacement map is the kind of cost
+ * no test here would catch, and the cards get their hand-drawn edge from plain
+ * geometry instead. See index.css, "the pencil pass".
+ */
+function PencilDefs() {
+  return (
+    <>
+      <svg className="pencil-grain" aria-hidden="true" focusable="false">
+        <rect width="100%" height="100%" filter="url(#pencil-paper)" />
+      </svg>
+      <svg className="pencil-defs" aria-hidden="true" focusable="false">
+        <defs>
+        <filter id="pencil-edge" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="2" seed="12" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="3.4" />
+        </filter>
+        {/* For pills. A tight radius turns displacement into scribble — the
+            same scale that reads as "drawn" on a panel reads as "scratched
+            out" on a button — so this one is gentler, not looser. */}
+        <filter id="pencil-edge-fine" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.016" numOctaves="2" seed="23" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="1.8" />
+        </filter>
+        <filter id="pencil-paper" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="2" result="n" />
+          <feColorMatrix
+            in="n"
+            type="matrix"
+            values="0 0 0 0 0.45  0 0 0 0 0.43  0 0 0 0 0.38  0 0 0 0.055 0"
+          />
+        </filter>
+        </defs>
+      </svg>
+    </>
+  )
+}
+
 export default function App() {
   const screen = useUi((s) => s.screen)
   const [rescued, setRescued] = useState<{ cityIndex: number; banked: number } | null>(null)
@@ -178,6 +224,7 @@ export default function App() {
 
   return (
     <main className="app-shell">
+      <PencilDefs />
       {screen === 'home' && <HomeScreen />}
       {screen === 'game' && <GameScreen />}
       {screen === 'settings' && <SettingsScreen />}
