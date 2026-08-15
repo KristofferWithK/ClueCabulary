@@ -82,57 +82,80 @@ export function ClueInput({ game, onSubmit }: Props) {
               ))}
         </p>
       )}
-      <div className="dock-head">
-        <p className="dock-title">
-          Your clue — <strong lang="da">ét dansk ord</strong> for your{' '}
-          <span className="legend-target">●</span> targets
-        </p>
-        {/* The reroll rides the title line: it exists only before the first
-            clue, exactly when the dock is at its tallest, and a full-width
-            button of its own was 48px the board could not spare on a 640px
-            phone. */}
-        {canReroll && (
-          <button
-            className="btn btn-small btn-ghost reroll-btn"
-            onClick={() => {
-              // The dock stays mounted across a re-deal, so a half-typed clue
-              // for the old board would otherwise sit there aimed at nothing.
-              setText('')
-              setCleared(null)
-              useGame.getState().rerollBoard()
-            }}
-          >
-            <span lang="da">Nye ord</span>
-          </button>
-        )}
+      {/* The two things you need while composing, side by side: the clue, and
+          the word you do not have yet. They fit on one line because a clue is
+          one short word — which is what lets the whole composer be two lines
+          tall, so it can sit on the keyboard and cover the board rather than
+          fighting it for room.
+
+          The labels are English, like every other label in the app. Danish is
+          what you TYPE, not what the app says to you. */}
+      <div className="composer-fields">
+        <label className="composer-field">
+          <span className="composer-label">
+            Your clue
+            {/* Only before the first clue, exactly when nothing has been spent
+                — and on this line because a button of its own is a whole row
+                the composer cannot afford. */}
+            {canReroll && (
+              <button
+                className="composer-link reroll-btn"
+                onClick={(e) => {
+                  e.preventDefault()
+                  // The dock stays mounted across a re-deal, so a half-typed
+                  // clue for the old board would sit there aimed at nothing.
+                  setText('')
+                  setCleared(null)
+                  useGame.getState().rerollBoard()
+                }}
+              >
+                New words
+              </button>
+            )}
+          </span>
+          <input
+            id="clue-word"
+            type="text"
+            value={text}
+            placeholder="one Danish word"
+            aria-label="Your one-word clue, in Danish"
+            aria-invalid={trimmed ? !canSubmit : undefined}
+            aria-describedby={(verdict && !verdict.legal) || english ? 'clue-error' : undefined}
+            autoCapitalize="off"
+            autoComplete="off"
+            // The one field in the app that asks for DANISH and the only one that
+            // was leaving the phone keyboard's English autocorrect on — every
+            // other free-text field (TranslateBox, the packing dock, Settings,
+            // Backup) sets both of these. On an English keyboard a Danish word is
+            // rewritten at the space or submit boundary, and what arrives is an
+            // English dictionary word the player never typed.
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="done"
+            onChange={(e) => setText(e.target.value)}
+          />
+        </label>
+        {/* Clueing in Danish means needing a word you do not have yet — which
+            is the moment to look one up, not after abandoning the turn. */}
+        <TranslateBox prefill={english ? { term: trimmed, label: `«${trimmed}»` } : undefined} />
       </div>
-      <div className="clue-row">
-        <input
-          id="clue-word"
-          type="text"
-          value={text}
-          placeholder="fx dyreliv"
-          aria-label="Your one-word clue"
-          aria-invalid={trimmed ? !canSubmit : undefined}
-          aria-describedby={(verdict && !verdict.legal) || english ? 'clue-error' : undefined}
-          autoCapitalize="off"
-          autoComplete="off"
-          // The one field in the app that asks for DANISH and the only one that
-          // was leaving the phone keyboard's English autocorrect on — every
-          // other free-text field (TranslateBox, the packing dock, Settings,
-          // Backup) sets both of these. On an English keyboard a Danish word is
-          // rewritten at the space or submit boundary, and what arrives is an
-          // English dictionary word the player never typed.
-          autoCorrect="off"
-          spellCheck={false}
-          enterKeyHint="done"
-          onChange={(e) => setText(e.target.value)}
-        />
+      {/* role=alert so a rejected clue is spoken; id so the field points at it. */}
+      {verdict && !verdict.legal && !english && (
+        <p className="clue-error" id="clue-error" role="alert">
+          {verdict.reason}
+        </p>
+      )}
+      {english && (
+        <p className="clue-error" id="clue-error" role="alert">
+          «{trimmed}» looks English. Look it up beside the field for the Danish — or give the clue
+          anyway and Cluey will check.
+        </p>
+      )}
+      {/* How many words the clue points at, and the send: one line, the way a
+          messenger composer puts its send button next to what it sends. */}
+      <div className="composer-actions">
         <div className="stepper">
-          <button
-            aria-label="fewer words"
-            onClick={() => setNumber((n) => Math.max(1, n - 1))}
-          >
+          <button aria-label="fewer words" onClick={() => setNumber((n) => Math.max(1, n - 1))}>
             −
           </button>
           <span className="stepper-value" aria-live="polite" aria-label={`${number} words`}>
@@ -147,27 +170,10 @@ export function ClueInput({ game, onSubmit }: Props) {
             +
           </button>
         </div>
+        <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
+          {asking ? 'Asking Cluey…' : english ? 'Give clue anyway' : 'Give clue'}
+        </button>
       </div>
-      {/* role=alert so a rejected clue is spoken; id so the field points at it. */}
-      {verdict && !verdict.legal && !english && (
-        <p className="clue-error" id="clue-error" role="alert">
-          {verdict.reason}
-        </p>
-      )}
-      {english && (
-        <p className="clue-error" id="clue-error" role="alert">
-          «{trimmed}» looks English. Look it up below for the Danish — or give the clue anyway and
-          Cluey will check.
-        </p>
-      )}
-      {/* Clueing in Danish means needing a word you do not have yet — which is
-          the moment to be able to look one up, not after abandoning the turn. */}
-      {/* The button rides the lookup's own "Look up a word" line, so the label
-          is the word alone; TranslateBox spells it out for a screen reader. */}
-      <TranslateBox prefill={english ? { term: trimmed, label: `«${trimmed}»` } : undefined} />
-      <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
-        {asking ? 'Asking Cluey…' : english ? 'Give clue anyway' : 'Give clue'}
-      </button>
     </div>
   )
 }
