@@ -52,12 +52,12 @@
 		<string>armv7</string>
 	</array>
 	<!-- Portrait only, matching the PWA manifest: the board layout is built for
-	     one orientation, and the no-scroll rule is measured in it. -->
+	     one orientation, and the no-scroll rule is measured in it.
+	     No ~ipad key: the app is iPhone-only (TARGETED_DEVICE_FAMILY = 1), and
+	     an iPad-specific orientation list is what App Store validation reads as
+	     a promise to support iPad multitasking — which then requires all four
+	     orientations and rejects the upload for offering one. -->
 	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
