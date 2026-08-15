@@ -416,14 +416,28 @@ const cardBefore = await page.locator('.word-card').first().boundingBox()
 // keyboard is already too late. So the composer moves at pointerdown, before
 // focus, using this device's remembered keyboard height. If this check fails,
 // the board will visibly jump on a real iPhone.
-await page.locator('.clue-input input').first().dispatchEvent('pointerdown')
-await page.waitForTimeout(120)
+// A REAL tap, not .focus(). The difference is the whole bug this replaced: a
+// synthetic focus skips the pointer sequence, so a backdrop that covers the
+// field and swallows the tap looks fine here and is a white screen on a phone.
+await page.locator('.clue-input input').first().click()
+await page.waitForTimeout(150)
+const liftedEarly = await page.evaluate(() => {
+  const dock = document.querySelector('.clue-input')
+  return {
+    open: document.documentElement.classList.contains('kb-open'),
+    top: Math.round(dock.getBoundingClientRect().top),
+    focused: document.activeElement?.id ?? document.activeElement?.tagName ?? '(none)',
+  }
+})
 check(
-  'the composer lifts before the keyboard exists',
-  await page.evaluate(() => document.documentElement.classList.contains('kb-open')),
+  'a tap lifts the composer before any keyboard exists',
+  liftedEarly.open && liftedEarly.top <= 24,
+  `open ${liftedEarly.open}, top ${liftedEarly.top}`,
 )
+// It has to be typeable after all that: the field must actually have focus,
+// which is exactly what the backdrop was stealing.
+check('and the tap reached the field', liftedEarly.focused === 'clue-word', liftedEarly.focused)
 
-await page.locator('.clue-input input').first().focus()
 await page.evaluate((kb) => window.__fakeKeyboard(kb), KB)
 await page.waitForTimeout(300)
 

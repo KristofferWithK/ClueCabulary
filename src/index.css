@@ -1549,7 +1549,12 @@ select:focus {
    the top of the screen, so iOS has no reason to pan; there is no height to
    learn, so there is nothing to arrive late. The keyboard covers the bottom of
    a screen the composer is not on. */
-.kb-open .dock:focus-within {
+/* .composing, not :focus-within: the dock has to be at the top BEFORE the
+   field takes focus, and at that instant nothing inside it is focused yet.
+   Keying the lift on focus meant the backdrop appeared while the composer was
+   still at the bottom — covering the very input the tap was aimed at, so the
+   focus never landed and the screen went white. */
+.kb-open .dock.composing {
   position: fixed;
   left: 50%;
   top: calc(env(safe-area-inset-top) + 10px);
@@ -1593,7 +1598,7 @@ select:focus {
   display: none;
 }
 
-.kb-open .dock:focus-within .composer-targets {
+.kb-open .dock.composing .composer-targets {
   display: block;
   margin-top: 8px;
   padding-top: 8px;
@@ -1611,7 +1616,7 @@ select:focus {
 /* What happened last turn is context for choosing a clue, not for typing one.
    Once the keyboard is up it is a line of height spent on something already
    read — and height is exactly what the lifted composer cannot spare. */
-.kb-open .dock:focus-within .last-turn {
+.kb-open .dock.composing .last-turn {
   display: none;
 }
 
