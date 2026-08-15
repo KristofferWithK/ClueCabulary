@@ -276,8 +276,8 @@ describe('which server a device talks to', () => {
     expect(up.baseUrl).toBe(DEFAULT_BASE_URL)
   })
 
-  it('a v5 save is left alone entirely', () => {
-    const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: '' }, 5) as Record<string, unknown>
+  it('a v6 save is left alone entirely', () => {
+    const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: '' }, 6) as Record<string, unknown>
     expect(up.baseUrl).toBe(GEMINI_DIRECT)
   })
 
@@ -292,5 +292,68 @@ describe('which server a device talks to', () => {
       gridSize: 'middle',
       baseUrl: DEFAULT_BASE_URL,
     })
+  })
+})
+
+/**
+ * Cluey's brain stops being named in the bundle.
+ *
+ * "cluey" is an alias the proxy resolves (MODEL_ALIASES in
+ * proxy/wrangler.toml), so which model actually answers is a proxy deploy
+ * rather than an app release every phone has to notice — and a model id
+ * retired upstream gets fixed in one place instead of breaking every install.
+ *
+ * The fifth outing of the persisted-default trap, and the narrowest: only the
+ * exact pair the previous migration itself wrote is moved. A model somebody
+ * picked from the Settings list is a decision, and "cluey" is a name no other
+ * service has heard of, so overwriting a pick with it would take the pick away.
+ */
+describe('the model name, once the proxy resolves it', () => {
+  const migrate = migrateSettings
+
+  it('is the alias for anyone who has never stored a setting', () => {
+    expect(useSettings.getInitialState().model).toBe('cluey')
+  })
+
+  it('moves the exact pair the previous migration wrote', () => {
+    const up = migrate({ baseUrl: DEFAULT_BASE_URL, model: 'gpt-oss:120b' }, 5) as Record<
+      string,
+      unknown
+    >
+    expect(up.model).toBe('cluey')
+  })
+
+  it('and does so from every older version too', () => {
+    for (const from of [1, 2, 3, 4]) {
+      const up = migrate({ baseUrl: DEFAULT_BASE_URL, model: 'gpt-oss:120b' }, from) as Record<
+        string,
+        unknown
+      >
+      expect(up.model).toBe('cluey')
+    }
+  })
+
+  it('leaves a model picked from the list alone, proxy or not', () => {
+    const up = migrate({ baseUrl: DEFAULT_BASE_URL, model: 'mistral-large-3:675b' }, 5) as Record<
+      string,
+      unknown
+    >
+    expect(up.model).toBe('mistral-large-3:675b')
+  })
+
+  it('and does not send the alias to a service that never heard of it', () => {
+    const up = migrate({ baseUrl: 'https://ollama.com/v1', model: 'gpt-oss:120b' }, 5) as Record<
+      string,
+      unknown
+    >
+    expect(up.model).toBe('gpt-oss:120b')
+  })
+
+  it('a v6 save keeps whatever it holds', () => {
+    const up = migrate({ baseUrl: DEFAULT_BASE_URL, model: 'gpt-oss:120b' }, 6) as Record<
+      string,
+      unknown
+    >
+    expect(up.model).toBe('gpt-oss:120b')
   })
 })

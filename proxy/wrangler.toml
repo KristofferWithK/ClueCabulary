@@ -9,6 +9,21 @@ compatibility_date = "2026-01-01"
 [vars]
 ALLOWED_ORIGIN = "https://kristofferwithk.github.io"
 
+# What the app asks for instead of a model name. The app sends "cluey" and this
+# decides what answers, so changing Cluey's brain is a proxy deploy rather than
+# an app release every phone has to notice — and a model id retired upstream is
+# fixed here instead of breaking every install.
+#
+# Extra aliases can front another service entirely, which is how a comparison
+# stays blind (three names, three models, nothing on screen saying which):
+#
+#   MODEL_ALIASES = '''{"cluey":{"model":"gpt-oss:120b"},
+#     "cluey-a":{"model":"mistral-large-3"},
+#     "cluey-b":{"model":"gemini-3.6-flash","upstream":"https://generativelanguage.googleapis.com","path":"/v1beta/openai","key":"GEMINI_API_KEY"}}'''
+#
+# A name that is not listed here is forwarded as-is, so real model ids still work.
+MODEL_ALIASES = '{"cluey":{"model":"gpt-oss:120b"}}'
+
 # Which service this worker fronts. One worker serves either: Gemini's
 # OpenAI-compatible layer wants the same Bearer token, so only the host moves
 # and the app's Base URL supplies the path (/v1, or /v1beta/openai).

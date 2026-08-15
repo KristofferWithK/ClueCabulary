@@ -245,6 +245,146 @@ describe('the CORS proxy worker', () => {
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
   })
 
+  /**
+   * The app stops naming a model, so that changing which one answers is a
+   * proxy deploy rather than an app release every phone has to notice — and so
+   * that three models can be compared without the person playing being able to
+   * tell which is which.
+   */
+  describe('model aliases', () => {
+    const ALIASES = {
+      MODEL_ALIASES: JSON.stringify({
+        cluey: { model: 'gpt-oss:120b' },
+        'cluey-b': {
+          model: 'gemini-3.6-flash',
+          upstream: 'https://generativelanguage.googleapis.com',
+          path: '/v1beta/openai',
+          key: 'GEMINI_API_KEY',
+        },
+      }),
+      OLLAMA_API_KEY: 'ollama-secret',
+      GEMINI_API_KEY: 'gemini-secret',
+    }
+    const sent = (spy) => JSON.parse(spy.mock.calls[0][1].body)
+
+    it('swaps the alias for the real model name', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(post({ body: JSON.stringify({ model: 'cluey', messages: [] }) }), ALIASES)
+      expect(sent(fetchSpy).model).toBe('gpt-oss:120b')
+    })
+
+    it('keeps the rest of the body exactly as it arrived', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const messages = [{ role: 'user', content: 'hej' }]
+      await worker.fetch(
+        post({ body: JSON.stringify({ model: 'cluey', messages, temperature: 0.6 }) }),
+        ALIASES,
+      )
+      expect(sent(fetchSpy)).toEqual({ model: 'gpt-oss:120b', messages, temperature: 0.6 })
+    })
+
+    it('moves host and path together, because services disagree about the prefix', async () => {
+      // Ollama serves /v1, Gemini /v1beta/openai. Moving one without the other
+      // is a 404 that reads like a broken endpoint.
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(post({ body: JSON.stringify({ model: 'cluey-b' }) }), ALIASES)
+      expect(fetchSpy.mock.calls[0][0]).toBe(
+        'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+      )
+    })
+
+    it('sends the key that alias names, not the default one', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(
+        new Request(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'cluey-b' }),
+        }),
+        ALIASES,
+      )
+      expect(fetchSpy.mock.calls[0][1].headers.Authorization).toBe('Bearer gemini-secret')
+    })
+
+    it('forwards a real model id untouched, so nothing stops working', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(post({ body: JSON.stringify({ model: 'qwen3.5:397b' }) }), ALIASES)
+      expect(sent(fetchSpy).model).toBe('qwen3.5:397b')
+      expect(fetchSpy.mock.calls[0][0]).toBe('https://ollama.com/v1/chat/completions')
+    })
+
+    it('survives a MODEL_ALIASES that will not parse', async () => {
+      // A typo in a Worker var must not take the proxy down: with no aliases,
+      // every real model id still resolves, exactly as before this existed.
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(post({ body: JSON.stringify({ model: 'cluey' }) }), {
+        MODEL_ALIASES: '{not json',
+        OLLAMA_API_KEY: 'k',
+      })
+      expect(res.status).toBe(200)
+      // With no usable aliases the body is never read, so it is still the
+      // stream it arrived as — which is the passthrough this must not lose.
+      const forwarded = await new Response(fetchSpy.mock.calls[0][1].body).text()
+      expect(JSON.parse(forwarded).model).toBe('cluey')
+    })
+
+    it('lists the aliases first, so Settings can offer one', async () => {
+      // Settings offers whatever /models lists; an alias missing from it is a
+      // name you can type but never see.
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response('{"data":[{"id":"gpt-oss:120b"}]}', { status: 200 })),
+      )
+      const res = await worker.fetch(
+        new Request('https://p.workers.dev/v1/models', { headers: { Authorization: 'Bearer k' } }),
+        ALIASES,
+      )
+      const listed = await res.json()
+      expect(listed.data.map((m) => m.id)).toEqual(['cluey', 'cluey-b', 'gpt-oss:120b'])
+    })
+
+    it('leaves the model list alone when no aliases are configured', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response('{"data":[{"id":"gpt-oss:120b"}]}', { status: 200 })),
+      )
+      const res = await worker.fetch(
+        new Request('https://p.workers.dev/v1/models', { headers: { Authorization: 'Bearer k' } }),
+        {},
+      )
+      expect(await res.text()).toBe('{"data":[{"id":"gpt-oss:120b"}]}')
+    })
+
+    it('a key from the app still wins over the alias key', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(post({ body: JSON.stringify({ model: 'cluey-b' }) }), ALIASES)
+      expect(fetchSpy.mock.calls[0][1].headers.Authorization).toBe('Bearer player-key')
+    })
+
+    it('says which secret is missing when the alias names one that is not set', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(
+        new Request(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'cluey-b' }),
+        }),
+        { MODEL_ALIASES: ALIASES.MODEL_ALIASES, OLLAMA_API_KEY: 'ollama-secret' },
+      )
+      expect(res.status).toBe(401)
+      expect(await res.text()).toMatch(/GEMINI_API_KEY/)
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+  })
+
   it('answers an unreachable upstream itself, with CORS intact', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('fetch failed') }))
     const res = await worker.fetch(post(), {})

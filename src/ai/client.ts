@@ -47,19 +47,22 @@ export class AiError extends Error {
 export const DEFAULT_BASE_URL = 'https://cluecabulary-proxy.kristoffer-kai.workers.dev/v1'
 
 /**
- * Named now, where it used to be empty.
+ * An alias, not a model — the proxy decides what actually answers.
  *
- * The reason it was empty was that Ollama and Gemini publish conflicting ids
- * for the same model, so any default was wrong against one of them and its 404
- * read as a broken endpoint. The default Base URL above is a proxy fronting one
- * known service, which makes the id unambiguous — and a default nobody has to
- * choose is the difference between a fresh install playing and a fresh install
- * staring at a model picker.
+ * This was empty for as long as the app talked to services directly, because
+ * Ollama and Gemini publish conflicting ids for the same model and a wrong
+ * default returns a 404 that reads as a broken endpoint. Then it was
+ * gpt-oss:120b, which fixed a fresh install but pinned Cluey's brain inside the
+ * bundle: changing it meant a release, and every phone waiting to notice one.
  *
- * gpt-oss:120b because it is the one played through the worker. Switching
- * provider in Settings still clears this, because then it IS ambiguous again.
+ * "cluey" is resolved by MODEL_ALIASES on the worker (proxy/wrangler.toml), so
+ * which model answers is a proxy deploy — and a model id retired upstream is
+ * fixed in one place instead of breaking every install at once.
+ *
+ * Only meaningful against the proxy. Switching provider in Settings clears it,
+ * because no other service has heard of this name.
  */
-export const DEFAULT_MODEL = 'gpt-oss:120b'
+export const DEFAULT_MODEL = 'cluey'
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])
 
