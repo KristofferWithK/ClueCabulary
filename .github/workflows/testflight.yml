@@ -146,14 +146,28 @@ jobs:
           der = subprocess.run(["openssl","dgst","-sha256","-sign",
                                 f"{__import__('os').path.expanduser('~')}/asc/key.p8"],
                                input=signing, capture_output=True, check=True).stdout
-          # DER (r,s) -> raw 64-byte JOSE signature
-          def ints(d):
-              i = 2 + (1 if d[1] < 0x80 else 1 + (d[1] & 0x7f))
-              out = []
+
+          def jose(d):
+              """DER SEQUENCE{INTEGER r, INTEGER s} -> the raw 64 bytes ES256 wants.
+
+              The header is the tag and the length: two bytes in short form,
+              and two plus the count bytes in long form. Adding one for the tag
+              on top of that — which an earlier version did — lands inside the
+              first INTEGER and walks off the end of the buffer.
+              """
+              if d[0] != 0x30:
+                  raise ValueError('signature is not a DER sequence')
+              i = 2 if d[1] < 0x80 else 2 + (d[1] & 0x7f)
+              out = b''
               for _ in range(2):
-                  ln = d[i+1]; out.append(d[i+2:i+2+ln].lstrip(b'\x00').rjust(32,b'\x00')); i += 2 + ln
-              return b''.join(out)
-          sys.stdout.write((signing + b'.' + b64(ints(der))).decode())
+                  if d[i] != 0x02:
+                      raise ValueError('expected a DER integer')
+                  ln = d[i + 1]
+                  out += d[i + 2:i + 2 + ln].lstrip(b'\x00').rjust(32, b'\x00')
+                  i += 2 + ln
+              return out
+
+          sys.stdout.write((signing + b'.' + b64(jose(der))).decode())
           PY
           code=$(curl -s -o /tmp/asc.json -w '%{http_code}' \
             -H "Authorization: Bearer $(cat /tmp/asc.jwt)" \
