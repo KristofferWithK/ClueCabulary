@@ -152,27 +152,51 @@ export function useKeyboardInset() {
     // A keyboard takes a large bite; a collapsing URL bar takes a small one
     // and must not trigger any of this.
     const KEYBOARD_MIN = 120
+    // This device's real keyboard height, learned once and reused to place the
+    // composer before the next keyboard has opened.
+    const REMEMBERED = 'cluecab-kb-height'
 
     // The height of this device with no keyboard: what the shell is frozen at.
     // Only trusted while nothing editable is focused, or the shrunken webview
     // of an installed PWA would be mistaken for the phone's real size.
     let fullH = window.innerHeight
     let raf = 0
+    // Set at pointerdown, before focus. It holds the composer up through the
+    // gap between the tap and the keyboard actually reporting a height — a
+    // gap in which the reactive path would otherwise measure "no keyboard",
+    // drop the composer back into the danger zone, and hand iOS the very
+    // reason to pan that all of this exists to remove.
+    let preLifted = false
 
     const editableFocused = () => {
       const el = document.activeElement
       return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement
     }
 
+    const remember = (px: number) => {
+      try {
+        localStorage.setItem(REMEMBERED, String(Math.round(px)))
+      } catch {
+        // Private mode. The default guess is fine.
+      }
+    }
+
     const apply = () => {
       raf = 0
-      if (!editableFocused()) fullH = Math.max(window.innerHeight, vv.height)
+      if (!editableFocused()) {
+        preLifted = false
+        fullH = Math.max(window.innerHeight, vv.height)
+      }
       const covered = Math.max(0, fullH - vv.height)
-      const open = covered > KEYBOARD_MIN && editableFocused()
-      root.style.setProperty('--vvh', `${Math.round(vv.height)}px`)
-      root.style.setProperty('--vvt', `${Math.round(vv.offsetTop)}px`)
+      const measured = covered > KEYBOARD_MIN
+      if (measured) {
+        // The real height, which replaces the guess on this device for good.
+        remember(covered)
+        root.style.setProperty('--vvh', `${Math.round(vv.height)}px`)
+        root.style.setProperty('--vvt', `${Math.round(vv.offsetTop)}px`)
+      }
       root.style.setProperty('--app-h', `${Math.round(fullH)}px`)
-      root.classList.toggle('kb-open', open)
+      root.classList.toggle('kb-open', editableFocused() && (measured || preLifted))
     }
 
     // The visual viewport streams events through the keyboard's animation;
@@ -188,6 +212,57 @@ export function useKeyboardInset() {
       schedule()
     }
 
+    /**
+     * Lift the composer BEFORE the field takes focus. This is the whole fix.
+     *
+     * iOS pans the visual viewport to reveal a focused element that would sit
+     * under the keyboard. The pan is not document scroll: scrollTop stays 0,
+     * overflow: hidden does nothing, and no CSS prevents it — measured on the
+     * device, where the status bar ended up over the board and the header
+     * disappeared off the top while the composer looked perfectly placed.
+     *
+     * Reacting cannot win, because by the time the keyboard reports its height
+     * the pan has already happened. So the decision is made at pointerdown,
+     * which fires before focus: the composer moves to where the keyboard will
+     * leave it, using the height last measured on this device, and iOS then
+     * finds the field already visible and has no reason to pan at all.
+     *
+     * The guess only has to be close. Land slightly high and the field is
+     * still clear of the keyboard; the real measurement arrives milliseconds
+     * later and corrects it.
+     */
+    // A middle-of-the-road iPhone keyboard with its suggestion strip. Replaced
+    // by a real measurement the first time this device opens one.
+    const guessHeight = () => {
+      let seen = 0
+      try {
+        seen = Number(localStorage.getItem(REMEMBERED))
+      } catch {
+        // Private mode.
+      }
+      return seen > KEYBOARD_MIN && seen < window.innerHeight * 0.75 ? seen : 336
+    }
+
+    const onPointerDown = (e: PointerEvent) => {
+      const el = e.target
+      if (!(el instanceof HTMLElement)) return
+      const field = el.closest('input, textarea')
+      const dock = el.closest('.dock')
+      if (!field || !dock) return
+      preLifted = true
+      fullH = window.innerHeight
+      root.style.setProperty('--app-h', `${Math.round(fullH)}px`)
+      root.style.setProperty('--dock-h', `${Math.round(dock.getBoundingClientRect().height)}px`)
+      root.style.setProperty('--vvt', '0px')
+      root.style.setProperty('--vvh', `${Math.round(fullH - guessHeight())}px`)
+      root.classList.add('kb-open')
+      // A tap that never becomes a focus — a scroll, a cancelled press — must
+      // not leave the composer hanging in mid-air.
+      setTimeout(schedule, 700)
+    }
+
+    // Capture: the field's own handlers must not be able to stop this.
+    window.addEventListener('pointerdown', onPointerDown, true)
     vv.addEventListener('resize', schedule)
     vv.addEventListener('scroll', schedule)
     window.addEventListener('resize', schedule)

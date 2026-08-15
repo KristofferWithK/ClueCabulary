@@ -410,6 +410,19 @@ await page.waitForTimeout(200)
 const gridBefore = await page.locator('.board-grid').boundingBox()
 const cardBefore = await page.locator('.word-card').first().boundingBox()
 
+// The fix, asserted at the moment it has to happen. iOS pans the viewport to
+// reveal a focused field that sits where the keyboard is about to be, and the
+// pan is not document scroll — nothing in CSS prevents it, and reacting to the
+// keyboard is already too late. So the composer moves at pointerdown, before
+// focus, using this device's remembered keyboard height. If this check fails,
+// the board will visibly jump on a real iPhone.
+await page.locator('.clue-input input').first().dispatchEvent('pointerdown')
+await page.waitForTimeout(120)
+check(
+  'the composer lifts before the keyboard exists',
+  await page.evaluate(() => document.documentElement.classList.contains('kb-open')),
+)
+
 await page.locator('.clue-input input').first().focus()
 await page.evaluate((kb) => window.__fakeKeyboard(kb), KB)
 await page.waitForTimeout(300)
