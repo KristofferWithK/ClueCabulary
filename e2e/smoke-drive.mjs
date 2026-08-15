@@ -65,7 +65,7 @@ try {
   const warned = await page.evaluate(() => ({
     label: document.querySelector('.clue-input .btn-primary').textContent,
     error: document.querySelector('.clue-error')?.textContent ?? '',
-    lookup: [...document.querySelectorAll('.clue-input .composer-link')].map((b) => b.textContent),
+    lookup: [...document.querySelectorAll('.clue-input .btn-small')].map((b) => b.textContent),
   }))
   if (!/looks English/.test(warned.error)) throw new Error(`no English warning: ${warned.error}`)
   if (!/anyway/.test(warned.label)) throw new Error(`no override offered: ${warned.label}`)
