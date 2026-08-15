@@ -49,6 +49,38 @@ const allowList = (env) =>
     .filter(Boolean)
 
 /**
+ * Model aliases: names the app can send that mean "whatever Cluey thinks with
+ * today". Set MODEL_ALIASES as a Worker var — see proxy/wrangler.toml.
+ *
+ *   {"cluey": {"model": "gpt-oss:120b"}}
+ *
+ * The point is that the app stops naming a model. Without this, changing which
+ * model answers is a code change, a release, and a wait while every installed
+ * PWA notices — and a model id retired upstream (ollama.com has retired
+ * several) breaks every install at once with no way to fix it from here. It is
+ * also what makes a blind comparison possible: three aliases can point at three
+ * models without the app, or the person playing, being able to tell which.
+ *
+ * Per alias: `model` is required. `upstream` and `path` move it to another
+ * service (Ollama serves /v1, Gemini /v1beta/openai), and `key` names the
+ * secret to send instead of OLLAMA_API_KEY.
+ *
+ * A name that is not an alias is forwarded untouched, so a real model id
+ * always still works.
+ */
+function aliasTable(env) {
+  if (!env?.MODEL_ALIASES) return {}
+  try {
+    const parsed = JSON.parse(env.MODEL_ALIASES)
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    // A typo here must not take the proxy down with it: without aliases every
+    // real model id still resolves, which is the behaviour before this existed.
+    return {}
+  }
+}
+
+/**
  * Is this request allowed to use the worker's key?
  *
  * This has to be a real check on the way IN, and for a long time it was not:
@@ -106,28 +138,60 @@ export default {
       return new Response('Only GET and POST are supported', { status: 405, headers: cors })
     }
 
-    // The app's key wins when it sends one; otherwise the worker's own secret.
-    // Either way the header is built here and never echoed back.
+    const url = new URL(request.url)
+    const table = aliasTable(env)
+    const named = Object.keys(table)
+
+    // Resolving an alias means reading the body to see which model was asked
+    // for, and a read body can no longer be streamed. So this happens only when
+    // aliases are configured AND the name matches one: every other request
+    // still forwards request.body untouched, which is what the app's large
+    // prompts want and what the passthrough test pins.
+    let alias = null
+    let body = request.method === 'POST' ? request.body : undefined
+    if (request.method === 'POST' && named.length) {
+      const text = await request.text()
+      try {
+        const parsed = JSON.parse(text)
+        const found = parsed?.model ? table[parsed.model] : null
+        if (found?.model) {
+          alias = found
+          body = JSON.stringify({ ...parsed, model: found.model })
+        } else {
+          body = text
+        }
+      } catch {
+        // Not JSON, or no model in it. Forward exactly what arrived.
+        body = text
+      }
+    }
+
+    // The app's key wins when it sends one; otherwise the worker's own secret —
+    // the alias picks WHICH secret, so an alias pointing at another service
+    // brings its own credentials.
     // A bare "Bearer " counts as no key: older builds of the app sent that
     // when the field was blank, and it must not shadow the secret here.
+    const secretName = alias?.key || 'OLLAMA_API_KEY'
     const fromApp = (request.headers.get('Authorization') ?? '').trim()
     const usable = fromApp && fromApp.toLowerCase() !== 'bearer' ? fromApp : ''
-    const auth = usable || (env?.OLLAMA_API_KEY ? `Bearer ${env.OLLAMA_API_KEY}` : '')
+    const auth = usable || (env?.[secretName] ? `Bearer ${env[secretName]}` : '')
     if (!auth) {
       return new Response(
-        'No API key: send one from the app, or set OLLAMA_API_KEY as a secret on this worker.',
+        `No API key: send one from the app, or set ${secretName} as a secret on this worker.`,
         { status: 401, headers: cors },
       )
     }
 
-    const url = new URL(request.url)
-    const base = (env?.UPSTREAM || DEFAULT_UPSTREAM).replace(/\/+$/, '')
+    const base = (alias?.upstream || env?.UPSTREAM || DEFAULT_UPSTREAM).replace(/\/+$/, '')
+    // The app's Base URL supplies /v1; an alias on a service that serves a
+    // different prefix swaps it, so host and path always move together.
+    const path = alias?.path ? url.pathname.replace(/^\/v1/, alias.path.replace(/\/+$/, '')) : url.pathname
     let upstream
     try {
-      upstream = await fetch(`${base}${url.pathname}${url.search}`, {
+      upstream = await fetch(`${base}${path}${url.search}`, {
         method: request.method,
         headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body: request.method === 'POST' ? request.body : undefined,
+        body,
       })
     } catch {
       // An uncaught throw here becomes Cloudflare's error page, which carries
@@ -138,6 +202,28 @@ export default {
 
     const headers = new Headers(upstream.headers)
     for (const [k, v] of Object.entries(cors)) headers.set(k, v)
+
+    // Settings offers whatever /models lists, so an alias that is not in that
+    // list is a name you can type but never see. Put them at the front, where
+    // the one to pick is the first thing offered.
+    if (request.method === 'GET' && named.length && url.pathname.endsWith('/models') && upstream.ok) {
+      // Read once, then decide: upstream.body cannot be replayed after a failed
+      // .json(), so parsing first and falling through would send an empty list.
+      const text = await upstream.text()
+      let listed = null
+      try {
+        listed = JSON.parse(text)
+      } catch {
+        // An unreadable list is still a list: send exactly what arrived.
+      }
+      const body = listed
+        ? JSON.stringify({
+            ...listed,
+            data: [...named.map((id) => ({ id, object: 'model' })), ...(listed.data ?? [])],
+          })
+        : text
+      return new Response(body, { status: upstream.status, headers })
+    }
     return new Response(upstream.body, { status: upstream.status, headers })
   },
 }

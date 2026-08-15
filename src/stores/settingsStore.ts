@@ -46,7 +46,7 @@ interface SettingsState {
  * middleware would be testing nothing.
  */
 export function migrateSettings(persisted: unknown, from: number): unknown {
-  if (from >= 5) return persisted
+  if (from >= 6) return persisted
   const s = {
     ...((persisted ?? {}) as {
       studyPhase?: StudyMode
@@ -99,6 +99,17 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
     s.baseUrl = DEFAULT_BASE_URL
     s.model = DEFAULT_MODEL
   }
+  // v5 -> v6: the model name became an alias the proxy resolves.
+  //
+  // Narrow on purpose. Only the exact pair v5 itself shipped is moved — the
+  // proxy as the Base URL AND the literal model it set — because that
+  // combination was written by the migration above rather than chosen by
+  // anyone. A model picked from the Settings list is a decision and stays,
+  // even on the proxy: "cluey" is a name only this proxy knows, so overwriting
+  // a deliberate choice with it would be taking the pick away.
+  if (from < 6 && (s.baseUrl ?? '').trim().replace(/\/+$/, '') === DEFAULT_BASE_URL && s.model === 'gpt-oss:120b') {
+    s.model = DEFAULT_MODEL
+  }
   return s
 }
 
@@ -138,7 +149,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'cluecab-settings-v1',
-      version: 5,
+      version: 6,
       migrate: migrateSettings,
     },
   ),
