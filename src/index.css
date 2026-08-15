@@ -1420,38 +1420,62 @@ select:focus {
   --kb: 0px;
 }
 
-/* Messenger behaviour: the dock being typed into sits ON the keyboard, the
-   board goes behind it, and the page does not move at all.
+/* Messenger behaviour, third design, and the reasoning matters because the
+   first two lost:
 
-   Lifting the dock with a transform was tried first and is not enough on iOS.
-   Safari scrolls the document to reveal a focused input before any of this
-   runs, and an in-flow dock scrolls away with it — so the field being typed
-   into ended up under the keyboard anyway, on the one platform this is for.
+   A transform on the in-flow dock lost to Safari scrolling the document to
+   reveal the input before any style applied. Plain position:fixed lost to the
+   iOS visual-viewport PAN: fixed anchors to the layout viewport, the pan moves
+   that under the keyboard, and a fixed bar slides away with it — plus, in an
+   installed PWA the whole webview resizes, so the exact-fit shell reflowed and
+   the board rearranged.
 
-   Fixed positioning is immune to that, because it anchors to the layout
-   viewport, which the keyboard does not move. Locking the document's overflow
-   removes the scroll Safari was trying to perform in the first place: with
-   nowhere to scroll to, the composer stays where it is put. */
+   So, three defences, one per failure mode (see src/ui/keyboard.ts):
+
+   - The focused dock pins to the VISUAL viewport — top: (--vvt + --vvh), i.e.
+     the keyboard's actual top edge wherever the pan puts it — and rides along.
+   - The shell freezes at its keyboard-closed height (--app-h), so the webview
+     shrinking cannot reflow the board. The covered part sits under the
+     keyboard, which is the design: the grid never changes, it only gets
+     overlapped.
+   - Scrolling is locked while the keyboard is up, and the lifted dock leaves a
+     placeholder its own height behind (--dock-h), so the board neither scrolls
+     nor grows into the vacated space. The grid is bit-identical throughout —
+     asserted by layout-drive against the board's bounding boxes. */
 .kb-open,
 .kb-open body {
   overflow: hidden;
   overscroll-behavior: none;
 }
 
+.kb-open .app-shell {
+  height: var(--app-h, 100%);
+}
+
+/* The seat the dock left, so the flex column — and with it the board — keeps
+   exactly the shape it had. */
+.kb-open .screen:has(.dock:focus-within)::after {
+  content: '';
+  flex: none;
+  height: var(--dock-h, 0px);
+}
+
 .kb-open .dock:focus-within {
   position: fixed;
   left: 50%;
-  /* The shell is 480px wide at most with 16px of padding either side, so this
-     is the same width the dock had in flow — it must not appear to change
-     size as it lifts. */
-  width: min(calc(100% - 32px), 448px);
-  transform: translateX(-50%);
-  bottom: calc(var(--kb) + 8px);
-  z-index: 50;
+  top: calc(var(--vvt, 0px) + var(--vvh, 100vh) - 6px);
+  transform: translate(-50%, -100%);
+  /* The shell is 480px at most with 16px padding a side: the same width the
+     dock had in flow, so lifting must not appear to resize it. */
+  width: min(calc(100% - 20px), 452px);
+  /* A dock with an error line and lookup hits open can be taller than what
+     the keyboard leaves; it scrolls inside itself before it ever pushes the
+     page. */
+  max-height: calc(var(--vvh, 100vh) - 14px);
+  overflow-y: auto;
+  z-index: 60;
   margin: 0;
-  /* It now floats over the board rather than sitting under the fold, so it
-     needs an edge of its own to read against the cards behind it. */
-  box-shadow: 0 6px 22px rgba(18, 18, 18, 0.16);
+  box-shadow: 0 4px 26px rgba(18, 18, 18, 0.22);
 }
 
 .dock-title {
