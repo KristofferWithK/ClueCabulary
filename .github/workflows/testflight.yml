@@ -232,6 +232,16 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p "$PWD/ios/App/output"
+          # Export needs a DISTRIBUTION certificate, and cloud signing will only
+          # create one for an API key with the Admin role. An App Manager key
+          # archives fine — it can make a development certificate — and then
+          # fails here with "Cloud signing permission error", which names
+          # neither the role nor the key. Say it plainly if it happens.
+          trap 'echo "### Distribution signing was refused
+
+          The archive built and signed, so the key, the Key ID, the Issuer ID and the app record are all correct. What failed is creating the **iOS Distribution** certificate, and cloud signing only does that for an API key with the **Admin** role — an App Manager key can build but cannot sign for distribution.
+
+          Generate a new key with Admin at **App Store Connect → Users and Access → Integrations → App Store Connect API**, then update \`ASC_KEY_ID\` and \`ASC_KEY_P8\`. The Issuer ID does not change." >> "$GITHUB_STEP_SUMMARY"' ERR
           cat > "$PWD/ios/App/output/export.plist" <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
