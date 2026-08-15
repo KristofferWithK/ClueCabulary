@@ -108,31 +108,34 @@ check('and is opaque, so content passes behind it', !/rgba\(0, 0, 0, 0\)|transpa
 await page.goBack()
 await page.waitForTimeout(250)
 
-// Typing a provider's base URL on a phone is a miserable way to find out
-// whether it works, so switching service is one tap.
+// One service now: the direct routes are retired, and the chip is how you get
+// back to the working default after typing a Base URL of your own.
 await open('?mock=1&howto=0&city=0')
 await page.locator('.icon-btn[aria-label="Settings"]').click()
 await page.waitForSelector('.settings-screen')
 const chips = page.locator('.provider-list .chip')
-// Three since the proxy became the default: Cluey (no key), Gemini, Ollama.
-check('the service chips are there', (await chips.count()) === 3, `${await chips.count()} chips`)
+check('the service chip is there', (await chips.count()) === 1, `${await chips.count()} chips`)
 const row = await page.locator('.provider-list').boundingBox()
 check(
-  'and fit the phone',
+  'and fits the phone',
   row.x >= -0.5 && row.x + row.width <= PHONE.width + 0.5,
   `${row.width.toFixed(0)}px on ${PHONE.width}px`,
 )
-await chips.filter({ hasText: 'Gemini' }).click()
+// Type somewhere else, then tap the chip: the way back has to work, or a
+// mistyped URL is a dead end on a phone with no keyboard shortcuts.
+await page.locator('input[type="url"]').fill('https://somewhere-else.example/v1')
+await page.waitForTimeout(200)
+await chips.first().click()
 await page.waitForTimeout(400)
 const baseUrl = await page.locator('input[type="url"]').inputValue()
 check(
-  'tapping Gemini sets its base URL',
-  baseUrl === 'https://generativelanguage.googleapis.com/v1beta/openai',
+  'and tapping it comes back to the proxy',
+  baseUrl === 'https://cluecabulary-proxy.kristoffer-kai.workers.dev/v1',
   baseUrl,
 )
 const modelAfter = await page.locator('.settings-section input[type="text"]').first().inputValue()
-// Cleared on purpose: the two services publish conflicting model ids, and a
-// wrong one is a 404 that reads as a broken endpoint. The server is asked.
+// Cleared on purpose: a model id belongs to the service that published it, and
+// a wrong one is a 404 that reads as a broken endpoint. The server is asked.
 check('and clears the model rather than guessing one', modelAfter === '', `"${modelAfter}"`)
 await page.goBack()
 await page.waitForTimeout(250)

@@ -1,15 +1,24 @@
 /**
- * The OpenAI-compatible services this app is known to speak to.
+ * The service this app talks to.
  *
- * Data only. It exists because typing
- * "https://generativelanguage.googleapis.com/v1beta/openai" into a phone is a
- * miserable way to find out whether a provider works, and switching between
- * two of them should cost one tap.
+ * There were three: Gemini direct, Ollama Cloud direct, and the proxy. Both
+ * direct routes are retired, because keeping them was keeping three ways to be
+ * misconfigured for no gain that survives contact with the proxy:
  *
- * No model names here on purpose. Ollama and Gemini both publish conflicting
- * ids for the same model — gpt-oss:120b against gpt-oss:120b-cloud,
- * gemini-2.5-flash against a dated preview — and a wrong guess returns a 404
- * that reads as a broken endpoint. Settings asks the server instead.
+ * - Ollama direct never worked from a browser at all. Its CORS preflight is
+ *   answered with a redirect, which the fetch spec forbids, measured on a real
+ *   phone. Choosing it could only ever produce an error.
+ * - Gemini direct worked, but only with a key each player had to fetch and
+ *   paste. The proxy holds one key, at Cloudflare, for everybody.
+ * - The proxy fronts either of them anyway. Which model answers — and which
+ *   company's model it is — is a MODEL_ALIASES entry now, so switching no
+ *   longer means switching service in Settings.
+ *
+ * The chip stays as one chip on purpose: it is how you get back to the working
+ * default after typing a Base URL of your own, and a custom URL is still free
+ * text, so a personal proxy or a local Ollama remains one field away.
+ *
+ * No model names here. The server is asked instead — see DEFAULT_MODEL.
  */
 export interface Provider {
   id: string
@@ -30,21 +39,7 @@ export const PROVIDERS: readonly Provider[] = [
     id: 'cluecabulary',
     label: 'Cluey',
     baseUrl: 'https://cluecabulary-proxy.kristoffer-kai.workers.dev/v1',
-    note: 'No key needed — this one is set up for you. The default, and the one to come back to.',
-  },
-  {
-    id: 'gemini',
-    label: 'Gemini',
-    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    keysAt: 'https://aistudio.google.com/apikey',
-    note: 'Works straight from the phone, no proxy — this is the one that has been played on.',
-  },
-  {
-    id: 'ollama',
-    label: 'Ollama Cloud',
-    baseUrl: 'https://ollama.com/v1',
-    keysAt: 'https://ollama.com/settings/keys',
-    note: 'Refuses browser requests — measured on a real phone. This one needs the proxy.',
+    note: 'No key needed — this one is set up for you, and which model answers is set on the server.',
   },
 ]
 
