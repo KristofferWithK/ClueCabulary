@@ -1410,6 +1410,83 @@ select:focus {
   gap: 8px;
 }
 
+/* ---- the composer: two fields, one line ----
+
+   A clue is one short word, so the field does not need a row of its own — and
+   the word you are hunting for goes in the field beside it. Two lines of
+   composer instead of five is what makes it sit ON the keyboard: the shorter
+   it is, the less of the board it covers, and the less there is to move. */
+.composer-fields {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+}
+
+.composer-fields > * {
+  /* Equal halves that may both shrink: min-width auto would let a long
+     dictionary answer widen its column and squeeze the clue field. */
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.composer-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.composer-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+  min-height: 14px;
+}
+
+/* A small inline action on a label line — re-dealing the board, or sending the
+   word you just typed to the dictionary. Small enough to ride the line, still
+   a real tap target via padding. Named for the shape rather than either job,
+   because it does both. */
+.composer-link {
+  font-size: 0.68rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--green-deep);
+  text-decoration: underline;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.composer-actions .btn-primary {
+  flex: 1;
+}
+
+.composer-actions .stepper {
+  flex: none;
+}
+
+/* The dictionary's answers hang under its own field, where the eye already
+   is, rather than pushing the send button down a line. */
+.composer-fields .translate-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.composer-fields .translate-hits {
+  margin-top: 4px;
+  font-size: 0.72rem;
+}
+
 /* ---- typing, with a keyboard in the way ----
 
    How much of the viewport the keyboard covers, published by

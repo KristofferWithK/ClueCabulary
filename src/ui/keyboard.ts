@@ -30,7 +30,72 @@ import { useEffect } from 'react'
  * without it, the board would grow into the vacated space, which is the
  * "rearranging" this exists to end.
  */
+/**
+ * ?kbdebug=1 — what the phone is actually doing, on the phone.
+ *
+ * Three keyboard designs have been shipped and judged by screenshot, each one
+ * a hypothesis about which iOS behaviour was firing, none of them measured.
+ * This ends that: it prints the numbers over the app, so one screenshot says
+ * which mechanism is at work instead of another guess.
+ *
+ * Deliberately not behind devSwitchesAllowed(): the whole point is to run it
+ * on the deployed site, on the real device, where the problem lives. It shows
+ * nothing unless the URL asks for it.
+ */
+function useKeyboardDebug() {
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has('kbdebug')) return
+    const box = document.createElement('pre')
+    box.style.cssText =
+      'position:fixed;left:6px;top:6px;z-index:9999;margin:0;padding:6px 8px;' +
+      'background:rgba(18,18,18,.86);color:#8f8;font:11px/1.35 ui-monospace,Menlo,monospace;' +
+      'border-radius:6px;pointer-events:none;white-space:pre'
+    document.body.appendChild(box)
+    const vv = window.visualViewport
+    let raf = 0
+    const draw = () => {
+      raf = 0
+      const el = document.activeElement
+      const root = document.documentElement
+      box.textContent = [
+        `inner   ${window.innerHeight}   outer ${window.outerHeight}`,
+        `visual  ${vv ? Math.round(vv.height) : '—'}   top ${vv ? Math.round(vv.offsetTop) : '—'}`,
+        `scroll  ${Math.round(window.scrollY)} / ${document.scrollingElement?.scrollHeight ?? '—'}`,
+        `--vvh ${root.style.getPropertyValue('--vvh') || '—'}  --app-h ${root.style.getPropertyValue('--app-h') || '—'}`,
+        `kb-open ${root.classList.contains('kb-open')}  native ${Boolean(
+          (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.(),
+        )}`,
+        `focus   ${el?.tagName ?? '—'}${el instanceof HTMLElement && el.id ? `#${el.id}` : ''}`,
+      ].join('\n')
+    }
+    const tick = () => {
+      if (!raf) raf = requestAnimationFrame(draw)
+    }
+    vv?.addEventListener('resize', tick)
+    vv?.addEventListener('scroll', tick)
+    window.addEventListener('scroll', tick, { passive: true })
+    window.addEventListener('resize', tick)
+    window.addEventListener('focusin', tick)
+    window.addEventListener('focusout', tick)
+    const id = setInterval(tick, 250)
+    draw()
+    return () => {
+      clearInterval(id)
+      cancelAnimationFrame(raf)
+      vv?.removeEventListener('resize', tick)
+      vv?.removeEventListener('scroll', tick)
+      window.removeEventListener('scroll', tick)
+      window.removeEventListener('resize', tick)
+      window.removeEventListener('focusin', tick)
+      window.removeEventListener('focusout', tick)
+      box.remove()
+    }
+  }, [])
+}
+
 export function useKeyboardInset() {
+  useKeyboardDebug()
+
   // Inside the native shell the OS is the source of truth instead: with
   // Keyboard.resize 'none' the webview is never resized or panned — the three
   // failure modes above simply do not exist — and the keyboard's exact height
