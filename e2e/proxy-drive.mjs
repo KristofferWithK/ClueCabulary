@@ -63,7 +63,12 @@ const settingsFor = (baseUrl, apiKey = KEY) => ({
     useMock: false,
     klausVerifiedAt: null,
   },
-  version: 1,
+  // Stamped with the CURRENT settings version on purpose. This fixture is a
+  // client for testing the worker, not an old save: written as version 1 it
+  // gets run through every migration on the way in, and the v7 one clears the
+  // API key — which is right for a real device and fatal for a drive whose
+  // subject is what the worker does with a key it is sent.
+  version: 7,
 })
 
 /** Point the app at a base URL and land it on Home with nothing verified. */
@@ -133,7 +138,7 @@ try {
   // A proxy that swallowed the status would turn every failure into the same
   // unhelpful one, and the error taxonomy would be dead on the real setup.
   for (const [status, pattern, label] of [
-    [401, /API key/i, 'auth'],
+    [401, /refused the request/i, 'auth'],
     [404, /Model or endpoint/i, 'not-found'],
     [429, /Rate limited/i, 'rate-limit'],
   ]) {

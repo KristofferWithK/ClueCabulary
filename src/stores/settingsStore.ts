@@ -46,7 +46,7 @@ interface SettingsState {
  * middleware would be testing nothing.
  */
 export function migrateSettings(persisted: unknown, from: number): unknown {
-  if (from >= 6) return persisted
+  if (from >= 7) return persisted
   const s = {
     ...((persisted ?? {}) as {
       studyPhase?: StudyMode
@@ -110,6 +110,20 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   if (from < 6 && (s.baseUrl ?? '').trim().replace(/\/+$/, '') === DEFAULT_BASE_URL && s.model === 'gpt-oss:120b') {
     s.model = DEFAULT_MODEL
   }
+  // v6 -> v7: the API key is retired, and a stale one has to go with it.
+  //
+  // This is the migration that fixes a device rather than tidying it. A key
+  // typed in an older build overrides the one the proxy holds — deliberately,
+  // so another service could be used without a code change — and the v5
+  // migration therefore left typed keys alone, treating them as a decision.
+  // For a key that had since been revoked, "left alone" meant it kept being
+  // sent, kept being forwarded ahead of the proxy's own, and kept coming back
+  // rejected. Mid-round, pointing at a Settings field for a key the app does
+  // not need.
+  //
+  // So it is cleared for everyone. There is no longer any field to type one
+  // into, and the only service left brings its own.
+  if (from < 7) s.apiKey = ''
   return s
 }
 
@@ -149,7 +163,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'cluecab-settings-v1',
-      version: 6,
+      version: 7,
       migrate: migrateSettings,
     },
   ),
