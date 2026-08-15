@@ -16,10 +16,19 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
  * ours is a loud, immediate failure.
  */
 export async function startPreview(port) {
-  const proc = spawn('npx', ['vite', 'preview', '--port', String(port), '--strictPort'], {
-    cwd: ROOT,
-    stdio: 'ignore',
-  })
+  // Spawn vite's bin through the current node — `spawn('npx', …)` is ENOENT on
+  // Windows, where npx is npx.cmd and .cmd files need a shell to execute.
+  const viteBin = resolve(ROOT, 'node_modules', 'vite', 'bin', 'vite.js')
+  // --host 127.0.0.1: on Windows vite's default `localhost` binds ::1 only,
+  // while every drive (and the base URL below) talks IPv4.
+  const proc = spawn(
+    process.execPath,
+    [viteBin, 'preview', '--port', String(port), '--strictPort', '--host', '127.0.0.1'],
+    {
+      cwd: ROOT,
+      stdio: 'ignore',
+    },
+  )
 
   let exited = false
   proc.on('exit', () => {

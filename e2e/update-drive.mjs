@@ -5,8 +5,11 @@ import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { readFile, writeFile } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 
-const SW = new URL('../dist/sw.js', import.meta.url).pathname
+// fileURLToPath, not .pathname: the latter yields /C:/… on Windows, which
+// node then resolves to C:\C:\….
+const SW = fileURLToPath(new URL('../dist/sw.js', import.meta.url))
 const PORT = 4184
 const preview = await startPreview(PORT)
 const original = await readFile(SW, 'utf8')
