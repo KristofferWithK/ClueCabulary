@@ -1,26 +1,34 @@
 import { useEffect } from 'react'
 
 /**
- * Keep the software keyboard from turning the app into a scrolling window.
+ * The software keyboard, made survivable.
  *
- * Every screen is built to fit the phone exactly — .app-shell is height: 100%
- * and deliberately never clips, so anything that outgrows the viewport becomes
- * document scroll (layout-drive measures precisely this). A keyboard breaks
- * that assumption from the outside: the visual viewport shrinks under the app,
- * and the browser scrolls the page to bring the focused input into view. Typing
- * a clue therefore turned the board into something you had to scroll.
+ * Every screen is built to fit the phone exactly, and the board must not move,
+ * shrink, or scroll while someone types. The keyboard attacks that three ways,
+ * and each needs its own defence:
  *
- * The fix has two halves. The viewport meta asks for the keyboard to overlay
- * the page rather than resize it (Chrome honours interactive-widget; Safari
- * does not yet, hence the rest of this). Here we measure how much of the
- * viewport the keyboard is covering and publish it as --kb, so the dock being
- * typed into can lift clear of it while everything else stays exactly where it
- * was. The board goes under the keyboard, which is the right thing to lose:
- * you are looking at what you are typing.
+ * 1. iOS Safari PANS the visual viewport to reveal a focused input — before
+ *    any script runs, unstoppable by CSS, and position: fixed elements appear
+ *    to slide away because they anchor to the layout viewport, which the pan
+ *    moves under them. Two earlier attempts lost to exactly this. The answer
+ *    is not to fight the pan but to ride it: this hook publishes the visual
+ *    viewport's live top and height (--vvt, --vvh), and the focused dock pins
+ *    itself to THAT — wherever the pan takes it, the dock tracks the keyboard.
  *
- * The scroll is also actively undone. Safari scrolls on focus before any of
- * this runs, and a page that has been scrolled 200px up with no way to scroll
- * back is worse than one that never moved.
+ * 2. An installed PWA on iOS has its whole webview RESIZED by the keyboard, so
+ *    an app shell of height: 100% reflows and the board rearranges. The shell
+ *    is therefore frozen at the last keyboard-closed height (--app-h) while
+ *    typing: same pixels, same board, the covered part simply sits under the
+ *    keyboard.
+ *
+ * 3. With the page taller than the visual viewport there is somewhere to
+ *    scroll to, so scrolling is locked (CSS, on .kb-open) while the keyboard
+ *    is up.
+ *
+ * The dock's own height is captured at focus time (--dock-h) so the screen can
+ * hold its place with a placeholder while the dock is lifted out of the flow —
+ * without it, the board would grow into the vacated space, which is the
+ * "rearranging" this exists to end.
  */
 export function useKeyboardInset() {
   useEffect(() => {
@@ -28,37 +36,61 @@ export function useKeyboardInset() {
     if (!vv) return
 
     const root = document.documentElement
-    // A keyboard takes a large bite. A URL bar collapsing takes a small one,
-    // and treating that as a keyboard would jump the dock around while
-    // scrolling a list — hence a floor rather than "anything above zero".
+    // A keyboard takes a large bite; a collapsing URL bar takes a small one
+    // and must not trigger any of this.
     const KEYBOARD_MIN = 120
 
-    let open = false
+    // The height of this device with no keyboard: what the shell is frozen at.
+    // Only trusted while nothing editable is focused, or the shrunken webview
+    // of an installed PWA would be mistaken for the phone's real size.
+    let fullH = window.innerHeight
+    let raf = 0
+
+    const editableFocused = () => {
+      const el = document.activeElement
+      return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement
+    }
+
     const apply = () => {
-      const covered = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
-      open = covered > KEYBOARD_MIN
-      root.style.setProperty('--kb', `${open ? Math.round(covered) : 0}px`)
+      raf = 0
+      if (!editableFocused()) fullH = Math.max(window.innerHeight, vv.height)
+      const covered = Math.max(0, fullH - vv.height)
+      const open = covered > KEYBOARD_MIN && editableFocused()
+      root.style.setProperty('--vvh', `${Math.round(vv.height)}px`)
+      root.style.setProperty('--vvt', `${Math.round(vv.offsetTop)}px`)
+      root.style.setProperty('--app-h', `${Math.round(fullH)}px`)
       root.classList.toggle('kb-open', open)
-      if (open) window.scrollTo(0, 0)
     }
 
-    // The browser's own scroll-to-the-input happens after focus, so undoing it
-    // once is not enough — it has to lose the argument every time.
-    const pin = () => {
-      if (open) window.scrollTo(0, 0)
+    // The visual viewport streams events through the keyboard's animation;
+    // one write per frame is plenty.
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(apply)
     }
 
-    vv.addEventListener('resize', apply)
-    vv.addEventListener('scroll', apply)
-    window.addEventListener('scroll', pin, { passive: true })
+    const onFocusIn = (e: FocusEvent) => {
+      // Measured before the lift, so the placeholder is the dock's true size.
+      const dock = e.target instanceof HTMLElement ? e.target.closest('.dock') : null
+      if (dock) root.style.setProperty('--dock-h', `${Math.round(dock.getBoundingClientRect().height)}px`)
+      schedule()
+    }
+
+    vv.addEventListener('resize', schedule)
+    vv.addEventListener('scroll', schedule)
+    window.addEventListener('resize', schedule)
+    window.addEventListener('focusin', onFocusIn)
+    window.addEventListener('focusout', schedule)
     apply()
 
     return () => {
-      vv.removeEventListener('resize', apply)
-      vv.removeEventListener('scroll', apply)
-      window.removeEventListener('scroll', pin)
+      vv.removeEventListener('resize', schedule)
+      vv.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      window.removeEventListener('focusin', onFocusIn)
+      window.removeEventListener('focusout', schedule)
+      cancelAnimationFrame(raf)
       root.classList.remove('kb-open')
-      root.style.removeProperty('--kb')
+      for (const p of ['--vvh', '--vvt', '--app-h', '--dock-h']) root.style.removeProperty(p)
     }
   }, [])
 }

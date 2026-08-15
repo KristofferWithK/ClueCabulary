@@ -365,12 +365,37 @@ for (const vp of [
 await page.setViewportSize(PHONE)
 
 // ---- Typing, with a keyboard in the way. -----------------------------------
-// A software keyboard is the one thing that breaks the no-scroll principle
-// from outside the app: the visual viewport shrinks underneath it and the
-// browser scrolls the page to reveal the focused input, which turned typing a
-// clue into a scrolling board. Headless Chromium has no keyboard, so this
-// stands one up: --kb is exactly what src/ui/keyboard.ts publishes, and the
-// class is what it toggles.
+// A software keyboard breaks the no-scroll principle from outside the app: the
+// visual viewport shrinks, iOS pans it to reveal the focused input, and an
+// installed PWA has its whole webview resized. Headless Chromium has none of
+// this, so the drive stands in a fake window.visualViewport BEFORE the app
+// loads — the real hook in src/ui/keyboard.ts then computes everything from
+// it, exactly as it would from the genuine article. Nothing here toggles the
+// class or writes the variables by hand; if the hook stops doing its job,
+// these checks fail.
+const KB = 320
+await page.addInitScript(() => {
+  const fake = {
+    height: window.innerHeight,
+    offsetTop: 0,
+    listeners: new Set(),
+    addEventListener(type, fn) {
+      this.listeners.add(fn)
+    },
+    removeEventListener(type, fn) {
+      this.listeners.delete(fn)
+    },
+    fire() {
+      this.listeners.forEach((fn) => fn())
+    },
+  }
+  Object.defineProperty(window, 'visualViewport', { value: fake, configurable: true })
+  window.__fakeKeyboard = (covered) => {
+    fake.height = window.innerHeight - covered
+    fake.offsetTop = 0
+    fake.fire()
+  }
+})
 await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
 await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
 await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
@@ -378,41 +403,66 @@ await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const studyBtn3 = page.locator('.study-dock .btn-primary')
 if (await studyBtn3.isVisible().catch(() => false)) await studyBtn3.click()
+await page.waitForTimeout(200)
 
-const KB = 320
+// The requirement in one sentence: the grid is locked and looks the same, so
+// its geometry is captured before the keyboard and compared after.
+const gridBefore = await page.locator('.board-grid').boundingBox()
+const cardBefore = await page.locator('.word-card').first().boundingBox()
+
 await page.locator('.clue-input input').first().focus()
-await page.evaluate((kb) => {
-  document.documentElement.style.setProperty('--kb', `${kb}px`)
-  document.documentElement.classList.add('kb-open')
-}, KB)
+await page.evaluate((kb) => window.__fakeKeyboard(kb), KB)
 await page.waitForTimeout(300)
 
-// The whole dock — the field being typed into and the button that sends it —
-// has to clear the keyboard, not merely move up. Measured against where the
-// keyboard's top edge would be.
-const dock = await page.locator('.clue-input').boundingBox()
 const keyboardTop = PHONE.height - KB
+const dock = await page.locator('.clue-input').boundingBox()
 check(
-  'the clue dock clears the keyboard entirely',
-  dock.y + dock.height <= keyboardTop + 1,
+  'the clue dock sits on the keyboard, messenger style',
+  Math.abs(dock.y + dock.height - (keyboardTop - 6)) <= 1.5,
   `dock ends at ${Math.round(dock.y + dock.height)}, keyboard starts at ${keyboardTop}`,
 )
 const field = await page.locator('.clue-input input').first().boundingBox()
 check(
-  'and so does the field itself',
-  field.y + field.height <= keyboardTop + 1,
-  `field ends at ${Math.round(field.y + field.height)}`,
+  'with the field above the keyboard',
+  field.y >= 0 && field.y + field.height <= keyboardTop + 1,
+  `field at ${Math.round(field.y)}..${Math.round(field.y + field.height)}`,
 )
-// The whole point: it moves without making the page taller.
+const gridDuring = await page.locator('.board-grid').boundingBox()
+const cardDuring = await page.locator('.word-card').first().boundingBox()
+const same = (a, b) =>
+  Math.abs(a.x - b.x) < 0.5 &&
+  Math.abs(a.y - b.y) < 0.5 &&
+  Math.abs(a.width - b.width) < 0.5 &&
+  Math.abs(a.height - b.height) < 0.5
+check(
+  'and the grid has not moved, grown, or shrunk',
+  same(gridBefore, gridDuring) && same(cardBefore, cardDuring),
+  `grid ${JSON.stringify(gridDuring)} vs ${JSON.stringify(gridBefore)}`,
+)
 await noScroll('game with the keyboard open')
 check(
   'and the page has not been scrolled',
   (await page.evaluate(() => document.scrollingElement.scrollTop)) === 0,
 )
+
+// Typing while lifted works, and closing the keyboard puts the dock back in
+// its seat with the grid still untouched. (The board resizing at the NEXT
+// phase is the app's own design — rows share what the phase's dock leaves —
+// so the comparison is made before submitting, not after.)
+await page.fill('.clue-input input', 'huskeliste')
 await page.evaluate(() => {
-  document.documentElement.classList.remove('kb-open')
-  document.documentElement.style.removeProperty('--kb')
+  document.activeElement?.blur()
+  window.__fakeKeyboard(0)
 })
+await page.waitForTimeout(300)
+const gridAfter = await page.locator('.board-grid').boundingBox()
+check('and closing the keyboard restores everything', same(gridBefore, gridAfter), JSON.stringify(gridAfter))
+await page.click('.clue-input .btn-primary')
+await page.waitForTimeout(300)
+check(
+  'and the clue typed up there went through',
+  (await page.locator('.ai-panel, .guess-bar').count()) > 0,
+)
 
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
