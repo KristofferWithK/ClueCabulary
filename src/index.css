@@ -1555,6 +1555,13 @@ select:focus {
   box-shadow: 0 4px 26px rgba(18, 18, 18, 0.22);
 }
 
+/* What happened last turn is context for choosing a clue, not for typing one.
+   Once the keyboard is up it is a line of height spent on something already
+   read — and height is exactly what the lifted composer cannot spare. */
+.kb-open .dock:focus-within .last-turn {
+  display: none;
+}
+
 .dock-title {
   line-height: 1.35;
   font-size: 0.92rem;
@@ -1607,12 +1614,26 @@ select:focus {
   font-size: 0.85rem;
 }
 
+/* One line, always. It is a recap, and a recap that wraps to two lines takes
+   its height from the board and moves everything under it — on a long clue
+   with three guessed words it wrapped every time. Truncated with an ellipsis
+   instead: the words nearest the start are the clue itself, which is the part
+   worth reading, and the full sentence is in the debrief afterwards. */
 .last-turn {
   color: var(--text-dim);
   font-size: 0.85rem;
   line-height: 1.4;
   border-bottom: 1px solid var(--line-soft);
   padding-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The per-guess marks are inline spans; without this they can still break
+   the line inside a single word-and-tick pair. */
+.last-turn > span {
+  white-space: nowrap;
 }
 
 .guess-confirm {
