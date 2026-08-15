@@ -17,25 +17,28 @@ function chunk(type, data) {
   return Buffer.concat([len, typeBuf, data, crc])
 }
 
-function png(size, pixelAt) {
-  const raw = Buffer.alloc(size * (size * 4 + 1))
+function png(size, pixelAt, { alpha = true } = {}) {
+  // App Store icons must carry no alpha channel — Apple rejects them — so the
+  // iOS icon is written as plain RGB while the web ones keep RGBA.
+  const bpp = alpha ? 4 : 3
+  const raw = Buffer.alloc(size * (size * bpp + 1))
   for (let y = 0; y < size; y++) {
-    const row = y * (size * 4 + 1)
+    const row = y * (size * bpp + 1)
     raw[row] = 0 // filter: none
     for (let x = 0; x < size; x++) {
       const [r, g, b] = pixelAt(x, y)
-      const o = row + 1 + x * 4
+      const o = row + 1 + x * bpp
       raw[o] = r
       raw[o + 1] = g
       raw[o + 2] = b
-      raw[o + 3] = 255
+      if (alpha) raw[o + 3] = 255
     }
   }
   const ihdr = Buffer.alloc(13)
   ihdr.writeUInt32BE(size, 0)
   ihdr.writeUInt32BE(size, 4)
   ihdr[8] = 8 // bit depth
-  ihdr[9] = 6 // RGBA
+  ihdr[9] = alpha ? 6 : 2 // RGBA, or RGB for iOS
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk('IHDR', ihdr),
@@ -91,3 +94,12 @@ for (const size of [192, 512]) {
 // mask clipped the corner tiles. This one keeps the grid well inside it.
 writeFileSync(new URL('icon-512-maskable.png', OUT_DIR), png(512, iconPixel(512, 0.28)))
 console.log('public/icons/icon-512-maskable.png')
+
+// The App Store icon: 1024px, no alpha, into the slot the Capacitor template
+// reserves for it. Skipped quietly when the iOS project is not checked out.
+import { existsSync } from 'node:fs'
+const IOS_ICON = new URL('../ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png', import.meta.url)
+if (existsSync(new URL('../ios/', import.meta.url))) {
+  writeFileSync(IOS_ICON, png(1024, iconPixel(1024), { alpha: false }))
+  console.log('ios/.../AppIcon-512@2x.png (1024, no alpha)')
+}

@@ -18,3 +18,10 @@ src/**/__scratch__/
 # scratch drives written by audit agents
 e2e/_*.mjs
 src/probe_tmp/
+# the native shell's build products; `npx cap sync` recreates the web copy
+ios/App/App/public
+ios/App/Pods
+ios/App/build
+ios/App/output
+ios/DerivedData
+**/xcuserdata/
