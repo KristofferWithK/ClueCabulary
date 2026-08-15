@@ -66,6 +66,13 @@ export function ClueInput({ game, onSubmit }: Props) {
   const last = game.clueHistory[game.clueHistory.length - 1]
   const mark = { green: '✓', bystander: '·', forbidden: '☠' } as const
 
+  // What you are cluing FOR, shown while the board is behind the composer.
+  // Your own key, which the board already draws as green borders — so this
+  // reveals nothing, it just saves looking past the keyboard for it.
+  const targets = game.words.filter(
+    (w) => game.playerKey[w.wordId] === 'green' && game.reveals[w.wordId]?.kind === 'hidden',
+  )
+
   return (
     <div className="dock clue-input">
       {last && (
@@ -174,6 +181,15 @@ export function ClueInput({ game, onSubmit }: Props) {
           {asking ? 'Asking Cluey…' : english ? 'Give clue anyway' : 'Give clue'}
         </button>
       </div>
+      <p className="composer-targets" lang="da">
+        Still yours:{' '}
+        {targets.map((w, i) => (
+          <span key={w.wordId}>
+            {i > 0 && ' · '}
+            <b>{w.da}</b>
+          </span>
+        ))}
+      </p>
     </div>
   )
 }

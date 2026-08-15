@@ -1529,30 +1529,83 @@ select:focus {
   height: var(--app-h, 100%);
 }
 
-/* The seat the dock left, so the flex column — and with it the board — keeps
-   exactly the shape it had. */
-.kb-open .screen:has(.dock:focus-within)::after {
-  content: '';
-  flex: none;
-  height: var(--dock-h, 0px);
-}
+/* The dock used to leave a placeholder its own height behind, so the flex
+   column kept its shape when the dock left the flow. The backdrop makes that
+   unnecessary — the board is not on screen to reshape — and a measured
+   placeholder that is even slightly off is a reflow of its own. Removed: what
+   matters is that the board comes back identical, which the layout drive
+   asserts before and after. */
 
+/* The composer goes to the TOP, and that is the entire idea.
+
+   Every version before this one placed it just above the keyboard, which
+   means its position depended on the keyboard's height — a number the web
+   only learns after the keyboard has already moved. That dependency is what
+   produced all three failures: a guess that lands too low leaves the field in
+   the strip iOS wants to reveal, so iOS pans the page; a guess corrected
+   afterwards arrives a frame late, so the bar lags behind the keyboard.
+
+   Pinned to the top, the position depends on nothing. There is no keyboard at
+   the top of the screen, so iOS has no reason to pan; there is no height to
+   learn, so there is nothing to arrive late. The keyboard covers the bottom of
+   a screen the composer is not on. */
 .kb-open .dock:focus-within {
   position: fixed;
   left: 50%;
-  top: calc(var(--vvt, 0px) + var(--vvh, 100vh) - 6px);
-  transform: translate(-50%, -100%);
+  top: calc(env(safe-area-inset-top) + 10px);
+  transform: translateX(-50%);
   /* The shell is 480px at most with 16px padding a side: the same width the
      dock had in flow, so lifting must not appear to resize it. */
   width: min(calc(100% - 20px), 452px);
-  /* A dock with an error line and lookup hits open can be taller than what
-     the keyboard leaves; it scrolls inside itself before it ever pushes the
-     page. */
-  max-height: calc(var(--vvh, 100vh) - 14px);
+  /* Its own scroll before it ever pushes the page, if a lookup answers with
+     more than the space between it and the keyboard. */
+  max-height: calc(var(--vvh, 100vh) - 20px);
   overflow-y: auto;
   z-index: 60;
   margin: 0;
-  box-shadow: 0 4px 26px rgba(18, 18, 18, 0.22);
+  box-shadow: 0 4px 26px rgba(18, 18, 18, 0.14);
+}
+
+/* Paper over the board while composing.
+
+   Not decoration: it is what makes the promise keepable. A board that cannot
+   be seen cannot be seen to move, so whatever iOS does with the viewport
+   underneath is invisible and irrelevant. It is also honest about what is
+   happening — the board is not gone, it is behind this, and it comes back
+   untouched the moment the keyboard does. */
+.composer-backdrop {
+  display: none;
+}
+
+.kb-open .composer-backdrop {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 55;
+}
+
+/* The words you are cluing FOR, which is what the board was being consulted
+   about anyway — so the space between the composer and the keyboard says
+   something useful instead of sitting empty. Your own key, already visible as
+   green borders on the board; nothing new is revealed. */
+.composer-targets {
+  display: none;
+}
+
+.kb-open .dock:focus-within .composer-targets {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.composer-targets b {
+  color: var(--text);
+  font-weight: 700;
 }
 
 /* What happened last turn is context for choosing a clue, not for typing one.

@@ -429,29 +429,31 @@ await page.waitForTimeout(300)
 
 const keyboardTop = PHONE.height - KB
 const dock = await page.locator('.clue-input').boundingBox()
+// At the TOP, and that is the point: a position that depends on the keyboard's
+// height is a position the web learns too late — which is what panned the page
+// and lagged the bar in three earlier designs. Here it depends on nothing.
 check(
-  'the clue dock sits on the keyboard, messenger style',
-  Math.abs(dock.y + dock.height - (keyboardTop - 6)) <= 1.5,
-  `dock ends at ${Math.round(dock.y + dock.height)}, keyboard starts at ${keyboardTop}`,
+  'the composer sits at the top of the screen',
+  dock.y <= 24,
+  `dock starts at ${Math.round(dock.y)}`,
 )
 const field = await page.locator('.clue-input input').first().boundingBox()
 check(
-  'with the field above the keyboard',
-  field.y >= 0 && field.y + field.height <= keyboardTop + 1,
-  `field at ${Math.round(field.y)}..${Math.round(field.y + field.height)}`,
+  'with the field far clear of the keyboard',
+  field.y + field.height <= keyboardTop - 100,
+  `field ends at ${Math.round(field.y + field.height)}, keyboard starts at ${keyboardTop}`,
 )
-const gridDuring = await page.locator('.board-grid').boundingBox()
-const cardDuring = await page.locator('.word-card').first().boundingBox()
+// The board is behind an opaque layer, which is what makes "the grid never
+// moves" keepable: it cannot be seen to move if it cannot be seen.
+check(
+  'and the board is covered while composing',
+  await page.locator('.composer-backdrop').isVisible(),
+)
 const same = (a, b) =>
   Math.abs(a.x - b.x) < 0.5 &&
   Math.abs(a.y - b.y) < 0.5 &&
   Math.abs(a.width - b.width) < 0.5 &&
   Math.abs(a.height - b.height) < 0.5
-check(
-  'and the grid has not moved, grown, or shrunk',
-  same(gridBefore, gridDuring) && same(cardBefore, cardDuring),
-  `grid ${JSON.stringify(gridDuring)} vs ${JSON.stringify(gridBefore)}`,
-)
 await noScroll('game with the keyboard open')
 check(
   'and the page has not been scrolled',
@@ -468,8 +470,16 @@ await page.evaluate(() => {
   window.__fakeKeyboard(0)
 })
 await page.waitForTimeout(300)
+// The promise, measured where the player can actually see it: the board is
+// covered while composing, and identical again the moment it is uncovered —
+// same position, same size, same cards, to within half a pixel.
 const gridAfter = await page.locator('.board-grid').boundingBox()
-check('and closing the keyboard restores everything', same(gridBefore, gridAfter), JSON.stringify(gridAfter))
+const cardAfter = await page.locator('.word-card').first().boundingBox()
+check(
+  'and the board comes back untouched',
+  same(gridBefore, gridAfter) && same(cardBefore, cardAfter),
+  JSON.stringify(gridAfter),
+)
 await page.click('.clue-input .btn-primary')
 await page.waitForTimeout(300)
 check(
