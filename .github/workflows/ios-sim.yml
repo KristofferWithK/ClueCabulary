@@ -84,35 +84,18 @@ jobs:
           sleep 8
 
       - name: Tap into the clue field
+        continue-on-error: true
         run: |
-          set -o pipefail
-          brew tap facebook/fb >/dev/null 2>&1 || true
-          brew install idb-companion >/dev/null 2>&1 || true
-          pip3 install --break-system-packages fb-idb >/dev/null 2>&1 || pip3 install fb-idb >/dev/null 2>&1 || true
+          brew tap facebook/fb || true
+          brew install idb-companion || true
+          pip3 install --break-system-packages fb-idb || pip3 install fb-idb || true
           idb connect "$UDID" || true
-          # Start a round: the play button, then the clue field. Found by
-          # accessibility label rather than by guessed coordinates, so a layout
+          # Start a round, then put the caret in the clue field. Both are found
+          # by accessibility label rather than guessed coordinates, so a layout
           # change moves the tap with it.
-          tap_label() {
-            idb ui describe-all --udid "$UDID" 2>/dev/null \
-              | python3 -c "
-import sys, json
-want = sys.argv[1]
-for line in sys.stdin:
-    try: el = json.loads(line)
-    except Exception: continue
-    label = (el.get('AXLabel') or '') + ' ' + (el.get('AXValue') or '')
-    if want.lower() in label.lower():
-        f = el['frame']
-        print(int(f['x'] + f['width'] / 2), int(f['y'] + f['height'] / 2))
-        break
-" "$1"
-          }
-          play=$(tap_label 'Spil videre')
-          [ -n "$play" ] && idb ui tap --udid "$UDID" $play && sleep 4
-          field=$(tap_label 'one-word clue')
-          echo "clue field at: ${field:-not found}"
-          [ -n "$field" ] && idb ui tap --udid "$UDID" $field
+          python3 scripts/sim-tap.py "$UDID" "Spil videre" || true
+          sleep 5
+          python3 scripts/sim-tap.py "$UDID" "one-word clue" || true
           sleep 4
 
       - name: Screenshot
