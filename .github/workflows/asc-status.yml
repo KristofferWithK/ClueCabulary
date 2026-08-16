@@ -1,0 +1,32 @@
+name: TestFlight status
+
+# Why the TestFlight app is showing nothing, asked of App Store Connect rather
+# than guessed at from a screenshot. Run it from the Actions tab.
+#
+# A build being VALID is not the same as a build being installable: it has to
+# belong to an internal beta group, the group has to contain a tester, and the
+# tester has to be a user of this account. Miss any one and TestFlight offers
+# only a Redeem button, naming none of them.
+on:
+  workflow_dispatch:
+    inputs:
+      fix:
+        description: 'Create the internal group, add the account holder, attach the newest build'
+        type: boolean
+        default: false
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          node scripts/asc-testers.mjs ${{ inputs.fix && '--fix' || '' }} | tee /tmp/out.txt
+          { echo '### TestFlight'; echo; echo '```'; cat /tmp/out.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
