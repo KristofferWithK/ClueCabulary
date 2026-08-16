@@ -24,6 +24,13 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Answers Apple's export-compliance question in the build rather than by
+	     hand in App Store Connect for every upload, where an unanswered build
+	     sits at "Missing Compliance" and cannot be installed by a tester.
+	     False is the accurate answer: the app's only cryptography is HTTPS to
+	     its own proxy, which is exempt. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
