@@ -22,7 +22,45 @@ import { useEffect } from 'react'
  * the keyboard is about to occupy. No estimate, no correction, nothing to
  * arrive late.
  */
+/**
+ * Stand a keyboard up on demand, so a screenshot can be taken of the thing
+ * itself rather than of a description of it.
+ *
+ * localStorage cluecab-kbsim = the height to pretend a keyboard has. The app
+ * then does exactly what it does for a real one — freeze the board, mark the
+ * composer, shrink the document the way the plugin's 'body' mode would — with
+ * no keyboard, no tapping and no device. It is what lets iOS-simulator CI
+ * photograph this state without automating a touch, and it works in a browser
+ * too.
+ *
+ * Off unless the key is set, so it cannot affect anyone playing.
+ */
+function useSimulatedKeyboard() {
+  useEffect(() => {
+    let px = 0
+    try {
+      px = Number(localStorage.getItem('cluecab-kbsim') ?? 0)
+    } catch {
+      /* private mode */
+    }
+    if (!px) return
+    const root = document.documentElement
+    const t = setTimeout(() => {
+      const grid = document.querySelector<HTMLElement>('.board-grid')
+      if (grid) root.style.setProperty('--board-h', `${Math.round(grid.getBoundingClientRect().height)}px`)
+      document.querySelector('.dock')?.classList.add('kb-lifted')
+      root.classList.add('kb-up')
+      // What Keyboard.resize 'body' does: the document ends where the keyboard
+      // begins, and the page lays itself out inside what is left.
+      document.body.style.height = `${window.innerHeight - px}px`
+    }, 1200)
+    return () => clearTimeout(t)
+  }, [])
+}
+
 export function useNativeKeyboard() {
+  useSimulatedKeyboard()
+
   useEffect(() => {
     const cap = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
     if (!cap?.isNativePlatform?.()) return

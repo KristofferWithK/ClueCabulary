@@ -17,6 +17,10 @@ on:
         description: 'Simulator device name'
         default: 'iPhone 16 Pro'
         type: string
+      keyboard:
+        description: 'Pretend the keyboard is this many points tall (0 for none)'
+        default: '336'
+        type: string
 
 jobs:
   simulator:
@@ -41,25 +45,28 @@ jobs:
           CAP_BUILD=1 npm run build
           npx cap sync ios
 
-      - name: Seed the app straight into a round
-        # localStorage inside a WKWebView cannot be reached from outside it, so
-        # the state this check needs is written by the page itself before the
-        # app boots: the keyboard readout on, the rules already seen (they open
-        # once on a fresh install and swallowed the first attempt's taps), and
-        # the practice companion so nothing waits on a network.
+      - name: Seed a round, and a keyboard
+        # A simulator will install and photograph an app but not tap one, and
+        # every attempt to automate a touch here cost more than it returned.
+        # It does not have to: the app keeps its state in localStorage, so the
+        # round in ios/sim-seed.json was played in a browser and is handed over
+        # as a starting position — and cluecab-kbsim makes the app do
+        # everything it does for a real keyboard, without one.
+        env:
+          KB: ${{ inputs.keyboard }}
         run: |
-          cat >> ios/App/App/public/index.html <<'HTML'
-          <script>
-            try {
-              localStorage.setItem('cluecab-kbdebug', '1')
-              localStorage.setItem('cluecab-howto-v3', 'seen')
-              localStorage.setItem(
-                'cluecab-settings-v1',
-                JSON.stringify({ state: { useMock: true, apiKey: '', model: 'cluey' }, version: 7 }),
-              )
-            } catch (e) {}
-          </script>
-          HTML
+          python3 - "$KB" <<'PY'
+          import json, sys, pathlib
+          seed = json.load(open('ios/sim-seed.json'))
+          seed['cluecab-howto-v3'] = 'seen'
+          seed['cluecab-kbsim'] = sys.argv[1]
+          script = '<script>try{' + ''.join(
+              f'localStorage.setItem({json.dumps(k)},{json.dumps(v)});' for k, v in seed.items()
+          ) + '}catch(e){}</script>'
+          p = pathlib.Path('ios/App/App/public/index.html')
+          p.write_text(p.read_text() + script, encoding='utf-8')
+          print(f'seeded {len(seed)} keys, keyboard {sys.argv[1]}px')
+          PY
 
       - name: Build for the simulator
         run: |
@@ -94,29 +101,9 @@ jobs:
           xcrun simctl launch "$UDID" com.kristofferwithk.cluecabulary
           sleep 8
 
-      - name: Tap into the clue field
-        continue-on-error: true
-        run: |
-          # Homebrew refuses a third-party tap until it is trusted, which is why
-          # the first attempt had no companion to talk to and reported an empty
-          # screen rather than a missing tool.
-          brew tap facebook/fb || true
-          brew trust --formula facebook/fb/idb-companion || brew trust facebook/fb || true
-          brew install --formula facebook/fb/idb-companion || brew install idb-companion || true
-          pip3 install --break-system-packages fb-idb || pip3 install fb-idb || true
-          # The companion is a daemon; idb talks to it rather than to the
-          # simulator, and without it every query answers "nothing here".
-          (idb_companion --udid "$UDID" &) || true
-          sleep 5
-          idb connect "$UDID" || true
-          idb list-targets || true
-          # Start a round, then put the caret in the clue field. Both are found
-          # by accessibility label rather than guessed coordinates, so a layout
-          # change moves the tap with it.
-          python3 scripts/sim-tap.py "$UDID" "Spil videre" || true
-          sleep 5
-          python3 scripts/sim-tap.py "$UDID" "one-word clue" || true
-          sleep 4
+      - name: Let it settle
+        # The seeded round and the simulated keyboard both apply on their own.
+        run: sleep 10
 
       - name: Screenshot
         if: always()

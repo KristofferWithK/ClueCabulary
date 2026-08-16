@@ -22,6 +22,16 @@ const config: CapacitorConfig = {
   appName: 'ClueCabulary',
   webDir: 'dist',
   /**
+   * The colour of everything that is not the page: the window behind the
+   * webview, and the strip the keyboard animates over. It defaults to black,
+   * which is what flashed under the keyboard on the phone. The app's own
+   * background, so the seam is invisible.
+   */
+  backgroundColor: '#ffffff',
+  ios: {
+    backgroundColor: '#ffffff',
+  },
+  /**
    * Deliberately BUNDLED — no server.url.
    *
    * Pointing the webview at the deployed site would keep the instant update
@@ -54,18 +64,24 @@ const config: CapacitorConfig = {
        * inset. It is a number nothing in the page can see and nothing in CI
        * can check.
        *
-       * With 'native' the OS resizes the webview to end exactly where the
-       * keyboard begins. The composer is then simply the last thing in the
-       * layout — always touching the keyboard, on every device, with no height
-       * to learn and no gap to tune.
+       * 'native' resizes the WEBVIEW, and that showed on the phone twice over:
+       * the window behind it is black, so the strip under the keyboard flashed
+       * black, and iOS performs that resize after its keyboard animation, so
+       * the composer jumped up late instead of riding with it.
        *
-       * What that costs is the board reflowing into the smaller space, which
+       * 'body' keeps the webview full-screen — nothing black can appear
+       * because the page still covers it — and shrinks the document instead,
+       * from the plugin's own keyboardWillShow, which is before the animation
+       * rather than after it. The composer is still simply the last thing in
+       * the layout, so it still needs no arithmetic.
+       *
+       * What either costs is the board reflowing into the smaller space, which
        * is the one thing it must never do. So the board is frozen at its full
-       * height while the keyboard is up and clipped by the shrinking screen —
-       * see .kb-up in index.css. Clipped and covered look the same; resized
+       * height while the keyboard is up and clipped by the shrinking document
+       * — see .kb-up in index.css. Clipped and covered look the same; resized
        * does not.
        */
-      resize: 'native',
+      resize: 'body',
     },
   },
 }
