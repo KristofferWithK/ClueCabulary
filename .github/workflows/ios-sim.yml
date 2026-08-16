@@ -97,10 +97,19 @@ jobs:
       - name: Tap into the clue field
         continue-on-error: true
         run: |
+          # Homebrew refuses a third-party tap until it is trusted, which is why
+          # the first attempt had no companion to talk to and reported an empty
+          # screen rather than a missing tool.
           brew tap facebook/fb || true
-          brew install idb-companion || true
+          brew trust --formula facebook/fb/idb-companion || brew trust facebook/fb || true
+          brew install --formula facebook/fb/idb-companion || brew install idb-companion || true
           pip3 install --break-system-packages fb-idb || pip3 install fb-idb || true
+          # The companion is a daemon; idb talks to it rather than to the
+          # simulator, and without it every query answers "nothing here".
+          (idb_companion --udid "$UDID" &) || true
+          sleep 5
           idb connect "$UDID" || true
+          idb list-targets || true
           # Start a round, then put the caret in the clue field. Both are found
           # by accessibility label rather than guessed coordinates, so a layout
           # change moves the tap with it.
