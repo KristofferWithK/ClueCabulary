@@ -234,6 +234,21 @@ jobs:
           fi
           echo "Apple accepted the key, and the app record exists."
 
+      - name: Clear out the certificates CI left behind
+        # Every run signs on a fresh machine with an empty keychain, so cloud
+        # signing mints a new certificate instead of finding one. Apple caps
+        # how many an account may hold, and the twelfth build failed with
+        # "choose a certificate to revoke" — which reads like a configuration
+        # problem and is really just litter. Development certificates are
+        # recreated on demand; the newest distribution one is kept.
+        continue-on-error: true
+        env:
+          ASC_KEY_ID: ${{ env.KEY_ID_CLEAN }}
+          ASC_ISSUER_ID: ${{ env.ISSUER_CLEAN }}
+        run: |
+          export ASC_KEY_P8="$(cat ~/asc/key.p8)"
+          node scripts/asc-certs.mjs --prune
+
       - name: Archive
         env:
           TEAM: ${{ secrets.APPLE_TEAM_ID }}
