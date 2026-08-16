@@ -45,6 +45,10 @@ function useSimulatedKeyboard() {
     }
     if (!px) return
     const root = document.documentElement
+    // Which screen is showing is not persisted, so a seeded save still opens
+    // on Home. The round is there — it says "Continue game" — it just has to
+    // be resumed, and there is nothing here that can tap the button.
+    void import('../stores/uiStore').then(({ useUi }) => useUi.getState().goTo('game'))
     const t = setTimeout(() => {
       const grid = document.querySelector<HTMLElement>('.board-grid')
       if (grid) root.style.setProperty('--board-h', `${Math.round(grid.getBoundingClientRect().height)}px`)
