@@ -41,13 +41,24 @@ jobs:
           CAP_BUILD=1 npm run build
           npx cap sync ios
 
-      - name: Turn the keyboard readout on before the app starts
-        # The app shows its placement arithmetic when this key is set, and
-        # localStorage inside the WKWebView cannot be reached from the outside
-        # — so it is seeded from the page itself at build time.
+      - name: Seed the app straight into a round
+        # localStorage inside a WKWebView cannot be reached from outside it, so
+        # the state this check needs is written by the page itself before the
+        # app boots: the keyboard readout on, the rules already seen (they open
+        # once on a fresh install and swallowed the first attempt's taps), and
+        # the practice companion so nothing waits on a network.
         run: |
           cat >> ios/App/App/public/index.html <<'HTML'
-          <script>try { localStorage.setItem('cluecab-kbdebug', '1') } catch (e) {}</script>
+          <script>
+            try {
+              localStorage.setItem('cluecab-kbdebug', '1')
+              localStorage.setItem('cluecab-howto-v3', 'seen')
+              localStorage.setItem(
+                'cluecab-settings-v1',
+                JSON.stringify({ state: { useMock: true, apiKey: '', model: 'cluey' }, version: 7 }),
+              )
+            } catch (e) {}
+          </script>
           HTML
 
       - name: Build for the simulator
