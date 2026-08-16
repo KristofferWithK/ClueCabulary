@@ -19,12 +19,10 @@ export function ClueInput({ game, onSubmit }: Props) {
   const [cleared, setCleared] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
   const judgeDanish = useGame((s) => s.judgeDanish)
-  const dailyKey = useGame((s) => s.dailyKey)
-  // "A reroll button at the beginning to reroll the board if I have no idea on
-  // how to connect the words." The beginning is this screen with nothing behind
-  // it: no clue given, so nothing has been spent and nothing is being undone.
-  // The daily challenge is excluded — it is one shared board per date.
-  const canReroll = game.clueHistory.length === 0 && !dailyKey
+  // The re-deal ("a reroll button at the beginning, if I have no idea how to
+  // connect the words") now lives in the game header as a symbol — see
+  // GameScreen. It kept the same conditions and lost a line of this dock,
+  // which is a line of board while the keyboard is up.
 
   const trimmed = text.trim()
   const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
@@ -84,40 +82,19 @@ export function ClueInput({ game, onSubmit }: Props) {
       )}
       {/* The two things you need while composing, side by side: the clue, and
           the word you do not have yet. They fit on one line because a clue is
-          one short word — which is what lets the whole composer be two lines
-          tall, so it can sit on the keyboard and cover the board rather than
-          fighting it for room.
+          one short word.
 
-          The labels are English, like every other label in the app. Danish is
-          what you TYPE, not what the app says to you. */}
+          No labels above them. The placeholder says what each field is, in
+          English — Danish is what you TYPE, not what the app says to you — and
+          a label line costs a row of board to repeat a word already on screen.
+          The re-deal moved to the header for the same reason. */}
       <div className="composer-fields">
         <label className="composer-field">
-          <span className="composer-label">
-            Your clue
-            {/* Only before the first clue, exactly when nothing has been spent
-                — and on this line because a button of its own is a whole row
-                the composer cannot afford. */}
-            {canReroll && (
-              <button
-                className="composer-link reroll-btn"
-                onClick={(e) => {
-                  e.preventDefault()
-                  // The dock stays mounted across a re-deal, so a half-typed
-                  // clue for the old board would sit there aimed at nothing.
-                  setText('')
-                  setCleared(null)
-                  useGame.getState().rerollBoard()
-                }}
-              >
-                New words
-              </button>
-            )}
-          </span>
           <input
             id="clue-word"
             type="text"
             value={text}
-            placeholder="one Danish word"
+            placeholder="Your clue"
             aria-label="Your one-word clue, in Danish"
             aria-invalid={trimmed ? !canSubmit : undefined}
             aria-describedby={(verdict && !verdict.legal) || english ? 'clue-error' : undefined}

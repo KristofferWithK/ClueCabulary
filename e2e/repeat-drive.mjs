@@ -118,8 +118,10 @@ try {
   // this is the same claim through the button.
   const beforeReroll = await deal(0)
   const played = (await persisted()).state.recentBoards[1]
-  const reroll = page.locator('.reroll-btn')
-  check('the reroll button is offered before the first clue', await reroll.isVisible())
+  // In the header now, as a symbol: in the composer it cost a whole line of a
+  // block that has to fit above the keyboard. Same conditions, same job.
+  const reroll = page.locator('.icon-btn[aria-label="Deal new words"]')
+  check('the reroll is offered before the first clue', await reroll.isVisible())
   await reroll.click()
   await page.waitForFunction(
     (was) =>
@@ -173,7 +175,7 @@ try {
   await page.waitForSelector('.clue-input')
   check(
     'and the daily challenge, which is one shared board, offers no reroll',
-    (await page.locator('.reroll-btn').count()) === 0,
+    (await page.locator('.icon-btn[aria-label="Deal new words"]').count()) === 0,
   )
 
   // ---- a v1 save upgrades rather than breaking ----------------------------

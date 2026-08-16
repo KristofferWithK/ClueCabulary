@@ -1511,6 +1511,22 @@ select:focus {
    simply covers its lower half. All that is left is to raise the dock being
    typed into by that height, which is a transform: it moves no layout, so
    nothing behind it can reflow. */
+/* Only present while a keyboard is, and only between the board and the lifted
+   composer — so the composer stays tappable and everything under it does not.
+   Transparent: the board is still worth seeing, it is just not worth touching
+   until the keyboard is gone. */
+.kb-scrim {
+  display: none;
+}
+
+.kb-up .kb-scrim {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  background: transparent;
+}
+
 .dock.kb-lifted {
   transform: translateY(calc(-1 * var(--kb, 0px)));
   /* The keyboard's own animation is about a quarter of a second; matching it

@@ -34,6 +34,9 @@ export function GameScreen() {
   const practiceFallback = useGame((s) => s.practiceFallback)
   const fallBackToPractice = useGame((s) => s.fallBackToPractice)
   const lastAiGuess = useGame((s) => s.lastAiGuess)
+  // The daily challenge is one shared board per date, so it is the one round
+  // that must not be re-dealt.
+  const dailyKey = useGame((s) => s.dailyKey)
   const { translationsOn, toggleTranslations, goTo } = useUi()
   const openDictionary = useOpenDictionary()
 
@@ -101,6 +104,21 @@ export function GameScreen() {
         <button className="icon-btn" aria-label="Home" onClick={() => goTo('home')}>
           ←
         </button>
+        {/* Re-deal, as a symbol in the header rather than a worded button in
+            the composer — where it cost a whole line of a block that has to
+            fit above a keyboard. It exists only before the first clue, when
+            nothing has been spent and nothing is being undone, and never on
+            the daily challenge, which is one shared board per date. */}
+        {game.phase === 'playerClueInput' && game.clueHistory.length === 0 && !dailyKey && (
+          <button
+            className="icon-btn"
+            aria-label="Deal new words"
+            title="Deal new words"
+            onClick={() => useGame.getState().rerollBoard()}
+          >
+            ↻
+          </button>
+        )}
         <div className="game-header-mid">
           <TurnTokens
             total={game.config.turnTokens}

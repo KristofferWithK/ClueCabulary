@@ -230,6 +230,19 @@ export default function App() {
   return (
     <main className="app-shell">
       <PencilDefs />
+      {/* While the keyboard is up, a tap anywhere else puts it away — and does
+          nothing else. It is a real element rather than a document listener
+          precisely so the tap lands HERE: dismissing the keyboard and also
+          guessing the card you happened to touch is two actions from one tap,
+          and the second one is unrecoverable in a game with forbidden words.
+          The next tap, with the keyboard down, does what it says. */}
+      <div
+        className="kb-scrim"
+        aria-hidden="true"
+        onPointerDown={() => {
+          if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+        }}
+      />
       {screen === 'home' && <HomeScreen />}
       {screen === 'game' && <GameScreen />}
       {screen === 'settings' && <SettingsScreen />}
