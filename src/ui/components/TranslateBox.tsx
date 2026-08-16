@@ -106,29 +106,30 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
           measured at 360px, the input came out 123px wide, about ten
           characters. That was survivable while the field was behind a lid and
           is not now that it is the thing you type into. */}
-      <div className="translate-head">
-        <label className="translate-label" htmlFor={inputId}>
-          Look up a word
-        </label>
+      <label className="composer-label" htmlFor={inputId}>
+        Dictionary
         {prefill && (
           <button
-            className="btn btn-small"
-            // The visible label is short because the line above already says
-            // "Look up"; a screen reader gets the whole sentence.
+            className="composer-link translate-prefill"
+            // The visible label is the word alone because the line already
+            // says Dictionary; a screen reader gets the whole sentence.
             aria-label={`Look up ${prefill.term}`}
-            onClick={() => setTerm(prefill.term)}
+            onClick={(e) => {
+              e.preventDefault()
+              setTerm(prefill.term)
+            }}
           >
             {prefill.label}
           </button>
         )}
-      </div>
+      </label>
 
       <input
         id={inputId}
         className="translate-input"
         type="text"
         value={term}
-        placeholder="dansk eller engelsk"
+        placeholder="Danish or English"
         aria-label="Word to translate, Danish or English"
         autoCapitalize="none"
         autoCorrect="off"
