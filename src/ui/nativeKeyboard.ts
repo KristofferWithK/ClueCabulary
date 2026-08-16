@@ -31,6 +31,40 @@ export function useNativeKeyboard() {
     let removers: Array<() => void> = []
     let cancelled = false
 
+    /**
+     * The numbers this places the composer with, on the screen it places it on.
+     *
+     * Two builds have now been spent on a gap I could not see, reasoning about
+     * what iOS means by "keyboard height" from a thousand miles away. This puts
+     * the arithmetic where the person holding the phone can read it, and it
+     * costs one screenshot to settle instead of one build per guess.
+     *
+     * Shown only while the debug flag is on — Settings → the build stamp, or
+     * localStorage cluecab-kbdebug — so it is not in anyone's way by default.
+     */
+    const report = (n: Record<string, number>) => {
+      let on = false
+      try {
+        on = localStorage.getItem('cluecab-kbdebug') === '1'
+      } catch {
+        /* private mode */
+      }
+      if (!on) return
+      let box = document.getElementById('kbdebug')
+      if (!box) {
+        box = document.createElement('pre')
+        box.id = 'kbdebug'
+        box.style.cssText =
+          'position:fixed;left:4px;top:4px;z-index:9999;margin:0;padding:4px 6px;' +
+          'background:rgba(18,18,18,.85);color:#8f8;font:10px/1.3 ui-monospace,Menlo,monospace;' +
+          'border-radius:5px;pointer-events:none;white-space:pre'
+        document.body.appendChild(box)
+      }
+      box.textContent = Object.entries(n)
+        .map(([k, v]) => `${k.padEnd(8)}${v}`)
+        .join('\n')
+    }
+
     // Which dock to lift: the one holding what is focused. Read at focus time
     // rather than assumed, because the clue dock, the lookup and the packing
     // dock are all docks with fields in them.
@@ -46,8 +80,47 @@ export function useNativeKeyboard() {
     void import('@capacitor/keyboard').then(({ Keyboard }) => {
       if (cancelled) return
       const show = Keyboard.addListener('keyboardWillShow', (info) => {
-        root.style.setProperty('--kb', `${Math.round(info.keyboardHeight)}px`)
+        // How far to move it is measured, not assumed. Translating by the
+        // keyboard's own height leaves the dock floating above it by whatever
+        // sat underneath — the screen's padding plus the home-indicator safe
+        // area, about 46px on a notched phone, which reads as a gap rather
+        // than as a composer attached to the keyboard.
+        //
+        // What is wanted is the dock's bottom edge just above the keyboard's
+        // top edge, so that is what is computed: the overlap, plus a hair.
+        const dock = document.querySelector<HTMLElement>('.dock.kb-lifted')
+        if (!dock) return
+        // Measure from a clean slate: a --kb left over from the last time the
+        // keyboard was up would still be transforming this dock, and every
+        // number below would be read through it.
+        root.style.setProperty('--kb', '0px')
+        const resting = dock.getBoundingClientRect().bottom
+
+        // iOS reports a keyboard height that reaches the bottom of the SCREEN,
+        // including the home-indicator inset the page is already padded away
+        // from — so subtracting it twice is what left a gap the size of that
+        // inset. Read it rather than assume a number: it is 0 on a phone with
+        // a home button and about 34 on one without.
+        const probe = document.createElement('div')
+        probe.style.cssText =
+          'position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom);pointer-events:none'
+        document.body.appendChild(probe)
+        const inset = probe.getBoundingClientRect().height
+        probe.remove()
+
+        const GAP = 6
+        const keyboardTop = window.innerHeight - info.keyboardHeight + inset
+        const shift = Math.max(0, Math.round(resting - keyboardTop + GAP))
+        root.style.setProperty('--kb', `${shift}px`)
         root.classList.add('kb-up')
+        report({
+          kb: Math.round(info.keyboardHeight),
+          inner: window.innerHeight,
+          inset: Math.round(inset),
+          resting: Math.round(resting),
+          top: Math.round(keyboardTop),
+          shift,
+        })
       })
       const hide = Keyboard.addListener('keyboardWillHide', () => {
         root.classList.remove('kb-up')

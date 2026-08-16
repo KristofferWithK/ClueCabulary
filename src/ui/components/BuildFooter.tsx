@@ -11,6 +11,37 @@ import { useState } from 'react'
  */
 export function BuildFooter() {
   const [state, setState] = useState<'idle' | 'checking' | 'current' | 'found' | 'error'>('idle')
+  const [debug, setDebug] = useState(() => {
+    try {
+      return localStorage.getItem('cluecab-kbdebug') === '1'
+    } catch {
+      return false
+    }
+  })
+
+  /**
+   * Five taps on the build stamp turns on the keyboard readout.
+   *
+   * The one thing that cannot be debugged from here is what iOS does with the
+   * keyboard on a real phone, and shipping a build per guess is a slow way to
+   * find out. This is the old five-taps-for-developer-mode trick: invisible
+   * until wanted, and reachable without a rebuild.
+   */
+  const [taps, setTaps] = useState(0)
+  const tap = () => {
+    const next = taps + 1
+    setTaps(next)
+    if (next < 5) return
+    setTaps(0)
+    const on = !debug
+    setDebug(on)
+    try {
+      if (on) localStorage.setItem('cluecab-kbdebug', '1')
+      else localStorage.removeItem('cluecab-kbdebug')
+    } catch {
+      /* private mode */
+    }
+  }
 
   const check = async () => {
     setState('checking')
@@ -30,7 +61,8 @@ export function BuildFooter() {
 
   return (
     <p className="build-footer">
-      <span>Build {__BUILD_STAMP__}</span>
+      <span onClick={tap}>Build {__BUILD_STAMP__}</span>
+      {debug && <span className="build-note">Keyboard readout on. Tap the build five times to hide it.</span>}
       <button className="btn btn-small" disabled={state === 'checking'} onClick={check}>
         {state === 'checking' ? 'Checking…' : 'Check for updates'}
       </button>
