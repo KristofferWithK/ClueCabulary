@@ -3003,6 +3003,14 @@ body:has(.kb-up) {
   color: var(--blue);
 }
 
+/* Small and grey: it has to be readable in a screenshot without competing
+   with the phase it sits beside. */
+.build-tag {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
 .build-footer {
   display: flex;
   flex-wrap: wrap;

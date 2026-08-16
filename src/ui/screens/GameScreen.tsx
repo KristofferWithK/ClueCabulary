@@ -127,6 +127,12 @@ export function GameScreen() {
           />
           <p className="phase-caption" role="status">
             {packing ? 'Pack the board' : PHASE_CAPTION[game.phase]}
+            {/* Which build this is, on the screen every bug report is taken
+                of. A photograph of the app was unattributable without it, and
+                one round of "still broken" turned out to be a build that
+                predated the fix by two minutes. Native only: on the web the
+                deploy is whatever the page was loaded from. */}
+            {__TF_BUILD__ && <span className="build-tag"> · b{__TF_BUILD__}</span>}
           </p>
         </div>
         <button

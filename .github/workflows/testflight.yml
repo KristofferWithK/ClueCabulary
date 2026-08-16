@@ -92,6 +92,13 @@ jobs:
       - name: Build the web app for the shell
         # Relative base, no service worker: assets ship in the bundle and
         # updates ride TestFlight builds.
+        #
+        # TF_BUILD is stamped into the page so the app can say which TestFlight
+        # build it is. Without it a screenshot of the app is unattributable —
+        # which cost a round of "still broken" against a build that predated
+        # the fix by two minutes.
+        env:
+          TF_BUILD: ${{ github.run_number }}
         run: |
           npm ci
           CAP_BUILD=1 npm run build

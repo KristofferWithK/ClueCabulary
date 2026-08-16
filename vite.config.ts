@@ -17,9 +17,17 @@ const BUILD_STAMP =
 // fighting the first.
 const CAP = process.env.CAP_BUILD === '1'
 
+// The TestFlight build number, stamped in by the workflow. Empty for the web,
+// where the git sha above is the identity that matters — but on a phone the
+// number TestFlight shows is the only one a player can compare against.
+const TF_BUILD = process.env.TF_BUILD ?? ''
+
 export default defineConfig({
   base: CAP ? './' : '/ClueCabulary/',
-  define: { __BUILD_STAMP__: JSON.stringify(BUILD_STAMP) },
+  define: {
+    __BUILD_STAMP__: JSON.stringify(BUILD_STAMP),
+    __TF_BUILD__: JSON.stringify(TF_BUILD),
+  },
   plugins: [
     react(),
     VitePWA({

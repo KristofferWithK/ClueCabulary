@@ -61,7 +61,9 @@ export function BuildFooter() {
 
   return (
     <p className="build-footer">
-      <span onClick={tap}>Build {__BUILD_STAMP__}</span>
+      <span onClick={tap}>
+        {__TF_BUILD__ ? `TestFlight build ${__TF_BUILD__} · ` : ''}Build {__BUILD_STAMP__}
+      </span>
       {debug && <span className="build-note">Keyboard readout on. Tap the build five times to hide it.</span>}
       <button className="btn btn-small" disabled={state === 'checking'} onClick={check}>
         {state === 'checking' ? 'Checking…' : 'Check for updates'}
