@@ -42,7 +42,30 @@ const config: CapacitorConfig = {
    */
   plugins: {
     Keyboard: {
-      resize: 'none',
+      /**
+       * 'native', not 'none' — and the difference is that this one needs no
+       * arithmetic.
+       *
+       * With 'none' the webview keeps the whole screen and the app has to work
+       * out where the keyboard's top edge is in order to put the composer
+       * above it. Three builds went on that sum: too high by the height of the
+       * home indicator, then too low by it, because iOS measures its keyboard
+       * to the bottom of the SCREEN while the page is padded away from that
+       * inset. It is a number nothing in the page can see and nothing in CI
+       * can check.
+       *
+       * With 'native' the OS resizes the webview to end exactly where the
+       * keyboard begins. The composer is then simply the last thing in the
+       * layout — always touching the keyboard, on every device, with no height
+       * to learn and no gap to tune.
+       *
+       * What that costs is the board reflowing into the smaller space, which
+       * is the one thing it must never do. So the board is frozen at its full
+       * height while the keyboard is up and clipped by the shrinking screen —
+       * see .kb-up in index.css. Clipped and covered look the same; resized
+       * does not.
+       */
+      resize: 'native',
     },
   },
 }

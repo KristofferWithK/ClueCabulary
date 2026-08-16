@@ -364,6 +364,73 @@ for (const vp of [
 }
 await page.setViewportSize(PHONE)
 
+// ---- The keyboard, as the native shell actually delivers it. ---------------
+// Keyboard.resize 'native' makes the OS shrink the webview to end where the
+// keyboard begins. That is a viewport resize, which a browser can do exactly —
+// so the behaviour is checkable here rather than only on a phone, which is
+// where several builds went.
+{
+  const KB = 336
+  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await page.locator('.home-play').click()
+  await page.waitForSelector('.board-grid')
+  const study = page.locator('.study-dock .btn-primary')
+  if (await study.isVisible().catch(() => false)) await study.click()
+  await page.waitForTimeout(250)
+
+  const gridBefore = await page.locator('.board-grid').boundingBox()
+  const cardBefore = await page.locator('.word-card').first().boundingBox()
+
+  // What the native listener does on keyboardWillShow, then the OS resize.
+  await page.evaluate(() => {
+    const grid = document.querySelector('.board-grid')
+    document.documentElement.style.setProperty(
+      '--board-h',
+      `${Math.round(grid.getBoundingClientRect().height)}px`,
+    )
+    document.documentElement.classList.add('kb-up')
+    document.querySelector('.clue-input')?.classList.add('kb-lifted')
+  })
+  await page.setViewportSize({ width: PHONE.width, height: PHONE.height - KB })
+  await page.waitForTimeout(300)
+
+  const gridDuring = await page.locator('.board-grid').boundingBox()
+  const cardDuring = await page.locator('.word-card').first().boundingBox()
+  const same = (a, b) =>
+    Math.abs(a.x - b.x) < 0.5 &&
+    Math.abs(a.y - b.y) < 0.5 &&
+    Math.abs(a.width - b.width) < 0.5 &&
+    Math.abs(a.height - b.height) < 0.5
+  check(
+    'the board keeps its exact size when the keyboard takes the bottom third',
+    same(gridBefore, gridDuring) && same(cardBefore, cardDuring),
+    `grid ${Math.round(gridDuring.height)} vs ${Math.round(gridBefore.height)}, card ${Math.round(cardDuring.height)} vs ${Math.round(cardBefore.height)}`,
+  )
+
+  // The composer is the last thing in the layout, so it ends at the bottom of
+  // what is left — which is the keyboard's top edge, with no arithmetic.
+  const dock = await page.locator('.clue-input').boundingBox()
+  const bottom = dock.y + dock.height
+  check(
+    'and the composer sits against the keyboard',
+    bottom <= PHONE.height - KB + 1 && bottom >= PHONE.height - KB - 40,
+    `composer ends at ${Math.round(bottom)}, screen ends at ${PHONE.height - KB}`,
+  )
+  await noScroll('game with the keyboard up')
+
+  await page.setViewportSize(PHONE)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('kb-up')
+    document.documentElement.style.removeProperty('--board-h')
+    document.querySelector('.clue-input')?.classList.remove('kb-lifted')
+  })
+  await page.waitForTimeout(250)
+  const gridAfter = await page.locator('.board-grid').boundingBox()
+  check('and comes back untouched', same(gridBefore, gridAfter), `${Math.round(gridAfter.height)}`)
+}
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.stop()

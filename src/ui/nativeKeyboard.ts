@@ -80,51 +80,29 @@ export function useNativeKeyboard() {
     void import('@capacitor/keyboard').then(({ Keyboard }) => {
       if (cancelled) return
       const show = Keyboard.addListener('keyboardWillShow', (info) => {
-        // How far to move it is measured, not assumed. Translating by the
-        // keyboard's own height leaves the dock floating above it by whatever
-        // sat underneath — the screen's padding plus the home-indicator safe
-        // area, about 46px on a notched phone, which reads as a gap rather
-        // than as a composer attached to the keyboard.
+        // The only measurement left, and it is of OUR OWN board rather than of
+        // the keyboard: how tall the grid is right now, so it can be held at
+        // exactly that while the screen shrinks around it.
         //
-        // What is wanted is the dock's bottom edge just above the keyboard's
-        // top edge, so that is what is computed: the overlap, plus a hair.
-        const dock = document.querySelector<HTMLElement>('.dock.kb-lifted')
-        if (!dock) return
-        // Measure from a clean slate: a --kb left over from the last time the
-        // keyboard was up would still be transforming this dock, and every
-        // number below would be read through it.
-        root.style.setProperty('--kb', '0px')
-        const resting = dock.getBoundingClientRect().bottom
-
-        // iOS reports a keyboard height that reaches the bottom of the SCREEN,
-        // including the home-indicator inset the page is already padded away
-        // from — so subtracting it twice is what left a gap the size of that
-        // inset. Read it rather than assume a number: it is 0 on a phone with
-        // a home button and about 34 on one without.
-        const probe = document.createElement('div')
-        probe.style.cssText =
-          'position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom);pointer-events:none'
-        document.body.appendChild(probe)
-        const inset = probe.getBoundingClientRect().height
-        probe.remove()
-
-        const GAP = 6
-        const keyboardTop = window.innerHeight - info.keyboardHeight + inset
-        const shift = Math.max(0, Math.round(resting - keyboardTop + GAP))
-        root.style.setProperty('--kb', `${shift}px`)
+        // Everything else went away with Keyboard.resize 'native'. The OS ends
+        // the webview where the keyboard begins, so the composer is simply the
+        // last thing in the layout — touching the keyboard on every device,
+        // with no height to learn and no gap to tune. Three builds were spent
+        // on that sum, once too high and once too low by the height of the
+        // home indicator, because iOS measures its keyboard to the bottom of
+        // the SCREEN while the page is padded away from that inset.
+        //
+        // Taken on willShow, before the resize, or it would measure the board
+        // already squeezed.
+        const grid = document.querySelector<HTMLElement>('.board-grid')
+        const h = grid ? Math.round(grid.getBoundingClientRect().height) : 0
+        if (h) root.style.setProperty('--board-h', `${h}px`)
         root.classList.add('kb-up')
-        report({
-          kb: Math.round(info.keyboardHeight),
-          inner: window.innerHeight,
-          inset: Math.round(inset),
-          resting: Math.round(resting),
-          top: Math.round(keyboardTop),
-          shift,
-        })
+        report({ kb: Math.round(info.keyboardHeight), inner: window.innerHeight, board: h })
       })
       const hide = Keyboard.addListener('keyboardWillHide', () => {
         root.classList.remove('kb-up')
-        root.style.setProperty('--kb', '0px')
+        root.style.removeProperty('--board-h')
         for (const d of document.querySelectorAll('.dock.kb-lifted')) d.classList.remove('kb-lifted')
       })
       removers = [() => void show.then((h) => h.remove()), () => void hide.then((h) => h.remove())]

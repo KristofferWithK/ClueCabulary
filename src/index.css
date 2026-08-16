@@ -1527,21 +1527,42 @@ select:focus {
   background: transparent;
 }
 
-.dock.kb-lifted {
-  transform: translateY(calc(-1 * var(--kb, 0px)));
-  /* The keyboard's own animation is about a quarter of a second; matching it
-     is what makes the composer look attached to the keyboard rather than
-     chasing it. */
-  transition: transform 0.25s cubic-bezier(0.17, 0.59, 0.4, 1);
-  position: relative;
-  z-index: 5;
+/* The board is held at the height it had before the keyboard arrived, and the
+   shrinking screen clips it. Clipped and covered look the same; resized does
+   not — and resized is what the flex column would otherwise do the instant the
+   webview lost 300 pixels.
+
+   This is the whole trick, and it is why nothing here needs to know how tall
+   the keyboard is. */
+/* The screen's bottom padding, and the home-indicator inset it sits on, are
+   there to keep content off the bottom edge of a phone. While the keyboard is
+   up there is no bottom edge — the keyboard is — so they only push the
+   composer away from it. The board is a fixed height and clipped by now, so
+   giving these back costs it nothing. */
+.kb-up .screen {
+  padding-bottom: 4px;
 }
 
-/* While it is up there it floats over the board, so it needs an edge of its
-   own — and the recap of last turn is a line of height better spent on the
-   part of the board still visible. */
+.kb-up body,
+body:has(.kb-up) {
+  padding-bottom: 0;
+}
+
+.kb-up .board-area {
+  overflow: hidden;
+  align-items: start;
+}
+
+.kb-up .board-grid {
+  height: var(--board-h);
+  flex: none;
+}
+
 .kb-up .dock.kb-lifted {
-  box-shadow: 0 4px 22px rgba(18, 18, 18, 0.18);
+  /* No transform any more: the OS ended the webview at the keyboard's top
+     edge, so the last element in the layout is already touching it. */
+  position: relative;
+  z-index: 5;
 }
 
 /* Nothing about the composer changes size while it is lifted, and that is a
