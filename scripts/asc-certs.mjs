@@ -61,13 +61,21 @@ if (!PRUNE) {
   process.exit(0)
 }
 
-const isDev = (c) => /DEVELOPMENT/i.test(c.certificateType)
-const isDist = (c) => /DISTRIBUTION/i.test(c.certificateType)
-// Keep the newest distribution certificate; everything else CI made is litter.
-const keep = new Set(certs.filter(isDist).slice(0, 1).map((c) => c.id))
-const doomed = certs.filter((c) => (isDev(c) || isDist(c)) && !keep.has(c.id))
+// Only the development certificates CI created for itself, and never a
+// distribution one.
+//
+// The first version of this also pruned older distribution certificates,
+// keeping the newest. That never fired, and it should not have been written:
+// the distribution certificate is the one with a person's name on it, revoking
+// it is felt outside this repository, and the pile-up this exists to clear is
+// entirely development certificates — one per run, because each run signs on a
+// machine with an empty keychain.
+const disposable = (c) =>
+  /DEVELOPMENT/i.test(c.certificateType) && /created via api/i.test(c.displayName ?? c.name ?? '')
+const doomed = certs.filter(disposable)
+const skipped = certs.length - doomed.length
 
-console.log(`\nkeeping ${keep.size}, revoking ${doomed.length}`)
+console.log(`\nleaving ${skipped} alone, revoking ${doomed.length} that CI created`)
 for (const c of doomed) {
   try {
     await api(`certificates/${c.id}`, { method: 'DELETE' })
