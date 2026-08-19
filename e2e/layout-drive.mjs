@@ -434,6 +434,114 @@ await page.setViewportSize(PHONE)
   check('and comes back untouched', same(gridBefore, gridAfter), `${Math.round(gridAfter.height)}`)
 }
 
+// ---- the ride (localStorage cluecab-kbfast), and what it may not change ----
+//
+// The experiment makes the composer arrive EARLY. It is allowed to change when
+// the dock moves and nothing else — least of all where it stops, which cost
+// three builds to get right.
+//
+// Both modes are run through the app's own keyboard path rather than through a
+// hand-written imitation of it, which is what cluecab-kbsim is for. What that
+// cannot show is the real thing's timing, since there is no iOS keyboard here
+// to be early relative to; what it can show is that the ride happens at all,
+// that it does not happen with the flag off, and that both come to rest in
+// exactly the same place. Those are the three claims this experiment makes.
+{
+  const KB = 336
+  const arm = async (fast) => {
+    // A round to be in the middle of, saved, and then resumed by the reload —
+    // cluecab-kbsim and the flag are both read once, at mount.
+    await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+    await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+    await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+    await page.locator('.home-play').click()
+    await page.waitForSelector('.board-grid')
+    const study = page.locator('.study-dock .btn-primary')
+    if (await study.isVisible().catch(() => false)) await study.click()
+    await page.waitForTimeout(250)
+
+    await page.evaluate(
+      ([kb, on]) => {
+        localStorage.setItem('cluecab-kbsim', String(kb))
+        if (on) localStorage.setItem('cluecab-kbfast', '1')
+        else localStorage.removeItem('cluecab-kbfast')
+      },
+      [KB, fast],
+    )
+    await open('?mock=1&howto=0')
+    // The instant the app decides the keyboard is up. The ride, if there is
+    // one, is applied in that same tick, so this is the one moment where the
+    // two modes differ visibly.
+    await page.waitForFunction(() => document.documentElement.classList.contains('kb-up'), null, {
+      timeout: 8000,
+    })
+    const during = await page.evaluate(() => {
+      const d = document.querySelector('.dock.kb-lifted')
+      return {
+        transform: d ? d.style.transform : 'no dock',
+        shrunk: document.body.style.height !== '',
+      }
+    })
+    // Long enough for the ride and its handover to be over and done with.
+    await page.waitForTimeout(900)
+    const rest = await page.evaluate(() => {
+      const d = document.querySelector('.dock.kb-lifted')
+      const b = d.getBoundingClientRect()
+      return {
+        top: Math.round(b.top),
+        bottom: Math.round(b.bottom),
+        transform: d.style.transform,
+        transition: d.style.transition,
+        body: document.body.style.height,
+        board: Math.round(document.querySelector('.board-grid').getBoundingClientRect().height),
+      }
+    })
+    await page.evaluate(() => {
+      localStorage.removeItem('cluecab-kbsim')
+      localStorage.removeItem('cluecab-kbfast')
+    })
+    return { during, rest }
+  }
+
+  const off = await arm(false)
+  const on = await arm(true)
+
+  // Inert without the flag: the dock is never given a transform, and the
+  // document shrinks the moment the keyboard is declared, exactly as before.
+  check(
+    'without cluecab-kbfast the dock is never transformed',
+    off.during.transform === '' && off.rest.transform === '' && off.rest.transition === '',
+    `during ${JSON.stringify(off.during.transform)}, at rest ${JSON.stringify(off.rest.transform)}`,
+  )
+  check('and the document shrinks straight away', off.during.shrunk)
+
+  // Not a vacuous pair: with the flag on there really is a ride, and it is
+  // carrying the dock while the document is still full height.
+  check(
+    'with cluecab-kbfast the dock rides ahead of the document',
+    /^translateY\(-\d/.test(on.during.transform) && !on.during.shrunk,
+    `during ${JSON.stringify(on.during.transform)}, document shrunk: ${on.during.shrunk}`,
+  )
+  // And hands back: what holds the dock up afterwards is the layout, not us.
+  check(
+    'and hands the dock back to the layout when it lands',
+    on.rest.transform === '' && on.rest.transition === '' && on.rest.body === off.rest.body,
+    `transform ${JSON.stringify(on.rest.transform)}, body ${on.rest.body} vs ${off.rest.body}`,
+  )
+
+  // The measurement that matters: same resting place, to the pixel.
+  check(
+    'and comes to rest in exactly the same place either way',
+    on.rest.top === off.rest.top && on.rest.bottom === off.rest.bottom,
+    `fast ${on.rest.top}–${on.rest.bottom}, today ${off.rest.top}–${off.rest.bottom}`,
+  )
+  check(
+    'and the board is the same height either way',
+    on.rest.board === off.rest.board,
+    `${on.rest.board} vs ${off.rest.board}`,
+  )
+}
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.stop()
