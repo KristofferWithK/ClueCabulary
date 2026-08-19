@@ -9,11 +9,15 @@ import { useDialog } from '../useDialog'
 
 export function DictionarySheet() {
   const { sheetWordId, closeSheet } = useUi()
-  const phase = useGame((s) => s.game?.phase)
+  const mode = useGame((s) => s.mode)
+  const packingDone = useGame((s) => s.packingDone)
 
-  // An open sheet must not survive into the challenge — it would display the
-  // answer to a prompted word while the dictionary is "locked".
-  const locked = phase === 'redemption'
+  // An open sheet must not survive into a phase that closes the dictionary —
+  // it would display the answer to a card the player is being asked to type.
+  // That used to mean the redemption challenge, which is retired; the wrap-up
+  // packing phase makes the same bargain in the other direction, so the guard
+  // moves rather than going away.
+  const locked = mode === 'wrapup' && !packingDone
   useEffect(() => {
     if (locked && sheetWordId) closeSheet()
   }, [locked, sheetWordId, closeSheet])

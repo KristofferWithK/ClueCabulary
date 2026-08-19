@@ -6,11 +6,12 @@ import { beforeEach, describe, expect, it } from 'vitest'
  *
  *  - looking up a BOARD word here costs exactly what tapping ⓘ costs, or the
  *    clean-guess credit and the practice scheduler can be dodged for free;
- *  - it is shut during the redemption challenge, which is precisely the moment
- *    the game asks you to translate the board WITHOUT a dictionary.
+ *  - it is shut during the wrap-up packing phase, which is precisely the moment
+ *    the game asks you to type the board WITHOUT a dictionary.
  *
- * (The wrap-up packing phase is the other no-dictionary moment; its lock lands
- * with the mode itself and is pinned beside it.)
+ * The redemption challenge was the other no-dictionary moment and the one these
+ * last two cases were written against; it is retired, so they are written
+ * against packing, which makes the same bargain in the other direction.
  */
 const written = new Map<string, string>()
 Object.defineProperty(globalThis, 'window', {
@@ -74,16 +75,14 @@ describe('translating during a round', () => {
     expect(useGame.getState().lookedUp).toEqual([])
   })
 
-  it('refuses during the redemption challenge', async () => {
-    const game = useGame.getState().game!
-    useGame.setState({ game: { ...game, phase: 'redemption' } })
+  it('refuses while the board is being packed', async () => {
+    useGame.setState({ mode: 'wrapup', packingDone: false })
     await expect(useGame.getState().translate('hund')).rejects.toThrow(/closed/i)
   })
 
   it('charges nothing when it refuses', async () => {
     const board = useGame.getState().game!.words
-    const game = useGame.getState().game!
-    useGame.setState({ game: { ...game, phase: 'redemption' } })
+    useGame.setState({ mode: 'wrapup', packingDone: false })
     await useGame.getState().translate(board[0]!.da).catch(() => undefined)
     expect(useGame.getState().lookedUp).toEqual([])
   })

@@ -32,21 +32,25 @@ describe('applyRoundResults', () => {
     expect(next.w1!.lookups).toBe(1)
   })
 
-  it('demotes wrong guesses and failed redemption, wins over promotion', () => {
+  // A `redemption: 'wrong'` result used to ride alongside these, and demotion
+  // beat promotion when a word was guessed green and then flunked in the
+  // translation challenge. The challenge is retired; a packing miss is the
+  // signal that still works this way, and it is covered below.
+  it('demotes a wrong guess, which wins over promotion', () => {
     const map: SrsMap = { w1: base({ box: 3 }), w2: base({ box: 2 }) }
     const next = applyRoundResults(
       map,
       [
         res({ wordId: 'w1', guessedWrong: true }),
-        res({ wordId: 'w2', guessedGreen: true, redemption: 'wrong' }),
+        res({ wordId: 'w2', guessedGreen: true, packingMissed: true }),
       ],
       NOW,
     )
     expect(next.w1!.box).toBe(2)
-    expect(next.w2!.box).toBe(1) // redemption failure outweighs the earlier green
+    expect(next.w2!.box).toBe(1) // the packing miss outweighs the later green
   })
 
-  it('promotes redemption success and clamps at the ends', () => {
+  it('clamps at the ends', () => {
     const map: SrsMap = { hi: base({ box: 4 }), lo: base({ box: 0 }) }
     const next = applyRoundResults(
       map,

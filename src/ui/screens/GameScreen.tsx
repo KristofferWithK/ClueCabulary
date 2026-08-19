@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { REDEMPTION_AFTER_ROUND } from '../../engine/config'
 import { currentClue } from '../../engine/game'
 import type { GameState } from '../../engine/types'
 import { onPracticeCompanion, useGame } from '../../stores/gameStore'
@@ -11,7 +10,6 @@ import { DebriefPanel } from '../components/DebriefPanel'
 import { useOpenDictionary } from '../components/DictionarySheet'
 import { PackingDock } from '../components/PackingDock'
 import { TranslateBox } from '../components/TranslateBox'
-import { RedemptionView } from '../components/RedemptionView'
 import { TurnTokens } from '../components/TurnTokens'
 
 const PHASE_CAPTION: Record<GameState['phase'], string> = {
@@ -20,7 +18,6 @@ const PHASE_CAPTION: Record<GameState['phase'], string> = {
   aiClueInput: 'Cluey prepares a clue',
   playerGuessing: 'Your turn to guess',
   suddenDeath: 'Sudden death — no clues left',
-  redemption: 'Last chance',
   finished: 'Round over',
 }
 
@@ -68,16 +65,14 @@ export function GameScreen() {
   }, [game, goTo])
   if (!game) return null
 
-  const showBoard = game.phase !== 'redemption' && game.phase !== 'finished'
+  const showBoard = game.phase !== 'finished'
 
   const announcement = (() => {
     if (game.phase === 'aiGuessing' && lastAiGuess) {
       const word = game.words.find((w) => w.wordId === lastAiGuess.wordId)
       const result = game.reveals[lastAiGuess.wordId]?.kind
       if (word && result) {
-        const outcome =
-          result === 'green' ? 'correct' : result === 'forbidden' ? 'forbidden' : 'neutral'
-        return `Cluey guessed ${word.da} — ${outcome}.`
+        return `Cluey guessed ${word.da} — ${result === 'green' ? 'correct' : 'neutral'}.`
       }
     }
     if (aiBusy) return 'Cluey is thinking.'
@@ -85,11 +80,10 @@ export function GameScreen() {
   })()
 
   const handleTranslationsToggle = () => {
-    if (game.phase === 'redemption') return
     if (!translationsOn) {
       // Turning the overlay on counts as looking up every word that is not
-      // already solved green — bystander-revealed words can still be guessed
-      // (and quizzed in redemption), so they count too.
+      // already solved green — a bystander-revealed word can still be guessed
+      // under the other side's clue, so it counts too.
       const s = useGame.getState()
       for (const w of game.words) {
         if (game.reveals[w.wordId]!.kind !== 'green') s.recordLookup(w.wordId)
@@ -151,7 +145,7 @@ export function GameScreen() {
               ? 'Hide translations'
               : 'Show every translation — counts as looking up each unsolved word'
           }
-          disabled={game.phase === 'redemption' || studying}
+          disabled={studying}
           onClick={handleTranslationsToggle}
         >
           Aa
@@ -215,17 +209,10 @@ export function GameScreen() {
 
       {showBoard && (
         <p className="key-legend">
-          {/* One line, always: the long dashed-word explanation moved into the
-              guess bar's stake note, because the legend sits between the board
-              and the dock on a screen that must FIT a 640px phone. */}
+          {/* One line, always: the legend sits between the board and the dock
+              on a screen that must FIT a 640px phone. It had a second swatch
+              for the dashed forbidden cards, which no longer exist. */}
           <span className="legend-swatch legend-target" aria-hidden="true" /> your target
-          <span className="legend-sep">·</span>
-          {/* "forbidden for you" read as "you must not name this", which is
-              backwards: it is forbidden ON your key, meaning Cluey must not be
-              led to it. BoardGrid's screen-reader name has always said "on your
-              key"; the visible legend agrees with it. */}
-          <span className="legend-swatch legend-forbidden" aria-hidden="true" /> forbidden on your
-          key
           <span className="legend-sep">·</span>
           <span aria-hidden="true">ⓘ</span> look up
         </p>
@@ -256,9 +243,6 @@ export function GameScreen() {
       )}
       {!studying && !packing && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
       {!studying && !packing && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
-      {game.phase === 'redemption' && (
-        <RedemptionView game={game} onSubmit={(a) => useGame.getState().submitRedemption(a)} />
-      )}
       {game.phase === 'finished' && <DebriefPanel game={game} />}
     </div>
   )
@@ -314,10 +298,6 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   const made = clue.guesses.length
   const left = clue.number - made
   const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
-  // What a forbidden tap costs changes partway through the round, and this is
-  // the screen where it is spent. Sudden death says its stake in place (below);
-  // this one never did, which was tolerable only while the answer never moved.
-  const lastChanceOpen = game.clueHistory.length > REDEMPTION_AFTER_ROUND
 
   return (
     <div className="dock guess-bar">
@@ -325,16 +305,9 @@ function PlayerGuessBar({ game }: { game: GameState }) {
         Cluey's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
         {left === 1 ? '' : 'es'}
       </p>
-      {/* Whose forbidden words, not "a forbidden word". This sits above a board
-          whose only forbidden markings are the player's own dashed cards, and
-          under Cluey's clue those are the safe ones — the guess is read off HIS
-          key. Unqualified, the sentence warns about exactly the wrong cards. */}
-      <p className="dim stake-note">
-        {lastChanceOpen
-          ? "Cluey's forbidden words now leave you the last chance. You cannot see them — "
-          : "Cluey's forbidden words end the round. You cannot see them — "}
-        your own dashed cards are safe to tap here.
-      </p>
+      {/* A stake note stood here explaining what a forbidden tap cost and whose
+          forbidden words were in play. Nothing on this screen is fatal any
+          more: a wrong guess spends the turn, and that is the whole stake. */}
       {selected ? (
         <div className="guess-confirm">
           <button

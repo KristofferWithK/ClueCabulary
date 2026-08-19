@@ -17,7 +17,7 @@ import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
-import { WORDS, isDanishWord, isKnownGloss } from '../data/words'
+import { WORDS, isDanishWord } from '../data/words'
 import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { wrapUpBias, wrapUpWords } from '../journey/wrapup'
 import { useFeedback } from './feedbackStore'
@@ -74,13 +74,6 @@ interface GameStore {
   debriefFailed: boolean
   /** Words this round pushed over the line into the collection's green. */
   newlyLearned: string[]
-  /**
-   * Answers typed into the redemption challenge. Persisted because the phase
-   * itself is: without this, one back gesture or a phone killing the app threw
-   * away up to twenty typed answers in the one round that cannot be replayed.
-   */
-  redemptionDraft: Record<string, string>
-  setRedemptionAnswer: (wordId: string, text: string) => void
   // Transient (not persisted):
   aiBusy: boolean
   aiGuessQueue: PlannedGuess[]
@@ -133,7 +126,6 @@ interface GameStore {
   selectWord: (wordId: string | null) => void
   playerGuess: (wordId: string) => void
   playerStop: () => void
-  submitRedemption: (answers: Record<string, string>) => void
   recordLookup: (wordId: string) => void
   /**
    * Translate one word for the player, so a Danish clue can be composed
@@ -230,8 +222,9 @@ function dealBoard(
         Date.now(),
       )
   // Steer the deal: words the player still struggles with become Cluey's
-  // greens (so the player has to recall them), well-known ones become the
-  // forbidden hazards. The daily challenge stays an unbiased shared board.
+  // greens, so the player has to recall them. (Well-known ones used to become
+  // the forbidden hazards; with those gone they simply drift off both keys.)
+  // The daily challenge stays an unbiased shared board.
   const srsStats = useSrs.getState().stats
   const wrapped = useJourney.getState().wrapped
   const bias = dailyKey
@@ -277,7 +270,6 @@ const freshRound = () => ({
   debrief: null,
   debriefFailed: false,
   newlyLearned: [] as string[],
-  redemptionDraft: {} as Record<string, string>,
   // Every round gets a fresh chance at Cluey.
   practiceFallback: false,
   aiGuessQueue: [] as PlannedGuess[],
@@ -300,9 +292,11 @@ const freshRound = () => ({
  */
 const nextSeed = (seed: number) => (Math.imul(seed, 1664525) + 1013904223) >>> 0
 
-const buzz = (result: 'green' | 'bystander' | 'forbidden') => {
+// Two patterns, because there are two things a guess can be. The third — a
+// long double buzz for a forbidden word — went with the forbidden words.
+const buzz = (result: 'green' | 'bystander') => {
   if (typeof navigator === 'undefined' || !navigator.vibrate) return
-  navigator.vibrate(result === 'green' ? 15 : result === 'bystander' ? 40 : [70, 50, 70])
+  navigator.vibrate(result === 'green' ? 15 : 40)
 }
 
 export const useGame = create<GameStore>()(
@@ -321,7 +315,6 @@ export const useGame = create<GameStore>()(
       debrief: null,
       debriefFailed: false,
       newlyLearned: [],
-      redemptionDraft: {},
       practiceFallback: false,
       aiBusy: false,
       aiGuessQueue: [],
@@ -512,9 +505,6 @@ export const useGame = create<GameStore>()(
 
       endStudy: () => set({ studying: false }),
 
-      setRedemptionAnswer: (wordId, text) =>
-        set((s) => ({ redemptionDraft: { ...s.redemptionDraft, [wordId]: text } })),
-
       abandonGame: () => {
         useUi.getState().resetTranslations()
         set({
@@ -543,8 +533,7 @@ export const useGame = create<GameStore>()(
         // the history is whichever one ran the tokens out and it may have no
         // guesses at all.
         if (game.phase === 'suddenDeath') {
-          const reveal = next.reveals[wordId]!
-          buzz(reveal.kind === 'green' ? 'green' : reveal.kind === 'forbidden' ? 'forbidden' : 'bystander')
+          buzz(next.reveals[wordId]!.kind === 'green' ? 'green' : 'bystander')
         } else {
           const clue = currentClue(next)
           buzz(clue!.guesses[clue!.guesses.length - 1]!.result)
@@ -561,21 +550,9 @@ export const useGame = create<GameStore>()(
         if (next.phase === 'finished') get().finishRound()
       },
 
-      submitRedemption: (answers) => {
-        const { game } = get()
-        if (!game || game.phase !== 'redemption') return
-        const next = applyEvent(game, {
-          type: 'SUBMIT_REDEMPTION',
-          answers,
-          isKnownWord: isKnownGloss,
-        })
-        set({ game: next })
-        get().finishRound()
-      },
-
       recordLookup: (wordId) => {
         const { game, lookedUp, studying, mode, packingDone } = get()
-        if (!game || game.phase === 'redemption') return
+        if (!game) return
         // The packing phase IS "type the Danish with no dictionary" — an open
         // dictionary during it would be the answer key.
         if (mode === 'wrapup' && !packingDone) return
@@ -589,7 +566,7 @@ export const useGame = create<GameStore>()(
 
       noteLookup: (term) => {
         const { game, mode, packingDone } = get()
-        if (!game || game.phase === 'redemption') return
+        if (!game) return
         if (mode === 'wrapup' && !packingDone) return
         const hit = boardWordFor(term, game.words.map((w) => w.wordId))
         if (hit) get().recordLookup(hit)
@@ -597,11 +574,11 @@ export const useGame = create<GameStore>()(
 
       translate: async (term) => {
         const { game, practiceFallback, mode, packingDone } = get()
-        // The redemption challenge IS "translate the board with no dictionary",
-        // and the packing phase is the same bargain in the other direction. A
-        // translate field open during either would not be a feature, it would
-        // be the answer key.
-        if (game?.phase === 'redemption' || (game && mode === 'wrapup' && !packingDone)) {
+        // The packing phase IS "type the Danish with no dictionary". A
+        // translate field open during it would not be a feature, it would be
+        // the answer key. (The redemption challenge was the same bargain in the
+        // other direction and shut this too; it no longer exists.)
+        if (game && mode === 'wrapup' && !packingDone) {
           throw new AiError('invalid-response', 'The dictionary is closed until this is finished.')
         }
         const result = await companion(practiceFallback).translate(term)
@@ -740,9 +717,6 @@ export const useGame = create<GameStore>()(
       finishRound: () => {
         const { game, lookedUp, roundRecorded, mode, packed, packingMissed } = get()
         if (!game || game.phase !== 'finished' || roundRecorded) return
-        const redemptionByWord = new Map(
-          (game.redemption?.results ?? []).map((r) => [r.wordId, r.accepted]),
-        )
         // A guess record's result is judged against the CLUE-GIVER's key
         // (engine/game.ts), so a green under a clue `by: 'player'` is Cluey
         // finding the player's word — the player's CLUE earned it — and a
@@ -766,11 +740,6 @@ export const useGame = create<GameStore>()(
           )
           const greenByOwnClue = greenUnder('player', w.wordId)
           const greenByOwnGuess = greenUnder('ai', w.wordId) || (guessedGreen && !greenByOwnClue)
-          const redemption = redemptionByWord.has(w.wordId)
-            ? redemptionByWord.get(w.wordId)
-              ? ('right' as const)
-              : ('wrong' as const)
-            : undefined
           return {
             wordId: w.wordId,
             guessedGreen,
@@ -778,7 +747,6 @@ export const useGame = create<GameStore>()(
             greenByOwnClue,
             greenByOwnGuess,
             lookedUp: lookedUp.includes(w.wordId),
-            redemption,
             ...(mode === 'wrapup' ? { packingMissed: packingMissed.includes(w.wordId) } : {}),
           }
         })
@@ -812,13 +780,14 @@ export const useGame = create<GameStore>()(
         useSrs.getState().recordGame(game.outcome!)
         const { dailyKey } = get()
         if (dailyKey) {
-          const outcome =
-            game.outcome!.result === 'won'
-              ? game.outcome!.reason === 'redeemed'
-                ? 'redeemed'
-                : 'won'
-              : 'lost'
-          localStorage.setItem(`cluecab-daily:${dailyKey}`, outcome)
+          // 'won' or 'lost' — 'redeemed' was a third value here and is not
+          // written any more. Phones that played a daily before this build
+          // still have it in localStorage; HomeScreen only ever interpolates
+          // the string into an aria-label, so an old one reads back harmlessly.
+          localStorage.setItem(
+            `cluecab-daily:${dailyKey}`,
+            game.outcome!.result === 'won' ? 'won' : 'lost',
+          )
         }
         set({ roundRecorded: true, newlyLearned })
         void get().requestDebrief()
@@ -832,7 +801,7 @@ export const useGame = create<GameStore>()(
     }),
     {
       name: 'cluecab-game-v1',
-      version: 3,
+      version: 4,
       /**
        * v1 remembered one board under `lastBoard`. Without this the upgrade
        * would silently lose it — harmless (one board deals without a carry-over
@@ -841,20 +810,44 @@ export const useGame = create<GameStore>()(
        *
        * v2 -> v3: the wrap-up fields. An in-flight round from the old build is
        * by definition a normal one with nothing to pack, and resumes as such.
+       *
+       * v3 -> v4: forbidden words and the redemption phase are gone, and this
+       * is the one migration that cannot preserve the round. A save written by
+       * the old build may hold a key with `forbidden` on it, a `{kind:
+       * 'forbidden'}` reveal, a `phase: 'redemption'` with typed answers
+       * beside it, or an outcome of 'redeemed' — none of which the new types
+       * can represent, and all of which would be read straight back onto the
+       * board. So the game is thrown away and the player lands on Home with
+       * Play. One abandoned mid-round on the update is the accepted cost; the
+       * alternative is a screen rendering roles that no longer exist.
+       *
+       * recentBoards survives on purpose: it is only word ids, it carries no
+       * key data, and keeping it means the board dealt after the update still
+       * honours the carry-over rule.
        */
       migrate: (persisted, from) => {
-        if (from >= 3) return persisted
+        if (from >= 4) return persisted
         let p = persisted
         if (from < 2) {
           const { lastBoard, ...rest } = (p ?? {}) as { lastBoard?: string[] }
           p = { ...rest, recentBoards: lastBoard?.length ? [lastBoard] : [] }
         }
+        const { recentBoards } = (p ?? {}) as { recentBoards?: string[][] }
         return {
-          ...(p as Record<string, unknown>),
+          recentBoards: recentBoards ?? [],
+          game: null,
+          lookedUp: [],
+          roundRecorded: false,
+          dailyKey: null,
+          studying: false,
           mode: 'normal',
           packed: [],
           packingMissed: [],
           packingDone: true,
+          debrief: null,
+          debriefFailed: false,
+          newlyLearned: [],
+          practiceFallback: false,
         }
       },
       partialize: (s) => ({
@@ -871,7 +864,6 @@ export const useGame = create<GameStore>()(
         debrief: s.debrief,
         debriefFailed: s.debriefFailed,
         newlyLearned: s.newlyLearned,
-        redemptionDraft: s.redemptionDraft,
         practiceFallback: s.practiceFallback,
       }),
     },

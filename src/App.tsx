@@ -234,7 +234,8 @@ export default function App() {
           nothing else. It is a real element rather than a document listener
           precisely so the tap lands HERE: dismissing the keyboard and also
           guessing the card you happened to touch is two actions from one tap,
-          and the second one is unrecoverable in a game with forbidden words.
+          and the second one costs a turn nobody chose to spend. (It used to
+          cost the whole round — that tap could land on a forbidden word.)
           The next tap, with the keyboard down, does what it says. */}
       <div
         className="kb-scrim"

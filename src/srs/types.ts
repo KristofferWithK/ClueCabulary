@@ -6,6 +6,14 @@ export interface WordStats {
   correctGuesses: number
   misses: number
   lookups: number
+  /**
+   * Frozen history. The redemption round — translate every unsolved word, one
+   * shot — is retired, so nothing increments these any more. They stay on the
+   * record because they are persisted per word and validated by the backup
+   * schema: dropping them would be a store migration and a backup format
+   * change to delete two numbers that already describe rounds the player
+   * really played.
+   */
   redemptionRight: number
   redemptionWrong: number
   /**
@@ -27,14 +35,13 @@ export interface RoundWordResult {
   wordId: string
   /** Guessed and revealed green (by either side — the word was understood in play). */
   guessedGreen: boolean
-  /** Guessed and revealed bystander/forbidden — confused with something else. */
+  /** Guessed and revealed a bystander — confused with something else. */
   guessedWrong: boolean
   /** Revealed green under the player's own clue — Cluey was led to it. */
   greenByOwnClue: boolean
   /** Revealed green by the player's own tap — under Cluey's clue, or in sudden death. */
   greenByOwnGuess: boolean
   lookedUp: boolean
-  redemption?: 'right' | 'wrong'
   /** Wrap-up packing: the first translation attempt on this word missed. */
   packingMissed?: boolean
 }

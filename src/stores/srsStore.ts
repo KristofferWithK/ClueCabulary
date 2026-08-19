@@ -8,6 +8,12 @@ import type { RoundWordResult, SrsMap, WordStats } from '../srs/types'
 export interface GamesTally {
   played: number
   won: number
+  /**
+   * Frozen at whatever it reached. Winning by translating the whole board back
+   * — the last chance after a forbidden word — is retired, so nothing adds to
+   * this. Kept rather than dropped because it is persisted and part of the
+   * backup format, and because it counts rounds that really happened.
+   */
   redeemed: number
   lost: number
 }
@@ -65,7 +71,7 @@ export const useSrs = create<SrsState>()(
           games: {
             played: s.games.played + 1,
             won: s.games.won + (outcome.result === 'won' ? 1 : 0),
-            redeemed: s.games.redeemed + (outcome.reason === 'redeemed' ? 1 : 0),
+            redeemed: s.games.redeemed,
             lost: s.games.lost + (outcome.result === 'lost' ? 1 : 0),
           },
         })),

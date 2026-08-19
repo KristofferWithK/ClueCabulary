@@ -63,7 +63,6 @@ export function AiTurnPanel({ game }: { game: GameState }) {
           {confidencePhrase(lastAiGuess.confidence)} <strong>{lastWord.da}</strong>
           {lastResult.result === 'green' && ' — got one!'}
           {lastResult.result === 'bystander' && ' — ouch, neutral.'}
-          {lastResult.result === 'forbidden' && ' — oh no.'}
         </p>
       ) : (
         <p className="ai-guess-line">

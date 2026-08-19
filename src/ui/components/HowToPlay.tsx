@@ -1,4 +1,3 @@
-import { REDEMPTION_AFTER_ROUND } from '../../engine/config'
 import { useUi } from '../../stores/uiStore'
 import { useDialog } from '../useDialog'
 
@@ -24,17 +23,18 @@ export function HowToPlay() {
           Find every green word with Cluey, your AI partner — and learn Danish on the way.
         </p>
 
+        {/* Two tiles, not three: the black one demonstrated a forbidden word.
+            Card A2 owns the constructive rewrite of this overlay — this pass
+            only takes out the sentences that are now untrue. */}
         <div className="howto-tiles" aria-hidden="true">
           <span className="demo-tile demo-green">hund</span>
           <span className="demo-tile demo-beige">vej</span>
-          <span className="demo-tile demo-black">nat</span>
         </div>
 
         <ol>
           <li>
             The board is a grid of Danish words. You and Cluey each hold a secret key: some words
-            are <strong>green</strong> (targets), most are neutral, a few are{' '}
-            <strong>forbidden</strong>.
+            are <strong>green</strong> (targets) and the rest are neutral.
           </li>
           <li>
             Take turns: you give a one-word clue and Cluey guesses — then Cluey clues and you
@@ -53,20 +53,8 @@ export function HowToPlay() {
             so spent words are crossed out and the rest are still yours to take.
           </li>
           <li>
-            <strong>Forbidden words cut one way at a time</strong>, because a guess is judged on
-            the clue-giver's key. The dashed cards are forbidden on <em>your</em> key: safe for you
-            to tap, but never lead Cluey to one with your clue. While you guess <em>his</em> clue
-            it is <em>his</em> forbidden words that end the round — and you cannot see those.
-          </li>
-          <li>
-            Once <strong>{REDEMPTION_AFTER_ROUND} clues</strong> have been given, a forbidden word
-            leaves one last chance instead of ending it: translate every unsolved word on the
-            board. All correct — the game is redeemed. Any miss — it's lost.
-          </li>
-          <li>
             When the clues run out the board stays open. Keep naming green words and you can still
-            win it; name anything else and the round is over — a forbidden word included, with no
-            last chance out there.
+            win it; name anything else and the round is over.
           </li>
           <li>
             Nothing on the board connects? Before you give the first clue, <strong lang="da">
