@@ -39,19 +39,15 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-*(empty — next up: A2 and B1 unblock when A1's PR merges)*
+- **D1** — Rebrand copy: 900Words + Casey + English chrome *(held only while C1 is in the same UI files)*
 
 ### Blocked
-- **C2** — Home rework *(needs C1 to land first — same screens)*
-- **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs B1; Casey name lands with D1)*
-- **D1** — Rebrand copy: 900Words + Casey + English chrome *(needs A3 — copy describes final rules)*
-- **D2** — Dataset 900 + city removal + migrations *(needs A3)*
-- **D3** — Repo/Pages rename + ASC display name *(needs D1)*
+- **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs C1 — same screens)*
+- **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
 - **E1** — Suitcase interior redesign *(needs D1)*
-- **F1** — Baked TTS pipeline + playWord + wiring *(needs C1)*
-- **F2** — Post-round sentences v1 + hear-the-board *(needs B1, F1)*
-- **G1** — Proxy quotas + friendly 429 *(anytime after A2; before launch)*
-- **G2** — Store readiness + release *(needs everything above except C3)*
+- **F1** — Baked TTS pipeline + playWord + wiring *(needs C1; the bake itself needs a TTS key the owner has to supply)*
+- **F2** — Post-round sentences v1 + hear-the-board *(needs F1)*
+- **G2** — Store readiness + release *(needs everything above except C3; submission is held for the owner)*
 
 ### In progress
 - **C1** — The board never moves — agent running (dispatched 2026-08-20)
