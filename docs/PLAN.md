@@ -42,7 +42,7 @@ model alias `cluey`).
 *(empty — next up: A2 and B1 unblock when A1's PR merges)*
 
 ### Blocked
-- **R1** — Wins earn wrap-up rounds *(needs B1 — it is editing the same persisted stores)*
+- **C2** — Home rework *(needs C1 to land first — same screens)*
 - **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs B1; Casey name lands with D1)*
 - **D1** — Rebrand copy: 900Words + Casey + English chrome *(needs A3 — copy describes final rules)*
 - **D2** — Dataset 900 + city removal + migrations *(needs A3)*
@@ -54,14 +54,15 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3)*
 
 ### In progress
-- **B1** — Round summary: stats + collapsible transcript — agent running (dispatched 2026-08-19)
 - **A3** — Re-tune boards by measurement + rules docs rewrite — agent running (dispatched 2026-08-20)
 - **C1** — The board never moves — agent running (dispatched 2026-08-20)
+- **R1** — Wins earn wrap-up rounds — agent running (dispatched 2026-08-20)
 
 ### Done
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
 - **C3** — Keyboard ride behind cluecab-kbfast, ships off — merged 2026-08-19 ([PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63)); awaiting the owner's on-device slo-mo A/B before flipping the default
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
+- **B1** — Round summary replaces the debrief; the debrief call is gone — merged 2026-08-20 ([PR #65](https://github.com/KristofferWithK/ClueCabulary/pull/65), squash 6a80497). Found layout-drive's end-screen section vacuous since it was written.
 
 ### Fast-follows (post-launch backlog, in order)
 - **H1** — Language-pack seam (i18n architecture)
