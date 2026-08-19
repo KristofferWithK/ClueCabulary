@@ -1465,19 +1465,6 @@ select:focus {
   font-size: 0.72rem;
 }
 
-/* One line, always. A recap that wraps takes its height from the board and
-   moves everything under it, and it wrapped on any clue with three guessed
-   words. The clue itself is at the start, which is the part worth reading. */
-.last-turn {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.last-turn > span {
-  white-space: nowrap;
-}
-
 /* ---- the keyboard, in the native shell ----
 
    Nothing here runs on the web: kb-up is only ever set by the native listener
@@ -1623,28 +1610,6 @@ body:has(.kb-up) {
 .clue-error {
   color: var(--red);
   font-size: 0.85rem;
-}
-
-/* One line, always. It is a recap, and a recap that wraps to two lines takes
-   its height from the board and moves everything under it â€” on a long clue
-   with three guessed words it wrapped every time. Truncated with an ellipsis
-   instead: the words nearest the start are the clue itself, which is the part
-   worth reading, and the full sentence is in the summary afterwards. */
-.last-turn {
-  color: var(--text-dim);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  border-bottom: 1px solid var(--line-soft);
-  padding-bottom: 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* The per-guess marks are inline spans; without this they can still break
-   the line inside a single word-and-tick pair. */
-.last-turn > span {
-  white-space: nowrap;
 }
 
 .guess-confirm {

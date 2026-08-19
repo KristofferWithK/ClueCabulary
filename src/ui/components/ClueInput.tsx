@@ -3,7 +3,7 @@ import { useGame } from '../../stores/gameStore'
 import { MAX_CLUE_NUMBER } from '../../engine/config'
 import { classifyClue } from '../../data/words'
 import { checkClueLegality } from '../../engine/legality'
-import type { CardRole, GameState } from '../../engine/types'
+import type { GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
 
 interface Props {
@@ -61,28 +61,15 @@ export function ClueInput({ game, onSubmit }: Props) {
     setText('')
   }
 
-  const last = game.clueHistory[game.clueHistory.length - 1]
-  // Typed off CardRole so a role added to the engine fails the build here
-  // rather than rendering `undefined` in the last-turn line. It had a third
-  // entry, ☠ for a forbidden word, until that role was removed.
-  const mark: Record<CardRole, string> = { green: '✓', bystander: '·' }
-
   return (
     <div className="dock clue-input">
-      {last && (
-        <p className="last-turn">
-          Last turn — {last.by === 'player' ? 'you' : 'Cluey'} clued «{last.text}»:{' '}
-          {last.guesses.length === 0
-            ? 'no guesses'
-            : last.guesses.map((g, i) => (
-                <span key={g.wordId}>
-                  {i > 0 && '  '}
-                  <span lang="da">{game.words.find((w) => w.wordId === g.wordId)?.da}</span>{' '}
-                  {mark[g.result]}
-                </span>
-              ))}
-        </p>
-      )}
+      {/* A "Last turn — you clued «x»: …" recap stood here. It was a line the
+          composer paid for on every turn but the first, and it was one of the
+          two things that made the board a different size in every phase — the
+          board is a flex:1 area sharing this column, so a recap appearing took
+          36px straight off the grid. The turn log in the round summary says
+          the same thing afterwards, at leisure, and the player has just
+          watched the turn happen. */}
       {/* The two things you need while composing, side by side: the clue, and
           the word you do not have yet. They fit on one line because a clue is
           one short word.
