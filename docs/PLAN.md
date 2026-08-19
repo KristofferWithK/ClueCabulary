@@ -55,12 +55,12 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3)*
 
 ### In progress
-- **C3** — Keyboard responsiveness experiment — [PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63); rebased onto A1, final verify running, merging next
 - **A2** — AI layer + game-screen copy for the new rules — agent running (dispatched 2026-08-19)
 - **B1** — Round summary: stats + collapsible transcript — agent running (dispatched 2026-08-19)
 
 ### Done
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
+- **C3** — Keyboard ride behind cluecab-kbfast, ships off — merged 2026-08-19 ([PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63)); awaiting the owner's on-device slo-mo A/B before flipping the default
 
 ### Fast-follows (post-launch backlog, in order)
 - **H1** — Language-pack seam (i18n architecture)
