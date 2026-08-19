@@ -42,7 +42,7 @@ model alias `cluey`).
 *(empty — next up: A2 and B1 unblock when A1's PR merges)*
 
 ### Blocked
-*(A3 and C1 dispatched — see In progress)*
+- **R1** — Spare clues: a reward for winning *(needs A3's measurements — see the card)*
 - **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs B1; Casey name lands with D1)*
 - **D1** — Rebrand copy: 900Words + Casey + English chrome *(needs A3 — copy describes final rules)*
 - **D2** — Dataset 900 + city removal + migrations *(needs A3)*
@@ -162,6 +162,52 @@ model alias `cluey`).
   phases of one round** (clue → AI guessing → AI clue → guessing → sudden
   death).
 - **Accept:** layout-drive green with the new assertion at 360×640.
+
+### R1 — Spare clues: a reward for winning
+**Size:** 1 session. **Deps:** A3 (its measurements decide whether this card is the right reward at all — see the gate below).
+
+**The problem.** Winning has no consequence. A lost round still greens words,
+still collects them, still shows the same summary — and removing forbidden
+words made losing gentler, so the two endings converged. A win should leave
+something behind.
+
+**The mechanic** (owner's design, 2026-08-20): win three rounds → earn one
+spare clue. Bank at most three. Spend at most one per round.
+
+**The gate, before anything is built.** A spare clue is a difficulty
+*reduction*. If A3 measures the boards as too easy now that nothing ends a
+round early, this is the wrong reward and the card becomes a reward that does
+not touch difficulty instead — a free wrap (the journey is the real progress
+axis) or a visible win streak in the collection. Read A3's numbers first and
+say which way they point.
+
+**Spend it at the cliff, not before the board.** Not a pre-game menu choice
+made blind, when the player cannot yet know the board is hard. Offer it at the
+moment the last token would go with greens still hidden: *one clue left,
+nothing found, Casey has a spare.* That is also where it earns its keep — it
+restores the "last chance" beat that retiring redemption removed, earned this
+time rather than arbitrary.
+
+**Shape.**
+- Earning hook already exists: `srsStore.recordGame(outcome)` tallies wins.
+  Add the counter and the bank beside it (persisted → version bump + migrate,
+  in the same commit).
+- Engine: one new event that raises `turnsLeft` by one, legal only in the
+  clue-input phases and only once per round (`GameState` carries the flag so a
+  reload cannot spend twice). `assertConfigConsistent` is unaffected.
+- UI: the offer in the clue dock when `turnsLeft === 1` and greens remain; the
+  bank shown on Home near the progress band. Both must respect C1's rule that
+  the board's rectangle never changes — reserve the space.
+- **Never on the daily challenge** (one shared board per date, same reasoning
+  as the reroll). Wrap-up rounds: allowed, decide with the owner on pickup.
+- Peg the earn rate to A3's measured win rate rather than assuming: at a 70%
+  win rate, "three wins" is a spare roughly every four rounds.
+- Re-measure after: the selfplay harness should say what a spare clue does to
+  the win rate before the number is called final.
+
+**Accept:** verify green; a spare is earned, banked, capped at three, spent at
+most once a round, survives a reload unspent, and is refused on the daily; the
+earn/spend rules pinned by tests, one of them checked to fail without the fix.
 
 ### C2 — Home rework
 **Size:** 1 session. **Deps:** B1 (D1 renames land later; build with current strings).
