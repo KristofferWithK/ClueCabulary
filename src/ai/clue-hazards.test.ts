@@ -81,7 +81,7 @@ describe('the clue prompt says which words are actually targetable', () => {
 })
 
 /**
- * WHAT THIS FILE USED TO HOLD, and why it is half its old length.
+ * WHAT THIS FILE USED TO HOLD, and what replaced it.
  *
  * A block here pinned the FORBIDDEN FOR YOU section of the clue prompt: that
  * Cluey's own hazards were named in a block of their own rather than only in
@@ -90,15 +90,53 @@ describe('the clue prompt says which words are actually targetable', () => {
  * out of the list. A second block pinned which boards dealt a card that was
  * green on one key and forbidden on the other.
  *
- * Forbidden words are gone from every board, so all of it asserted the presence
- * of prompt text that must no longer be there — the opposite of what is wanted.
- * Retired rather than adapted: there is no hazard left to test the handling of,
- * and the prompt rewrite that decides what replaces this section has not
- * happened yet. What is worth re-measuring afterwards is not this at all but
- * clue QUALITY, which nothing here ever checked.
- *
- * The two blocks that survive are about targetability, which is untouched.
+ * Those cards are gone from every board, so all of it asserted the presence of
+ * prompt text that must no longer be there — the opposite of what is wanted.
+ * What took its place is the block below: with two roles left, the neutrals are
+ * the only trap on the board, and the instruction telling Cluey to hunt for
+ * them before he commits is now the only thing standing between a clue and the
+ * turn it throws away. That instruction is what this file guards now.
  */
+
+/**
+ * The lookahead, pinned.
+ *
+ * It is a paragraph of prose in a prompt, which is the easiest kind of thing in
+ * this repo to lose: nothing breaks when it goes, the model keeps answering,
+ * and the clues get quietly worse in a way no other test can see. So the three
+ * load-bearing halves are asserted separately — scoring every non-target, the
+ * rule for what to do when one of them wins, and naming the riskiest of them in
+ * the rationale the player actually reads.
+ *
+ * Checked by reverting, twice, because the three do not share a failure mode.
+ * Replacing the lookahead bullet with the one-sentence version it grew out of
+ * ("read EVERY other unrevealed word ... if a non-target fits as well as or
+ * better than a target, the clue is wrong: pick another") fails the first two
+ * and leaves the third passing: the rationale demand lives in the JSON spec
+ * line, a separate edit away, so it took its own mutation — reverting that line
+ * to "the strongest board word you deliberately steered away from" fails the
+ * third and nothing else.
+ */
+describe('the clue prompt makes Cluey score the neutrals before he commits', () => {
+  it('demands every non-target be scored against the candidate clue', () => {
+    const text = promptFor(start())
+    expect(text).toMatch(/EVERY unrevealed word on the board that is not one of your targets/)
+    expect(text).toMatch(/scoring each for how well the clue fits it/i)
+  })
+
+  it('says what to do when a neutral scores as well as a target: change the clue', () => {
+    expect(promptFor(start())).toMatch(/fits as well as or better than any target does, the clue is wrong/i)
+  })
+
+  it('makes him name the single riskiest neutral in the rationale', () => {
+    const text = promptFor(start())
+    expect(text).toMatch(/riskiest neutral/i)
+    // Demanded of the rationale specifically — the field the player reads after
+    // the round — not just mentioned somewhere in the instructions.
+    const spec = text.split('\n').find((l) => l.includes('"rationale"'))!
+    expect(spec).toMatch(/riskiest neutral/i)
+  })
+})
 
 /**
  * The board can be dealt so that every one of Cluey's greens is also a word he
