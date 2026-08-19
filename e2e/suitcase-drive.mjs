@@ -103,6 +103,15 @@ try {
   const hint = await page.locator('.case-hint').textContent()
   check('and says how many more to collect', /Collect 10 more/.test(hint ?? ''), hint ?? '')
   check('and names the win as well, since both are missing', /[Ww]in a round/.test(hint ?? ''), hint ?? '')
+  // Both sentences at once is the tallest this screen gets, and it is the one
+  // state layout-drive does not reach: it measures the suitcase at
+  // ?collected=30, where the words gate is already open and the hint is one
+  // line. No screen may scroll the document, so measure it here.
+  const box = await page.evaluate(() => ({
+    sh: document.scrollingElement.scrollHeight,
+    ih: window.innerHeight,
+  }))
+  check('and two lines of hint still do not scroll the page', box.sh <= box.ih + 1, `${box.sh} vs ${box.ih}`)
   await page.screenshot({ path: `${SHOT_DIR}/s4-both-gates-shut.png` })
 
   // Words enough, no win: the button waits on the win and says only that.

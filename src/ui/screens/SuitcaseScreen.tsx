@@ -118,9 +118,10 @@ export function SuitcaseScreen() {
    * `boardReady` is arithmetic: a wrap-up board is twenty collected words and
    * cannot be dealt without them. `banked` is the reward economy: a wrap-up
    * round is earned by winning a normal one. Whichever is slower binds, and
-   * early on that is the collecting — a word needs a green each way and can
-   * earn at most one direction per round, so a first board is several rounds
-   * off while a first win is likely one or two.
+   * early in a city that is the collecting — a measured median of 11 to 13
+   * rounds even with every round won, against a first win that is very likely
+   * the first or second. So this hint mostly asks for words at the start of a
+   * city and mostly asks for a win afterwards. See WRAP_UP_BANK_CAP.
    */
   const boardReady = isHome && wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
   const wrapUpReady = boardReady && banked > 0

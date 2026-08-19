@@ -47,16 +47,20 @@ export type RoundMode = 'normal' | 'wrapup'
  *    buffer against a cold run; if wins turn out to be rare the buffer is
  *    never full and the cap is irrelevant, and if they are common the cap is
  *    all that rations anything.
- *  - WHICH of the two gates binds. Twenty collected words is the other gate,
- *    and a word needs a green each way — at most one direction per round —
- *    so a first wrap-up board is at least four flawless rounds away while a
- *    first win is very likely one or two. If collecting stays the slower of
- *    the two then the player sits permanently at the cap, the rationing does
- *    nothing, and the honest response is to raise the reward rather than
- *    tighten it. Measure before tightening. Nothing here may make a losing
- *    run unable to wrap at all: wrap-ups are how words get packed, packing is
- *    how the road opens, and a door that locks is a worse failure than a
- *    reward that never binds.
+ *  - WHICH of the two gates binds, which is not the same answer twice.
+ *    Measured, by dealing real boards through the sampler and greening every
+ *    card (flawless play, every round won): a city's first dealable wrap-up
+ *    board is a median of 13 rounds away on beginner and 11 on middle and
+ *    standard, twelve trials each. A player winning every round hits this cap
+ *    of three after three of them and then sits at it for eight more, so at
+ *    the start of a city the COLLECTED-WORDS gate binds and this number is
+ *    doing nothing. After it opens it never shuts again — the pool only grows
+ *    within a city — so from then until the next city the WIN gate is the only
+ *    live one, and the cap is the whole of the rationing. Tightening it would
+ *    only ever bite in that second phase. Nothing here may make a losing run
+ *    unable to wrap at all: wrap-ups are how words get packed, packing is how
+ *    the road opens, and a door that locks is a worse failure than a reward
+ *    that never binds.
  */
 export const WRAP_UP_BANK_CAP = 3
 
