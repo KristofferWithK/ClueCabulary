@@ -448,6 +448,39 @@ await page.setViewportSize(PHONE)
 // exactly the same place. Those are the three claims this experiment makes.
 {
   const KB = 336
+  // Watch rather than sample. Reading the transform "while the ride is on" is a
+  // race the drive loses on a busy machine — it did, and reported a working
+  // ride as absent because it looked 300ms too late. This records every inline
+  // style a dock is ever given, and where the document had got to at that
+  // point, so the claim is checked against what happened rather than against
+  // whatever a lucky poll caught. Registered once: addInitScript accumulates,
+  // and two copies would record everything twice.
+  await page.addInitScript(() => {
+    window.__ride = []
+    // Whether the document had been shrunk yet, carried along by hand rather
+    // than read from the DOM inside the callback. Mutation records arrive in a
+    // batch, after the fact, so reading document.body there answers "at the end
+    // of the batch" and would call a transform written BEFORE the shrink one
+    // written after it. The records themselves are in order, so walking them
+    // keeps the sequence honest.
+    let shrunk = false
+    new MutationObserver((records) => {
+      for (const r of records) {
+        const el = r.target
+        if (!(el instanceof HTMLElement)) continue
+        window.__ride.push({
+          // Every style write, not only the docks', so that "no dock was ever
+          // transformed" is visibly a count of something rather than a count
+          // of nothing.
+          what: el === document.body ? 'body' : el.classList.contains('dock') ? 'dock' : 'other',
+          transform: el.style.transform,
+          shrunk,
+        })
+        if (el === document.body) shrunk = document.body.style.height !== ''
+      }
+    }).observe(document, { attributes: true, subtree: true, attributeFilter: ['style'] })
+  })
+
   const arm = async (fast) => {
     // A round to be in the middle of, saved, and then resumed by the reload —
     // cluecab-kbsim and the flag are both read once, at mount.
@@ -469,21 +502,17 @@ await page.setViewportSize(PHONE)
       [KB, fast],
     )
     await open('?mock=1&howto=0')
-    // The instant the app decides the keyboard is up. The ride, if there is
-    // one, is applied in that same tick, so this is the one moment where the
-    // two modes differ visibly.
-    await page.waitForFunction(() => document.documentElement.classList.contains('kb-up'), null, {
-      timeout: 8000,
-    })
-    const during = await page.evaluate(() => {
-      const d = document.querySelector('.dock.kb-lifted')
-      return {
-        transform: d ? d.style.transform : 'no dock',
-        shrunk: document.body.style.height !== '',
-      }
-    })
-    // Long enough for the ride and its handover to be over and done with.
-    await page.waitForTimeout(900)
+    // A condition, not a duration: the keyboard is up, the document has
+    // shrunk, and nothing is holding the dock but the layout.
+    await page.waitForFunction(
+      () =>
+        document.documentElement.classList.contains('kb-up') &&
+        document.body.style.height !== '' &&
+        !document.querySelector('.dock.kb-lifted')?.style.transform,
+      null,
+      { timeout: 15000 },
+    )
+    const during = await page.evaluate(() => window.__ride ?? [])
     const rest = await page.evaluate(() => {
       const d = document.querySelector('.dock.kb-lifted')
       const b = d.getBoundingClientRect()
@@ -508,19 +537,21 @@ await page.setViewportSize(PHONE)
 
   // Inert without the flag: the dock is never given a transform, and the
   // document shrinks the moment the keyboard is declared, exactly as before.
+  const moved = (log) => log.filter((e) => e.what === 'dock' && e.transform !== '')
   check(
     'without cluecab-kbfast the dock is never transformed',
-    off.during.transform === '' && off.rest.transform === '' && off.rest.transition === '',
-    `during ${JSON.stringify(off.during.transform)}, at rest ${JSON.stringify(off.rest.transform)}`,
+    moved(off.during).length === 0 && off.rest.transform === '' && off.rest.transition === '',
+    `${off.during.length} style writes, ${moved(off.during).length} of them a transform`,
   )
-  check('and the document shrinks straight away', off.during.shrunk)
 
   // Not a vacuous pair: with the flag on there really is a ride, and it is
-  // carrying the dock while the document is still full height.
+  // carrying the dock while the document is still at its full height — which
+  // is the lateness being compensated for, caught in the act.
+  const ahead = moved(on.during).filter((e) => /^translateY\(-\d/.test(e.transform) && !e.shrunk)
   check(
     'with cluecab-kbfast the dock rides ahead of the document',
-    /^translateY\(-\d/.test(on.during.transform) && !on.during.shrunk,
-    `during ${JSON.stringify(on.during.transform)}, document shrunk: ${on.during.shrunk}`,
+    ahead.length > 0,
+    ahead.length ? ahead[0].transform : `nothing rode: ${JSON.stringify(on.during)}`,
   )
   // And hands back: what holds the dock up afterwards is the layout, not us.
   check(

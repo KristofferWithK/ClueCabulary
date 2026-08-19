@@ -242,10 +242,29 @@ function useSimulatedKeyboard() {
     // be resumed, and there is nothing here that can tap the button.
     void import('../stores/uiStore').then(({ useUi }) => useUi.getState().goTo('game'))
     let ride: ReturnType<typeof setTimeout> | undefined
-    const t = setTimeout(() => {
+    let t: ReturnType<typeof setTimeout>
+    let tries = 0
+    /**
+     * Wait for the board and a dock to exist, rather than for a length of time
+     * that looked like enough.
+     *
+     * It used to be a flat 1200ms, and on an idle machine that is plenty. On a
+     * busy one it is not: the screen had not rendered, so there was no grid to
+     * freeze and no dock to lift, and the keyboard state was applied to a page
+     * that was not ready for it. That produced a screenshot of the wrong thing
+     * on CI and, once the ride existed, a drive that reported a working ride
+     * as absent roughly one run in three. The delay stays as a settle; what
+     * follows it is a condition.
+     */
+    const arm = () => {
       const grid = document.querySelector<HTMLElement>('.board-grid')
+      const dock = document.querySelector<HTMLElement>('.dock')
+      if ((!grid || !dock) && tries++ < 80) {
+        t = setTimeout(arm, 100)
+        return
+      }
       if (grid) root.style.setProperty('--board-h', `${Math.round(grid.getBoundingClientRect().height)}px`)
-      document.querySelector('.dock')?.classList.add('kb-lifted')
+      dock?.classList.add('kb-lifted')
       root.classList.add('kb-up')
       // What Keyboard.resize 'body' does: the document ends where the keyboard
       // begins, and the page lays itself out inside what is left.
@@ -266,7 +285,8 @@ function useSimulatedKeyboard() {
         }
       }
       shrink()
-    }, 1200)
+    }
+    t = setTimeout(arm, 1200)
     return () => {
       clearTimeout(t)
       clearTimeout(ride)
