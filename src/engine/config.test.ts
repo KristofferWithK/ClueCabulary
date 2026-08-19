@@ -20,10 +20,14 @@ describe('the shipped boards', () => {
    * The wrap-up board's shape, pinned like the others: five clue-givings a
    * side, sixteen distinct greens over ten shared tokens = the beginner ratio.
    * The packing phase is the round's added difficulty, so the clue economy is
-   * deliberately the forgiving one. (The know-nothing forbidden floor that used
-   * to be quoted here as the second half of the argument — 6.4% of guesses
-   * against standard 4x5's 16.0% — no longer describes anything: no board has
-   * forbidden words. The ratio is what is left of the case, and it stands.)
+   * deliberately the forgiving one.
+   *
+   * The know-nothing forbidden floor that used to be quoted here as the second
+   * half of the argument — 6.4% of guesses against standard 4x5's 16.0% — no
+   * longer describes anything: no board has forbidden words. What replaces it
+   * is a plain measurement of the same claim. This is now the softest board in
+   * the game, 84.8% at p=0.6 against the 3x5's 67.1% (2000 seeded games), and
+   * that is the forgiving clue economy doing exactly what it says.
    */
   it('give the wrap-up board the beginner ratio on the big grid', () => {
     expect(WRAPUP_CONFIG.turnTokens).toBe(10)
@@ -45,7 +49,7 @@ describe('the shipped boards', () => {
   })
 
   /**
-   * How much each clue has to carry. Beginner is the tightest board on
+   * How much each clue has to carry. Beginner is the gentlest board on
    * purpose; this records what that costs so a later tuning is an argument
    * with a number in it rather than a shrug.
    */
@@ -55,10 +59,28 @@ describe('the shipped boards', () => {
       beginner: load(GRID_CONFIGS.beginner),
       middle: load(GRID_CONFIGS.middle),
       standard: load(GRID_CONFIGS.standard),
-    }).toEqual({ beginner: 1.6, middle: 1.83, standard: 1.5 })
+    }).toEqual({ beginner: 1.6, middle: 1.83, standard: 1.71 })
     // Codenames Duet, the game this is scaled from, sits at 15/9 = 1.67. The
     // first board a player meets should not be the hardest of the three.
     expect(load(GRID_CONFIGS.beginner)).toBeLessThan(15 / 9)
+  })
+
+  /**
+   * Standard's seven, pinned like beginner's five, because it is the one
+   * number the forbidden-word removal actually forced.
+   *
+   * It was eight, which was Duet's ratio and the loosest budget in the game —
+   * affordable only because standard was the one board dealt three forbidden
+   * words a side, so its difficulty sat in the hazards instead. With them gone
+   * it measured EASIER than the middle board it escalates from (71.3% against
+   * 67.1% at p=0.6, 2000 seeded games). Seven puts it back behind middle at
+   * 58.1% without touching a single card on the board; `selfplay.test.ts`
+   * asserts that ordering directly, and config.ts carries the full table.
+   */
+  it('give the standard board seven clues, one fewer than Duet would', () => {
+    expect(GRID_CONFIGS.standard.turnTokens).toBe(7)
+    // Still slack enough for a perfect pair, which spends 4.44 of them.
+    expect(GRID_CONFIGS.standard.turnTokens).toBeGreaterThan(5)
   })
 
   it('count a shared green once, since finding it once is all the game asks', () => {
@@ -104,10 +126,20 @@ describe('the guard against a board that cannot be cleared', () => {
  * Removing forbidden words freed a card or three on every board and they became
  * bystanders, because leaving the green counts alone was the cautious move —
  * the ratios above are the ones that were played and measured. The cost is
- * here: 3x5 went from two dead cards to four, and 4x5 from five to eight.
+ * here: 3x4 and 3x5 went from two dead cards to four, and 4x5 from five to
+ * eight.
  *
- * Pinned so the re-tune is a deliberate edit with an argument attached rather
- * than something that drifts. If these numbers change, the greens changed.
+ * The re-tune measured that cost and left it standing. Of every guess that
+ * misses, the share landing on a card that is on nobody's key is 72.5% on the
+ * 3x4, 67.9% on the 3x5 and 76.2% on the 4x5 (p=0.7, 2000 seeded games). The
+ * obvious fix — deal those slots as greens — was measured too and does the
+ * opposite of what it promises: it makes a board harder and longer, because a
+ * dead card is a card nobody ever has to point at. config.ts's `standard`
+ * comment carries that table.
+ *
+ * Pinned so a redistribution is a deliberate edit with an argument attached
+ * rather than something that drifts. If these numbers change, the greens
+ * changed.
  */
 describe('the cards that are on nobody key', () => {
   const neutrals = (c: GridConfig) => c.totalWords - distinctGreens(c)

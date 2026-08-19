@@ -13,9 +13,9 @@ do not know it.
 npm run verify        typecheck + unit tests + dataset validator + every drive
 npm run typecheck     tsc -b
 npm test              vitest run
-npm run drives        build, then run all 18 browser drives
+npm run drives        build, then run all 16 browser drives
 npm run drives repeat layout      just those two
-npm run drives --list             names (three are opt-in and not run by default)
+npm run drives --list             names (19; three are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
 ```
 
@@ -56,21 +56,50 @@ git fetch origin main && git checkout -B <branch> origin/main
 
 A guess is judged against the **clue-giver's** key and nothing else.
 
-Your dashed cards are forbidden *on your key*, which means Cluey must never be
-led to one by your clue. They are **safe for you to tap** while you guess his,
-where it is *his* forbidden words that end the round and you cannot see those.
-Sudden death is the only exception — no clue-giver, so either key ends it.
+That survived the removal of forbidden words and is still the rule everything
+turns on. Under *your* clue, Cluey's guesses are read off *your* key — a card
+that is green on his and not on yours costs the turn. Under *his* clue it is his
+key that is read, so the same card is worth finding. A bystander reveal is
+therefore **directional**: it burns the card for the side that named it
+(`Reveal.against`) and leaves it live for the other, which is why
+`isGuessable` and `targetableGreenIds` both check `against` rather than just
+`kind`. Sudden death is the only exception — no clue-giver, so a green on either
+key counts and anything else ends it.
 
 I have written this backwards in six places at once. `game.test.ts` pins it and
-two engine mutations were checked to fail it. If you touch anything near
-forbidden words, re-read that suite before the UI copy.
+two engine mutations were checked to fail it. Re-read that suite before the UI
+copy.
+
+**Forbidden words are gone; do not put them back by accident.** `CardRole` is
+`'green' | 'bystander'` and nothing on a board is fatal. If you find a comment,
+a prompt or a piece of copy that assumes a third role or a "last chance"
+translate-everything ending, it is stale — the removal is commit `a4517bf`
+(PR #62) and the prompts followed in `8e101d7` (PR #64).
+
+## Board numbers are measured, and there is a harness for it
+
+`src/engine/config.ts` states a number for every board choice and the
+measurement behind it. Those come from `src/ai/selfplay.test.ts`, which is two
+harnesses: a know-nothing floor, and a sweep that walks one dial — the chance a
+guess finds a word the clue-giver meant — from that floor to perfect play. Print
+the whole table with
+
+```
+SELFPLAY_GAMES=2000 SELFPLAY_REPORT=1 npx vitest run src/ai/selfplay.test.ts
+```
+
+Two traps in it. The seeds are fixed, so a result is reproducible but *not*
+independent of the sample size: change `SELFPLAY_GAMES` and every figure moves a
+little, which is why the pins are bands. And the file must not name `process` —
+`src/` compiles with DOM libs and no node types, so `process.env` passes vitest
+and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
 
 ## Layout of the code
 
 - `src/engine/` — pure game rules, no React, no data. `config.ts` holds the
   three boards plus `WRAPUP_CONFIG` and the tuning constants, each with the
   measurement behind it. `packing.ts` grades the wrap-up round's
-  English→Danish answers, dataset injected like `redemption.ts`.
+  English→Danish answers, with the dataset injected rather than imported.
 - `src/data/` — the ~1000 Danish words plus the systems over them:
   `countability.ts` (a stated rule applied to all 433 nouns, not a list of
   exceptions), `gender.ts`, `words.ts` (`classifyClue`).
