@@ -57,11 +57,10 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3)*
 
 ### In progress
-- **A1** — Engine: forbidden words out, redemption retired — [PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62) open, awaiting merge (dispatched 2026-08-19)
-- **C3** — Keyboard responsiveness experiment — [PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63) open; merge after #62, needs a rebase then (conflicts on layout-drive)
+- **C3** — Keyboard responsiveness experiment — [PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63) open; merging after a rebase onto A1 (conflicts on layout-drive)
 
 ### Done
-*(empty)*
+- **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
 
 ### Fast-follows (post-launch backlog, in order)
 - **H1** — Language-pack seam (i18n architecture)
