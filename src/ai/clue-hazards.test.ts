@@ -108,10 +108,14 @@ describe('the clue prompt says which words are actually targetable', () => {
  * rule for what to do when one of them wins, and naming the riskiest of them in
  * the rationale the player actually reads.
  *
- * Checked by reverting: with the lookahead bullet replaced by the one-sentence
- * version it grew out of ("read EVERY other unrevealed word ... if a non-target
- * fits as well as or better than a target, the clue is wrong: pick another"),
- * two of these three fail — the scoring instruction and the rationale demand.
+ * Checked by reverting, twice, because the three do not share a failure mode.
+ * Replacing the lookahead bullet with the one-sentence version it grew out of
+ * ("read EVERY other unrevealed word ... if a non-target fits as well as or
+ * better than a target, the clue is wrong: pick another") fails the first two
+ * and leaves the third passing: the rationale demand lives in the JSON spec
+ * line, a separate edit away, so it took its own mutation — reverting that line
+ * to "the strongest board word you deliberately steered away from" fails the
+ * third and nothing else.
  */
 describe('the clue prompt makes Cluey score the neutrals before he commits', () => {
   it('demands every non-target be scored against the candidate clue', () => {
