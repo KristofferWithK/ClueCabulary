@@ -42,9 +42,7 @@ model alias `cluey`).
 *(empty — next up: A2 and B1 unblock when A1's PR merges)*
 
 ### Blocked
-- **A2** — AI layer + game-screen copy for the new rules *(needs A1)*
 - **A3** — Re-tune boards by measurement + rules docs rewrite *(needs A2)*
-- **B1** — Round summary: stats + collapsible transcript, debrief call deleted *(needs A1)*
 - **C1** — The board never moves *(needs A2 — the stake note dies there first)*
 - **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs B1; Casey name lands with D1)*
 - **D1** — Rebrand copy: 900Words + Casey + English chrome *(needs A3 — copy describes final rules)*
@@ -57,7 +55,9 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3)*
 
 ### In progress
-- **C3** — Keyboard responsiveness experiment — [PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63) open; merging after a rebase onto A1 (conflicts on layout-drive)
+- **C3** — Keyboard responsiveness experiment — [PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63); rebased onto A1, final verify running, merging next
+- **A2** — AI layer + game-screen copy for the new rules — agent running (dispatched 2026-08-19)
+- **B1** — Round summary: stats + collapsible transcript — agent running (dispatched 2026-08-19)
 
 ### Done
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
