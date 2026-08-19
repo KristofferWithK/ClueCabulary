@@ -42,7 +42,7 @@ model alias `cluey`).
 *(empty — next up: A2 and B1 unblock when A1's PR merges)*
 
 ### Blocked
-- **R1** — Spare clues: a reward for winning *(needs A3's measurements — see the card)*
+- **R1** — Postcards: a reward for winning *(needs B1 — it is editing the same persisted stores)*
 - **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs B1; Casey name lands with D1)*
 - **D1** — Rebrand copy: 900Words + Casey + English chrome *(needs A3 — copy describes final rules)*
 - **D2** — Dataset 900 + city removal + migrations *(needs A3)*
@@ -163,51 +163,59 @@ model alias `cluey`).
   death).
 - **Accept:** layout-drive green with the new assertion at 360×640.
 
-### R1 — Spare clues: a reward for winning
-**Size:** 1 session. **Deps:** A3 (its measurements decide whether this card is the right reward at all — see the gate below).
+### R1 — Postcards: a reward for winning
+**Size:** 1 session (plus the art — see the open question). **Deps:** B1 (same persisted stores). NOT gated on A3, deliberately: this reward changes no difficulty.
 
 **The problem.** Winning has no consequence. A lost round still greens words,
-still collects them, still shows the same summary — and removing forbidden
-words made losing gentler, so the two endings converged. A win should leave
+still collects them, still shows the same summary — and taking the forbidden
+cards out made losing gentler, so the two endings converged. A win should leave
 something behind.
 
-**The mechanic** (owner's design, 2026-08-20): win three rounds → earn one
-spare clue. Bank at most three. Spend at most one per round.
+**The mechanic** (owner, 2026-08-20): a won round earns one puzzle piece of a
+postcard of the city you are in. Complete the postcard and it is yours — a
+souvenir of the place, kept in the suitcase.
 
-**The gate, before anything is built.** A spare clue is a difficulty
-*reduction*. If A3 measures the boards as too easy now that nothing ends a
-round early, this is the wrong reward and the card becomes a reward that does
-not touch difficulty instead — a free wrap (the journey is the real progress
-axis) or a visible win streak in the collection. Read A3's numbers first and
-say which way they point.
-
-**Spend it at the cliff, not before the board.** Not a pre-game menu choice
-made blind, when the player cannot yet know the board is hard. Offer it at the
-moment the last token would go with greens still hidden: *one clue left,
-nothing found, Casey has a spare.* That is also where it earns its keep — it
-restores the "last chance" beat that retiring redemption removed, earned this
-time rather than arbitrary.
+**Why this rather than the spare clue it replaces.** A spare clue was a
+difficulty *reduction*, so it had to be gated on A3's measurements and risked
+pulling against the tuning from the side. A postcard touches nothing the engine
+balances, so it can be built whatever the numbers say — and if the boards do
+turn out to need a valve, that is `turnTokens` in `config.ts`, tuned honestly in
+one place. It also fits the fiction it lives in: this is a journey across
+Denmark with a suitcase, and postcards are what you collect on the way.
 
 **Shape.**
-- Earning hook already exists: `srsStore.recordGame(outcome)` tallies wins.
-  Add the counter and the bank beside it (persisted → version bump + migrate,
-  in the same commit).
-- Engine: one new event that raises `turnsLeft` by one, legal only in the
-  clue-input phases and only once per round (`GameState` carries the flag so a
-  reload cannot spend twice). `assertConfigConsistent` is unaffected.
-- UI: the offer in the clue dock when `turnsLeft === 1` and greens remain; the
-  bank shown on Home near the progress band. Both must respect C1's rule that
-  the board's rectangle never changes — reserve the space.
-- **Never on the daily challenge** (one shared board per date, same reasoning
-  as the reroll). Wrap-up rounds: allowed, decide with the owner on pickup.
-- Peg the earn rate to A3's measured win rate rather than assuming: at a 70%
-  win rate, "three wins" is a spare roughly every four rounds.
-- Re-measure after: the selfplay harness should say what a spare clue does to
-  the win rate before the number is called final.
+- Earning hook already exists: `srsStore.recordGame(outcome)` tallies wins. Add
+  the per-city piece ledger beside it (persisted → version bump + migrate in the
+  same commit). Monotonic like the wrapped ledger — pieces are never lost.
+- **Overflow rolls forward.** A city runs 30–45 rounds (100 words collected,
+  then wrapped), so a 9-piece card completes early in it — and then late-city
+  wins mean nothing again, which is the problem this card exists to fix. Once a
+  card is complete, further wins bank the NEXT city's, so the player arrives
+  already holding pieces. No win is ever wasted.
+- **Pieces reveal the picture**, rather than filling a bar beside it: the card
+  starts covered and each win uncovers one tile. A grid of covers over the
+  artwork, faded out one at a time.
+- Peg the piece count to measurement rather than taste: 3×3 is the clean shape,
+  but set it against A3's win rate and the real wins-per-city.
+- Where they live: the suitcase **lid** (E1 draws it open — words in the tray,
+  postcards in the lid). If R1 lands before E1, leave a placeholder E1 fills.
+- Shown at the round summary too (B1's screen): the piece earned, and the card
+  so far.
+- Leaving a city with an incomplete card must never be punished — it stays
+  fillable. Travel already needs all 100 words wrapped, so this is an edge case,
+  not a race.
 
-**Accept:** verify green; a spare is earned, banked, capped at three, spent at
-most once a round, survives a reload unspent, and is refused on the daily; the
-earn/spend rules pinned by tests, one of them checked to fail without the fix.
+**Open question for the owner, decide before pickup: how the art gets made.**
+Nine postcards (Viborg leaves the route in D2). Everything drawn in this app is
+hand-rolled pencil SVG — Casey's hatching, the Denmark outline, C2's scribbled
+map — and the postcards should match it: Koldinghus, Skagen's two seas, Nyhavn.
+That is the difference between an afternoon and a couple of days, and it is also
+the app's best App Store screenshot (G2), so it is worth spending on.
+
+**Accept:** verify green; a win earns exactly one piece, pieces persist and
+never regress, a completed card overflows into the next city, nothing is earned
+on a loss, and the daily challenge follows the same rule as any round; the earn
+rules pinned by tests, one checked to fail without the fix.
 
 ### C2 — Home rework
 **Size:** 1 session. **Deps:** B1 (D1 renames land later; build with current strings).
