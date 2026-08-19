@@ -9,7 +9,14 @@ name: iOS simulator check
 # areas and the same WKWebView, and it runs here for free.
 #
 # The screenshot lands in the run's artifacts, and the numbers the app used to
-# place the composer are printed in the log.
+# place the composer are printed on the screen.
+#
+# It now also films the launch, because the open question stopped being WHERE
+# the composer ends up and became WHEN it gets there. A still cannot tell a
+# composer that rode up with the keyboard from one that appeared after it, and
+# that difference is the whole of the cluecab-kbfast experiment. Read the two
+# limitations under "Raise a real keyboard" before trusting a film of the
+# seeded path to answer it.
 on:
   workflow_dispatch:
     inputs:
@@ -21,6 +28,18 @@ on:
         description: 'Pretend the keyboard is this many points tall (0 for none)'
         default: '336'
         type: string
+      fast:
+        description: 'Ride the composer up early (localStorage cluecab-kbfast)'
+        default: false
+        type: boolean
+      debug:
+        description: 'Show the keyboard numbers on screen (cluecab-kbdebug)'
+        default: true
+        type: boolean
+      tap:
+        description: 'Try to raise a REAL keyboard with idb. Forces keyboard=0. Unproven — see the step.'
+        default: false
+        type: boolean
 
 jobs:
   simulator:
@@ -45,27 +64,82 @@ jobs:
           CAP_BUILD=1 npm run build
           npx cap sync ios
 
-      - name: Seed a round, and a keyboard
+      - name: Seed a round, a keyboard, and the flags
         # A simulator will install and photograph an app but not tap one, and
         # every attempt to automate a touch here cost more than it returned.
         # It does not have to: the app keeps its state in localStorage, so the
         # round in ios/sim-seed.json was played in a browser and is handed over
         # as a starting position — and cluecab-kbsim makes the app do
         # everything it does for a real keyboard, without one.
+        #
+        # This edits the COPY under ios/, after cap sync, in this checkout
+        # only. Nothing here is committed and none of it reaches a device.
         env:
           KB: ${{ inputs.keyboard }}
+          FAST: ${{ inputs.fast }}
+          DEBUG: ${{ inputs.debug }}
+          TAP: ${{ inputs.tap }}
         run: |
-          python3 - "$KB" <<'PY'
+          python3 - "$KB" "$FAST" "$DEBUG" "$TAP" <<'PY'
           import json, sys, pathlib
+
+          kb = sys.argv[1]
+          fast = sys.argv[2] == 'true'
+          debug = sys.argv[3] == 'true'
+          tap = sys.argv[4] == 'true'
+
+          # A real keyboard and a pretended one are mutually exclusive. The
+          # pretend one applies the finished state on a timer, so it would
+          # already be up before any tap landed, and the film would show the
+          # two fighting rather than either one.
+          if tap and kb != '0':
+              print(f'tap requested: forcing keyboard {kb} -> 0')
+              kb = '0'
+
           seed = json.load(open('ios/sim-seed.json'))
           seed['cluecab-howto-v3'] = 'seen'
-          seed['cluecab-kbsim'] = sys.argv[1]
-          script = '<script>try{' + ''.join(
+          seed['cluecab-kbsim'] = kb
+          if fast:
+              seed['cluecab-kbfast'] = '1'
+          if debug:
+              seed['cluecab-kbdebug'] = '1'
+          js = ''.join(
               f'localStorage.setItem({json.dumps(k)},{json.dumps(v)});' for k, v in seed.items()
-          ) + '}catch(e){}</script>'
+          )
+
+          if tap:
+              # Two jobs the pretend keyboard was doing that now need doing
+              # without it.
+              #
+              # One: reach the round. Which screen is showing is not persisted,
+              # so a seeded save opens on Home behind a "Continue game" button.
+              # A programmatic click is enough for that: no keyboard is
+              # involved, so no user gesture is required.
+              #
+              # (Everything from here to the PY terminator stays plain ASCII.
+              # python3 reading a script from stdin decodes it with the
+              # locale's encoding, and a runner with no LANG set decodes as
+              # ASCII, where one em dash in a comment is a SyntaxError.)
+              #
+              # Two: put the caret in the field. That DOES need a gesture, but
+              # it does not need the gesture to be aimed. Any touch anywhere is
+              # turned into a focus here, which is what lets the tap below be a
+              # fixed point rather than a search. Capture phase and
+              # stopPropagation so the touch never reaches the board and plays
+              # a card; no preventDefault, which would suppress the focus that
+              # is the entire point.
+              js += (
+                  "setTimeout(function(){var b=document.querySelector('.home-play');"
+                  "if(b)b.click();},1500);"
+                  "addEventListener('pointerdown',function f(e){"
+                  "var i=document.querySelector('.dock input,.dock textarea');"
+                  "if(!i)return;e.stopPropagation();"
+                  "removeEventListener('pointerdown',f,true);i.focus();},true);"
+              )
+
           p = pathlib.Path('ios/App/App/public/index.html')
-          p.write_text(p.read_text() + script, encoding='utf-8')
-          print(f'seeded {len(seed)} keys, keyboard {sys.argv[1]}px')
+          p.write_text(p.read_text() + '<script>try{' + js + '}catch(e){}</script>', encoding='utf-8')
+          print(f'seeded {len(seed)} keys, keyboard {kb}, fast {fast}, debug {debug}, tap {tap}')
           PY
 
       - name: Build for the simulator
@@ -93,25 +167,98 @@ jobs:
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false || true
           xcrun simctl bootstatus "$udid" -b
 
-      - name: Install and launch
+      - name: Fetch idb
+        # Before the recording starts, not during it: brew takes minutes and
+        # there is no reason to film them.
+        if: inputs.tap
+        continue-on-error: true
+        env:
+          NONINTERACTIVE: '1'
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+          HOMEBREW_NO_ENV_HINTS: '1'
+        run: |
+          # NONINTERACTIVE is the fix for what sank this last time: Homebrew
+          # asks before adding a third-party tap, the prompt had nowhere to go
+          # on a runner, so idb-companion never installed — and idb answers
+          # questions about a simulator it cannot reach with silence rather
+          # than with an error, which read as an empty screen.
+          brew tap facebook/fb
+          brew install --formula facebook/fb/idb-companion
+          pip3 install --break-system-packages fb-idb
+          # The companion is a daemon; idb talks to it rather than to the
+          # simulator. nohup so it outlives this step.
+          nohup idb_companion --udid "$UDID" > idb-companion.log 2>&1 &
+          sleep 5
+          idb connect "$UDID"
+          idb list-targets
+
+      - name: Install, start filming, and launch
         run: |
           app=$(find "$PWD/dd/Build/Products/Debug-iphonesimulator" -maxdepth 1 -name '*.app' | head -1)
           echo "app: $app"
           xcrun simctl install "$UDID" "$app"
+          # Filming starts BEFORE the launch, because the second worth seeing is
+          # the first one. h264 rather than the default hevc so the file plays
+          # in a browser without being converted first.
+          xcrun simctl io "$UDID" recordVideo --codec h264 --force keyboard.mp4 &
+          echo $! > rec.pid
+          sleep 2
           xcrun simctl launch "$UDID" com.kristofferwithk.cluecabulary
           sleep 8
 
+      - name: Raise a real keyboard
+        # The one thing the seeded path structurally cannot show. cluecab-kbsim
+        # stands the finished keyboard-up state up on a timer; there is no
+        # keyboard animating beside it, so a film of it shows where things end
+        # and says nothing about when they got there — which is the only
+        # question cluecab-kbfast asks. For that a real keyboard has to come up,
+        # and a real keyboard needs a touch.
+        #
+        # This is a second attempt, and it is narrower than the first. That one
+        # (August 2026, reverted the same evening) looked the field up in the
+        # accessibility tree and tapped its centre, which asks two unanswered
+        # questions at once: whether idb can drive a runner at all, and whether
+        # idb sees inside a WKWebView. It never got past the first. Here the
+        # page volunteers — the shim injected during seeding turns any touch
+        # into a focus — so the tap is a fixed point in the middle of the
+        # screen and only the first question is left.
+        #
+        # continue-on-error rather than the `|| true` on every line it used to
+        # carry: that armour meant a broken tap produced a green run and a
+        # screenshot that looked plausible. This one goes red and still uploads
+        # its film.
+        if: inputs.tap
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          idb ui tap --udid "$UDID" 200 400
+          sleep 4
+
       - name: Let it settle
-        # The seeded round and the simulated keyboard both apply on their own.
-        run: sleep 10
+        run: sleep 8
 
       - name: Screenshot
         if: always()
         run: xcrun simctl io "$UDID" screenshot keyboard.png || true
 
+      - name: Stop filming
+        if: always()
+        run: |
+          # SIGINT, not SIGKILL. recordVideo writes the file's index when it is
+          # interrupted; a killed recording leaves bytes that will not play.
+          # Twice over because the pid is xcrun's, and whether the signal
+          # reaches the simctl underneath depends on whether xcrun exec'd it.
+          [ -f rec.pid ] && kill -INT "$(cat rec.pid)" 2>/dev/null || true
+          pkill -INT -f 'simctl io' 2>/dev/null || true
+          sleep 4
+          ls -l keyboard.mp4 || echo 'no video was written'
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: simulator-screenshot
-          path: keyboard.png
+          name: simulator-${{ inputs.fast && 'fast' || 'today' }}${{ inputs.tap && '-realkb' || '' }}
+          path: |
+            keyboard.png
+            keyboard.mp4
+            idb-companion.log
           if-no-files-found: warn
