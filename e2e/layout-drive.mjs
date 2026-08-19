@@ -631,6 +631,252 @@ await page.setViewportSize(PHONE)
   )
 }
 
+// ---- The board never moves. ------------------------------------------------
+//
+// "When guessing it's a giant text block that adjusts the sizing of the grid.
+// The grid should stay locked. and the text can be cut."
+//
+// The board is a flex:1 area sharing the game screen's column with the dock,
+// so every line the dock gained came off the grid, and the grid resized every
+// card with it. Measured before the reserve, over one seeded round at 360x640:
+// 200px of board height and 18px of board position, phase to phase.
+//
+// This is the assertion that keeps it fixed, and it is the point of the whole
+// change — the reserve without it regresses the first time a dock grows a line.
+//
+// Sampled on every animation frame rather than polled between phases, because
+// the drift is a WITHIN-phase event: a lookup answer arriving, a card being
+// selected, Cluey's guess line changing every 1100ms. A poll placed at the
+// phase boundaries would have caught none of the seven states below, and would
+// have passed just as happily before the fix.
+{
+  const VP = { width: 360, height: 640 }
+  await page.setViewportSize(VP)
+  // Standard: the widest board, so the tightest layout, and eight clue tokens
+  // rather than five — long enough for the round to reach both sudden death
+  // and the fullest the guess dock ever gets (a card selected, the stop button
+  // showing and a lookup answer up, all at once), which the beginner board
+  // finishes before it can produce.
+  const Q = '?mock=1&howto=0&seed=7&city=0&grid=standard&first=player'
+  await open(Q)
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await open(Q)
+  await page.locator('.home-play').click()
+  await page.waitForSelector('.board-grid')
+  const studyDock = page.locator('.study-dock .btn-primary')
+  if (await studyDock.isVisible().catch(() => false)) await studyDock.click()
+  await page.waitForTimeout(300)
+
+  // Installed with evaluate rather than addInitScript on purpose: the round is
+  // played without a navigation, and addInitScript accumulates across the ones
+  // the ride section above already registered.
+  await page.evaluate(() => {
+    window.__board = {}
+    const tick = () => {
+      const grid = document.querySelector('.board-grid')
+      const cap = document.querySelector('.phase-caption')
+      // __where lets a state that is not a phase — a lookup answer on screen —
+      // be recorded under its own name instead of smearing into the phase it
+      // happens inside.
+      const key = window.__where ?? (cap?.firstChild?.textContent ?? '').trim()
+      if (grid && key) {
+        const b = grid.getBoundingClientRect()
+        const at = (window.__board[key] ??= { n: 0 })
+        for (const f of ['x', 'y', 'width', 'height']) {
+          const v = Math.round(b[f] * 100) / 100
+          at[`${f}lo`] = at.n ? Math.min(at[`${f}lo`], v) : v
+          at[`${f}hi`] = at.n ? Math.max(at[`${f}hi`], v) : v
+        }
+        // The dock's own height, which is the mechanism: the board is what is
+        // left over once the dock has taken its reserve, so a dock that is the
+        // same height in every phase IS a board that does not move. Recorded
+        // beside the effect so a failure says which of the two broke.
+        const dock = document.querySelector('.game-screen .dock')
+        if (dock) {
+          const d = Math.round(dock.getBoundingClientRect().height * 100) / 100
+          at.docklo = at.n ? Math.min(at.docklo, d) : d
+          at.dockhi = at.n ? Math.max(at.dockhi, d) : d
+        }
+        at.n++
+      }
+      requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  })
+  const where = (w) => page.evaluate((w) => (window.__where = w), w)
+
+  // "nice" has seven Danish glosses in the shipped set, cut to four by the UI —
+  // the longest answer the offline half of the dictionary can produce, and the
+  // single worst offender measured (188px of board on the clue dock).
+  let lookedUp = 0
+  // `while` runs with the answers ON SCREEN. The first version of this took its
+  // reading after clearing the field, which made the one check that was meant
+  // to catch an overflowing dock a check on an empty one — it passed on a
+  // reserve that really did push the document to 657px on a 640px screen.
+  const longLookup = async (label, while_) => {
+    const field = page.locator('.game-screen .translate-input').first()
+    if (!(await field.isVisible().catch(() => false))) return
+    await where(label)
+    await field.fill('nice')
+    await page.waitForTimeout(900)
+    const hits = await page.locator('.translate-hits li').count()
+    if (hits >= 4) lookedUp++
+    await page.waitForTimeout(200)
+    if (while_) await while_()
+    await field.fill('')
+    await page.waitForTimeout(300)
+    await where(null)
+    return hits
+  }
+
+  let clueLookupHits = 0
+  let guessLookupHits = 0
+  let worst = null
+  // .round-summary, not .debrief — the round-end screen was renamed while this
+  // was being written, and a loop that waits for a class nobody renders any
+  // more just runs its full count. This file already carries one scar of that
+  // shape (see the `.redemption-form` note above, dead for its whole life).
+  for (let i = 0; i < 26 && (await page.locator('.round-summary').count()) === 0; i++) {
+    const clue = page.locator('.clue-input #clue-word')
+    if (await clue.isVisible().catch(() => false)) {
+      if (!clueLookupHits) clueLookupHits = (await longLookup('clue dock + lookup')) ?? 0
+      await clue.fill(`kluex${i}`)
+      await page.waitForTimeout(200)
+      const send = page.locator('.clue-input .btn-primary')
+      if (await send.isEnabled().catch(() => false)) {
+        await send.click()
+        await page.waitForTimeout(850)
+        continue
+      }
+    }
+
+    const guessable = page.locator('.word-card.card-guessable').first()
+    if (await guessable.isVisible().catch(() => false)) {
+      if (!guessLookupHits) guessLookupHits = (await longLookup('guess bar + lookup')) ?? 0
+      await guessable.click()
+      await page.waitForTimeout(200)
+      // The fullest the dock ever is, and the state the reserve is sized
+      // against: a card selected (a 44px confirm row where a one-line hint
+      // was), the stop button once a guess has been made, and a four-hit
+      // lookup answer, all at once. Recorded so its rect joins the comparison.
+      const fullest =
+        !worst &&
+        (await page.locator('.guess-bar .btn-ghost').count()) > 0 &&
+        (await page.locator('.guess-bar .guess-confirm').count()) > 0 &&
+        (await page.locator('.guess-bar .translate-input').count()) > 0
+      if (fullest) {
+        await longLookup('guess bar, everything at once', async () => {
+          worst = await page.evaluate(() => {
+            const dock = document.querySelector('.game-screen .dock')
+            const bottom = dock.getBoundingClientRect().bottom
+            // How far past the dock's own bottom edge anything inside it
+            // reaches. The reserve is only honest if this is zero: a dock
+            // whose content hangs out of it has not reserved anything.
+            const out = [...dock.querySelectorAll('*')].map((el) =>
+              Math.round((el.getBoundingClientRect().bottom - bottom) * 10) / 10,
+            )
+            return {
+              sh: document.scrollingElement.scrollHeight,
+              ih: window.innerHeight,
+              spill: Math.max(0, ...out),
+              hits: dock.querySelectorAll('.translate-hits li').length,
+            }
+          })
+        })
+      }
+      const confirm = page.locator('.guess-confirm .btn-primary')
+      if (await confirm.isVisible().catch(() => false)) {
+        await confirm.click()
+        await page.waitForTimeout(650)
+        continue
+      }
+    }
+    await page.waitForTimeout(550)
+  }
+
+  const board = await page.evaluate(() => window.__board)
+  const states = Object.entries(board).filter(([k]) => k !== 'Round over')
+  const rects = states.map(([k, v]) => [k, v])
+
+  // Not vacuous: the round has to have BEEN in the phases being compared, or
+  // "they all match" is a statement about one of them.
+  const seen = new Set(states.map(([k]) => k))
+  const required = [
+    'Give Cluey a clue',
+    'Cluey is guessing',
+    'Your turn to guess',
+    'Sudden death — no clues left',
+    'clue dock + lookup',
+    'guess bar + lookup',
+  ]
+  const missing = required.filter((r) => !seen.has(r))
+  check(
+    'the seeded round passed through every phase this compares',
+    missing.length === 0,
+    missing.length ? `missing ${missing.join(', ')}` : [...seen].join(' | '),
+  )
+  // aiClueInput ("Cluey prepares a clue") is deliberately not in that list,
+  // and its absence is a measurement rather than an oversight: against the
+  // offline companion it does not survive a paint — the mock's clue resolves
+  // in a microtask, so React has committed playerGuessing before the next
+  // frame, and ~4800 sampled frames over two full rounds caught it zero times.
+  // It renders the same .ai-panel dock as "Cluey is guessing", which IS
+  // measured, and the reserve below is declared on the dock's class rather
+  // than on the phase — so the two cannot come out different.
+  const docks = rects.map(([k, v]) => [k, v.docklo, v.dockhi])
+  const dockLo = Math.min(...docks.map(([, lo]) => lo))
+  const dockHi = Math.max(...docks.map(([, , hi]) => hi))
+  check(
+    'and every dock it rendered reserved the same height',
+    dockLo === dockHi,
+    dockLo === dockHi
+      ? `${dockLo}px in all of them`
+      : docks.map(([k, lo, hi]) => `${k} ${lo}..${hi}`).join(' | '),
+  )
+  check(
+    'and the lookups really put four answers on screen',
+    clueLookupHits >= 4 && guessLookupHits >= 4,
+    `clue dock ${clueLookupHits}, guess bar ${guessLookupHits}`,
+  )
+
+  // The measurement. Every frame of every phase, one rectangle.
+  const span = (f) => {
+    const lo = Math.min(...rects.map(([, v]) => v[`${f}lo`]))
+    const hi = Math.max(...rects.map(([, v]) => v[`${f}hi`]))
+    return { lo, hi, drift: Math.round((hi - lo) * 100) / 100 }
+  }
+  const y = span('y')
+  const h = span('height')
+  const x = span('x')
+  const w = span('width')
+  const frames = rects.reduce((n, [, v]) => n + v.n, 0)
+  const worstOf = (f) =>
+    rects
+      .map(([k, v]) => `${k} ${v[`${f}lo`]}..${v[`${f}hi`]}`)
+      .join(' | ')
+
+  check(
+    'the board is the same rectangle in every phase of a round',
+    y.drift === 0 && h.drift === 0 && x.drift === 0 && w.drift === 0,
+    `${rects.length} states, ${frames} frames — top drift ${y.drift}px, height drift ${h.drift}px` +
+      (y.drift || h.drift ? `\n     ${worstOf(y.drift ? 'y' : 'height')}` : ` (top ${y.lo}, height ${h.lo})`),
+  )
+
+  // The fullest state the guess dock reaches — a card selected, the stop
+  // button showing and four lookup answers up, all at once. This is where the
+  // reserve is deliberately smaller than the content, and the answers list is
+  // what has to give. It must give way INSIDE itself: nothing may hang out of
+  // the dock, and the document must not lengthen.
+  check(
+    'the fullest the guess dock gets stays inside its reserve',
+    worst ? worst.spill <= 0.5 && worst.sh <= worst.ih + 1 && worst.hits >= 4 : false,
+    worst
+      ? `${worst.hits} answers up, ${worst.spill}px past the dock, document ${worst.sh} vs ${worst.ih}`
+      : 'never reached a selected card with the stop button and a lookup',
+  )
+  await page.setViewportSize(PHONE)
+}
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.stop()
