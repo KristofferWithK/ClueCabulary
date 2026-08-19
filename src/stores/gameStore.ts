@@ -15,7 +15,7 @@ import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
 import { WORDS, isDanishWord } from '../data/words'
 import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
-import { wrapUpBias, wrapUpWords } from '../journey/wrapup'
+import { wrapUpBias, wrapUpWords, type RoundMode } from '../journey/wrapup'
 import { useFeedback } from './feedbackStore'
 import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
@@ -59,7 +59,7 @@ interface GameStore {
    * English-side up; the packing phase below is how they turn over. All
    * persisted: a wrap-up put down mid-packing resumes as itself.
    */
-  mode: 'normal' | 'wrapup'
+  mode: RoundMode
   /** Word ids translated to Danish during packing — face-up, wrappable. */
   packed: string[]
   /** Words whose FIRST packing attempt missed (an SRS demotion each). */
@@ -76,6 +76,18 @@ interface GameStore {
    * construction rather than by a second rule kept in step by hand.
    */
   newlyDiscovered: string[]
+  /**
+   * Whether this round's ending put a wrap-up round in the bank — read off
+   * the bank itself across `recordGame` rather than recomputed from the
+   * outcome, so the summary cannot claim a reward the cap refused.
+   *
+   * A new persisted field rather than a version bump: every save ever written
+   * lacks it, and zustand's merge is `{...initial, ...persisted}`, so a save
+   * without it rehydrates to `false` — which is the true answer for a round
+   * that finished before wins earned anything. The trap CLAUDE.md warns about
+   * is the other one: CHANGING a default that every save already carries.
+   */
+  earnedWrapUp: boolean
   // Transient (not persisted):
   aiBusy: boolean
   aiGuessQueue: PlannedGuess[]
@@ -270,6 +282,7 @@ const freshRound = () => ({
   roundRecorded: false,
   newlyLearned: [] as string[],
   newlyDiscovered: [] as string[],
+  earnedWrapUp: false,
   // Every round gets a fresh chance at Cluey.
   practiceFallback: false,
   aiGuessQueue: [] as PlannedGuess[],
@@ -362,6 +375,7 @@ export function migrateGame(persisted: unknown, from: number): unknown {
     packingDone: true,
     newlyLearned: [],
     newlyDiscovered: [],
+    earnedWrapUp: false,
     practiceFallback: false,
   }
 }
@@ -381,6 +395,7 @@ export const useGame = create<GameStore>()(
       packingDone: true,
       newlyLearned: [],
       newlyDiscovered: [],
+      earnedWrapUp: false,
       practiceFallback: false,
       aiBusy: false,
       aiGuessQueue: [],
@@ -425,6 +440,14 @@ export const useGame = create<GameStore>()(
         // The CTA gates on wrapUpUnlocked; refusing here too keeps a stray
         // call from dealing a board the mode's invariant does not hold on.
         if (entries.length < WRAPUP_CONFIG.totalWords) return
+        // And the round has to have been earned. Checked AFTER the deal is
+        // known to be possible and in the same breath as spending, because the
+        // one thing worse than a refused wrap-up is a token taken for a board
+        // that never appeared. The CTA gates on this too; the store owns it
+        // because spending and dealing must not be able to come apart.
+        // (A reroll re-deals without coming through here — deliberately: the
+        // token bought the round, not the particular twenty words.)
+        if (!useSrs.getState().spendWrapUp()) return
         const game = createGame({
           config: WRAPUP_CONFIG,
           words: entries.map((w) => ({
@@ -838,7 +861,15 @@ export const useGame = create<GameStore>()(
         const newlyLearned = game.words
           .map((w) => w.wordId)
           .filter((id) => !wasCollected.has(id) && isCollected(after[id], id in wrapped))
-        useSrs.getState().recordGame(game.outcome!)
+        // A won round earns a wrap-up round — the only way words get packed
+        // for good, so winning advances the journey rather than just ending
+        // the round. `mode` is what stops a wrap-up win from earning another
+        // one; the daily challenge is a normal round and earns like any other.
+        // Straddled like newlyLearned above, and for the same reason: at the
+        // cap the win earns nothing, and the summary must not say otherwise.
+        const bankBefore = useSrs.getState().wrapUpsBanked
+        useSrs.getState().recordGame(game.outcome!, mode)
+        const earnedWrapUp = useSrs.getState().wrapUpsBanked > bankBefore
         const { dailyKey } = get()
         if (dailyKey) {
           // 'won' or 'lost' — 'redeemed' was a third value here and is not
@@ -850,7 +881,7 @@ export const useGame = create<GameStore>()(
             game.outcome!.result === 'won' ? 'won' : 'lost',
           )
         }
-        set({ roundRecorded: true, newlyLearned, newlyDiscovered })
+        set({ roundRecorded: true, newlyLearned, newlyDiscovered, earnedWrapUp })
       },
 
       clearError: () => set({ error: null }),
@@ -876,6 +907,7 @@ export const useGame = create<GameStore>()(
         packingDone: s.packingDone,
         newlyLearned: s.newlyLearned,
         newlyDiscovered: s.newlyDiscovered,
+        earnedWrapUp: s.earnedWrapUp,
         practiceFallback: s.practiceFallback,
       }),
     },

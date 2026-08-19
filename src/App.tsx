@@ -180,6 +180,12 @@ export default function App() {
       useSrs.setState({ stats })
     }
 
+    // ?wraps=K banks K earned wrap-up rounds. A wrap-up now has to be won
+    // before it can be played, so without this every drive that opens one
+    // would first have to win a round against the mock companion.
+    const wraps = params.get('wraps')
+    if (wraps && /^\d$/.test(wraps)) useSrs.setState({ wrapUpsBanked: Number(wraps) })
+
     // ?wrapped=K packs the first K city words: wrapped in the ledger, and
     // collected in the stats so the states stay consistent with real play.
     const wrappedParam = params.get('wrapped')

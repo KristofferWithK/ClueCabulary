@@ -410,9 +410,11 @@ for (const vp of [
   await noScroll(`game clue dock 4x5 @${vp.name}`)
 
   // And the wrap-up packing phase, the new dock.
-  await open('?mock=1&howto=0&city=0&collected=40&seed=9')
+  // &wraps=1 banks the earned wrap-up round the button now costs.
+  await open('?mock=1&howto=0&city=0&collected=40&seed=9&wraps=1')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await open('?mock=1&howto=0&city=0&collected=40&seed=9')
+  // &wraps=1 banks the earned wrap-up round the button now costs.
+  await open('?mock=1&howto=0&city=0&collected=40&seed=9&wraps=1')
   await page.locator('.cluey-button').click()
   await page.waitForSelector('.suitcase-screen')
   await page.locator('.case-actions .btn-primary').click()

@@ -75,7 +75,9 @@ async function driveToEnd() {
 
 try {
   // ---- The skip path: pack two, start early, nothing else may wrap. -------
-  await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=9`)
+  // &wraps=1 banks the won round a wrap-up now costs; the gate itself is
+  // driven in suitcase-drive, and this drive is about the round it buys.
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=9&wraps=1`)
   await page.waitForSelector('.city-card')
   // The wrap-up button lives in the open suitcase — tap Cluey to get there.
   await page.click('.cluey-button')
@@ -144,7 +146,7 @@ try {
   // A clean slate: the unfinished-or-finished round above would otherwise
   // hold Home's wrap-up button back behind "Continue game".
   await page.evaluate(() => localStorage.clear())
-  await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=31`)
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=31&wraps=1`)
   await page.waitForSelector('.city-card')
   // The wrap-up button lives in the open suitcase — tap Cluey to get there.
   await page.click('.cluey-button')

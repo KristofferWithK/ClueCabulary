@@ -165,6 +165,18 @@ try {
   )
   check('and the summary says so', (await page.locator('.round-summary').count()) === 1)
 
+  // The reward the win leaves behind. A real win in a real round, so this is
+  // the one place the whole earn path runs end to end — recordGame, the bank,
+  // and the line the player actually reads — rather than a store call.
+  check(
+    'winning earns a wrap-up round, announced on the summary',
+    (await page.locator('.earned-section').count()) === 1,
+  )
+  const bankedAfterWin = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-srs-v1') ?? '{}').state?.wrapUpsBanked ?? 0,
+  )
+  check('and banks it', bankedAfterWin >= 1, `${bankedAfterWin}`)
+
   // ---- the summary counts the round, and the collection it left behind ------
   // Four tiles, and every number has to be a number: the two on the left are
   // diffs finishRound took across the SRS, the two on the right are

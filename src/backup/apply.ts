@@ -33,6 +33,12 @@ const asNumberKeys = (r: Record<string, number>): Record<number, number> =>
   Object.fromEntries(Object.entries(r).map(([k, v]) => [Number(k), v]))
 
 function writeSnapshot(next: Snapshot, restorePrefs: boolean) {
+  // Two keys, deliberately: the earned wrap-up bank is NOT in the backup and
+  // is not touched by a restore. It is a spendable token rather than a record
+  // of what happened, and the merge rule for everything here is Math.max —
+  // which on a spendable would mint one back every time a file was reloaded.
+  // The cost is that a restored device needs one win before its first wrap-up,
+  // which is the unlock beat every device meets anyway.
   useSrs.setState({ stats: next.stats, games: next.games })
   useJourney.setState({
     cityIndex: next.journey.cityIndex,
