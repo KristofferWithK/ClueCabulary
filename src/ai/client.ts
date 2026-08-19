@@ -116,8 +116,15 @@ const DAILY_CAP_CODE = 'cluecabulary_daily_cap'
  * else needs to know this install exists — and it avoids adding a custom header
  * to a request bound for a service whose CORS policy has never heard of it,
  * which would turn the bring-your-own-key escape hatch into a preflight
- * failure. (A local Ollama is the one no-key case that is not this proxy; it
- * allows the header, and there is nothing to leak to your own machine anyway.)
+ * failure.
+ *
+ * One case slips through that rule: a local Ollama also takes no key, so it
+ * gets the header too. Whether it lists X-Install-Id in its preflight has not
+ * been measured here — if a local endpoint ever fails at the preflight with
+ * this header in it, that is the reason, and the fix is to send the id only to
+ * hosts that are known proxies. It is left as-is because a local Ollama is a
+ * deliberate Base URL edit on a developer's own machine, not a path any player
+ * takes, and there is nothing to leak to your own laptop.
  */
 const INSTALL_ID_KEY = 'cluecab-install-id'
 let installIdCache: string | null = null

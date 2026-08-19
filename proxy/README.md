@@ -161,6 +161,15 @@ Cluey is resting until midnight UTC, offering the practice companion — which i
 a different message from an upstream rate limit, where retrying in a moment is
 the right advice.
 
+**The count is a fuse, not an invoice.** KV is built for many reads and few
+writes, and a counter is the opposite of that: there is no atomic increment,
+reads can be stale, and one key written on every request is the access pattern
+KV asks you not to use. All three loosen the count in the same direction, and
+loosest under a fast burst — which is when it matters. Counting exactly means
+Durable Objects, which means a paid plan, which is the thing this whole feature
+exists to avoid. So the caps hold to an order of magnitude, and on a launch day
+the Cloudflare dashboard is worth more than trusting this to the digit.
+
 **It fails open, on purpose.** No KV binding, a binding that throws, a namespace
 someone deleted: the worker logs it and serves the request anyway. A proxy that
 refuses everyone because an id was pasted wrong is a worse outcome than one that

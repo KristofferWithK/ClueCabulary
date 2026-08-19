@@ -142,14 +142,28 @@ function originAllowed(request, env) {
  * raising a variable in the dashboard, an unbounded bill is not — but it is a
  * real cost and not a free win.
  *
- * COUNTING IS APPROXIMATE, deliberately. KV has no atomic increment, so this
- * reads then writes, and two requests in flight together can both read the same
- * number and both write one more than it. KV is also eventually consistent
- * across locations (up to ~60s), so a caller spread over several regions can
- * overshoot by whatever they push inside that window. Durable Objects would
- * count exactly; they also cost money and a paid plan, which is precisely what
- * this card exists to avoid. A cap that is right to an order of magnitude is
- * what is wanted here — it is a fuse, not an invoice.
+ * COUNTING IS APPROXIMATE, deliberately, and it is loosest exactly when it is
+ * being attacked. KV is built for many reads and few writes, and a counter is
+ * the opposite of that, so three things all point the same way:
+ *
+ *   - There is no atomic increment. This reads then writes, and two requests in
+ *     flight together can both read the same number and both write one more.
+ *   - A read can be stale. KV serves reads from a local cache and propagates
+ *     writes between locations in the background, so the number this sees is
+ *     not necessarily the number that has been written.
+ *   - Writing one key over and over is the case KV asks you not to make, and
+ *     the global counter is one key written on every metered request. Under a
+ *     fast burst those writes are throttled or fail, and a failure here fails
+ *     open like every other — served, uncounted.
+ *
+ * So the ceiling holds to an order of magnitude at ordinary rates and can be
+ * overshot by a determined burst. Sharding the global key would soften the
+ * third point at the cost of a read per shard on every request; Durable Objects
+ * would fix all three exactly, and cost money and a paid plan, which is the
+ * thing this whole feature exists to avoid. Nothing here has been measured
+ * against production KV — miniflare implements the API, not the propagation —
+ * so treat the ceiling as a fuse rather than an invoice, and watch the
+ * Cloudflare dashboard on a launch day rather than trusting this to the digit.
  */
 
 /**

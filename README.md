@@ -270,7 +270,7 @@ paste it into `src/ai/bundled-key.ts`, which is empty by default. Worth knowing
 before you do — this is a static site, so anything in the bundle is readable by
 anyone who opens the page. A key sent by the app takes priority over the
 worker's own secret, and requests carrying one are not counted against the
-proxy's daily cap, since they are spending your budget rather than its.
+proxy's daily cap — they are spending your budget rather than the worker's.
 
 To deploy the worker yourself, [`proxy/README.md`](proxy/README.md) has the
 whole thing — including the phone-only route, where three repository secrets
