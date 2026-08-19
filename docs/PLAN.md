@@ -42,7 +42,7 @@ model alias `cluey`).
 - **D1** — Rebrand copy: 900Words + Casey + English chrome *(held only while C1 is in the same UI files)*
 
 ### Blocked
-- **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs C1 — same screens)*
+- **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs D1 — same screens)*
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
 - **E1** — Suitcase interior redesign *(needs D1)*
 - **F1** — Baked TTS pipeline + playWord + wiring *(needs C1; the bake itself needs a TTS key the owner has to supply)*
@@ -50,7 +50,6 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3; submission is held for the owner)*
 
 ### In progress
-- **C1** — The board never moves — agent running (dispatched 2026-08-20)
 - **D2** — Dataset 900 + Viborg leaves the route — agent running (dispatched 2026-08-20)
 - **G1** — Proxy quotas + friendly 429 — agent running (dispatched 2026-08-20)
 
@@ -60,6 +59,7 @@ model alias `cluey`).
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
 - **B1** — Round summary replaces the debrief; the debrief call is gone — merged 2026-08-20 ([PR #65](https://github.com/KristofferWithK/ClueCabulary/pull/65), squash 6a80497). Found layout-drive's end-screen section vacuous since it was written.
 - **A3** — Boards re-measured; standard 8 → 7 tokens; README + CLAUDE.md rewritten — merged 2026-08-20 ([PR #66](https://github.com/KristofferWithK/ClueCabulary/pull/66), squash 151b812). See DECISIONS.md — the token change alters game feel.
+- **C1** — Board rect identical in every phase; 200px of drift to zero — merged 2026-08-20 ([PR #68](https://github.com/KristofferWithK/ClueCabulary/pull/68), squash a92f7c8). Found the preview-server race — see DECISIONS.md.
 - **R1** — A won round earns a wrap-up round, bank of three — merged 2026-08-20 ([PR #67](https://github.com/KristofferWithK/ClueCabulary/pull/67), squash 69844df). Measured: the collected-words gate binds first, so the win gate is phase-shifted rather than idle.
 
 ### Found along the way, not yet carded

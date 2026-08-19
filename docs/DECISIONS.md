@@ -46,6 +46,22 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · Worth knowing: some of tonight's drive runs were measuring the wrong build
+C1 found that `e2e/preview-server.mjs` guarded against a stale server holding
+its port and **lost the race to it** — vite's exit on a held port is async, the
+drive's first fetch got there first, the held server answered (it is the same
+app, so the response looked right), and the drive measured *another worktree's
+build* while reporting success. It produced three wrong results inside C1's own
+session, twice reproducing the exact pre-fix numbers.
+
+Since several agents ran drives concurrently tonight, some of the green runs I
+merged on may have been measuring a neighbour. **So `main` was re-verified from
+scratch after the fix landed, on an isolated port range with the fix in place:
+551 tests, 16/16 drives, clean.** That run is the one to trust; the per-card
+ones before it were not necessarily wrong, just not proof.
+**Nothing to reverse** — the fix binds the port before spawning and adds
+`DRIVE_PORT_OFFSET` so two checkouts can run drives at once.
+
 ### 2026-08-20 · Viborg is the city that leaves the route — D2
 The card defaulted to it and I confirmed rather than waking you. It is the only
 inland detour on the route; without it the journey still reads as a coast run
