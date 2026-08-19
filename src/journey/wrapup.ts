@@ -39,9 +39,10 @@ export type RoundMode = 'normal' | 'wrapup'
 /**
  * How many earned wrap-up rounds the suitcase will hold.
  *
- * UNMEASURED — this is a guess made before the numbers that would settle it
- * existed, and it is here rather than in engine/config because it is an
- * economy rule rather than a board. What would change it:
+ * THE NUMBER THREE IS UNMEASURED: a guess made before the win rate that would
+ * settle it existed. It is here rather than in engine/config because it is an
+ * economy rule rather than a board. The two things that would change it — one
+ * of which has since been measured, and did not:
  *
  *  - The win rate per board (card A3 is measuring it). A bank of three is a
  *    buffer against a cold run; if wins turn out to be rare the buffer is
