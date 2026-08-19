@@ -462,6 +462,13 @@ describe('the boards across the whole range of guessing', () => {
                   `${g.padEnd(9)} ${SKILLS.map((s) => table[g]![s]!.suddenDeathRate.toFixed(1).padStart(6)).join(' ')}`,
               )
               .join('\n') +
+            `\n\nof the rounds that reached sudden death, the share won there\n` +
+            boards
+              .map(
+                (g) =>
+                  `${g.padEnd(9)} ${SKILLS.map((s) => table[g]![s]!.wonInSuddenDeath.toFixed(1).padStart(6)).join(' ')}`,
+              )
+              .join('\n') +
             `\n\nshare of missed guesses landing on a card that is nobody's green\n` +
             boards
               .map(

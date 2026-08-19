@@ -124,7 +124,8 @@ opens.
    clues to spare, which is what a fair budget looks like. And in between, each
    board still has a real losing side, and still comes down to the wire often
    enough to be worth playing — at p=0.7 the clues run out on 30.8% of 3×4
-   rounds, 38.8% of 3×5 and 42.0% of 4×5.
+   rounds, 38.8% of 3×5 and 42.0% of 4×5, and 54% to 64% of those are still won
+   from there. Sudden death is a second act, not a formality.
 
    **The 4×5 was re-tuned, and it was the only one.** It was the one board dealt
    three forbidden words a side — five distinct cards, three of them pure
