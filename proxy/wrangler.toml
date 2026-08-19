@@ -14,16 +14,20 @@ compatibility_date = "2026-01-01"
 #                                      so no /ClueCabulary on the end.
 #   capacitor://localhost              the iOS app. The native shell serves the
 #                                      same bundle from inside the app through
-#                                      a WKWebView, and Capacitor's iOS default
-#                                      is this scheme (capacitor.config.ts sets
-#                                      no `iosScheme`, and Capacitor 6+ uses
-#                                      capacitor:// unless you change it).
-#                                      Older Ionic shells send ionic://localhost
-#                                      instead; add it if the app ever moves.
+#                                      a WKWebView, so its requests do not come
+#                                      from the Pages origin at all.
 #
-# Verify rather than assume, from the phone once and never again: run the app,
-# then `npx wrangler tail cluecabulary-proxy` and watch a real request. A
-# refusal shows as the 403 from originAllowed.
+# Where that second one comes from, since guessing it wrong means the iOS app
+# silently cannot reach Cluey: capacitor.config.ts sets neither `server.iosScheme`
+# nor `server.hostname`, and Capacitor 8's own defaults are `capacitor` and
+# `localhost` — @capacitor/cli declarations.d.ts documents `@default capacitor`,
+# and InstanceDescriptorDefaults.hostname in @capacitor/ios is "localhost".
+# A shell migrated from cordova-plugin-ionic-webview would send
+# ionic://localhost instead; add it if that ever happens.
+#
+# Confirm it against the phone anyway, once: run the app, then
+# `npx wrangler tail cluecabulary-proxy` and watch a real request. A refusal
+# shows as the 403 from originAllowed.
 [vars]
 ALLOWED_ORIGIN = "https://kristofferwithk.github.io, capacitor://localhost"
 

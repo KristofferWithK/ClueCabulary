@@ -101,10 +101,16 @@ Both are already in [`wrangler.toml`](./wrangler.toml).
 An Origin is scheme + host + port and **never a path**, so it is
 `https://kristofferwithk.github.io` and not `.../ClueCabulary`. The native one
 surprises people: the iOS shell serves the same bundle from inside the app, so
-its requests do not come from the Pages origin at all. Capacitor's iOS default
-scheme is `capacitor://` and `capacitor.config.ts` does not override it; older
-Ionic shells send `ionic://localhost` instead, so add that if the shell ever
-changes.
+its requests do not come from the Pages origin at all, and getting it wrong
+means the iOS app quietly cannot reach Cluey while the website is fine.
+
+That value is read off Capacitor rather than guessed. `capacitor.config.ts`
+sets neither `server.iosScheme` nor `server.hostname`, and Capacitor 8's
+defaults for those are `capacitor` and `localhost` — the first is documented as
+`@default capacitor` in `@capacitor/cli`'s `declarations.d.ts`, the second is
+`InstanceDescriptorDefaults.hostname` in `@capacitor/ios`. A shell migrated
+from `cordova-plugin-ionic-webview` sends `ionic://localhost` instead, so add
+that if the shell ever changes.
 
 To see what your phone really sends rather than trusting this table, run
 `npx wrangler tail cluecabulary-proxy` and use the app. A rejected origin shows
