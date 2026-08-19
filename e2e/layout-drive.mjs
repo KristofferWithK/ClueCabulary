@@ -732,7 +732,11 @@ await page.setViewportSize(PHONE)
   let clueLookupHits = 0
   let guessLookupHits = 0
   let worst = null
-  for (let i = 0; i < 26 && (await page.locator('.debrief').count()) === 0; i++) {
+  // .round-summary, not .debrief — the round-end screen was renamed while this
+  // was being written, and a loop that waits for a class nobody renders any
+  // more just runs its full count. This file already carries one scar of that
+  // shape (see the `.redemption-form` note above, dead for its whole life).
+  for (let i = 0; i < 26 && (await page.locator('.round-summary').count()) === 0; i++) {
     const clue = page.locator('.clue-input #clue-word')
     if (await clue.isVisible().catch(() => false)) {
       if (!clueLookupHits) clueLookupHits = (await longLookup('clue dock + lookup')) ?? 0
