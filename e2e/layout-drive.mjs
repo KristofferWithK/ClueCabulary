@@ -652,12 +652,12 @@ await page.setViewportSize(PHONE)
 {
   const VP = { width: 360, height: 640 }
   await page.setViewportSize(VP)
-  // Beginner, because it runs its five clue tokens out into sudden death in
-  // half the turns the standard board takes and the assertion is about the
-  // board's RECTANGLE, which is the same area on every board size — the row
-  // count inside it is all that differs. The standard board's own no-scroll
-  // case is covered above.
-  const Q = '?mock=1&howto=0&seed=7&city=0&grid=beginner&first=player'
+  // Standard: the widest board, so the tightest layout, and eight clue tokens
+  // rather than five — long enough for the round to reach both sudden death
+  // and the fullest the guess dock ever gets (a card selected, the stop button
+  // showing and a lookup answer up, all at once), which the beginner board
+  // finishes before it can produce.
+  const Q = '?mock=1&howto=0&seed=7&city=0&grid=standard&first=player'
   await open(Q)
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
   await open(Q)
@@ -709,7 +709,11 @@ await page.setViewportSize(PHONE)
   // the longest answer the offline half of the dictionary can produce, and the
   // single worst offender measured (188px of board on the clue dock).
   let lookedUp = 0
-  const longLookup = async (label) => {
+  // `while` runs with the answers ON SCREEN. The first version of this took its
+  // reading after clearing the field, which made the one check that was meant
+  // to catch an overflowing dock a check on an empty one — it passed on a
+  // reserve that really did push the document to 657px on a 640px screen.
+  const longLookup = async (label, while_) => {
     const field = page.locator('.game-screen .translate-input').first()
     if (!(await field.isVisible().catch(() => false))) return
     await where(label)
@@ -718,6 +722,7 @@ await page.setViewportSize(PHONE)
     const hits = await page.locator('.translate-hits li').count()
     if (hits >= 4) lookedUp++
     await page.waitForTimeout(200)
+    if (while_) await while_()
     await field.fill('')
     await page.waitForTimeout(300)
     await where(null)
@@ -750,12 +755,30 @@ await page.setViewportSize(PHONE)
       // against: a card selected (a 44px confirm row where a one-line hint
       // was), the stop button once a guess has been made, and a four-hit
       // lookup answer, all at once. Recorded so its rect joins the comparison.
-      if (!worst && (await page.locator('.guess-bar .btn-ghost').count())) {
-        await longLookup('guess bar, everything at once')
-        worst = await page.evaluate(() => ({
-          sh: document.scrollingElement.scrollHeight,
-          ih: window.innerHeight,
-        }))
+      const fullest =
+        !worst &&
+        (await page.locator('.guess-bar .btn-ghost').count()) > 0 &&
+        (await page.locator('.guess-bar .guess-confirm').count()) > 0 &&
+        (await page.locator('.guess-bar .translate-input').count()) > 0
+      if (fullest) {
+        await longLookup('guess bar, everything at once', async () => {
+          worst = await page.evaluate(() => {
+            const dock = document.querySelector('.game-screen .dock')
+            const bottom = dock.getBoundingClientRect().bottom
+            // How far past the dock's own bottom edge anything inside it
+            // reaches. The reserve is only honest if this is zero: a dock
+            // whose content hangs out of it has not reserved anything.
+            const out = [...dock.querySelectorAll('*')].map((el) =>
+              Math.round((el.getBoundingClientRect().bottom - bottom) * 10) / 10,
+            )
+            return {
+              sh: document.scrollingElement.scrollHeight,
+              ih: window.innerHeight,
+              spill: Math.max(0, ...out),
+              hits: dock.querySelectorAll('.translate-hits li').length,
+            }
+          })
+        })
       }
       const confirm = page.locator('.guess-confirm .btn-primary')
       if (await confirm.isVisible().catch(() => false)) {
@@ -835,13 +858,17 @@ await page.setViewportSize(PHONE)
       (y.drift || h.drift ? `\n     ${worstOf(y.drift ? 'y' : 'height')}` : ` (top ${y.lo}, height ${h.lo})`),
   )
 
-  // And the state the reserve is deliberately NOT big enough for, where the
-  // lookup box gives way instead: it must give way inside itself, not by
-  // lengthening the document.
+  // The fullest state the guess dock reaches — a card selected, the stop
+  // button showing and four lookup answers up, all at once. This is where the
+  // reserve is deliberately smaller than the content, and the answers list is
+  // what has to give. It must give way INSIDE itself: nothing may hang out of
+  // the dock, and the document must not lengthen.
   check(
-    'the fullest the guess dock gets still does not scroll the document',
-    worst ? worst.sh <= worst.ih + 1 : false,
-    worst ? `${worst.sh} vs ${worst.ih}` : 'never reached the stop button',
+    'the fullest the guess dock gets stays inside its reserve',
+    worst ? worst.spill <= 0.5 && worst.sh <= worst.ih + 1 && worst.hits >= 4 : false,
+    worst
+      ? `${worst.hits} answers up, ${worst.spill}px past the dock, document ${worst.sh} vs ${worst.ih}`
+      : 'never reached a selected card with the stop button and a lookup',
   )
   await page.setViewportSize(PHONE)
 }

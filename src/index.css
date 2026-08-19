@@ -1427,26 +1427,36 @@ select:focus {
  * The size is measured, not estimated. Every dock was asked how tall it wants
  * to be (height:auto) in every state a round can put it in, at 360x640:
  *
+ *   Cluey guessing                                   116.69
+ *   clue dock, bare                                  129
+ *   ... + a rejected clue                            155
+ *   ... + a four-hit lookup answer                   210.59
  *   guess bar, bare                                  152.86
  *   ... + "Stop guessing"                            209.86   (+57)
  *   ... + a card selected, i.e. the confirm row      237.86   (+28)
- *   ... + a four-hit lookup answer                   240.45   (+31)
- *   clue dock + a four-hit lookup answer             210.59
+ *   ... + a four-hit lookup answer                   324.5
  *   sudden death + a card selected                   226.86
- *   Cluey guessing                                   116.69
  *
- * 15rem = 240px covers the tallest of those to within half a pixel. The one
- * state it does not cover is all four of the guess bar's optional pieces at
- * once (~268px), and there the give-way region below does exactly what it is
- * for: the lookup answers scroll inside their own box. Nothing is pushed and
- * no control is hidden — which is the property worth having, rather than a
- * reserve big enough for a combination the round rarely reaches.
+ * The last of those cannot be reserved for — 324px would leave 115px of board
+ * — so the guess bar's answers list is where the reserve deliberately runs
+ * out, and it scrolls inside itself. What the size has to buy is that running
+ * out never hides anything: 16.25rem = 260px is where the fullest state still
+ * shows one whole answer line (the min-height on .translate-hits below) with
+ * every control inside the dock and the document still 640px on a 640px
+ * screen. 15rem passed those two but squeezed the answers to exactly zero
+ * height — four answers in the DOM and none on screen — which is why it is not
+ * the number here.
+ *
+ * The 20px of board that costs is only visible at 360x640, where the board is
+ * then the size it ALREADY was during guessing before any of this; at 390x844
+ * it is 383px and nothing is tight. Locked at the tightest phase's size is the
+ * shape of the request: "the grid should stay locked. and the text can be cut."
  *
  * In rem, not px, so it tracks the text it has to hold when the phone's font
  * size is turned up.
  */
 .game-screen {
-  --dock-h: 15rem;
+  --dock-h: 16.25rem;
 }
 
 .dock.clue-input,
@@ -3092,9 +3102,24 @@ body:has(.kb-up) {
 
 /* ---------- look up a word ---------- */
 
+/* A flex column everywhere, not only inside the composer. It was a plain block
+   in the guess bar, and a plain block's children cannot flex — so the answers
+   list below sat at its full 4.6rem and hung 29.5px out of the bottom of the
+   reserved dock, taking the document with it (657px on a 640px screen). The
+   guess bar is the dock with the least room and the one the complaint was
+   about, so that is exactly the wrong place for the give-way to not work. */
 .translate-box {
   border-top: 1px solid var(--line-soft);
   padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* The field, its label and its error keep their size; only the answers give
+   way. Overridden below by .translate-hits, which is declared later. */
+.translate-box > * {
+  flex: none;
 }
 
 /* Sits above an input that is always there, so it names the field rather than
@@ -3141,9 +3166,16 @@ body:has(.kb-up) {
   font-size: 0.9rem;
   line-height: 1.45;
   flex: 1 1 auto;
-  min-height: 0;
   max-height: 4.6rem;
   overflow-y: auto;
+  /* One line of its own text, whatever that text is sized at — the floor under
+     "gives way". Without it the give-way is unbounded, and in the fullest the
+     guess dock gets (a card selected, the stop button showing, four answers
+     up) it gave way to exactly zero: four answers in the DOM and none of them
+     on screen, which is a hidden control wearing a scrollbar. The reserve
+     above is sized so this floor is never the thing that spills — and if a
+     future dock makes it spill, the no-scroll check says so. */
+  min-height: 1.45em;
 }
 
 /* One line per answer. A Danish gloss list runs long — "flink — nice, kind,
