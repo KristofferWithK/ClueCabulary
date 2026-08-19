@@ -54,15 +54,24 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3)*
 
 ### In progress
-- **A3** — Re-tune boards by measurement + rules docs rewrite — agent running (dispatched 2026-08-20)
 - **C1** — The board never moves — agent running (dispatched 2026-08-20)
 - **R1** — Wins earn wrap-up rounds — agent running (dispatched 2026-08-20)
+- **G1** — Proxy quotas + friendly 429 — agent running (dispatched 2026-08-20)
 
 ### Done
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
 - **C3** — Keyboard ride behind cluecab-kbfast, ships off — merged 2026-08-19 ([PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63)); awaiting the owner's on-device slo-mo A/B before flipping the default
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
 - **B1** — Round summary replaces the debrief; the debrief call is gone — merged 2026-08-20 ([PR #65](https://github.com/KristofferWithK/ClueCabulary/pull/65), squash 6a80497). Found layout-drive's end-screen section vacuous since it was written.
+- **A3** — Boards re-measured; standard 8 → 7 tokens; README + CLAUDE.md rewritten — merged 2026-08-20 ([PR #66](https://github.com/KristofferWithK/ClueCabulary/pull/66), squash 151b812). See DECISIONS.md — the token change alters game feel.
+
+### Found along the way, not yet carded
+- **README's Setup section is stale** — it still tells the player to paste a
+  Gemini key, but settings v7 cleared keys and the app talks to the proxy.
+  A3 left it deliberately (out of card). **G1 owns it** — the quota work is
+  the same subject.
+- A test file under `src/` cannot name `process`: `tsc -b` rejects it while
+  vitest runs it happily. `envVar` helper added; noted in CLAUDE.md.
 
 ### Fast-follows (post-launch backlog, in order)
 - **H1** — Language-pack seam (i18n architecture)

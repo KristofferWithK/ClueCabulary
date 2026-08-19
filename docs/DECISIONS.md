@@ -46,6 +46,29 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · The 4×5 board lost a clue token (8 → 7) — A3
+**This is the one change tonight that alters how the game feels, so play a
+standard board before accepting it.** Taking the forbidden words out did not
+just make the big board safer, it made it *easier than the 3×5 it escalates
+from* — 71.3% against 67.1% at equal skill, measured over 2000 games a cell.
+Standard was the only grid dealt three hazards a side, so its difficulty had
+always lived in the danger rather than in its clue budget, and A1 removed the
+danger and left the budget. Seven tokens restores the order (58.1% vs 67.1%)
+and costs nothing at the top: perfect play still wins every seed on 4.44 clues.
+**Reverse:** one number in `src/engine/config.ts`. Note the escalation test
+fails at 8, so it would need updating too — deliberately, so the ordering
+cannot silently invert again.
+
+### 2026-08-20 · The obvious "too much padding" fix was measured and rejected
+Every board now carries more dead cards (4×5: 5 → 8), and the intuitive fix is
+to deal them as greens. Measured: it makes standard *harder AND longer* (64.3%
+at p=0.7, perfect play spending 6.00 clues of 7 rather than 4.44), because a
+card nobody ever has to point at is a card that makes a board easier. Written
+into `config.ts` rather than acted on — changing what the twenty cards are is a
+design decision with keygen's SRS tiers behind it, not a tuning fix.
+**Revisit if** the boards feel padded in play; the numbers say slower is not
+what padding does, but they cannot measure boredom.
+
 ### 2026-08-20 · A TestFlight build will be left waiting for you
 Once the night's code has settled, the manual TestFlight workflow gets run once
 so you wake up with something on your phone rather than a diff to read — the
