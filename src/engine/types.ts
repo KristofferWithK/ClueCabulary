@@ -1,6 +1,12 @@
 import type { GridConfig } from './config'
 
-export type CardRole = 'green' | 'bystander' | 'forbidden'
+/**
+ * Two roles, not three. A key used to carry `forbidden` as well — Duet's
+ * assassin — and a guess landing on one ended the round (or opened the
+ * translate-everything last chance, late enough in the round). Both are gone:
+ * a card is either a target on this key or it is not.
+ */
+export type CardRole = 'green' | 'bystander'
 export type Side = 'player' | 'ai'
 
 /** The subset of dictionary data the engine needs about a board word. */
@@ -29,7 +35,6 @@ export interface BoardWord {
 export type Reveal =
   | { kind: 'hidden' }
   | { kind: 'green' } // global: found, done for both sides
-  | { kind: 'forbidden' } // global: triggered redemption
   /**
    * Directional, Duet-style: `against` lists the CLUE-GIVER sides under which
    * this word was revealed as a bystander. It stays guessable under the other
@@ -77,27 +82,18 @@ export type Phase =
    * no more clues, keep naming words, one wrong name and it is over.
    */
   | 'suddenDeath'
-  | 'redemption'
   | 'finished'
 
-export interface RedemptionResult {
-  wordId: string
-  given: string
-  accepted: boolean
-  matchedGloss?: string
-}
-
+/**
+ * Three endings, down from six. Gone with the forbidden words: 'forbidden-hit'
+ * (the round ending on the spot), 'forbidden-failed' (the last chance opening
+ * and being failed) and 'redeemed' (it being passed). Old saves may still hold
+ * those strings — nothing reads a stored outcome back into this type, and the
+ * game store's v4 migration throws away any in-flight round rather than trying.
+ */
 export type Outcome =
-  | { result: 'won'; reason: 'all-greens' | 'redeemed' }
-  /**
-   * 'forbidden-hit' is the word ending the round on the spot, before the last
-   * chance opens; 'forbidden-failed' is the last chance opening and being
-   * failed. Two different endings, and they must stay two, because every
-   * sentence written for the second one — "the forbidden word won this round",
-   * "you lost on the translation challenge" — describes a quiz that never
-   * happened in the first.
-   */
-  | { result: 'lost'; reason: 'timeout' | 'sudden-death' | 'forbidden-hit' | 'forbidden-failed' }
+  | { result: 'won'; reason: 'all-greens' }
+  | { result: 'lost'; reason: 'timeout' | 'sudden-death' }
 
 export interface GameState {
   config: GridConfig
@@ -109,11 +105,6 @@ export interface GameState {
   phase: Phase
   turnsLeft: number
   clueHistory: Clue[]
-  redemption?: {
-    /** Words the player must translate: everything not already revealed green. */
-    promptWordIds: string[]
-    results?: RedemptionResult[]
-  }
   outcome?: Outcome
 }
 
@@ -129,14 +120,3 @@ export type GameEvent =
   /** `reasoning`/`confidence` carry the AI's own account of the guess. */
   | { type: 'GUESS'; wordId: string; reasoning?: string; confidence?: number }
   | { type: 'STOP_GUESSING' }
-  | {
-      type: 'SUBMIT_REDEMPTION'
-      answers: Record<string, string>
-      /**
-       * Tells the grader which strings are real English words for something
-       * else, so a near-miss cannot pass one word off as another. Supplied by
-       * the caller because the engine holds no dataset; omitted, grading falls
-       * back to distance alone.
-       */
-      isKnownWord?: (normalized: string) => boolean
-    }

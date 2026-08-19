@@ -22,10 +22,14 @@ export interface KeyBias {
  * - `produce` green only on the player's key — the player must clue it, which
  *             needs enough command of the word to find an association.
  * - `filler`  neutral to both sides; no practice either way.
- * - `hazard`  forbidden to someone — only fair if the player knows the word
- *             well enough to steer around it.
+ *
+ * There was a fourth, `hazard`: forbidden to someone, and filled last so the
+ * words the player knew best became the traps they could knowingly steer
+ * around. Forbidden words are gone, so that channel is simply gone with them —
+ * a well-known word now lands in `filler` and asks nothing. The SRS bias still
+ * steers high-need words into `recall`, which was always the half that taught.
  */
-export type SlotTier = 'recall' | 'produce' | 'filler' | 'hazard'
+export type SlotTier = 'recall' | 'produce' | 'filler'
 
 interface Slot {
   player: CardRole
@@ -33,31 +37,25 @@ interface Slot {
   tier: SlotTier
 }
 
-/** Fill order: the highest-need words go to `recall`, the best-known to `hazard`. */
-const TIER_ORDER: SlotTier[] = ['recall', 'produce', 'filler', 'hazard']
+/** Fill order: the highest-need words go to `recall`, the best-known to `filler`. */
+const TIER_ORDER: SlotTier[] = ['recall', 'produce', 'filler']
 
 function tierOf(player: CardRole, ai: CardRole): SlotTier {
   if (ai === 'green') return 'recall'
-  if (player === 'forbidden' || ai === 'forbidden') return 'hazard'
   if (player === 'green') return 'produce'
   return 'filler'
 }
 
 /** The exact role pairs a config calls for — the source of every invariant. */
 function buildSlots(config: GridConfig): Slot[] {
-  // Each side's greens = overlap + (other side's forbiddenVsGreen) + own-only greens.
-  const onlyGreens = config.greensPerSide - config.greenOverlap - config.forbiddenVsGreen
+  // Each side's greens = overlap + own-only greens.
+  const onlyGreens = config.greensPerSide - config.greenOverlap
   const slots: Slot[] = []
   const add = (n: number, player: CardRole, ai: CardRole) => {
     for (let i = 0; i < n; i++) slots.push({ player, ai, tier: tierOf(player, ai) })
   }
 
   add(config.greenOverlap, 'green', 'green')
-  add(config.forbiddenBothSides, 'forbidden', 'forbidden')
-  add(config.forbiddenVsGreen, 'forbidden', 'green') // player's forbidden, green for AI
-  add(config.forbiddenVsGreen, 'green', 'forbidden') // AI's forbidden, green for player
-  add(config.forbiddenVsBystander, 'forbidden', 'bystander')
-  add(config.forbiddenVsBystander, 'bystander', 'forbidden')
   add(onlyGreens, 'green', 'bystander')
   add(onlyGreens, 'bystander', 'green')
   add(config.totalWords - slots.length, 'bystander', 'bystander')
@@ -85,9 +83,9 @@ function weightedOrder(wordIds: readonly string[], need: KeyBias['need'], rng: R
  * hundreds of seeds anyway.
  *
  * Without a bias this is a plain random deal. With one, words the player most
- * needs to practise are steered toward the AI's greens (so the player has to
- * recall them) and words they know best toward the forbidden slots (so the
- * hazards are ones they can knowingly avoid).
+ * needs to practise are steered toward the AI's greens, so the player has to
+ * recall them; words they know best drift to the back of the order and land in
+ * whatever is left, which is now bystanders.
  */
 export function generateKeys(
   config: GridConfig,

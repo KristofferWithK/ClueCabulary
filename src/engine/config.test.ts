@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   GRID_CONFIGS,
   MAX_CLUE_NUMBER,
-  REDEMPTION_AFTER_ROUND,
   WRAPUP_CONFIG,
   assertConfigConsistent,
   distinctGreens,
@@ -21,8 +20,10 @@ describe('the shipped boards', () => {
    * The wrap-up board's shape, pinned like the others: five clue-givings a
    * side, sixteen distinct greens over ten shared tokens = the beginner ratio.
    * The packing phase is the round's added difficulty, so the clue economy is
-   * deliberately the forgiving one — and its know-nothing forbidden floor was
-   * measured (config.ts) at 6.4% of guesses against standard 4x5's 16.0%.
+   * deliberately the forgiving one. (The know-nothing forbidden floor that used
+   * to be quoted here as the second half of the argument — 6.4% of guesses
+   * against standard 4x5's 16.0% — no longer describes anything: no board has
+   * forbidden words. The ratio is what is left of the case, and it stands.)
    */
   it('give the wrap-up board the beginner ratio on the big grid', () => {
     expect(WRAPUP_CONFIG.turnTokens).toBe(10)
@@ -76,9 +77,12 @@ describe('the guard against a board that cannot be cleared', () => {
   })
 
   // Both of these assert what the CLEARING guard does, so they are written as
-  // "not this complaint" rather than "no complaint": assertConfigConsistent
-  // now carries a second, unrelated bound (below), and a bare not.toThrow()
-  // would quietly start testing that one instead.
+  // "not this complaint" rather than "no complaint". There was a second,
+  // unrelated bound below them for a while — a board with no clue left after
+  // the last chance opened — and a bare not.toThrow() would have quietly
+  // started testing that one instead. It is gone with the last chance; the
+  // narrow assertion is kept, because the next guard added here will do it
+  // again.
   it('allows the arithmetic floor, tight as it is', () => {
     const floor = Math.ceil(distinctGreens(beginner) / (MAX_CLUE_NUMBER + 1))
     expect(floor).toBe(2)
@@ -95,43 +99,32 @@ describe('the guard against a board that cannot be cleared', () => {
 })
 
 /**
- * The last chance opens after REDEMPTION_AFTER_ROUND clues, so a board with no
- * more clues than that can never reach it. Nothing would break loudly: the
- * phase, RedemptionView, the grader and the 'redeemed' ending would all still
- * ship, and none of them would be reachable.
+ * How much of each board does nothing.
  *
- * Not a hypothetical. beginner ran on four tokens until recently, and the same
- * conversation that set this threshold also asked for four rounds on that
- * board — so the two numbers have already been on a collision course once.
+ * Removing forbidden words freed a card or three on every board and they became
+ * bystanders, because leaving the green counts alone was the cautious move —
+ * the ratios above are the ones that were played and measured. The cost is
+ * here: 3x5 went from two dead cards to four, and 4x5 from five to eight.
+ *
+ * Pinned so the re-tune is a deliberate edit with an argument attached rather
+ * than something that drifts. If these numbers change, the greens changed.
  */
-describe('the guard against a board where the last chance never opens', () => {
-  const beginner = GRID_CONFIGS.beginner
+describe('the cards that are on nobody key', () => {
+  const neutrals = (c: GridConfig) => c.totalWords - distinctGreens(c)
 
-  it('every shipped board can reach it', () => {
-    for (const config of Object.values(GRID_CONFIGS)) {
-      expect(config.turnTokens).toBeGreaterThan(REDEMPTION_AFTER_ROUND)
-    }
+  it.each([
+    ['beginner', 12, 8, 4],
+    ['middle', 15, 11, 4],
+    ['standard', 20, 12, 8],
+  ] as const)('%s: %i cards, %i greens, %i neutral', (grid, total, greens, dead) => {
+    const c = GRID_CONFIGS[grid]
+    expect(c.totalWords).toBe(total)
+    expect(distinctGreens(c)).toBe(greens)
+    expect(neutrals(c)).toBe(dead)
   })
 
-  it('refuses a board with no clue after the threshold', () => {
-    expect(() =>
-      assertConfigConsistent({ ...beginner, turnTokens: REDEMPTION_AFTER_ROUND }),
-    ).toThrow(/never opens/)
-  })
-
-  it('and says how to fix it, since either number is the one to move', () => {
-    try {
-      assertConfigConsistent({ ...beginner, turnTokens: REDEMPTION_AFTER_ROUND })
-    } catch (e) {
-      expect((e as Error).message).toMatch(/REDEMPTION_AFTER_ROUND/)
-      expect((e as Error).message).toMatch(/another clue/)
-    }
-  })
-
-  it('accepts one clue past it', () => {
-    expect(() =>
-      assertConfigConsistent({ ...beginner, turnTokens: REDEMPTION_AFTER_ROUND + 1 }),
-    ).not.toThrow()
+  it('and the wrap-up board, four of twenty', () => {
+    expect(neutrals(WRAPUP_CONFIG)).toBe(4)
   })
 })
 

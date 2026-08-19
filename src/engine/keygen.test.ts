@@ -7,7 +7,7 @@ import type { CardRole } from './types'
 const wordIds = (n: number) => Array.from({ length: n }, (_, i) => `w${i}`)
 
 function countRoles(key: Record<string, CardRole>) {
-  const counts = { green: 0, bystander: 0, forbidden: 0 }
+  const counts = { green: 0, bystander: 0 }
   for (const role of Object.values(key)) counts[role]++
   return counts
 }
@@ -26,7 +26,7 @@ describe.each(Object.entries(GRID_CONFIGS))('keygen %s', (_name, config: GridCon
         expect(Object.keys(key).sort()).toEqual([...ids].sort())
         const counts = countRoles(key)
         expect(counts.green).toBe(config.greensPerSide)
-        expect(counts.forbidden).toBe(config.forbiddenPerSide)
+        expect(counts.bystander).toBe(config.totalWords - config.greensPerSide)
       }
 
       const overlap = ids.filter(
@@ -34,18 +34,25 @@ describe.each(Object.entries(GRID_CONFIGS))('keygen %s', (_name, config: GridCon
       )
       expect(overlap.length).toBe(config.greenOverlap)
 
-      // Cross-side identity of each side's forbidden words.
+      // Every card the keys disagree about, counted from both sides. A green on
+      // one key and a bystander on the other is the card the clue-giver rule
+      // exists for, and there are exactly (greensPerSide - overlap) of them each
+      // way — the deal has no other shape left to produce.
       for (const [own, other] of [
         [keys.playerKey, keys.aiKey],
         [keys.aiKey, keys.playerKey],
       ] as const) {
-        const forbidden = ids.filter((id) => own[id] === 'forbidden')
-        const onOther = { green: 0, bystander: 0, forbidden: 0 }
-        for (const id of forbidden) onOther[other[id]!]++
-        expect(onOther.forbidden).toBe(config.forbiddenBothSides)
-        expect(onOther.green).toBe(config.forbiddenVsGreen)
-        expect(onOther.bystander).toBe(config.forbiddenVsBystander)
+        const mineAlone = ids.filter((id) => own[id] === 'green' && other[id] === 'bystander')
+        expect(mineAlone.length).toBe(config.greensPerSide - config.greenOverlap)
       }
+
+      // Nothing is on neither key AND on a key: the four counts partition it.
+      const deadCards = ids.filter(
+        (id) => keys.playerKey[id] === 'bystander' && keys.aiKey[id] === 'bystander',
+      )
+      expect(deadCards.length).toBe(
+        config.totalWords - (2 * config.greensPerSide - config.greenOverlap),
+      )
 
       expect(distinctGreenIds(keys).length).toBe(2 * config.greensPerSide - config.greenOverlap)
     }
@@ -83,7 +90,7 @@ describe('SRS-biased dealing', () => {
         expect(Object.keys(key).sort()).toEqual([...ids].sort())
         const counts = countRoles(key)
         expect(counts.green).toBe(config.greensPerSide)
-        expect(counts.forbidden).toBe(config.forbiddenPerSide)
+        expect(counts.bystander).toBe(config.totalWords - config.greensPerSide)
       }
       expect(
         ids.filter((id) => keys.playerKey[id] === 'green' && keys.aiKey[id] === 'green').length,
@@ -93,47 +100,53 @@ describe('SRS-biased dealing', () => {
         [keys.playerKey, keys.aiKey],
         [keys.aiKey, keys.playerKey],
       ] as const) {
-        const onOther = { green: 0, bystander: 0, forbidden: 0 }
-        for (const id of ids.filter((id) => own[id] === 'forbidden')) onOther[other[id]!]++
-        expect(onOther.forbidden).toBe(config.forbiddenBothSides)
-        expect(onOther.green).toBe(config.forbiddenVsGreen)
-        expect(onOther.bystander).toBe(config.forbiddenVsBystander)
+        const mineAlone = ids.filter((id) => own[id] === 'green' && other[id] === 'bystander')
+        expect(mineAlone.length).toBe(config.greensPerSide - config.greenOverlap)
       }
     }
   })
 
-  it('steers weak words into recall practice and away from hazards', () => {
+  /**
+   * The half of the bias that survived the hazard tier. Words the player keeps
+   * forgetting become CLUEY's greens, so the player has to recall them; words
+   * they know well drift to the back of the order and land in whatever is left.
+   * That used to be the forbidden slots, filled last on purpose — a hazard is
+   * only fair if you know the word well enough to steer around it. There is no
+   * such slot now, so "away from hazards" has become "away from a green, into a
+   * card that asks nothing", which is the same lean with less to show for it.
+   */
+  it('steers weak words into recall practice, and well-known ones out of the way', () => {
     const rounds = 400
     let weakRecall = 0
-    let weakHazard = 0
+    let weakDead = 0
     let strongRecall = 0
-    let strongHazard = 0
+    let strongDead = 0
 
     for (let seed = 1; seed <= rounds; seed++) {
       const keys = generateKeys(config, ids, mulberry32(seed), weakBias)
       for (const id of ids) {
         // Recall = green on the AI's key: the player has to guess it.
         const recall = keys.aiKey[id] === 'green'
-        const hazard = keys.playerKey[id] === 'forbidden' || keys.aiKey[id] === 'forbidden'
+        const dead = keys.playerKey[id] === 'bystander' && keys.aiKey[id] === 'bystander'
         if (WEAK.includes(id)) {
           if (recall) weakRecall++
-          if (hazard) weakHazard++
+          if (dead) weakDead++
         } else {
           if (recall) strongRecall++
-          if (hazard) strongHazard++
+          if (dead) strongDead++
         }
       }
     }
 
     const weakRecallRate = weakRecall / (rounds * WEAK.length)
     const strongRecallRate = strongRecall / (rounds * (ids.length - WEAK.length))
-    const weakHazardRate = weakHazard / (rounds * WEAK.length)
-    const strongHazardRate = strongHazard / (rounds * (ids.length - WEAK.length))
+    const weakDeadRate = weakDead / (rounds * WEAK.length)
+    const strongDeadRate = strongDead / (rounds * (ids.length - WEAK.length))
 
-    // Unbiased, every word would sit at 7/20 recall and 4/20 hazard.
+    // Unbiased, every word would sit at 7/20 recall and 8/20 on neither key.
     expect(weakRecallRate).toBeGreaterThan(0.6)
     expect(weakRecallRate).toBeGreaterThan(strongRecallRate * 1.5)
-    expect(weakHazardRate).toBeLessThan(strongHazardRate)
+    expect(weakDeadRate).toBeLessThan(strongDeadRate)
   })
 
   it('still varies the board — bias is a lean, not a rule', () => {
