@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { GRID_CONFIGS } from '../engine/config'
 import { applyEvent, createGame } from '../engine/game'
 import type { BoardWord, GameState } from '../engine/types'
-import { aiTargetableIds, buildAiClueView } from './projections'
-import { buildCluePrompt } from './prompts'
+import { aiTargetableIds, buildAiClueView, buildAiGuessView } from './projections'
+import { buildCluePrompt, buildGuessPrompt } from './prompts'
 
 const words = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -81,63 +81,24 @@ describe('the clue prompt says which words are actually targetable', () => {
 })
 
 /**
- * Also reported: "Cluey gave kitchen and I said food but that was forbidden."
+ * WHAT THIS FILE USED TO HOLD, and why it is half its old length.
  *
- * A guess is judged against the clue-giver's key alone, so «food» was forbidden
- * on CLUEY's key — a word he could see, under a clue he chose. That is what
- * makes his own forbidden words dangerous while he is the giver: his key is the
- * one every guess of the player's is read against. (The first version of this
- * comment said "either side's forbidden word ends the round, whoever names it",
- * which is false, and reached the right conclusion by the wrong route.)
+ * A block here pinned the FORBIDDEN FOR YOU section of the clue prompt: that
+ * Cluey's own hazards were named in a block of their own rather than only in
+ * the board table, that the association test came with the player's own example
+ * ("kitchen" fetches "food") attached, and that an already-hit hazard dropped
+ * out of the list. A second block pinned which boards dealt a card that was
+ * green on one key and forbidden on the other.
  *
- * He could see them in the table and was told to check — in the third of five
- * bullet points under "Hard constraints", as one clause among several. They get
- * their own block now, with the player's own example in it.
+ * Forbidden words are gone from every board, so all of it asserted the presence
+ * of prompt text that must no longer be there — the opposite of what is wanted.
+ * Retired rather than adapted: there is no hazard left to test the handling of,
+ * and the prompt rewrite that decides what replaces this section has not
+ * happened yet. What is worth re-measuring afterwards is not this at all but
+ * clue QUALITY, which nothing here ever checked.
+ *
+ * The two blocks that survive are about targetability, which is untouched.
  */
-describe('the clue prompt makes the forbidden words hard to walk past', () => {
-  it('names them in a block of their own, not only in the table', () => {
-    const s = start()
-    const view = buildAiClueView(s, 'en')
-    const text = promptFor(s)
-    const forbidden = view.words.filter((w) => w.roleOnMyKey === 'forbidden')
-    expect(forbidden.length).toBeGreaterThan(0)
-    const block = text.split('\n').find((l) => l.startsWith('FORBIDDEN FOR YOU'))!
-    for (const w of forbidden) expect(block).toContain(w.da)
-  })
-
-  it('asks for the association test by example, not as an instruction to remember', () => {
-    const text = promptFor(start())
-    expect(text).toContain('"kitchen" fetches "food"')
-  })
-
-  it('marks them on their own row too', () => {
-    const s = start()
-    const view = buildAiClueView(s, 'en')
-    const text = promptFor(s)
-    for (const w of view.words.filter((x) => x.roleOnMyKey === 'forbidden')) {
-      expect(lineFor(text, w.id)).toContain('FORBIDDEN FOR YOU')
-    }
-  })
-
-  /**
-   * A forbidden word already revealed has done its damage and cannot do it
-   * again; listing it as live keeps steering him away from clues that are now
-   * perfectly safe.
-   */
-  it('drops one that has already been hit', () => {
-    let s = start()
-    const doomed = s.words.map((w) => w.wordId).find((id) => s.aiKey[id] === 'forbidden')!
-    s = applyEvent(s, { type: 'SUBMIT_CLUE', by: 'ai', text: 'klods', number: 1 })
-    s = applyEvent(s, { type: 'GUESS', wordId: doomed })
-    // The round is over after a forbidden hit, so ask the projection directly.
-    const view = buildAiClueView({ ...s, phase: 'aiClueInput' }, 'en')
-    const block = textOf(buildCluePrompt(view))
-      .split('\n')
-      .find((l) => l.startsWith('FORBIDDEN FOR YOU'))
-    const da = s.words.find((w) => w.wordId === doomed)!.da
-    expect(block ?? '').not.toContain(da)
-  })
-})
 
 /**
  * The board can be dealt so that every one of Cluey's greens is also a word he
@@ -157,48 +118,35 @@ describe('the prompt survives a board with nothing to say', () => {
 })
 
 /**
- * The two boards a learner meets deal no card that one key calls green and the
- * other calls forbidden.
+ * The prompt must not describe a mechanic the game no longer has. A model told
+ * about forbidden words will steer clues around cards that cannot hurt anyone,
+ * and will explain the manoeuvre to a learner in the rationale — which is worse
+ * than a bad clue, because the player believes it.
  *
- * This block used to be titled "no board word is both a target and an instant
- * loss" and justified by the claim that a forbidden-for-player, green-for-Cluey
- * card is "his best clue and the player's instant loss". That is false: under
- * Cluey's clue the card is read off HIS key, where it is green, and it scores.
- *
- * The shape actually worth excluding is its mirror, which forbiddenVsGreen
- * deals in the same breath: green on the player's key, forbidden on Cluey's.
- * There the player's own key marks the card as a target while Cluey's key ends
- * the round on it, and while they are guessing nothing on screen says so. Cluey
- * can see it — it is forbidden on his own key — so a good clue steers around
- * it, but that is the only protection there is.
- *
- * standard keeps it on purpose (see config.ts), which is why it is not swept
- * here: this asserts what beginner and middle do, not a law about every board.
+ * A string check, deliberately: this asserts the ABSENCE of text, and there is
+ * no board state that can produce it any more, so nothing structural is left to
+ * ask. It stays until the prompts are rewritten properly, and it will still be
+ * true afterwards.
  */
-describe('the learner boards deal no card that is green on one key and forbidden on the other', () => {
-  it.each(['beginner', 'middle'] as const)('on %s', (grid) => {
-    expect(GRID_CONFIGS[grid].forbiddenVsGreen).toBe(0)
+describe('the prompts say nothing about forbidden words', () => {
+  it('not in the clue prompt', () => {
+    expect(promptFor(start()).toLowerCase()).not.toContain('forbidden')
   })
 
-  it('and standard keeps it, so this is a choice per board rather than a law', () => {
-    expect(GRID_CONFIGS.standard.forbiddenVsGreen).toBe(1)
-  })
-
-  it('holds through a dealt board: no forbidden word is green on the other key', () => {
-    for (const grid of ['beginner', 'middle'] as const) {
-      for (let seed = 1; seed <= 40; seed++) {
-        const s = createGame({
-          config: GRID_CONFIGS[grid],
-          words: words(GRID_CONFIGS[grid].totalWords),
-          seed,
-          firstGiver: 'ai',
-        })
-        for (const w of s.words) {
-          const id = w.wordId
-          if (s.playerKey[id] === 'forbidden') expect(s.aiKey[id]).not.toBe('green')
-          if (s.aiKey[id] === 'forbidden') expect(s.playerKey[id]).not.toBe('green')
-        }
-      }
-    }
+  it('nor in the guess prompt', () => {
+    const s = applyEvent(start(), { type: 'SUBMIT_CLUE', by: 'ai', text: 'klods', number: 1 })
+    // The guesser is the player under an AI clue, so build the view the other
+    // way: a player clue, with Cluey guessing.
+    const fresh = createGame({
+      config: GRID_CONFIGS.beginner,
+      words: words(GRID_CONFIGS.beginner.totalWords),
+      seed: 7,
+      firstGiver: 'player',
+    })
+    const clued = applyEvent(fresh, { type: 'SUBMIT_CLUE', by: 'player', text: 'klods', number: 1 })
+    expect(textOf(buildGuessPrompt(buildAiGuessView(clued, 'en'))).toLowerCase()).not.toContain(
+      'forbidden',
+    )
+    expect(s.phase).toBe('playerGuessing')
   })
 })

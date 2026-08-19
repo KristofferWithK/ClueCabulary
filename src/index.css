@@ -1171,8 +1171,7 @@ select:focus {
 /* Tiles that paint themselves dark take the same ink the word takes: white on
    --green-tile is already at the card's contrast floor, so dimming the article
    there would fail at this size. Size and weight carry the distinction. */
-.card-green .card-article,
-.card-forbidden .card-article {
+.card-green .card-article {
   color: #fff;
 }
 
@@ -1233,16 +1232,16 @@ select:focus {
   height: 30px;
 }
 
-.wrap-green .card-info,
-.wrap-forbidden .card-info {
+.wrap-green .card-info {
   color: rgba(255, 255, 255, 0.92);
 }
 
 /* ---------- your own key ---------- */
 
-/* Your private key card, drawn onto the board: a green dot marks a word you
-   must get Cluey to guess, a cross marks one that is forbidden for you. Shape
-   plus color, never color alone. */
+/* Your private key card, drawn onto the board: a green border marks a word
+   you must get Cluey to guess. It used to mark a forbidden word too, with a
+   dashed black border — shape plus colour, never colour alone. Those cards
+   are gone from the game, so only the one marking is left. */
 .study-dock {
   border: 1px solid var(--text);
   background: var(--bg);
@@ -1310,9 +1309,6 @@ select:focus {
   border: 3px solid var(--green-tile);
 }
 
-.legend-forbidden {
-  border: 2px dashed var(--black-tile);
-}
 
 .legend-sep {
   margin: 0 8px;
@@ -1320,17 +1316,13 @@ select:focus {
 }
 
 
-/* Your own key, drawn as the card's border: solid green for a target,
-   dashed black for forbidden. Both differ from a plain card in style as well
-   as colour, so neither depends on seeing the difference between greens. */
+/* Your own key, drawn as the card's border: solid green for a target. It is
+   thicker as well as coloured, so it does not depend on seeing the difference
+   between greens. (A dashed black border said "forbidden on your key"; there
+   is no such card any more.) */
 .mykey-green {
   border-color: var(--green-tile);
   border-width: 3px;
-}
-
-.mykey-forbidden {
-  border-color: var(--black-tile);
-  border-style: dashed;
 }
 
 /* Non-color marker so revealed-neutral tiles are distinguishable by shape. */
@@ -1366,20 +1358,6 @@ select:focus {
 
 .card-green .card-en {
   color: #fff;
-}
-
-.card-forbidden {
-  background: var(--black-tile);
-  border-color: var(--black-tile);
-}
-
-.card-forbidden .card-da {
-  color: #fff;
-  text-decoration: line-through;
-}
-
-.card-forbidden .card-en {
-  color: rgba(255, 255, 255, 0.8);
 }
 
 /* Directional bystander tints: shaded toward the side it blocks. */
@@ -1707,9 +1685,6 @@ body:has(.kb-up) {
   color: #8a8471;
 }
 
-.result-forbidden strong {
-  color: var(--red);
-}
 
 .error-banner {
   background: var(--red-soft);
@@ -1838,55 +1813,6 @@ body:has(.kb-up) {
   border-color: var(--beige-deep);
 }
 
-.demo-black {
-  background: var(--black-tile);
-  border-color: var(--black-tile);
-  color: #fff;
-  text-decoration: line-through;
-}
-
-/* ---------- redemption ---------- */
-
-.redemption {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.redemption h2 {
-  color: var(--red);
-  text-align: center;
-  font-size: 1.7rem;
-}
-
-.redemption-intro {
-  text-align: center;
-  color: var(--text-dim);
-  line-height: 1.5;
-}
-
-.redemption-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.redemption-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.redemption-da {
-  flex: 0 0 38%;
-  font-weight: 700;
-  text-align: right;
-}
-
-.redemption-progress {
-  text-align: center;
-  color: var(--text-dim);
-}
 
 /* ---------- debrief ---------- */
 
@@ -1915,14 +1841,6 @@ body:has(.kb-up) {
    so without this the player is told a rule and shown nothing that happened. */
 .outcome-culprit {
   font-weight: 600;
-}
-
-/* What a wrong tap costs, on the screen where it is spent. Small: it is a
-   standing condition, not the instruction, and the guess dock is already tall
-   enough on a 320px phone to push the confirm button under the fold. */
-.stake-note {
-  font-size: 0.8rem;
-  margin-top: -4px;
 }
 
 .outcome-won {
@@ -1979,32 +1897,6 @@ body:has(.kb-up) {
   position: absolute;
   left: 0;
   color: var(--green-deep);
-}
-
-.redemption-results {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.redemption-results li {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-}
-
-.redemption-results .result-mark {
-  width: 18px;
-  font-weight: 700;
-}
-
-.redemption-results .accepted .result-mark {
-  color: var(--green-deep);
-}
-
-.redemption-results .rejected .result-mark {
-  color: var(--red);
 }
 
 .result-answer {
@@ -2111,9 +2003,6 @@ body:has(.kb-up) {
   color: var(--green-deep);
 }
 
-.turn-guesses .guess-forbidden .result-mark {
-  color: var(--red);
-}
 
 .debrief-actions {
   display: flex;
@@ -3603,14 +3492,15 @@ body:has(.kb-up) {
 
    Two things this pass must not break, both of them load-bearing:
 
-   - THE KEY IS THE BORDER. .mykey-green is solid green, .mykey-forbidden is
-     dashed black, and the comment above them records that they differ in style
-     as well as colour so nothing rests on telling greens apart. Both are left
-     exactly as they were; only the corner geometry changes, which is why the
-     cards keep a real border rather than moving to a pseudo-element.
+   - THE KEY IS THE BORDER. .mykey-green is solid green and thicker than a
+     plain card, so nothing rests on telling greens apart. (There was a second
+     marking, .mykey-forbidden, dashed black; it went with the forbidden
+     words.) It is left exactly as it was; only the corner geometry changes,
+     which is why the cards keep a real border rather than moving to a
+     pseudo-element.
 
    - THE TILE FILLS STAY SOLID. --green-tile measures 4.45:1 against white and
-     article-drive.mjs asserts a 4.4 floor across five grounds, reading the
+     article-drive.mjs asserts a 4.4 floor across four grounds, reading the
      palette straight out of :root. Hatching or lightening a tile that carries
      white text fails that drive, correctly. So the pencil goes on the EDGES of
      the board, and the fills are not touched. */

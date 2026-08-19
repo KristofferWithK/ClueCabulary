@@ -1,7 +1,6 @@
-import { REDEMPTION_AFTER_ROUND, type GridConfig } from './config'
+import { type GridConfig } from './config'
 import { distinctGreenIds, generateKeys, type KeyBias } from './keygen'
 import { checkClueLegality, type LegalityVerdict } from './legality'
-import { gradeRedemption } from './redemption'
 import { mulberry32 } from './rng'
 import type { BoardWord, Clue, GameEvent, GameState, Phase, Side } from './types'
 
@@ -18,7 +17,7 @@ export function createGame(opts: {
   words: BoardWord[]
   seed: number
   firstGiver?: Side
-  /** Steers which words become recall practice vs. hazards. */
+  /** Steers which words become the player's recall practice. */
   bias?: KeyBias
 }): GameState {
   // The player opens. Cluey opened for one build, on the reasoning that a
@@ -163,10 +162,9 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
           return s
         }
         // Show what it was, so the ending is legible rather than just over.
-        s.reveals[event.wordId] =
-          s.playerKey[event.wordId] === 'forbidden' || s.aiKey[event.wordId] === 'forbidden'
-            ? { kind: 'forbidden' }
-            : { kind: 'bystander', against: ['player', 'ai'] }
+        // Green on neither key means bystander on both, and there is no third
+        // role left to distinguish — this used to branch for a forbidden word.
+        s.reveals[event.wordId] = { kind: 'bystander', against: ['player', 'ai'] }
         s.phase = 'finished'
         s.outcome = { result: 'lost', reason: 'sudden-death' }
         return s
@@ -220,45 +218,18 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
         return s
       }
 
-      if (role === 'bystander') {
-        const reveal = s.reveals[event.wordId]!
-        if (reveal.kind === 'bystander') {
-          if (!reveal.against.includes(giver)) reveal.against.push(giver)
-        } else {
-          s.reveals[event.wordId] = { kind: 'bystander', against: [giver] }
-        }
-        return endTurn(s, giver)
+      // Not green on the giver's key, so it is a bystander there — the only
+      // other thing a card can be. It costs the turn and nothing worse; there
+      // used to be a third branch here where a forbidden word ended the round
+      // outright, or opened the translate-everything last chance if enough
+      // clues had been given.
+      const reveal = s.reveals[event.wordId]!
+      if (reveal.kind === 'bystander') {
+        if (!reveal.against.includes(giver)) reveal.against.push(giver)
+      } else {
+        s.reveals[event.wordId] = { kind: 'bystander', against: [giver] }
       }
-
-      // Forbidden. Written first either way, so the ending is legible.
-      s.reveals[event.wordId] = { kind: 'forbidden' }
-
-      /**
-       * The last chance is a late-game rule now: before the threshold the word
-       * simply ends the round.
-       *
-       * clueHistory.length, not turnsLeft, and no adjustment to either. The
-       * clue was pushed at SUBMIT_CLUE above and turnsLeft is only decremented
-       * by endTurn, which this branch never reaches — so at this statement the
-       * count is already the 1-based number of the round being guessed on,
-       * while turnsLeft still lags it by one. (turnsLeft is also the field the
-       * e2e harnesses fabricate, so it is the wrong one to build a rule on.)
-       */
-      if (s.clueHistory.length <= REDEMPTION_AFTER_ROUND) {
-        s.phase = 'finished'
-        s.outcome = { result: 'lost', reason: 'forbidden-hit' }
-        return s
-      }
-
-      // One chance left — translate everything not already solved. The word
-      // just hit is in the list too: its reveal is 'forbidden', not 'green'.
-      s.phase = 'redemption'
-      s.redemption = {
-        promptWordIds: s.words
-          .filter((w) => s.reveals[w.wordId]!.kind !== 'green')
-          .map((w) => w.wordId),
-      }
-      return s
+      return endTurn(s, giver)
     }
 
     case 'STOP_GUESSING': {
@@ -277,20 +248,6 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
         throw new IllegalEventError('must make at least one guess before stopping')
       }
       return endTurn(s, giverOf(s.phase))
-    }
-
-    case 'SUBMIT_REDEMPTION': {
-      if (s.phase !== 'redemption' || !s.redemption) {
-        throw new IllegalEventError(`cannot submit redemption in phase ${s.phase}`)
-      }
-      const prompted = s.words.filter((w) => s.redemption!.promptWordIds.includes(w.wordId))
-      const results = gradeRedemption(event.answers, prompted, event.isKnownWord)
-      s.redemption.results = results
-      s.phase = 'finished'
-      s.outcome = results.every((r) => r.accepted)
-        ? { result: 'won', reason: 'redeemed' }
-        : { result: 'lost', reason: 'forbidden-failed' }
-      return s
     }
   }
 }

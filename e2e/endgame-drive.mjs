@@ -188,6 +188,19 @@ try {
     lost.reveals[dud.wordId].kind !== 'hidden',
     lost.reveals[dud.wordId].kind,
   )
+  // As a bystander against both sides, which is the only thing a non-green can
+  // be now. It used to branch: a word forbidden on either key revealed as
+  // 'forbidden' here instead, and that special case is gone with the role.
+  check(
+    'as a neutral for both sides, since there is no other role left',
+    lost.reveals[dud.wordId].kind === 'bystander' &&
+      lost.reveals[dud.wordId].against?.length === 2,
+    JSON.stringify(lost.reveals[dud.wordId]),
+  )
+  // The debrief has to name it: the board unmounts, so this sentence is all
+  // the player sees of what ended the round.
+  const culprit = (await page.locator('.outcome-culprit').textContent()) ?? ''
+  check('and the debrief names the card that ended it', culprit.includes(dud.da), culprit.trim())
 
   // ---- sudden death: walking away --------------------------------------------
   await start(0)

@@ -25,16 +25,22 @@ interface UiState {
  * Bumped when a rule in the dialog changes, because this dialog opens itself
  * exactly once ever and there is no other moment the app states the rules.
  *
- * v2: a forbidden word now ends the round outright until four clues have been
- * given. Without the bump, everyone who has already played keeps "hit a
+ * v2: a forbidden word ended the round outright until four clues had been
+ * given. Without the bump, everyone who had already played kept "hit a
  * forbidden word and one chance remains" as the last thing the app told them,
- * and then loses a round to a rule no screen ever showed them.
+ * and then lost a round to a rule no screen ever showed them.
  *
  * v3: the whole meta-game changed — collect by cluing AND guessing, wrap in
  * wrap-up rounds, travel on a packed suitcase. Everyone gets the rules once
  * more.
+ *
+ * v4: forbidden words and the last chance are gone entirely — the two rules v2
+ * existed for. A player still on v3 has been told about a mechanic that is no
+ * longer in the game, which is the same failure v2 was bumped to avoid, in the
+ * other direction. One bump per release: the overlay's copy is being rewritten
+ * properly on top of this, and that rewrite ships with this key, not another.
  */
-const HOWTO_KEY = 'cluecab-howto-v3'
+const HOWTO_KEY = 'cluecab-howto-v4'
 
 /**
  * Each screen/overlay pushes a history entry so the Android back gesture (and

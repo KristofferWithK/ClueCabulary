@@ -243,34 +243,14 @@ describe('gameStore: which side earned each green', () => {
     expect(useSrs.getState().stats.d).toMatchObject({ greenByClue: 0, greenByGuess: 0 })
   })
 
-  it('a redemption answer never advances the collection', () => {
-    const game = finishedGame() as {
-      reveals: Record<string, unknown>
-      redemption?: unknown
-      outcome: unknown
-      clueHistory: unknown[]
-    }
-    game.clueHistory.length = 0
-    game.reveals = {
-      a: { kind: 'forbidden' },
-      b: { kind: 'hidden' },
-      c: { kind: 'hidden' },
-      d: { kind: 'hidden' },
-    }
-    game.redemption = {
-      promptWordIds: ['a', 'b', 'c', 'd'],
-      results: [
-        { wordId: 'b', given: 'b', accepted: true },
-        { wordId: 'c', given: 'wrong', accepted: false },
-      ],
-    }
-    game.outcome = { result: 'won', reason: 'redeemed' }
-    useGame.setState({ game: game as never, roundRecorded: false, lookedUp: [] })
-    useGame.getState().finishRound()
-    const stats = useSrs.getState().stats
-    expect(stats.b).toMatchObject({ greenByClue: 0, greenByGuess: 0, redemptionRight: 1 })
-    expect(stats.c).toMatchObject({ greenByClue: 0, greenByGuess: 0, redemptionWrong: 1 })
-  })
+  /**
+   * This block used to end with "a redemption answer never advances the
+   * collection" — translating a word back in the last chance credited
+   * redemptionRight, never greenByClue or greenByGuess, so a word could not be
+   * collected by typing it. The last chance is retired and the counters are
+   * frozen; the rule it protected is the one above it, that only a green earned
+   * each way collects a word, and that is still pinned four ways.
+   */
 })
 
 /**

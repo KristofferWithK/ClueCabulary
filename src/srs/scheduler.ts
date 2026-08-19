@@ -52,20 +52,20 @@ export function applyRoundResults(map: SrsMap, results: RoundWordResult[], now: 
     if (r.greenByOwnClue) s.greenByClue += 1
     if (r.greenByOwnGuess) s.greenByGuess += 1
     if (r.lookedUp) s.lookups += 1
-    if (r.redemption === 'right') s.redemptionRight += 1
-    if (r.redemption === 'wrong') s.redemptionWrong += 1
     if (r.packingMissed) s.misses += 1
+    // redemptionRight/redemptionWrong are not touched here any more: the round
+    // that produced them is retired. See WordStats — the counters stay.
 
     // A packing miss demotes and never promotes: getting the word right on
     // the second try proves the first look told you the answer, same as a
     // lookup netting out a green.
-    const demote = r.guessedWrong || r.redemption === 'wrong' || r.packingMissed === true
-    const promote = (r.guessedGreen && !r.lookedUp) || r.redemption === 'right'
+    const demote = r.guessedWrong || r.packingMissed === true
+    const promote = r.guessedGreen && !r.lookedUp
     if (demote) s.box = clampBox(s.box - 1)
     else if (promote) s.box = clampBox(s.box + 1)
 
     // Lookup-only exposure stays due: don't push the review date forward.
-    const lookupOnly = r.lookedUp && !r.guessedGreen && !r.guessedWrong && !r.redemption
+    const lookupOnly = r.lookedUp && !r.guessedGreen && !r.guessedWrong
     if (!lookupOnly || !(r.wordId in map)) s.lastSeenAt = now
 
     next[r.wordId] = s
@@ -78,10 +78,11 @@ const UNSEEN_NEED = 3
 
 /**
  * How much the player needs to practise a word, used to steer key dealing:
- * high-need words become the AI's greens (the player must recall them), while
- * well-known ones become the forbidden hazards they can knowingly avoid.
+ * high-need words become the AI's greens, so the player must recall them.
  * Reuses reviewWeight's overdue × struggling × looked-up shape, then damps
- * words already collected so they drift toward hazard and filler.
+ * words already collected so they drift toward the cards that ask nothing.
+ * (Those used to be the forbidden hazards, which at least asked the player to
+ * steer around them; with those gone a well-known word simply sits there.)
  */
 export function practiceNeed(
   stats: WordStats | undefined,

@@ -111,8 +111,9 @@ describe('flags carry nothing about anybody key', () => {
     const sneaky = {
       ...BAD_CLUE,
       // Shape of something a store might grow later. The value is a sentinel
-      // rather than a real role: "forbidden" appears all over the clue prompt
-      // legitimately, since Cluey is shown his OWN key there.
+      // rather than a real role, so a hit is unambiguous: role words like
+      // "green" appear all over the clue prompt legitimately, since Cluey is
+      // shown his OWN key there.
       playerKey: { w0: 'LEAKED_PLAYER_KEY' },
       id: 'c:7:0',
       at: 1234,

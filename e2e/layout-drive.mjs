@@ -180,7 +180,8 @@ await page.waitForFunction(
   undefined,
   { timeout: 20000 },
 )
-// Drive to the end however the round went: guess on, or hit the forbidden word.
+// Drive to the end however the round went: guess on until the board is clear
+// or the clues run out into sudden death.
 for (let i = 0; i < 12 && (await page.locator('.debrief').count()) === 0; i++) {
   const guessable = page.locator('.word-card.card-guessable').first()
   if (await guessable.isVisible().catch(() => false)) {
@@ -194,12 +195,10 @@ for (let i = 0; i < 12 && (await page.locator('.debrief').count()) === 0; i++) {
       await page.click('.clue-input .btn-primary')
     }
   }
+  // There was a second exit here, for the last-chance form. It was written
+  // against `.redemption-form`, a class that never existed, so it was dead for
+  // its whole life; the form it was looking for is now gone too.
   await page.waitForTimeout(900)
-  // `.redemption-form` never existed — RedemptionView renders .redemption /
-  // .redemption-list / .redemption-item — so this break was dead and the loop
-  // only ever exited on a debrief or on running out of iterations.
-  const redeem = page.locator('.redemption-item input').first()
-  if (await redeem.isVisible().catch(() => false)) break
 }
 const debriefed = (await page.locator('.debrief').count()) > 0
 if (debriefed) {
@@ -223,9 +222,11 @@ check('the game loop has a live region', regions > 0, `${regions} found`)
 const pressed = await page.locator('.game-header .icon-btn[aria-pressed]').count()
 check('the translations toggle exposes its state', pressed === 1)
 
-// The clue count is there because a rule turns on it: the last chance opens
-// after four clues. A header that overflows or a count only sighted players
-// get would each undo the point of showing it.
+// The clue count. It arrived because a rule turned on it — the last chance
+// opened after a given number of clues — and it outlives that rule: it is how
+// far into the round you are, and how close sudden death is. A header that
+// overflows or a count only sighted players get would each undo the point of
+// showing it.
 const header = await page.evaluate(() => {
   const h = document.querySelector('.game-header')
   const t = document.querySelector('.turn-tokens')
@@ -240,7 +241,9 @@ check('the header fits with the clue count in it', !header.overflows)
 check('the count is on screen', /clues given/.test(header.count), header.count)
 check('and in the accessible name, not only the pips', /clues given/.test(header.label), header.label)
 check('and the pips do not read out twice', header.pipsHidden)
-check('the label says where the last chance stands', /last chance/i.test(header.label), header.label)
+// It used to end with a sentence about whether the last chance was open. That
+// rule is gone, and the label must not still describe it.
+check('and says how many are left, not a rule that no longer exists', /left/.test(header.label) && !/last chance/i.test(header.label), header.label)
 
 // The rules overlay claims role=dialog aria-modal; it has to behave like one.
 await page.goto(BASE + '?mock=1', { waitUntil: 'networkidle' })

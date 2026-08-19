@@ -10,7 +10,7 @@ interface Props {
   selectedWordId: string | null
   onCardTap: (wordId: string) => void
   onInfoTap: (wordId: string) => void
-  /** Dictionary access is locked during redemption and wrap-up packing. */
+  /** Dictionary access is locked during the wrap-up packing phase. */
   dictionaryLocked: boolean
   /**
    * Wrap-up rounds: which cards are still English-side up. An unpacked card
@@ -32,15 +32,17 @@ const revealKind = (game: GameState, wordId: string): string => {
 const stateText = (r: Reveal): string => {
   if (r.kind === 'hidden') return ''
   if (r.kind === 'green') return ', found'
-  if (r.kind === 'forbidden') return ', forbidden'
   if (r.against.length === 2) return ', neutral for both sides'
   return r.against[0] === 'player' ? ', neutral under your clues' : ", neutral under Cluey's clues"
 }
 
-/** Your own key — the private information you play from, like a Duet key card. */
+/**
+ * Your own key — the private information you play from, like a Duet key card.
+ * One mark, not two: the dashed border that said "forbidden on your key" is
+ * gone with the cards it described.
+ */
 const keyText: Record<CardRole, string> = {
   green: ', your target',
-  forbidden: ', forbidden on your key',
   bystander: '',
 }
 
@@ -115,10 +117,11 @@ export function BoardGrid({
               }}
             >
               {/* No dot: the card's own border carries your key — solid green
-                  for a target, dashed black for forbidden — and two marks
-                  saying one thing was one too many. The border differs by
-                  style as well as colour, so it does not rest on colour alone,
-                  and the accessible name says it outright. */}
+                  for a target — and two marks saying one thing was one too
+                  many. The border differs by style as well as colour, so it
+                  does not rest on colour alone, and the accessible name says
+                  it outright. (There was a dashed black border here too, for
+                  a word forbidden on your key. Both are gone.) */}
               {/* Gender in front of the word, where it is read — "et hus", the
                   way the pair is actually learned. It rode in the top strip
                   for one build because it costs nothing there, and it was too

@@ -51,7 +51,7 @@ function inflectionOfShort(longer: string, short: string): boolean {
  * Danish written on an English keyboard: æ→ae, ø→oe, å→aa. Folded only here,
  * inside the legality check, and never in normalize(): legality erring strict
  * costs a model one retry, whereas folding in the shared normalizer would also
- * loosen redemption grading, where "hus" must not be accepted for "hös".
+ * loosen the wrap-up packing grader, where "hus" must not be accepted for "hös".
  *
  * Without this, "sovevaerelse" is a legal clue on a board holding "værelse"
  * while "soveværelse" is not — a compound clue slips through purely by being
@@ -77,7 +77,7 @@ const foldDanish = (s: string): string =>
  *
  * Fixed at the root instead: strip the past ending from the clue and the bare
  * -e from the infinitive, and compare. Kept local to legality rather than
- * added to danishStem, which redemption grading also uses — loosening the
+ * added to danishStem, which the packing grader also uses — loosening the
  * stemmer there would start accepting one real word as the answer for another.
  */
 const PAST_SUFFIXES = ['ede', 'te', 'et']

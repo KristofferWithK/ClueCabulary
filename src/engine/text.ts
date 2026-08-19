@@ -1,4 +1,4 @@
-/** Shared text utilities for legality checks, redemption grading and board sampling. */
+/** Shared text utilities for legality checks, answer grading and board sampling. */
 
 export function normalize(s: string): string {
   return s.normalize('NFC').trim().toLowerCase()

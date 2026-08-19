@@ -44,25 +44,12 @@ type OutcomeKey = Outcome extends infer O
 
 const OUTCOME_COPY: Record<OutcomeKey, { title: string; sub: string }> = {
   'won:all-greens': { title: 'You won! 🎉', sub: 'Every green word found together.' },
-  'won:redeemed': { title: 'Redeemed! 🔥', sub: 'You translated your way out of disaster.' },
   // Reached by giving up in sudden death now, not by the clock running out —
   // the clock hands you sudden death instead of ending the round.
   'lost:timeout': { title: 'Round given up', sub: 'The connection was there — next time.' },
   'lost:sudden-death': {
     title: 'Sudden death',
     sub: 'One word too far. The clues were spent and that one was not green.',
-  },
-  // No translation challenge happened, so this must not borrow the sentence
-  // below it. The word is named because nothing else on this screen names it:
-  // the board unmounts when the round finishes, and all the player would
-  // otherwise see is a ☠ in the clue log.
-  'lost:forbidden-hit': {
-    title: 'Forbidden word',
-    sub: 'That one ended the round on the spot — the last chance only opens later.',
-  },
-  'lost:forbidden-failed': {
-    title: 'So close…',
-    sub: 'The forbidden word won this round. Those translations will stick now.',
   },
 }
 
@@ -125,17 +112,29 @@ export function DebriefPanel({ game }: { game: GameState }) {
   const copy = OUTCOME_COPY[`${outcome.result}:${outcome.reason}` as OutcomeKey]
   const aiClues = game.clueHistory.filter((c) => c.by === 'ai' && c.rationale)
   // The board is gone by the time this renders, so an ending caused by one
-  // card has to say which card. Either side can name it, and under the gate
-  // that costs the whole round, so the sentence says who did.
+  // card has to say which card. Sudden death is now the only such ending, and
+  // it no longer leaves a role that names itself: a forbidden hit revealed the
+  // one and only `forbidden` card, whereas a lost sudden death just writes
+  // another bystander.
+  //
+  // What identifies it: sudden death pushes no guess record — the reducer
+  // writes the reveal and returns — and it is the only thing that burns a card
+  // against BOTH sides in one go. So the card is the one neither clue ever
+  // touched. A word already burned against one side by a clue and then named
+  // here is indistinguishable, and this deliberately shows nothing rather than
+  // pointing at the wrong card.
+  const namedUnderAClue = new Set(
+    game.clueHistory.flatMap((c) => c.guesses.map((g) => g.wordId)),
+  )
   const fatal =
-    outcome.reason === 'forbidden-hit' || outcome.reason === 'sudden-death'
-      ? game.words.find((w) => game.reveals[w.wordId]?.kind === 'forbidden')
+    outcome.reason === 'sudden-death'
+      ? game.words.find((w) => {
+          const r = game.reveals[w.wordId]
+          return r?.kind === 'bystander' && r.against.length === 2 && !namedUnderAClue.has(w.wordId)
+        })
       : undefined
-  // In sudden death there is no giver — the player names the board themselves.
-  // Otherwise the guesser is whoever did not give the last clue.
-  const namedBySelf =
-    outcome.reason === 'sudden-death' || game.clueHistory.at(-1)?.by === 'ai'
-  const fatalBy = namedBySelf ? 'You named' : 'Cluey named'
+  // Sudden death has no clue-giver: the player named it themselves.
+  const fatalBy = 'You named'
 
   return (
     <div className="debrief">
@@ -205,27 +204,6 @@ export function DebriefPanel({ game }: { game: GameState }) {
             {newlyLearned.length === 1 ? 'One word' : `${newlyLearned.length} words`} collected —{' '}
             {cityCollected} of {WORDS_PER_CITY} in {cityAt(cityIndex).name}.
           </p>
-        </section>
-      )}
-
-      {game.redemption?.results && (
-        <section className="debrief-section">
-          <h3>Translation challenge</h3>
-          <ul className="redemption-results">
-            {game.redemption.results.map((r) => {
-              const w = game.words.find((x) => x.wordId === r.wordId)!
-              return (
-                <li key={r.wordId} className={r.accepted ? 'accepted' : 'rejected'}>
-                  <span className="result-mark">{r.accepted ? '✓' : '✗'}</span>
-                  <span lang="da">{w.da}</span>
-                  <span className="result-answer">
-                    {r.given || '—'}
-                    {!r.accepted && <em> (= {w.en[0]})</em>}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
         </section>
       )}
 
@@ -302,17 +280,13 @@ export function DebriefPanel({ game }: { game: GameState }) {
                   {c.guesses.map((g, gi) => (
                     <li key={gi} className={`guess-${g.result}`}>
                       <span className="result-mark" aria-hidden="true">
-                        {g.result === 'green' ? '✓' : g.result === 'bystander' ? '·' : '☠'}
+                        {g.result === 'green' ? '✓' : '·'}
                       </span>
                       <span lang="da" className="guess-word">
                         {da(g.wordId)}
                       </span>
                       <span className="visually-hidden">
-                        {g.result === 'green'
-                          ? ' — correct'
-                          : g.result === 'bystander'
-                            ? ' — neutral'
-                            : ' — forbidden'}
+                        {g.result === 'green' ? ' — correct' : ' — neutral'}
                       </span>
                       {g.reasoning && <span className="turn-why guess-why">{g.reasoning}</span>}
                       {g.confidence !== undefined && (

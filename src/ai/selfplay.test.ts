@@ -105,16 +105,9 @@ async function playOneGame(seed: number, grid: 'beginner' | 'standard' | 'wrapup
         s = applyEvent(s, { type: 'GUESS', wordId: pick.wordId })
         break
       }
-      case 'redemption': {
-        // Half the games ace the translation quiz, half flunk one word.
-        const flunk = seed % 2 === 0
-        const prompted = s.words.filter((w) => s.redemption!.promptWordIds.includes(w.wordId))
-        const answers = Object.fromEntries(
-          prompted.map((w, i) => [w.wordId, flunk && i === 0 ? 'wrong' : w.en[0]!]),
-        )
-        s = applyEvent(s, { type: 'SUBMIT_REDEMPTION', answers })
-        break
-      }
+      // There was a 'redemption' arm here, playing the translate-everything
+      // last chance and flunking one word on half the seeds. The phase no
+      // longer exists.
     }
   }
   expect(safety).toBeGreaterThan(0)
@@ -123,10 +116,14 @@ async function playOneGame(seed: number, grid: 'beginner' | 'standard' | 'wrapup
 
 /**
  * The wrap-up board rides the same harness — its packing phase lives above the
- * engine, so an engine round on WRAPUP_CONFIG is just a round. Its config
- * numbers were measured here too: 3000 know-nothing games put a forbidden
- * word under 6.4% of guesses, ending 20% of games on the spot (config.ts
- * records the comparison against the other boards).
+ * engine, so an engine round on WRAPUP_CONFIG is just a round.
+ *
+ * This harness is where the boards' know-nothing forbidden rates were measured
+ * (6.4% of guesses on the wrap-up board against 16.0% on standard's 4x5, which
+ * is the sentence config.ts used to carry). Nothing on a board is fatal now, so
+ * that measurement is retired rather than updated. What this harness should be
+ * asked next is the win rate: with the only losing ending being the clock, the
+ * question "are these token counts still right" is open and unmeasured.
  */
 describe('self-play: engine + mock companion never reach an illegal state', () => {
   it.each(['beginner', 'standard', 'wrapup'] as const)('50 full %s games all terminate', async (grid) => {

@@ -35,7 +35,7 @@ export const CARRY_OVER = 3
 
 /**
  * Board-time exclusions: no shared stems, no near-identical Danish forms, and
- * no shared English gloss (ambiguous clues + unfair redemption grading).
+ * no shared English gloss (ambiguous clues + unfair packing grading).
  * Exported for the wrap-up draw, where a shared gloss would be worse still:
  * that board starts every card English-side up, so two words sharing a gloss
  * would be two identical cards.

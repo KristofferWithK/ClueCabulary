@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS, REDEMPTION_AFTER_ROUND, type GridSize } from './config'
+import { GRID_CONFIGS, type GridSize } from './config'
 import {
   IllegalClueError,
   IllegalEventError,
@@ -47,7 +47,7 @@ const clue = (s: GameState, by: Side, number: number) =>
 
 /**
  * Play `n` complete clue-turns, each ended by a bystander guess, and stop in a
- * clue-input phase. The way to reach a state where the last chance has opened.
+ * clue-input phase — or in sudden death, if `n` is the whole token budget.
  */
 function burnClues(s: GameState, n: number): GameState {
   while (s.clueHistory.length < n) {
@@ -96,128 +96,33 @@ describe('full game flows', () => {
     expect(remainingGreenIds(s).length).toBeGreaterThan(0)
   })
 
-  it('forbidden word triggers redemption; correct answers redeem the game', () => {
-    // Into the eligible window first: the last chance opens only after
-    // REDEMPTION_AFTER_ROUND clues, so this used to fire on clue 1 and now
-    // cannot.
-    let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND)
-    s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
-    expect(s.clueHistory.length).toBe(REDEMPTION_AFTER_ROUND + 1)
-    const giver = giverOf(s.phase)
-    // Reveal one green first so the prompt list excludes it.
-    const green = findGuessable(s, giver, 'green')
-    s = applyEvent(s, { type: 'GUESS', wordId: green })
-    s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'forbidden') })
-
-    expect(s.phase).toBe('redemption')
-    expect(s.redemption!.promptWordIds).not.toContain(green)
-    expect(s.redemption!.promptWordIds.length).toBe(s.config.totalWords - 1)
-
-    const answers = Object.fromEntries(
-      s.words.filter((w) => s.redemption!.promptWordIds.includes(w.wordId)).map((w) => [w.wordId, w.en[0]!]),
-    )
-    const won = applyEvent(s, { type: 'SUBMIT_REDEMPTION', answers })
-    expect(won.outcome).toEqual({ result: 'won', reason: 'redeemed' })
-
-    const lost = applyEvent(s, {
-      type: 'SUBMIT_REDEMPTION',
-      answers: { ...answers, [s.redemption!.promptWordIds[0]!]: 'utterly wrong' },
-    })
-    expect(lost.outcome).toEqual({ result: 'lost', reason: 'forbidden-failed' })
-    expect(lost.redemption!.results!.some((r) => !r.accepted)).toBe(true)
-  })
-
   /**
-   * "The last chance redemption should only be triggered after round 4", and
-   * then "the last chance should be available after 3 rounds".
-   *
-   * A round is a clue. Before the threshold a forbidden word ends the round
-   * where it stands, with its own ending — not 'forbidden-failed', which every
-   * screen describes as losing a translation challenge that in this case never
-   * ran.
-   *
-   * Written against the constant rather than the number, so moving it again is
-   * one edit. What the number is worth is in config.ts: at 4 the first eligible
-   * clue was odd, i.e. Cluey's turn to guess, and the 3x4 board has no even one
-   * past it — so the player could not reach this ending at all there.
+   * The only three ways a round can end, now that forbidden words and the
+   * translate-everything last chance are gone. Written as a sweep rather than
+   * three separate cases because the thing worth pinning is the ABSENCE of a
+   * fourth: a guess that is not green on the giver's key must cost the turn and
+   * nothing more, on every board, at every point in the round.
    */
-  describe('the last chance opens only after three clues', () => {
-    const hitForbidden = (s: GameState) => {
-      const giver = giverOf(s.phase)
-      return applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'forbidden') })
-    }
-
-    it('ends the round on the spot on the opening clue', () => {
-      const s = hitForbidden(clue(newGame(), 'player', 2))
-      expect(s.phase).toBe('finished')
-      expect(s.outcome).toEqual({ result: 'lost', reason: 'forbidden-hit' })
-      expect(s.redemption).toBeUndefined()
-    })
-
-    it('and on the third, the last clue before it opens', () => {
-      let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND - 1)
-      s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
-      expect(s.clueHistory.length).toBe(REDEMPTION_AFTER_ROUND)
-      expect(hitForbidden(s).outcome).toEqual({ result: 'lost', reason: 'forbidden-hit' })
-    })
-
-    it('opens on the fourth', () => {
-      let s = burnClues(newGame(), REDEMPTION_AFTER_ROUND)
-      s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 2)
-      expect(hitForbidden(s).phase).toBe('redemption')
-    })
-
-    /**
-     * What lowering the threshold from 4 to 3 actually bought, pinned on every
-     * shipped board.
-     *
-     * The guessing side alternates with the clue index and the player opens, so
-     * ODD clues are Cluey guessing and EVEN clues are the player. The first
-     * eligible clue is therefore the player's own turn — where at 4 it was
-     * Cluey's, and the 3x4 board has no even clue past the 5th, so the ending
-     * the last chance exists for could not be reached there by the side it is
-     * written for. This is the test that fails if the threshold goes back to an
-     * even number.
-     */
-    it.each(['beginner', 'middle', 'standard'] as GridSize[])(
-      'and on %s it is the player guessing on the first clue that can reach it',
-      (grid) => {
-        let s = burnClues(newGame(grid), REDEMPTION_AFTER_ROUND)
-        s = clue(s, s.phase === 'playerClueInput' ? 'player' : 'ai', 1)
-        expect(s.clueHistory.length).toBe(REDEMPTION_AFTER_ROUND + 1)
-        expect(s.phase).toBe('playerGuessing')
-        // And the board still has the clue to spare that this needs.
-        expect(GRID_CONFIGS[grid].turnTokens).toBeGreaterThan(REDEMPTION_AFTER_ROUND)
-        expect(hitForbidden(s).phase).toBe('redemption')
-      },
-    )
-
-    /** The card is shown either way, so the debrief can name what ended it. */
-    it('reveals the word whichever side of the line it falls', () => {
-      const early = clue(newGame(), 'player', 2)
-      const id = findGuessable(early, 'player', 'forbidden')
-      expect(applyEvent(early, { type: 'GUESS', wordId: id }).reveals[id]).toEqual({
-        kind: 'forbidden',
-      })
-    })
-
-    /**
-     * Sudden death has always ended on a wrong name and is untouched: a
-     * forbidden word there is still 'sudden-death', not 'forbidden-hit', even
-     * though by then far more than four clues have been given.
-     */
-    it('does not reach into sudden death, where the clue count is past it', () => {
-      let s = burnClues(newGame(), GRID_CONFIGS.beginner.turnTokens)
-      expect(s.phase).toBe('suddenDeath')
-      expect(s.clueHistory.length).toBeGreaterThan(REDEMPTION_AFTER_ROUND)
-      const doomed = s.words
-        .map((w) => w.wordId)
-        .find((id) => s.playerKey[id] === 'forbidden' && isGuessable(s, id))
-      if (doomed) {
-        s = applyEvent(s, { type: 'GUESS', wordId: doomed })
-        expect(s.outcome).toEqual({ result: 'lost', reason: 'sudden-death' })
+  it('never ends a round on a guess that is merely wrong', () => {
+    let checked = 0
+    for (const grid of ['beginner', 'middle', 'standard'] as GridSize[]) {
+      for (let seed = 1; seed <= 25; seed++) {
+        let s = newGame(grid, seed)
+        while (s.phase === 'playerClueInput' || s.phase === 'aiClueInput') {
+          const giver = giverOf(s.phase)
+          s = clue(s, giver, 1)
+          s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, giver, 'bystander') })
+          // A wrong guess spends the turn. It never finishes the round, and it
+          // never writes an outcome — the tokens running out is what does, and
+          // that opens sudden death rather than closing the game.
+          expect(s.outcome, `${grid}/${seed}`).toBeUndefined()
+          checked++
+        }
+        expect(s.phase, `${grid}/${seed}`).toBe('suddenDeath')
       }
-    })
+    }
+    // Fails loudly rather than vacuously if the loop stops finding turns.
+    expect(checked).toBeGreaterThan(300)
   })
 
   it('bystander reveals are directional: blocked for one giver, guessable for the other', () => {
@@ -253,39 +158,27 @@ describe('full game flows', () => {
   })
 
   /**
-   * Forbidden words are directional in exactly the way bystanders are, and
-   * nothing here said so. An audit mutated this engine to the naive rule — a
-   * forbidden word is fatal to whoever names it — and 411 of 413 tests went on
-   * passing; the two that broke did so on an unrelated fixture message. So the
-   * rule the whole game turns on was, until this block, held up by nothing.
+   * The rule the whole game turns on, and the one this repo has written
+   * backwards more than once: a guess is judged against the CLUE-GIVER's key
+   * and nothing else.
    *
-   * It had to be reported by hand instead: "My forbidden word is a word he is
-   * not allowed to pick when he gets my clue. But if he gives me a clue that
-   * clues the forbidden word I see then that's fine, I can click that."
-   *
-   * That is right, and it is what these pin.
+   * It used to be pinned through forbidden words, which were the loudest way to
+   * get it wrong — an audit mutated the engine to the naive rule ("a forbidden
+   * word is fatal to whoever names it") and 411 of 413 tests went on passing.
+   * Forbidden words are gone; the rule is not, because the two keys still
+   * disagree about most of the board. Every green Cluey holds is a card the
+   * player's own key shows as neutral, with nothing on screen to say otherwise,
+   * and it scores anyway — that is now what the rule buys, and it is what these
+   * pin.
    */
   describe('a guess is judged against the clue-giver key, and only that key', () => {
-    it('the player may tap a word their OWN key forbids, under Cluey clue', () => {
-      let s = newGame('standard', 7, 'ai')
-      const mine = Object.keys(s.playerKey).find(
-        (w) => s.playerKey[w] === 'forbidden' && s.aiKey[w] !== 'forbidden',
-      )!
-      s = clue(s, 'ai', 2)
-      s = applyEvent(s, { type: 'GUESS', wordId: mine })
-      // Not fatal, not even revealed as forbidden: it is not on the key being read.
-      expect(s.outcome).toBeUndefined()
-      expect(s.reveals[mine]!.kind).not.toBe('forbidden')
-    })
+    /** Green for Cluey, neutral for the player — the ordinary case, not a corner. */
+    const onlyHis = (s: GameState) =>
+      Object.keys(s.aiKey).find((w) => s.aiKey[w] === 'green' && s.playerKey[w] === 'bystander')!
 
-    it('and it SCORES when Cluey key calls it green', () => {
-      // standard still deals forbiddenVsGreen, which is the only place this
-      // card exists — the whole point being that it is a green, not a trap.
-      expect(GRID_CONFIGS.standard.forbiddenVsGreen).toBe(1)
+    it('the player scores a word their OWN key calls neutral, under Cluey clue', () => {
       let s = newGame('standard', 7, 'ai')
-      const card = Object.keys(s.playerKey).find(
-        (w) => s.playerKey[w] === 'forbidden' && s.aiKey[w] === 'green',
-      )!
+      const card = onlyHis(s)
       expect(card).toBeDefined()
       s = clue(s, 'ai', 2)
       s = applyEvent(s, { type: 'GUESS', wordId: card })
@@ -293,28 +186,48 @@ describe('full game flows', () => {
       expect(s.outcome).toBeUndefined()
     })
 
-    it('but Cluey OWN forbidden word, under his clue, ends the round', () => {
-      let s = newGame('standard', 7, 'ai')
-      const his = Object.keys(s.aiKey).find((w) => s.aiKey[w] === 'forbidden')!
-      s = clue(s, 'ai', 2)
-      s = applyEvent(s, { type: 'GUESS', wordId: his })
-      expect(s.reveals[his]).toEqual({ kind: 'forbidden' })
-      expect(s.outcome?.result).toBe('lost')
+    it('and the same card scores nothing when Cluey names it under the PLAYER clue', () => {
+      let s = newGame('standard', 7, 'player')
+      const card = onlyHis(s)
+      s = clue(s, 'player', 2)
+      s = applyEvent(s, { type: 'GUESS', wordId: card })
+      // Read off the player's key, where it is neutral: burned against the
+      // player only, and the turn is over.
+      expect(s.reveals[card]).toEqual({ kind: 'bystander', against: ['player'] })
+      expect(s.phase).toBe('aiClueInput')
+      // Still Cluey's green, and still there to be taken under his own clue.
+      s = clue(s, 'ai', 1)
+      expect(isGuessable(s, card)).toBe(true)
+      s = applyEvent(s, { type: 'GUESS', wordId: card })
+      expect(s.reveals[card]).toEqual({ kind: 'green' })
     })
 
-    it('and the mirror: Cluey naming the player forbidden word under the player clue ends it', () => {
-      let s = newGame('standard', 7, 'player')
-      const mine = Object.keys(s.playerKey).find((w) => s.playerKey[w] === 'forbidden')!
-      s = clue(s, 'player', 2)
-      s = applyEvent(s, { type: 'GUESS', wordId: mine })
-      expect(s.reveals[mine]).toEqual({ kind: 'forbidden' })
-      expect(s.outcome?.result).toBe('lost')
+    /**
+     * Sudden death is the exception, and the only one: there is no clue-giver,
+     * so a green on EITHER key counts and anything else ends it.
+     */
+    it('except in sudden death, which has no giver and reads both keys', () => {
+      const s = burnClues(newGame(), GRID_CONFIGS.beginner.turnTokens)
+      expect(s.phase).toBe('suddenDeath')
+      const mineOnly = Object.keys(s.playerKey).find(
+        (w) => s.playerKey[w] === 'green' && s.aiKey[w] !== 'green' && isGuessable(s, w),
+      )!
+      const hisOnly = Object.keys(s.aiKey).find(
+        (w) => s.aiKey[w] === 'green' && s.playerKey[w] !== 'green' && isGuessable(s, w),
+      )!
+      expect(applyEvent(s, { type: 'GUESS', wordId: mineOnly }).reveals[mineOnly]).toEqual({
+        kind: 'green',
+      })
+      expect(applyEvent(s, { type: 'GUESS', wordId: hisOnly }).reveals[hisOnly]).toEqual({
+        kind: 'green',
+      })
     })
 
     /**
      * The one that makes it un-regressable rather than seed-lucky: across every
-     * board, both openers and forty deals each, a card forbidden on the
-     * NON-giver's key is never fatal and never even reveals as forbidden.
+     * board, both openers and forty deals each, a card green ONLY on the
+     * non-giver's key never scores, and the same card under the other side's
+     * clue always does.
      */
     it('holds across every board, both openers and forty deals', () => {
       let checked = 0
@@ -331,13 +244,17 @@ describe('full game flows', () => {
             const giver = giverOf(s.phase)
             const giverKey = keyOf(s, giver)
             const otherKey = keyOf(s, giver === 'player' ? 'ai' : 'player')
-            const safe = Object.keys(otherKey).find(
-              (w) => otherKey[w] === 'forbidden' && giverKey[w] !== 'forbidden' && isGuessable(s, w),
+            const theirs = Object.keys(otherKey).find(
+              (w) => otherKey[w] === 'green' && giverKey[w] !== 'green' && isGuessable(s, w),
             )
-            if (!safe) continue
-            const after = applyEvent(s, { type: 'GUESS', wordId: safe })
-            expect(after.reveals[safe]!.kind, `${grid}/${firstGiver}/${seed}`).not.toBe('forbidden')
-            expect(after.outcome, `${grid}/${firstGiver}/${seed}`).toBeUndefined()
+            if (!theirs) continue
+            const where = `${grid}/${firstGiver}/${seed}`
+            const after = applyEvent(s, { type: 'GUESS', wordId: theirs })
+            // Not green: it is not on the key being read. Burned against the
+            // giver alone, so the other side can still take it.
+            expect(after.reveals[theirs], where).toEqual({ kind: 'bystander', against: [giver] })
+            expect(after.outcome, where).toBeUndefined()
+            expect(after.clueHistory.at(-1)!.guesses.at(-1)!.result, where).toBe('bystander')
             checked++
           }
         }
@@ -444,11 +361,6 @@ describe('illegal events', () => {
     const green = findGuessable(s, 'player', 'green')
     s = applyEvent(s, { type: 'GUESS', wordId: green })
     expect(() => applyEvent(s, { type: 'GUESS', wordId: green })).toThrow(IllegalEventError)
-  })
-
-  it('rejects redemption submission outside redemption phase', () => {
-    const s = newGame()
-    expect(() => applyEvent(s, { type: 'SUBMIT_REDEMPTION', answers: {} })).toThrow(IllegalEventError)
   })
 
   it('does not mutate the input state', () => {
@@ -596,16 +508,39 @@ describe('a guess remembers why it was made', () => {
     expect(s.clueHistory[0]!.guesses[0]!.reasoning).toBe('ends the turn')
   })
 
+  /**
+   * The guess that ends the round is now the one that finishes the board —
+   * this used to be written against a forbidden hit, which returned from a
+   * different branch of the reducer and was the one most likely to drop the
+   * record on the floor. Winning returns from its own early branch too.
+   */
   it('and through the one that ends the round', () => {
-    let s = clue(newGame(), 'player', 2)
-    s = applyEvent(s, {
-      type: 'GUESS',
-      wordId: findGuessable(s, 'player', 'forbidden'),
-      reasoning: 'I was not sure at all',
-      confidence: 0.11,
-    })
-    expect(s.outcome?.result).toBe('lost')
-    expect(s.clueHistory[0]!.guesses[0]!.reasoning).toBe('I was not sure at all')
-    expect(s.clueHistory[0]!.guesses[0]!.confidence).toBe(0.11)
+    let s = newGame()
+    let last: string | undefined
+    let safety = 50
+    while (s.phase !== 'finished' && safety-- > 0) {
+      const giver = giverOf(s.phase)
+      s = clue(s, giver, 4)
+      while (s.phase === 'aiGuessing' || s.phase === 'playerGuessing') {
+        const key = keyOf(s, giver)
+        const target = Object.keys(key).find((w) => key[w] === 'green' && isGuessable(s, w))
+        if (!target) {
+          s = applyEvent(s, { type: 'STOP_GUESSING' })
+          break
+        }
+        last = target
+        s = applyEvent(s, {
+          type: 'GUESS',
+          wordId: target,
+          reasoning: 'the last one on the board',
+          confidence: 0.11,
+        })
+      }
+    }
+    expect(s.outcome).toEqual({ result: 'won', reason: 'all-greens' })
+    const winning = s.clueHistory.at(-1)!.guesses.at(-1)!
+    expect(winning.wordId).toBe(last)
+    expect(winning.reasoning).toBe('the last one on the board')
+    expect(winning.confidence).toBe(0.11)
   })
 })

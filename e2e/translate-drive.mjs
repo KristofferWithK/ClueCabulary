@@ -120,22 +120,29 @@ try {
     `${before.length} → ${after.length}`,
   )
 
-  // The redemption challenge IS "translate the board with no dictionary".
+  // The other half of the rule: there is a phase where this box would BE the
+  // answer key, and it must not be on screen there. That used to be the
+  // redemption challenge ("translate the board with no dictionary"); with that
+  // retired, the wrap-up packing phase is the one no-dictionary moment left,
+  // and it makes the same bargain in the other direction.
   await page.evaluate(() => {
     const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
-    raw.state.game.phase = 'redemption'
+    raw.state.mode = 'wrapup'
+    raw.state.packingDone = false
+    raw.state.packed = []
     localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
   })
-  // A reload lands on Home, where there is no lookup box to find — so the two
-  // checks below used to pass without ever reaching the screen they name.
-  // Come back in the way the player does.
+  // A reload lands on Home, where there is no lookup box to find — so the
+  // check below would pass without ever reaching the screen it names. Come
+  // back in the way the player does.
   await page.reload()
   await page.getByRole('button', { name: 'Continue game' }).click()
-  await page.waitForSelector('.redemption-view, .redemption', { timeout: 15000 })
+  await page.waitForSelector('.packing-dock', { timeout: 15000 })
   check(
-    'and it is gone during redemption, where it would be the answer key',
+    'and it is gone while the board is being packed, where it would be the answer key',
     (await page.locator('.translate-box').count()) === 0,
   )
+  check('as is the dictionary on every card', (await page.locator('.card-info').count()) === 0)
 
 
   check('no page errors', crashes.length === 0, crashes.join(' | '))

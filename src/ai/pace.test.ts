@@ -130,10 +130,17 @@ describe('the clue prompt tells Cluey the pace he has to keep', () => {
     expect(text).not.toContain('Balance ambition with safety')
   })
 
-  it('still refuses to gamble near a forbidden word', () => {
+  /**
+   * This used to be "still refuses to gamble near a forbidden word", checking
+   * that pushing Cluey to clue for more had not also pushed him into pointing
+   * at a hazard. There are no hazards; a wrong guess costs a turn and the
+   * counterweight to ambition is now the turn itself, which the line below
+   * carries. Re-measuring what ambition costs on a board with nothing fatal on
+   * it is a job for the tuning pass, not a string check.
+   */
+  it('still weighs a wrong guess against the clue it spends', () => {
     const { text } = cluePrompt('standard')
-    expect(text).toContain('never worth giving')
-    expect(text).toMatch(/forbidden words nearly lose the game/i)
+    expect(text).toContain('turns are what this board is short of')
   })
 
   /**
@@ -188,17 +195,20 @@ describe('the debrief is told how the round actually ended', () => {
     expect(text({ result: 'lost', reason: 'timeout' })).toContain('giving up in sudden death')
   })
 
-  it('still describes the endings it always got right', () => {
+  it('still describes the ending it always got right', () => {
     expect(text({ result: 'won', reason: 'all-greens' })).toContain('finding every green word')
-    expect(text({ result: 'won', reason: 'redeemed' })).toContain('translation challenge')
-    expect(text({ result: 'lost', reason: 'forbidden-failed' })).toContain('forbidden word')
   })
 
-  it('describes the round that ended before the last chance could open', () => {
-    const t = text({ result: 'lost', reason: 'forbidden-hit' })
-    expect(t).toContain('forbidden word')
-    // The ending it must NOT borrow: no challenge was offered, let alone failed.
-    expect(t).not.toContain('lost on the translation challenge')
+  /** No ending may mention a mechanic that is not in the game any more. */
+  it('never mentions a forbidden word or a translation challenge', () => {
+    for (const o of [
+      { result: 'won', reason: 'all-greens' },
+      { result: 'lost', reason: 'timeout' },
+      { result: 'lost', reason: 'sudden-death' },
+    ] as DebriefView['outcome'][]) {
+      expect(text(o).toLowerCase(), JSON.stringify(o)).not.toContain('forbidden')
+      expect(text(o).toLowerCase(), JSON.stringify(o)).not.toContain('translation challenge')
+    }
   })
 
   /**
@@ -206,18 +216,16 @@ describe('the debrief is told how the round actually ended', () => {
    *
    * The array this replaces claimed in its own comment to be compile-time
    * exhaustive and then ended in `as DebriefView['outcome'][]`, which is
-   * precisely the cast that makes it not — 'lost:forbidden-hit' was added to
-   * the engine and this loop went on passing without it. A missing key here is
-   * a build error.
+   * precisely the cast that makes it not — an ending was added to the engine
+   * and this loop went on passing without it. A missing key here is a build
+   * error, and it caught this change too: three endings were removed and the
+   * Record refused to compile until they were removed here as well.
    */
   it('has a sentence for every ending the engine can produce', () => {
     const EVERY_ENDING: Record<OutcomeKey, DebriefView['outcome']> = {
       'won:all-greens': { result: 'won', reason: 'all-greens' },
-      'won:redeemed': { result: 'won', reason: 'redeemed' },
       'lost:timeout': { result: 'lost', reason: 'timeout' },
       'lost:sudden-death': { result: 'lost', reason: 'sudden-death' },
-      'lost:forbidden-hit': { result: 'lost', reason: 'forbidden-hit' },
-      'lost:forbidden-failed': { result: 'lost', reason: 'forbidden-failed' },
     }
     for (const [key, o] of Object.entries(EVERY_ENDING)) {
       expect(text(o), key).not.toContain('undefined')
