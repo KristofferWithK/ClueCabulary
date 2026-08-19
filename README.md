@@ -8,12 +8,14 @@ you to build connections between words.
 
 ## The journey
 
-ClueCabulary is a journey through Denmark: ten stops from **Sønderborg** in the
+ClueCabulary is a journey through Denmark: nine stops from **Sønderborg** in the
 far south, up Jutland to the tip at **Skagen**, then back across Funen and
 Zealand to **København** — made with **Cluey**, the suitcase with eyes who is
 also the companion cluing and guessing beside you. Each city owns 100 words —
 the most frequent hundred first — and only words from the cities you have
-reached appear on your boards.
+reached appear on your boards. Nine cities of a hundred is the whole dataset:
+900 words, and the route length and the word count are one number, checked
+against each other by `scripts/validate-words.mjs`.
 
 Every word is in one of four states, leafed through in **Kufferten** (tap
 Cluey on Home): **undiscovered** until you meet it, **discovered** once you
@@ -39,20 +41,20 @@ opens.
 
 1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words —
    **3×5 by default**, chosen under Settings → Board size —
-   from the ~1000 most common, each noun with its gender in front of it —
+   from the 900 most common, each noun with its gender in front of it —
    **et hus**, the way the pair is learned — and where a noun has no ordinary
    indefinite singular, the card says the gender instead: **(com)** or
    **(neut)**. Gender decides the definite ending and every agreeing adjective,
    so it is shown whether or not the word can be counted.
 
-   Countability is a rule applied to all 433 nouns, not a list of exceptions
+   Countability is a rule applied to all 366 nouns, not a list of exceptions
    (`src/data/countability.ts`): a noun is uncountable when "en X" / "et X"
    would be wrong or clearly odd in everyday Danish — mass and abstract nouns,
    plus the plural-only ones. Where **both** readings are ordinary the article
    stays, because *en øl*, *et brød*, *en ost*, *et hår* and *et papir* are all
    things Danes say and they teach the gender in the form a learner meets. The
    validator refuses any drift between the module and the data. Words outside
-   the shipped thousand get the same treatment from Cluey, who is asked for
+   the shipped nine hundred get the same treatment from Cluey, who is asked for
    gender and countability along with the translation — *trafik* comes back
    `(com)`, not `en trafik`.
 
@@ -171,7 +173,7 @@ opens.
    because Cluey is handed the clue as a bare string beside a Danish board and
    an English word there is one he cannot place.
 
-   The thousand settle most of it offline and recognise far more Danish than
+   The nine hundred settle most of it offline and recognise far more Danish than
    they contain — æ/ø/å can only be Danish, an inflection of a headword is that
    headword (*hunden*, *bilerne*), and a compound of two of them is Danish
    (*dyreliv*, *morgenmad*). Anything else is **unknown**, which is permission
@@ -188,7 +190,7 @@ opens.
    scheduler which words to bring back sooner — including one done in the
    lookup box, which costs exactly what tapping ⓘ costs, and neither is
    available during the translation challenge or a wrap-up packing phase. A clue may be
-   any Danish word, so the lookup answers any word: the shipped thousand come
+   any Danish word, so the lookup answers any word: the shipped nine hundred come
    back instantly and offline, and anything else is asked of Cluey without
    being asked twice. A hit that is already on the board says so, since it is
    the right translation and an illegal clue.
@@ -299,7 +301,7 @@ node e2e/ai-drive.mjs         # the real AI client against a fake Ollama:
                               # and the key firewall asserted on the wire
 node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
                               # and the two rules that stop it reading the board
-node e2e/article-drive.mjs    # en/et on every card, across all ten cities, on
+node e2e/article-drive.mjs    # en/et on every card, across all nine cities, on
                               # a 360px phone — and costing the word no line
 node e2e/endgame-drive.mjs    # Cluey opens; the 3x5 board; and sudden death
                               # won, lost and walked away from
@@ -367,7 +369,7 @@ already wrapped into the suitcase.
   assert prompts are byte-identical under player-key permutations.
 - `src/srs/` — Leitner scheduler + board sampler (frequency-ordered
   introduction bounded by the journey, overdue/struggling words oversampled).
-- `src/journey/` — pure progression logic: the ten cities, word bands, the
+- `src/journey/` — pure progression logic: the nine cities, word bands, the
   four word states, the wrap-up board draw and travel rules. Every route
   forward is monotonic — counters only rise, the wrapped ledger only grows —
   so the collection cannot regress. `denmark.ts` is
