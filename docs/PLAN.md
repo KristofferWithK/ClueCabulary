@@ -39,8 +39,7 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-- **A1** — Engine: forbidden words out, redemption retired
-- **C3** — Keyboard responsiveness experiment *(independent of A/B/D)*
+*(empty — next up: A2 and B1 unblock when A1's PR merges)*
 
 ### Blocked
 - **A2** — AI layer + game-screen copy for the new rules *(needs A1)*
@@ -58,7 +57,8 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3)*
 
 ### In progress
-*(empty)*
+- **A1** — Engine: forbidden words out, redemption retired — [PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62) open, awaiting merge (dispatched 2026-08-19)
+- **C3** — Keyboard responsiveness experiment — agent running (dispatched 2026-08-19)
 
 ### Done
 *(empty)*
