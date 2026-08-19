@@ -58,7 +58,7 @@ model alias `cluey`).
 
 ### In progress
 - **A1** — Engine: forbidden words out, redemption retired — [PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62) open, awaiting merge (dispatched 2026-08-19)
-- **C3** — Keyboard responsiveness experiment — agent running (dispatched 2026-08-19)
+- **C3** — Keyboard responsiveness experiment — [PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63) open; merge after #62, needs a rebase then (conflicts on layout-drive)
 
 ### Done
 *(empty)*
