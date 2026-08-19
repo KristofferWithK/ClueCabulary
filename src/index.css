@@ -3500,7 +3500,7 @@ body:has(.kb-up) {
      pseudo-element.
 
    - THE TILE FILLS STAY SOLID. --green-tile measures 4.45:1 against white and
-     article-drive.mjs asserts a 4.4 floor across five grounds, reading the
+     article-drive.mjs asserts a 4.4 floor across four grounds, reading the
      palette straight out of :root. Hatching or lightening a tile that carries
      white text fails that drive, correctly. So the pencil goes on the EDGES of
      the board, and the fills are not touched. */

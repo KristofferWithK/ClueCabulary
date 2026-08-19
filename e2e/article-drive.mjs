@@ -273,7 +273,8 @@ try {
       ['bystander tile', inkUnder(''), v('--beige')],
       ['spent tile', inkUnder('card-spent'), v('--surface')],
       ['found green', inkUnder('card-green'), v('--green-tile')],
-      ['forbidden', inkUnder('card-forbidden'), v('--black-tile')],
+      // A fifth ground used to be here, `card-forbidden` on --black-tile. That
+      // tile no longer exists, so the article cannot land on it.
     ].map(([name, fg, bg]) => ({ name, fg, bg, ratio: +ratio(fg, hexToRgb(bg)).toFixed(2) }))
   })
   for (const c of contrast) console.log(`     ${c.name.padEnd(15)} ${c.fg} on ${c.bg} — ${c.ratio}:1`)

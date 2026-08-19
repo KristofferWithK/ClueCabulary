@@ -165,8 +165,10 @@ try {
   // The other gate: one shared board per date, so a rerolled daily is nobody's
   // board. Checked here rather than the clue-count gate because this one is
   // deterministic — getting back to the clue dock with a clue behind you means
-  // surviving a full guessing turn, and a forbidden word ends the round on
-  // roughly a tenth of them. The clue-count gate is held in gameStore.test.ts,
+  // surviving a full guessing turn, which used to be a coin toss because a
+  // forbidden word ended the round on roughly a tenth of them. Nothing ends a
+  // round mid-turn now, but this gate is still the deterministic one to check
+  // here. The clue-count gate is held in gameStore.test.ts,
   // where the store can simply be asked.
   await page.goto(`${preview.base}?mock=1&howto=0&fresh=1`)
   await page.waitForSelector('.city-card')

@@ -120,16 +120,14 @@ try {
     await page.click('.sheet .btn')
   }
 
-  // Translations toggle. Deliberately disabled during the redemption round —
-  // which the mock AI can reach on some seeds — so only exercise it in play.
+  // Translations toggle. It used to be disabled during the redemption round,
+  // which the mock AI could reach on some seeds, so this had a skip branch.
+  // The only thing that disables it now is the opening study phase, which this
+  // drive is already past — so it must simply be live.
   const toggle = page.locator('.game-header .icon-btn:last-child')
-  if (await toggle.isEnabled()) {
-    await toggle.click()
-    await page.screenshot({ path: `${SHOT_DIR}/06-translations.png` })
-  } else {
-    console.log('translations toggle locked (redemption round) — skipping')
-    await page.screenshot({ path: `${SHOT_DIR}/06-redemption.png` })
-  }
+  if (!(await toggle.isEnabled())) throw new Error('the translations toggle is disabled in play')
+  await toggle.click()
+  await page.screenshot({ path: `${SHOT_DIR}/06-translations.png` })
 
   // ---- and on a phone that has been playing since before the default moved --
   // The check above passes on a fresh install even when the app is broken for
@@ -207,17 +205,10 @@ try {
         if (await confirm.isVisible().catch(() => false)) await confirm.click()
       }
     }
+    // This loop used to have to answer the last chance here — a forbidden word
+    // could interrupt it with a twenty-word translation form. Nothing
+    // interrupts a round any more; it plays to a debrief or to sudden death.
     await sleep(700)
-    if (await page.locator('.redemption').count()) {
-      const g = await page.evaluate(
-        () => JSON.parse(localStorage.getItem('cluecab-game-v1')).state.game,
-      )
-      for (const w of g.words.filter((x) => g.redemption.promptWordIds.includes(x.wordId))) {
-        await page.fill(`.redemption-item:has(.redemption-da:text-is("${w.da}")) input`, w.en[0])
-      }
-      await page.click('.btn-danger')
-      await sleep(500)
-    }
   }
   await page.waitForSelector('.turn-log', { timeout: 10000 })
   const log = await page.evaluate(() => ({

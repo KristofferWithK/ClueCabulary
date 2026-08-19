@@ -66,13 +66,10 @@ async function driveToEnd() {
         }
       }
     }
+    // A forbidden word used to be able to interrupt this with the last chance,
+    // which this loop failed on purpose — what a wrap-up round wraps does not
+    // depend on how the round ends. Nothing interrupts it now.
     await page.waitForTimeout(700)
-    const redeem = page.locator('.redemption-item input').first()
-    if (await redeem.isVisible().catch(() => false)) {
-      // Fail the last chance quickly; wrap-up wrapping must not care.
-      await page.click('.redemption .btn-danger')
-      await page.waitForTimeout(400)
-    }
   }
 }
 
