@@ -80,6 +80,17 @@ describe('rescuing progress stranded by the v1 -> v2 key rename', () => {
     expect(r.journey!.cityIndex).toBeGreaterThanOrEqual(0)
   })
 
+  /**
+   * A v1 blob was written when the route ran to ten stops, so the last of them
+   * is one past the end of this route. Clamping is the difference between
+   * finishing at the capital and being started over.
+   */
+  it('a traveller at the old final stop lands on the new one, not back at the start', () => {
+    const r = planRescue(v1({ cityIndex: 9, banked: { hus: NOW } }), empty())
+    expect(r.outcome).toBe('rescued')
+    expect(r.journey!.cityIndex).toBe(CITIES.length - 1)
+  })
+
   it('survives a blob with fields of the wrong type', () => {
     const junk = JSON.stringify({
       state: { cityIndex: 'three', stamps: 'lots', banked: null, trialsSpent: [], arrivedAt: 7 },

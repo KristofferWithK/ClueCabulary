@@ -16,9 +16,23 @@ import { CITIES } from './cities'
 export const V1_KEY = 'cluecab-journey-v1'
 export const RESCUE_KEY = 'cluecab-journey-rescued-v1'
 
+/**
+ * Clamped rather than rejected. A v1 blob was written when the route had ten
+ * stops, so the last of them is a number this route does not have — and
+ * failing the field sends it to 0, which hands a traveller who had reached the
+ * end of Denmark a rescue that starts them over. The index is only ever a
+ * floor here (mergeJourney takes the better of the two), so the safe reading
+ * of an index past the end is the end.
+ */
+const clampedCity = z
+  .number()
+  .int()
+  .catch(0)
+  .transform((i) => Math.min(Math.max(i, 0), CITIES.length - 1))
+
 const V1Schema = z.object({
   state: z.object({
-    cityIndex: z.number().int().min(0).max(CITIES.length - 1).catch(0),
+    cityIndex: clampedCity,
     stamps: z.record(z.string(), z.number()).catch({}),
     banked: z.record(z.string(), z.number()).catch({}),
     trialsSpent: z.record(z.string(), z.number()).catch({}),
