@@ -1,6 +1,9 @@
 node_modules
 dist
 dev-dist
+# Kristoffer's private room: the confidential product blueprint (pricing,
+# margins) and raw thought dumps. This repo is public — never commit these.
+KristoffersRoom/
 *.local
 .DS_Store
 coverage

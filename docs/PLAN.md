@@ -1,141 +1,322 @@
-# ClueCabulary — Implementation Plan
+# 900Words — Production Kanban
+
+This board replaces the original build plan (M0–M8, fully shipped — see git
+history). It is the working plan for reshaping ClueCabulary into **900Words**
+and launching it on the App Store. Sessions pick up cards from it; the board
+sections below are the live status.
 
 ## Context
 
-ClueCabulary is a single-player, mobile-first Danish vocabulary game inspired by
-Codenames Duet mechanics (original naming throughout — "forbidden words", not
-assassins; no Codenames word lists). The player learns the ~1000 most common
-Danish content words by playing cooperative rounds with an AI companion that
-genuinely cannot see the player's key card. Words stick because every clue forces
-building semantic connections between them (elaborative encoding + generation
-effect + retrieval practice).
+The game already ships as a Capacitor iOS app (TestFlight pipeline working) and
+a PWA. The API-key era is over: settings v7 cleared keys and the app talks to
+the origin-locked Cloudflare proxy (`cluecabulary-proxy.kristoffer-kai.workers.dev`,
+model alias `cluey`).
 
-Decisions already made with the user:
+**Decisions settled with Kristoffer (2026-08-19):**
 
-- **Stack**: Vite + React + TypeScript PWA (vite-plugin-pwa), zustand stores,
-  zod validation. Mobile-first, installable, offline except AI calls.
-- **AI backend**: Ollama Cloud with a user-supplied API key (entered in
-  Settings, stored only in localStorage). OpenAI-compatible endpoint
-  `https://ollama.com/v1/chat/completions`, Bearer auth, model name is a
-  setting. CORS support is unverified → configurable base URL, CORS-failure
-  detection, and a bundled Cloudflare Worker proxy (`proxy/worker.js`) as
-  fallback.
-- **Base language**: English (translations, dictionary, UI).
-- **Deployment**: GitHub Pages via GitHub Actions on push to `main`;
-  Vite `base: '/ClueCabulary/'`.
+| Decision | Choice |
+|---|---|
+| Forbidden words | **Removed everywhere**, wrap-up included. Redemption (translate-everything last chance) **retired** — typed recall lives on in wrap-up packing. |
+| Dataset | **9 cities × 100 = 900.** Drop frequency ranks 901–1000 and one route stop (default Viborg — confirm on pickup). |
+| Mascot | **Casey the suitcase.** User-facing copy only; code identifiers, CSS classes (`cluey-*`), storage keys unchanged (the `klausVerifiedAt` precedent). |
+| Launch scope | **Free v1**, Danish only, **baked neural TTS launch-blocking**. German, semantic layer, IAP = fast-follows. |
+| App identity | `appId com.kristofferwithk.cluecabulary` **stays**. Display name becomes "900Words". |
 
-## Game rules (Duet-scaled)
+## How to work this board
 
-Both keys exist: the player's and the AI's. Correctness of a guess is always
-judged against the **clue-giver's** key. Roles alternate: player clues → AI
-guesses; AI clues → player guesses. Guesser must guess ≥1, may continue while
-hitting greens, capped at `number + 1`, turn ends on first non-green or stop.
-Shared pool of turn tokens; all distinct greens found = win; tokens exhausted =
-loss; forbidden word revealed = **redemption round**: translate every
-not-yet-revealed board word (Danish→English, dictionary locked, forgiving
-grading — case/articles/"to " stripped, Levenshtein tolerance scaled by gloss
-length, any stored gloss accepted). All correct = win ("redeemed"), any miss =
-loss.
+- Pick the **top-most card in Ready**. Move it to In progress (add the date),
+  work it, and in the same PR that finishes it: move it to Done with the PR
+  number and promote any card whose dependencies are now all Done from Blocked
+  to Ready.
+- One card ≈ one session. Don't split a card across PRs unless it says so.
+- Every card: branch from `origin/main` (squash merges), `npm run verify`
+  green, README + CLAUDE.md updated in the same PR when the card changes what
+  they describe, measured numbers re-measured (selfplay/drives), persisted-store
+  changes ship `version` bump + `migrate` in the same commit.
 
-Bystander reveals are **directional** (Duet fidelity): a word revealed as
-bystander under an AI clue stays guessable under a player clue, and vice versa.
-Green/forbidden reveals are global.
+---
 
-| Config (`src/engine/config.ts`) | beginner 3×4 | standard 4×5 | (Duet 5×5) |
-|---|---|---|---|
-| total words | 12 | 20 | 25 |
-| greens per side / overlap | 5 / 2 | 7 / 2 | 9 / 3 |
-| distinct greens | 8 | 12 | 15 |
-| forbidden per side | 1 | 3 | 3 |
-| cross-identity (both/vs-green/vs-bystander) | 0/0/1 | 1/1/1 | 1/1/1 |
-| turn tokens | 6 | 8 | 9 |
-| max new (unseen) words per board | 4 | 6 | — |
+## Board
 
-All numbers live in `GRID_CONFIGS` and are tunable; `keygen.ts` derives dealing
-from the config and asserts internal consistency.
+### Ready
+- **A1** — Engine: forbidden words out, redemption retired
+- **C3** — Keyboard responsiveness experiment *(independent of A/B/D)*
 
-## Architecture
+### Blocked
+- **A2** — AI layer + game-screen copy for the new rules *(needs A1)*
+- **A3** — Re-tune boards by measurement + rules docs rewrite *(needs A2)*
+- **B1** — Round summary: stats + collapsible transcript, debrief call deleted *(needs A1)*
+- **C1** — The board never moves *(needs A2 — the stake note dies there first)*
+- **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs B1; Casey name lands with D1)*
+- **D1** — Rebrand copy: 900Words + Casey + English chrome *(needs A3 — copy describes final rules)*
+- **D2** — Dataset 900 + city removal + migrations *(needs A3)*
+- **D3** — Repo/Pages rename + ASC display name *(needs D1)*
+- **E1** — Suitcase interior redesign *(needs D1)*
+- **F1** — Baked TTS pipeline + playWord + wiring *(needs C1)*
+- **F2** — Post-round sentences v1 + hear-the-board *(needs B1, F1)*
+- **G1** — Proxy quotas + friendly 429 *(anytime after A2; before launch)*
+- **G2** — Store readiness + release *(needs everything above except C3)*
 
-```
-src/
-├── data/        words.da.json (~1000 entries), types.ts
-├── engine/      PURE TS, no React/fetch: config, types, rng (seeded mulberry32),
-│                keygen (constructive dual-key dealing), board, game (applyEvent
-│                reducer, exhaustive phase×event switch), legality, redemption
-├── srs/         scheduler (Leitner boxes 0–4, intervals 0/1/3/7/14 days),
-│                sampler (frequency-ordered new-word frontier + weighted review
-│                pool + same-board exclusions: shared stems, Levenshtein ≤ 1,
-│                shared English gloss)
-├── ai/          projections.ts (THE FIREWALL: AiClueView = own key only,
-│                AiGuessView = no keys), prompts, schemas (zod), client
-│                (base URL, retry, CORS/auth error taxonomy), companion
-│                (confidence-ordered guess execution, stop rules, caps),
-│                mock/mockCompanion (deterministic, for dev + e2e)
-├── stores/      zustand: settings, srs, game + localStorage persistence
-│                (versioned)
-└── ui/          screens: Home, Game, Redemption, Debrief, Settings, Stats
-                 components: BoardGrid, WordCard, ClueBar/Input, AiTurnPanel,
-                 TurnTokens, DictionarySheet, TranslationToggle, BottomSheet,
-                 ErrorBanner
-```
+### In progress
+*(empty)*
 
-**Firewall enforcement**: prompt builders accept only projection types, and a
-vitest invariance test builds prompts from games with *permuted player keys*
-asserting byte-identical output (plus a string leak scan over many seeds). The
-guess projection is additionally invariant under permuting *both* keys.
+### Done
+*(empty)*
 
-**AI robustness**: strict-JSON requests (`response_format: json_object` +
-prompt), fence-strip → parse → zod, one retry with the error appended, then a
-typed error surfaced as an in-UI banner with Retry — never a crash, game state
-untouched. Clue legality (exact/substring ≥4/Danish-suffix stem match/
-Levenshtein ≤1) is checked engine-side for BOTH the AI's and the player's clues.
+### Fast-follows (post-launch backlog, in order)
+- **H1** — Language-pack seam (i18n architecture)
+- **H2** — German content: 900 words, Germany route, German audio *(needs H1)*
+- **H3** — Semantic local layer (build-time similarity tables → good offline companion)
+- **H4** — 900 Pass IAP (StoreKit, first 2 cities free)
+- **H5** — LLM sentence stories + function-word coverage tracking
+- **H6** — Voice-recognition wrap-up unlock (prototype first)
+- **H7** — Cascade tier on the proxy (cheap model + flagship escalation)
 
-**Debrief**: AI clue responses carry hidden `targets` + `rationale`; the debrief
-screen reveals them per clue and adds one `getDebrief` call with vocabulary
-takeaways (fallback: stored rationales alone).
+---
 
-## Dataset
+## Cards
 
-`{ id, da, en[], pos, article?, exampleDa, exampleEn, freqRank }` — single-word
-citation forms, content words only (noun/verb/adjective/adverb/numeral/
-interjection), noun gender via `article`, glosses bare-form and synonym-rich for
-fair grading, A1–A2 example sentences. Produced by a generation workflow
-(7 POS/frequency slices) + bilingual verification pass per batch;
-`scripts/validate-words.mjs` enforces schema, uniqueness, single-token `da`,
-POS whitelist; `freqRank` computed by proportional interleave of slices.
+### A1 — Engine: forbidden words out, redemption retired
+**Size:** 1–2 sessions. **Deps:** none.
+- `src/engine/config.ts`: delete `forbiddenPerSide/forbiddenBothSides/forbiddenVsGreen/forbiddenVsBystander`
+  from `GridConfig`; delete `REDEMPTION_AFTER_ROUND` + its assertion in
+  `assertConfigConsistent`. Freed slots become bystanders for now (3×5: 2
+  neutrals → 4); A3 re-tunes.
+- `src/engine/types.ts`: `CardRole` → `'green' | 'bystander'`; `Reveal` loses
+  `forbidden`; `Outcome` loses `forbidden-hit`/`forbidden-failed`/`redeemed`;
+  delete `GameState.redemption`, `SUBMIT_REDEMPTION`, `RedemptionResult`.
+- `src/engine/game.ts`: delete the forbidden branch + redemption dealing in
+  `GUESS`; sudden death keeps its rule (any non-green ends it) minus the
+  forbidden reveal special-case.
+- `src/engine/keygen.ts`: drop the `hazard` tier → `recall | produce | filler`.
+  SRS bias still steers struggling words to `recall`; the "known words become
+  hazards" channel is gone (README note in A3).
+- Delete `src/engine/redemption.ts` + test; **keep `packing.ts`** (wrap-up
+  grader). Delete `src/ui/components/RedemptionView.tsx`; strip the redemption
+  phase from `GameScreen.tsx`.
+- `src/stores/gameStore.ts`: delete `redemptionDraft`, `setRedemptionAnswer`,
+  `submitRedemption`; `buzz` loses the forbidden pattern; daily-outcome reader
+  tolerates stored `'redeemed'`. **Version bump + migrate: discard any
+  in-flight persisted game** (may hold forbidden reveals) — one abandoned
+  mid-round on update is acceptable.
+- Tests: rewrite `game.test.ts` forbidden pins (keep the clue-giver's-key rule
+  pinned for greens/bystanders); keygen invariants. Drives: delete
+  `e2e/redemption-drive.mjs`; update `endgame-drive`, `smoke-drive`,
+  `wrapup-drive`.
+- **Accept:** verify green; grep finds no `forbidden`/`redemption` outside
+  history notes and A2's pending AI files.
 
-## Milestones
+### A2 — AI layer + game-screen copy for the new rules
+**Size:** 1 session. **Deps:** A1.
+- `src/ai/prompts.ts`: rewrite `RULES` (no forbidden); clue prompt drops the
+  forbidden block, keeps + sharpens distractor-avoidance (blueprint's
+  adversarial lookahead: "score every non-target against your clue; name the
+  riskiest neutral"); guess prompt updated; debrief prompt untouched (B1
+  deletes it).
+- `src/ai/projections.ts`, `schemas.ts`, `mock/mockCompanion.ts`: forbidden
+  fields removed; firewall invariance tests still pass. `clue-hazards.test.ts`
+  retired or repurposed for neutral-avoidance.
+- `GameScreen.tsx`: legend loses the forbidden swatch; `PlayerGuessBar` loses
+  the stake-note paragraph; phase captions checked. `HowToPlay.tsx` rewritten
+  for the new rules.
+- **Accept:** verify green incl. `ai-drive`; a full round plays in
+  `smoke-drive`.
 
-M0 scaffold+pipeline ✓ → M1 dataset generation (workflow, runs in parallel) →
-M2 engine core + tests → M3 redemption + SRS + tests → M4 AI layer vs mock +
-firewall tests → M5 game UI on mock → M6 redemption/debrief/settings/stats UI →
-M7 dataset integration at ~1000 + validator + sampler stats at volume →
-M8 ship: proxy, icons, PWA polish, Playwright smoke (mock Ollama server,
-390×844 viewport), README, deploy workflow.
+### A3 — Re-tune boards by measurement + rules docs rewrite
+**Size:** 1 session. **Deps:** A2.
+- Rerun the selfplay harness (`src/ai/selfplay.test.ts`) per board: win rate,
+  sudden-death rate, mean clues used. Adjust `turnTokens`/`greenOverlap` only
+  if measurement says so; record the new numbers in `config.ts` comments.
+- Rewrite README's rules sections (forbidden words, redemption, measured
+  percentages) and CLAUDE.md's "rule that is easiest to get backwards" section
+  (the rule is gone; leave a pointer to git history).
+- **Accept:** README/CLAUDE.md describe the shipped game; numbers in comments
+  are re-measured, not inherited.
 
-## Verification
+### B1 — Round summary: stats + collapsible transcript, debrief call deleted
+**Size:** 1 session. **Deps:** A1.
+- `gameStore.finishRound`: alongside `newlyLearned`, compute `newlyDiscovered`
+  (board words with no SRS record before the round — same before/after pattern
+  already in `finishRound`). Persist both.
+- Replace `DebriefPanel.tsx` with `RoundSummary`: outcome banner + confetti
+  (keep), wrap-up "Wrapped and packed" (keep), **stats block** — discovered N /
+  collected N this round, city progress, total progress (reuse
+  `countCollection` from `src/journey/progress.ts`) — and the turn log
+  **collapsed by default** (React state, not `<details>` — README documents
+  that trap). Flags (⚑) live inside the collapsed log, unchanged (they still
+  feed prompts).
+- Delete the debrief AI call end-to-end: `requestDebrief`, companion
+  `getDebrief`, `buildDebriefView`, `buildDebriefPrompt`, `DebriefResponse`
+  schema.
+- **Accept:** smoke/endgame drives assert the summary; layout-drive covers the
+  end screen; one fewer network call per round in `ai-drive`'s fake-server log.
 
-- `npm test`: engine invariants (hundreds of seeds per grid), full simulated
-  games to every outcome, redemption grading matrix, SRS transitions + sampling
-  statistics, legality table, firewall invariance + leak scan, schema
-  round-trips, client error taxonomy (mocked fetch).
-- `npm run build` + `tsc -b` clean.
-- Playwright e2e against `vite preview` + `e2e/mock-ollama.mjs`: win a seeded
-  beginner game; force a forbidden reveal and walk redemption both ways; CORS
-  failure message path.
-- Real-network testing is impossible in this sandbox (ollama.com egress
-  blocked): the user validates with a real key on their phone after the first
-  Pages deploy; Settings' "Test connection" + error taxonomy + bundled proxy
-  cover the CORS unknown.
+### C1 — The board never moves
+**Size:** 1 session. **Deps:** A2.
+- Fixed board-area height per screen (generalize the `--board-h` freeze from
+  `src/ui/nativeKeyboard.ts` / `.kb-up` in `index.css`); reserved dock heights;
+  single-line ellipsis on Casey's clue line and `TranslateBox` result (no
+  reflow while typing/looking up); `AiTurnPanel` fixed height.
+- Delete the "Last turn —" block in `ClueInput.tsx`.
+- **New layout-drive assertion: the board rect is byte-identical across all
+  phases of one round** (clue → AI guessing → AI clue → guessing → sudden
+  death).
+- **Accept:** layout-drive green with the new assertion at 360×640.
 
-## Risks
+### C2 — Home rework
+**Size:** 1 session. **Deps:** B1 (D1 renames land later; build with current strings).
+- Delete the stale `needsSetup` nudge (`HomeScreen.tsx` tests
+  `settings.apiKey`, blank for everyone since settings v7 — it fires for every
+  player). Keep only the unverified-connection state, moved into the mascot's
+  speech line.
+- Mascot becomes the hero (bigger); progress band compresses to one line (bar +
+  counts, no wrap at 360px).
+- Scribbled map: pencil treatment on `DENMARK_PATH` — roughened path baked in
+  `scripts/make-map.mjs` or SVG `feTurbulence`+`feDisplacementMap` — matching
+  the `cluey-hatch` style in `Cluey.tsx`. Applies to Home's `JourneyMap` and
+  `MapScreen`.
+- **Accept:** layout-drive green; no nudge on a fresh profile; map visibly
+  hand-drawn in `map-preview.mjs` output.
 
-1. **ollama.com CORS unknown** → configurable base URL, explicit CORS error
-   message, ready-to-deploy worker proxy. Worst case: 5-minute Cloudflare
-   setup, not a redesign.
-2. **AI clue/guess quality** → all game-critical judgment is engine-side
-   (legality, caps, stop rules); model is a free-text setting; mock companion
-   isolates tuning.
-3. **Dataset volume/quality** → game is playable from the first verified
-   batches; validator + review pass make expansion mechanical; board-time
-   exclusions defang residual near-duplicates.
+### C3 — Keyboard responsiveness experiment (measured)
+**Size:** 1 session. **Deps:** none — pick up anytime.
+- Current: `Keyboard.resize 'body'` + board frozen at `keyboardWillShow`
+  (`capacitor.config.ts`, `src/ui/nativeKeyboard.ts`). Hypothesis: translate
+  the focused dock up immediately on `keyboardWillShow` (exact height arrives
+  pre-animation) so it rides the keyboard instead of trailing the document
+  resize.
+- Extend `.github/workflows/ios-sim.yml` with video capture
+  (`simctl io recordVideo`) so timing is measurable; verify on TestFlight
+  before keeping. Final positions are already right — regressing them fails the
+  card.
+- **Accept:** side-by-side video shows the composer arriving with the keyboard,
+  or the card is closed as "current behaviour kept" with the measurement
+  attached. This area has eaten builds; no confident edits.
+
+### D1 — Rebrand copy: 900Words + Casey + English chrome
+**Size:** 1 session. **Deps:** A3.
+- Names: `capacitor.config.ts appName`, `index.html` title, PWA manifest
+  (`vite.config.ts`), Home `h1`, HowToPlay, README title. `appId` unchanged.
+  **Check "900Words" availability in App Store Connect first** (names are
+  unique storewide).
+- Casey copy pass: all user-facing strings, `cluey-tips.ts`, the persona in
+  `prompts.ts`, aria-labels. Code identifiers/CSS/storage keys stay `cluey-*`.
+- English chrome audit: UI chrome speaks English ("Kufferten", "Spil videre",
+  "Alt eller intet", "Rejs videre" → English); learning content stays Danish.
+  Doubles as i18n groundwork for H1.
+- **Accept:** grep of `src/ui` + `prompts.ts` finds no user-facing
+  "Cluey"/"ClueCabulary"; drives that assert copy updated.
+
+### D2 — Dataset 900 + city removal + migrations
+**Size:** 1 session. **Deps:** A3.
+- Trim `curriculumRank` 901–1000 from the dataset (`src/data/words.da.json` via
+  `src/data/generated/` + `scripts/merge-batches.mjs`, or a one-time trim
+  script); `scripts/validate-words.mjs` expects 900.
+- Remove one city from `CITIES` (`src/journey/cities.ts`) — default **Viborg**;
+  confirm with Kristoffer on pickup. `WORDS_PER_CITY` stays 100;
+  `WRAP_TO_TRAVEL` stays 100. København's blurb "Tusind ord senere" → "Ni
+  hundrede ord senere"; README's "ten stops" prose updated.
+- **journeyStore migration** (version bump): `cityIndex > removedIndex →
+  cityIndex − 1`, clamp to 8. Wrapped ledger untouched (keyed by wordId;
+  trimmed ids stop counting toward anything).
+- Update `FINAL_CITY_INDEX` consumers and every drive using `?city=N`.
+- **Accept:** verify green; a save from before the trim loads with journey
+  position and collection intact (add a migration test like
+  `settingsStore.test.ts`'s).
+
+### D3 — Repo/Pages rename + ASC display name
+**Size:** ½ session. **Deps:** D1.
+- Rename repo → `900words`; update `vite.config.ts base`, README links, any
+  workflow that names the repo. Old Pages URL + installed PWAs break —
+  acceptable now (testers only), never cheaper than today.
+- Set the App Store Connect display name to "900Words".
+- **Accept:** Pages deploy green at the new URL; TestFlight build shows the new
+  name.
+
+### E1 — Suitcase interior redesign
+**Size:** 1 session. **Deps:** D1.
+- `SuitcaseScreen.tsx`: the open case fills the screen — lid + tray as two
+  compartments drawn in the `Cluey.tsx` pencil-SVG style (hatching, hand-drawn
+  strokes). Collected in the tray, wrapped packed under the lid.
+- **One suitcase, always**: city becomes a filter-chip row (All · reached
+  cities), the header city-pager goes. Loose/undiscovered words demote to a
+  compact strip. Paging stays (`Pager` reused) — the no-scroll rule holds.
+- Tiles keep opening `DictionarySheet` (speak button already there).
+- **Accept:** `suitcase-drive.mjs` + layout-drive updated and green at 360×640.
+
+### F1 — Baked TTS pipeline + playWord + wiring
+**Size:** 1–2 sessions. **Deps:** C1. **Launch-blocking.**
+- `scripts/make-audio.mjs`: neural TTS (provider + Danish voice chosen with
+  Kristoffer on pickup; needs his one-time key) →
+  `public/audio/da/<wordId>.mp3` for all 900 (~9 MB). Runtime-cached by the
+  service worker (not precached); bundled in the iOS build. Written
+  per-language from day one (H2 reruns it).
+- `src/ui/speak.ts` → add `playWord(wordId)`: baked asset first, Web Speech
+  fallback (existing `speakDanish` stays for arbitrary text).
+- Wire sound into: card reveal moments, the guess-confirm button ("Guess «hus»"
+  speaks it), suitcase tiles, round-summary word lists, wrap-up packing
+  success. DictionarySheet/TranslateBox already wired.
+- **Accept:** `offline-drive` extended — a cached word plays offline; on-device
+  spot-check of voice quality.
+
+### F2 — Post-round sentences v1 + hear-the-board
+**Size:** ½–1 session. **Deps:** B1, F1.
+- RoundSummary shows `exampleDa`/`exampleEn` for up to ~5 of the round's greens
+  (newly discovered/collected first) with speak buttons (Web Speech for
+  sentences at launch). The LLM-woven story with function-word coverage is H5.
+- Optional "hear the board" ▶ in the game header playing through the board's
+  words — deliberately instead of a forced pre-game slideshow (the study phase
+  was removed once for being homework).
+- **Accept:** summary shows sentences with working audio in a drive; header
+  button plays through without moving layout.
+
+### G1 — Proxy quotas + friendly 429
+**Size:** 1 session. **Deps:** A2 (error copy). **Before launch.**
+- `proxy/worker.js`: per-install daily request cap — client sends a random
+  install-id header; worker counts in KV. The origin lock is spoofable outside
+  browsers; the quota is the real cost control. Confirm the Capacitor WKWebView
+  origin is in `ALLOWED_ORIGIN`.
+- Client maps 429 to "Casey is resting — practice companion offered" via the
+  existing `fallBackToPractice` path.
+- **Accept:** `proxy-drive.mjs` extended: the cap trips on the miniflare
+  runtime and the client shows the fallback.
+
+### G2 — Store readiness + release
+**Size:** 1–2 sessions. **Deps:** A3, B1, C1, C2, D1–D3, E1, F1, F2, G1 (not C3).
+- Privacy policy page (no accounts, localStorage-only, board words sent to the
+  proxy for clues — spelled out); ASC privacy questionnaire; screenshots (the
+  ios-sim workflow can produce them); description, keywords, age rating.
+- Final `npm run verify`, an on-device TestFlight pass, then release via the
+  existing `testflight.yml`/ASC flow.
+- **Accept:** app submitted for review.
+
+### H1–H7 — Fast-follow cards (summaries; expand on pickup)
+- **H1 Language seam**: per-language modules for gender/articles (der/die/das),
+  countability, legality stemming, `classifyClue` charset; prompts
+  parameterized off "Danish"; SRS/journey/settings namespaced per language with
+  a migration folding existing saves into `da`; Settings language picker.
+- **H2 German content**: 900 words via the existing batch workflow (Kristoffer
+  verifies natively — generation can start during F/G, it's user-paced);
+  Germany route + map via `scripts/make-map.mjs` on German geodata;
+  `make-audio.mjs` with a German voice.
+- **H3 Semantic local layer**: build-time embedding similarity tables (900×900
+  + clue-vocab×900, int8) → local guess ranking + clue-candidate ranking so the
+  practice companion plays genuinely well; measured via selfplay. The
+  structural cost control for free users.
+- **H4 900 Pass IAP**: StoreKit via Capacitor plugin; first 2 cities free;
+  restore purchases; decide the PWA channel's gating then.
+- **H5 Sentence stories**: LLM-woven post-round narratives deliberately
+  including untaught function words (`function-words.da.json`,
+  coverage-tracked) — funded by the deleted debrief call.
+- **H6 Voice-recognition wrap-up**: native speech plugin; prototype first —
+  false rejections would poison the ritual.
+- **H7 Cascade tier**: proxy routes to a cheap model by default, escalates to a
+  flagship on low safety margin (blueprint §4).
+
+## Verification (every card)
+
+`npm run verify` (typecheck + unit + validator + all drives — drives build
+first); selfplay measurements re-recorded when rules/boards change;
+layout-drive's no-scroll and (from C1) board-stability assertions; on-device
+TestFlight check for keyboard/audio work; README + CLAUDE.md updated in the
+same PR that changes what they describe.
