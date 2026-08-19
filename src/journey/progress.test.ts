@@ -43,7 +43,10 @@ describe('city bands', () => {
 
   it('band ranges are contiguous and ordered', () => {
     expect(cityBand(0)).toEqual([1, 100])
-    expect(cityBand(9)).toEqual([901, 1000])
+    // cityBand is pure arithmetic and will answer for a stop that does not
+    // exist, so the last one is asked for by name — otherwise this line went
+    // on cheerfully describing a tenth city after the tenth city was gone.
+    expect(cityBand(CITIES.length - 1)).toEqual([801, 900])
     for (let c = 1; c < CITIES.length; c++) {
       expect(cityBand(c)[0]).toBe(cityBand(c - 1)[1] + 1)
     }

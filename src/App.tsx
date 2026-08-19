@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { WORDS } from './data/words'
-import { cityAt } from './journey/cities'
+import { FINAL_CITY_INDEX, cityAt } from './journey/cities'
 import { LEARN_REPS, wordsForCity } from './journey/progress'
 import { useGame } from './stores/gameStore'
 import { rescueStrandedJourney, useJourney } from './stores/journeyStore'
@@ -125,8 +125,15 @@ export default function App() {
     // Journey dev switches, so the travel screens can be driven in tests:
     // ?city=N jumps to a stop, ?collected=K collects K of its words,
     // ?wrapped=K packs K of them into the suitcase.
+    // Clamped, because an out-of-range stop is not a failed assertion — it is
+    // cityAt() throwing and the app going white, with cityIndex persisted so
+    // it stays white. The route got shorter once (Viborg left) and every
+    // ?city=9 in the drives outlived it; clamping means the last stop is
+    // whatever the last stop now is, rather than a blank screen.
     const city = params.get('city')
-    if (city && /^\d$/.test(city)) useJourney.setState({ cityIndex: Number(city) })
+    if (city && /^\d$/.test(city)) {
+      useJourney.setState({ cityIndex: Math.min(Number(city), FINAL_CITY_INDEX) })
+    }
     const cityIndex = useJourney.getState().cityIndex
 
     // ?collected=K marks the first K words of the city as collected — a green

@@ -17,6 +17,13 @@ export const WORDS_PER_CITY = 100
 /**
  * The route: from the far south, up Jutland to the tip where two seas meet,
  * then back down across Funen to Zealand and journey's end in the capital.
+ *
+ * NINE stops, and the length is not decoration — nine cities of
+ * WORDS_PER_CITY is the 900 the game is named for, and
+ * scripts/validate-words.mjs reads this array to check the dataset against it.
+ * Viborg, the inland mid-Jutland detour, was the stop that left when the
+ * dataset came down from a thousand; a saved journey past it is shifted by
+ * migrateJourney (src/stores/journeyStore.ts).
  */
 export const CITIES: City[] = [
   {
@@ -54,15 +61,6 @@ export const CITIES: City[] = [
     lon: 10.203,
     blurbDa: 'Den anden hovedstad — regnbuen ligger på taget.',
     blurbEn: 'The second capital — the rainbow sits on the roof.',
-  },
-  {
-    id: 'viborg',
-    name: 'Viborg',
-    region: 'Jylland',
-    lat: 56.453,
-    lon: 9.402,
-    blurbDa: 'Gammelt tingsted midt i Jylland, hvor konger blev kåret.',
-    blurbEn: 'An ancient assembly place in mid-Jutland, where kings were named.',
   },
   {
     id: 'aalborg',
@@ -106,8 +104,8 @@ export const CITIES: City[] = [
     region: 'Sjælland',
     lat: 55.676,
     lon: 12.568,
-    blurbDa: 'Rejsens mål. Tusind ord senere er du hjemme i sproget.',
-    blurbEn: "Journey's end. A thousand words later, the language is home.",
+    blurbDa: 'Rejsens mål. Ni hundrede ord senere er du hjemme i sproget.',
+    blurbEn: "Journey's end. Nine hundred words later, the language is home.",
   },
 ]
 
@@ -115,8 +113,14 @@ export const FINAL_CITY_INDEX = CITIES.length - 1
 
 /**
  * The study phase (whole board shown with translations before the round) is a
- * beginner's scaffold. It fades once the journey turns north at Aalborg —
+ * beginner's scaffold. It covers the first five stops and fades at Skagen —
  * by then the player has met 500 words and should be recalling, not reading.
+ *
+ * The number survived Viborg's removal deliberately. It used to read "fades at
+ * Aalborg", because Aalborg was the sixth stop; Aalborg is now the fifth, so
+ * holding the landmark would have cut the scaffold to 400 words. The five
+ * hundred is the reason and the city was only where five hundred landed, so
+ * the count is what was kept and the landmark moved on to Skagen.
  */
 export const STUDY_UNTIL_CITY = 5
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { CITIES } from '../journey/cities'
 import { newStats } from '../srs/scheduler'
 import type { SrsMap, WordStats } from '../srs/types'
 import {
@@ -82,13 +83,15 @@ describe('export and parse', () => {
     // cityAt throws outside the route and the value goes into the store
     // unexamined, so this bound is the only thing between a bad file and a
     // permanently blank app.
-    for (const bad of [99, -3, 10, 1.5]) {
+    // Written against the route rather than against 9 and 10, because the
+    // route got shorter once already and these numbers did not follow it.
+    for (const bad of [99, -3, CITIES.length, 1.5]) {
       const file = buildBackup(snapshot(), NOW)
       file.journey.cityIndex = bad
       expect(parseBackup(JSON.stringify(file)).ok).toBe(false)
     }
     const good = buildBackup(snapshot(), NOW)
-    good.journey.cityIndex = 9
+    good.journey.cityIndex = CITIES.length - 1
     expect(parseBackup(JSON.stringify(good)).ok).toBe(true)
   })
 
