@@ -18,6 +18,14 @@ const revealLabel = (r: AiClueView['words'][number]['reveal']): string => {
   return `revealed ${r.kind}`
 }
 
+/**
+ * "the 2th correct one", as the guess prompt had been saying for its whole
+ * life. The engine refuses any clue number outside 1-4, so four cases is the
+ * whole domain and a general ordinal routine would be more machinery than the
+ * problem has.
+ */
+const ordinal = (n: number): string => ['', '1st', '2nd', '3rd', '4th'][n] ?? `${n}th`
+
 const historyLines = (history: PublicClue[]): string =>
   history.length === 0
     ? '(none yet)'
@@ -185,7 +193,7 @@ You are the GUESSER this turn. Your partner gave a clue pointing at some of THEI
 - List EVERY unrevealed word with any link to the clue, best first, with a calibrated confidence 0-1. A word you leave out is a word you have not ruled out.
 - EVERY reasoning must say why THIS word and not another: name the board word you weighed it against and what decided it. "æble is the fruit; pære is also a fruit but the clue said one, and æble is the commoner word" — not "æble is a fruit". Your partner is learning Danish and reads all of this after the round; the association you saw is worth as much to them as the word, and "why not the other one" is the half they cannot reconstruct for themselves. This applies to every entry you list, including the ones you score low: say what ruled each out.
 - YOUR TOP-RANKED WORD IS NAMED ON THE BOARD NO MATTER WHAT CONFIDENCE YOU GIVE IT. The rules require a guess every turn: you cannot pass, and scoring everything low does not decline the turn, it just means the word you happened to list first gets named at 0.05. So the ranking IS the decision. Ask "which word would I least regret naming out loud" and put that first — not "which is least unrelated".
-- After the first, guesses are executed in confidence order and stopped by two rules: at most ${view.currentClue.number} are taken — the number is the whole allowance and the turn ends itself on the ${view.currentClue.number}th correct one — and everything stops at the first below 0.35. So from the second onward the bands mean something exact: 0.8+ "I am acting on this", 0.5-0.79 "plausible but I would rather not be the one who names it", 0.35-0.49 "only if nothing better", under 0.35 "do not name this". On the FIRST they mean nothing — it is named regardless — so use the confidence to tell your partner the truth afterwards, and the ordering to protect them now.
+- After the first, guesses are executed in confidence order and stopped by two rules: at most ${view.currentClue.number} are taken — the number is the whole allowance and the turn ends itself on the ${ordinal(view.currentClue.number)} correct one — and everything stops at the first below 0.35. So from the second onward the bands mean something exact: 0.8+ "I am acting on this", 0.5-0.79 "plausible but I would rather not be the one who names it", 0.35-0.49 "only if nothing better", under 0.35 "do not name this". On the FIRST they mean nothing — it is named regardless — so use the confidence to tell your partner the truth afterwards, and the ordering to protect them now.
 - You get ${view.currentClue.number} shot(s) and no more, so spend them on the ${view.currentClue.number} words you actually believe in. Ranking a weak word above a strong one costs you the strong one outright; there is no spare guess to recover it.
 - ${view.turnsLeft <= 2 ? `Only ${view.turnsLeft} clue(s) left: a cautious stop now may cost the game, so back your best set.` : 'Be honest about uncertainty: a card that is not a target on their key ends the turn where it stands and takes one of the shared tokens with it. That is the whole cost — nothing on this board is fatal — but it is a clue the two of you never get back.'}
 ${flaggedBlock(view.flagged)}
