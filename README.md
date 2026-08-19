@@ -116,8 +116,8 @@ opens.
    forecast: a biased coin is not Danish word association, and a real round sits
    somewhere inside. What the brackets are good for is the shape, and the shape
    says three things. A guesser that knows nothing spends every token on every
-   board — sudden death on 99.7% to 100% of seeds, and the tokens go with 5.5 of
-   the 3×4's 8 greens and 9.0 of the 4×5's 12 still hidden — and wins at most
+   board — sudden death on 99.7% to 100% of seeds, and the tokens go with 5.1 of
+   the 3×4's 8 greens and 8.8 of the 4×5's 12 still hidden — and wins at most
    1.6% of the time, so the floor did not rise when the hazards went, it moved
    *later*: every loss now happens in sudden death, from a board barely touched.
    A perfect pair wins every seed with
