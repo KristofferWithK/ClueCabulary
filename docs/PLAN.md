@@ -55,7 +55,7 @@ model alias `cluey`).
 
 ### In progress
 - **C1** — The board never moves — agent running (dispatched 2026-08-20)
-- **R1** — Wins earn wrap-up rounds — agent running (dispatched 2026-08-20)
+- **D2** — Dataset 900 + Viborg leaves the route — agent running (dispatched 2026-08-20)
 - **G1** — Proxy quotas + friendly 429 — agent running (dispatched 2026-08-20)
 
 ### Done
@@ -64,6 +64,7 @@ model alias `cluey`).
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
 - **B1** — Round summary replaces the debrief; the debrief call is gone — merged 2026-08-20 ([PR #65](https://github.com/KristofferWithK/ClueCabulary/pull/65), squash 6a80497). Found layout-drive's end-screen section vacuous since it was written.
 - **A3** — Boards re-measured; standard 8 → 7 tokens; README + CLAUDE.md rewritten — merged 2026-08-20 ([PR #66](https://github.com/KristofferWithK/ClueCabulary/pull/66), squash 151b812). See DECISIONS.md — the token change alters game feel.
+- **R1** — A won round earns a wrap-up round, bank of three — merged 2026-08-20 ([PR #67](https://github.com/KristofferWithK/ClueCabulary/pull/67), squash 69844df). Measured: the collected-words gate binds first, so the win gate is phase-shifted rather than idle.
 
 ### Found along the way, not yet carded
 - **README's Setup section is stale** — it still tells the player to paste a

@@ -46,6 +46,22 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · Viborg is the city that leaves the route — D2
+The card defaulted to it and I confirmed rather than waking you. It is the only
+inland detour on the route; without it the journey still reads as a coast run
+north and back — Sønderborg, Ribe, Kolding, Aarhus, **Aalborg**, Skagen,
+Odense, Roskilde, København — and Aarhus → Aalborg is a more natural leg than
+the dogleg through the middle was.
+**Reverse:** cheap *today*, expensive later — it is a data change plus a
+journey migration, and every day of play after it makes rewriting saves
+harder. If you want a different city cut, say so before you play much.
+
+### 2026-08-20 · Old saves are seeded with the wrap-up bank they "should" have — R1
+The migration gives an existing player `min(wins, 3)` banked wrap-ups rather
+than zero, so nobody who could open a wrap-up round yesterday finds they
+cannot today. Generous over strict, per the standing rule.
+**Reverse:** one expression in `migrateSrs`.
+
 ### 2026-08-20 · The 4×5 board lost a clue token (8 → 7) — A3
 **This is the one change tonight that alters how the game feels, so play a
 standard board before accepting it.** Taking the forbidden words out did not
