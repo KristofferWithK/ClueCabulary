@@ -42,7 +42,7 @@ model alias `cluey`).
 *(empty — next up: A2 and B1 unblock when A1's PR merges)*
 
 ### Blocked
-- **R1** — Postcards: a reward for winning *(needs B1 — it is editing the same persisted stores)*
+- **R1** — Wins earn wrap-up rounds *(needs B1 — it is editing the same persisted stores)*
 - **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs B1; Casey name lands with D1)*
 - **D1** — Rebrand copy: 900Words + Casey + English chrome *(needs A3 — copy describes final rules)*
 - **D2** — Dataset 900 + city removal + migrations *(needs A3)*
@@ -71,6 +71,7 @@ model alias `cluey`).
 - **H5** — LLM sentence stories + function-word coverage tracking
 - **H6** — Voice-recognition wrap-up unlock (prototype first)
 - **H7** — Cascade tier on the proxy (cheap model + flagship escalation)
+- **H8** — City postcards: wins uncover a souvenir of the city, kept in the suitcase lid *(the v1 reward is R1; this is the content update that follows, and the reason to re-shoot the store listing)*
 
 ---
 
@@ -163,58 +164,51 @@ model alias `cluey`).
   death).
 - **Accept:** layout-drive green with the new assertion at 360×640.
 
-### R1 — Postcards: a reward for winning
-**Size:** 1 session (plus the art — see the open question). **Deps:** B1 (same persisted stores). NOT gated on A3, deliberately: this reward changes no difficulty.
+### R1 — Wins earn wrap-up rounds
+**Size:** 1 session. **Deps:** B1 (same persisted stores, and the round summary is where the reward is announced). NOT gated on A3 — but A3's win rate is the number the earn rate is set against.
 
 **The problem.** Winning has no consequence. A lost round still greens words,
 still collects them, still shows the same summary — and taking the forbidden
 cards out made losing gentler, so the two endings converged. A win should leave
 something behind.
 
-**The mechanic** (owner, 2026-08-20): a won round earns one puzzle piece of a
-postcard of the city you are in. Complete the postcard and it is yours — a
-souvenir of the place, kept in the suitcase.
+**The mechanic** (owner, 2026-08-20): a won round earns one wrap-up round. Bank
+at most three. Chosen for v1 over the postcards idea (now H8) because it needs
+no art and no new screen — a counter, a gate, and a line on the summary B1 is
+already building — and because it points at the right thing: wrap-ups are the
+only way words get packed for good, and packing is what opens the road onward.
+So winning advances the journey.
 
-**Why this rather than the spare clue it replaces.** A spare clue was a
-difficulty *reduction*, so it had to be gated on A3's measurements and risked
-pulling against the tuning from the side. A postcard touches nothing the engine
-balances, so it can be built whatever the numbers say — and if the boards do
-turn out to need a valve, that is `turnTokens` in `config.ts`, tuned honestly in
-one place. It also fits the fiction it lives in: this is a journey across
-Denmark with a suitcase, and postcards are what you collect on the way.
+**The risk this card must not realise.** Wrap-ups are the progress spine. A
+strict economy can BLOCK the journey — a learner on a losing run would stop
+being able to bank words at all, which is the game refusing to teach because
+they are not yet good enough at it. Hence the bank, and hence losing costing
+nothing. If in doubt, err generous: a reward that never quite binds is a much
+smaller failure here than a door that locks.
+
+**The two gates race each other.** A wrap-up board structurally needs 20
+collected words to deal (`wrapUpWords`), so vocabulary progress is ALREADY a
+gate; wins are a second one, and whichever is slower binds. If collecting is
+slower — likely — the player sits on three unspent tokens and the reward is
+hollow. Read A3's win rate and the measured wins-per-city before fixing the earn
+rate, and say which gate binds in practice.
 
 **Shape.**
-- Earning hook already exists: `srsStore.recordGame(outcome)` tallies wins. Add
-  the per-city piece ledger beside it (persisted → version bump + migrate in the
-  same commit). Monotonic like the wrapped ledger — pieces are never lost.
-- **Overflow rolls forward.** A city runs 30–45 rounds (100 words collected,
-  then wrapped), so a 9-piece card completes early in it — and then late-city
-  wins mean nothing again, which is the problem this card exists to fix. Once a
-  card is complete, further wins bank the NEXT city's, so the player arrives
-  already holding pieces. No win is ever wasted.
-- **Pieces reveal the picture**, rather than filling a bar beside it: the card
-  starts covered and each win uncovers one tile. A grid of covers over the
-  artwork, faded out one at a time.
-- Peg the piece count to measurement rather than taste: 3×3 is the clean shape,
-  but set it against A3's win rate and the real wins-per-city.
-- Where they live: the suitcase **lid** (E1 draws it open — words in the tray,
-  postcards in the lid). If R1 lands before E1, leave a placeholder E1 fills.
-- Shown at the round summary too (B1's screen): the piece earned, and the card
-  so far.
-- Leaving a city with an incomplete card must never be punished — it stays
-  fillable. Travel already needs all 100 words wrapped, so this is an edge case,
-  not a race.
+- Earning hook already exists: `srsStore.recordGame(outcome)` tallies wins. Put
+  the bank beside it (persisted → version bump + migrate in the same commit).
+- **Only normal rounds earn.** If a wrap-up win earned another wrap-up, they
+  chain indefinitely and the rationing evaporates.
+- **The first win is the unlock.** Replaces the current "collect N more to open
+  wrap-up rounds" counter in `SuitcaseScreen` with a natural tutorial beat. Keep
+  the structural 20-collected-words requirement — it cannot go away, the board
+  cannot be dealt without it — but say the two conditions plainly on that screen.
+- Announced on the round summary (B1's screen) at the moment it is earned, and
+  shown as a count on the suitcase's wrap-up button.
+- A daily-challenge win earns one like any other round.
 
-**Open question for the owner, decide before pickup: how the art gets made.**
-Nine postcards (Viborg leaves the route in D2). Everything drawn in this app is
-hand-rolled pencil SVG — Casey's hatching, the Denmark outline, C2's scribbled
-map — and the postcards should match it: Koldinghus, Skagen's two seas, Nyhavn.
-That is the difference between an afternoon and a couple of days, and it is also
-the app's best App Store screenshot (G2), so it is worth spending on.
-
-**Accept:** verify green; a win earns exactly one piece, pieces persist and
-never regress, a completed card overflows into the next city, nothing is earned
-on a loss, and the daily challenge follows the same rule as any round; the earn
+**Accept:** verify green; a win banks exactly one, capped at three, spent by
+starting a wrap-up, never earned by a wrap-up win or a loss, and surviving a
+reload; the suitcase says why the button is disabled when it is; the earn/spend
 rules pinned by tests, one checked to fail without the fix.
 
 ### C2 — Home rework
@@ -366,6 +360,15 @@ rules pinned by tests, one checked to fail without the fix.
   false rejections would poison the ritual.
 - **H7 Cascade tier**: proxy routes to a cheap model by default, escalates to a
   flagship on low safety margin (blueprint §4).
+- **H8 City postcards**: a won round uncovers one piece of a postcard of the
+  city you are in; a finished card lives in the suitcase lid, beside the words
+  in the tray (E1 draws it open). Overflow rolls into the next city's card, so a
+  win late in a city is still worth something. Nine cards — Koldinghus, Skagen's
+  two seas, Nyhavn — and the open question is how they get drawn: everything
+  else here is hand-rolled pencil SVG (Casey's hatching, the Denmark outline,
+  C2's scribbled map) and they should match it. Held back from v1 only because
+  the art is the slow part; the mechanic itself is small, and it stacks with R1
+  rather than replacing it.
 
 ## Verification (every card)
 
