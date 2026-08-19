@@ -6,14 +6,8 @@ import {
   aiTargetableIds,
   type AiClueView,
   type AiGuessView,
-  type DebriefView,
 } from '../projections'
-import type {
-  ClueResponse,
-  DebriefResponse,
-  GuessResponse,
-  TranslationResponse,
-} from '../schemas'
+import type { ClueResponse, GuessResponse, TranslationResponse } from '../schemas'
 
 /** djb2 — stable across runs so e2e tests can rely on mock behavior per seed. */
 function hash(s: string): number {
@@ -66,15 +60,5 @@ export class MockCompanion implements Companion {
 
   async translate(term: string): Promise<TranslationResponse> {
     return { da: `mok-${term}`, en: `mock translation of ${term}` }
-  }
-
-  async getDebrief(view: DebriefView): Promise<DebriefResponse> {
-    const missed = view.words.filter((w) => w.reveal.kind !== 'green').slice(0, 3)
-    return {
-      summary: `Mock debrief: we ${view.outcome.result} (${view.outcome.reason}).`,
-      takeaways: missed.length
-        ? missed.map((w) => `${w.da} means "${w.en[0]}" — worth another look.`)
-        : ['Flot klaret! Every word found.'],
-    }
   }
 }

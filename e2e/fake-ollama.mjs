@@ -112,6 +112,6 @@ export const guessReply = (ids, confidence = 0.9) => ({
   json: { guesses: ids.map((wordId) => ({ wordId, confidence, reasoning: 'fake' })) },
 })
 
-export const debriefReply = () => ({
-  json: { summary: 'Fake debrief.', takeaways: ['One thing.'] },
-})
+// There was a debriefReply here, for the request a finished round used to make.
+// The round now ends without asking the model anything, and ai-drive asserts
+// that against the requests this server actually receives.

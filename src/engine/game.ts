@@ -186,7 +186,7 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
         wordId: event.wordId,
         result: role,
         // Undefined for the player's own taps; the AI's account of its own
-        // guess rides along and is kept for the debrief.
+        // guess rides along and is kept for the summary's turn log.
         ...(event.reasoning ? { reasoning: event.reasoning } : {}),
         ...(event.confidence !== undefined ? { confidence: event.confidence } : {}),
       })

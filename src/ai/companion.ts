@@ -6,30 +6,32 @@ import {
   aiTargetableIds,
   type AiClueView,
   type AiGuessView,
-  type DebriefView,
 } from './projections'
 import {
   buildCluePrompt,
-  buildDebriefPrompt,
   buildGuessPrompt,
   buildTranslatePrompt,
   type ChatMessage,
 } from './prompts'
 import {
   ClueResponseSchema,
-  DebriefResponseSchema,
   GuessResponseSchema,
   TranslationResponseSchema,
   type ClueResponse,
-  type DebriefResponse,
   type GuessResponse,
   type TranslationResponse,
 } from './schemas'
 
+/**
+ * Three calls, and there used to be a fourth: `getDebrief`, one request per
+ * round, asking the model to narrate an ending the app already knew. The round
+ * summary reads the board and the stores instead — what was said is in the turn
+ * log verbatim, and what was learned is a count the SRS can answer — so the
+ * round now ends without a network call at all.
+ */
 export interface Companion {
   getClue(view: AiClueView): Promise<ClueResponse>
   getGuesses(view: AiGuessView): Promise<GuessResponse>
-  getDebrief(view: DebriefView): Promise<DebriefResponse>
   /** One word, either direction. Takes no view: it must not see the board. */
   translate(term: string): Promise<TranslationResponse>
 }
@@ -237,22 +239,6 @@ export class OllamaCompanion implements Companion {
       // A dictionary should not be imaginative.
       0.1,
       'The translation came back in a form the app could not read.',
-    )
-  }
-
-  async getDebrief(view: DebriefView): Promise<DebriefResponse> {
-    return askValidated(
-      this.chat,
-      this.settings,
-      buildDebriefPrompt(view),
-      (raw) => {
-        const parsed = DebriefResponseSchema.safeParse(raw)
-        return parsed.success
-          ? { ok: true, value: parsed.data }
-          : { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
-      },
-      0.7,
-      'Cluey could not put the round into words.',
     )
   }
 }

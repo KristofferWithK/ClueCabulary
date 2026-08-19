@@ -7,7 +7,6 @@ import {
   aiTargetableIds,
   buildAiClueView,
   buildAiGuessView,
-  buildDebriefView,
 } from './projections'
 import { buildCluePrompt, buildGuessPrompt } from './prompts'
 
@@ -123,8 +122,11 @@ describe('projection helpers', () => {
     expect(ids).not.toContain(greenOnAi) // revealed green is done
   })
 
-  it('debrief view exposes both keys only after the game is finished', () => {
-    const s = atAiGuessing(5)
-    expect(() => buildDebriefView(s, [])).toThrow()
-  })
+  /**
+   * There was a third projection here — `buildDebriefView`, the only one that
+   * exposed BOTH keys, guarded by a throw until the game was finished. It is
+   * gone with the debrief call. Nothing is asked of the model after the round
+   * ends, so the two views above are now the whole of what the firewall has to
+   * hold, and neither of them may ever show the player's key.
+   */
 })

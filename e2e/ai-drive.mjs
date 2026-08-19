@@ -9,7 +9,7 @@
 // special-casing to talk to the fake.
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
-import { startFakeOllama, clueReply, guessReply, debriefReply } from './fake-ollama.mjs'
+import { startFakeOllama, clueReply, guessReply } from './fake-ollama.mjs'
 import { setTimeout as sleep } from 'node:timers/promises'
 
 const PORT = 4186
@@ -264,7 +264,50 @@ try {
   await sleep(2500)
   check('the next round goes back to Cluey', fake.received.length >= 1, `${fake.received.length} calls`)
 
-  void debriefReply
+  // ---- and the round ENDS without asking the model anything -----------------
+  // Finishing a round used to fire a debrief request: one POST per round, whose
+  // answer is not on the screen any more. This is the assertion that the call
+  // is gone rather than merely unused — it is made against the bytes the
+  // browser sends, which is the only place that can tell the difference.
+  //
+  // Verified to bite: putting `void get().requestDebrief()` back at the end of
+  // finishRound makes it read 1 call instead of 0.
+  //
+  // Sudden death is the cheap way to an ending here. The clue-and-guess loop
+  // above would need a scripted reply for every turn of a full round; this
+  // needs none, because sudden death has no clue-giver and therefore no AI turn.
+  await freshRound()
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
+    raw.state.game.phase = 'suddenDeath'
+    raw.state.game.turnsLeft = 0
+    localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
+  })
+  await page.reload()
+  await page.waitForSelector('.city-card')
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.sudden-death-bar', { timeout: 20000 })
+  const sd = await gameState()
+  const dud = sd.words.find(
+    (w) =>
+      sd.playerKey[w.wordId] !== 'green' &&
+      sd.aiKey[w.wordId] !== 'green' &&
+      sd.reveals[w.wordId].kind === 'hidden',
+  )
+  if (!dud) throw new Error('no non-green word to end sudden death on')
+  // Reset AFTER the round is set up and BEFORE the guess that ends it, so the
+  // count below covers exactly the ending.
+  fake.reset()
+  await page.locator(`.word-card:has(.card-word:text-is("${dud.da}"))`).click()
+  await page.locator('.guess-confirm .btn-primary').click()
+  await page.waitForSelector('.round-summary', { timeout: 20000 })
+  await sleep(2500)
+  check(
+    'finishing a round sends nothing to the model',
+    fake.received.length === 0,
+    `${fake.received.length} calls`,
+  )
+
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nAI DRIVE OK')
   if (fail.length) process.exitCode = 1
 } catch (e) {

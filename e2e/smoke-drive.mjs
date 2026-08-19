@@ -181,7 +181,7 @@ try {
   if (!/Cluey is not playing/.test(note)) throw new Error(`note is too coy: ${note}`)
   console.log('practice companion says so:', note.replace(/\s+/g, ' ').trim().slice(0, 60) + '…')
 
-  // ---- the debrief shows why, not only what -------------------------------
+  // ---- the round summary: numbers first, the transcript behind a lid -------
   // The turn log used to be a one-line score strip: «mad ✓  hus ·». The model
   // had always written a reason for each guess and the engine dropped it on
   // the floor, so "why that word?" was the one question the app had thrown
@@ -192,7 +192,7 @@ try {
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
-  for (let i = 0; i < 30 && (await page.locator('.debrief').count()) === 0; i++) {
+  for (let i = 0; i < 30 && (await page.locator('.round-summary').count()) === 0; i++) {
     const cap = await page.locator('.phase-caption').textContent().catch(() => '')
     if (cap === 'Give Cluey a clue') {
       await page.fill('.clue-input input', `huskeliste${i}`)
@@ -207,9 +207,44 @@ try {
     }
     // This loop used to have to answer the last chance here — a forbidden word
     // could interrupt it with a twenty-word translation form. Nothing
-    // interrupts a round any more; it plays to a debrief or to sudden death.
+    // interrupts a round any more; it plays to a summary or to sudden death.
     await sleep(700)
   }
+  await page.waitForSelector('.summary-stats', { timeout: 10000 })
+
+  // What the round actually did, in the four tiles that replaced Cluey's
+  // paragraph about it. Read as text and checked as shapes: a tile saying
+  // "undefined/100" still looks like a stat.
+  const tiles = await page.evaluate(() => {
+    const read = (sel) => document.querySelector(`${sel} .stat-n`)?.textContent?.trim() ?? ''
+    return {
+      discovered: read('.stat-discovered'),
+      collected: read('.stat-collected'),
+      city: read('.stat-city'),
+      total: read('.stat-total'),
+    }
+  })
+  if (!/^\d+$/.test(tiles.discovered)) throw new Error(`discovered tile: "${tiles.discovered}"`)
+  if (!/^\d+$/.test(tiles.collected)) throw new Error(`collected tile: "${tiles.collected}"`)
+  if (!/^\d+\/100$/.test(tiles.city)) throw new Error(`city tile: "${tiles.city}"`)
+  if (!/^\d+\/\d{3,4}$/.test(tiles.total)) throw new Error(`total tile: "${tiles.total}"`)
+  // This profile has never finished a round before, so every word on this board
+  // was met for the first time. A zero here is the signature of the discovered
+  // diff being taken AFTER recordRound, where it is uniformly empty.
+  if (Number(tiles.discovered) === 0) {
+    throw new Error('a board of first-ever words counted as 0 discovered')
+  }
+  console.log(
+    `stats: ${tiles.discovered} new, ${tiles.collected} collected, ${tiles.city} in the city, ${tiles.total} in all`,
+  )
+
+  // The transcript starts shut. Everything below it is about what is inside,
+  // so the lid has to come off first — which is itself the assertion that it
+  // was on.
+  if ((await page.locator('.turn-log').count()) !== 0) {
+    throw new Error('the turn log was already open')
+  }
+  await page.locator('.log-toggle').click()
   await page.waitForSelector('.turn-log', { timeout: 10000 })
   const log = await page.evaluate(() => ({
     turns: document.querySelectorAll('.turn-log > li').length,
@@ -219,12 +254,12 @@ try {
     overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
   }))
   if (log.turns === 0) throw new Error('turn log is empty')
-  if (log.whys === 0) throw new Error('the debrief shows no reasoning at all')
+  if (log.whys === 0) throw new Error('the turn log shows no reasoning at all')
   // Every AI guess carries both; the player's own taps carry neither, so the
   // count is bounded by the guesses rather than equal to them.
   if (log.confidences === 0) throw new Error('no confidence shown for any AI guess')
   if (log.confidences > log.guesses) throw new Error('more confidences than guesses')
-  if (log.overflow > 0) throw new Error(`debrief overflows by ${log.overflow}px`)
+  if (log.overflow > 0) throw new Error(`the summary overflows by ${log.overflow}px`)
   console.log(
     `turn log: ${log.turns} turns, ${log.guesses} guesses, ${log.whys} reasons, ${log.confidences} confidences`,
   )
