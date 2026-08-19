@@ -189,7 +189,13 @@ for (let i = 0; i < 12 && (await page.locator('.round-summary').count()) === 0; 
     const confirm = page.locator('.guess-confirm .btn-primary')
     if (await confirm.isVisible().catch(() => false)) await confirm.click()
   } else {
-    const clue = page.locator('.clue-input input')
+    // '#clue-word', not '.clue-input input': the dock holds a second input (the
+    // lookup box), so that locator matches two and fails strict mode INSIDE the
+    // .catch below, silently. This loop had been spinning its twelve turns
+    // without ever giving a second clue, and the end-screen checks under it
+    // were skipped on every run — the same bug wrapup-drive already carries a
+    // comment about.
+    const clue = page.locator('#clue-word')
     if (await clue.isVisible().catch(() => false)) {
       await clue.fill('igen')
       await page.click('.clue-input .btn-primary')
@@ -229,6 +235,23 @@ const greens = await page.locator('.word-card.mykey-green').count()
   await page.waitForTimeout(300)
   check('and one tap opens the log', (await page.locator('.turn-log').count()) === 1)
   await fits('round summary, log open')
+  // The containing block itself, not only its consequence. Every guess in the
+  // log carries a .visually-hidden span and .visually-hidden is
+  // position:absolute, so without a positioned scroller they resolve against
+  // .app-shell and park 1px boxes at whatever y the log reaches — measured at
+  // 1027 on a 640px phone, document 1028 vs 640, while the scroller itself was
+  // correctly clipping at 420. Asserted on offsetParent because the overflow it
+  // causes only appears once the transcript is long enough, and the length of a
+  // transcript is a property of the round, not of the layout.
+  const hiddenHome = await page.evaluate(() => {
+    const span = document.querySelector('.turn-log .visually-hidden')
+    return span ? (span.offsetParent?.className ?? '(none — it reached the document)') : '(no span)'
+  })
+  check(
+    "the log's hidden labels resolve inside the scroller, not against the shell",
+    /summary-scroll/.test(hiddenHome),
+    hiddenHome,
+  )
   // Play again sits OUTSIDE the scroller for exactly this reason: a long
   // transcript must not push the way out of the round off the phone.
   const playAgain = await page.locator('.summary-actions .btn-primary').boundingBox()

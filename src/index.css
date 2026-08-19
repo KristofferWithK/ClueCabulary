@@ -1837,6 +1837,16 @@ body:has(.kb-up) {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Load-bearing, and measured. The turn log gives every guess a
+     .visually-hidden span, and .visually-hidden is position:absolute — with no
+     positioned ancestor here they resolve against .app-shell and park 1px
+     boxes wherever the log happens to reach. An expanded log put one at y=1027
+     on a 640px phone and handed the DOCUMENT a scrollbar that no visible
+     element asked for: measured 1028 vs 640, while this scroller was correctly
+     clipping at 420. Exactly the trap .screen-scroll carries the same line
+     for, and layout-drive checks the containing block itself rather than only
+     the overflow — the overflow only shows up once the log is long enough. */
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 14px;

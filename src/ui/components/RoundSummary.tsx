@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { WORDS } from '../../data/words'
 import type { GameState, Outcome } from '../../engine/types'
 import { WORDS_PER_CITY, cityAt } from '../../journey/cities'
@@ -158,6 +158,7 @@ export function RoundSummary({ game }: { game: GameState }) {
    * the state belongs where the round can reset it.
    */
   const [logOpen, setLogOpen] = useState(false)
+  const logRef = useRef<HTMLElement>(null)
   const newGame = useGame((s) => s.newGame)
   const newlyLearned = useGame((s) => s.newlyLearned)
   const newlyDiscovered = useGame((s) => s.newlyDiscovered)
@@ -290,12 +291,24 @@ export function RoundSummary({ game }: { game: GameState }) {
             optional — the model had always written a reason for each guess and
             the engine used to drop it on the floor, so "why that word?" was the
             one question the app had thrown away. */}
-        <section className="summary-section log-section">
+        <section className="summary-section log-section" ref={logRef}>
           <button
             className="log-toggle"
             aria-expanded={logOpen}
             aria-controls="round-turn-log"
-            onClick={() => setLogOpen((open) => !open)}
+            onClick={() => {
+              const opening = !logOpen
+              setLogOpen(opening)
+              // The lid sits below the fold, under four stat tiles and a
+              // banner. Opening it without this looks like nothing happening:
+              // the transcript unfolds off the bottom of the scroller and the
+              // player is left looking at the same tiles they just tapped past.
+              // Instant rather than smooth — a drive that clicks and measures
+              // should not have to guess at an animation.
+              if (opening) {
+                requestAnimationFrame(() => logRef.current?.scrollIntoView({ block: 'start' }))
+              }
+            }}
           >
             <span className="log-toggle-mark" aria-hidden="true">
               {logOpen ? '▾' : '▸'}
