@@ -266,7 +266,10 @@ function SuddenDeathBar({ game }: { game: GameState }) {
       <p className="dock-title">
         <span lang="da">Alt eller intet</span> — no clues left
       </p>
-      <p className="dim">
+      {/* The dock's give-way region: selecting a card swaps a one-line hint for
+          a 44px confirm row below, and this absorbs the difference so the give-
+          up button stays where the thumb last saw it. */}
+      <p className="dim dock-flex">
         Keep naming green words and you can still win this. Name anything else and the round is
         over.
       </p>

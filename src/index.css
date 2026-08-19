@@ -1025,15 +1025,28 @@ select:focus {
 
 .game-header-mid {
   flex: 1;
+  /* Without this the caption can never shrink below its longest word, so
+     text-overflow has nothing to work with and it wraps instead. */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 5px;
 }
 
+/* One line, always — the header is the ceiling the board hangs from.
+   "Sudden death — no clues left" is the one caption too long for 360px with
+   the turn pips beside it, and it wrapped: the header went 58px to 76px and
+   took the whole board down 18px with it, in the one phase where the player
+   is staring hardest at the board. Measured on a seeded round; the other five
+   captions all fit. */
 .phase-caption {
   font-size: 0.85rem;
   color: var(--text-dim);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .turn-tokens {
@@ -1388,6 +1401,95 @@ select:focus {
   gap: 8px;
 }
 
+/* ---- the board never moves ------------------------------------------------
+ *
+ * The complaint: "when guessing it's a giant text block that adjusts the
+ * sizing of the grid. The grid should stay locked. and the text can be cut."
+ *
+ * The board is a flex:1 area sharing this column with the dock, so every line
+ * the dock gained or lost came straight off the grid — and the grid resizes
+ * every card with it. Measured over one seeded round at 360x640, before this:
+ *
+ *   clue dock          board 274..310   (the last-turn recap, now deleted)
+ *   + a 4-hit lookup   board 123..310   (188px, the worst of them)
+ *   Cluey guessing     board 322
+ *   your turn to guess board 182..267   (the confirm row and the stop button)
+ *   + a 4-hit lookup   board 123..267
+ *   sudden death       board 194..222, and 18px lower down the screen
+ *
+ *   -> 200px of height and 18px of position, over one round.
+ *
+ * The fix is to reserve rather than to shrink. Every dock a round can be in
+ * gets the SAME height, so the flex:1 board above it is handed the same
+ * leftover in every phase and the grid is locked by construction — no
+ * measuring, no JS, nothing to keep in sync with the phase machine.
+ *
+ * The size is measured, not estimated. Every dock was asked how tall it wants
+ * to be (height:auto) in every state a round can put it in, at 360x640:
+ *
+ *   guess bar, bare                                  152.86
+ *   ... + "Stop guessing"                            209.86   (+57)
+ *   ... + a card selected, i.e. the confirm row      237.86   (+28)
+ *   ... + a four-hit lookup answer                   240.45   (+31)
+ *   clue dock + a four-hit lookup answer             210.59
+ *   sudden death + a card selected                   226.86
+ *   Cluey guessing                                   116.69
+ *
+ * 15rem = 240px covers the tallest of those to within half a pixel. The one
+ * state it does not cover is all four of the guess bar's optional pieces at
+ * once (~268px), and there the give-way region below does exactly what it is
+ * for: the lookup answers scroll inside their own box. Nothing is pushed and
+ * no control is hidden — which is the property worth having, rather than a
+ * reserve big enough for a combination the round rarely reaches.
+ *
+ * In rem, not px, so it tracks the text it has to hold when the phone's font
+ * size is turned up.
+ */
+.game-screen {
+  --dock-h: 15rem;
+}
+
+.dock.clue-input,
+.dock.ai-panel,
+.dock.guess-bar {
+  height: var(--dock-h);
+}
+
+/* Inside a reserved dock, everything holds its natural height... */
+.dock.clue-input > *,
+.dock.ai-panel > *,
+.dock.guess-bar > * {
+  flex: none;
+}
+
+/* ...except one region per dock, which takes the leftover and clips inside
+   itself. That is what keeps the send/guess button pinned: the growth has
+   somewhere to go that is not the button's row, and not the board.
+ *
+ * Deliberately NOT overflow:hidden on the dock itself. A fixed-height box
+ * whose content spills still lengthens the document, so if a future dock
+ * outgrows its reserve the no-scroll assertion in layout-drive fails and says
+ * so. Clipping the dock would hide the content AND silence the check — the
+ * trap the shell's own overflow comment is about. */
+.dock.clue-input > .composer-fields,
+.dock.guess-bar > .translate-box,
+.dock.guess-bar > .dock-flex {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Prose rather than a control: it may be cut, and it is the thing that gives
+   way so the button under it does not move when a card is selected. */
+.dock-flex {
+  overflow: hidden;
+}
+
+/* The AI panel has nothing that grows, so its spare room goes above and below
+   the face rather than under it. */
+.dock.ai-panel {
+  justify-content: center;
+}
+
 /* ---- the composer: two fields, one line ----
 
    A clue is one short word, so the field does not need a row of its own — and
@@ -1405,6 +1507,9 @@ select:focus {
      dictionary answer widen its column and squeeze the clue field. */
   flex: 1 1 0;
   min-width: 0;
+  /* And may not grow taller than the row the dock reserved for them, which is
+     how a long lookup answer is bounded rather than allowed to push. */
+  max-height: 100%;
 }
 
 .composer-field {
@@ -1458,6 +1563,7 @@ select:focus {
 .composer-fields .translate-box {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .composer-fields .translate-hits {
@@ -1542,13 +1648,10 @@ body:has(.kb-up) {
 
    The size problem is solved by the composer being two lines instead of five,
    not by shrinking it at the moment it is being used. */
-.kb-up .dock.kb-lifted .translate-hits {
-  /* The one exception, and it takes its space from the composer's own scroll
-     rather than from the page: a long lookup answer must never push the send
-     button under the keyboard. */
-  max-height: 4.6rem;
-  overflow-y: auto;
-}
+/* The lookup answer's own scroll used to be declared here, for the keyboard
+   case alone. It is now the ordinary behaviour of .translate-hits — the board
+   needed it just as much as the send button did — so there is nothing left to
+   say here. */
 
 /* Belt to the braces only. The dock has no transition of its own to suppress;
    the one it can be given — the cluecab-kbfast ride — is an inline style, which
@@ -1560,9 +1663,17 @@ body:has(.kb-up) {
   }
 }
 
+/* One line, always. "Cluey's clue: «hyggelig» (2) — up to 2 more guesses" is
+   the longest of them and it wrapped on any clue of eight letters or more at
+   360px, which is most Danish words: 18px off the board, arriving at the
+   moment the clue is read. Cut rather than clamped — the clue itself is at the
+   start, and what gets cut is a guess count the turn pips also carry. */
 .dock-title {
   line-height: 1.35;
   font-size: 0.92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dock-head {
@@ -1641,9 +1752,16 @@ body:has(.kb-up) {
   }
 }
 
+/* One line too, and this one changes every 1100ms as Cluey works down his
+   queue: "I'm quite sure about soveværelse — got one!" against "Cluey is
+   choosing a word…" is a line's difference, arriving and leaving three times
+   a turn. */
 .ai-guess-line {
   font-size: 1.02rem;
   line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .result-green strong {
@@ -3003,6 +3121,17 @@ body:has(.kb-up) {
   margin-top: 4px;
 }
 
+/* The answers, in a box that is the same size whether it holds four of them or
+   none. This cap used to apply only while the keyboard was up, where a long
+   answer pushing the send button under the keyboard was the visible symptom;
+   the invisible one was the answer pushing the BOARD, which happens keyboard
+   or no keyboard and was the biggest single source of drift measured — 188px
+   of board on a four-hit lookup. Generalised, so the box scrolls its own
+   overflow the way it already did there.
+
+   flex 1 1 auto rather than a bare max-height: inside a reserved dock the row
+   may be shorter than 4.6rem, and then this has to give way rather than spill
+   over the button below it. */
 .translate-hits {
   list-style: none;
   margin: 10px 0 4px;
@@ -3011,6 +3140,20 @@ body:has(.kb-up) {
   gap: 8px;
   font-size: 0.9rem;
   line-height: 1.45;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 4.6rem;
+  overflow-y: auto;
+}
+
+/* One line per answer. A Danish gloss list runs long — "flink — nice, kind,
+   friendly, pleasant" — and wrapping it moved everything under it by a line
+   per hit. Cut instead: the Danish word is at the start, which is the thing
+   being looked up. */
+.translate-hits > li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .translate-hits [lang='da'] {
