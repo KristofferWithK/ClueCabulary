@@ -4,6 +4,8 @@ dev-dist
 # Kristoffer's private room: the confidential product blueprint (pricing,
 # margins) and raw thought dumps. This repo is public — never commit these.
 KristoffersRoom/
+# isolated git worktrees the supervisor session dispatches agents into
+.claude/worktrees/
 *.local
 .DS_Store
 coverage
