@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
 
 /**
  * The native shell around the web app, and the reason it exists is one line:
- * Keyboard.resize 'none'.
+ * the Keyboard.resize setting below.
  *
  * On the mobile web the software keyboard pans the visual viewport, resizes an
  * installed PWA's webview, and makes the page scrollable — three behaviours,
@@ -70,10 +70,27 @@ const config: CapacitorConfig = {
        * the composer jumped up late instead of riding with it.
        *
        * 'body' keeps the webview full-screen — nothing black can appear
-       * because the page still covers it — and shrinks the document instead,
-       * from the plugin's own keyboardWillShow, which is before the animation
-       * rather than after it. The composer is still simply the last thing in
-       * the layout, so it still needs no arithmetic.
+       * because the page still covers it — and shrinks the document instead.
+       * The composer is still simply the last thing in the layout, so it still
+       * needs no arithmetic.
+       *
+       * It does not, however, fix the lateness, and this comment claimed it did
+       * for several builds. The shrink is not performed on keyboardWillShow.
+       * Keyboard.m schedules it:
+       *
+       *     double duration = [[... AnimationDurationUserInfoKey ...]
+       *                        doubleValue] + 0.2;
+       *     [self setKeyboardHeight:(int)height delay:duration];
+       *
+       * — one keyboard-animation duration plus 200ms after the event, so about
+       * 450ms later, roughly 200ms after the keyboard has stopped moving. The
+       * EXACT height is known at willShow and simply is not used until then.
+       * (Hiding is unaffected: willHide schedules the same call with a 10ms
+       * delay, which is why only coming up ever looked wrong.)
+       *
+       * Borrowing that height to move the composer early is the experiment
+       * behind localStorage cluecab-kbfast — see src/ui/nativeKeyboard.ts. It
+       * ships off, and it changes only when the composer arrives, never where.
        *
        * What either costs is the board reflowing into the smaller space, which
        * is the one thing it must never do. So the board is frozen at its full

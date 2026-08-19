@@ -434,6 +434,145 @@ await page.setViewportSize(PHONE)
   check('and comes back untouched', same(gridBefore, gridAfter), `${Math.round(gridAfter.height)}`)
 }
 
+// ---- the ride (localStorage cluecab-kbfast), and what it may not change ----
+//
+// The experiment makes the composer arrive EARLY. It is allowed to change when
+// the dock moves and nothing else — least of all where it stops, which cost
+// three builds to get right.
+//
+// Both modes are run through the app's own keyboard path rather than through a
+// hand-written imitation of it, which is what cluecab-kbsim is for. What that
+// cannot show is the real thing's timing, since there is no iOS keyboard here
+// to be early relative to; what it can show is that the ride happens at all,
+// that it does not happen with the flag off, and that both come to rest in
+// exactly the same place. Those are the three claims this experiment makes.
+{
+  const KB = 336
+  // Watch rather than sample. Reading the transform "while the ride is on" is a
+  // race the drive loses on a busy machine — it did, and reported a working
+  // ride as absent because it looked 300ms too late. This records every inline
+  // style a dock is ever given, and where the document had got to at that
+  // point, so the claim is checked against what happened rather than against
+  // whatever a lucky poll caught. Registered once: addInitScript accumulates,
+  // and two copies would record everything twice.
+  await page.addInitScript(() => {
+    window.__ride = []
+    // Whether the document had been shrunk yet, carried along by hand rather
+    // than read from the DOM inside the callback. Mutation records arrive in a
+    // batch, after the fact, so reading document.body there answers "at the end
+    // of the batch" and would call a transform written BEFORE the shrink one
+    // written after it. The records themselves are in order, so walking them
+    // keeps the sequence honest.
+    let shrunk = false
+    new MutationObserver((records) => {
+      for (const r of records) {
+        const el = r.target
+        if (!(el instanceof HTMLElement)) continue
+        window.__ride.push({
+          // Every style write, not only the docks', so that "no dock was ever
+          // transformed" is visibly a count of something rather than a count
+          // of nothing.
+          what: el === document.body ? 'body' : el.classList.contains('dock') ? 'dock' : 'other',
+          transform: el.style.transform,
+          shrunk,
+        })
+        if (el === document.body) shrunk = document.body.style.height !== ''
+      }
+    }).observe(document, { attributes: true, subtree: true, attributeFilter: ['style'] })
+  })
+
+  const arm = async (fast) => {
+    // A round to be in the middle of, saved, and then resumed by the reload —
+    // cluecab-kbsim and the flag are both read once, at mount.
+    await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+    await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+    await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+    await page.locator('.home-play').click()
+    await page.waitForSelector('.board-grid')
+    const study = page.locator('.study-dock .btn-primary')
+    if (await study.isVisible().catch(() => false)) await study.click()
+    await page.waitForTimeout(250)
+
+    await page.evaluate(
+      ([kb, on]) => {
+        localStorage.setItem('cluecab-kbsim', String(kb))
+        if (on) localStorage.setItem('cluecab-kbfast', '1')
+        else localStorage.removeItem('cluecab-kbfast')
+      },
+      [KB, fast],
+    )
+    await open('?mock=1&howto=0')
+    // A condition, not a duration: the keyboard is up, the document has
+    // shrunk, and nothing is holding the dock but the layout.
+    await page.waitForFunction(
+      () =>
+        document.documentElement.classList.contains('kb-up') &&
+        document.body.style.height !== '' &&
+        !document.querySelector('.dock.kb-lifted')?.style.transform,
+      null,
+      { timeout: 15000 },
+    )
+    const during = await page.evaluate(() => window.__ride ?? [])
+    const rest = await page.evaluate(() => {
+      const d = document.querySelector('.dock.kb-lifted')
+      const b = d.getBoundingClientRect()
+      return {
+        top: Math.round(b.top),
+        bottom: Math.round(b.bottom),
+        transform: d.style.transform,
+        transition: d.style.transition,
+        body: document.body.style.height,
+        board: Math.round(document.querySelector('.board-grid').getBoundingClientRect().height),
+      }
+    })
+    await page.evaluate(() => {
+      localStorage.removeItem('cluecab-kbsim')
+      localStorage.removeItem('cluecab-kbfast')
+    })
+    return { during, rest }
+  }
+
+  const off = await arm(false)
+  const on = await arm(true)
+
+  // Inert without the flag: the dock is never given a transform, and the
+  // document shrinks the moment the keyboard is declared, exactly as before.
+  const moved = (log) => log.filter((e) => e.what === 'dock' && e.transform !== '')
+  check(
+    'without cluecab-kbfast the dock is never transformed',
+    moved(off.during).length === 0 && off.rest.transform === '' && off.rest.transition === '',
+    `${off.during.length} style writes, ${moved(off.during).length} of them a transform`,
+  )
+
+  // Not a vacuous pair: with the flag on there really is a ride, and it is
+  // carrying the dock while the document is still at its full height — which
+  // is the lateness being compensated for, caught in the act.
+  const ahead = moved(on.during).filter((e) => /^translateY\(-\d/.test(e.transform) && !e.shrunk)
+  check(
+    'with cluecab-kbfast the dock rides ahead of the document',
+    ahead.length > 0,
+    ahead.length ? ahead[0].transform : `nothing rode: ${JSON.stringify(on.during)}`,
+  )
+  // And hands back: what holds the dock up afterwards is the layout, not us.
+  check(
+    'and hands the dock back to the layout when it lands',
+    on.rest.transform === '' && on.rest.transition === '' && on.rest.body === off.rest.body,
+    `transform ${JSON.stringify(on.rest.transform)}, body ${on.rest.body} vs ${off.rest.body}`,
+  )
+
+  // The measurement that matters: same resting place, to the pixel.
+  check(
+    'and comes to rest in exactly the same place either way',
+    on.rest.top === off.rest.top && on.rest.bottom === off.rest.bottom,
+    `fast ${on.rest.top}–${on.rest.bottom}, today ${off.rest.top}–${off.rest.bottom}`,
+  )
+  check(
+    'and the board is the same height either way',
+    on.rest.board === off.rest.board,
+    `${on.rest.board} vs ${off.rest.board}`,
+  )
+}
+
 check('no page errors', errors.length === 0, errors.join(' | '))
 await browser.close()
 preview.stop()

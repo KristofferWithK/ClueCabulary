@@ -18,6 +18,13 @@ export function BuildFooter() {
       return false
     }
   })
+  const [fast, setFast] = useState(() => {
+    try {
+      return localStorage.getItem('cluecab-kbfast') === '1'
+    } catch {
+      return false
+    }
+  })
 
   /**
    * Five taps on the build stamp turns on the keyboard readout.
@@ -38,6 +45,30 @@ export function BuildFooter() {
     try {
       if (on) localStorage.setItem('cluecab-kbdebug', '1')
       else localStorage.removeItem('cluecab-kbdebug')
+    } catch {
+      /* private mode */
+    }
+  }
+
+  /**
+   * The composer ride, on and off without a rebuild.
+   *
+   * It is an experiment and it ships off, but the only way to judge it is to
+   * watch both modes on a real phone, one after the other — and a TestFlight
+   * build has no console to set localStorage from. So it sits here, behind the
+   * five taps that already reveal the readout: invisible to anyone who has not
+   * gone looking, one tap away for the person filming.
+   *
+   * Live rather than latched, which is why nativeKeyboard.ts reads the flag at
+   * keyboardWillShow rather than at mount: put the keyboard away, tap the
+   * field again, and it is already the other mode.
+   */
+  const toggleFast = () => {
+    const on = !fast
+    setFast(on)
+    try {
+      if (on) localStorage.setItem('cluecab-kbfast', '1')
+      else localStorage.removeItem('cluecab-kbfast')
     } catch {
       /* private mode */
     }
@@ -65,6 +96,11 @@ export function BuildFooter() {
         {__TF_BUILD__ ? `TestFlight build ${__TF_BUILD__} · ` : ''}Build {__BUILD_STAMP__}
       </span>
       {debug && <span className="build-note">Keyboard readout on. Tap the build five times to hide it.</span>}
+      {debug && (
+        <button className="btn btn-small" onClick={toggleFast}>
+          Composer ride: {fast ? 'on' : 'off'}
+        </button>
+      )}
       <button className="btn btn-small" disabled={state === 'checking'} onClick={check}>
         {state === 'checking' ? 'Checking…' : 'Check for updates'}
       </button>

@@ -1480,15 +1480,15 @@ select:focus {
 
 /* ---- the keyboard, in the native shell ----
 
-   Nothing here runs on the web: --kb is only ever set by the native listener
-   in src/ui/nativeKeyboard.ts, and it is the height the OS says the keyboard
-   is about to occupy, reported before the animation starts.
+   Nothing here runs on the web: kb-up is only ever set by the native listener
+   in src/ui/nativeKeyboard.ts (or by cluecab-kbsim standing the same state up
+   deliberately), and --board-h with it.
 
-   With Keyboard.resize 'none' the webview is never resized, panned or
-   scrolled, so the board keeps its exact size and position and the keyboard
-   simply covers its lower half. All that is left is to raise the dock being
-   typed into by that height, which is a transform: it moves no layout, so
-   nothing behind it can reflow. */
+   With Keyboard.resize 'body' the WEBVIEW is never resized, panned or
+   scrolled — the document inside it is, down to the keyboard's top edge — so
+   the composer, last in the layout, lands on the keyboard with no height to
+   learn and no gap to tune. The board is what must not react to that, and
+   --board-h is how: frozen at what it measured, then clipped. */
 /* Only present while a keyboard is, and only between the board and the lifted
    composer — so the composer stays tappable and everything under it does not.
    Transparent: the board is still worth seeing, it is just not worth touching
@@ -1563,6 +1563,10 @@ body:has(.kb-up) {
   overflow-y: auto;
 }
 
+/* Belt to the braces only. The dock has no transition of its own to suppress;
+   the one it can be given — the cluecab-kbfast ride — is an inline style, which
+   this could not override anyway, so that path checks the same query itself
+   before it starts. See startRide() in src/ui/nativeKeyboard.ts. */
 @media (prefers-reduced-motion: reduce) {
   .dock.kb-lifted {
     transition: none;
