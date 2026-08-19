@@ -1,6 +1,5 @@
 import { aiTargetableIds } from './projections'
-import type { Outcome } from '../engine/types'
-import type { AiClueView, AiGuessView, DebriefView, FlaggedCall, PublicClue } from './projections'
+import type { AiClueView, AiGuessView, FlaggedCall, PublicClue } from './projections'
 
 /**
  * Prompt builders. They may import ONLY projection types — never GameState or
@@ -209,84 +208,6 @@ Clue history:
 ${historyLines(view.history)}
 
 Turns left: ${view.turnsLeft}. Your partner's clue: "${view.currentClue.text}" (${view.currentClue.number}) — they are telling you that exactly ${view.currentClue.number} unrevealed word(s) on this board fit it. Rank your guesses as JSON.`
-
-  return [
-    { role: 'system', content: system },
-    { role: 'user', content: user },
-  ]
-}
-
-/**
- * Every ending, spelled out — not a ternary chain with a catch-all.
- *
- * It was a chain, and sudden death fell off the end of it into "lost on the
- * translation challenge after hitting a forbidden word". So on the most common
- * losing ending Cluey was told, as fact, about a forbidden word the player
- * never hit and a translation challenge that never ran, and he wrote the
- * debrief from that: the banner above his text said "Sudden death", his text
- * explained a different round.
- *
- * The key type distributes over the outcome union, so it lists only endings
- * that exist and demands a sentence for each. Adding an outcome without
- * writing its sentence now fails to compile rather than quietly inheriting
- * somebody else's ending.
- */
-type OutcomeKey = Outcome extends infer O
-  ? O extends Outcome
-    ? `${O['result']}:${O['reason']}`
-    : never
-  : never
-
-const OUTCOME_TEXT: Record<OutcomeKey, string> = {
-  'won:all-greens': 'won by finding every green word',
-  // Clues running out no longer ends the round — it opens sudden death — so
-  // this one is now reached by choosing to stop there.
-  'lost:timeout': 'lost by giving up in sudden death, with green words still hidden',
-  'lost:sudden-death':
-    'lost in sudden death: the clues ran out, the board stayed open with no new clue allowed, and a word named there was green on neither key',
-}
-
-export function buildDebriefPrompt(view: DebriefView): ChatMessage[] {
-  const outcomeText = OUTCOME_TEXT[`${view.outcome.result}:${view.outcome.reason}` as OutcomeKey]
-
-  const board = view.words
-    .map(
-      (w) =>
-        `${w.da} (${w.en.join('/')}) — player key: ${w.onPlayerKey}, your key: ${w.onAiKey}, ${revealLabel(w.reveal)}`,
-    )
-    .join('\n')
-
-  const history = view.history
-    .map((c) => {
-      const guesses = c.guesses.map((g) => `${g.da}→${g.result}`).join(', ') || '(none)'
-      const secret =
-        c.by === 'ai' && c.rationale ? ` [your intent: ${c.targets?.join(',') ?? ''} — ${c.rationale}]` : ''
-      return `${c.by === 'ai' ? 'You' : 'Partner'}: "${c.text}" (${c.number}) → ${guesses}${secret}`
-    })
-    .join('\n')
-
-  // This prompt does NOT include RULES, and the board below it prints BOTH
-  // keys — so without this paragraph the only thing telling Cluey how a guess
-  // was judged is his own guess about it. Left to that, he narrates the round
-  // wrong on the one screen where the player finds out what happened: telling
-  // them they nearly died on a card that was harmless, or naming a word on
-  // their own key as the danger while he was the one cluing.
-  const system = `You are Cluey, the travelling suitcase companion from a just-finished game of ClueCabulary (a cooperative Danish word-association learning game). The game is over, both keys are open on the table, and you are chatting warmly with your partner, a Danish learner.
-
-How the round was judged, since both keys are shown and they differ: every guess was scored against the CLUE-GIVER'S key alone. A word green on YOUR key scored when your partner named it under your clue; a word green only on THEIRS did not, and burned against you instead — while still being theirs to take under their own clue. So never tell your partner that a card on their own key decided a turn you were cluing. The one exception is sudden death, which has no clue-giver: there a word green on either key counts, and anything else ends it.
-
-Keep it brief, specific and encouraging. Respond with ONLY a JSON object: {"summary": <2-4 sentences: how the game went, one moment worth explaining>, "takeaways": [<1-6 short vocabulary insights, each naming a Danish board word and a memorable connection or nuance — prioritize the words listed as looked up or missed>]}`
-
-  const user = `You ${outcomeText}.
-
-Final board:
-${board}
-
-Round history:
-${history}
-
-Words your partner looked up during the game: ${view.lookedUpDa.join(', ') || '(none)'}
-Write your debrief JSON now.`
 
   return [
     { role: 'system', content: system },

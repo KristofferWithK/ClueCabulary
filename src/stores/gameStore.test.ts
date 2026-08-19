@@ -25,7 +25,7 @@ Object.defineProperty(globalThis, 'window', {
   },
 })
 
-const { useGame } = await import('./gameStore')
+const { migrateGame, useGame } = await import('./gameStore')
 const { useJourney } = await import('./journeyStore')
 const { useSettings } = await import('./settingsStore')
 const { useSrs } = await import('./srsStore')
@@ -251,6 +251,120 @@ describe('gameStore: which side earned each green', () => {
    * frozen; the rule it protected is the one above it, that only a green earned
    * each way collects a word, and that is still pinned four ways.
    */
+
+  /**
+   * The round summary's other counter. It has to be read BEFORE recordRound,
+   * because recordRound gives every word on the board an SRS record — after it
+   * runs, a word met for the first time today is indistinguishable from one met
+   * a year ago and the diff is uniformly empty.
+   *
+   * Mutation-checked: moving the `newlyDiscovered` line below the
+   * `recordRound` call makes every test here read `[]` and all three fail.
+   */
+  describe('and which words it was the first sight of', () => {
+    it('a board of words never seen before is all new', () => {
+      useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+      useGame.getState().finishRound()
+      expect(useGame.getState().newlyDiscovered.sort()).toEqual(['a', 'b', 'c', 'd'])
+    })
+
+    it('a word with an SRS record from an earlier round is not new', () => {
+      useSrs.setState({ stats: { a: newStats(1_700_000_000_000) } })
+      useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+      useGame.getState().finishRound()
+      expect(useGame.getState().newlyDiscovered).not.toContain('a')
+      expect(useGame.getState().newlyDiscovered.sort()).toEqual(['b', 'c', 'd'])
+    })
+
+    /**
+     * Discovered is about meeting a word, not about doing well with it — 'd'
+     * ends this round unrevealed and still counts, which is exactly what
+     * `wordState` means by `discovered`.
+     */
+    it('counts a word that was never even revealed', () => {
+      useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
+      useGame.getState().finishRound()
+      expect(useGame.getState().newlyDiscovered).toContain('d')
+    })
+  })
+})
+
+/**
+ * v4 -> v5 drops the debrief.
+ *
+ * This store HAS a partialize, which writes the saved blob back key for key —
+ * so a `debrief` object stored once by an older build would ride along in every
+ * save that device ever wrote again, long after nothing could read it. Unlike
+ * v3 -> v4 this migration costs the player nothing: no persisted shape changed,
+ * so a round in flight resumes as itself.
+ *
+ * Exported and tested directly for the reason migrateSrs is: under vitest there
+ * is no localStorage, persist quietly becomes a passthrough, and a test reaching
+ * through the middleware would be testing nothing.
+ */
+describe('gameStore: the v4 -> v5 migration', () => {
+  const v4 = () => ({
+    recentBoards: [['w1']],
+    game: { phase: 'playerGuessing' },
+    lookedUp: ['w1'],
+    roundRecorded: false,
+    dailyKey: null,
+    studying: false,
+    mode: 'normal',
+    packed: [],
+    packingMissed: [],
+    packingDone: true,
+    debrief: { summary: 'Cluey said something.', takeaways: ['one thing'] },
+    debriefFailed: false,
+    newlyLearned: ['w1'],
+    practiceFallback: false,
+  })
+
+  it('drops both dead keys rather than leaving them to rot in the blob', () => {
+    const out = migrateGame(v4(), 4) as Record<string, unknown>
+    expect(out).not.toHaveProperty('debrief')
+    expect(out).not.toHaveProperty('debriefFailed')
+  })
+
+  it('gives the summary its new counter', () => {
+    expect((migrateGame(v4(), 4) as { newlyDiscovered: string[] }).newlyDiscovered).toEqual([])
+  })
+
+  it('and keeps the round in flight — nothing in it changed shape', () => {
+    const out = migrateGame(v4(), 4) as Record<string, unknown>
+    expect(out.game).toEqual({ phase: 'playerGuessing' })
+    expect(out.lookedUp).toEqual(['w1'])
+    expect(out.newlyLearned).toEqual(['w1'])
+    expect(out.recentBoards).toEqual([['w1']])
+  })
+
+  it('leaves a save already at v5 exactly as it found it', () => {
+    const already = { game: null, newlyDiscovered: ['w9'] }
+    expect(migrateGame(already, 5)).toBe(already)
+  })
+
+  /**
+   * An older save still takes the v3 -> v4 road — the round is thrown away
+   * because it may hold roles that no longer exist — and must not arrive
+   * carrying the dead keys either.
+   */
+  it('an older save arrives with no game, no debrief keys, and its boards', () => {
+    const out = migrateGame(
+      { recentBoards: [['w1']], debrief: { summary: 's', takeaways: ['t'] } },
+      3,
+    ) as Record<string, unknown>
+    expect(out.game).toBeNull()
+    expect(out).not.toHaveProperty('debrief')
+    expect(out).not.toHaveProperty('debriefFailed')
+    expect(out.newlyDiscovered).toEqual([])
+    expect(out.recentBoards).toEqual([['w1']])
+  })
+
+  it('and a v1 save still finds its one remembered board', () => {
+    const out = migrateGame({ lastBoard: ['w1', 'w2'] }, 1) as Record<string, unknown>
+    expect(out.recentBoards).toEqual([['w1', 'w2']])
+    expect(out.newlyDiscovered).toEqual([])
+  })
 })
 
 /**

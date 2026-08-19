@@ -22,13 +22,6 @@ export const GuessResponseSchema = z.object({
 })
 export type GuessResponse = z.infer<typeof GuessResponseSchema>
 
-export const DebriefResponseSchema = z.object({
-  // Empty strings are "valid but blank" — force the retry flow instead.
-  summary: z.string().trim().min(1),
-  takeaways: z.array(z.string().trim().min(1)).min(1).max(6),
-})
-export type DebriefResponse = z.infer<typeof DebriefResponseSchema>
-
 /**
  * A translation, for the field the player uses to compose a Danish clue or to
  * read one of Cluey's. Deliberately tiny: the whole value is being able to ask

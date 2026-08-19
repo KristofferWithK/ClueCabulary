@@ -6,9 +6,9 @@ import { useUi } from '../../stores/uiStore'
 import { AiTurnPanel } from '../components/AiTurnPanel'
 import { BoardGrid } from '../components/BoardGrid'
 import { ClueInput } from '../components/ClueInput'
-import { DebriefPanel } from '../components/DebriefPanel'
 import { useOpenDictionary } from '../components/DictionarySheet'
 import { PackingDock } from '../components/PackingDock'
+import { RoundSummary } from '../components/RoundSummary'
 import { TranslateBox } from '../components/TranslateBox'
 import { TurnTokens } from '../components/TurnTokens'
 
@@ -243,7 +243,7 @@ export function GameScreen() {
       )}
       {!studying && !packing && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
       {!studying && !packing && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
-      {game.phase === 'finished' && <DebriefPanel game={game} />}
+      {game.phase === 'finished' && <RoundSummary game={game} />}
     </div>
   )
 }

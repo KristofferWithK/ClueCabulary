@@ -47,7 +47,7 @@ export interface GuessRecord {
   result: CardRole
   /**
    * Why the AI named this word, and how sure it was — stored but hidden until
-   * the debrief, like a clue's rationale.
+   * the round is over, like a clue's rationale.
    *
    * The model has always produced both and the engine always threw them away,
    * so the one thing a player could never find out was why Cluey named the word
@@ -65,9 +65,9 @@ export interface Clue {
   by: Side
   text: string
   number: number
-  /** AI's intended wordIds — stored but hidden until the debrief. */
+  /** AI's intended wordIds — stored but hidden until the round is over. */
   targets?: string[]
-  /** AI's reasoning — stored but hidden until the debrief. */
+  /** AI's reasoning — stored but hidden until the round is over. */
   rationale?: string
   guesses: GuessRecord[]
 }

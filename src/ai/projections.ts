@@ -59,20 +59,17 @@ export interface AiGuessView {
   flagged: FlaggedCall[]
 }
 
-/** Post-game view for the debrief — the game is over, everything is public. */
-export interface DebriefView {
-  outcome: NonNullable<GameState['outcome']>
-  words: (PublicWord & { onPlayerKey: CardRole; onAiKey: CardRole })[]
-  history: { by: Side; text: string; number: number; targets?: string[]; rationale?: string; guesses: { da: string; result: CardRole }[] }[]
-  lookedUpDa: string[]
-}
-
 const publicWord = (state: GameState, wordId: string): PublicWord => {
   const w = state.words.find((x) => x.wordId === wordId)!
   return { id: w.wordId, da: w.da, en: w.en, pos: w.pos, reveal: state.reveals[wordId]! }
 }
 
-/** History stripped of targets/rationale — they stay hidden until the debrief. */
+/**
+ * History stripped of targets/rationale. They stay hidden until the round is
+ * over, where the summary's turn log reads them straight off the game state —
+ * there is no longer a projection carrying them to the model, because nothing
+ * is asked of the model once the round ends.
+ */
 const publicHistory = (state: GameState): PublicClue[] =>
   state.clueHistory.map((c) => ({
     by: c.by,
@@ -117,32 +114,6 @@ export function buildAiGuessView(
     currentClue: { text: clue.text, number: clue.number },
     history: publicHistory(state),
     flagged: flagged.map(({ kind, what, underClue, why }) => ({ kind, what, underClue, why })),
-  }
-}
-
-export function buildDebriefView(state: GameState, lookedUpWordIds: string[]): DebriefView {
-  if (!state.outcome) throw new Error('debrief requires a finished game')
-  return {
-    outcome: state.outcome,
-    words: state.words.map((w) => ({
-      ...publicWord(state, w.wordId),
-      onPlayerKey: state.playerKey[w.wordId]!,
-      onAiKey: state.aiKey[w.wordId]!,
-    })),
-    history: state.clueHistory.map((c) => ({
-      by: c.by,
-      text: c.text,
-      number: c.number,
-      targets: c.targets,
-      rationale: c.rationale,
-      guesses: c.guesses.map((g) => ({
-        da: state.words.find((w) => w.wordId === g.wordId)!.da,
-        result: g.result,
-      })),
-    })),
-    lookedUpDa: lookedUpWordIds
-      .map((id) => state.words.find((w) => w.wordId === id)?.da)
-      .filter((da): da is string => !!da),
   }
 }
 

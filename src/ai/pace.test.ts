@@ -1,17 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { GRID_CONFIGS } from '../engine/config'
 import { applyEvent, createGame, isGuessable } from '../engine/game'
-import type { BoardWord, Outcome } from '../engine/types'
+import type { BoardWord } from '../engine/types'
 import { aiTargetableIds, buildAiClueView } from './projections'
-import type { DebriefView } from './projections'
-import { buildCluePrompt, buildDebriefPrompt } from './prompts'
+import { buildCluePrompt } from './prompts'
 
-/** `result:reason` for every ending, distributed over the union. */
-type OutcomeKey = Outcome extends infer O
-  ? O extends Outcome
-    ? `${O['result']}:${O['reason']}`
-    : never
-  : never
+/**
+ * This file used to end with "the debrief is told how the round actually
+ * ended" — a suite over `buildDebriefPrompt`'s ending sentences, including a
+ * Record keyed off the Outcome union that made a missing ending a build error.
+ * The debrief call is gone: the round summary is written from the board and the
+ * stores rather than asked of the model, so there is no ending sentence left to
+ * get wrong. The exhaustive-Record trick it was built on is worth remembering
+ * (git history) — an `as` cast on a hand-written array is what it replaced, and
+ * that array had silently stopped being exhaustive.
+ */
 
 const words = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -162,74 +165,5 @@ describe('the clue prompt tells Cluey the pace he has to keep', () => {
     const a = buildCluePrompt(buildAiClueView(base, 'en'))[0]!.content
     const b = buildCluePrompt(buildAiClueView(permuted, 'en'))[0]!.content
     expect(a).toBe(b)
-  })
-})
-
-/**
- * The debrief is written from a one-line account of how the round ended, and
- * that line came from a ternary chain with a catch-all. Sudden death — added
- * later — fell off the end of it into "lost on the translation challenge after
- * hitting a forbidden word", so on the most common losing ending Cluey was
- * told, as fact, about a forbidden word the player never hit and a challenge
- * that never ran. The banner above his text said "Sudden death"; his text
- * explained a different round.
- */
-describe('the debrief is told how the round actually ended', () => {
-  const view = (outcome: DebriefView['outcome']): DebriefView => ({
-    outcome,
-    words: [
-      { id: 'w0', da: 'hus', en: ['house'], pos: 'noun', reveal: { kind: 'hidden' }, onPlayerKey: 'green', onAiKey: 'bystander' },
-    ],
-    history: [],
-    lookedUpDa: [],
-  })
-  const text = (o: DebriefView['outcome']) => buildDebriefPrompt(view(o))[1]!.content
-
-  it('names sudden death as sudden death', () => {
-    const t = text({ result: 'lost', reason: 'sudden-death' })
-    expect(t).toContain('sudden death')
-    expect(t).not.toContain('translation challenge after hitting a forbidden word')
-  })
-
-  it('does not call giving up "the clues ran out", now that running out opens sudden death', () => {
-    expect(text({ result: 'lost', reason: 'timeout' })).toContain('giving up in sudden death')
-  })
-
-  it('still describes the ending it always got right', () => {
-    expect(text({ result: 'won', reason: 'all-greens' })).toContain('finding every green word')
-  })
-
-  /** No ending may mention a mechanic that is not in the game any more. */
-  it('never mentions a forbidden word or a translation challenge', () => {
-    for (const o of [
-      { result: 'won', reason: 'all-greens' },
-      { result: 'lost', reason: 'timeout' },
-      { result: 'lost', reason: 'sudden-death' },
-    ] as DebriefView['outcome'][]) {
-      expect(text(o).toLowerCase(), JSON.stringify(o)).not.toContain('forbidden')
-      expect(text(o).toLowerCase(), JSON.stringify(o)).not.toContain('translation challenge')
-    }
-  })
-
-  /**
-   * A Record keyed off the Outcome union, not a hand-written array.
-   *
-   * The array this replaces claimed in its own comment to be compile-time
-   * exhaustive and then ended in `as DebriefView['outcome'][]`, which is
-   * precisely the cast that makes it not — an ending was added to the engine
-   * and this loop went on passing without it. A missing key here is a build
-   * error, and it caught this change too: three endings were removed and the
-   * Record refused to compile until they were removed here as well.
-   */
-  it('has a sentence for every ending the engine can produce', () => {
-    const EVERY_ENDING: Record<OutcomeKey, DebriefView['outcome']> = {
-      'won:all-greens': { result: 'won', reason: 'all-greens' },
-      'lost:timeout': { result: 'lost', reason: 'timeout' },
-      'lost:sudden-death': { result: 'lost', reason: 'sudden-death' },
-    }
-    for (const [key, o] of Object.entries(EVERY_ENDING)) {
-      expect(text(o), key).not.toContain('undefined')
-      expect(text(o).length, key).toBeGreaterThan(20)
-    }
   })
 })

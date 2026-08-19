@@ -3,12 +3,8 @@ import { persist } from 'zustand/middleware'
 import { AiError } from '../ai/client'
 import { OllamaCompanion, planGuessExecution, type Companion } from '../ai/companion'
 import { MockCompanion } from '../ai/mock/mockCompanion'
-import {
-  buildAiClueView,
-  buildAiGuessView,
-  buildDebriefView,
-} from '../ai/projections'
-import type { DebriefResponse, GuessResponse, TranslationResponse } from '../ai/schemas'
+import { buildAiClueView, buildAiGuessView } from '../ai/projections'
+import type { GuessResponse, TranslationResponse } from '../ai/schemas'
 import { GRID_CONFIGS, WRAPUP_CONFIG, type GridConfig, type GridSize } from '../engine/config'
 import { applyEvent, createGame, currentClue } from '../engine/game'
 import { matchesDanishAnswer } from '../engine/packing'
@@ -70,10 +66,16 @@ interface GameStore {
   packingMissed: string[]
   /** Set when every card is packed, or the player starts early regardless. */
   packingDone: boolean
-  debrief: DebriefResponse | null
-  debriefFailed: boolean
   /** Words this round pushed over the line into the collection's green. */
   newlyLearned: string[]
+  /**
+   * Words this round was the player's FIRST sight of — never on a board
+   * before. The test is the absence of an SRS record when the round started:
+   * `finishRound` writes one for every word on a finished board, and
+   * `wordState` reads the same absence as `undiscovered`, so the two agree by
+   * construction rather than by a second rule kept in step by hand.
+   */
+  newlyDiscovered: string[]
   // Transient (not persisted):
   aiBusy: boolean
   aiGuessQueue: PlannedGuess[]
@@ -151,7 +153,6 @@ interface GameStore {
   runAiGuesses: () => Promise<void>
   stepAiGuess: () => void
   runAiClue: () => Promise<void>
-  requestDebrief: () => Promise<void>
   finishRound: () => void
   clearError: () => void
 }
@@ -267,9 +268,8 @@ function dealBoard(
 const freshRound = () => ({
   lookedUp: [] as string[],
   roundRecorded: false,
-  debrief: null,
-  debriefFailed: false,
   newlyLearned: [] as string[],
+  newlyDiscovered: [] as string[],
   // Every round gets a fresh chance at Cluey.
   practiceFallback: false,
   aiGuessQueue: [] as PlannedGuess[],
@@ -299,6 +299,73 @@ const buzz = (result: 'green' | 'bystander') => {
   navigator.vibrate(result === 'green' ? 15 : 40)
 }
 
+/**
+ * v1 remembered one board under `lastBoard`. Without this the upgrade would
+ * silently lose it — harmless (one board deals without a carry-over quota) but
+ * avoidable, and an installed PWA updates under the player rather than at a
+ * moment they chose.
+ *
+ * v2 -> v3: the wrap-up fields. An in-flight round from the old build is by
+ * definition a normal one with nothing to pack, and resumes as such.
+ *
+ * v3 -> v4: forbidden words and the redemption phase are gone, and this is the
+ * one migration that cannot preserve the round. A save written by the old build
+ * may hold a key with `forbidden` on it, a `{kind: 'forbidden'}` reveal, a
+ * `phase: 'redemption'` with typed answers beside it, or an outcome of
+ * 'redeemed' — none of which the new types can represent, and all of which
+ * would be read straight back onto the board. So the game is thrown away and
+ * the player lands on Home with Play. One abandoned mid-round on the update is
+ * the accepted cost; the alternative is a screen rendering roles that no longer
+ * exist.
+ *
+ * recentBoards survives on purpose: it is only word ids, it carries no key
+ * data, and keeping it means the board dealt after the update still honours the
+ * carry-over rule.
+ *
+ * v4 -> v5: the debrief is gone. The round summary is written from the board
+ * and the stores rather than asked of the model, so `debrief` and
+ * `debriefFailed` are dropped and `newlyDiscovered` joins `newlyLearned`. The
+ * round in flight is KEPT — nothing in it changed shape, and this is the first
+ * of these migrations that costs the player nothing. The two dead keys are
+ * deleted rather than left to rot: this store has a `partialize`, which writes
+ * the blob back key for key, so a `debrief` object stored once would ride along
+ * in every save a device ever wrote afterwards.
+ *
+ * Exported so it can be tested directly, like migrateSrs: under vitest there is
+ * no localStorage, persist quietly becomes a passthrough, and a test reaching
+ * through the middleware would be testing nothing.
+ */
+export function migrateGame(persisted: unknown, from: number): unknown {
+  if (from >= 5) return persisted
+  if (from === 4) {
+    const kept = { ...((persisted ?? {}) as Record<string, unknown>) }
+    delete kept.debrief
+    delete kept.debriefFailed
+    return { ...kept, newlyDiscovered: [] }
+  }
+  let p = persisted
+  if (from < 2) {
+    const { lastBoard, ...rest } = (p ?? {}) as { lastBoard?: string[] }
+    p = { ...rest, recentBoards: lastBoard?.length ? [lastBoard] : [] }
+  }
+  const { recentBoards } = (p ?? {}) as { recentBoards?: string[][] }
+  return {
+    recentBoards: recentBoards ?? [],
+    game: null,
+    lookedUp: [],
+    roundRecorded: false,
+    dailyKey: null,
+    studying: false,
+    mode: 'normal',
+    packed: [],
+    packingMissed: [],
+    packingDone: true,
+    newlyLearned: [],
+    newlyDiscovered: [],
+    practiceFallback: false,
+  }
+}
+
 export const useGame = create<GameStore>()(
   persist(
     (set, get) => ({
@@ -312,9 +379,8 @@ export const useGame = create<GameStore>()(
       packed: [],
       packingMissed: [],
       packingDone: true,
-      debrief: null,
-      debriefFailed: false,
       newlyLearned: [],
+      newlyDiscovered: [],
       practiceFallback: false,
       aiBusy: false,
       aiGuessQueue: [],
@@ -653,7 +719,8 @@ export const useGame = create<GameStore>()(
         }
         try {
           // Cluey's own account of the guess travels with it into the history,
-          // so the debrief can say why he named that word rather than another.
+          // so the round's turn log can say why he named that word rather than
+          // another. It is the whole reason that log is worth expanding.
           const after = applyEvent(game, {
             type: 'GUESS',
             wordId: next.wordId,
@@ -697,20 +764,6 @@ export const useGame = create<GameStore>()(
           set({ aiBusy: false, game: after })
         } catch (e) {
           if (get().game === game) set({ aiBusy: false, error: aiMessage(e) })
-        }
-      },
-
-      requestDebrief: async () => {
-        const { game, lookedUp, debrief, aiBusy } = get()
-        if (!game || game.phase !== 'finished' || debrief || aiBusy) return
-        set({ aiBusy: true })
-        try {
-          const view = buildDebriefView(game, lookedUp)
-          const res = await companion(get().practiceFallback).getDebrief(view)
-          if (get().game !== game) return // user already started the next round
-          set({ aiBusy: false, debrief: res, debriefFailed: false })
-        } catch {
-          if (get().game === game) set({ aiBusy: false, debriefFailed: true })
         }
       },
 
@@ -772,6 +825,14 @@ export const useGame = create<GameStore>()(
             .filter((w) => isCollected(before[w.wordId], w.wordId in wrapped))
             .map((w) => w.wordId),
         )
+        // The other half of the same reward, and the only moment it can be
+        // read: recordRound gives EVERY word on this board an SRS record, so
+        // afterwards a word met for the first time today is indistinguishable
+        // from one met a year ago. Absence before the call is the whole test —
+        // it is what `wordState` calls `undiscovered`.
+        const newlyDiscovered = game.words
+          .filter((w) => !before[w.wordId])
+          .map((w) => w.wordId)
         useSrs.getState().recordRound(results, finishedAt)
         const after = useSrs.getState().stats
         const newlyLearned = game.words
@@ -789,8 +850,7 @@ export const useGame = create<GameStore>()(
             game.outcome!.result === 'won' ? 'won' : 'lost',
           )
         }
-        set({ roundRecorded: true, newlyLearned })
-        void get().requestDebrief()
+        set({ roundRecorded: true, newlyLearned, newlyDiscovered })
       },
 
       clearError: () => set({ error: null }),
@@ -801,55 +861,8 @@ export const useGame = create<GameStore>()(
     }),
     {
       name: 'cluecab-game-v1',
-      version: 4,
-      /**
-       * v1 remembered one board under `lastBoard`. Without this the upgrade
-       * would silently lose it — harmless (one board deals without a carry-over
-       * quota) but avoidable, and an installed PWA updates under the player
-       * rather than at a moment they chose.
-       *
-       * v2 -> v3: the wrap-up fields. An in-flight round from the old build is
-       * by definition a normal one with nothing to pack, and resumes as such.
-       *
-       * v3 -> v4: forbidden words and the redemption phase are gone, and this
-       * is the one migration that cannot preserve the round. A save written by
-       * the old build may hold a key with `forbidden` on it, a `{kind:
-       * 'forbidden'}` reveal, a `phase: 'redemption'` with typed answers
-       * beside it, or an outcome of 'redeemed' — none of which the new types
-       * can represent, and all of which would be read straight back onto the
-       * board. So the game is thrown away and the player lands on Home with
-       * Play. One abandoned mid-round on the update is the accepted cost; the
-       * alternative is a screen rendering roles that no longer exist.
-       *
-       * recentBoards survives on purpose: it is only word ids, it carries no
-       * key data, and keeping it means the board dealt after the update still
-       * honours the carry-over rule.
-       */
-      migrate: (persisted, from) => {
-        if (from >= 4) return persisted
-        let p = persisted
-        if (from < 2) {
-          const { lastBoard, ...rest } = (p ?? {}) as { lastBoard?: string[] }
-          p = { ...rest, recentBoards: lastBoard?.length ? [lastBoard] : [] }
-        }
-        const { recentBoards } = (p ?? {}) as { recentBoards?: string[][] }
-        return {
-          recentBoards: recentBoards ?? [],
-          game: null,
-          lookedUp: [],
-          roundRecorded: false,
-          dailyKey: null,
-          studying: false,
-          mode: 'normal',
-          packed: [],
-          packingMissed: [],
-          packingDone: true,
-          debrief: null,
-          debriefFailed: false,
-          newlyLearned: [],
-          practiceFallback: false,
-        }
-      },
+      version: 5,
+      migrate: migrateGame,
       partialize: (s) => ({
         game: s.game,
         lookedUp: s.lookedUp,
@@ -861,9 +874,8 @@ export const useGame = create<GameStore>()(
         packed: s.packed,
         packingMissed: s.packingMissed,
         packingDone: s.packingDone,
-        debrief: s.debrief,
-        debriefFailed: s.debriefFailed,
         newlyLearned: s.newlyLearned,
+        newlyDiscovered: s.newlyDiscovered,
         practiceFallback: s.practiceFallback,
       }),
     },
