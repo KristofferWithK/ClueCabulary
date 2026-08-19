@@ -16,24 +16,29 @@
  * gender without the false promise that you can count it.
  *
  * Deliberately NOT included, and each for a reason, so the next reader does not
- * "fix" them: ost, øl, kaffe, te, vin, is, sodavand, brød, frugt, suppe, salat,
- * papir, glas, træ, hår, lyn, smerte, følelse, interesse, krig, sandhed,
- * forkølelse, venskab, ægteskab, skat, arbejde — every one has a common,
- * ordinary "en/et" reading.
+ * "fix" them: ost, øl, kaffe, te, vin, is, brød, frugt, suppe, salat, papir,
+ * glas, træ, hår, smerte, følelse, interesse, krig, sandhed, forkølelse, skat,
+ * arbejde — every one has a common, ordinary "en/et" reading.
+ *
+ * The list holds only nouns the game actually ships, and gender.test.ts fails
+ * on any that is not one. Peber, græs, skinke, slik, bagage, torden and tåge
+ * left with the hundred words that went when the dataset came down to nine
+ * hundred, and sodavand, lyn, venskab and ægteskab left the note above with
+ * them. Every one of those calls was right about Danish and would be right
+ * again, so this is the place to look first if the dataset ever grows back.
  */
 
 /** Substances and materials: measured, not counted. */
 const SUBSTANCES = [
-  'mad', 'mælk', 'vand', 'kød', 'smør', 'salt', 'sukker', 'peber', 'blod',
-  'luft', 'jord', 'sne', 'regn', 'ild', 'græs', 'pasta', 'chokolade',
-  'skinke', 'slik', 'sæbe',
+  'mad', 'mælk', 'vand', 'kød', 'smør', 'salt', 'sukker', 'blod',
+  'luft', 'jord', 'sne', 'regn', 'ild', 'pasta', 'chokolade', 'sæbe',
 ]
 
 /** Collectives: already plural or already the whole of the thing. */
-const COLLECTIVES = ['tøj', 'undertøj', 'bagage', 'penge']
+const COLLECTIVES = ['tøj', 'undertøj', 'penge']
 
 /** Weather and the natural world, as conditions rather than events. */
-const CONDITIONS = ['vejr', 'vind', 'torden', 'tåge', 'solskin', 'varme', 'kulde', 'natur']
+const CONDITIONS = ['vejr', 'vind', 'solskin', 'varme', 'kulde', 'natur']
 
 /** States of mind and other abstractions you have rather than have one of. */
 const ABSTRACTIONS = [

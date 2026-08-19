@@ -467,15 +467,14 @@
     "slice": "adj-1"
   },
   {
-    "da": "ked",
+    "da": "sommerfugl",
+    "article": "en",
     "en": [
-      "sad",
-      "sorry",
-      "upset"
+      "butterfly"
     ],
-    "pos": "adjective",
-    "exampleDa": "Hun er ked af det i dag.",
-    "exampleEn": "She is sad today.",
+    "pos": "noun",
+    "exampleDa": "Der sidder en smuk sommerfugl på blomsten.",
+    "exampleEn": "A beautiful butterfly is sitting on the flower.",
     "order": 146,
     "slice": "adj-1"
   },

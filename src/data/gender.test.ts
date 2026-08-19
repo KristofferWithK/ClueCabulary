@@ -56,7 +56,9 @@ describe('the dataset says what gender every noun is', () => {
   const nouns = WORDS.filter((w) => w.pos === 'noun')
 
   it('has nouns to check', () => {
-    expect(nouns.length).toBeGreaterThan(400)
+    // 366 of the nine hundred, measured. The floor only guards against the
+    // suite going vacuous on an empty or half-loaded dataset.
+    expect(nouns.length).toBeGreaterThan(350)
   })
 
   it('every one of them, article or not', () => {
@@ -72,12 +74,14 @@ describe('the dataset says what gender every noun is', () => {
   })
 
   /**
-   * Named rather than counted, so adding a fourth is a deliberate act with a
-   * gender decision attached rather than something that slips in.
+   * Named rather than counted, so adding another is a deliberate act with a
+   * gender decision attached rather than something that slips in. There were
+   * three; briller and bukser went with the hundred words the tenth city took,
+   * and penge is the one plurale tantum the nine hundred still ship.
    */
-  it('the three with no article are the plural-only ones', () => {
+  it('the one with no article is the plural-only one', () => {
     const noArticle = nouns.filter((w) => !w.article).map((w) => w.da)
-    expect(noArticle.sort()).toEqual(['briller', 'bukser', 'penge'])
+    expect(noArticle.sort()).toEqual(['penge'])
     for (const da of noArticle) {
       expect(WORDS.find((w) => w.da === da)!.gender, da).toBe('common')
     }
@@ -112,7 +116,9 @@ describe('spotting a clue the player reached for in English', () => {
    * a player has every reason to clue with.
    */
   it('never flags a word that is Danish too', () => {
-    for (const w of ['arm', 'kind', 'sky', 'mad', 'salt', 'fast', 'time', 'hold', 'land', 'hat']) {
+    // «kind» stood here until the nine-hundred trim took it; «gift» is the
+    // same trap and still shipped — English present, Danish married.
+    for (const w of ['arm', 'gift', 'sky', 'mad', 'salt', 'fast', 'time', 'hold', 'land', 'hat']) {
       expect(looksEnglish(w), w).toBe(false)
     }
   })
@@ -232,7 +238,7 @@ describe('classifying a clue without asking anybody', () => {
   })
 
   it('a word that is both stays Danish', () => {
-    for (const w of ['arm', 'kind', 'sky', 'mad', 'salt', 'time', 'hold', 'land']) {
+    for (const w of ['arm', 'gift', 'sky', 'mad', 'salt', 'time', 'hold', 'land']) {
       expect(classifyClue(w), w).toBe('danish')
     }
   })

@@ -1,7 +1,8 @@
 // Validates src/data/words.da.json: schema, uniqueness, single-token Danish
-// citation forms, POS whitelist. Exits non-zero on hard errors; prints warnings
-// for things a human/model review pass should look at.
-import { readFileSync } from 'node:fs'
+// citation forms, POS whitelist, and that the dataset is exactly the route's
+// worth of words. Exits non-zero on hard errors; prints warnings for things a
+// human/model review pass should look at.
+import { readFileSync, readdirSync } from 'node:fs'
 
 /**
  * The uncountable list, read out of the TypeScript module rather than copied,
@@ -16,6 +17,17 @@ const countabilitySrc = readFileSync(
 const UNCOUNTABLE = new Set(
   [...countabilitySrc.split('export const UNCOUNTABLE')[0].matchAll(/'([^']+)'/g)].map((m) => m[1]),
 )
+
+/**
+ * The route, read out of the TypeScript rather than restated, for the same
+ * reason the uncountable list is: one home per fact. Nine cities of a hundred
+ * is what "900Words" means, and the dataset and the route have to agree about
+ * it or a city ends up owning a band with nothing in it.
+ */
+const citiesSrc = readFileSync(new URL('../src/journey/cities.ts', import.meta.url), 'utf8')
+const CITY_IDS = [...citiesSrc.matchAll(/^ {4}id: '([a-z]+)',/gm)].map((m) => m[1])
+const WORDS_PER_CITY = Number(citiesSrc.match(/WORDS_PER_CITY = (\d+)/)?.[1])
+const EXPECTED = CITY_IDS.length * WORDS_PER_CITY
 
 const PATH = new URL('../src/data/words.da.json', import.meta.url)
 const POS = new Set(['noun', 'verb', 'adjective', 'adverb', 'numeral', 'interjection'])
@@ -112,8 +124,56 @@ for (const [i, w] of words.entries()) {
 if (curriculum.size && curriculum.size !== words.length) {
   errors.push(`${curriculum.size} of ${words.length} words have a curriculumRank — it must be all or none`)
 }
+
+// The dataset is exactly the route: nine cities owning a hundred words each.
+if (!CITY_IDS.length || !Number.isInteger(WORDS_PER_CITY)) {
+  errors.push('could not read the route out of src/journey/cities.ts')
+} else if (words.length !== EXPECTED) {
+  errors.push(
+    `${words.length} words for ${CITY_IDS.length} cities × ${WORDS_PER_CITY} — expected ${EXPECTED}`,
+  )
+}
+
+// Contiguous 1..N, because cityBand() slices the teaching order by arithmetic:
+// a gap does not shrink a city, it empties a slot in one and no error says so.
+if (curriculum.size === words.length) {
+  const missing = []
+  for (let r = 1; r <= words.length && missing.length < 5; r++) {
+    if (!curriculum.has(r)) missing.push(r)
+  }
+  if (missing.length) {
+    errors.push(`curriculumRank must be contiguous 1..${words.length}; missing ${missing.join(', ')}…`)
+  }
+  // Each city's hundred, counted the way src/journey/progress.ts counts it.
+  for (const [c, id] of CITY_IDS.entries()) {
+    const lo = c * WORDS_PER_CITY + 1
+    const hi = (c + 1) * WORDS_PER_CITY
+    const n = words.filter((w) => w.curriculumRank >= lo && w.curriculumRank <= hi).length
+    if (n !== WORDS_PER_CITY) errors.push(`${id} (ranks ${lo}-${hi}) owns ${n} words, not ${WORDS_PER_CITY}`)
+  }
+}
+
+// Every shipped headword must still be traceable to a generation batch. The
+// batches are the raw record and the merge's ranked pool, not a build input
+// (see scripts/merge-batches.mjs) — but a headword in neither place came from
+// nowhere, and that is the drift worth catching.
+const GEN_DIR = new URL('../src/data/generated/', import.meta.url)
+const batched = new Set()
+for (const f of readdirSync(GEN_DIR).filter((f) => /^words-batch-\d+\.json$/.test(f))) {
+  for (const e of JSON.parse(readFileSync(new URL(f, GEN_DIR), 'utf8'))) {
+    batched.add(String(e.da).trim().toLowerCase())
+  }
+}
+const untraceable = words.filter((w) => !batched.has(String(w.da).toLowerCase())).map((w) => w.da)
+if (untraceable.length) {
+  errors.push(`${untraceable.length} headwords are in no generation batch: ${untraceable.join(', ')}`)
+}
+
 const tagged = words.filter((w) => w.concepts?.length).length
-console.log(`${words.length} entries checked, ${curriculum.size} ranked for teaching, ${tagged} tagged`)
+console.log(
+  `${words.length} entries checked, ${curriculum.size} ranked for teaching, ${tagged} tagged` +
+    ` — ${CITY_IDS.length} cities × ${WORDS_PER_CITY}`,
+)
 if (warnings.length) {
   console.log(`\n${warnings.length} warnings:`)
   for (const w of warnings.slice(0, 40)) console.log(`  ⚠ ${w}`)
