@@ -163,7 +163,50 @@ try {
     won.outcome?.result === 'won' && won.outcome?.reason === 'all-greens',
     JSON.stringify(won.outcome),
   )
-  check('and the debrief says so', (await page.locator('.debrief').count()) === 1)
+  check('and the summary says so', (await page.locator('.round-summary').count()) === 1)
+
+  // ---- the summary counts the round, and the collection it left behind ------
+  // Four tiles, and every number has to be a number: the two on the left are
+  // diffs finishRound took across the SRS, the two on the right are
+  // countCollection over this city and over the whole dataset. A tile that
+  // rendered "undefined/100" or "NaN" would look like a stat and mean nothing,
+  // so the shapes are asserted rather than the presence of the block.
+  const stats = await page.evaluate(() => {
+    const read = (sel) => document.querySelector(`${sel} .stat-n`)?.textContent?.trim() ?? ''
+    return {
+      discovered: read('.stat-discovered'),
+      collected: read('.stat-collected'),
+      city: read('.stat-city'),
+      total: read('.stat-total'),
+      label: document.querySelector('.stat-city .stat-label')?.textContent?.trim() ?? '',
+    }
+  })
+  check('the summary counts what was discovered', /^\d+$/.test(stats.discovered), stats.discovered)
+  check('and what was collected', /^\d+$/.test(stats.collected), stats.collected)
+  check('and where the city stands', /^\d+\/100$/.test(stats.city), stats.city)
+  check('naming the city, since the number means nothing alone', /\w/.test(stats.label), stats.label)
+  check('and the whole journey', /^\d+\/\d{3,4}$/.test(stats.total), stats.total)
+  // This round greened words on a board of never-before-seen ones, so a zero
+  // here would mean the diff was taken on the wrong side of recordRound.
+  check(
+    'and a board of new words is not counted as zero new words',
+    Number(stats.discovered) > 0,
+    stats.discovered,
+  )
+
+  // The transcript is behind a lid, shut. It is the longest thing on the screen
+  // and the least urgent — the numbers above are what the round is judged on.
+  check('the turn log is collapsed to start with', (await page.locator('.turn-log').count()) === 0)
+  await page.locator('.log-toggle').click()
+  await page.waitForTimeout(200)
+  check('and one tap opens it', (await page.locator('.turn-log').count()) === 1)
+  check(
+    'with the lid reporting its own state',
+    (await page.locator('.log-toggle').getAttribute('aria-expanded')) === 'true',
+  )
+  await page.locator('.log-toggle').click()
+  await page.waitForTimeout(200)
+  check('and shuts again', (await page.locator('.turn-log').count()) === 0)
 
   // ---- sudden death: the losing end ------------------------------------------
   await start(0)
@@ -197,10 +240,10 @@ try {
       lost.reveals[dud.wordId].against?.length === 2,
     JSON.stringify(lost.reveals[dud.wordId]),
   )
-  // The debrief has to name it: the board unmounts, so this sentence is all
+  // The summary has to name it: the board unmounts, so this sentence is all
   // the player sees of what ended the round.
   const culprit = (await page.locator('.outcome-culprit').textContent()) ?? ''
-  check('and the debrief names the card that ended it', culprit.includes(dud.da), culprit.trim())
+  check('and the summary names the card that ended it', culprit.includes(dud.da), culprit.trim())
 
   // ---- sudden death: walking away --------------------------------------------
   await start(0)

@@ -46,7 +46,7 @@ const CLUES = ['snurretop', 'vandmelon', 'flyvemaskine', 'regnbue', 'edderkop', 
 
 /** Drive a started round to its end, whatever path it takes. */
 async function driveToEnd() {
-  for (let i = 0; i < 30 && (await page.locator('.debrief').count()) === 0; i++) {
+  for (let i = 0; i < 30 && (await page.locator('.round-summary').count()) === 0; i++) {
     const guessable = page.locator('.word-card.card-guessable').first()
     if (await guessable.isVisible().catch(() => false)) {
       await guessable.click()
@@ -115,8 +115,8 @@ try {
   await page.screenshot({ path: `${SHOT_DIR}/w2-started-early.png` })
 
   await driveToEnd()
-  check('the round reaches a debrief', (await page.locator('.debrief').count()) === 1)
-  await page.screenshot({ path: `${SHOT_DIR}/w3-debrief.png` })
+  check('the round reaches a summary', (await page.locator('.round-summary').count()) === 1)
+  await page.screenshot({ path: `${SHOT_DIR}/w3-summary.png` })
 
   const reveals = await gameReveals()
   const skippedGreens = words

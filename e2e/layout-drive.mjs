@@ -182,7 +182,7 @@ await page.waitForFunction(
 )
 // Drive to the end however the round went: guess on until the board is clear
 // or the clues run out into sudden death.
-for (let i = 0; i < 12 && (await page.locator('.debrief').count()) === 0; i++) {
+for (let i = 0; i < 12 && (await page.locator('.round-summary').count()) === 0; i++) {
   const guessable = page.locator('.word-card.card-guessable').first()
   if (await guessable.isVisible().catch(() => false)) {
     await guessable.click()
@@ -200,14 +200,47 @@ for (let i = 0; i < 12 && (await page.locator('.debrief').count()) === 0; i++) {
   // its whole life; the form it was looking for is now gone too.
   await page.waitForTimeout(900)
 }
-const debriefed = (await page.locator('.debrief').count()) > 0
-if (debriefed) {
+const summarised = (await page.locator('.round-summary').count()) > 0
+if (summarised) {
   const shown = await page.locator('.collected-section').count()
   // The key dot is gone: your own key is the card's border now.
 const greens = await page.locator('.word-card.mykey-green').count()
   check('a round that greens words says so', shown === 1, `${shown} sections, ${greens} key marks`)
+
+  // ---- the end screen, on the tight phone, with the lid both ways ----------
+  // The summary is the one screen with no upper bound on its height: the turn
+  // log grows with the round, and opening it is the player adding content to a
+  // screen that is already full. It scrolls inside .summary-scroll rather than
+  // moving the document — the same bargain Settings makes — so the DOCUMENT
+  // must sit still with the lid on AND off. Measured at 360x640, where it
+  // would give first.
+  const fits = async (what) => {
+    const r = await page.evaluate(() => ({
+      sh: document.scrollingElement.scrollHeight,
+      ih: window.innerHeight,
+    }))
+    check(`no-scroll: ${what} @360x640`, r.sh <= r.ih + 1, `${r.sh} vs ${r.ih}`)
+  }
+  await page.setViewportSize({ width: 360, height: 640 })
+  await page.waitForTimeout(300)
+  check('the summary opens with its log shut', (await page.locator('.turn-log').count()) === 0)
+  await fits('round summary, log shut')
+  await page.locator('.log-toggle').click()
+  await page.waitForTimeout(300)
+  check('and one tap opens the log', (await page.locator('.turn-log').count()) === 1)
+  await fits('round summary, log open')
+  // Play again sits OUTSIDE the scroller for exactly this reason: a long
+  // transcript must not push the way out of the round off the phone.
+  const playAgain = await page.locator('.summary-actions .btn-primary').boundingBox()
+  check(
+    'and Play again is still on the phone underneath it',
+    playAgain.y + playAgain.height <= 640.5,
+    `bottom ${(playAgain.y + playAgain.height).toFixed(0)} of 640`,
+  )
+  await page.setViewportSize(PHONE)
+  await page.waitForTimeout(200)
 } else {
-  console.log('SKIP round did not reach a debrief on this seed')
+  console.log('SKIP round did not reach a summary on this seed')
 }
 
 // Cluey's whole turn used to happen in silence: no live region existed
