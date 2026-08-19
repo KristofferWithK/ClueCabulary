@@ -164,6 +164,9 @@ export function RoundSummary({ game }: { game: GameState }) {
   const newlyDiscovered = useGame((s) => s.newlyDiscovered)
   const mode = useGame((s) => s.mode)
   const packed = useGame((s) => s.packed)
+  const earnedWrapUp = useGame((s) => s.earnedWrapUp)
+  const banked = useSrs((s) => s.wrapUpsBanked)
+  const gamesWon = useSrs((s) => s.games.won)
   const goTo = useUi((s) => s.goTo)
   const cityIndex = useJourney((s) => s.cityIndex)
   const wrapped = useJourney((s) => s.wrapped)
@@ -227,6 +230,23 @@ export function RoundSummary({ game }: { game: GameState }) {
           collected={newlyLearned.length}
           cityIndex={cityIndex}
         />
+
+        {/* What the win left behind. `earnedWrapUp` is read off the bank
+            across recordGame rather than recomputed from the outcome, so a win
+            that hit the cap says nothing here rather than promising a token it
+            did not get. The first one is written as an unlock because that is
+            what it is — this is where a player finds out that wins buy the
+            round that packs words for good. */}
+        {earnedWrapUp && (
+          <section className="summary-section earned-section">
+            <h3>{gamesWon === 1 ? 'Wrap-up round unlocked' : 'Wrap-up round earned'}</h3>
+            <p className="collected-note">
+              {gamesWon === 1
+                ? 'Winning earns a wrap-up round — the one round that packs collected words into the suitcase for good. Open Kufferten to spend it.'
+                : `${banked} banked. Spend one in Kufferten to pack collected words for good.`}
+            </p>
+          </section>
+        )}
 
         {/* The point of a wrap-up round: what went into the suitcase for good.
             Shown either way — a lost round keeps every word it wrapped. */}

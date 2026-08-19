@@ -84,6 +84,8 @@ export function SuitcaseScreen() {
   const goTo = useUi((s) => s.goTo)
   const openSheet = useUi((s) => s.openSheet)
   const srs = useSrs((s) => s.stats)
+  const banked = useSrs((s) => s.wrapUpsBanked)
+  const won = useSrs((s) => s.games.won)
   const journey = useJourney()
   const [city, setCity] = useState(journey.cityIndex)
   const [loosePage, setLoosePage] = useState(0)
@@ -108,7 +110,38 @@ export function SuitcaseScreen() {
 
   const isHome = city === journey.cityIndex
   const reached = city <= journey.cityIndex
-  const wrapUpReady = isHome && wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
+
+  /**
+   * Two conditions, and they are different in kind — so the hint below names
+   * whichever is missing rather than leaving a dead button to explain itself.
+   *
+   * `boardReady` is arithmetic: a wrap-up board is twenty collected words and
+   * cannot be dealt without them. `banked` is the reward economy: a wrap-up
+   * round is earned by winning a normal one. Whichever is slower binds, and
+   * early on that is the collecting — a word needs a green each way and can
+   * earn at most one direction per round, so a first board is several rounds
+   * off while a first win is likely one or two.
+   */
+  const boardReady = isHome && wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
+  const wrapUpReady = boardReady && banked > 0
+  // How many more words the city owes a board. This counts the POOL, while
+  // boardReady above answers by dealing — so a pool of exactly twenty that
+  // cannot seat twenty (two words that clash on one board) lands here at zero
+  // with the button still dark, and the hint has to say something true rather
+  // than «Collect 0 more».
+  const shortBy = Math.max(0, WRAP_UP_UNLOCK - collected.length - wrapped.length)
+  const blockers = [
+    !boardReady &&
+      (shortBy > 0
+        ? `Collect ${shortBy} more to open wrap-up rounds.`
+        : 'A couple of these words clash on one board — collect one or two more to open wrap-up rounds.'),
+    // The first win is the unlock, so it is worded as the next thing to do
+    // rather than as a counter at zero.
+    banked === 0 &&
+      (won === 0
+        ? 'Win a round to earn your first wrap-up round.'
+        : 'Win a round to earn another wrap-up round.'),
+  ].filter((s): s is string => typeof s === 'string')
 
   const wordTile = (w: WordEntry, cls: string) => (
     <li key={w.id}>
@@ -207,20 +240,21 @@ export function SuitcaseScreen() {
           <button
             className="btn btn-primary btn-big"
             disabled={!wrapUpReady}
+            aria-label={banked > 0 ? `Wrap up words — ${banked} banked` : 'Wrap up words'}
             onClick={() => {
               useGame.getState().newWrapUpGame()
               goTo('game')
             }}
           >
             Wrap up words
+            {banked > 0 && (
+              <span className="wrap-bank" aria-hidden="true">
+                {banked}
+              </span>
+            )}
           </button>
         )}
-        {isHome && !wrapUpReady && (
-          <p className="case-hint">
-            Collect {Math.max(0, WRAP_UP_UNLOCK - collected.length - wrapped.length)} more to open
-            wrap-up rounds.
-          </p>
-        )}
+        {isHome && !wrapUpReady && <p className="case-hint">{blockers.join(' ')}</p>}
         <button className="btn" onClick={() => goTo('home')}>
           Back
         </button>
