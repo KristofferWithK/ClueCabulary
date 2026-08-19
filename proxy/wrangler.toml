@@ -6,10 +6,57 @@ compatibility_date = "2026-01-01"
 # the API key: without the lock, any website could spend your subscription
 # through it. Change this if you serve the app from somewhere else, or delete
 # the line to allow any origin.
-# Two callers: the deployed page, and the native shell — a WKWebView serving
-# the same app from the bundle sends capacitor://localhost as its Origin.
+# Two callers, and BOTH have to be here or one of the two apps cannot talk to
+# the proxy at all:
+#
+#   https://kristofferwithk.github.io  the PWA on GitHub Pages. An Origin is
+#                                      scheme + host + port and never a path,
+#                                      so no /ClueCabulary on the end.
+#   capacitor://localhost              the iOS app. The native shell serves the
+#                                      same bundle from inside the app through
+#                                      a WKWebView, and Capacitor's iOS default
+#                                      is this scheme (capacitor.config.ts sets
+#                                      no `iosScheme`, and Capacitor 6+ uses
+#                                      capacitor:// unless you change it).
+#                                      Older Ionic shells send ionic://localhost
+#                                      instead; add it if the app ever moves.
+#
+# Verify rather than assume, from the phone once and never again: run the app,
+# then `npx wrangler tail cluecabulary-proxy` and watch a real request. A
+# refusal shows as the 403 from originAllowed.
 [vars]
 ALLOWED_ORIGIN = "https://kristofferwithk.github.io, capacitor://localhost"
+
+# The daily caps. Both are optional — worker.js has defaults and explains the
+# arithmetic behind them (1000 per install, 25000 across everyone, per UTC day).
+# Set either here to override; 0 turns that cap off.
+#
+#   DAILY_CAP = "1000"
+#   GLOBAL_DAILY_CAP = "25000"
+
+# Where the counters live. This is the one part of the cap that cannot be
+# committed with a working value: a KV namespace id is minted by your Cloudflare
+# account, so it does not exist until you make one.
+#
+# The Actions workflow does it for you — it creates the namespace if it is
+# missing and appends this block itself before deploying, so if you deploy that
+# way there is nothing to do here.
+#
+# By hand, at a computer:
+#
+#   npx wrangler kv namespace create QUOTA
+#
+# then uncomment these two lines and paste the id it prints:
+#
+# [[kv_namespaces]]
+# binding = "QUOTA"
+# id = "paste-the-id-here"
+#
+# Without the binding the worker still works — it logs "no QUOTA KV binding"
+# and serves every request unmetered. That is deliberate (a proxy that refuses
+# everyone because an id was pasted wrong is worse than one that does not
+# count), and it does mean a missing binding is a silent loss of the cap rather
+# than an error. `npx wrangler tail cluecabulary-proxy` says which you have.
 
 # What the app asks for instead of a model name. The app sends "cluey" and this
 # decides what answers, so changing Cluey's brain is a proxy deploy rather than

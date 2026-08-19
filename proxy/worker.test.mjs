@@ -392,4 +392,155 @@ describe('the CORS proxy worker', () => {
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
     expect(await res.text()).toMatch(/upstream/i)
   })
+
+  /**
+   * The daily cap's branches. e2e/proxy-drive.mjs runs these on workerd against
+   * miniflare's real KV, which is the stronger test and the one that proves the
+   * feature; what is easier here is the shapes KV can be in and cannot easily
+   * be put into — a binding that throws, a variable with a typo in it, and the
+   * exact upstream call count when a request is refused.
+   */
+  describe('the daily cap', () => {
+    /** A KV stand-in with the two methods the worker uses, and a visible store. */
+    const fakeKv = (seed = {}) => {
+      const store = new Map(Object.entries(seed))
+      return {
+        store,
+        get: async (k) => store.get(k) ?? null,
+        put: async (k, v) => void store.set(k, v),
+      }
+    }
+    const KEYED = { OLLAMA_API_KEY: 'worker-secret' }
+    const noKeyPost = () =>
+      new Request(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Install-Id': 'phone-1' },
+        body: '{}',
+      })
+    const today = new Date().toISOString().slice(0, 10)
+
+    it('counts a served request, per install and in total', async () => {
+      const QUOTA = fakeKv()
+      vi.stubGlobal('fetch', upstreamOk())
+      await worker.fetch(noKeyPost(), { ...KEYED, QUOTA })
+      expect(QUOTA.store.get(`q:${today}:i:phone-1`)).toBe('1')
+      expect(QUOTA.store.get(`q:${today}:@all`)).toBe('1')
+    })
+
+    it('refuses at the cap without spending anything upstream', async () => {
+      const QUOTA = fakeKv({ [`q:${today}:i:phone-1`]: '2' })
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(noKeyPost(), { ...KEYED, QUOTA, DAILY_CAP: '2' })
+      expect(res.status).toBe(429)
+      expect(fetchSpy).not.toHaveBeenCalled()
+      // A refused request must not push the number further past the cap, or a
+      // client that keeps retrying keeps renewing the counter's TTL.
+      expect(QUOTA.store.get(`q:${today}:i:phone-1`)).toBe('2')
+      expect((await res.json()).error.code).toBe('cluecabulary_daily_cap')
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    })
+
+    it('does not meter a request that brought its own key', async () => {
+      // The player is paying, so this is not the worker's budget to ration —
+      // and it is the bring-your-own-key path the README documents.
+      const QUOTA = fakeKv({ [`q:${today}:i:phone-1`]: '99' })
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(
+        new Request(ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Install-Id': 'phone-1',
+            Authorization: 'Bearer player-key',
+          },
+          body: '{}',
+        }),
+        { ...KEYED, QUOTA, DAILY_CAP: '2' },
+      )
+      expect(res.status).toBe(200)
+      expect(fetchSpy).toHaveBeenCalled()
+      expect(QUOTA.store.get(`q:${today}:i:phone-1`)).toBe('99')
+    })
+
+    it('serves the request when KV throws, rather than refusing everyone', async () => {
+      // The one behaviour in this feature that must never regress. A namespace
+      // that was deleted, a binding misconfigured, KV having a bad day — none
+      // of it may take the app down. An unmetered proxy costs money the owner
+      // can see and stop; a proxy that 429s the only player is a dead app.
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(noKeyPost(), {
+        ...KEYED,
+        DAILY_CAP: '1',
+        QUOTA: {
+          get: async () => {
+            throw new Error('KV is down')
+          },
+          put: async () => {},
+        },
+      })
+      expect(res.status).toBe(200)
+      expect(fetchSpy).toHaveBeenCalled()
+    })
+
+    it('serves the request when there is no binding at all', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await worker.fetch(noKeyPost(), { ...KEYED, DAILY_CAP: '1' })
+      expect(res.status).toBe(200)
+      expect(fetchSpy).toHaveBeenCalled()
+    })
+
+    it('falls back to the default cap when the variable is nonsense', async () => {
+      // A typo in the dashboard must not silently remove the cap. "lots" is
+      // not a number, so the built-in 1000 applies — 999 goes through.
+      const QUOTA = fakeKv({ [`q:${today}:i:phone-1`]: '999' })
+      vi.stubGlobal('fetch', upstreamOk())
+      expect((await worker.fetch(noKeyPost(), { ...KEYED, QUOTA, DAILY_CAP: 'lots' })).status).toBe(200)
+      // …and the thousandth does not.
+      expect((await worker.fetch(noKeyPost(), { ...KEYED, QUOTA, DAILY_CAP: 'lots' })).status).toBe(429)
+    })
+
+    it('lets a deliberate 0 turn a cap off', async () => {
+      const QUOTA = fakeKv({ [`q:${today}:i:phone-1`]: '5000' })
+      vi.stubGlobal('fetch', upstreamOk())
+      const res = await worker.fetch(noKeyPost(), { ...KEYED, QUOTA, DAILY_CAP: '0', GLOBAL_DAILY_CAP: '0' })
+      expect(res.status).toBe(200)
+    })
+
+    it('buckets a request with no install id, and sanitises a hostile one', async () => {
+      const QUOTA = fakeKv()
+      vi.stubGlobal('fetch', upstreamOk())
+      await worker.fetch(
+        new Request(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }),
+        { ...KEYED, QUOTA },
+      )
+      expect(QUOTA.store.get(`q:${today}:i:no-install-id`)).toBe('1')
+
+      // A client picks its own id, so it must not be able to pick a KV key —
+      // not the global counter's, and not an unbounded one.
+      await worker.fetch(
+        new Request(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Install-Id': `@all${'x'.repeat(400)}` },
+          body: '{}',
+        }),
+        { ...KEYED, QUOTA },
+      )
+      const keys = [...QUOTA.store.keys()]
+      expect(keys.filter((k) => k.startsWith(`q:${today}:i:`))).toHaveLength(2)
+      expect(keys.every((k) => k.length < 100)).toBe(true)
+      // The global counter saw both, and neither request wrote to it directly.
+      expect(QUOTA.store.get(`q:${today}:@all`)).toBe('2')
+    })
+
+    it('never meters the preflight, which every real request makes first', async () => {
+      const QUOTA = fakeKv()
+      const res = await worker.fetch(new Request(ENDPOINT, { method: 'OPTIONS' }), { ...KEYED, QUOTA })
+      expect(res.status).toBe(204)
+      expect(QUOTA.store.size).toBe(0)
+    })
+  })
 })
