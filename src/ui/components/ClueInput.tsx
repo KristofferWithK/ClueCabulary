@@ -3,7 +3,7 @@ import { useGame } from '../../stores/gameStore'
 import { MAX_CLUE_NUMBER } from '../../engine/config'
 import { classifyClue } from '../../data/words'
 import { checkClueLegality } from '../../engine/legality'
-import type { GameState } from '../../engine/types'
+import type { CardRole, GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
 
 interface Props {
@@ -62,7 +62,10 @@ export function ClueInput({ game, onSubmit }: Props) {
   }
 
   const last = game.clueHistory[game.clueHistory.length - 1]
-  const mark = { green: '✓', bystander: '·', forbidden: '☠' } as const
+  // Typed off CardRole so a role added to the engine fails the build here
+  // rather than rendering `undefined` in the last-turn line. It had a third
+  // entry, ☠ for a forbidden word, until that role was removed.
+  const mark: Record<CardRole, string> = { green: '✓', bystander: '·' }
 
   return (
     <div className="dock clue-input">

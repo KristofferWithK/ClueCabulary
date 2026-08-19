@@ -2,7 +2,8 @@ import { danishStem, levenshtein, normalize } from './text'
 
 /**
  * Grading for the wrap-up packing phase: the card shows English, the player
- * types the Danish. The mirror of redemption.ts, with the mirror's cautions —
+ * types the Danish. Written as the mirror of the English-side grader in
+ * redemption.ts, which is retired; this kept its cautions —
  * fuzz exists to forgive a slip of the thumb, never to accept a different
  * word — plus two Danish-only concerns: articles are part of how a noun is
  * learned but not part of the answer, and æ/ø/å may be typed as ae/oe/aa on a
@@ -28,7 +29,7 @@ function foldedDanish(s: string): string {
 }
 
 /**
- * How far a typo may stray — redemption's scale, for the same reason. Short
+ * How far a typo may stray — the same scale, for the same reason. Short
  * words get no slack at all, and that is right in this direction too: at one
  * edit «sma» could pass for små, but the å IS the word.
  */

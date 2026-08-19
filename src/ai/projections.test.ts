@@ -87,7 +87,13 @@ describe('firewall invariance', () => {
     expect(guessText).not.toContain('SECRETRATIONALE')
     expect(guessText).not.toContain('my key')
     expect(guessText).not.toContain('playerKey')
-    expect(guessText).not.toContain('FORBIDDEN on your key')
+    // The guesser is shown no key of any kind, so no card may be labelled with
+    // a role at all. This was 'FORBIDDEN on your key', which named the one
+    // marker the clue prompt drew and the guess prompt must not; that marker
+    // no longer exists anywhere, so the assertion had become one that could
+    // not fail. GREEN is the marker the clue prompt draws now.
+    expect(guessText).not.toContain('GREEN')
+    expect(guessText).not.toContain('YOU MAY TARGET THIS')
   })
 })
 

@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { matchesDanishAnswer } from './packing'
 
 /**
- * The packing grader mirrors redemption's discipline in the other direction.
+ * Mirrors the discipline of the retired redemption grader in the other
+ * direction: fuzz forgives a slip of the thumb, never a different word.
  * Mutation-checked: removing the isDanish guard fails the «hær»/«havn» tests;
  * removing the article strip fails «et hus».
  */
@@ -34,7 +35,7 @@ describe('matchesDanishAnswer', () => {
     expect(matchesDanishAnswer('gaa', 'gå', isDanish)).toBe(true)
   })
 
-  it('forgives a typo on a long word, by the same scale redemption uses', () => {
+  it('forgives a typo on a long word, by the tolerance scale this grader inherited', () => {
     expect(matchesDanishAnswer('leijlighed', 'lejlighed', isDanish)).toBe(true)
     expect(matchesDanishAnswer('morgenmadd', 'morgenmad', isDanish)).toBe(true)
   })

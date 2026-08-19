@@ -133,8 +133,9 @@ export const useSettings = create<SettingsState>()(
       apiKey: '',
       baseUrl: DEFAULT_BASE_URL,
       model: DEFAULT_MODEL,
-      // 3x5. Fifteen words, six clues, one forbidden word a side — the board
-      // the game is actually tuned around, and the one «Spil videre» deals.
+      // 3x5. Fifteen words, six clues — the board the game is actually tuned
+      // around, and the one «Spil videre» deals. (It carried one forbidden
+      // word a side when that was chosen; no board does now.)
       // 3x4 is still a tap away in the picker for a first sitting.
       gridSize: 'middle',
       // Danish, both ways. The player has always been asked for "ét dansk ord"

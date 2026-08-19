@@ -58,7 +58,7 @@ export function lookupLocal(term: string): LocalMatch[] {
     return glossHits.map((entry) => ({ entry, matched: 'en' as const, approximate: false }))
   }
 
-  // "hunden" should still find "hund"; the redemption grader is strict, a
+  // "hunden" should still find "hund"; the packing grader is strict, a
   // dictionary need not be.
   const stemHits = byStem.get(danishStem(term))
   if (stemHits?.length) {
