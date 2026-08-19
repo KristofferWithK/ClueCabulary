@@ -12,18 +12,21 @@ import { beforeEach, describe, expect, it } from 'vitest'
  * dynamic import. This suite runs in node, with no DOM.
  */
 const written = new Map<string, string>()
+const storage = {
+  getItem: (k: string) => written.get(k) ?? null,
+  setItem: (k: string, v: string) => void written.set(k, v),
+  removeItem: (k: string) => void written.delete(k),
+}
 Object.defineProperty(globalThis, 'window', {
   configurable: true,
   // zustand reaches for window.localStorage specifically, so a bare
   // globalThis.localStorage is not enough.
-  value: {
-    localStorage: {
-      getItem: (k: string) => written.get(k) ?? null,
-      setItem: (k: string, v: string) => void written.set(k, v),
-      removeItem: (k: string) => void written.delete(k),
-    },
-  },
+  value: { localStorage: storage },
 })
+// And the bare global, because finishRound writes the daily challenge's result
+// straight to `localStorage` — so without this the whole daily path throws in
+// here rather than being testable, which is how it went untested.
+Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: storage })
 
 const { migrateGame, useGame } = await import('./gameStore')
 const { useJourney } = await import('./journeyStore')
@@ -32,6 +35,7 @@ const { useSrs } = await import('./srsStore')
 const { WORDS } = await import('../data/words')
 const { newStats } = await import('../srs/scheduler')
 const { wordsForCity } = await import('../journey/progress')
+const { WRAP_UP_BANK_CAP } = await import('../journey/wrapup')
 
 describe('gameStore: finishing a round without Cluey', () => {
   beforeEach(() => {
@@ -396,6 +400,10 @@ describe('gameStore: wrap-up rounds', () => {
     useGame.getState().abandonGame()
     useGame.setState({ recentBoards: [] })
     collectCity(40)
+    // A wrap-up round has to be earned before it can be dealt. These tests are
+    // about the round rather than the economy — the economy is the describe
+    // below — so they are handed a full bank.
+    useSrs.setState({ wrapUpsBanked: WRAP_UP_BANK_CAP })
   })
 
   it('deals a full board of collected words, English-side up, packing open', () => {
@@ -534,5 +542,130 @@ describe('gameStore: wrap-up rounds', () => {
     useGame.getState().endStudy()
     finishWrapUp(() => 'green')
     expect(Object.keys(useJourney.getState().wrapped)).toHaveLength(0)
+  })
+})
+
+/**
+ * Winning earns a wrap-up round, and starting one spends it.
+ *
+ * The rule that carries the most weight is the one that looks like an edge
+ * case: a wrap-up win must earn nothing. If it earned, one win would chain
+ * into an unbroken run of wrap-ups and the rationing would be gone. The rest
+ * of the economy exists so that losing can never lock a player out of packing
+ * words — which is the only route onward — so a loss costs nothing and the
+ * bank cannot go negative.
+ *
+ * Mutation-checked: passing `mode` through as a constant 'normal' in
+ * finishRound (i.e. reverting the "only normal rounds earn" rule) fails "a
+ * won wrap-up earns no second wrap-up"; deleting the spendWrapUp call in
+ * newWrapUpGame fails both spend tests.
+ */
+describe('gameStore: wins earn wrap-up rounds', () => {
+  const city = wordsForCity(WORDS, 0)
+
+  beforeEach(() => {
+    useSettings.setState({ apiKey: 'a-key', useMock: true })
+    useJourney.getState().reset()
+    useSrs.getState().reset()
+    useGame.getState().abandonGame()
+    useGame.setState({ recentBoards: [] })
+    const stats = Object.fromEntries(
+      city.slice(0, 40).map((w) => [
+        w.id,
+        { ...newStats(1_700_000_000_000), greenByClue: 1, greenByGuess: 1 },
+      ]),
+    )
+    useSrs.setState({ stats })
+  })
+
+  /** End whatever round is in flight with a given result. */
+  const finishAs = (result: 'won' | 'lost') => {
+    const game = useGame.getState().game!
+    useGame.setState({
+      game: {
+        ...game,
+        phase: 'finished',
+        reveals: Object.fromEntries(game.words.map((w) => [w.wordId, { kind: 'green' }])),
+        outcome:
+          result === 'won'
+            ? { result: 'won', reason: 'all-greens' }
+            : { result: 'lost', reason: 'sudden-death' },
+      } as never,
+      roundRecorded: false,
+    })
+    useGame.getState().finishRound()
+  }
+
+  it('a won round banks one, and says so on the summary', () => {
+    useGame.getState().newGame({ seed: 5 })
+    finishAs('won')
+    expect(useSrs.getState().wrapUpsBanked).toBe(1)
+    expect(useGame.getState().earnedWrapUp).toBe(true)
+  })
+
+  it('a lost round banks nothing, and claims nothing', () => {
+    useGame.getState().newGame({ seed: 5 })
+    finishAs('lost')
+    expect(useSrs.getState().wrapUpsBanked).toBe(0)
+    expect(useGame.getState().earnedWrapUp).toBe(false)
+  })
+
+  it('a won daily challenge earns one like any other round', () => {
+    useGame.getState().newGame({ seed: 20260820, dailyKey: '2026-08-20' })
+    finishAs('won')
+    expect(useSrs.getState().wrapUpsBanked).toBe(1)
+  })
+
+  it('starting a wrap-up spends one', () => {
+    useSrs.setState({ wrapUpsBanked: 2 })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    expect(useGame.getState().mode).toBe('wrapup')
+    expect(useSrs.getState().wrapUpsBanked).toBe(1)
+  })
+
+  it('an empty bank deals no wrap-up board at all', () => {
+    useSrs.setState({ wrapUpsBanked: 0 })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    expect(useGame.getState().game).toBeNull()
+    expect(useSrs.getState().wrapUpsBanked).toBe(0)
+  })
+
+  it('a board that cannot be dealt costs nothing — the token is not burned', () => {
+    useSrs.setState({ stats: {}, wrapUpsBanked: 1 })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    expect(useGame.getState().game).toBeNull()
+    expect(useSrs.getState().wrapUpsBanked).toBe(1)
+  })
+
+  it('a reroll re-deals on the same token', () => {
+    useSrs.setState({ wrapUpsBanked: 1 })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    useGame.getState().rerollBoard()
+    expect(useGame.getState().mode).toBe('wrapup')
+    expect(useSrs.getState().wrapUpsBanked).toBe(0)
+  })
+
+  it('a won wrap-up earns no second wrap-up — they would chain forever', () => {
+    useSrs.setState({ wrapUpsBanked: 1 })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    expect(useSrs.getState().wrapUpsBanked).toBe(0)
+    finishAs('won')
+    expect(useSrs.getState().wrapUpsBanked).toBe(0)
+    expect(useGame.getState().earnedWrapUp).toBe(false)
+  })
+
+  it('caps the bank, and says nothing was earned once it is full', () => {
+    useSrs.setState({ wrapUpsBanked: WRAP_UP_BANK_CAP })
+    useGame.getState().newGame({ seed: 5 })
+    finishAs('won')
+    expect(useSrs.getState().wrapUpsBanked).toBe(WRAP_UP_BANK_CAP)
+    expect(useGame.getState().earnedWrapUp).toBe(false)
+  })
+
+  it('the bank survives a reload — it is persisted beside the tally', () => {
+    useSrs.setState({ wrapUpsBanked: 2 })
+    const raw = written.get('cluecab-srs-v1')
+    expect(raw).toBeDefined()
+    expect(JSON.parse(raw!).state.wrapUpsBanked).toBe(2)
   })
 })
