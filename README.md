@@ -231,37 +231,53 @@ or a wholesale replace. The file never contains your API key.
 
 ## Setup
 
-The app is a PWA — open the deployed page on your phone and "Add to Home
-Screen". Then, in **Settings**: tap **Gemini**, paste a
-[Gemini key](https://aistudio.google.com/apikey), tap **List models this server
-accepts**, pick one. That is the whole setup, and it has been played on from a
-phone with no proxy involved.
+There isn't one. Open the deployed page on your phone, "Add to Home Screen",
+press play. No account, no API key, no model to choose.
 
-Gemini is the default because it is the one measured to work. Its
-[OpenAI-compatible endpoint](https://ai.google.dev/gemini-api/docs/openai)
-speaks exactly what this app sends, it answers a browser directly, and its keys
-can be [restricted to one HTTP referrer](https://ai.google.dev/gemini-api/docs/api-key)
-— which is what makes a key held in a browser reasonable.
+That is worth saying plainly because it used to be false. For most of this
+project's life the first screen after install asked you to go and fetch a
+Gemini key, paste it in, and pick a model name off a list — three chores
+between a person and a vocabulary game, and the last one had a wrong answer
+that looked like a broken app. Cluey's key now lives on a Cloudflare Worker
+([`proxy/`](proxy/README.md)) as a server-side secret, the app sends no key at
+all, and there is no longer a field to type one into. Settings v7 cleared the
+keys already stored on devices, because a stale one would have been sent ahead
+of the proxy's own and rejected mid-round.
 
-**Ollama Cloud is also preset, and needs more.** Measured on a real phone, it
-refuses browser requests outright: its API answers the CORS preflight with a
-redirect, which browsers will not follow, so no key or model name helps. To use
-that service, deploy the small worker in [`proxy/`](proxy/README.md) — no
-terminal required: add three secrets to this repository
-(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `OLLAMA_API_KEY`) and run the
-**Deploy the AI proxy** workflow from the Actions tab. Its summary prints the
-Base URL to paste, and the key is uploaded as a Worker secret, so it lives at
-Cloudflare rather than on your phone. One worker serves either service: set
-`UPSTREAM` to `https://generativelanguage.googleapis.com` for Gemini.
+The app does not name a model either. It asks for `cluey`, which is an alias
+the worker resolves — so which model answers is a proxy setting rather than an
+app release every installed PWA has to notice, and a model id retired upstream
+is fixed in one place instead of breaking every install at once.
 
-No model name is preset anywhere. Ollama and Gemini publish conflicting ids for
-the same model, and a wrong one returns a 404 that reads as a broken endpoint,
-so Settings asks the server which names it accepts.
+Nothing about this needs the network to be good, or to exist. Cluey is the only
+part of the game that talks to a server: if he cannot be reached, the error
+banner offers **Play on without Cluey** and the round finishes with a practice
+companion that runs entirely on the phone. The same offer appears if the
+proxy's [daily cap](proxy/README.md#the-daily-caps) is spent.
 
-`src/ai/bundled-key.ts` is the one place to paste a key that ships with the
-build, if you would rather not enter one on the device. It is empty by default,
-and worth knowing before you fill it: this is a static site, so anything in the
-bundle is readable by anyone who opens the page.
+### Running it against something else
+
+The **Base URL** field in Settings is still free text, and it is the escape
+hatch — for a local Ollama, for your own copy of the worker, or for any other
+OpenAI-compatible endpoint. Point it somewhere and tap **List models this
+server accepts**, which asks the server for real names rather than leaving you
+to guess between `gpt-oss:120b` and `gpt-oss:120b-cloud`; a wrong guess returns
+a 404 that reads exactly like a broken endpoint. Tapping the **Cluey** chip
+puts it back.
+
+There is no key field, so a service that wants one needs the key at build time:
+paste it into `src/ai/bundled-key.ts`, which is empty by default. Worth knowing
+before you do — this is a static site, so anything in the bundle is readable by
+anyone who opens the page. A key sent by the app takes priority over the
+worker's own secret, and requests carrying one are not counted against the
+proxy's daily cap, since they are spending your budget rather than its.
+
+To deploy the worker yourself, [`proxy/README.md`](proxy/README.md) has the
+whole thing — including the phone-only route, where three repository secrets
+(`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `OLLAMA_API_KEY`) and the
+**Deploy the AI proxy** workflow in the Actions tab do it with no terminal
+involved. One worker fronts either Ollama Cloud or Gemini; the origin lock and
+the daily caps are documented there too.
 
 ## Development
 
