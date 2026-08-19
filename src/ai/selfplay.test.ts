@@ -198,24 +198,6 @@ describe('self-play: engine + mock companion never reach an illegal state', () =
 })
 
 /**
- * WHAT THESE BOARDS DO TO A GUESSER THAT KNOWS NOTHING.
- *
- * This is a FLOOR, not a forecast. Both sides here clue nonsense and guess by
- * hash — the numbers are what the board arithmetic alone produces, before any
- * word association helps anyone. A real player beats every one of them, and the
- * gap between a floor and a real round is the game. Read them as "no board can
- * be harder than this", never as "this is how often you will win".
- *
- * The floor answers one question exactly, though, and it is the question a
- * token budget is about: how much board is still unfound when the clues run
- * out. The ceiling measurement — perfect play, in config.test.ts — answers the
- * other half, and the two together bracket what the tokens are worth.
- *
- * Recorded numbers come from `SELFPLAY_GAMES=2000 SELFPLAY_REPORT=1 npx vitest
- * run src/ai/selfplay.test.ts`, which prints the table. The suite itself runs
- * the smaller default so `npm test` stays quick; the pins below hold at both.
- */
-/**
  * Read a knob from the environment WITHOUT naming `process`.
  *
  * `tsconfig.app.json` compiles src/ with DOM libs and no node types, so a bare
@@ -227,6 +209,15 @@ describe('self-play: engine + mock companion never reach an illegal state', () =
 const envVar = (name: string): string | undefined =>
   (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.[name]
 
+/**
+ * How many seeded games each measurement below plays.
+ *
+ * The seeds are 1..GAMES, so a run is reproducible — but NOT independent of
+ * this number: change it and every figure shifts a little, which is why the
+ * pins are bands rather than points. The default keeps `npm test` quick; the
+ * figures quoted in `config.ts` and README were taken at 2000, and every pin
+ * here was checked at both.
+ */
 const GAMES = Number(envVar('SELFPLAY_GAMES') ?? 300)
 
 interface Summary {
@@ -251,6 +242,24 @@ async function measure(grid: Grid, games: number): Promise<Summary> {
   return summarise(runs)
 }
 
+/**
+ * WHAT THESE BOARDS DO TO A GUESSER THAT KNOWS NOTHING.
+ *
+ * This is a FLOOR, not a forecast. Both sides here clue nonsense and guess by
+ * hash — the numbers are what the board arithmetic alone produces, before any
+ * word association helps anyone. A real player beats every one of them, and the
+ * gap between a floor and a real round is the game. Read them as "no board can
+ * be harder than this", never as "this is how often you will win".
+ *
+ * With nothing fatal left on a board this floor is nearly degenerate — every
+ * board runs its tokens out and almost no game is won — which is itself the
+ * finding, and it answers exactly one question: how much board is still unfound
+ * when the clues stop. The skill sweep below carries the rest, from this floor
+ * up to perfect play, and the two together bracket what the tokens are worth.
+ *
+ * Recorded numbers come from `SELFPLAY_GAMES=2000 SELFPLAY_REPORT=1 npx vitest
+ * run src/ai/selfplay.test.ts`, which prints the table.
+ */
 describe('the know-nothing floor, per board', () => {
   const boards = ['beginner', 'middle', 'standard', 'wrapup'] as const
 

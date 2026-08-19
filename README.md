@@ -28,11 +28,12 @@ the clues begin — the dictionary is closed, the first miss on a word is
 remembered — or start early and leave cards unpacked at your own risk, playing
 English-side up all round and ineligible to wrap. Every packed word that ends
 the round green is wrapped for good, win or lose. The board's clue economy is
-deliberately the forgiving one (16 distinct greens over 10 shared tokens, the
-beginner ratio; a measured 6.4% know-nothing forbidden floor against the
-standard 4×5's 16.0%) because the packing gate is the difficulty. Wrap all
-hundred words of a city — `WRAP_TO_TRAVEL` in `src/journey/progress.ts` — and
-the road onward opens.
+deliberately the forgiving one — 16 distinct greens over 10 shared tokens, the
+beginner ratio, and measured against the others it is the softest board in the
+game — because the packing gate is the difficulty and putting a second one in
+the clue budget would only tax the same ritual twice. Wrap all hundred words of
+a city — `WRAP_TO_TRAVEL` in `src/journey/progress.ts` — and the road onward
+opens.
 
 ## How a round works
 
@@ -55,9 +56,11 @@ the road onward opens.
    gender and countability along with the translation — *trafik* comes back
    `(com)`, not `en trafik`.
 
-   Your own key is the card's border:
-   solid green for a target, dashed black for forbidden **on your key** — which
-   is a word Cluey must never be led to, not a word you must never tap.
+   Your own key is the card's border: a solid green frame around each of your
+   targets and nothing at all around the rest, so the only thing your key tells
+   you is what to clue toward. There was a second, dashed black border for a
+   long time — a forbidden word, fatal if it was ever named — and no board has
+   one now.
 2. You open: you give a one-word clue, Cluey guesses — then Cluey clues and you
    guess. A clue's number is the whole allowance: guess that many right and the
    turn ends itself. (There is no Codenames-style bonus guess. It existed to
@@ -70,44 +73,76 @@ the road onward opens.
    last clue, for everything he has left, since a green he never points at is
    one you cannot find in sudden death.
 3. Find every green word before the shared clue tokens run out and you both
-   win. Beginner is five clues, middle six, standard eight.
+   win. Beginner is five clues, middle six, standard seven.
    Running out is not the end: the clues stop but the board does not, and
    **sudden death** lets you keep naming words with nothing left to go on. Name
    a green and you are still alive; name anything else and the round is over.
-   **Forbidden words cut one way at a time**, because a guess is judged against
-   the clue-giver's key and nothing else. Your dashed cards end the round only
-   when *Cluey* names one under *your* clue — they are safe for you to tap while
-   you guess his, where it is his forbidden words that are fatal and you cannot
-   see those. (Sudden death is the exception: no clue-giver, so either key ends
-   it. `game.test.ts` pins the whole rule; two mutations of the engine were
-   checked to fail it.)
+   Walking away there is allowed, and is a loss — the difference between
+   deciding you are beaten and being told.
 
-   How often a forbidden word gets named is mostly board arithmetic, not
-   reasoning. Measured over 3000 games a board with a guesser that knows
-   nothing: **9.9%** of guesses on 3×4, **7.9%** on 3×5, **15.9%** on 4×5,
-   ending 31%, 27% and 47% of games. That is the floor any guesser starts from,
-   so "the AI keeps hitting forbidden words" is the expected shape unless it is
-   beating it. Giving Cluey his own key while guessing was measured and is
-   **not** the fix: on 3×4 and 3×5 nothing is forbidden on both keys, so his own
-   hazard is harmless to the player, and removing it from his pool makes him
-   *worse* (9.9% → 11.1%).
+   **A guess is judged against the clue-giver's key and nothing else.** Every
+   other rule hangs off that one, and it is the easiest thing here to read
+   backwards. Under *your* clue, Cluey's guesses are read off *your* key: a card
+   you marked green scores, and one you did not costs the turn even if it is
+   green on his. Under *his* clue it is his key that is read. So a card can be
+   spent one way round and still be worth finding the other — a bystander reveal
+   is directional, burning the card for the side that named it and leaving it
+   live for the side that did not. Sudden death is the one exception, because
+   there is no clue-giver: a green on **either** key counts, and anything else
+   ends it. `game.test.ts` pins the whole rule; two mutations of the engine were
+   checked to fail it.
 
-   Once **three clues** have been given, a forbidden word leaves one last chance
-   instead of ending the round: **translate every unsolved word on the board** —
-   dictionary locked, one shot, all or nothing. It closes again when the clues
-   run out.
+   Nothing on a board is fatal any more. Duet's assassin — which this game
+   called a forbidden word — is gone, and so is the translate-every-unsolved-word
+   last chance that existed to soften it. Every key now holds greens and nothing
+   else. That removed the only ending that could arrive early, which makes the
+   tokens the whole clock, so we re-measured what they are worth rather than
+   assuming they survived the change.
 
-   That threshold is `REDEMPTION_AFTER_ROUND` in `src/engine/config.ts`, and it
-   is worth more than it looks because of a measured fact sitting beside it
-   there: the guessing side alternates with the clue index, and you open, so
-   **odd clues are Cluey guessing and even ones are you**. At four the first
-   eligible clue was the fifth — odd — and the 3×4 board has no even clue past
-   it, so on the first board a learner meets the player could not reach this
-   ending at all. At three the first eligible clue is the fourth, which is
-   yours, on every board; `game.test.ts` pins that for all three. What the
-   threshold does *not* change much is the size of the challenge — 9.3 of 12
-   words are still unsolved at clue five against 11.6 at clue one — so this is
-   about when the last chance is offered, not how long it takes.
+   `src/ai/selfplay.test.ts` plays both sides against themselves on one dial:
+   the chance **p** that a guess finds a word the clue-giver actually meant. At
+   0 it is board arithmetic and nothing else; at 1 every clue is read perfectly.
+   Over 2000 seeded games a cell, both sides cluing for what is left up to three
+   at a time:
+
+   | board | p=0 | 0.6 | 0.7 | 0.8 | perfect | clues a perfect pair spends |
+   |---|---|---|---|---|---|---|
+   | 3×4, 5 clues | 1.6% | 76.1% | 89.0% | 96.9% | 100% | 3.51 |
+   | 3×5, 6 clues | 0.7% | 67.1% | 85.4% | 94.7% | 100% | 4.18 |
+   | 4×5, 7 clues | 0.0% | 58.1% | 80.7% | 95.5% | 100% | 4.44 |
+   | wrap-up 4×5, 10 clues | 1.2% | 84.8% | 95.2% | 99.2% | 100% | 6.00 |
+
+   Those are a floor and a ceiling with a made-up dial between them, not a
+   forecast: a biased coin is not Danish word association, and a real round sits
+   somewhere inside. What the brackets are good for is the shape, and the shape
+   says three things. A guesser that knows nothing spends every token on every
+   board — sudden death on 99.7% to 100% of seeds, and the tokens go with 5.5 of
+   the 3×4's 8 greens and 9.0 of the 4×5's 12 still hidden — and wins at most
+   1.6% of the time, so the floor did not rise when the hazards went, it moved
+   *later*: every loss now happens in sudden death, from a board barely touched.
+   A perfect pair wins every seed with
+   clues to spare, which is what a fair budget looks like. And in between, each
+   board still has a real losing side, and still comes down to the wire often
+   enough to be worth playing — at p=0.7 the clues run out on 30.8% of 3×4
+   rounds, 38.8% of 3×5 and 42.0% of 4×5.
+
+   **The 4×5 was re-tuned, and it was the only one.** It was the one board dealt
+   three forbidden words a side — five distinct cards, three of them pure
+   hazards — so its difficulty lived in the danger rather than the clue economy,
+   and it could afford the loosest budget in the game. With the danger gone it
+   measured 71.3% at p=0.6 against the 3×5's 67.1%: the big board had become
+   easier than the one it is supposed to escalate from. Taking one token off it
+   puts the three boards back in order and costs nothing at the top, since a
+   perfect pair only ever needed 4.44 of them.
+
+   Giving it more greens instead — the obvious answer to a board where eight of
+   twenty cards are on nobody's key, and where 76.2% of missed guesses land on
+   one — was measured and does the opposite of what it promises. Dealing those
+   slots as greens makes the board *harder and longer* (64.3% at p=0.7, a
+   perfect pair spending 6.00 clues of the 7), because a dead card is a card
+   nobody ever has to point at. The padding made that board easier, not slower.
+   What the twenty cards should be is a design question with the deal behind it;
+   it is not a tuning fix, and nothing measured here asked for one.
 4. **Reroll before you start.** If nothing on the board connects, **Nye ord**
    in the clue dock deals a different board of the same size. Only before the
    first clue — once one is on the table the round has a history, and re-dealing
@@ -172,12 +207,17 @@ often. Every board carries exactly three words over from the one before —
 weighted toward the three that went worst, and no word may carry twice running
 — so a board is mostly new without ever dropping what you just struggled with.
 
-The same signal steers the deal itself: words you keep forgetting become
-Cluey's green targets, so you have to recall them, while words you know well
-become the forbidden hazards you must knowingly avoid. A word is never both at
-once on the 3×4 and 3×5 boards: nothing there is forbidden for one side and
-green for the other, because Cluey cannot see your key and so cannot steer a
-clue around a hazard only you can see.
+The same signal steers the deal itself. Every slot on a board asks the player
+for one of three things (`SlotTier` in `src/engine/keygen.ts`), and the words
+are handed out in that order: **recall** is green on Cluey's key, so you have to
+retrieve the word from his clue, and the words you keep forgetting go here
+first; **produce** is green only on yours, which needs enough command of a word
+to find an association for it; **filler** is on neither key and asks nothing, so
+the words you know best drift into it. There used to be a fourth — **hazard**,
+filled last, which turned your best-known words into the traps you had to
+knowingly steer around. Forbidden words are gone and that channel went with
+them, so a word you know cold now costs a card rather than earning one. Recall
+was always the half that taught, and it is untouched.
 
 ### Keeping your collection
 
@@ -236,13 +276,14 @@ node scripts/make-icons.mjs                   # regenerate the PWA icons
 ```
 
 Playwright drives run against the built app and each start their own preview
-server, so `npm run build` first:
+server, so `npm run build` first — or use `npm run drives`, which builds for you
+and runs all sixteen. (`node scripts/run-drives.mjs --list` names them; three
+more are opt-in and not in the default set, since they want a real key, a real
+Worker, or produce a PNG to look at rather than a pass.)
 
 ```bash
 node e2e/smoke-drive.mjs      # a round played end to end
-node e2e/redemption-drive.mjs # a forbidden word both sides of the threshold:
-                              # the round ending on the spot, and the last
-                              # chance opening and being translated back
+node e2e/wrapup-drive.mjs     # the packing gate: type the Danish, then play
 node e2e/journey-drive.mjs    # a packed suitcase opens the road → travel → arrival
 node e2e/suitcase-drive.mjs   # Kufferten: four word states, paging, the wrap-up button
 node e2e/key-visible-drive.mjs # your own key is drawn on the board
@@ -266,7 +307,7 @@ node e2e/repeat-drive.mjs     # every board shares exactly three words with the
 node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
                               # runtime, fixing a CORS failure that is really
                               # there — including the key living on the worker
-node e2e/map-preview.mjs      # render the map to a PNG for inspection
+node e2e/map-preview.mjs      # (opt-in) render the map to a PNG for inspection
 ```
 
 `proxy-drive` runs [`proxy/worker.js`](proxy/worker.js) unmodified on workerd
@@ -315,7 +356,10 @@ already wrapped into the suitcase.
 
 - `src/engine/` — pure TypeScript game rules: dual-key generation
   (Duet-scaled, configurable in `config.ts`), turn state machine, clue
-  legality, redemption grading. No React, no network.
+  legality, and `packing.ts`, which grades the wrap-up round's typed
+  English→Danish answers. No React, no network. Every board number in
+  `config.ts` carries the measurement it came from; `src/ai/selfplay.test.ts`
+  is where they are measured and re-measurable.
 - `src/ai/` — the companion. `projections.ts` is the **firewall**: prompt
   builders can only consume views that structurally exclude the player's key
   (clue-giving sees the AI's own key; guessing sees no key at all). Tests
