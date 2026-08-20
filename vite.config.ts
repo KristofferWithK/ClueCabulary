@@ -38,8 +38,12 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png'],
       manifest: {
-        name: 'ClueCabulary',
-        short_name: 'ClueCabulary',
+        // Display name only. `start_url`/`scope` below stay on the
+        // /ClueCabulary/ path — that is the repo name, and the rename is held
+        // for the owner (docs/DECISIONS.md). Moving one without the other
+        // breaks the deploy.
+        name: '900Words',
+        short_name: '900Words',
         description:
           'Learn Danish vocabulary through a cooperative word-association game with an AI companion.',
         start_url: '/ClueCabulary/',

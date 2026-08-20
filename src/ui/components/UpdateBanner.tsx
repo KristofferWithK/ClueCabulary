@@ -52,7 +52,7 @@ export function UpdateBanner() {
   if (needRefresh && !dismissed && !busy) {
     return (
       <div className="update-banner" role="status">
-        <span>A new version of ClueCabulary is ready.</span>
+        <span>A new version of 900Words is ready.</span>
         <div className="update-actions">
           <button className="btn btn-small btn-primary" onClick={() => void updateServiceWorker(true)}>
             Reload

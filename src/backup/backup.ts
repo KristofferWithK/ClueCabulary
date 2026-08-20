@@ -15,6 +15,10 @@ import type { SrsMap, WordStats } from '../srs/types'
  * yourself and synced to three clouds; a secret must not ride along.
  */
 export const BACKUP_FORMAT = 2
+// Named for the old title on purpose, like the `app: 'cluecabulary'` literal
+// inside the file: a player's existing export is already called this, and a
+// file named 900words whose contents say cluecabulary is the confusing pair.
+// The import matches on the literal, never on the filename.
 export const BACKUP_FILENAME = 'cluecabulary-collection.json'
 
 const WordStatsSchema = z
@@ -154,7 +158,7 @@ export function parseBackup(text: string): ParseResult {
     if (parsed.data.format > BACKUP_FORMAT) {
       return {
         ok: false,
-        error: 'That backup was written by a newer version of ClueCabulary. Update the app first.',
+        error: 'That backup was written by a newer version of 900Words. Update the app first.',
       }
     }
     return { ok: true, backup: parsed.data }
@@ -167,7 +171,7 @@ export function parseBackup(text: string): ParseResult {
     return { ok: true, backup: { ...v1.data, journey: { ...journey, wrapped: banked } } }
   }
   const shape = json && typeof json === 'object' && 'app' in json ? '' : ' It may be from another app.'
-  return { ok: false, error: `That file is not a ClueCabulary backup.${shape}` }
+  return { ok: false, error: `That file is not a 900Words backup.${shape}` }
 }
 
 /**

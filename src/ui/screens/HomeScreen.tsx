@@ -121,7 +121,7 @@ export function HomeScreen() {
   return (
     <div className="screen home-screen">
       <header className="home-top">
-        <h1 className="home-title">ClueCabulary</h1>
+        <h1 className="home-title">900Words</h1>
         <button className="icon-btn" aria-label="Settings" onClick={() => goTo('settings')}>
           ⚙
         </button>

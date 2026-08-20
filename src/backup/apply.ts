@@ -81,7 +81,7 @@ export async function downloadBackup(now: number): Promise<'shared' | 'downloade
   }
   if (nav.share && nav.canShare?.({ files: [file] })) {
     try {
-      await nav.share({ files: [file], title: 'ClueCabulary collection' })
+      await nav.share({ files: [file], title: '900Words collection' })
       return 'shared'
     } catch (e) {
       // A cancelled share is not a failure worth reporting; fall through to

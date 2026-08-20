@@ -49,8 +49,8 @@ export async function startPreview(requestedPort) {
   // The intent below — "a port that is not ours is a loud, immediate failure"
   // — was not what the code did. vite exits on a held port, but the exit event
   // arrives asynchronously, and the first fetch of the loop went out before it
-  // did. A server already on the port answered, its body said ClueCabulary
-  // because it IS this app, and the drive returned happily and measured
+  // did. A server already on the port answered, its body carried this app's
+  // own name because it IS this app, and the drive returned happily and measured
   // another checkout's build. That is the exact silent-stale-server failure
   // this file was written to end, surviving inside the fix for it.
   if (!(await portFree(port))) {
@@ -91,7 +91,10 @@ export async function startPreview(requestedPort) {
     try {
       const res = await fetch(base, { signal: AbortSignal.timeout(1500) })
       // A stale orphan answers too, so insist on a body this build would serve.
-      if (res.ok && (await res.text()).includes('ClueCabulary')) {
+      // Matched on the product name, not the base path above: the path is still
+      // /ClueCabulary/ only until the owner renames the repo (D3), and this
+      // check should not have to move with it.
+      if (res.ok && (await res.text()).includes('900Words')) {
         return { proc, base, port, stop: () => proc.kill() }
       }
     } catch {
