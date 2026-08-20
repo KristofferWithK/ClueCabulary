@@ -114,11 +114,16 @@ function aliasTable(env) {
  * Casey's, refuses an empty guess list — and then RETRIES, up to
  * MAX_CORRECTIONS = 3 times. So the escalation costs no extra round trip at
  * all: it is a retry that was already going to happen, sent to a better model.
- * That is the single most important property of this design. A worker-side
- * cascade would add a whole second model call to the round, in series, on a
- * phone — the player watching "Casey is thinking…" for twice as long — and this
- * one adds none, and makes the common case FASTER, because the call that
- * usually succeeds is now the fast model.
+ * That is the single most important property of this design, and the drive
+ * measures it — the escalated call in a round is the second ATTEMPT of a call,
+ * not a call of its own. A worker-side cascade would instead add a whole second
+ * model call to the round, in series, on a phone, with the player watching
+ * "Casey is thinking…" for twice as long.
+ *
+ * Whether the round also gets FASTER is a fair expectation and not a measured
+ * one: a smaller model is normally quicker, and the attempt the player waits on
+ * is now the smaller one. Nobody here has timed it against real models. What
+ * IS certain is the direction of the round-trip count, which is unchanged.
  *
  * So the split is: THE APP DECIDES, THIS WORKER RESOLVES. The app asks for the
  * harder tier with `?tier=escalate` and never learns what that is; the alias

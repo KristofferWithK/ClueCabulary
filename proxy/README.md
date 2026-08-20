@@ -273,6 +273,12 @@ ordinary round is 7 to 12 calls.
   escalated request carries a query parameter and preflights are cached per URL.
   One round trip, once a day, on the slow path.
 
+And one thing it does **not** cost: waiting. The escalation is a retry the app
+was already making, so a round makes the same number of network round trips as
+it does today — the drive measures that. Whether it feels *quicker*, which it
+should, since the attempt you actually wait on is now the smaller model, has
+never been timed against real models. Step 4 above is where you find out.
+
 ## Fronting Gemini instead
 
 One worker serves either service. Gemini's OpenAI-compatible layer wants the
