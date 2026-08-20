@@ -713,11 +713,39 @@ select:focus {
   display: block;
 }
 
+/* Denmark, drawn rather than plotted — see scripts/make-map.mjs. Three
+   passes: the land and its coastline, a second pencil line that goes round the
+   same edge again, and 45° shading on the coasts that line runs into. The
+   graphite matches `.cluey-hatch`, because it is the same hand.
+
+   vector-effect is load-bearing, not polish. stroke-width is in viewBox units,
+   and both maps are letterboxed by height — Denmark is 158 CSS px wide on Home
+   at 360×640 — so a 2.6-unit coastline arrives as 0.4 px and the whole map
+   renders as a grey smudge no matter what the path data says. */
+.map-land,
+.map-sketch,
+.map-hatch {
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
 .map-land {
   fill: var(--surface);
-  stroke: var(--line);
-  stroke-width: 2;
-  stroke-linejoin: round;
+  stroke: rgba(18, 18, 18, 0.55);
+  stroke-width: 1.6px;
+}
+
+.map-sketch {
+  fill: none;
+  stroke: rgba(18, 18, 18, 0.3);
+  stroke-width: 1.2px;
+}
+
+.map-hatch {
+  fill: none;
+  stroke: rgba(18, 18, 18, 0.26);
+  stroke-width: 1.1px;
 }
 
 .map-route-ahead {
@@ -728,10 +756,18 @@ select:focus {
   stroke-linecap: round;
 }
 
+/* Non-scaling like the coastline, and for the same reason turned round: the
+   road already travelled is the thing the map is for, and once the coast was
+   drawn at a real 1.6px this line — 0.95px on Home, where the map is a 158px
+   thumbnail — was the fainter of the two. 2px matches what it already measured
+   on the map screen, so only Home moves. The dashed ahead-route is left
+   scaling on purpose: it should fade with the map, and a non-scaling width
+   under a scaling dash pattern closes the gaps up into a solid line. */
 .map-route-done {
   fill: none;
   stroke: var(--text);
-  stroke-width: 6;
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
