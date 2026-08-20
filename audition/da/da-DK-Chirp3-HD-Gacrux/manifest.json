@@ -1,0 +1,28 @@
+{
+  "entries": {
+    "hus": {
+      "id": "da:hus",
+      "text": "hus",
+      "stamp": "04a217e565ebab04",
+      "bytes": 5856,
+      "at": "2026-08-20T12:30:38.592Z"
+    },
+    "roed": {
+      "id": "da:rød",
+      "text": "rød",
+      "stamp": "7672c7740116dcf3",
+      "bytes": 4992,
+      "at": "2026-08-20T12:30:39.000Z"
+    },
+    "koebe": {
+      "id": "da:købe",
+      "text": "købe",
+      "stamp": "a44d6f126767ebef",
+      "bytes": 5664,
+      "at": "2026-08-20T12:30:39.578Z"
+    }
+  },
+  "provider": "google",
+  "voice": "da-DK-Chirp3-HD-Gacrux",
+  "lang": "da"
+}
