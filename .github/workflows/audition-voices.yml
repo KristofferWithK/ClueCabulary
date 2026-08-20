@@ -172,6 +172,49 @@ jobs:
           if (failed.length) console.log(`failed: ${failed.join(', ')}`)
           JS
 
+      # Can the chosen voice speak SLOWER? Every earlier bake sent
+      # speakingRate 0.9 and got a 200 from all thirty Chirp3 voices, which
+      # proves the field is accepted, not that it is honoured. These clips are
+      # constant-bitrate MP3, so byte size is a straight proxy for duration:
+      # if the sizes scale inversely with the rate, the rate is real. The
+      # clips are committed too, because whether SLOW AOEDE SOUNDS GOOD is a
+      # question for ears, not for arithmetic.
+      - name: Probe speaking rates on the chosen voice
+        env:
+          TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
+        run: |
+          node --input-type=module - <<'JS'
+          import { writeFileSync, mkdirSync } from 'node:fs'
+          const key = process.env.TTS_API_KEY
+          const VOICE = 'da-DK-Chirp3-HD-Aoede'
+          const CASES = [
+            ['sentence', 'Der står en mand ved døren.'],
+            ['word', 'rød'],
+          ]
+          const RATES = [1.0, 0.9, 0.7]
+          mkdirSync('audition/da-rate', { recursive: true })
+          for (const [label, text] of CASES) {
+            for (const rate of RATES) {
+              const res = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', {
+                method: 'POST',
+                headers: { 'X-goog-api-key': key, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  input: { text },
+                  voice: { languageCode: 'da-DK', name: VOICE },
+                  audioConfig: { audioEncoding: 'MP3', sampleRateHertz: 24000, speakingRate: rate },
+                }),
+              })
+              if (!res.ok) {
+                console.log(`PROBE-RATE ${label} rate=${rate} HTTP ${res.status} ${(await res.text()).slice(0, 120)}`)
+                continue
+              }
+              const bytes = Buffer.from((await res.json()).audioContent, 'base64')
+              writeFileSync(`audition/da-rate/${label}-${String(rate).replace('.', '_')}.mp3`, bytes)
+              console.log(`PROBE-RATE ${label} rate=${rate} HTTP 200 bytes=${bytes.length}`)
+            }
+          }
+          JS
+
       - name: Bake the probe words in every voice
         env:
           TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
