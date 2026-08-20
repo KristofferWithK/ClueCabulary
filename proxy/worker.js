@@ -64,7 +64,8 @@ const allowList = (env) =>
  *
  * Per alias: `model` is required. `upstream` and `path` move it to another
  * service (Ollama serves /v1, Gemini /v1beta/openai), and `key` names the
- * secret to send instead of OLLAMA_API_KEY.
+ * secret to send instead of OLLAMA_API_KEY. `escalate` names another entry in
+ * this table and is the whole cascade — see below.
  *
  * A name that is not an alias is forwarded untouched, so a real model id
  * always still works.
@@ -80,6 +81,136 @@ function aliasTable(env) {
     return {}
   }
 }
+
+/**
+ * ---------------------------------------------------------------------------
+ * The cascade: a cheap model answers, and a flagship answers again when it has
+ * to. Nothing below happens until an alias carries `escalate`.
+ * ---------------------------------------------------------------------------
+ *
+ *   MODEL_ALIASES = '{"cluey":       {"model":"<cheap>", "escalate":"cluey-hard"},
+ *                     "cluey-hard":  {"model":"<flagship>"}}'
+ *
+ * WHERE THE DECISION LIVES, AND WHY IT IS MOSTLY NOT HERE. The blueprint puts
+ * the whole cascade in this worker: one HTTP call from the app's point of view,
+ * the escalation invisible. That is the wrong shape for THIS app, for a reason
+ * that is structural rather than a matter of taste.
+ *
+ * To escalate on quality you have to be able to tell a bad answer from a good
+ * one. Every check that can — the zod schemas, `checkClueLegality`, "is this
+ * target actually an unrevealed green on Casey's key", "is this guessed id even
+ * on the board" — needs the board and the key, and this worker has neither. It
+ * sees a prompt and a completion. src/ai/projections.ts is a firewall built
+ * specifically so key data cannot reach a prompt, with tests asserting the
+ * prompt is byte-identical under key permutation, so the information this
+ * worker would need to judge a clue is information the app works hard to keep
+ * out of the request. Judging here would mean re-implementing the engine in
+ * this file, against a board scraped back out of prompt prose, and keeping that
+ * copy in step with an app that deploys separately. It would be wrong the first
+ * time the prompt is reworded, and wrong silently.
+ *
+ * The app already has all of it. `askValidated` in src/ai/companion.ts parses,
+ * runs the engine's legality check, refuses a clue naming a word that is not
+ * Casey's, refuses an empty guess list — and then RETRIES, up to
+ * MAX_CORRECTIONS = 3 times. So the escalation costs no extra round trip at
+ * all: it is a retry that was already going to happen, sent to a better model.
+ * That is the single most important property of this design. A worker-side
+ * cascade would add a whole second model call to the round, in series, on a
+ * phone — the player watching "Casey is thinking…" for twice as long — and this
+ * one adds none, and makes the common case FASTER, because the call that
+ * usually succeeds is now the fast model.
+ *
+ * So the split is: THE APP DECIDES, THIS WORKER RESOLVES. The app asks for the
+ * harder tier with `?tier=escalate` and never learns what that is; the alias
+ * table decides what answers, which is the same division of labour aliases
+ * already have. The app needs no configuration for it, and sends the marker on
+ * every corrective retry whether or not a cascade exists — with none
+ * configured, the escalated request resolves to exactly the same model as the
+ * first one, which is today's behaviour, unchanged, byte for byte.
+ *
+ * WHY A QUERY PARAMETER AND NOT A HEADER. A custom request header has to be
+ * listed in Access-Control-Allow-Headers or the browser refuses the request at
+ * the preflight, before it is ever sent — the X-Install-Id lesson, one section
+ * down. The app and this worker deploy separately, so there is a window where a
+ * new app is talking to an old worker, and in that window a header would take
+ * every corrective retry down with a CORS failure mid-round. A query parameter
+ * an old worker does not know about is forwarded and ignored, and the round
+ * carries on with the cheap answer. Degrading is worth more here than tidiness.
+ * It costs one extra CORS preflight the first time a phone escalates, because
+ * the preflight cache is keyed by URL; that is one round trip a day, on a path
+ * that is already the slow one.
+ *
+ * WHAT THIS WORKER *CAN* VERIFY, AND DOES. One fact needs no board at all: the
+ * cheap tier did not answer. A 5xx, a 429, or a connection that failed is a
+ * fact this worker owns, because it made the call. On any of those it re-asks
+ * the escalation entry once. Note what is NOT in that list: a 404. A 404 means
+ * the cheap model id is wrong or retired, and escalating past it would hide a
+ * broken configuration behind a flagship bill on every single request — the
+ * exact opposite of what this card is for. A 404 stays a 404 and shows up in
+ * `wrangler tail`.
+ *
+ * The self-reported signal was considered and rejected. The blueprint escalates
+ * on a `safety_margin` the model reports about itself; a model that is wrong
+ * about the board is wrong about its confidence too, and the clue prompt does
+ * not even return a number — the A2 lookahead names the riskiest neutral in
+ * prose, inside `rationale`. Escalating on that would mean parsing English out
+ * of a sentence written for a human to read, so the trigger would be a
+ * regex against prose and the cost control would move to whatever the model
+ * felt like claiming. Every trigger used here is a fact somebody checked.
+ *
+ * COST. Written out with the numbers in proxy/wrangler.toml, beside the table
+ * you configure. The short version: because escalation replaces a retry rather
+ * than adding a call, the cheap model would have to be REJECTED on about 95% of
+ * first attempts before this costs more than one tier, at a 20:1 price ratio.
+ */
+
+/** The query parameter the app asks the harder tier with, and its one value. */
+const TIER_PARAM = 'tier'
+const ESCALATE = 'escalate'
+
+/**
+ * Where a failed or rejected `entry` escalates to, or null if nowhere.
+ *
+ * One hop, and never to itself. A cascade that could chain would turn one typo
+ * in a Worker variable into an unbounded number of upstream calls per request,
+ * which is the one failure mode a cost-control feature must not have.
+ */
+function escalationFor(table, entry) {
+  const name = entry?.escalate
+  if (typeof name !== 'string' || !name) return null
+  const up = table[name]
+  return up?.model && up !== entry ? up : null
+}
+
+/**
+ * Did the cheap tier fail in a way a better model might survive?
+ *
+ * 5xx and 429 only. Both cost nothing — an error is not a generation — so the
+ * escalation replaces a call that was never billed, and the daily cap's
+ * worst-case BILL is unchanged even though one counted request made two
+ * upstream calls.
+ */
+const upstreamFailed = (res) => res.status >= 500 || res.status === 429
+
+/**
+ * How long to wait for the cheap tier before giving up on it and asking the
+ * flagship instead. CHEAP_TIMEOUT_MS; 0 (the default) means never.
+ *
+ * OFF BY DEFAULT ON PURPOSE, and it is the one setting here that can cost more
+ * than it saves. A cheap model answering a 1,800-token clue prompt is not
+ * instant, and a timeout set below what it actually takes turns EVERY request
+ * into two — the abandoned one may still be billed, since it was generating
+ * when it was dropped — so the cascade would double the bill and the latency at
+ * once. Set it only after watching `wrangler tail` for what the cheap tier
+ * really takes, and set it well above the slowest ordinary answer: it is for a
+ * tier that has HUNG, not one that is thinking. The app gives up on the whole
+ * request at 90 seconds (REQUEST_TIMEOUT_MS in src/ai/client.ts), so anything
+ * at or above that never fires.
+ *
+ * It is armed only when there is an escalation to go to. A timeout with nowhere
+ * to escalate would just be a slower way to fail.
+ */
+const DEFAULT_CHEAP_TIMEOUT_MS = 0
 
 /**
  * Is this request allowed to use the worker's key?
@@ -374,12 +505,24 @@ export default {
     const table = aliasTable(env)
     const named = Object.keys(table)
 
+    // Is the app asking for the harder tier? It sends this on a corrective
+    // retry — a reply its own validator refused — and it sends it whether or
+    // not a cascade exists here, so with none configured this resolves to the
+    // same model and nothing changes.
+    const wantsEscalation = url.searchParams.get(TIER_PARAM) === ESCALATE
+
     // Resolving an alias means reading the body to see which model was asked
     // for, and a read body can no longer be streamed. So this happens only when
     // aliases are configured AND the name matches one: every other request
     // still forwards request.body untouched, which is what the app's large
     // prompts want and what the passthrough test pins.
     let alias = null
+    /** Where to go if `alias` fails to answer at all; null when it is already
+     *  the top tier, so an escalation can never chain into another. */
+    let escalation = null
+    /** The parsed body, kept only so the escalation can be re-serialised with
+     *  the other model's name in it. Null whenever the body was never read. */
+    let asked = null
     let body = request.method === 'POST' ? request.body : undefined
     if (request.method === 'POST' && named.length) {
       const text = await request.text()
@@ -387,8 +530,15 @@ export default {
         const parsed = JSON.parse(text)
         const found = parsed?.model ? table[parsed.model] : null
         if (found?.model) {
-          alias = found
-          body = JSON.stringify({ ...parsed, model: found.model })
+          const harder = escalationFor(table, found)
+          if (wantsEscalation && harder) {
+            alias = harder
+          } else {
+            alias = found
+            escalation = harder
+          }
+          asked = parsed
+          body = JSON.stringify({ ...parsed, model: alias.model })
         } else {
           body = text
         }
@@ -403,10 +553,15 @@ export default {
     // brings its own credentials.
     // A bare "Bearer " counts as no key: older builds of the app sent that
     // when the field was blank, and it must not shadow the secret here.
-    const secretName = alias?.key || 'OLLAMA_API_KEY'
     const fromApp = (request.headers.get('Authorization') ?? '').trim()
     const usable = fromApp && fromApp.toLowerCase() !== 'bearer' ? fromApp : ''
-    const auth = usable || (env?.[secretName] ? `Bearer ${env[secretName]}` : '')
+    /** Per entry, because the escalation may live on another service with
+     *  another secret — and may be missing one the cheap tier does not need. */
+    const credentials = (entry) => {
+      const secretName = entry?.key || 'OLLAMA_API_KEY'
+      return { secretName, auth: usable || (env?.[secretName] ? `Bearer ${env[secretName]}` : '') }
+    }
+    const { secretName, auth } = credentials(alias)
     if (!auth) {
       return new Response(
         `No API key: send one from the app, or set ${secretName} as a secret on this worker.`,
@@ -425,18 +580,81 @@ export default {
       if (!quota.ok) return capReached(quota.scope, quota.cap, cors)
     }
 
-    const base = (alias?.upstream || env?.UPSTREAM || DEFAULT_UPSTREAM).replace(/\/+$/, '')
-    // The app's Base URL supplies /v1; an alias on a service that serves a
-    // different prefix swaps it, so host and path always move together.
-    const path = alias?.path ? url.pathname.replace(/^\/v1/, alias.path.replace(/\/+$/, '')) : url.pathname
-    let upstream
-    try {
-      upstream = await fetch(`${base}${path}${url.search}`, {
+    // `tier` is this worker's own word and means nothing upstream, so it is
+    // dropped. Rewritten only when it is actually there, so every other query
+    // string is forwarded as the exact bytes that arrived.
+    let search = url.search
+    if (url.searchParams.has(TIER_PARAM)) {
+      const kept = new URLSearchParams(url.search)
+      kept.delete(TIER_PARAM)
+      search = kept.toString() ? `?${kept}` : ''
+    }
+
+    const send = (entry, entryAuth, signal) => {
+      const base = (entry?.upstream || env?.UPSTREAM || DEFAULT_UPSTREAM).replace(/\/+$/, '')
+      // The app's Base URL supplies /v1; an alias on a service that serves a
+      // different prefix swaps it, so host and path always move together.
+      const path = entry?.path
+        ? url.pathname.replace(/^\/v1/, entry.path.replace(/\/+$/, ''))
+        : url.pathname
+      return fetch(`${base}${path}${search}`, {
         method: request.method,
-        headers: { 'Content-Type': 'application/json', Authorization: auth },
-        body,
+        headers: { 'Content-Type': 'application/json', Authorization: entryAuth },
+        // The first attempt sends the body already built above — which may
+        // still be the untouched request stream. Only an escalation re-writes
+        // it, and an escalation only exists where the body was parsed.
+        body: entry === alias ? body : JSON.stringify({ ...asked, model: entry.model }),
+        ...(signal ? { signal } : {}),
       })
-    } catch {
+    }
+
+    // Armed only when there is somewhere to escalate to; see the note above for
+    // why this is off unless the owner deliberately sets it.
+    const cheapTimeout = escalation ? capFrom(env?.CHEAP_TIMEOUT_MS, DEFAULT_CHEAP_TIMEOUT_MS) : 0
+
+    let upstream = null
+    try {
+      if (cheapTimeout > 0) {
+        // An AbortController cancelled the moment the headers arrive, rather
+        // than AbortSignal.timeout, which would keep running and could cut the
+        // response body off mid-transfer on a slow connection — a corrupted
+        // reply where a slow one was the whole problem.
+        const stop = new AbortController()
+        const timer = setTimeout(() => stop.abort(), cheapTimeout)
+        try {
+          upstream = await send(alias, auth, stop.signal)
+        } finally {
+          clearTimeout(timer)
+        }
+      } else {
+        upstream = await send(alias, auth)
+      }
+    } catch (e) {
+      // Held rather than answered, because a cascade may still rescue it.
+      console.log('upstream: the first attempt did not answer —', e?.message ?? e)
+    }
+
+    if (escalation && (!upstream || upstreamFailed(upstream))) {
+      const alt = credentials(escalation)
+      if (!alt.auth) {
+        // Better a cheap failure the app can read than a 401 invented here.
+        console.log(`cascade: ${escalation.model} needs ${alt.secretName}, which is not set — not escalating`)
+      } else {
+        console.log(
+          `cascade: ${alias.model} gave ${upstream ? `HTTP ${upstream.status}` : 'nothing'} — asking ${escalation.model}`,
+        )
+        try {
+          upstream = await send(escalation, alt.auth)
+        } catch (e) {
+          // Keep whatever the cheap tier said, if it said anything. Losing a
+          // readable 503 to an unreachable flagship would make the round worse
+          // than it was before the cascade existed.
+          console.log('cascade: the escalation did not answer either —', e?.message ?? e)
+        }
+      }
+    }
+
+    if (!upstream) {
       // An uncaught throw here becomes Cloudflare's error page, which carries
       // no CORS headers — so the browser reports a CORS failure and the app
       // tells you to deploy the proxy you are already using. Answer ourselves.
