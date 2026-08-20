@@ -3762,15 +3762,20 @@ body:has(.kb-up) {
   bottom: 6px;
 }
 
-/* ---- the table below the case ---- */
+/* ---- the table above the case ---- */
 
 .case-loose {
   flex: none;
 }
 
+/* Two rows of four, not one. A single row showed four of the seventy-odd
+   words a city has still out there, which read as a footnote rather than as
+   the queue the next round is dealt from; eight is a page you can actually
+   look for a word in. Fixed rows on purpose — this band must not take height
+   from the case, which is the one thing on the screen that stretches. */
 .case-loose .case-tiles {
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: 34px;
+  grid-template-rows: repeat(2, 34px);
   flex: none;
 }
 

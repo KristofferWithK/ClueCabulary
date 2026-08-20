@@ -1,7 +1,8 @@
-// ONE suitcase, lying open and drawn in pencil: the lid packed with wrapped
-// words, the tray holding collected ones, the loose words on the table below
-// it, a city filter that narrows the view without moving the player, and the
-// wrap-up button that carries words from the tray to the lid.
+// ONE suitcase, lying open and drawn in pencil, read top to bottom in the
+// order a word travels: the loose words on the table above it, the lid
+// holding collected ones, the tray packed with wrapped ones. Plus a city
+// filter that narrows the view without moving the player, and the wrap-up
+// button that carries words from the lid down into the tray.
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 
@@ -70,17 +71,30 @@ try {
 
   // ---- The three bands, each saying what it holds. -----------------------
   const bandLabels = await page.locator('.case-band-label').allTextContents()
-  check('the lid counts what is packed', bandLabels.some((l) => /Wrapped — 10 of 100/.test(l)), bandLabels[0])
-  check('the tray counts what is collected', bandLabels.some((l) => /Collected — 20/.test(l)))
+  check('the tray counts what is packed', bandLabels.some((l) => /Wrapped — 10 of 100/.test(l)), bandLabels[0])
+  check('the lid counts what is collected', bandLabels.some((l) => /Collected — 20/.test(l)))
   // 65 unmet + 5 met: everything not yet in the case, counted whole.
-  check('and the table below counts what is still out there', bandLabels.some((l) => /Still out there — 70/.test(l)))
+  check('and the table above counts what is still out there', bandLabels.some((l) => /Still out there — 70/.test(l)))
+
+  // Top to bottom the bands read in the order a word travels, which is the
+  // whole reason the loose strip is above the case rather than under it.
+  const order = await page.evaluate(() =>
+    [...document.querySelectorAll('.case-loose, .case-panel-lid, .case-panel-tray')].map(
+      (el) => el.className.split(' ').at(-1),
+    ),
+  )
+  check(
+    'the bands read loose, collected, wrapped down the screen',
+    order.join() === 'case-loose,case-panel-lid,case-panel-tray',
+    order.join(),
+  )
 
   // A compartment pages 12 at a time.
-  const trayTiles = await page.locator('.case-panel-tray .case-tile').count()
-  check('a compartment shows a full page of slots', trayTiles === 12, `${trayTiles}`)
-  const before = await page.locator('.case-panel-tray .case-tile').allTextContents()
-  await page.locator('.case-panel-tray button[aria-label$="next page"]').click()
-  const after = await page.locator('.case-panel-tray .case-tile').allTextContents()
+  const lidTiles = await page.locator('.case-panel-lid .case-tile').count()
+  check('a compartment shows a full page of slots', lidTiles === 12, `${lidTiles}`)
+  const before = await page.locator('.case-panel-lid .case-tile').allTextContents()
+  await page.locator('.case-panel-lid button[aria-label$="next page"]').click()
+  const after = await page.locator('.case-panel-lid .case-tile').allTextContents()
   check('the › leafs to different words', before.join() !== after.join())
 
   // A word tile opens the dictionary; a ? slot is not a button at all.
@@ -89,9 +103,12 @@ try {
   check('a collected tile opens the dictionary', true)
   await page.click('.sheet .btn')
 
-  // The table below leads with the words already MET — those are the ones
-  // worth opening — so the ? slots are behind them. Leaf to one: it has to be
-  // there, and it has to not be a button, since there is nothing to look up.
+  // The table above the case leads with the words already MET — those are the
+  // ones worth opening — so the ? slots are behind them. Leaf to one: it has
+  // to be there, and it has to not be a button, since there is nothing to
+  // look up. Two rows of four, so a full page is eight slots.
+  const looseSlots = await page.locator('.case-loose .case-slot').count()
+  check('the table shows two rows of four', looseSlots === 8, `${looseSlots}`)
   check('the table leads with the words already met', (await page.locator('.case-loose .case-discovered').count()) > 0)
   await page.locator('.case-loose button[aria-label$="next page"]').click()
   await page.waitForTimeout(150)
@@ -178,7 +195,7 @@ try {
     'below a boardful it waits',
     !(await page.locator('.case-actions .btn-primary').isEnabled()),
   )
-  // Nothing wrapped yet, so the lid is empty and has to say so. That line was
+  // Nothing wrapped yet, so the tray is empty and has to say so. That line was
   // invisible once: the drawn panel is an absolutely-positioned sibling that
   // comes first in the DOM, and a positioned element paints over every static
   // one after it, so the message rendered at 284x96 underneath the case.
@@ -186,8 +203,8 @@ try {
   // Not elementFromPoint — the panel is pointer-events:none, so hit-testing
   // skips it whether or not it paints on top, and the check would pass on the
   // broken build. Paint order here is decided by `position`, so assert that.
-  check('an empty compartment says so', /Nothing packed under the lid/.test(
-    (await page.locator('.case-panel-lid .case-empty').textContent()) ?? '',
+  check('an empty compartment says so', /Nothing packed in the tray/.test(
+    (await page.locator('.case-panel-tray .case-empty').textContent()) ?? '',
   ))
   const buried = await page.evaluate(() =>
     [...document.querySelectorAll('.case-band > *:not(.case-art):not(.case-hatch)')]
@@ -274,8 +291,8 @@ try {
   check('one banked win opens the button', await page.locator('.case-actions .btn-primary').isEnabled())
   check('and the hint is gone', (await page.locator('.case-hint').count()) === 0)
 
-  // ---- The table below the case does not page through the unmet. ---------
-  // Eight hundred undiscovered words paged four at a time is two hundred
+  // ---- The table above the case does not page through the unmet. ---------
+  // Eight hundred undiscovered words paged eight at a time is a hundred
   // pages of «?», so only one page-worth is ever listed — while the label
   // still counts every one of them.
   await openCase('?mock=1&howto=0&city=8&collected=40')

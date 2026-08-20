@@ -26,23 +26,26 @@ import { ACTIVE } from '../../lang/active'
  * changes; only how much of it you are looking at does. "All" is the default
  * for exactly that reason.
  *
- * The lid holds the WRAPPED words and the tray holds the COLLECTED ones. That
- * reading round rather than the other one because wrapping is the terminal
- * state — add-only, never regresses — and the lid is the half you strap shut
- * and stop reaching into, while the tray is the half you keep rummaging in. It
- * also puts the wrap-up button's job on the screen as a direction: the button
- * moves words up, out of the open half and into the closed one.
+ * The screen reads TOP TO BOTTOM in the order a word travels: the strip of
+ * loose words first, then the lid holding what is COLLECTED, then the tray
+ * holding what is WRAPPED. Every band is one step further in, so packing a
+ * word is always a move downward and the wrap-up button's job is on the
+ * screen as a direction. The tray is the bottom of the case for the terminal
+ * state — add-only, never regresses — and the lid, nearer the loose strip the
+ * words come from, is the half you keep rummaging in.
  *
- * Words still loose in the world are not in the case at all, which is the
- * point of them, so they sit in a compact strip on the table below it.
+ * The loose words are not in the case at all, which is the point of them, so
+ * they sit in a strip on the table ABOVE it: they are the queue you are
+ * working through, and burying the queue under the case put the thing you act
+ * on next furthest from the thumb.
  *
  * Nothing scrolls. Every band is a fixed grid of slots with ‹ › to leaf
  * through, and the slots stretch to fill whatever height the phone gives them
  * — that is how the case fills a 390×844 screen without a measurement.
  */
 
-/** Slots per page. The compartments are 3 wide; the loose strip is 4. */
-const LOOSE_PAGE = 4
+/** Slots per page. The compartments are 3 wide; the loose strip is 4 by 2. */
+const LOOSE_PAGE = 8
 const CASE_PAGE = 12
 
 /** The "All" filter — one suitcase, everything reached in it. */
@@ -269,9 +272,9 @@ export function SuitcaseScreen() {
   const shown =
     filter === ALL ? unlockedWords(WORDS, journey.cityIndex) : wordsForCity(WORDS, filter)
   /**
-   * The table below the case. Words MET but not collected are worth leafing
+   * The table above the case. Words MET but not collected are worth leafing
    * through; undiscovered ones are not — there is nothing to see on a ? and
-   * eight hundred of them paged four at a time is two hundred pages of it. So
+   * eight hundred of them paged eight at a time is a hundred pages of it. So
    * only one page-worth of ? is ever put in the list, as texture behind the
    * met words, while the label counts every last one of them honestly.
    */
@@ -395,41 +398,8 @@ export function SuitcaseScreen() {
         ))}
       </div>
 
-      {/* The case itself, open on the table and filling everything left. */}
-      <div className="case-open">
-        <CaseHandle />
-        <Pager
-          label={`Wrapped — ${wrapped.length} of ${wrapGoal}`}
-          words={wrapped}
-          page={wrappedPage}
-          perPage={CASE_PAGE}
-          onPage={setWrappedPage}
-          className="case-panel case-panel-lid"
-          empty="Nothing packed under the lid yet — wrap-up rounds put words here for good."
-          render={(w) => wordTile(w, 'case-wrapped')}
-        >
-          <CasePanel half="lid" />
-          <CornerHatch />
-        </Pager>
-
-        <CaseHinge />
-
-        <Pager
-          label={`Collected — ${collected.length}`}
-          words={collected}
-          page={collectedPage}
-          perPage={CASE_PAGE}
-          onPage={setCollectedPage}
-          className="case-panel case-panel-tray"
-          empty="Clue a word and guess it — one green each way — to collect it into the tray."
-          render={(w) => wordTile(w, 'case-collected')}
-        >
-          <CasePanel half="tray" />
-          <CornerHatch />
-        </Pager>
-      </div>
-
-      {/* Not in the case, which is the point of them. */}
+      {/* Not in the case, which is the point of them — and above it, because
+          these are the words the next round is for. */}
       <Pager
         label={`Still out there — ${met.length + unmet.length}`}
         words={loose}
@@ -450,6 +420,40 @@ export function SuitcaseScreen() {
           )
         }
       />
+
+      {/* The case itself, open on the table and filling everything left. */}
+      <div className="case-open">
+        <CaseHandle />
+        <Pager
+          label={`Collected — ${collected.length}`}
+          words={collected}
+          page={collectedPage}
+          perPage={CASE_PAGE}
+          onPage={setCollectedPage}
+          className="case-panel case-panel-lid"
+          empty="Clue a word and guess it — one green each way — to collect it into the lid."
+          render={(w) => wordTile(w, 'case-collected')}
+        >
+          <CasePanel half="lid" />
+          <CornerHatch />
+        </Pager>
+
+        <CaseHinge />
+
+        <Pager
+          label={`Wrapped — ${wrapped.length} of ${wrapGoal}`}
+          words={wrapped}
+          page={wrappedPage}
+          perPage={CASE_PAGE}
+          onPage={setWrappedPage}
+          className="case-panel case-panel-tray"
+          empty="Nothing packed in the tray yet — wrap-up rounds put words here for good."
+          render={(w) => wordTile(w, 'case-wrapped')}
+        >
+          <CasePanel half="tray" />
+          <CornerHatch />
+        </Pager>
+      </div>
 
       {/* No second Back button down here: the case is the whole point of the
           screen and every row it does not need is a row it grows by. Settings
