@@ -1,4 +1,8 @@
-import { danishStem, normalize } from '../engine/text'
+import { ACTIVE } from '../lang/active'
+import { normalize } from '../engine/text'
+
+/** The active language's stemmer, so 'hunden' still finds 'hund'. */
+const stem = ACTIVE.morphology.stem
 import type { WordEntry } from './types'
 import { WORDS } from './words'
 
@@ -30,10 +34,10 @@ const byGloss = new Map<string, WordEntry[]>()
 
 for (const w of WORDS) {
   byDa.set(normalize(w.da), w)
-  const stem = danishStem(w.da)
-  const stems = byStem.get(stem)
+  const s = stem(w.da)
+  const stems = byStem.get(s)
   if (stems) stems.push(w)
-  else byStem.set(stem, [w])
+  else byStem.set(s, [w])
   for (const g of w.en) {
     const key = normalizeGloss(g)
     const list = byGloss.get(key)
@@ -60,7 +64,7 @@ export function lookupLocal(term: string): LocalMatch[] {
 
   // "hunden" should still find "hund"; the packing grader is strict, a
   // dictionary need not be.
-  const stemHits = byStem.get(danishStem(term))
+  const stemHits = byStem.get(stem(term))
   if (stemHits?.length) {
     return stemHits.map((entry) => ({ entry, matched: 'da' as const, approximate: true }))
   }

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { matchesDanishAnswer } from './packing'
+import { danish } from '../lang/da'
+import { matchesAnswer } from './packing'
+
+/** The pack the grader is measured against; H1 made it a parameter. */
+const matchesDanishAnswer = (a: string, t: string, is?: (n: string) => boolean) =>
+  matchesAnswer(a, t, danish, is)
 
 /**
  * Mirrors the discipline of the retired redemption grader in the other

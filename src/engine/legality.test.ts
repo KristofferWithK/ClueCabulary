@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { checkClueLegality } from './legality'
+import { danish } from '../lang/da'
+import { checkClueLegality as checkIn } from './legality'
+
+/**
+ * The rules are a parameter now (H1). Bound to Danish here so every case below
+ * keeps testing exactly the language it was written against.
+ */
+const checkClueLegality = (clue: string, words: Parameters<typeof checkIn>[1]) =>
+  checkIn(clue, words, danish)
 import type { BoardWord } from './types'
 
 const board: BoardWord[] = [

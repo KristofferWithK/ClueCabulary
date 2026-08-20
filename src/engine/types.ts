@@ -16,18 +16,22 @@ export interface BoardWord {
   en: string[]
   pos: string
   /**
-   * Danish gender article, nouns only. Carried on the board because gender is
+   * The gender article, nouns only. Carried on the board because gender is
    * learned as a collocation — "et hus", not "hus (neuter)" — so the card has
    * to show the pair. Optional: verbs and adjectives have none, and a game
    * persisted before this existed simply renders without it.
+   *
+   * A plain string, like `WordEntry.article`, because the set of articles is
+   * the language's: der/die/das are three where en/et are two.
    */
-  article?: 'en' | 'et'
+  article?: string
   /**
    * Carried alongside the article because a few nouns have no article at all
    * (plurale tantum: penge, bukser, briller) and the card still has to say what
-   * gender they are. See src/data/gender.ts for what gets printed.
+   * gender they are. Keyed into the active pack's gender table; see
+   * src/data/gender.ts for what gets printed.
    */
-  gender?: 'common' | 'neuter'
+  gender?: string
   /** False for a mass noun: the card shows the gender, not an article. */
   countable?: boolean
 }

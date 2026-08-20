@@ -5,33 +5,85 @@
 import { readFileSync, readdirSync } from 'node:fs'
 
 /**
- * The uncountable list, read out of the TypeScript module rather than copied,
- * so the classification has exactly one home. A plain regex over the quoted
- * strings above the export is enough — the file is a list of literals by
- * design, and a validator that needs a bundler is a validator nobody runs.
+ * Which language to validate. Danish is the only dataset that exists, so it is
+ * the default; `--lang de` will work the moment H2 lands `words.de.json` and a
+ * `src/lang/de/` pack, with no change here beyond an entry in ALPHABETS.
  */
-const countabilitySrc = readFileSync(
-  new URL('../src/data/countability.ts', import.meta.url),
+const argLang = process.argv.indexOf('--lang')
+const LANG = argLang === -1 ? 'da' : (process.argv[argLang + 1] ?? 'da')
+if (!/^[a-z]{2}$/.test(LANG)) {
+  console.error(`--lang must be a two-letter code, got "${LANG}"`)
+  process.exit(2)
+}
+
+/**
+ * The uncountable list, read out of the language pack rather than copied, so
+ * the classification has exactly one home. A plain regex over the quoted
+ * strings above the export is enough — that part of the file is a list of
+ * literals by design, and a validator that needs a bundler is a validator
+ * nobody runs. (Which is why `grammar.ts` keeps its gender table BELOW the
+ * export: a quoted string up there would land in this set.)
+ */
+const grammarSrc = readFileSync(
+  new URL(`../src/lang/${LANG}/grammar.ts`, import.meta.url),
   'utf8',
 )
 const UNCOUNTABLE = new Set(
-  [...countabilitySrc.split('export const UNCOUNTABLE')[0].matchAll(/'([^']+)'/g)].map((m) => m[1]),
+  [
+    ...grammarSrc
+      .split('export const UNCOUNTABLE')[0]
+      // Import lines carry quoted paths, and '../types' scraped straight into
+      // the set when countability moved into the pack. It matched no headword
+      // so nothing failed, which is exactly why it is worth removing: a
+      // validator that silently reads junk is one bad line away from silently
+      // reading nothing.
+      .split('\n')
+      .filter((line) => !/^\s*import\b/.test(line))
+      .join('\n')
+      .matchAll(/'([^']+)'/g),
+  ].map((m) => m[1]),
 )
+if (UNCOUNTABLE.size === 0) {
+  console.error(`read no uncountable nouns out of src/lang/${LANG}/grammar.ts — the scrape broke`)
+  process.exit(2)
+}
 
 /**
  * The route, read out of the TypeScript rather than restated, for the same
  * reason the uncountable list is: one home per fact. Nine cities of a hundred
  * is what "900Words" means, and the dataset and the route have to agree about
  * it or a city ends up owning a band with nothing in it.
+ *
+ * The cities come from the language's own route; WORDS_PER_CITY is the
+ * journey's constant and is shared by every language.
  */
+const routeSrc = readFileSync(new URL(`../src/lang/${LANG}/route.ts`, import.meta.url), 'utf8')
+const CITY_IDS = [...routeSrc.matchAll(/^ {4}id: '([a-z]+)',/gm)].map((m) => m[1])
 const citiesSrc = readFileSync(new URL('../src/journey/cities.ts', import.meta.url), 'utf8')
-const CITY_IDS = [...citiesSrc.matchAll(/^ {4}id: '([a-z]+)',/gm)].map((m) => m[1])
 const WORDS_PER_CITY = Number(citiesSrc.match(/WORDS_PER_CITY = (\d+)/)?.[1])
 const EXPECTED = CITY_IDS.length * WORDS_PER_CITY
 
-const PATH = new URL('../src/data/words.da.json', import.meta.url)
+const PATH = new URL(`../src/data/words.${LANG}.json`, import.meta.url)
 const POS = new Set(['noun', 'verb', 'adjective', 'adverb', 'numeral', 'interjection'])
-const DA_TOKEN = /^[a-zA-ZæøåÆØÅé]+$/
+
+/**
+ * The letters a citation form may be spelled with, beyond plain ASCII.
+ *
+ * Per language because the check is real: it is what catches a stray digit, a
+ * space or a smuggled English word in the dataset. German needs äöüß and its
+ * capitals — and note that German nouns are capitalised, so the existing
+ * allowance for upper case is not a looseness there but the rule.
+ */
+const ALPHABETS = {
+  da: 'æøåÆØÅé',
+  de: 'äöüßÄÖÜ',
+}
+const extra = ALPHABETS[LANG]
+if (extra === undefined) {
+  console.error(`no alphabet listed for "${LANG}" — add one to ALPHABETS in this file`)
+  process.exit(2)
+}
+const DA_TOKEN = new RegExp(`^[a-zA-Z${extra}]+$`)
 
 const words = JSON.parse(readFileSync(PATH, 'utf8'))
 const errors = []

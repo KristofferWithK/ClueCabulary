@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { articleLabel, genderLabel } from './gender'
 import { WORDS, classifyClue, looksEnglish } from './words'
-import { UNCOUNTABLE, UNCOUNTABLE_CLASSES, isUncountable } from './countability'
+import { UNCOUNTABLE, UNCOUNTABLE_CLASSES, isUncountable } from '../lang/da/grammar'
 
 /**
  * "Some nouns are not countable and thus don't have an en or et. But we should
@@ -178,7 +178,7 @@ describe('which nouns can be counted', () => {
   })
 
   it('and the classes together are the whole list', () => {
-    const fromClasses = new Set(UNCOUNTABLE_CLASSES.flatMap(([, words]) => words))
+    const fromClasses = new Set(UNCOUNTABLE_CLASSES.flatMap(([, words]: readonly [string, readonly string[]]) => words))
     expect([...fromClasses].sort()).toEqual([...UNCOUNTABLE].sort())
   })
 
@@ -209,13 +209,13 @@ describe('which nouns can be counted', () => {
 describe('classifying a clue without asking anybody', () => {
   it('æ, ø and å can only be Danish', () => {
     for (const w of ['kæledyr', 'øjeblik', 'århundrede', 'særlig']) {
-      expect(classifyClue(w), w).toBe('danish')
+      expect(classifyClue(w), w).toBe('target')
     }
   })
 
   it('an inflection of a word we ship is that word', () => {
     for (const w of ['hunden', 'huset', 'bilerne', 'skoler']) {
-      expect(classifyClue(w), w).toBe('danish')
+      expect(classifyClue(w), w).toBe('target')
     }
   })
 
@@ -227,7 +227,7 @@ describe('classifying a clue without asking anybody', () => {
    */
   it('and a compound of two of them is Danish', () => {
     for (const w of ['dyreliv', 'morgenmad', 'sommerhus', 'bordben']) {
-      expect(classifyClue(w), w).toBe('danish')
+      expect(classifyClue(w), w).toBe('target')
     }
     for (const w of ['boghandel', 'huskeliste']) {
       expect(classifyClue(w), w).toBe('unknown')
@@ -242,7 +242,7 @@ describe('classifying a clue without asking anybody', () => {
 
   it('a word that is both stays Danish', () => {
     for (const w of ['arm', 'gift', 'sky', 'mad', 'salt', 'time', 'hold', 'land']) {
-      expect(classifyClue(w), w).toBe('danish')
+      expect(classifyClue(w), w).toBe('target')
     }
   })
 

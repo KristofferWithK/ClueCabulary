@@ -29,7 +29,7 @@ export function Arrival({
         {city.name}
       </h1>
       <p className="arrival-blurb" lang="da">
-        {city.blurbDa}
+        {city.blurbTarget}
       </p>
       <p className="arrival-blurb-en">{city.blurbEn}</p>
       <p className="arrival-unlock">

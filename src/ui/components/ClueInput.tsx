@@ -5,6 +5,7 @@ import { classifyClue } from '../../data/words'
 import { checkClueLegality } from '../../engine/legality'
 import type { GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
+import { ACTIVE } from '../../lang/active'
 
 interface Props {
   game: GameState
@@ -25,7 +26,7 @@ export function ClueInput({ game, onSubmit }: Props) {
   // which is a line of board while the keyboard is up.
 
   const trimmed = text.trim()
-  const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
+  const verdict = trimmed ? checkClueLegality(trimmed, game.words, ACTIVE) : null
   // Casey reads a Danish board and is handed the clue as a bare string, so an
   // English word there is one he cannot place. The shipped nine hundred settle most
   // of it offline — æ/ø/å, an inflection, a compound of two known words — and

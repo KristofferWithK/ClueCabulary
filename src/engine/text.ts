@@ -30,20 +30,11 @@ export function levenshtein(a: string, b: string): number {
   return rows[m]![n]!
 }
 
-/**
- * Regular Danish inflection is suffixing (hus/huset, løbe/løber/løbet,
- * hund/hunden/hundene). Stripping one longest-match suffix catches the
- * realistic clue/board collisions. Heuristic by design — Codenames legality
- * is human-adjudicated anyway.
+/*
+ * The stemmer used to live here as `danishStem`. It is a rule OF Danish rather
+ * than a shared text utility, so it moved to `src/lang/da/morphology.ts` and
+ * reaches its callers as `pack.morphology.stem` — that is the whole point of
+ * the seam, and leaving a Danish suffix list in a file called `text` would have
+ * been the first place a second language broke. Only `normalize` and
+ * `levenshtein` are genuinely language-neutral, and they stayed.
  */
-const DANISH_SUFFIXES = ['erne', 'ene', 'ede', 'er', 'en', 'et', 'e', 'r', 's', 't']
-
-export function danishStem(word: string): string {
-  const w = normalize(word)
-  for (const suf of DANISH_SUFFIXES) {
-    if (w.endsWith(suf) && w.length - suf.length >= 3) {
-      return w.slice(0, w.length - suf.length)
-    }
-  }
-  return w
-}

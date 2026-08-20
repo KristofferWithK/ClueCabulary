@@ -17,8 +17,13 @@ export interface WordEntry {
    * The indefinite article, nouns only — and only where one exists. A few
    * nouns are plurale tantum (penge, bukser, briller): there is no "en penge",
    * so there is no article to show.
+   *
+   * A plain string rather than 'en' | 'et': which articles exist is the
+   * language's business, and the pack's gender table is where they are
+   * enumerated. `seam.test.ts` checks every gender the dataset uses has an
+   * entry there, which is the check the union used to be doing.
    */
-  article?: 'en' | 'et'
+  article?: string
   /**
    * The gender, on every noun including the ones with no article.
    *
@@ -26,8 +31,12 @@ export interface WordEntry {
    * what decides the definite ending and every agreeing adjective. Showing
    * nothing at all beside «bukser» taught nothing; it now says (com), from the
    * singular that does exist (en buks).
+   *
+   * Danish has two and German three, so this is a plain string keyed into
+   * `pack.grammar.genders` rather than a union that every new language would
+   * have to widen.
    */
-  gender?: 'common' | 'neuter'
+  gender?: string
   /**
    * False for a noun with no ordinary indefinite singular — mass and abstract
    * nouns, where "en mælk" / "et blod" promise a counting the language does not

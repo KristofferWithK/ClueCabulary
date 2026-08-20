@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { GRID_CONFIGS } from '../engine/config'
-import { applyEvent, createGame, isGuessable } from '../engine/game'
+import { applyEvent as applyEventIn, createGame, isGuessable } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { aiTargetableIds, buildAiClueView } from './projections'
 import { buildCluePrompt } from './prompts'
+import { danish } from '../lang/da'
+
+/**
+ * The engine takes the language pack now (H1). Wrapped here so the suite's
+ * call sites stay exactly as they were and keep pinning what they pinned.
+ */
+const applyEvent = (s: Parameters<typeof applyEventIn>[0], e: Parameters<typeof applyEventIn>[1]) =>
+  applyEventIn(s, e, danish)
 
 /**
  * This file used to end with "the debrief is told how the round actually

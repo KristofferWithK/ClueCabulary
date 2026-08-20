@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { GRID_CONFIGS } from '../engine/config'
-import { applyEvent, createGame } from '../engine/game'
+import { applyEvent as applyEventIn, createGame } from '../engine/game'
 import type { BoardWord, CardRole, GameState } from '../engine/types'
 import {
   aiGuessableIds,
@@ -9,6 +9,14 @@ import {
   buildAiGuessView,
 } from './projections'
 import { buildCluePrompt, buildGuessPrompt } from './prompts'
+import { danish } from '../lang/da'
+
+/**
+ * The engine takes the language pack now (H1). Wrapped here so the suite's
+ * call sites stay exactly as they were and keep pinning what they pinned.
+ */
+const applyEvent = (s: Parameters<typeof applyEventIn>[0], e: Parameters<typeof applyEventIn>[1]) =>
+  applyEventIn(s, e, danish)
 
 const words = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({

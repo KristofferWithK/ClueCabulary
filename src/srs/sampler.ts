@@ -1,6 +1,7 @@
 import type { WordEntry } from '../data/types'
 import { curriculumRank } from '../data/words'
-import { danishStem, levenshtein, normalize } from '../engine/text'
+import { ACTIVE } from '../lang/active'
+import { levenshtein, normalize } from '../engine/text'
 import type { Rng } from '../engine/rng'
 import { practiceNeed } from './scheduler'
 import type { SrsMap } from './types'
@@ -43,7 +44,7 @@ export const CARRY_OVER = 3
 export function conflicts(a: WordEntry, b: WordEntry): boolean {
   const aDa = normalize(a.da)
   const bDa = normalize(b.da)
-  if (danishStem(aDa) === danishStem(bDa)) return true
+  if (ACTIVE.morphology.stem(aDa) === ACTIVE.morphology.stem(bDa)) return true
   if (levenshtein(aDa, bDa) <= 1) return true
   const aGlosses = new Set(a.en.map(normalize))
   return b.en.some((g) => aGlosses.has(normalize(g)))

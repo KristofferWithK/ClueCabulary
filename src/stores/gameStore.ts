@@ -6,14 +6,15 @@ import { MockCompanion } from '../ai/mock/mockCompanion'
 import { buildAiClueView, buildAiGuessView } from '../ai/projections'
 import type { GuessResponse, TranslationResponse } from '../ai/schemas'
 import { GRID_CONFIGS, WRAPUP_CONFIG, type GridConfig, type GridSize } from '../engine/config'
-import { applyEvent, createGame, currentClue } from '../engine/game'
-import { matchesDanishAnswer } from '../engine/packing'
+import { applyEvent as applyEventIn, createGame, currentClue } from '../engine/game'
+import { matchesAnswer } from '../engine/packing'
 import { mulberry32 } from '../engine/rng'
 import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
-import { WORDS, isDanishWord } from '../data/words'
+import { WORDS, isHeadword } from '../data/words'
+import { ACTIVE } from '../lang/active'
 import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { wrapUpBias, wrapUpWords, type RoundMode } from '../journey/wrapup'
 import { useFeedback } from './feedbackStore'
@@ -22,6 +23,16 @@ import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
 import { useSrs } from './srsStore'
 import { useUi } from './uiStore'
+
+/**
+ * The engine takes the language pack as a parameter (H1) so it can stay free of
+ * data; the app has exactly one active language, so it is bound once here
+ * rather than at each of the six call sites.
+ */
+const applyEvent = (
+  s: Parameters<typeof applyEventIn>[0],
+  e: Parameters<typeof applyEventIn>[1],
+) => applyEventIn(s, e, ACTIVE)
 
 type PlannedGuess = GuessResponse['guesses'][number]
 
@@ -482,7 +493,7 @@ export const useGame = create<GameStore>()(
         if (!game || mode !== 'wrapup' || packingDone) return false
         const word = game.words.find((w) => w.wordId === wordId)
         if (!word || packed.includes(wordId)) return false
-        if (matchesDanishAnswer(text, word.da, isDanishWord)) {
+        if (matchesAnswer(text, word.da, ACTIVE, isHeadword)) {
           const nextPacked = [...packed, wordId]
           set({
             packed: nextPacked,

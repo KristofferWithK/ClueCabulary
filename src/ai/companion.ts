@@ -13,6 +13,7 @@ import {
   buildTranslatePrompt,
   type ChatMessage,
 } from './prompts'
+import { ACTIVE } from '../lang/active'
 import {
   ClueResponseSchema,
   GuessResponseSchema,
@@ -184,7 +185,7 @@ export class OllamaCompanion implements Companion {
       (raw) => {
         const parsed = ClueResponseSchema.safeParse(raw)
         if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
-        const verdict = checkClueLegality(parsed.data.clue, boardWords)
+        const verdict = checkClueLegality(parsed.data.clue, boardWords, ACTIVE)
         if (!verdict.legal) return { ok: false, problem: `illegal clue: ${verdict.reason}` }
         /**
          * A clue is only worth what its targets are worth, so a reply naming a
