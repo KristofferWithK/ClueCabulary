@@ -26,6 +26,7 @@ const snapshot = (patch: Partial<Snapshot> = {}): Snapshot => ({
   games: { played: 0, won: 0, redeemed: 0, lost: 0 },
   journey: { cityIndex: 0, wrapped: {}, arrivedAt: {} },
   prefs: { gridSize: 'beginner', clueLanguage: 'en', studyPhase: 'auto' },
+  language: 'da',
   ...patch,
 })
 
@@ -356,5 +357,66 @@ describe('summarize', () => {
     const sum = summarize(file)
     expect(sum.collected).toBe(0)
     expect(sum.wrapped).toBe(1)
+  })
+})
+
+/**
+ * A backup carries the language its journey position belongs to.
+ *
+ * The words are safe to move between languages — every id carries its own —
+ * but a city index is a number counting a particular route, and restoring a
+ * Danish stop 7 onto a German journey would put the player in a city whose
+ * hundred words they have never seen, with the road out of it shut.
+ */
+describe('backups across languages', () => {
+  it('defaults a file written before the seam to Danish', () => {
+    // A real pre-seam file: no `language` key at all.
+    const file = JSON.parse(JSON.stringify(buildBackup(snapshot(), NOW))) as Record<string, unknown>
+    delete file.language
+    const parsed = parseBackup(JSON.stringify(file))
+    expect(parsed.ok).toBe(true)
+    if (parsed.ok) expect(parsed.backup.language).toBe('da')
+  })
+
+  it('round-trips the language it was written with', () => {
+    expect(roundTrip(snapshot({ language: 'de' })).language).toBe('de')
+  })
+
+  it('merges the words of a foreign file but not its position', () => {
+    const here = snapshot({
+      language: 'da',
+      journey: { cityIndex: 3, wrapped: { 'da:hus': NOW }, arrivedAt: { 3: NOW } },
+    })
+    const foreign = roundTrip(
+      snapshot({
+        language: 'de',
+        journey: { cityIndex: 7, wrapped: { 'de:Haus': NOW }, arrivedAt: { 7: NOW } },
+      }),
+    )
+    const merged = mergeSnapshot(here, foreign)
+    // Both collections, one ledger.
+    expect(merged.journey.wrapped).toEqual({ 'da:hus': NOW, 'de:Haus': NOW })
+    // The traveller has not moved.
+    expect(merged.journey.cityIndex).toBe(3)
+    expect(merged.journey.arrivedAt).toEqual({ 3: NOW })
+    expect(merged.language).toBe('da')
+  })
+
+  it('still merges the position when the languages agree', () => {
+    const here = snapshot({
+      language: 'da',
+      journey: { cityIndex: 3, wrapped: {}, arrivedAt: {} },
+    })
+    const mine = roundTrip(
+      snapshot({ language: 'da', journey: { cityIndex: 7, wrapped: {}, arrivedAt: {} } }),
+    )
+    expect(mergeSnapshot(here, mine).journey.cityIndex).toBe(7)
+  })
+
+  it('merges word records across languages either way', () => {
+    const here = snapshot({ language: 'da', stats: { 'da:hus': stats(COLLECTED) } })
+    const foreign = roundTrip(snapshot({ language: 'de', stats: { 'de:Haus': stats(COLLECTED) } }))
+    const merged = mergeSnapshot(here, foreign)
+    expect(Object.keys(merged.stats).sort()).toEqual(['da:hus', 'de:Haus'])
   })
 })

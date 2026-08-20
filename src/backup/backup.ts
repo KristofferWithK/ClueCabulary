@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { CITIES } from '../journey/cities'
+import type { LanguageCode } from '../lang/types'
 import { LEARN_REPS } from '../journey/progress'
 import type { GamesTally } from '../stores/srsStore'
 import type { SrsMap, WordStats } from '../srs/types'
@@ -88,10 +89,22 @@ const PrefsSchema = z.object({
 
 const SrsSchema = z.object({ stats: z.record(z.string(), WordStatsSchema), games: TallySchema })
 
+/**
+ * Which language the journey position in this file is a position ON.
+ *
+ * Absent from every file written before the seam, and those are all Danish, so
+ * it defaults rather than failing. Deliberately NOT a format bump: an older
+ * build reading a newer file ignores the extra key and restores exactly what it
+ * would have restored anyway, and a format bump would make it refuse the file
+ * instead. The field only ever makes a restore MORE careful.
+ */
+const LanguageSchema = z.enum(['da', 'de']).default('da')
+
 export const BackupSchema = z.object({
   app: z.literal('cluecabulary'),
   format: z.number(),
   exportedAt: z.number(),
+  language: LanguageSchema,
   srs: SrsSchema,
   journey: JourneySchema,
   prefs: PrefsSchema,
@@ -101,6 +114,7 @@ const BackupV1Schema = z.object({
   app: z.literal('cluecabulary'),
   format: z.number(),
   exportedAt: z.number(),
+  language: LanguageSchema,
   srs: SrsSchema,
   journey: JourneyV1Schema,
   prefs: PrefsSchema,
@@ -120,6 +134,8 @@ export interface Snapshot {
   games: GamesTally
   journey: JourneyBackup
   prefs: BackupPrefs
+  /** The language this device is playing — see `LanguageSchema`. */
+  language: LanguageCode
 }
 
 export function buildBackup(s: Snapshot, now: number): Backup {
@@ -127,6 +143,7 @@ export function buildBackup(s: Snapshot, now: number): Backup {
     app: 'cluecabulary',
     format: BACKUP_FORMAT,
     exportedAt: now,
+    language: s.language,
     srs: { stats: s.stats, games: s.games },
     journey: {
       cityIndex: s.journey.cityIndex,
@@ -217,6 +234,20 @@ const earliestByKey = (
  *
  * Preferences are not merged; a merge is about progress, and the device you are
  * holding should keep its own settings.
+ *
+ * ── ACROSS LANGUAGES ───────────────────────────────────────────────────────
+ *
+ * Word records and wrapped words merge whatever language the file came from:
+ * they are keyed by word id, every id carries its language, so a Danish file
+ * folded into a German device adds the Danish half of the collection and
+ * touches nothing German. That is worth having — it is how one backup carries
+ * everything a player has ever learned.
+ *
+ * The city index does NOT merge across languages. It is an index into a route,
+ * and "the furthest city wins" compares two numbers that count different
+ * cities; a Danish stop 7 restored onto a German journey would teleport the
+ * player to Frankfurt with none of its words behind them. So a file from
+ * another language keeps its words and leaves the position alone.
  */
 export function mergeSnapshot(current: Snapshot, incoming: Backup): Snapshot {
   const stats: SrsMap = { ...current.stats }
@@ -224,6 +255,7 @@ export function mergeSnapshot(current: Snapshot, incoming: Backup): Snapshot {
     const mine = stats[id]
     stats[id] = mine ? betterRecord(mine, record) : record
   }
+  const sameLanguage = incoming.language === current.language
   return {
     stats,
     games: {
@@ -232,8 +264,12 @@ export function mergeSnapshot(current: Snapshot, incoming: Backup): Snapshot {
       redeemed: Math.max(current.games.redeemed, incoming.srs.games.redeemed),
       lost: Math.max(current.games.lost, incoming.srs.games.lost),
     },
-    journey: mergeJourney(current.journey, incoming.journey),
+    journey: sameLanguage
+      ? mergeJourney(current.journey, incoming.journey)
+      : // Words still merge — they are the part that is language-safe.
+        { ...current.journey, wrapped: earliestByKey(current.journey.wrapped, incoming.journey.wrapped) },
     prefs: current.prefs,
+    language: current.language,
   }
 }
 
@@ -261,7 +297,14 @@ export function mergeJourney(
   }
 }
 
-/** Wholesale restore: the file becomes the device, preferences included. */
+/**
+ * Wholesale restore: the file becomes the device, preferences included.
+ *
+ * The language comes with it, and `applyBackup` does not switch to it: a
+ * replace from another language's file writes that file's position, so the
+ * caller is told which language the restored journey belongs to and can say so.
+ * See `restore` in apply.ts.
+ */
 export function replaceSnapshot(incoming: Backup): Snapshot {
   return {
     stats: incoming.srs.stats,
@@ -272,6 +315,7 @@ export function replaceSnapshot(incoming: Backup): Snapshot {
       arrivedAt: incoming.journey.arrivedAt as unknown as Record<number, number>,
     },
     prefs: incoming.prefs,
+    language: incoming.language,
   }
 }
 

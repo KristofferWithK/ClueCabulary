@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { CITIES, FINAL_CITY_INDEX } from '../journey/cities'
+import { ACTIVE } from '../lang/active'
+import { DEFAULT_LANGUAGE } from '../lang/index'
+import type { LanguageCode } from '../lang/types'
 import type { JourneyState } from '../journey/progress'
 import {
   alreadyRescued,
@@ -10,9 +13,39 @@ import {
   type RescueResult,
 } from '../journey/rescue'
 
+/** Where a traveller stands on one language's route. */
+export interface RoutePosition {
+  cityIndex: number
+  /** cityIndex -> arrival timestamp, for the travel log on the map. */
+  arrivedAt: Record<number, number>
+}
+
 interface JourneyStore extends JourneyState {
   /** cityIndex -> arrival timestamp, for the travel log on the map. */
   arrivedAt: Record<number, number>
+  /**
+   * Which language's route `cityIndex` and `arrivedAt` above describe.
+   *
+   * A city index means nothing without the route it indexes: stop 4 is Aalborg
+   * in Denmark and would be somewhere else entirely in Germany. So the position
+   * is stamped, and a stamp that disagrees with the active language means the
+   * save was written while playing something else.
+   */
+  routeLanguage: LanguageCode
+  /**
+   * Positions on the routes not currently being travelled. Swapped with the
+   * live one on rehydrate when the language has changed, so a player who goes
+   * to German and comes back finds Denmark exactly where they left it.
+   *
+   * `wrapped` is deliberately NOT in here. It is keyed by word id, every word
+   * id carries its own language (`da:mor`, `de:Mutter`), so one ledger holds
+   * both collections with no possibility of collision — proven in
+   * src/lang/seam.test.ts. Splitting it would move real progress between
+   * storage keys to buy nothing, and moving progress between storage keys is
+   * the one mistake here that has actually cost a player their collection
+   * (src/journey/rescue.ts is the apology).
+   */
+  parked: Partial<Record<LanguageCode, RoutePosition>>
   /** Pack words safely: add-only, first timestamp wins — like the old banking. */
   wrapWords: (wordIds: string[], now: number) => void
   travel: (now: number) => void
@@ -23,6 +56,8 @@ const initial = {
   cityIndex: 0,
   wrapped: {} as Record<string, number>,
   arrivedAt: {} as Record<number, number>,
+  routeLanguage: ACTIVE.code,
+  parked: {} as Partial<Record<LanguageCode, RoutePosition>>,
 }
 
 /**
@@ -71,7 +106,8 @@ function shiftPastViborg(index: number): number {
  * through the middleware would be testing nothing.
  */
 export function migrateJourney(persisted: unknown, from: number): unknown {
-  if (from >= 4) return persisted
+  if (from >= 5) return persisted
+  if (from === 4) return stampRoute(persisted, DEFAULT_LANGUAGE)
   let state = persisted
   if (from < 3) {
     const { banked, stamps, trialsSpent, activeExam, lastPaper, ...rest } = (persisted ?? {}) as {
@@ -99,10 +135,59 @@ export function migrateJourney(persisted: unknown, from: number): unknown {
     if (!(to in moved)) moved[to] = arrivedAt![key]!
   }
 
+  return stampRoute(
+    {
+      ...rest,
+      cityIndex: shiftPastViborg(cityIndex ?? 0),
+      arrivedAt: moved,
+    },
+    DEFAULT_LANGUAGE,
+  )
+}
+
+/**
+ * v4 -> v5: the journey position learns which route it is a position ON.
+ *
+ * The whole migration is two fields added. `cityIndex`, `arrivedAt` and above
+ * all `wrapped` are copied through untouched — and that is the point rather
+ * than an economy. Every save in existence is Danish, so folding it into the
+ * `da` namespace is exactly "say it is Danish and change nothing", and a
+ * migration that names no existing field cannot lose one. A player's wrapped
+ * words are safe here by construction, not by care.
+ *
+ * The obvious alternative was to nest the position under a
+ * `routes: { da: {...} }` map. It reads tidier and it would have rewritten
+ * every save to get there, for a save shape no second language needs: only one
+ * route is ever live, and the others are parked.
+ */
+function stampRoute(persisted: unknown, code: LanguageCode): unknown {
+  return { ...((persisted ?? {}) as Record<string, unknown>), routeLanguage: code, parked: {} }
+}
+
+/**
+ * Park the position on the route being left and pick up the one on the route
+ * being joined — or start that route at its first stop if it has never been
+ * travelled.
+ *
+ * Pure and exported so it can be tested against a second language, which is
+ * the only way to test it at all while Danish is the only pack that ships. A
+ * seam that only Danish ever exercises is a seam that will not fit German.
+ */
+export function switchRoute<T extends RoutePosition & { routeLanguage: LanguageCode; parked: Partial<Record<LanguageCode, RoutePosition>> }>(
+  state: T,
+  to: LanguageCode,
+): T {
+  if (state.routeLanguage === to) return state
+  const resumed = state.parked[to] ?? { cityIndex: 0, arrivedAt: {} }
+  const parked = { ...state.parked }
+  delete parked[to]
+  parked[state.routeLanguage] = { cityIndex: state.cityIndex, arrivedAt: state.arrivedAt }
   return {
-    ...rest,
-    cityIndex: shiftPastViborg(cityIndex ?? 0),
-    arrivedAt: moved,
+    ...state,
+    cityIndex: resumed.cityIndex,
+    arrivedAt: resumed.arrivedAt,
+    routeLanguage: to,
+    parked,
   }
 }
 
@@ -126,7 +211,23 @@ export const useJourney = create<JourneyStore>()(
         }),
       reset: () => set({ ...initial }),
     }),
-    { name: 'cluecab-journey-v2', version: 4, migrate: migrateJourney },
+    {
+      name: 'cluecab-journey-v2',
+      version: 5,
+      migrate: migrateJourney,
+      /**
+       * The language may have changed since this save was written — the picker
+       * reloads the app, so by the time we get here `ACTIVE` is already the new
+       * one. Swapping at rehydrate rather than at the moment of the tap means
+       * there is exactly one place the two positions ever trade, and it runs
+       * before any screen has read the store.
+       */
+      onRehydrateStorage: () => (state) => {
+        if (state && state.routeLanguage !== ACTIVE.code) {
+          useJourney.setState(switchRoute(state, ACTIVE.code))
+        }
+      },
+    },
   ),
 )
 

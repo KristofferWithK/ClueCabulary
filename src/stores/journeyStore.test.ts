@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { CITIES } from '../journey/cities'
 import { WORDS } from '../data/words'
 import { canTravel, wordsForCity } from '../journey/progress'
-import { migrateJourney, useJourney } from './journeyStore'
+import { migrateJourney, switchRoute, useJourney } from './journeyStore'
 
 const NOW = 1_700_000_000_000
 const DAY = 86_400_000
@@ -77,14 +77,21 @@ describe('migrateJourney (v2 -> v4)', () => {
     }
   })
 
-  it('passes a v4 blob through untouched', () => {
-    const blob = { cityIndex: 1, wrapped: { hus: NOW }, arrivedAt: {} }
-    expect(migrateJourney(blob, 4)).toBe(blob)
+  it('passes a v5 blob through untouched', () => {
+    const blob = {
+      cityIndex: 1,
+      wrapped: { hus: NOW },
+      arrivedAt: {},
+      routeLanguage: 'da',
+      parked: {},
+    }
+    expect(migrateJourney(blob, 5)).toBe(blob)
   })
 
   it('survives an empty or absent state', () => {
-    expect(migrateJourney(undefined, 2)).toEqual({ wrapped: {}, cityIndex: 0, arrivedAt: {} })
-    expect(migrateJourney({}, 2)).toEqual({ wrapped: {}, cityIndex: 0, arrivedAt: {} })
+    const empty = { wrapped: {}, cityIndex: 0, arrivedAt: {}, routeLanguage: 'da', parked: {} }
+    expect(migrateJourney(undefined, 2)).toEqual(empty)
+    expect(migrateJourney({}, 2)).toEqual(empty)
   })
 })
 
@@ -199,5 +206,123 @@ describe('migrateJourney (v3 -> v4): Viborg leaves the route', () => {
       expect(canTravel(WORDS, wrapped, 4)).toBe(false)
       expect(bandIds(4).filter((id) => id in wrapped)).toHaveLength(50)
     })
+  })
+})
+
+/**
+ * v4 -> v5: the journey position learns which route it is on.
+ *
+ * THE THING THAT MUST NOT HAPPEN: a player loses a wrapped word. The whole
+ * collection lives in one phone's localStorage, months of work with no way
+ * back, and moving progress between storage keys is the one mistake here that
+ * has actually cost somebody theirs (src/journey/rescue.ts).
+ *
+ * So the migration adds two fields and names none of the existing ones, and
+ * this suite checks that against a full save rather than a toy one.
+ */
+describe('migrateJourney (v4 -> v5): the route gets a language', () => {
+  /** A realistic mid-journey save: five cities done, 500 words packed. */
+  const fullSave = () => ({
+    cityIndex: 5,
+    wrapped: Object.fromEntries(
+      WORDS.slice(0, 500).map((w, i) => [w.id, NOW - (500 - i) * DAY]),
+    ),
+    arrivedAt: { 0: NOW - 400 * DAY, 1: NOW - 300 * DAY, 5: NOW - DAY },
+  })
+
+  it('keeps every wrapped word, byte for byte', () => {
+    const before = fullSave()
+    const after = migrateJourney(structuredClone(before), 4) as {
+      wrapped: Record<string, number>
+    }
+    expect(Object.keys(after.wrapped)).toHaveLength(500)
+    expect(after.wrapped).toEqual(before.wrapped)
+  })
+
+  it('keeps the journey position and the travel log', () => {
+    const before = fullSave()
+    const after = migrateJourney(structuredClone(before), 4) as Record<string, unknown>
+    expect(after.cityIndex).toBe(5)
+    expect(after.arrivedAt).toEqual(before.arrivedAt)
+  })
+
+  it('adds the stamp and nothing else at all', () => {
+    const before = fullSave()
+    const after = migrateJourney(structuredClone(before), 4) as Record<string, unknown>
+    expect(after).toEqual({ ...before, routeLanguage: 'da', parked: {} })
+  })
+
+  it('still travels from where it left off', () => {
+    const before = fullSave()
+    const after = migrateJourney(structuredClone(before), 4) as {
+      cityIndex: number
+      wrapped: Record<string, number>
+    }
+    // Five cities of a hundred are packed, so the road out of the fifth is
+    // open and the sixth is untouched — exactly as before the migration.
+    expect(canTravel(WORDS, after.wrapped, 4)).toBe(true)
+    expect(canTravel(WORDS, after.wrapped, 5)).toBe(false)
+  })
+
+  it('carries a pre-Viborg save all the way through and still loses nothing', () => {
+    // The long road: a v2 blob crosses the exam economy, Viborg's removal and
+    // now the language stamp, in one call.
+    const wrapped = Object.fromEntries(WORDS.slice(0, 300).map((w) => [w.id, NOW]))
+    const out = migrateJourney({ cityIndex: 6, banked: wrapped, arrivedAt: { 6: NOW } }, 2) as {
+      cityIndex: number
+      wrapped: Record<string, number>
+      routeLanguage: string
+    }
+    expect(out.cityIndex).toBe(5)
+    expect(Object.keys(out.wrapped)).toHaveLength(300)
+    expect(out.routeLanguage).toBe('da')
+  })
+})
+
+/**
+ * Parking one route to travel another.
+ *
+ * Tested with 'de', which has no pack behind it, because that is the only way
+ * to test it at all while Danish is the only language that ships — and a seam
+ * only Danish ever exercises is a seam that will not fit German.
+ */
+describe('switchRoute', () => {
+  const start = () => ({
+    cityIndex: 5,
+    arrivedAt: { 0: NOW, 5: NOW + DAY },
+    routeLanguage: 'da' as const,
+    parked: {} as Partial<Record<'da' | 'de', { cityIndex: number; arrivedAt: Record<number, number> }>>,
+    wrapped: { 'da:hus': NOW },
+  })
+
+  it('is a no-op for the route already being travelled', () => {
+    const s = start()
+    expect(switchRoute(s, 'da')).toBe(s)
+  })
+
+  it('starts an untravelled route at its first stop', () => {
+    const out = switchRoute(start(), 'de')
+    expect(out.cityIndex).toBe(0)
+    expect(out.arrivedAt).toEqual({})
+    expect(out.routeLanguage).toBe('de')
+  })
+
+  it('parks the route it left, and gives it back unchanged on return', () => {
+    const before = start()
+    const away = switchRoute(before, 'de')
+    expect(away.parked.da).toEqual({ cityIndex: 5, arrivedAt: before.arrivedAt })
+    const back = switchRoute({ ...away, cityIndex: 2, arrivedAt: { 0: NOW, 2: NOW } }, 'da')
+    expect(back.cityIndex).toBe(5)
+    expect(back.arrivedAt).toEqual(before.arrivedAt)
+    // And the German position is now the parked one.
+    expect(back.parked.de).toEqual({ cityIndex: 2, arrivedAt: { 0: NOW, 2: NOW } })
+    expect(back.parked.da).toBeUndefined()
+  })
+
+  it('never touches the wrapped ledger, in either direction', () => {
+    const before = start()
+    const away = switchRoute(before, 'de')
+    expect(away.wrapped).toEqual(before.wrapped)
+    expect(switchRoute(away, 'da').wrapped).toEqual(before.wrapped)
   })
 })

@@ -15,6 +15,8 @@ import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
 import { WORDS, isHeadword } from '../data/words'
 import { ACTIVE } from '../lang/active'
+import { DEFAULT_LANGUAGE } from '../lang/index'
+import type { LanguageCode } from '../lang/types'
 import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { wrapUpBias, wrapUpWords, type RoundMode } from '../journey/wrapup'
 import { useFeedback } from './feedbackStore'
@@ -45,6 +47,11 @@ export interface NewGameOptions {
 
 interface GameStore {
   game: GameState | null
+  /**
+   * The language the persisted round is in. Checked on rehydrate; a round in
+   * another language is dropped rather than resumed. See `dropForeignGame`.
+   */
+  gameLanguage: LanguageCode
   /** Word ids looked up in the dictionary this round (SRS signal). */
   lookedUp: string[]
   /**
@@ -359,13 +366,59 @@ const buzz = (result: 'green' | 'bystander') => {
  * no localStorage, persist quietly becomes a passthrough, and a test reaching
  * through the middleware would be testing nothing.
  */
+/**
+ * A blank round, used by every path that has to throw one away. Named rather
+ * than repeated so a field added to the store cannot be forgotten in one of
+ * them.
+ */
+const noRound = {
+  game: null,
+  lookedUp: [],
+  roundRecorded: false,
+  dailyKey: null,
+  studying: false,
+  mode: 'normal' as const,
+  packed: [],
+  packingMissed: [],
+  packingDone: true,
+  newlyLearned: [],
+  newlyDiscovered: [],
+  earnedWrapUp: false,
+  practiceFallback: false,
+}
+
+/**
+ * A board of one language's words cannot be resumed in another: the cards are
+ * in a language the player is no longer playing and the SRS would record the
+ * round against the wrong collection. So the save is stamped, and a stamp that
+ * disagrees with the active language throws the round away.
+ *
+ * Losing one mid-round on a language change is the same cost A1 accepted for
+ * losing one on an update, and a language change is a far more deliberate act
+ * than an update is.
+ */
+export function dropForeignGame<T extends { gameLanguage: LanguageCode }>(
+  state: T,
+  active: LanguageCode,
+): T {
+  if (state.gameLanguage === active) return state
+  return { ...state, ...noRound, gameLanguage: active }
+}
+
 export function migrateGame(persisted: unknown, from: number): unknown {
-  if (from >= 5) return persisted
+  if (from >= 6) return persisted
+  // v5 -> v6: the in-flight round learns which language it is in. Every save
+  // written before the seam is Danish; stamping it as such keeps the round the
+  // player is in the middle of, which is the whole reason to say it explicitly
+  // rather than leaving the field undefined and dropping the board.
+  if (from === 5) {
+    return { ...((persisted ?? {}) as Record<string, unknown>), gameLanguage: DEFAULT_LANGUAGE }
+  }
   if (from === 4) {
     const kept = { ...((persisted ?? {}) as Record<string, unknown>) }
     delete kept.debrief
     delete kept.debriefFailed
-    return { ...kept, newlyDiscovered: [] }
+    return { ...kept, newlyDiscovered: [], gameLanguage: DEFAULT_LANGUAGE }
   }
   let p = persisted
   if (from < 2) {
@@ -375,19 +428,8 @@ export function migrateGame(persisted: unknown, from: number): unknown {
   const { recentBoards } = (p ?? {}) as { recentBoards?: string[][] }
   return {
     recentBoards: recentBoards ?? [],
-    game: null,
-    lookedUp: [],
-    roundRecorded: false,
-    dailyKey: null,
-    studying: false,
-    mode: 'normal',
-    packed: [],
-    packingMissed: [],
-    packingDone: true,
-    newlyLearned: [],
-    newlyDiscovered: [],
-    earnedWrapUp: false,
-    practiceFallback: false,
+    gameLanguage: DEFAULT_LANGUAGE,
+    ...noRound,
   }
 }
 
@@ -395,6 +437,7 @@ export const useGame = create<GameStore>()(
   persist(
     (set, get) => ({
       game: null,
+      gameLanguage: ACTIVE.code,
       lookedUp: [],
       recentBoards: [],
       roundRecorded: false,
@@ -903,10 +946,18 @@ export const useGame = create<GameStore>()(
     }),
     {
       name: 'cluecab-game-v1',
-      version: 5,
+      version: 6,
       migrate: migrateGame,
+      // The language may have changed since this round was put down; the picker
+      // reloads, so ACTIVE is already the new one by the time this runs.
+      onRehydrateStorage: () => (state) => {
+        if (state && state.gameLanguage !== ACTIVE.code) {
+          useGame.setState(dropForeignGame(state, ACTIVE.code))
+        }
+      },
       partialize: (s) => ({
         game: s.game,
+        gameLanguage: s.gameLanguage,
         lookedUp: s.lookedUp,
         recentBoards: s.recentBoards,
         roundRecorded: s.roundRecorded,
