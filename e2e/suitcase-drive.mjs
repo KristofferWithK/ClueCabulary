@@ -237,7 +237,28 @@ try {
   ))
   await page.screenshot({ path: `${SHOT_DIR}/s5-win-gate.png` })
 
-  // 4. A win banks one, and both gates are open. The round is won by hand
+  // 4. Won before, but the bank is spent: the same gate, worded as «another»
+  // rather than «your first». This is the fourth of the hint's four states
+  // and the only one that was never driven — the wording is the whole of it,
+  // so a copy edit that collapsed the two would have gone unnoticed.
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-srs-v1'))
+    raw.state.wrapUpsBanked = 0
+    raw.state.games = { played: 4, won: 2, redeemed: 0, lost: 2 }
+    localStorage.setItem('cluecab-srs-v1', JSON.stringify(raw))
+  })
+  await page.reload()
+  await page.waitForSelector('.city-card')
+  await page.click('.cluey-button')
+  await page.waitForSelector('.suitcase-screen')
+  const againHint = await page.locator('.case-hint').textContent()
+  check(
+    'having won before, the hint asks for another rather than a first',
+    /earn another wrap-up round/.test(againHint ?? '') && !/first/.test(againHint ?? ''),
+    againHint ?? '',
+  )
+
+  // 5. A win banks one, and both gates are open. The round is won by hand
   // through the store — driving the mock companion to an actual win is
   // wrapup-drive's job, and what is under test here is the gate, not the game.
   await page.evaluate(() => {
