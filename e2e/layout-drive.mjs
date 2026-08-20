@@ -74,6 +74,41 @@ for (const vp of [
     primary.y + primary.height <= vp.height,
     `bottom ${(primary.y + primary.height).toFixed(0)} of ${vp.height}`,
   )
+
+  /**
+   * And Home still fits once the travel button appears.
+   *
+   * This is the state the no-scroll rule cannot see. A city wrapped to the last
+   * word grows a "Travel on → ⟨city⟩" button worth about 61px, Casey's band is
+   * the only thing that can give it up, and when it could not, the column
+   * OVERFLOWED rather than lengthening — flex overflow paints over what is
+   * below it, so `scrollHeight <= innerHeight` stayed true at exactly 640 while
+   * the word "Casey" was drawn sliced across the green button.
+   *
+   * Measured before the fix: name over button by 6.8px here, and iPhone SE
+   * clear by 0.2px, which is not clearance, it is luck.
+   *
+   * Both rects are checked, and the SVG one is the point: the first attempt at
+   * this fix let the BUTTON shrink, which left the drawing painting outside a
+   * button that now measured correctly. A check on the button alone would have
+   * called that fixed.
+   */
+  await open('?mock=1&howto=0&city=0&wrapped=100')
+  const travel = await page.locator('.btn-travel').boundingBox()
+  const name = await page.locator('.cluey-name').boundingBox()
+  const svg = await page.locator('.cluey-svg').boundingBox()
+  check(
+    `Casey clears the travel button on ${vp.name}`,
+    name.y + name.height <= travel.y + 0.5 && svg.y + svg.height <= travel.y + 0.5,
+    `name ${(travel.y - name.y - name.height).toFixed(1)}px clear, drawing ${(travel.y - svg.y - svg.height).toFixed(1)}px`,
+  )
+  const bubble = await page.locator('.cluey-bubble').boundingBox()
+  const band = await page.locator('.home-progress-band').boundingBox()
+  check(
+    `and his bubble stays under the progress line on ${vp.name}`,
+    bubble.y >= band.y + band.height - 0.5,
+    `${(bubble.y - band.y - band.height).toFixed(1)}px clear`,
+  )
 }
 await page.setViewportSize(PHONE)
 

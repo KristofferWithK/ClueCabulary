@@ -3890,6 +3890,29 @@ body:has(.kb-up) {
   border-bottom: 1px solid var(--text);
 }
 
+/* ---- what happens when the travel button appears ----
+
+   Home grows a "Travel on → ⟨city⟩" button the moment a city is fully wrapped,
+   and it costs about 61px that nothing above it had budgeted for. The band is
+   the only flexible thing on the screen, so it is what gives — and measured at
+   360×640 it shrank 303.6 → 242.6px around 195.1px of items that would not
+   shrink, so it overflowed instead. What that looked like was the word "Casey"
+   sliced across the green button and the speech bubble riding up over the
+   progress card.
+
+   The no-scroll rule cannot see this. Overflow of a flex column paints OVER
+   what is below rather than lengthening the document, so `scrollHeight <=
+   innerHeight` stayed true at exactly 640 the whole time. Measured before the
+   fix: name over button by 6.8px at 360×640, and 375×667 clear by only 0.2px —
+   one longer city name from the same bug.
+
+   So each child says what it may give up. The mascot is the one thing here that
+   can be smaller without becoming unreadable, which is why it is the only one
+   allowed to shrink. */
+.cluey-band > .cluey-bubble {
+  flex: 0 0 auto;
+}
+
 .cluey-button {
   display: flex;
   flex-direction: column;
@@ -3897,6 +3920,10 @@ body:has(.kb-up) {
   gap: 0;
   padding: 4px 18px 0;
   border-radius: var(--radius);
+  /* The only child that may shrink — and it needs min-height:0 to be allowed
+     to, since a flex item's floor is its content by default. */
+  min-height: 0;
+  flex: 0 1 auto;
 }
 
 .cluey-button:active .cluey-svg {
@@ -3918,6 +3945,22 @@ body:has(.kb-up) {
   width: min(290px, 74vw, 34vh);
   height: auto;
   display: block;
+}
+
+/* Casey gives up the room the travel button needs.
+
+   Letting the flex column shrink him does NOT work, and it is worth saying why
+   because it is the obvious fix: the drawing is sized by WIDTH and keeps its
+   aspect ratio, so a shorter button just means the same drawing painting
+   outside it. Measured, that turned a 6.8px overlap into 25.6px.
+
+   The size is the thing to change, so change the size — and only in the one
+   state that is short of room. 27vh rather than 34vh is 172.8px against 217.6
+   at a 640px screen, and the drawing is 5:4, so it gives back about 36px of
+   height for a button that costs 61px, the rest coming from the band's own
+   slack. */
+.home-screen:has(.btn-travel) .cluey-svg {
+  width: min(290px, 74vw, 27vh);
 }
 
 .cluey-body {
