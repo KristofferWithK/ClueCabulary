@@ -1,5 +1,9 @@
 node_modules
-dist
+# The app's build output. Anchored, because the vendored plugin under
+# ios-plugins/ carries a COMMITTED dist/ — its JS is hand-written, not built,
+# and a bare "dist" here would silently drop it from every checkout: npm ci
+# would then install a file: dependency whose entry point does not exist.
+/dist
 dev-dist
 # Kristoffer's private room: the confidential product blueprint (pricing,
 # margins) and raw thought dumps. This repo is public — never commit these.

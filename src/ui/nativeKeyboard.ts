@@ -331,7 +331,9 @@ export function useNativeKeyboard() {
     }
     window.addEventListener('focusin', markDock)
 
-    void import('@capacitor/keyboard').then(({ Keyboard }) => {
+    // The vendored fork (ios-plugins/cluecab-keyboard) — same plugin, same
+    // 'Keyboard' name, plus the animation's real duration in the payload.
+    void import('cluecab-keyboard').then(({ Keyboard }) => {
       if (cancelled) return
       const show = Keyboard.addListener('keyboardWillShow', (info) => {
         // The only measurement left, and it is of OUR OWN board rather than of

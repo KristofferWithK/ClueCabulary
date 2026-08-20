@@ -1,0 +1,23 @@
+{
+  "name": "cluecab-keyboard",
+  "version": "8.0.5-cluecab.1",
+  "description": "Vendored fork of @capacitor/keyboard 8.0.5: the keyboardWillShow payload carries the animation's durationMs and curve, so the composer can ride the keyboard on its real timing. The resize schedule is untouched — see ios/Sources/KeyboardPlugin/Keyboard.m for the whole diff and why the +0.2s delay must stay.",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "ios/",
+    "Package.swift",
+    "LICENSE"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    }
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  },
+  "license": "Apache-2.0"
+}

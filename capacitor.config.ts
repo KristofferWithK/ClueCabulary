@@ -8,10 +8,13 @@ import type { CapacitorConfig } from '@capacitor/cli'
  * installed PWA's webview, and makes the page scrollable — three behaviours,
  * all hostile to a board that must never move, none of them reliably
  * preventable from inside a page. Three successive web-side designs each lost
- * to one of them on a real iPhone. In the shell the OS simply promises it:
- * with resize 'none' the webview is never resized or scrolled by the keyboard,
- * and the keyboard's exact height arrives as an event
- * (src/ui/keyboard.ts feeds it to the same CSS the web uses).
+ * to one of them on a real iPhone. In the shell the keyboard plugin owns the
+ * whole exchange instead: the exact height arrives as an event BEFORE the
+ * animation starts, and the resize below is the plugin's to perform
+ * (src/ui/nativeKeyboard.ts is the listener; the plugin itself is the
+ * vendored fork in ios-plugins/cluecab-keyboard, which also reports the
+ * animation's duration so the composer can ride on the keyboard's own
+ * timing).
  *
  * The app id is registered at developer.apple.com and named in the App Store
  * Connect app record — all three must match, so changing it is a decision,
@@ -53,8 +56,8 @@ const config: CapacitorConfig = {
   plugins: {
     Keyboard: {
       /**
-       * 'native', not 'none' — and the difference is that this one needs no
-       * arithmetic.
+       * 'body', not 'none' and not 'native' — and the difference is that this
+       * one needs no arithmetic and paints nothing black.
        *
        * With 'none' the webview keeps the whole screen and the app has to work
        * out where the keyboard's top edge is in order to put the composer
@@ -76,7 +79,7 @@ const config: CapacitorConfig = {
        *
        * It does not, however, fix the lateness, and this comment claimed it did
        * for several builds. The shrink is not performed on keyboardWillShow.
-       * Keyboard.m schedules it:
+       * The plugin schedules it:
        *
        *     double duration = [[... AnimationDurationUserInfoKey ...]
        *                        doubleValue] + 0.2;
@@ -87,6 +90,15 @@ const config: CapacitorConfig = {
        * EXACT height is known at willShow and simply is not used until then.
        * (Hiding is unaffected: willHide schedules the same call with a 10ms
        * delay, which is why only coming up ever looked wrong.)
+       *
+       * That schedule is deliberately KEPT in the vendored fork this app now
+       * ships (ios-plugins/cluecab-keyboard): the delay is what lets the JS
+       * listener freeze the board before the document shrinks, and with the
+       * ride holding the composer in place the late shrink is invisible. What
+       * the fork adds is information, not behaviour — the animation's real
+       * duration (and curve) join the willShow payload, so the ride no longer
+       * guesses 250ms. The whole native diff is one method; Keyboard.m says
+       * why in place.
        *
        * Borrowing that height to move the composer early is the experiment
        * behind localStorage cluecab-kbfast — see src/ui/nativeKeyboard.ts. It
