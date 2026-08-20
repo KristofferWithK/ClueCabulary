@@ -20,6 +20,13 @@ const page = await ctx.newPage()
 const errors = []
 page.on('pageerror', (e) => errors.push(String(e)))
 
+// The ride ships OFF behind cluecab-ride (H9 has one city of nine written), so
+// the no-scroll pass over it has to ask for it by name. It measures the
+// tallest screen in the app — thirty-one sentences and their glosses — which
+// is exactly the one worth keeping measured while it is hidden. Same init
+// script as journey-drive; the default-off half is a unit test.
+await page.addInitScript(() => localStorage.setItem('cluecab-ride', '1'))
+
 const fail = []
 const check = (name, ok, detail = '') => {
   console.log(`${ok ? 'OK  ' : 'FAIL'} ${name}${detail ? ` — ${detail}` : ''}`)
