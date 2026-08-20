@@ -1,3 +1,4 @@
+import { DEFAULT_BASE_URL } from '../../ai/client'
 import { WORDS } from '../../data/words'
 import { CITIES, FINAL_CITY_INDEX, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import {
@@ -123,16 +124,26 @@ export function HomeScreen() {
   // without one, so "Add your API key in Settings" fired for *every* player,
   // for a thing none of them needs — it is deleted, not moved.
   //
-  // What survives is the inverse, and it is the honest one: a player who has
-  // gone to the trouble of entering their own key, and whose key has never
-  // once produced an answer. `klausVerifiedAt` is stamped the moment Casey
-  // replies in ordinary play, so this clears itself on the first round that
-  // works. Testing it without the `apiKey` clause would nag every fresh
-  // profile all over again, since a new install has never heard from Casey
-  // either. useMock suppresses it as before: the practice companion needs
-  // nothing, and the round itself says so.
+  // What survives is the honest half of it: a player who has set up an AI
+  // connection of their own and has never once had an answer out of it. Own
+  // key or own base URL — the deploy guide's recommended setup is a worker
+  // holding the key as a Cloudflare secret and *nothing* in the app, so
+  // testing the key alone would leave exactly the people following the guide
+  // with no way to hear that their worker is not answering. (proxy-drive walks
+  // that setup and found this: it reached Settings through the banner this
+  // card deleted.) Anything still on the shipped proxy with no key of its own
+  // has configured nothing and is told nothing.
+  //
+  // `klausVerifiedAt` is stamped the moment Casey replies in ordinary play, so
+  // this clears itself on the first round that works — and the store resets it
+  // whenever the key or the base URL changes, so it re-arms if you point the
+  // app somewhere new. useMock suppresses it as before: the practice companion
+  // needs nothing, and the round itself says so.
+  const ownConnection =
+    settings.apiKey.trim() !== '' ||
+    settings.baseUrl.trim().replace(/\/+$/, '') !== DEFAULT_BASE_URL
   const unverifiedCluey =
-    !settings.useMock && !!settings.apiKey && settings.klausVerifiedAt === null
+    !settings.useMock && ownConnection && settings.klausVerifiedAt === null
 
   const play = () => {
     newGame({ seed: pendingSeed ?? undefined })

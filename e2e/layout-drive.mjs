@@ -391,6 +391,30 @@ check(
   await page.locator('.cluey-bubble').first().innerText(),
 )
 
+// But a base URL of your own with no key in the app is NOT a fresh profile —
+// it is the setup the deploy guide recommends, a worker holding the key as a
+// Cloudflare secret. Those players have configured something and have to be
+// able to hear that it is not answering. Testing the key alone left them with
+// nothing, which proxy-drive found the hard way: it walks that exact setup and
+// reached Settings through the banner this card deleted.
+await page.evaluate(() => {
+  const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1') ?? '{}')
+  raw.state = {
+    ...raw.state,
+    useMock: false,
+    apiKey: '',
+    baseUrl: 'http://127.0.0.1:9/v1',
+    klausVerifiedAt: null,
+  }
+  localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
+})
+await open('?howto=0&city=0')
+check(
+  'a worker of your own that has never answered does prompt, with no key in the app',
+  (await page.locator('.cluey-bubble.setup-nudge').count()) === 1,
+)
+await page.evaluate(() => localStorage.clear())
+
 // Connecting Casey is the one thing a stuck player must be able to do from the
 // phone in their hand, so the steps live in the app rather than behind a link
 // to a markdown file. They have to fit the screen and be reachable.
