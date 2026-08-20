@@ -36,9 +36,8 @@ concurrency:
   group: bake-audio-${{ github.ref }}
 
 env:
-  # Bump to re-run on a push. 3 = Aoede at rate 0.6, after run 1 baked the
-  # clips correctly and then lost the push to a race.
-  BAKE_NONCE: '3'
+  # Bump to re-run on a push. 4 = the travel stories join the words.
+  BAKE_NONCE: '4'
 
 jobs:
   bake:
@@ -61,12 +60,20 @@ jobs:
             echo "**No TTS_API_KEY secret** — nothing to bake with." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          before=$(ls public/audio/"$LANG_CODE"/*.mp3 2>/dev/null | wc -l)
+          before=$(find public/audio/"$LANG_CODE" -name '*.mp3' 2>/dev/null | wc -l)
+          # Both sources every run, and the manifest decides what that costs:
+          # a source whose text, voice and rate are unchanged reports "Nothing
+          # to do" and makes no request at all. So this reconciles all of the
+          # audio rather than making the caller remember which half moved.
+          #
           # The voice guard inside the script refuses a name Google does not
           # serve, so a bad default fails here rather than producing 900 wrong
           # clips that sound fine one at a time.
-          node scripts/make-audio.mjs --lang "$LANG_CODE" $FORCE
-          after=$(ls public/audio/"$LANG_CODE"/*.mp3 2>/dev/null | wc -l)
+          for src in words stories; do
+            echo "── $src"
+            node scripts/make-audio.mjs --lang "$LANG_CODE" --source "$src" $FORCE
+          done
+          after=$(find public/audio/"$LANG_CODE" -name '*.mp3' 2>/dev/null | wc -l)
           {
             echo "### Baked $LANG_CODE"
             echo

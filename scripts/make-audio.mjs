@@ -293,7 +293,26 @@ if (!provider) {
 
 const dryRun = has('dry-run')
 const force = has('force')
-const outDir = resolve(ROOT, flag('out', `public/audio/${lang}`))
+/**
+ * What gets baked: the nine hundred words, or the travel stories.
+ *
+ * One script rather than two, because everything around the text is the same
+ * problem — the voice, the rate, the guard that refuses a voice Google does
+ * not serve, the manifest that resumes an interrupted run, the retry on a 429.
+ * A second script would have been a second copy of all of it, drifting.
+ */
+const source = flag('source', 'words')
+if (!['words', 'stories'].includes(source)) {
+  console.error(`Unknown --source "${source}". One of: words, stories`)
+  process.exit(2)
+}
+// Stories get their own directory, and therefore their own manifest: a
+// sentence and a word are different work with different resume state, and a
+// flat namespace would let a word called "0-001" collide with a sentence.
+const outDir = resolve(
+  ROOT,
+  flag('out', source === 'stories' ? `public/audio/${lang}/story` : `public/audio/${lang}`),
+)
 const only = flag('only') ? new Set(flag('only').split(',').map((s) => s.trim())) : null
 const limit = Number(flag('limit', Infinity))
 const region = flag('region', 'northeurope')
@@ -364,33 +383,56 @@ const cfg = {
  * The work list
  * ------------------------------------------------------------------ */
 
-const wordsPath = resolve(ROOT, `src/data/words.${lang}.json`)
-let words
-try {
-  words = JSON.parse(readFileSync(wordsPath, 'utf8'))
-} catch {
-  // Reachable today by typing `--lang de`: the language seam is H1 and the
-  // German dataset is H2, so `da` is the only one that exists.
-  console.error(`No dataset at src/data/words.${lang}.json — there is nothing to bake for "${lang}".`)
-  process.exit(2)
+const readJson = (path, what) => {
+  try {
+    return JSON.parse(readFileSync(resolve(ROOT, path), 'utf8'))
+  } catch {
+    // Reachable today by typing `--lang de`: the language seam is H1 and the
+    // German dataset is H2, so `da` is the only one that exists.
+    console.error(`No ${what} at ${path} — there is nothing to bake for "${lang}".`)
+    process.exit(2)
+  }
 }
 
 const jobs = []
 const bySlug = new Map()
-for (const w of words) {
-  const slug = slugForId(String(w.id))
-  if (!slug) {
-    console.error(`"${w.id}" has no usable filename. Fix the slug rule before baking.`)
+
+if (source === 'words') {
+  const words = readJson(`src/data/words.${lang}.json`, 'dataset')
+  for (const w of words) {
+    const slug = slugForId(String(w.id))
+    if (!slug) {
+      console.error(`"${w.id}" has no usable filename. Fix the slug rule before baking.`)
+      process.exit(2)
+    }
+    if (bySlug.has(slug)) {
+      // Two words, one file: whichever baked second would silently win and the
+      // other would play the wrong word. Refuse rather than guess.
+      console.error(`"${w.id}" and "${bySlug.get(slug)}" both want ${slug}.mp3.`)
+      process.exit(2)
+    }
+    bySlug.set(slug, w.id)
+    jobs.push({ id: w.id, slug, text: w.da })
+  }
+} else {
+  // The slug is `<city>-<3-digit sentence>`, and it MUST agree with
+  // `storySlug` in src/journey/travelStory.ts — the app asks for these names
+  // by computing them. travelStory.test.ts pins the format from the other
+  // side, and a test asserts every sentence has a clip on disk, so a drift
+  // between these two lines fails the suite rather than the ride.
+  const stories = readJson(`src/data/travel-stories.${lang}.json`, 'travel stories')
+  for (const [key, story] of Object.entries(stories)) {
+    const sentences = story.chapters.flatMap((c) => c.sentences)
+    sentences.forEach((s, i) => {
+      const slug = `${key}-${String(i).padStart(3, '0')}`
+      bySlug.set(slug, slug)
+      jobs.push({ id: `story:${key}:${i}`, slug, text: s.da })
+    })
+  }
+  if (jobs.length === 0) {
+    console.error(`No sentences in src/data/travel-stories.${lang}.json.`)
     process.exit(2)
   }
-  if (bySlug.has(slug)) {
-    // Two words, one file: whichever baked second would silently win and the
-    // other would play the wrong word. Refuse rather than guess.
-    console.error(`"${w.id}" and "${bySlug.get(slug)}" both want ${slug}.mp3.`)
-    process.exit(2)
-  }
-  bySlug.set(slug, w.id)
-  jobs.push({ id: w.id, slug, text: w.da })
 }
 
 const manifestPath = resolve(outDir, 'manifest.json')
@@ -449,7 +491,7 @@ console.log(
   `${providerName}${providerName === 'stub' ? '' : ` · ${cfg.voice} · rate ${cfg.rate}`} → ${outDir.replace(ROOT, '.')}`,
 )
 console.log(
-  `${jobs.length} words · ${skipped.length} already baked · ${todo.length} to make · ` +
+  `${jobs.length} ${source === 'stories' ? 'sentences' : 'words'} · ${skipped.length} already baked · ${todo.length} to make · ` +
     // List price. Every provider here has a free monthly allowance far larger
     // than one bake, so the real bill is almost certainly zero — this is the
     // number to compare runs against, not the one to expect on a statement.

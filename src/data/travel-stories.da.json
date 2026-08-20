@@ -1,0 +1,151 @@
+{
+  "0": {
+    "cityIndex": 0,
+    "titleDa": "Morgen, by og tog",
+    "titleEn": "Morning, town and train",
+    "chapters": [
+      {
+        "titleDa": "Huset",
+        "titleEn": "The house",
+        "sentences": [
+          {
+            "da": "Solen står op over Sønderborg, og en fugl synger i et stort træ.",
+            "en": "The sun rises over Sønderborg, and a bird sings in a big tree."
+          },
+          {
+            "da": "Huset er hvidt, og døren er rød.",
+            "en": "The house is white, and the door is red."
+          },
+          {
+            "da": "Der er et lille køkken med et bord, en stol og en gammel lampe.",
+            "en": "There is a small kitchen with a table, a chair and an old lamp."
+          },
+          {
+            "da": "Mor laver mad, mens far drikker kaffe ved vinduet.",
+            "en": "Mum is making food, while dad drinks coffee by the window."
+          },
+          {
+            "da": "Barnet spiser et æble og drikker mælk.",
+            "en": "The child eats an apple and drinks milk."
+          },
+          {
+            "da": "På bordet står ost, smør, salt og et æg.",
+            "en": "On the table there is cheese, butter, salt and an egg."
+          },
+          {
+            "da": "Hunden løber ud ad døren, mens en kat sover stadig på en seng.",
+            "en": "The dog runs out of the door, while a cat still sleeps on a bed."
+          },
+          {
+            "da": "Deres værelse er lille, men vinduet er stort.",
+            "en": "Their room is small, but the window is big."
+          },
+          {
+            "da": "Pigen har en blomst i hånden, og drengen har mistet en tand.",
+            "en": "The girl has a flower in her hand, and the boy has lost a tooth."
+          },
+          {
+            "da": "Hun har langt hår, en lille næse og en glad mund.",
+            "en": "She has long hair, a small nose and a happy mouth."
+          },
+          {
+            "da": "Han lukker det ene øje og sætter en hat på hovedet.",
+            "en": "He closes one eye and puts a hat on his head."
+          },
+          {
+            "da": "Katten sidder ved hans ben, mens han har ondt i en fod.",
+            "en": "The cat sits by his leg, while his foot hurts."
+          },
+          {
+            "da": "Drengen har en bold under armen, og faren drikker en øl.",
+            "en": "The boy has a ball under his arm, and the father drinks a beer."
+          },
+          {
+            "da": "Pigen peger med en finger mod et sort fly på en klar himmel.",
+            "en": "The girl points with a finger at a black plane in a clear sky."
+          },
+          {
+            "da": "Hjertet banker, fordi familien skal rejse i dag.",
+            "en": "Her heart beats, because the family is travelling today."
+          }
+        ]
+      },
+      {
+        "titleDa": "Byen",
+        "titleEn": "The town",
+        "sentences": [
+          {
+            "da": "De går ned ad en gade midt i en gammel by.",
+            "en": "They walk down a street in the middle of an old town."
+          },
+          {
+            "da": "En ung kvinde og en gammel mand venter ved en kirke.",
+            "en": "A young woman and an old man wait by a church."
+          },
+          {
+            "da": "I en butik køber de kød, fisk og grøntsager.",
+            "en": "In a shop they buy meat, fish and vegetables."
+          },
+          {
+            "da": "De tager også en kartoffel, sukker og en stor kage.",
+            "en": "They also take a potato, sugar and a big cake."
+          },
+          {
+            "da": "Far henter penge i en bank, fordi han vil købe en bog.",
+            "en": "Dad fetches money at a bank, because he wants to buy a book."
+          },
+          {
+            "da": "Mor arbejder på et hospital, men i dag har hun fri.",
+            "en": "Mum works at a hospital, but today she is off."
+          },
+          {
+            "da": "Hendes bror er lærer på en skole.",
+            "en": "Her brother is a teacher at a school."
+          },
+          {
+            "da": "Hans søster kører en rød bil, og hendes søn har en cykel.",
+            "en": "His sister drives a red car, and her son has a bicycle."
+          },
+          {
+            "da": "En hest står i en park ved vandet.",
+            "en": "A horse stands in a park by the water."
+          },
+          {
+            "da": "Deres datter og en ven læser en bog, hvis det regner.",
+            "en": "Their daughter and a friend read a book if it rains."
+          },
+          {
+            "da": "En aften i sidste uge faldt der sne over hele byen.",
+            "en": "One evening last week snow fell over the whole town."
+          }
+        ]
+      },
+      {
+        "titleDa": "Toget",
+        "titleEn": "The train",
+        "sentences": [
+          {
+            "da": "Nu venter et tog, og en bus kører forbi.",
+            "en": "Now a train is waiting, and a bus drives past."
+          },
+          {
+            "da": "Fra vinduet ser de stranden og et stort hav.",
+            "en": "From the window they see the beach and a big sea."
+          },
+          {
+            "da": "Det bliver nat, og man kan se månen og en klar stjerne.",
+            "en": "Night falls, and you can see the moon and a bright star."
+          },
+          {
+            "da": "De elsker at rejse, selvom rejsen er lang.",
+            "en": "They love to travel, even though the journey is long."
+          },
+          {
+            "da": "Casey er glad, fordi kufferten er fuld af ord.",
+            "en": "Casey is happy, because the suitcase is full of words."
+          }
+        ]
+      }
+    ]
+  }
+}

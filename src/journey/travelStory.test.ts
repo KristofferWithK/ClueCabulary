@@ -1,0 +1,102 @@
+import { describe, expect, it } from 'vitest'
+import { WORDS } from '../data/words'
+import { CITIES } from './cities'
+import { wordsForCity } from './progress'
+import {
+  storyForCity,
+  storySentences,
+  storySlug,
+  uncoveredWords,
+  type TravelStory,
+} from './travelStory'
+
+/**
+ * THE CHECKER. The ride says it reads back the words you packed, and the only
+ * thing that makes that true is this file.
+ *
+ * It uses the shipped stemmer rather than its own copy, which matters more
+ * than it looks: `scripts/measure-function-words.mjs` had to duplicate the
+ * inflection rules because it is a plain node script, and its own comment says
+ * the two must agree. A test can import the real one, so there is nothing to
+ * drift.
+ */
+describe('the travel story for a city', () => {
+  const written = CITIES.map((_, i) => i).filter((i) => storyForCity(i))
+
+  it('exists for at least one city, or this suite is vacuous', () => {
+    expect(written.length).toBeGreaterThan(0)
+  })
+
+  describe.each(written)('city %i', (cityIndex) => {
+    const story = storyForCity(cityIndex) as TravelStory
+    const cityWords = wordsForCity(WORDS, cityIndex)
+
+    it('uses every one of the city\'s hundred words', () => {
+      // Named in the failure rather than counted, because the useful form of
+      // this failure is the list to go and work into a sentence.
+      expect(uncoveredWords(story, cityWords)).toEqual([])
+    })
+
+    it('covers the whole band and nothing is missing from the band itself', () => {
+      expect(cityWords).toHaveLength(100)
+    })
+
+    it('carries an English gloss for every sentence', () => {
+      for (const s of storySentences(story)) {
+        expect(s.da.trim()).not.toBe('')
+        expect(s.en.trim()).not.toBe('')
+      }
+    })
+
+    it('is broken into chapters rather than one wall of text', () => {
+      expect(story.chapters.length).toBeGreaterThanOrEqual(2)
+      for (const c of story.chapters) expect(c.sentences.length).toBeGreaterThan(0)
+    })
+
+    it('agrees with itself about which city it is', () => {
+      expect(story.cityIndex).toBe(cityIndex)
+    })
+  })
+})
+
+describe('storySlug', () => {
+  it('pads so the clips sort in reading order', () => {
+    // Unpadded, sentence 10 sorts before sentence 2 in every file listing and
+    // in the manifest, which is how a bake gets read back out of order.
+    expect(storySlug(0, 2)).toBe('0-002')
+    expect(storySlug(0, 10)).toBe('0-010')
+    expect([storySlug(0, 10), storySlug(0, 2)].sort()).toEqual(['0-002', '0-010'])
+  })
+
+  it('separates cities', () => {
+    expect(storySlug(1, 0)).not.toBe(storySlug(0, 0))
+  })
+})
+
+describe('uncoveredWords', () => {
+  const story: TravelStory = {
+    cityIndex: 99,
+    titleDa: 't',
+    titleEn: 't',
+    chapters: [{ titleDa: 'c', titleEn: 'c', sentences: [{ da: 'Huset er rødt.', en: 'x' }] }],
+  }
+  const entry = (da: string) => ({ id: `da:${da}`, da }) as never
+
+  it('accepts an inflected form — «huset» is «hus» doing its job', () => {
+    expect(uncoveredWords(story, [entry('hus')])).toEqual([])
+  })
+
+  it('accepts an adjective agreeing — «rødt» is «rød»', () => {
+    expect(uncoveredWords(story, [entry('rød')])).toEqual([])
+  })
+
+  it('reports a word the story never uses', () => {
+    expect(uncoveredWords(story, [entry('cykel')])).toEqual(['cykel'])
+  })
+
+  it('does not accept a word merely because another contains it', () => {
+    // «er» is inside «værelse»; a substring check would pass this and quietly
+    // mark words as taught that were never said.
+    expect(uncoveredWords({ ...story, chapters: [{ titleDa: 'c', titleEn: 'c', sentences: [{ da: 'Værelset er stort.', en: 'x' }] }] }, [entry('vær')])).toEqual(['vær'])
+  })
+})
