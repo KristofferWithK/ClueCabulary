@@ -74,7 +74,27 @@ jobs:
             jq -r '.voices[] | "| \(.name) | \(.ssmlGender) | \(.naturalSampleRateHertz) |"' voices.json
             echo
           } >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.voices[] | "\(.name)\t\(.ssmlGender)\t\(.naturalSampleRateHertz)"' voices.json
           test "$count" -gt 0
+
+      # What does Google do with a voice name that does not exist for the
+      # locale? The whole point of the carded finding rests on the answer. A
+      # silent fallback means a typo in TTS_VOICE bakes 900 words in the wrong
+      # voice and says "900 made, 0 failed"; a 4xx means the mistake is loud
+      # and the bake stops. Answered by asking, not by reading the docs.
+      - name: What happens to a voice that does not exist
+        env:
+          TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
+        run: |
+          set -u
+          for bogus in da-DK-Wavenet-C da-DK-Neural2-D da-DK-NotAVoice-Z; do
+            code=$(curl -sS -o body.json -w '%{http_code}' \
+              -H "X-goog-api-key: $TTS_API_KEY" -H 'Content-Type: application/json' \
+              -X POST "https://texttospeech.googleapis.com/v1/text:synthesize" \
+              -d "{\"input\":{\"text\":\"hus\"},\"voice\":{\"languageCode\":\"da-DK\",\"name\":\"$bogus\"},\"audioConfig\":{\"audioEncoding\":\"MP3\"}}")
+            echo "── $bogus → HTTP $code"
+            head -c 400 body.json; echo
+          done
 
       - name: Bake the probe words in every voice
         env:
@@ -150,6 +170,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # voices.json travels with the clips: the gender and sample rate are
+          # how a listener knows what they are hearing, and they exist nowhere
+          # else in the repo.
+          cp voices.json "audition/${{ inputs.lang || 'da' }}/voices.json"
           git add audition
           if git diff --cached --quiet; then
             echo "Nothing new to commit."
