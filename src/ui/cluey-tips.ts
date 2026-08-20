@@ -17,7 +17,7 @@ const TIPS: readonly string[] = [
   'Collected words still break on the road. Wrap them up to keep them.',
   'In a wrap-up round the cards start in English. Type the Danish to pack them.',
   'Skipping a card in a wrap-up is allowed — but it cannot be wrapped that round.',
-  'Your dashed cards are safe to tap. It is your CLUES that must keep away from them.',
+  "While you guess, it is Casey's greens that count — his key, not yours.",
   'Out of clues is not out of game: sudden death lets you keep naming words.',
   'æ, ø and å can only be Danish. A word with one of them is never English.',
   'Danish nouns carry their gender like luggage: learn «et hus», not just «hus».',
@@ -25,7 +25,7 @@ const TIPS: readonly string[] = [
   'The definite article goes on the END in Danish: huset is “the house”.',
   'Danes count in twenties: halvtreds — fifty — is “half third times twenty”.',
   'Look a word up mid-round from the clue box — English in, Danish out.',
-  'The last chance opens after three clues: translate the board, one shot.',
+  'Win a normal round to earn a wrap-up round. You can bank up to three.',
   'Wrap all hundred words of a city and the road onward opens.',
 ]
 
