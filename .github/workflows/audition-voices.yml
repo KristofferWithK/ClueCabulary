@@ -24,6 +24,13 @@ on:
       words:
         description: Probe words, comma-separated slugs or ids
         default: hus,koebe,roed
+  # The dispatch API only sees workflows indexed from the default branch, so a
+  # branch-only copy cannot be started by name. Pushes that touch this file
+  # fire it instead — a session starts it by editing, committing and pushing.
+  # Push events carry no inputs, hence the || defaults below.
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/audition-voices.yml']
 
 permissions:
   contents: write
@@ -44,7 +51,7 @@ jobs:
       - name: Ask Google which voices exist
         env:
           TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
-          LANG_CODE: ${{ inputs.lang }}
+          LANG_CODE: ${{ inputs.lang || 'da' }}
         run: |
           set -eu
           if [ -z "$TTS_API_KEY" ]; then
@@ -72,8 +79,8 @@ jobs:
       - name: Bake the probe words in every voice
         env:
           TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
-          WORDS: ${{ inputs.words }}
-          LANG_CODE: ${{ inputs.lang }}
+          WORDS: ${{ inputs.words || 'hus,koebe,roed' }}
+          LANG_CODE: ${{ inputs.lang || 'da' }}
         run: |
           set -u
           failed=""
@@ -90,7 +97,7 @@ jobs:
 
       - name: Fingerprint which names are the same audio
         env:
-          LANG_CODE: ${{ inputs.lang }}
+          LANG_CODE: ${{ inputs.lang || 'da' }}
         run: |
           python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import hashlib, json, os
