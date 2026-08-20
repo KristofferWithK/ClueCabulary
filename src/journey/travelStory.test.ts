@@ -3,9 +3,11 @@ import { WORDS } from '../data/words'
 import { CITIES } from './cities'
 import { wordsForCity } from './progress'
 import {
+  rideEnabled,
   storyForCity,
   storySentences,
   storySlug,
+  storyText,
   uncoveredWords,
   type TravelStory,
 } from './travelStory'
@@ -21,14 +23,19 @@ import {
  * drift.
  */
 describe('the travel story for a city', () => {
-  const written = CITIES.map((_, i) => i).filter((i) => storyForCity(i))
+  // `storyText`, NOT `storyForCity`: the latter is gated on the ride flag, and
+  // reading it here would make every assertion below vanish the moment the
+  // flag went off — a suite that passes because it tests nothing. What is
+  // written must stay correct while it is hidden, which is the whole point of
+  // hiding it behind a flag rather than deleting it.
+  const written = CITIES.map((_, i) => i).filter((i) => storyText(i))
 
   it('exists for at least one city, or this suite is vacuous', () => {
     expect(written.length).toBeGreaterThan(0)
   })
 
   describe.each(written)('city %i', (cityIndex) => {
-    const story = storyForCity(cityIndex) as TravelStory
+    const story = storyText(cityIndex) as TravelStory
     const cityWords = wordsForCity(WORDS, cityIndex)
 
     it('uses every one of the city\'s hundred words', () => {
@@ -76,6 +83,29 @@ describe('the travel story for a city', () => {
       expect(new Set(slugs).size).toBe(slugs.length)
       expect(slugs[0]).toBe(`${cityIndex}-000`)
     })
+  })
+})
+
+describe('the ride flag', () => {
+  // The build going to TestFlight is about the words, so the ride must be off
+  // for everyone who has not asked for it. Pinned in both directions: the
+  // first case is what ships, and without the second the flag could be stuck
+  // off and this file would still be green.
+  it('hides a written story from the app while it is off', () => {
+    localStorage.removeItem('cluecab-ride')
+    expect(rideEnabled()).toBe(false)
+    expect(storyText(0)).toBeDefined()
+    expect(storyForCity(0)).toBeUndefined()
+  })
+
+  it('shows it once the flag is set', () => {
+    localStorage.setItem('cluecab-ride', '1')
+    try {
+      expect(rideEnabled()).toBe(true)
+      expect(storyForCity(0)).toEqual(storyText(0))
+    } finally {
+      localStorage.removeItem('cluecab-ride')
+    }
   })
 })
 

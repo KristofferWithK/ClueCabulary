@@ -40,9 +40,16 @@ try {
   //
   // Asserted on the network, because that is the only observable that tells a
   // wired tap from a silent one — headless Chromium will happily construct an
-  // Audio element for a file that was never requested. The clip is committed,
-  // so the request is real and its 200 is worth asserting too: a 404 here is
-  // the slug drift that speak.test.ts exists to prevent, seen end to end.
+  // Audio element for a file that was never requested.
+  //
+  // On the CONTENT TYPE, not the status, and that distinction is the whole
+  // assertion. `vite preview` answers an unknown path with index.html and a
+  // 200, so a status check here passes with the clips deleted — this check was
+  // written that way first and was demonstrated to pass against an empty
+  // dist/audio, which is the vacuous-drive trap this repo has been caught by
+  // twice. 854 bytes of text/html is not a word being spoken. (speak.ts checks
+  // the type for the same reason at runtime: caching HTML under a clip's URL
+  // would keep it for a year.)
   // The LAST card, deliberately: `speak.ts` memoises a played clip, so a word
   // played here would not be fetched again when the tour below reaches it, and
   // this check would silently steal an assertion from that one. The tour only
@@ -50,7 +57,13 @@ try {
   // out of its way.
   const audioHits = []
   page.on('response', (r) => {
-    if (r.url().includes('/audio/')) audioHits.push({ url: r.url(), status: r.status() })
+    if (r.url().includes('/audio/')) {
+      audioHits.push({
+        url: r.url(),
+        status: r.status(),
+        type: r.headers()['content-type'] ?? '',
+      })
+    }
   })
   const tapWord = cards[cards.length - 1]
   const wantSlug = `${audioSlug(tapWord)}.mp3`
@@ -64,8 +77,13 @@ try {
       })`,
     )
   }
-  if (hit.status !== 200) throw new Error(`${wantSlug} came back ${hit.status}`)
-  console.log(`tap spoke: ${tapWord} -> ${wantSlug} ${hit.status}`)
+  if (!hit.type.startsWith('audio/')) {
+    throw new Error(
+      `${wantSlug} came back ${hit.status} ${hit.type || '(no type)'} — that is the ` +
+        `preview server's index.html fallback, not a clip. The build has no word audio.`,
+    )
+  }
+  console.log(`tap spoke: ${tapWord} -> ${wantSlug} ${hit.status} ${hit.type}`)
   // The tap may have opened the dictionary (a card that is not guessable looks
   // up instead); put it away so the rest of the drive starts where it expects.
   const opened = page.locator('.sheet .btn')

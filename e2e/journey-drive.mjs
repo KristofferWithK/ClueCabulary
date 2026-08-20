@@ -20,6 +20,15 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
+// The ride ships OFF (H9 is one city of nine), so this drive has to ask for it
+// by name or the travel section below would be testing the straight-through
+// path while claiming to test the ride. An init script rather than a setItem
+// after load: the flag is read as the ride mounts, and this runs before any
+// page script on every navigation, including the reloads further down.
+// The off-by-default half is pinned in travelStory.test.ts, where it is a
+// two-line assertion instead of a second hundred-word journey.
+await page.addInitScript(() => localStorage.setItem('cluecab-ride', '1'))
+
 const journeyState = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-journey-v2') ?? '{}').state)
 

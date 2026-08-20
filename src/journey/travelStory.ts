@@ -38,9 +38,45 @@ export interface TravelStory {
 
 const BY_CITY = stories as unknown as Record<string, TravelStory>
 
-/** The story for a city, or undefined where one has not been written yet. */
-export function storyForCity(cityIndex: number): TravelStory | undefined {
+/**
+ * ---- the ride (localStorage cluecab-ride = '1', off otherwise) ----
+ *
+ * H9 is written but not finished: one city of nine has a story, and none of
+ * the sentences are baked, so the ride speaks in whatever voice the phone
+ * carries rather than in Aoede. That is a preview, not a feature, and the
+ * build going to TestFlight is meant to be about the WORDS.
+ *
+ * So the ride is off unless the flag is set, and the switch lives here rather
+ * than in MapScreen because everything downstream — the player, the bake, the
+ * coverage assertions — should agree about whether a story exists at all.
+ * `storyText` is the unflagged reader the coverage test uses: what is written
+ * has to stay correct even while nobody can see it, or the flag becomes a
+ * place for rot to hide.
+ *
+ * Turn it on with five taps on the build stamp in Settings, the same way the
+ * keyboard ride is turned on. Delete this function and its callers' flag
+ * checks when the nine stories are written and baked.
+ */
+export function rideEnabled(): boolean {
+  try {
+    return localStorage.getItem('cluecab-ride') === '1'
+  } catch {
+    // Private mode, or no DOM at all under vitest.
+    return false
+  }
+}
+
+/** The story for a city, ignoring the flag — for tests, tools and the bake. */
+export function storyText(cityIndex: number): TravelStory | undefined {
   return BY_CITY[String(cityIndex)]
+}
+
+/**
+ * The story the APP should show for a city: none at all while the ride is
+ * flagged off, so travelling goes straight through to the arrival.
+ */
+export function storyForCity(cityIndex: number): TravelStory | undefined {
+  return rideEnabled() ? storyText(cityIndex) : undefined
 }
 
 /** Every sentence of a story, flattened — the order they are read in. */

@@ -17,7 +17,7 @@
 // `make-audio.mjs` last baked. (The note that used to stand here said
 // public/audio/ was gitignored and unbakeable without a key. Both stopped being
 // true when the clips were committed and the TTS key became an Actions secret.)
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
@@ -231,7 +231,18 @@ try {
 } finally {
   await browser.close()
   preview.stop()
-  // The next drive in the run serves the same dist/, and a stray clip is a
-  // difference between drives that nobody asked for.
+  // Put dist/audio back the way `vite build` left it.
+  //
+  // This used to just delete it, on the reasoning that a stray silent test
+  // clip is a difference between drives nobody asked for. That was right when
+  // public/audio was gitignored and there were no real clips to lose. There
+  // are 931 now, the drives share one build, and this runs ninth of sixteen —
+  // so deleting left every later drive asking for clips that were not there
+  // and getting `vite preview`'s index.html back with a 200. smoke-drive's
+  // tap-says-the-word check ran in exactly that hole.
+  //
+  // Restoring from public/ rather than rebuilding: it is the same copy vite
+  // makes, and it costs a directory copy instead of a minute.
   rmSync(AUDIO_ROOT, { recursive: true, force: true })
+  cpSync(resolve(ROOT, 'public', 'audio'), AUDIO_ROOT, { recursive: true })
 }

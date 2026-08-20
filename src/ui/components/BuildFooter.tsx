@@ -25,6 +25,13 @@ export function BuildFooter() {
       return false
     }
   })
+  const [ride, setRide] = useState(() => {
+    try {
+      return localStorage.getItem('cluecab-ride') === '1'
+    } catch {
+      return false
+    }
+  })
 
   /**
    * Five taps on the build stamp turns on the keyboard readout.
@@ -74,6 +81,26 @@ export function BuildFooter() {
     }
   }
 
+  /**
+   * The train ride (H9), which is one city of nine and speaks in the phone's
+   * own voice rather than Aoede. Off for everyone by default; this is how it
+   * gets looked at on a device without shipping a half-written feature.
+   *
+   * Latched rather than live, unlike the composer ride above: the story is
+   * read when the ride mounts, so the flag only has to be right at the moment
+   * the Travel button is pressed.
+   */
+  const toggleRide = () => {
+    const on = !ride
+    setRide(on)
+    try {
+      if (on) localStorage.setItem('cluecab-ride', '1')
+      else localStorage.removeItem('cluecab-ride')
+    } catch {
+      /* private mode */
+    }
+  }
+
   const check = async () => {
     setState('checking')
     try {
@@ -99,6 +126,11 @@ export function BuildFooter() {
       {debug && (
         <button className="btn btn-small" onClick={toggleFast}>
           Composer ride: {fast ? 'on' : 'off'}
+        </button>
+      )}
+      {debug && (
+        <button className="btn btn-small" onClick={toggleRide}>
+          Train story: {ride ? 'on' : 'off'}
         </button>
       )}
       <button className="btn btn-small" disabled={state === 'checking'} onClick={check}>

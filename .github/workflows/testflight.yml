@@ -104,6 +104,27 @@ jobs:
           CAP_BUILD=1 npm run build
           npx cap sync ios
 
+      # The clips have to be IN the app, and nothing else here would notice if
+      # they were not. Build 22 shipped with none: public/audio/ was gitignored
+      # at the time, this workflow has no bake step, and the app falls back to
+      # the phone's own voice — so a silent build looked exactly like a working
+      # one, all the way through CI and onto a phone. The clips are committed
+      # now, which makes this cheap to assert and worth asserting: a stray
+      # ignore rule or a bad sync would otherwise cost a whole build to notice.
+      - name: The word audio is actually in the app
+        run: |
+          set -eu
+          dir=ios/App/App/public/audio/da
+          n=$(ls "$dir"/*.mp3 2>/dev/null | wc -l | tr -d ' ')
+          echo "$n word clips synced into the shell"
+          if [ "$n" -lt 900 ]; then
+            echo "::error::only $n clips in $dir — the build would be silent"
+            exit 1
+          fi
+          voice=$(node -e "process.stdout.write(require('./$dir/manifest.json').voice ?? '?')")
+          rate=$(node -e "process.stdout.write(String(require('./$dir/manifest.json').rate ?? '?'))")
+          echo "voice: $voice at rate $rate" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Write the App Store Connect key
         env:
           P8: ${{ secrets.ASC_KEY_P8 }}
