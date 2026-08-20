@@ -15,16 +15,30 @@
  * stores NFD, the browser asks in NFC, and that mismatch is a 404 that appears
  * only after the iOS build copies the files. `koebe.mp3` has neither problem.
  */
-export function audioSlug(headword) {
-  return headword
-    .normalize('NFC')
-    .toLowerCase()
-    // Before the decomposition below, which would otherwise split å into a plus
-    // a ring and strip the ring — merging være/vare, bare/bære, tænke/tanke,
-    // svær/svar, blød/blod and påstå/pasta, all six of which are in the 900.
-    .replace(/æ/g, 'ae')
-    .replace(/ø/g, 'oe')
-    .replace(/å/g, 'aa')
+/**
+ * The ASCII spelling of each language's own letters, applied BEFORE the
+ * decomposition below.
+ *
+ * German has the same hazard as Danish and more of it: without ä→ae, Mädchen
+ * and Madchen are one file, and ß survives the ASCII filter as a hyphen.
+ * Whatever is added here must match `orthography.fold` in that language's pack
+ * — `speak.test.ts` compares the two over the whole dataset, and a drift
+ * between them is not a wrong filename, it is 900 words that silently stop
+ * playing.
+ */
+export const FOLDS = {
+  da: [[/æ/g, 'ae'], [/ø/g, 'oe'], [/å/g, 'aa']],
+  de: [[/ä/g, 'ae'], [/ö/g, 'oe'], [/ü/g, 'ue'], [/ß/g, 'ss']],
+}
+
+export function audioSlug(headword, lang = 'da') {
+  let folded = headword.normalize('NFC').toLowerCase()
+  for (const [from, to] of FOLDS[lang] ?? []) folded = folded.replace(from, to)
+  // The fold above has to happen before this decomposition, which would
+  // otherwise split å into a plus a ring and strip the ring — merging
+  // være/vare, bare/bære, tænke/tanke, svær/svar, blød/blod and påstå/pasta,
+  // all six of which are in the Danish 900.
+  return folded
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
@@ -35,5 +49,5 @@ export function audioSlug(headword) {
 export function slugForId(wordId) {
   const parts = /^([a-z]{2}):(.+)$/.exec(wordId)
   if (!parts) return undefined
-  return audioSlug(parts[2]) || undefined
+  return audioSlug(parts[2], parts[1]) || undefined
 }

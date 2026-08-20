@@ -1,4 +1,5 @@
 import { articleLabel } from '../data/gender'
+import { ACTIVE } from '../lang/active'
 import { WORDS } from '../data/words'
 import { unlockedWords } from '../journey/progress'
 
@@ -11,23 +12,35 @@ import { unlockedWords } from '../journey/progress'
  * new line; tapping the bubble leafs onward from there.
  */
 
-const TIPS: readonly string[] = [
+/**
+ * How the game works. True in any language, so they live here.
+ *
+ * The tips that are ABOUT the language — æøå, the suffixed definite article,
+ * counting in twenties — moved to the pack (`copy.tips`). They are not
+ * translatable: German's would be about cases and capitalised nouns, which is
+ * a different set of facts rather than the same set in another language.
+ */
+const RULE_TIPS: readonly string[] = [
   'Tap me to open the case — every word you collect travels in here.',
   'Collect a word by cluing it AND guessing it — one green each way.',
   'Collected words still break on the road. Wrap them up to keep them.',
-  'In a wrap-up round the cards start in English. Type the Danish to pack them.',
+  `In a wrap-up round the cards start in English. Type the ${ACTIVE.name} to pack them.`,
   'Skipping a card in a wrap-up is allowed — but it cannot be wrapped that round.',
   "While you guess, it is Casey's greens that count — his key, not yours.",
   'Out of clues is not out of game: sudden death lets you keep naming words.',
-  'æ, ø and å can only be Danish. A word with one of them is never English.',
-  'Danish nouns carry their gender like luggage: learn «et hus», not just «hus».',
-  'A compound of two words you know is a word you know: morgenmad, dyreliv.',
-  'The definite article goes on the END in Danish: huset is “the house”.',
-  'Danes count in twenties: halvtreds — fifty — is “half third times twenty”.',
-  'Look a word up mid-round from the clue box — English in, Danish out.',
+  `Look a word up mid-round from the clue box — English in, ${ACTIVE.name} out.`,
   'Win a normal round to earn a wrap-up round. You can bank up to three.',
   'Wrap all hundred words of a city and the road onward opens.',
 ]
+
+/**
+ * Interleaved rather than appended: the rotation is one line a day, so
+ * concatenating would give a player a fortnight of rules before the first
+ * thing about the language they are learning.
+ */
+const TIPS: readonly string[] = RULE_TIPS.flatMap((tip, i) =>
+  i < ACTIVE.copy.tips.length ? [tip, ACTIVE.copy.tips[i]!] : [tip],
+)
 
 /** Deterministic day number, local time — the same all day, new tomorrow. */
 function dayKey(): number {

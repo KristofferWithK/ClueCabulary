@@ -118,4 +118,4 @@ const map: MapArt = {
   hatch: DENMARK_HATCH,
 }
 
-export const danishRoute: Route = { cities: CITIES, map }
+export const danishRoute: Route = { country: 'Denmark', cities: CITIES, map }

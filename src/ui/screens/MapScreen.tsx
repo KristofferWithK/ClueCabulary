@@ -8,6 +8,7 @@ import { Arrival } from '../components/Arrival'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
+import { ACTIVE } from '../../lang/active'
 
 type Placement = { anchor: 'start' | 'end'; dx: number; dy: number }
 
@@ -63,7 +64,7 @@ export function MapScreen() {
         className="denmark-map"
         viewBox={`0 0 ${MAP.width} ${MAP.height}`}
         role="img"
-        aria-label={`Map of Denmark. Stop ${journey.cityIndex + 1} of ${CITIES.length}: ${cityAt(journey.cityIndex).name}.`}
+        aria-label={`Map of ${ACTIVE.route.country}. Stop ${journey.cityIndex + 1} of ${CITIES.length}: ${cityAt(journey.cityIndex).name}.`}
       >
         {/* Three passes, under the route: the land, its shading, and the
             second time round the coastline. */}
@@ -115,10 +116,10 @@ export function MapScreen() {
           Stop {selected + 1} of {CITIES.length} ·{' '}
           {state === 'visited' ? 'visited' : state === 'current' ? 'you are here' : 'ahead'}
         </p>
-        <h2 className="city-name" lang="da">
+        <h2 className="city-name" lang={ACTIVE.code}>
           {city.name}
         </h2>
-        <p className="city-blurb" lang="da">
+        <p className="city-blurb" lang={ACTIVE.code}>
           {city.blurbTarget}
         </p>
         <p className="city-blurb-en">{city.blurbEn}</p>

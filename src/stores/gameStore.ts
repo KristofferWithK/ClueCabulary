@@ -179,7 +179,7 @@ interface GameStore {
    * Danish and one that comes back as something else was not. «trafik» returns
    * trafik; «water» returns vand.
    */
-  judgeDanish: (term: string) => Promise<boolean>
+  judgeTargetWord: (term: string) => Promise<boolean>
   runAiGuesses: () => Promise<void>
   stepAiGuess: () => void
   runAiClue: () => Promise<void>
@@ -735,7 +735,7 @@ export const useGame = create<GameStore>()(
         return result
       },
 
-      judgeDanish: async (term) => {
+      judgeTargetWord: async (term) => {
         const asked = await companion(get().practiceFallback).translate(term)
         const norm = (x: string) => x.trim().toLowerCase()
         return norm(asked.da) === norm(term)

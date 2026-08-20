@@ -2,7 +2,8 @@ import { wordById } from '../../data/words'
 import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
 import { useSettings } from '../../stores/settingsStore'
-import { canSpeak, speakDanish } from '../speak'
+import { canSpeak, speakText } from '../speak'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * Five is what fits without turning the summary into a reading exercise. The
@@ -57,7 +58,7 @@ export function pickSentenceWords(
  */
 function SpeakSentence({ da }: { da: string }) {
   const sound = useSettings((s) => s.sound)
-  if (!sound || !canSpeak()) return <span lang="da">{da}</span>
+  if (!sound || !canSpeak()) return <span lang={ACTIVE.code}>{da}</span>
   return (
     <button
       type="button"
@@ -65,9 +66,9 @@ function SpeakSentence({ da }: { da: string }) {
       // The word buttons above read as the word itself; a whole sentence needs
       // the verb said out loud or the control is a mystery to a screen reader.
       aria-label={`Say «${da}» out loud`}
-      onClick={() => speakDanish(da)}
+      onClick={() => speakText(da)}
     >
-      <span lang="da">{da}</span>
+      <span lang={ACTIVE.code}>{da}</span>
     </button>
   )
 }

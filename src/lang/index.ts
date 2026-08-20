@@ -25,6 +25,21 @@ export const packFor = (code: LanguageCode): LanguagePack =>
 /** The playable packs, in the order the picker should list them. */
 export const availableLanguages = (): LanguagePack[] => Object.values(LANGUAGES)
 
+/**
+ * Whether Settings should show a language picker at all.
+ *
+ * THE CALL, since the card left it open: the picker is HIDDEN while only one
+ * language ships, rather than shown as a one-entry list. A control whose only
+ * option is the one already selected is worse than no control — it invites a
+ * tap, does nothing, and on a screen governed by a no-scroll rule at 360×640 it
+ * spends a row saying so. The code path behind it is written and tested, so H2
+ * gets the picker by adding a pack and nothing else.
+ *
+ * Reverse it by returning true unconditionally, if a visible "Danish, more
+ * coming" row turns out to be worth the row.
+ */
+export const hasLanguageChoice = (): boolean => availableLanguages().length > 1
+
 export const isLanguageCode = (v: unknown): v is LanguageCode => v === 'da' || v === 'de'
 
 /**

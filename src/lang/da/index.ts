@@ -1,6 +1,7 @@
 import type { WordEntry } from '../../data/types'
 import raw from '../../data/words.da.json'
 import type { LanguagePack } from '../types'
+import { danishCopy } from './copy'
 import { danishGrammar } from './grammar'
 import { danishMorphology } from './morphology'
 import { danishOrthography } from './orthography'
@@ -32,4 +33,5 @@ export const danish: LanguagePack = {
   grammar: danishGrammar,
   route: danishRoute,
   prompts: danishPrompts,
+  copy: danishCopy,
 }

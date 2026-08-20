@@ -4,8 +4,9 @@ import { wordById } from '../../data/words'
 import { useGame } from '../../stores/gameStore'
 
 import { useUi } from '../../stores/uiStore'
-import { canPlayWords, canSpeak, playWord, speakDanish } from '../speak'
+import { canPlayWords, canSpeak, playWord, speakText } from '../speak'
 import { useDialog } from '../useDialog'
+import { ACTIVE } from '../../lang/active'
 
 export function DictionarySheet() {
   const { sheetWordId, closeSheet } = useUi()
@@ -40,7 +41,7 @@ export function DictionarySheet() {
       >
         <div className="sheet-handle" />
         <div className="sheet-head">
-          <h2 id="sheet-title" lang="da">
+          <h2 id="sheet-title" lang={ACTIVE.code}>
             {articleLabel(entry) ? `${articleLabel(entry)} ` : ''}
             {entry.da}
           </h2>
@@ -59,13 +60,13 @@ export function DictionarySheet() {
         </div>
         <p className="sheet-glosses">{entry.en.join(', ')}</p>
         <blockquote className="sheet-example">
-          <p lang="da">
+          <p lang={ACTIVE.code}>
             {entry.exampleDa}
             {canSpeak() && (
               <button
                 className="speak-btn speak-btn-inline"
                 aria-label="Pronounce example sentence"
-                onClick={() => speakDanish(entry.exampleDa)}
+                onClick={() => speakText(entry.exampleDa)}
               >
                 🔊
               </button>

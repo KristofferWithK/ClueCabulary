@@ -15,7 +15,7 @@ import { canPlayWords, playWord, stopWordAudio } from '../speak'
  * to it. So the tour is paced on a clock.
  *
  * 1200ms is long enough for the one-to-three-syllable headwords the nine
- * hundred are made of, said at `speakDanish`'s 0.88 rate, and it puts a full
+ * hundred are made of, said at `speakText`'s 0.88 rate, and it puts a full
  * 4×5 board at 24 seconds. If a baked clip ever runs past it the symptom is
  * benign and visible: the next word cuts the last one off, because `playWord`
  * silences whatever is playing before it starts. The fix, if it comes to that,

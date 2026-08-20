@@ -6,7 +6,8 @@ import { lookupLocal } from '../../data/lookup'
 import { useGame } from '../../stores/gameStore'
 
 import { useSettings } from '../../stores/settingsStore'
-import { canPlayWords, canSpeak, playWord, speakDanish } from '../speak'
+import { canPlayWords, canSpeak, playWord, speakText } from '../speak'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * A word, either direction, without leaving the round.
@@ -92,13 +93,13 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
 
   // With a wordId the baked clip plays and the device voice is the fallback;
   // without one — a word Cluey translated that is outside the 900 — speech is
-  // all there is, which is the reason `speakDanish` did not go away.
+  // all there is, which is the reason `speakText` did not go away.
   const say = (da: string, wordId?: string) =>
     (wordId ? canPlayWords() : canSpeak()) && sound ? (
       <button
         className="speak-btn speak-btn-inline"
         aria-label={`Pronounce ${da}`}
-        onClick={() => (wordId ? void playWord(wordId, da) : speakDanish(da))}
+        onClick={() => (wordId ? void playWord(wordId, da) : speakText(da))}
       >
         🔊
       </button>
@@ -138,7 +139,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
         type="text"
         value={term}
         placeholder="Dictionary"
-        aria-label="Word to translate, Danish or English"
+        aria-label={`Word to translate, ${ACTIVE.name} or English`}
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}
@@ -150,7 +151,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
         <ul className="translate-hits">
           {local.slice(0, 4).map((m) => (
             <li key={m.entry.id} className={onBoard.has(m.entry.id) ? 'hit-on-board' : undefined}>
-              <span lang="da">
+              <span lang={ACTIVE.code}>
                 {articleLabel(m.entry) ? `${articleLabel(m.entry)} ` : ''}
                 {m.entry.da}
               </span>
@@ -183,7 +184,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
       {asked && (
         <ul className="translate-hits">
           <li>
-            <span lang="da">
+            <span lang={ACTIVE.code}>
               {/* Casey answers for the words outside the shipped nine hundred, so
                   his answer has to say the same thing the data does: an article
                   when the noun can be counted, the gender when it cannot. */}

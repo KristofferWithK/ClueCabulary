@@ -7,7 +7,14 @@ import { checkClueLegality } from '../engine/legality'
 import { matchesAnswer } from '../engine/packing'
 import type { BoardWord } from '../engine/types'
 import { danish } from './da'
-import { DEFAULT_LANGUAGE, LANGUAGES, isLanguageCode, packFor } from './index'
+import {
+  DEFAULT_LANGUAGE,
+  LANGUAGES,
+  availableLanguages,
+  hasLanguageChoice,
+  isLanguageCode,
+  packFor,
+} from './index'
 import { LANGUAGE_KEY, readStoredLanguage } from './active'
 import type { LanguagePack } from './types'
 
@@ -90,7 +97,13 @@ const FAKE: LanguagePack = {
     isUncountable: (h) => h === 'frimm',
     answerFiller: ['yo'],
   },
-  route: danish.route,
+  route: { ...danish.route, country: "Fakeland" },
+  copy: {
+    welcome: 'FAKE-WELCOME',
+    journeyOver: 'FAKE-JOURNEY-OVER',
+    answerPlaceholder: 'FAKE-PLACEHOLDER',
+    tips: ['FAKE-TIP'],
+  },
   prompts: {
     translateRules: 'FAKE-TRANSLATE-RULES',
     spellingRule: 'FAKE-SPELLING-RULE',
@@ -351,6 +364,39 @@ describe('the Danish pack is complete', () => {
 
   it('has a route the dataset can fill', () => {
     expect(danish.route.cities.length).toBe(9)
+    expect(danish.route.country).toBe('Denmark')
     expect(danish.route.map.path.length).toBeGreaterThan(1000)
+  })
+
+  it('fills every string a screen or a prompt reads', () => {
+    // A pack with an empty string here does not crash, it renders a blank
+    // label or drops a rule out of a prompt — which is the failure mode worth
+    // catching at the seam rather than on a screenshot.
+    const strings = [
+      danish.name,
+      danish.endonym,
+      danish.speech.tag,
+      danish.copy.welcome,
+      danish.copy.journeyOver,
+      danish.copy.answerPlaceholder,
+      ...Object.values(danish.prompts),
+    ]
+    for (const s of strings) expect(s.trim().length).toBeGreaterThan(0)
+    expect(danish.copy.tips.length).toBeGreaterThan(0)
+    for (const t of danish.copy.tips) expect(t.trim().length).toBeGreaterThan(0)
+  })
+
+  it('speaks at a rate somebody chose', () => {
+    expect(danish.speech.rate).toBeGreaterThan(0)
+    expect(danish.speech.rate).toBeLessThanOrEqual(1)
+  })
+})
+
+describe('the Settings picker', () => {
+  it('stays hidden while only one language ships', () => {
+    // The call, recorded: a control whose only option is the one already
+    // selected is worse than no control. See `hasLanguageChoice`.
+    expect(hasLanguageChoice()).toBe(false)
+    expect(availableLanguages()).toEqual([danish])
   })
 })

@@ -47,14 +47,52 @@ import type { City } from '../journey/route'
  *  6. `route` — nine German cities, `WORDS_PER_CITY` still 100, plus a map
  *     module in the shape of `src/lang/da/map.ts` (run `scripts/make-map.mjs`
  *     against German geodata).
- *  7. `speech` — `de-DE` and a German voice for `scripts/make-audio.mjs`;
- *     bake to `public/audio/de/`.
- *  8. `prompts.translateRules` — the German gender/article/countability rules
- *     Casey needs, in the shape of the Danish block.
+ *  7. `speech` — `de-DE`, and a rate measured on a German device rather than
+ *     inherited from Danish's 0.88.
+ *  8. `prompts` — eight strings, each quoted into a fixed sentence in
+ *     `src/ai/prompts.ts`. Read how each is used before writing it; they are
+ *     clauses, not paragraphs. `seam.test.ts` asserts a prompt built for
+ *     another language contains no Danish letter, which is how the last three
+ *     of them were found.
+ *  9. `copy` — the four places the UI speaks the language rather than English,
+ *     plus the tips. Those tips are NOT translations of the Danish ones:
+ *     German's would be about cases, capitalised nouns and separable verbs.
  *
- * Then register it in `src/lang/index.ts` and it is playable. Nothing outside
- * `src/lang/` should need to change — if something does, the seam has a hole
- * and the hole is the bug.
+ * ── AND FOUR THINGS OUTSIDE `src/lang/`, ALL OF THEM TABLES ────────────────
+ *
+ * Each is a one-line entry keyed by language code, and each already has a `de`
+ * slot or errors clearly when it does not:
+ *
+ *  - `scripts/audio-slug.mjs` FOLDS — ALREADY WRITTEN for German, and it must
+ *    stay byte-identical to `orthography.fold`. This is the one that fails
+ *    silently: without ä→ae, Mädchen and Madchen are one file, and ß survives
+ *    the ASCII filter as a hyphen. `speak.test.ts` compares the two over the
+ *    whole dataset.
+ *  - `scripts/make-audio.mjs` LOCALES and each provider's `voices` — the
+ *    locale is not derivable from the code (da is da-DK, not da-DA), so the
+ *    pairs are stated. Google's `de-DE-Neural2-F` is listed already; audition
+ *    it before trusting it.
+ *  - `scripts/validate-words.mjs` ALPHABETS — `äöüß` and their capitals.
+ *    German capitalises its nouns, so the existing upper-case allowance is the
+ *    rule there rather than a looseness.
+ *  - `src/backup/backup.ts` `LanguageSchema` — already accepts 'de'.
+ *
+ * Then register the pack in `src/lang/index.ts` and it is playable, and the
+ * Settings picker appears by itself. If anything ELSE needs changing, the seam
+ * has a hole and the hole is the bug.
+ *
+ * ── WHAT WAS DELIBERATELY NOT RENAMED ──────────────────────────────────────
+ *
+ * `WordEntry.da` and `BoardWord.da` keep the name `da` in every language —
+ * `words.de.json` will have `"da": "Haus"`. It is the JSON key, a field on the
+ * persisted board and part of the AI response schema, so moving it costs a
+ * migration and forty call sites to buy a better name for a field whose
+ * meaning is never in doubt where it is used. Read it as "the headword". Same
+ * reasoning as `klausVerifiedAt` and the `cluey-*` classes in CLAUDE.md.
+ *
+ * The store keys stay `cluecab-*` and are shared, not split per language —
+ * see the note at the bottom of `src/lang/index.ts` for which parts of a save
+ * are per-language and which are deliberately not.
  */
 export interface LanguagePack {
   /**
@@ -74,6 +112,39 @@ export interface LanguagePack {
   readonly grammar: Grammar
   readonly route: Route
   readonly prompts: PromptStrings
+  readonly copy: TargetCopy
+}
+
+/**
+ * The handful of places the UI speaks the language being learned rather than
+ * English.
+ *
+ * The chrome is English by decision (D1) — everything a player must READ to
+ * OPERATE the app. These four are the exceptions, and each is deliberate:
+ * arriving somewhere is greeted in the local language, the last line of the
+ * journey is said in the language you just learned, the answer box asks in the
+ * language it wants, and the tips teach the language by being about it.
+ */
+export interface TargetCopy {
+  /** Above the city name on the arrival screen: "Velkommen til". */
+  readonly welcome: string
+  /**
+   * The end of the road, said in the language, followed in English by " — you
+   * packed the last suitcase in <final city>". The last thing the game ever
+   * says, and by nine hundred words it is a sentence you can read.
+   */
+  readonly journeyOver: string
+  /** Placeholder in the wrap-up answer box: "dansk…". */
+  readonly answerPlaceholder: string
+  /**
+   * Small true things about the language, for Casey's bubble on Home. Mixed in
+   * with the language-neutral gameplay tips in `cluey-tips.ts`.
+   *
+   * These are not translations of the Danish ones. Danish's are about æøå, the
+   * suffixed definite article and counting in twenties; German's would be about
+   * cases, capitalised nouns and separable verbs. Write the ones that are true.
+   */
+  readonly tips: readonly string[]
 }
 
 /**
@@ -231,6 +302,11 @@ export interface GenderSpec {
 }
 
 export interface Route {
+  /**
+   * The country travelled, in English, for the two screens that name it —
+   * the map's accessible label and How to play.
+   */
+  readonly country: string
   /** The journey's stops, in order. Nine of them, at WORDS_PER_CITY each. */
   readonly cities: readonly City[]
   /** The country drawn by hand, in the shape `src/lang/da/map.ts` exports. */

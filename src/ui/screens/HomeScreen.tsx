@@ -14,6 +14,7 @@ import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { Cluey } from '../components/Cluey'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * Home in three bands, per the notebook sketch: the journey (map and
@@ -168,7 +169,7 @@ export function HomeScreen() {
           accessible name. The bar keeps the discovered layer, so the number
           the text no longer prints is still on the screen. */}
       <section className="city-card home-progress-band">
-        <p className="city-eyebrow" lang="da">
+        <p className="city-eyebrow" lang={ACTIVE.code}>
           {city.name}
         </p>
         <div className="collect-bar" aria-hidden="true">
@@ -198,7 +199,8 @@ export function HomeScreen() {
           lost if you cannot: the English clause carries the meaning. */}
       {journeyDone && (
         <p className="journey-done">
-          <span lang="da">Rejsen er slut</span> — you packed the last suitcase in København.
+          <span lang={ACTIVE.code}>{ACTIVE.copy.journeyOver}</span> — you packed the last suitcase in{' '}
+          {cityAt(FINAL_CITY_INDEX).name}.
         </p>
       )}
       {travelReady && (

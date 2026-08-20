@@ -11,7 +11,7 @@ describe('lookupLocal', () => {
   it('finds a Danish word', () => {
     const [hit] = lookupLocal('hund')
     expect(hit?.entry.da).toBe('hund')
-    expect(hit?.matched).toBe('da')
+    expect(hit?.matched).toBe('target')
     expect(hit?.approximate).toBe(false)
   })
 

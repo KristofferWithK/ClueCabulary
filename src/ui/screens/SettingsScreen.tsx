@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { AiError, listModels, resolveEndpoint, testConnection } from '../../ai/client'
+import { ACTIVE, setActiveLanguage } from '../../lang/active'
+import { availableLanguages, hasLanguageChoice } from '../../lang/index'
+import type { LanguageCode } from '../../lang/types'
 import { PROVIDERS, providerFor, type Provider } from '../../ai/providers'
 import type { GridSize } from '../../engine/config'
 import { useGame } from '../../stores/gameStore'
@@ -11,6 +14,43 @@ import { useUi } from '../../stores/uiStore'
 import { BackupPanel } from '../components/BackupPanel'
 import { BuildFooter } from '../components/BuildFooter'
 import { ConnectCluey } from '../components/ConnectCluey'
+
+/**
+ * Which language you are learning.
+ *
+ * Renders nothing while only one ships — see `hasLanguageChoice` for why that
+ * is the choice rather than a one-entry list. Changing it reloads the app,
+ * which is honest rather than lazy: the whole word list, every index, the route
+ * and the map all change at once, and `src/lang/active.ts` explains why the
+ * value cannot live in a store.
+ *
+ * Nothing is lost by switching. The collection is keyed by word id and holds
+ * both languages side by side; the journey position on the language being left
+ * is parked by journeyStore and comes back untouched.
+ */
+function LanguagePicker() {
+  const languages = availableLanguages()
+  if (!hasLanguageChoice()) return null
+  return (
+    <label className="field">
+      <span>Language</span>
+      <select
+        value={ACTIVE.code}
+        onChange={(e) => setActiveLanguage(e.target.value as LanguageCode)}
+      >
+        {languages.map((l) => (
+          <option key={l.code} value={l.code}>
+            {l.name} — {l.endonym}
+          </option>
+        ))}
+      </select>
+      <small>
+        What you are learning. Switching reloads the app; your collection and both journeys are
+        kept.
+      </small>
+    </label>
+  )
+}
 
 export function SettingsScreen() {
   const goTo = useUi((s) => s.goTo)
@@ -211,6 +251,8 @@ export function SettingsScreen() {
           <small>What Play deals. Wrap-up rounds bring their own board.</small>
         </label>
 
+        <LanguagePicker />
+
         <label className="field">
           <span>Clue language</span>
           <select
@@ -218,7 +260,7 @@ export function SettingsScreen() {
             onChange={(e) => settings.set({ clueLanguage: e.target.value as 'target' | 'en' })}
           >
             <option value="en">English clues (gentler)</option>
-            <option value="target">Danish clues (immersion)</option>
+            <option value="target">{ACTIVE.name} clues (immersion)</option>
           </select>
         </label>
 
@@ -265,7 +307,7 @@ export function SettingsScreen() {
             // collected words would be a broken state.
             if (
               window.confirm(
-                'Reset all learning progress, your journey through Denmark, and the current game?',
+                `Reset all learning progress, your ${ACTIVE.name} journey, and the current game?`,
               )
             ) {
               resetSrs()

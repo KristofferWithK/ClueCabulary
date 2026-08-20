@@ -1,5 +1,6 @@
 import { useSettings } from '../../stores/settingsStore'
 import { canPlayWords, playWord } from '../speak'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * A Danish word that says itself when you tap it.
@@ -18,12 +19,12 @@ export function SpeakWord({ wordId, da }: { wordId: string; da: string }) {
   // `playWord` would refuse anyway, but a control that does nothing is worse
   // than no control: with sound off these go back to being plain words.
   const sound = useSettings((s) => s.sound)
-  if (!sound || !canPlayWords()) return <span lang="da">{da}</span>
+  if (!sound || !canPlayWords()) return <span lang={ACTIVE.code}>{da}</span>
   return (
     <button type="button" className="speak-word" onClick={() => void playWord(wordId, da)}>
       {/* The lang stays on the text, not the button: `.collected-word [lang]`
           and the browser's own pronunciation both key off it. */}
-      <span lang="da">{da}</span>
+      <span lang={ACTIVE.code}>{da}</span>
     </button>
   )
 }

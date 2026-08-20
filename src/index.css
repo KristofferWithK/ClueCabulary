@@ -2573,7 +2573,12 @@ body:has(.kb-up) {
   border-radius: 8px;
 }
 
-.struggle-word [lang='da'] {
+/* Any lang attribute means 'a word in the language being learned' here: the
+   document itself is lang="en" and nothing inside these four containers
+   carries a lang of its own except the target word. Was [lang='da'] until the
+   language seam, which would have stopped bolding the moment a second
+   language shipped. */
+.struggle-word [lang] {
   font-weight: 700;
 }
 
@@ -2640,7 +2645,7 @@ body:has(.kb-up) {
   font-size: 0.7rem;
 }
 
-.collected-word [lang='da'] {
+.collected-word [lang] {
   font-weight: 700;
 }
 
@@ -2684,7 +2689,7 @@ body:has(.kb-up) {
   line-height: 1.45;
 }
 
-.round-sentence [lang='da'] {
+.round-sentence [lang] {
   font-weight: 600;
 }
 
@@ -3324,7 +3329,7 @@ body:has(.kb-up) {
   text-overflow: ellipsis;
 }
 
-.translate-hits [lang='da'] {
+.translate-hits [lang] {
   font-weight: 700;
 }
 

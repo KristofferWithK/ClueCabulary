@@ -290,11 +290,21 @@ if (provider.keyEnv && !key && !dryRun) {
   process.exit(2)
 }
 
+const LOCALES = { da: 'da-DK', de: 'de-DE' }
+if (!LOCALES[lang]) {
+  console.error()
+  process.exit(2)
+}
+
 const cfg = {
   key,
   voice,
   lang,
-  locale: flag('locale', lang === 'da' ? 'da-DK' : `${lang}-${lang.toUpperCase()}`),
+  // The BCP-47 tag each provider wants, and it is NOT derivable from the code:
+  // da is da-DK, not da-DA. Uppercasing the code happens to be right for German
+  // and wrong for most others, so the pairs are stated rather than computed.
+  // Must match `speech.tag` in the language's pack.
+  locale: flag('locale', LOCALES[lang]),
   region,
   host: flag('endpoint', provider.host),
 }
