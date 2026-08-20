@@ -11,15 +11,6 @@ KristoffersRoom/
 coverage
 # throwaway Playwright probes, kept out of `git add -A`
 probe-*.mjs
-# the baked word audio. ~900 clips, ~9MB, and `scripts/make-audio.mjs` makes
-# them again from a key in about two minutes — a build artefact with a long
-# name, not source. Keeping them out means the repo stays a text repo, a voice
-# change is not a 9MB diff, and nobody has to review a binary. The cost is that
-# a fresh clone has no audio until the bake is run; the app is built to fall
-# back to the device voice in exactly that case, which is also how it ships
-# today. The iOS build gets them from `dist/` via `npx cap sync`, so the bake
-# has to happen before the build that feeds a TestFlight upload.
-public/audio/
 
 # build info + screenshots the e2e drives write when SHOT_DIR is unset
 *.tsbuildinfo

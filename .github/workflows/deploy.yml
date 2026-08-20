@@ -26,38 +26,36 @@ jobs:
       - run: npm ci
       - run: npm test
 
-      # The word audio, which is NOT in this repository.
+      # The word audio ships IN this repository, and the bake below only fills
+      # gaps.
       #
-      # public/audio/ is gitignored — 900 clips is ~7.5MB of build artefact that
-      # `scripts/make-audio.mjs` remakes in five minutes, and committing it
-      # would make a voice change an unreviewable binary diff. That reasoning
-      # holds, and it left a hole nobody noticed: the iOS build gets the clips
-      # because `npx cap sync` copies them off the machine that baked them, but
-      # THIS job builds from a clean checkout, so the deployed web app had no
-      # audio at all and fell back to whatever da-DK voice the phone carries.
+      # It was gitignored at first, on the reasoning that 900 clips is a build
+      # artefact a script remakes in five minutes and a voice change should not
+      # be an unreviewable binary diff. Two things beat that. Nobody reviews
+      # audio by reading a diff — you listen to it — and a voice changes once,
+      # while it is being chosen, and then never. Against that, keeping it out
+      # cost a secret, a cache key and a bake step, each of which is a thing
+      # that can fail quietly; the same shape of failure had just cost an
+      # afternoon in deploy-proxy.yml.
       #
-      # So the runner bakes its own, and caches them against the dataset and the
-      # voice — the two things that decide what the clips should sound like. An
-      # ordinary deploy restores the cache and calls nothing.
-      #
-      # No secret, no bake, no failure: the app is built to fall back, which is
-      # exactly how it shipped before the audio existed.
-      - id: audio
-        uses: actions/cache@v4
-        with:
-          path: public/audio
-          key: audio-${{ hashFiles('src/data/words.*.json') }}-${{ vars.TTS_VOICE || 'default' }}
-      - name: Bake the word audio
-        # The key is checked in the shell rather than in `if:` — the secrets
-        # context is not dependable in a step condition, and a workflow that
-        # silently never runs is worse than one that says why it didn't.
-        if: steps.audio.outputs.cache-hit != 'true'
+      # So the clips are committed and every checkout has them — this job, a
+      # cloud sandbox, a fresh clone. This step exists for the one case that
+      # leaves: words added to the dataset without a bake. It is skipped
+      # entirely when nothing is missing, and skipped with an explanation when
+      # there is no key. Revisit if the total ever gets large — nine languages
+      # of words is fine, nine languages of SENTENCES would not be.
+      - name: Bake anything the dataset gained since the last bake
         env:
           TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
           VOICE: ${{ vars.TTS_VOICE }}
+        # The key is read in the shell rather than in `if:` — the secrets
+        # context is not dependable in a step condition, and a step that
+        # silently never runs is worse than one that says why it didn't.
         run: |
+          have=$(ls public/audio/*/*.mp3 2>/dev/null | wc -l)
+          echo "$have clips in the checkout."
           if [ -z "$TTS_API_KEY" ]; then
-            echo "no TTS_API_KEY secret — skipping the bake, the app will fall back"
+            echo "No TTS_API_KEY secret, so nothing can be baked here — shipping what is committed." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           if [ -n "$VOICE" ]; then
@@ -65,15 +63,8 @@ jobs:
           else
             node scripts/make-audio.mjs
           fi
-      - name: Say whether this build can speak
-        run: |
-          n=$(ls public/audio/*/*.mp3 2>/dev/null | wc -l)
-          if [ "$n" -gt 0 ]; then
-            echo "$n clips in this build." >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "No baked audio in this build — the app will use each phone's own voice." >> "$GITHUB_STEP_SUMMARY"
-            echo "Add a \`TTS_API_KEY\` repository secret to bake it here." >> "$GITHUB_STEP_SUMMARY"
-          fi
+          now=$(ls public/audio/*/*.mp3 2>/dev/null | wc -l)
+          echo "$now clips in this build ($((now - have)) baked here)." >> "$GITHUB_STEP_SUMMARY"
 
       - run: npm run build
       # No configure-pages step: a workflow token cannot create the Pages site

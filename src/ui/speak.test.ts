@@ -71,11 +71,36 @@ describe('the name a clip is baked under', () => {
       const url = wordAudioUrl(w.id)
       expect(url, w.id).toBeDefined()
       const file = url!.split('/').pop()!
-      expect(file, w.id).toMatch(/^[a-z0-9-]+\.mp3$/)
+      // The underscore is here for one word and one operating system: «nul» is
+      // the Danish for zero and NUL is a Windows device, extension included.
+      expect(file, w.id).toMatch(/^[a-z0-9-]+_?\.mp3$/)
       expect(seen.has(file), `${w.id} and ${seen.get(file)} both want ${file}`).toBe(false)
       seen.set(file, w.id)
     }
     expect(seen.size).toBe(WORDS.length)
+  })
+
+  /**
+   * Found by git refusing to add the file, which is a late and confusing place
+   * to find it. Windows reserves CON, PRN, AUX, NUL and the numbered COM/LPT
+   * ports as device names, and the reservation ignores the extension — so
+   * `nul.mp3` IS the null device. Baking Danish on Windows therefore opened
+   * that device, wrote the clip into it, and reported success: the word had no
+   * audio, and nothing said so.
+   *
+   * «nul» is the only one of the 900, but the rule is cheap and German or any
+   * later language may bring another.
+   */
+  it('escapes the names Windows keeps for its own devices', () => {
+    for (const reserved of ['nul', 'con', 'prn', 'aux', 'com1', 'lpt9']) {
+      expect(audioSlug(reserved, (s) => s), reserved).toBe(`${reserved}_`)
+    }
+  })
+
+  it('leaves a word that merely contains one alone', () => {
+    // «nullpunkt» is an ordinary filename; only the whole name is reserved.
+    expect(audioSlug('nullpunkt', (s) => s)).toBe('nullpunkt')
+    expect(audioSlug('contact', (s) => s)).toBe('contact')
   })
 
   it('agrees with the copy the build script bakes with, word for word', async () => {

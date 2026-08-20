@@ -145,8 +145,24 @@ export function audioSlug(
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+      // Windows keeps a handful of names for devices, and NUL is one \u2014 as is
+      // NUL.mp3, since the reservation ignores the extension. The Danish for
+      // zero is \u00abnul\u00bb, so baking on Windows opened the null device, wrote the
+      // clip into it, and reported success: the word had no audio and git
+      // could not index the file that was not there. A trailing underscore is
+      // enough \u2014 only the exact base name is reserved \u2014 and it must be applied
+      // in the bake script's copy of this too, or the app asks for a file
+      // nobody wrote.
+      .replace(RESERVED_ON_WINDOWS, '$&_')
   )
 }
+
+/**
+ * CON, PRN, AUX, NUL and the numbered COM/LPT ports, matched whole and
+ * case-insensitively. Anchored, because a slug merely CONTAINING "nul" \u2014
+ * \u00abnullpunkt\u00bb would \u2014 is a perfectly ordinary filename.
+ */
+const RESERVED_ON_WINDOWS = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i
 
 const WORD_ID = /^([a-z]{2}):(.+)$/
 

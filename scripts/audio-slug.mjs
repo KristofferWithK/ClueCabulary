@@ -38,12 +38,23 @@ export function audioSlug(headword, lang = 'da') {
   // otherwise split å into a plus a ring and strip the ring — merging
   // være/vare, bare/bære, tænke/tanke, svær/svar, blød/blod and påstå/pasta,
   // all six of which are in the Danish 900.
-  return folded
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  return (
+    folded
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      // Must match src/ui/speak.ts's audioSlug exactly, or this writes files
+      // the app never asks for. See the note there: NUL and friends are device
+      // names on Windows, extension and all, and \u00abnul\u00bb is the Danish for zero \u2014
+      // so this bake opened the null device, poured a clip into it and reported
+      // success.
+      .replace(RESERVED_ON_WINDOWS, '$&_')
+  )
 }
+
+/** CON, PRN, AUX, NUL and the numbered COM/LPT ports, whole names only. */
+const RESERVED_ON_WINDOWS = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i
 
 /** `da:købe` → `koebe`. Ids that are not `xx:word` return undefined. */
 export function slugForId(wordId) {
