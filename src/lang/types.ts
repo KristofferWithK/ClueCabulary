@@ -19,12 +19,15 @@ import type { City } from '../journey/route'
  * Every field below is required, so the type checker is the checklist. In the
  * order they will actually be built:
  *
- *  1. `words` — 900 `WordEntry` with ids `de:<headword>`, `curriculumRank`
- *     1..900 with no gaps (validate-words.mjs enforces both). The id prefix is
- *     load-bearing far beyond the dataset: it is what keeps a German save from
- *     colliding with a Danish one in the SRS map and the wrapped ledger, and it
- *     is what `wordAudioUrl` reads to find `audio/de/`. See `store-namespacing`
- *     in `src/lang/index.ts`.
+ *  1. `words` — 900 `WordEntry` in `src/data/words.de.json`, with ids
+ *     `de:<headword>` and `curriculumRank` 1..900 with no gaps
+ *     (validate-words.mjs enforces both). Note the field names do not change:
+ *     the headword is `da`, its sentence is `exampleDa` — see "what was
+ *     deliberately not renamed" below. The id prefix is load-bearing far beyond
+ *     the dataset: it is what keeps a German save from colliding with a Danish
+ *     one in the SRS map and the wrapped ledger, and it is what `wordAudioUrl`
+ *     reads to find `audio/de/`. See the note at the bottom of
+ *     `src/lang/index.ts`.
  *  2. `grammar.genders` — three, not two: `masculine` (der/ein), `feminine`
  *     (die/eine), `neuter` (das/ein). Note that German's indefinite article is
  *     NOT one-to-one with gender — der and das both take `ein` — which is why
@@ -39,14 +42,15 @@ import type { City } from '../journey/route'
  *     spelling, not a keyboard workaround, so check `foldsAreSpellings`.
  *  5. `morphology` — German is NOT suffix-only. `stem` must cope with the
  *     ge- prefix of the participle (gemacht → mach) and umlaut plurals
- *     (Haus/Häuser), and separable verbs mean `compound.linkers` has a partner
- *     problem Danish does not have (aufstehen contains stehen). Expect this to
- *     be the field that needs measuring rather than reasoning about — the
- *     Danish one names the count of real pairs it blocks, and the German one
- *     should too.
- *  6. `route` — nine German cities, `WORDS_PER_CITY` still 100, plus a map
- *     module in the shape of `src/lang/da/map.ts` (run `scripts/make-map.mjs`
- *     against German geodata).
+ *     (Haus/Häuser), and separable verbs mean `morphology.linkers` has a
+ *     partner problem Danish does not have (aufstehen contains stehen). Expect
+ *     this to be the field that needs measuring rather than reasoning about —
+ *     the Danish one names the count of real pairs it blocks, and the German
+ *     one should too.
+ *  6. `route` — a country name, nine German cities (`WORDS_PER_CITY` stays
+ *     100), and a map module in the shape of `src/lang/da/map.ts`: run
+ *     `scripts/make-map.mjs` against German geodata, then package the consts
+ *     it writes the way `src/lang/da/route.ts` does.
  *  7. `speech` — `de-DE`, and a rate measured on a German device rather than
  *     inherited from Danish's 0.88.
  *  8. `prompts` — eight strings, each quoted into a fixed sentence in
