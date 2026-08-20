@@ -15,6 +15,17 @@ interface SettingsState {
   /** Play against the deterministic offline companion (dev/e2e). */
   useMock: boolean
   /**
+   * Whether tapping a word says it out loud. On by default — hearing the word
+   * is most of what a vocabulary app is for — but a phone that speaks Danish on
+   * a quiet train without being asked is a phone that gets closed, so the off
+   * switch has to be real and has to be found on the first look for it.
+   *
+   * It governs `playWord` at the source, which means it covers the baked clips
+   * and the Web Speech fallback together. Nothing ever plays without a tap
+   * either way; this is the switch for the taps themselves.
+   */
+  sound: boolean
+  /**
    * When Casey last actually answered — a passed connection test, or a real
    * clue or guess in play. Null means the credentials here have never been
    * shown to work, which is different from having none at all: a key that is
@@ -46,7 +57,7 @@ interface SettingsState {
  * middleware would be testing nothing.
  */
 export function migrateSettings(persisted: unknown, from: number): unknown {
-  if (from >= 7) return persisted
+  if (from >= 8) return persisted
   const s = {
     ...((persisted ?? {}) as {
       studyPhase?: StudyMode
@@ -55,6 +66,7 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
       apiKey?: string
       baseUrl?: string
       model?: string
+      sound?: boolean
     }),
   }
   // v1 -> v2: the study phase stopped being the default.
@@ -124,6 +136,14 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   // So it is cleared for everyone. There is no longer any field to type one
   // into, and the only service left brings its own.
   if (from < 7) s.apiKey = ''
+  // v7 -> v8: a new field, and the fifth outing of the trap — with the sign
+  // flipped, which is the only reason it is a one-liner.
+  //
+  // No save written before tonight carries `sound`, and this store has no
+  // partialize, so an old blob restores `sound: undefined` over the default and
+  // every existing device would come up silent. The new field is written in
+  // explicitly rather than left to the default it happens to agree with.
+  if (from < 8) s.sound = true
   return s
 }
 
@@ -150,6 +170,10 @@ export const useSettings = create<SettingsState>()(
       // still there in Settings for anyone who wants the old opening.
       studyPhase: 'never',
       useMock: false,
+      // On. Every sound in the app follows a tap, so the only thing this
+      // protects against is a tap you meant as a lookup being louder than you
+      // expected — and a learner who cannot hear the word is missing half of it.
+      sound: true,
       klausVerifiedAt: null,
       set: (patch) =>
         set((s) => {
@@ -164,7 +188,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'cluecab-settings-v1',
-      version: 7,
+      version: 8,
       migrate: migrateSettings,
     },
   ),

@@ -2261,6 +2261,18 @@ body:has(.kb-up) {
   vertical-align: middle;
 }
 
+/* A word that is its own speak button. The global button reset above already
+   drops the background, border and font; only the padding and the affordance
+   are left. Nothing here changes the box, on purpose — these sit in the round
+   summary's lists, which are measured against the no-scroll rule. */
+.speak-word {
+  padding: 0;
+  text-align: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--text-dim);
+  text-underline-offset: 3px;
+}
+
 .sheet-head h2 {
   font-size: 1.5rem;
 }

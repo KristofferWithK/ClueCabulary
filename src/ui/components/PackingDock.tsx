@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
+import { playWord } from '../speak'
 
 /**
  * The wrap-up packing phase: every card starts English-side up, and typing a
@@ -31,6 +32,11 @@ export function PackingDock({ game }: { game: GameState }) {
     if (!selected || !text.trim()) return
     const hit = useGame.getState().submitPacking(selected.wordId, text)
     if (hit) {
+      // The one moment in the app where the player produced the Danish from
+      // memory. Hearing it back confirms the spelling was a word and not just
+      // a match — and it only ever fires on a hit: saying the answer after a
+      // miss would hand over the thing this phase exists to withhold.
+      void playWord(selected.wordId, selected.da)
       useGame.getState().selectWord(null)
     } else {
       setMissed(true)

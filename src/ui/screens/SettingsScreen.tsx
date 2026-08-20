@@ -237,6 +237,18 @@ export function SettingsScreen() {
             journey reaches Skagen. Studying never counts as looking a word up.
           </small>
         </label>
+
+        <div className="field">
+          <label className="field field-row">
+            <input
+              type="checkbox"
+              checked={settings.sound}
+              onChange={(e) => settings.set({ sound: e.target.checked })}
+            />
+            <span>Say words out loud when you tap them</span>
+          </label>
+          <small>Nothing ever plays on its own — every sound follows a tap.</small>
+        </div>
       </section>
 
       <section className="settings-section">

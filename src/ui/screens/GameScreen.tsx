@@ -11,6 +11,7 @@ import { PackingDock } from '../components/PackingDock'
 import { RoundSummary } from '../components/RoundSummary'
 import { TranslateBox } from '../components/TranslateBox'
 import { TurnTokens } from '../components/TurnTokens'
+import { playWord } from '../speak'
 
 const PHASE_CAPTION: Record<GameState['phase'], string> = {
   playerClueInput: 'Give Casey a clue',
@@ -273,7 +274,12 @@ function SuddenDeathBar({ game }: { game: GameState }) {
         <div className="guess-confirm">
           <button
             className="btn btn-primary"
-            onClick={() => useGame.getState().playerGuess(selected.wordId)}
+            onClick={() => {
+              // Committing to a word is the moment you have most reason to
+              // hear it, and the button is already saying it in writing.
+              void playWord(selected.wordId, selected.da)
+              useGame.getState().playerGuess(selected.wordId)
+            }}
           >
             Name «{selected.da}»
           </button>
@@ -311,7 +317,10 @@ function PlayerGuessBar({ game }: { game: GameState }) {
         <div className="guess-confirm">
           <button
             className="btn btn-primary"
-            onClick={() => useGame.getState().playerGuess(selected.wordId)}
+            onClick={() => {
+              void playWord(selected.wordId, selected.da)
+              useGame.getState().playerGuess(selected.wordId)
+            }}
           >
             Guess «{selected.da}»
           </button>

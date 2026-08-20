@@ -68,6 +68,70 @@ export default defineConfig({
       workbox: {
         // The app shell and word data are precached; AI calls are network-only.
         globPatterns: ['**/*.{js,css,html,png,svg,json,woff2}'],
+        // The baked word clips are the one thing in dist/ that must NOT be
+        // precached. There are ~900 of them and they are ~9MB together, so
+        // precaching would make the install download the entire dictionary's
+        // audio before the app would open offline — for a player who may only
+        // ever hear a few hundred words. They are runtime-cached instead, below.
+        // Only manifest.json would be caught by the patterns above (mp3 is not
+        // in them), but the ignore is stated so that adding mp3 to the list
+        // later cannot quietly undo the decision.
+        globIgnores: ['**/audio/**'],
+        runtimeCaching: [
+          {
+            // CacheFirst, not StaleWhileRevalidate: the clip for «hus» is the
+            // same bytes for ever, so a background revalidation would be a
+            // request per word per session buying nothing. A re-bake with a
+            // different voice keeps the same filenames, so it needs the
+            // cacheName below bumped to v2 in the same commit — that is the
+            // only way an already-installed phone hears the new voice before
+            // the year is out.
+            urlPattern: /\/audio\/.*\.mp3$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'word-audio-v1',
+              expiration: {
+                // A little over the 900 that exist, so hearing every word in
+                // the dataset never evicts the first one heard.
+                maxEntries: 1000,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+                // Audio is the most disposable thing the app stores: losing it
+                // costs the device voice, losing the shell costs the app. If
+                // the browser runs the origin out of quota, this goes first.
+                purgeOnQuotaError: true,
+              },
+              // 200 only. A 206 Partial Content cannot be put in the Cache API
+              // at all, which is why speak.ts fetches the bytes itself and
+              // hands them to the audio element as a blob rather than letting
+              // the element request byte ranges of its own.
+              cacheableResponse: { statuses: [200] },
+              plugins: [
+                {
+                  /**
+                   * A 200 is not enough: a single-page host answers an unknown
+                   * path with index.html rather than a 404, so a word with no
+                   * baked clip comes back 200 text/html — which is the state
+                   * every word in this repo is in until the bake is run. Without
+                   * this, CacheFirst files the app's own HTML under the clip's
+                   * URL and keeps it there for a year.
+                   *
+                   * offline-drive measured exactly that and failed on it twice:
+                   * once before the client-side check existed, and again after,
+                   * because the client's clean-up raced workbox's write and lost.
+                   * Refusing the write is the half that actually holds.
+                   *
+                   * The function is stringified into the generated worker, so it
+                   * may not close over anything in this file.
+                   */
+                  cacheWillUpdate: async ({ response }: { response: Response }) => {
+                    const type = response.headers.get('content-type') ?? ''
+                    return type.toLowerCase().startsWith('audio/') ? response : null
+                  },
+                },
+              ],
+            },
+          },
+        ],
         navigateFallback: '/ClueCabulary/index.html',
         // Prompt mode turns both of these off. skipWaiting must stay off — that
         // is what lets the player choose the moment. clientsClaim has to come

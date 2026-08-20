@@ -4,7 +4,7 @@ import { wordById } from '../../data/words'
 import { useGame } from '../../stores/gameStore'
 
 import { useUi } from '../../stores/uiStore'
-import { canSpeak, speakDanish } from '../speak'
+import { canPlayWords, canSpeak, playWord, speakDanish } from '../speak'
 import { useDialog } from '../useDialog'
 
 export function DictionarySheet() {
@@ -45,11 +45,13 @@ export function DictionarySheet() {
             {entry.da}
           </h2>
           <span className="pos-badge">{entry.pos}</span>
-          {canSpeak() && (
+          {/* The headword has a baked clip; the sentence below never will, so
+              the two buttons are gated on different questions. */}
+          {canPlayWords() && (
             <button
               className="speak-btn"
               aria-label={`Pronounce ${entry.da}`}
-              onClick={() => speakDanish(entry.da)}
+              onClick={() => void playWord(entry.id, entry.da)}
             >
               🔊
             </button>
