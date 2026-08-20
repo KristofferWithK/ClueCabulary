@@ -104,6 +104,74 @@ jobs:
             fi
           done
 
+      # A single word cannot be auditioned. Danish sentence melody, the soft d,
+      # and stød only appear in connected speech, and the question contour needs
+      # a question. So every voice also reads a four-sentence passage taken
+      # verbatim from the dataset's own examples — the sentences the app itself
+      # would say — chosen for the sounds synthetic Danish gets wrong:
+      #
+      #   da:mor     Min mor laver god mad.            two soft d's
+      #   da:mand    Der står en mand ved døren.       å, ø, ved, stød on mand
+      #   da:mælk    Vil du have mælk i kaffen?        æ, and a question contour
+      #   da:datter  Hendes datter er fem år gammel.   a number, å, stød on år
+      #
+      # One file per voice rather than one per sentence: prosody across a
+      # sentence boundary is part of what is being judged, and one play button
+      # per voice is what makes 35 of them listenable.
+      - name: Read a passage in every voice
+        env:
+          TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
+          LANG_CODE: ${{ inputs.lang || 'da' }}
+        run: |
+          # --input-type=module: stdin is CommonJS by default, so import and
+          # top-level await would both be syntax errors without it.
+          node --input-type=module - <<'JS'
+          import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+
+          const lang = process.env.LANG_CODE
+          const key = process.env.TTS_API_KEY
+          const IDS = ['da:mor', 'da:mand', 'da:mælk', 'da:datter']
+
+          const words = JSON.parse(readFileSync(`src/data/words.${lang}.json`, 'utf8'))
+          const byId = new Map(words.map((w) => [w.id, w]))
+          const missing = IDS.filter((id) => !byId.get(id)?.exampleDa)
+          if (missing.length) {
+            // The passage is dataset content, so a trimmed or renamed word must
+            // stop the run rather than quietly shorten what everyone listens to.
+            console.error(`No exampleDa for: ${missing.join(', ')}`)
+            process.exit(2)
+          }
+          const passage = IDS.map((id) => byId.get(id).exampleDa).join(' ')
+          console.log(`passage (${passage.length} chars): ${passage}`)
+
+          const voices = JSON.parse(readFileSync('voices.json', 'utf8')).voices
+          const outDir = `audition/${lang}-sentences`
+          mkdirSync(outDir, { recursive: true })
+
+          let made = 0
+          const failed = []
+          for (const { name, languageCodes } of voices) {
+            const res = await fetch('https://texttospeech.googleapis.com/v1/text:synthesize', {
+              method: 'POST',
+              headers: { 'X-goog-api-key': key, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                input: { text: passage },
+                voice: { languageCode: languageCodes[0], name },
+                audioConfig: { audioEncoding: 'MP3' },
+              }),
+            })
+            if (!res.ok) {
+              failed.push(`${name} (HTTP ${res.status})`)
+              continue
+            }
+            const { audioContent } = await res.json()
+            writeFileSync(`${outDir}/${name}.mp3`, Buffer.from(audioContent, 'base64'))
+            made++
+          }
+          console.log(`${made} passages written, ${failed.length} failed`)
+          if (failed.length) console.log(`failed: ${failed.join(', ')}`)
+          JS
+
       - name: Bake the probe words in every voice
         env:
           TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
