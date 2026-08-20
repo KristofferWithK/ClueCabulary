@@ -19,7 +19,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
  */
 const config: CapacitorConfig = {
   appId: 'com.kristofferwithk.cluecabulary',
-  appName: '900Words',
+  appName: '900words',
   webDir: 'dist',
   /**
    * The colour of everything that is not the page: the window behind the

@@ -178,7 +178,7 @@ export function parseBackup(text: string): ParseResult {
     if (parsed.data.format > BACKUP_FORMAT) {
       return {
         ok: false,
-        error: 'That backup was written by a newer version of 900Words. Update the app first.',
+        error: 'That backup was written by a newer version of 900words. Update the app first.',
       }
     }
     return { ok: true, backup: parsed.data }
@@ -191,7 +191,7 @@ export function parseBackup(text: string): ParseResult {
     return { ok: true, backup: { ...v1.data, journey: { ...journey, wrapped: banked } } }
   }
   const shape = json && typeof json === 'object' && 'app' in json ? '' : ' It may be from another app.'
-  return { ok: false, error: `That file is not a 900Words backup.${shape}` }
+  return { ok: false, error: `That file is not a 900words backup.${shape}` }
 }
 
 /**

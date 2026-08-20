@@ -17,7 +17,7 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
   await page.goto(preview.base + '?mock=1&seed=5&grid=beginner')
-  await page.waitForSelector('h1:has-text("900Words")')
+  await page.waitForSelector('h1:has-text("900words")')
 
   // First visit opens with the How-to-play overlay — read it like a new player would.
   await page.waitForSelector('.howto', { timeout: 8000 })

@@ -42,8 +42,8 @@ export default defineConfig({
         // /ClueCabulary/ path — that is the repo name, and the rename is held
         // for the owner (docs/DECISIONS.md). Moving one without the other
         // breaks the deploy.
-        name: '900Words',
-        short_name: '900Words',
+        name: '900words',
+        short_name: '900words',
         description:
           'Learn Danish vocabulary through a cooperative word-association game with an AI companion.',
         start_url: '/ClueCabulary/',

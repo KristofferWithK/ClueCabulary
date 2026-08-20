@@ -20,7 +20,7 @@ import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 
 /**
  * How many words the game teaches: nine cities of WORDS_PER_CITY each
- * (src/journey/cities.ts). The name says it — 900Words. Ranks 901-1000 were
+ * (src/journey/cities.ts). The name says it — 900words. Ranks 901-1000 were
  * dropped from the shipped dataset when the tenth city went; the batches keep
  * them, so this cap is what decides the size rather than the size of the pool.
  */

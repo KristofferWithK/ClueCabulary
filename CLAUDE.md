@@ -1,4 +1,4 @@
-# Working on 900Words
+# Working on 900words
 
 A Danish vocabulary game played solo on a phone with an AI companion — Casey,
 a suitcase with eyes who also carries every word you learn. Vite + React +
@@ -61,7 +61,7 @@ commit and shows its diff twice.
 git fetch origin main && git checkout -B <branch> origin/main
 ```
 
-**5. The app is called 900Words and the mascot Casey, but the code says
+**5. The app is called 900words and the mascot Casey, but the code says
 neither.** The rename is user-facing copy ONLY. Every identifier keeps the old
 name: the `cluey-*` CSS classes, `ClueyFace`, `ClueyMood`, `ConnectCluey`,
 `Cluey.tsx`, `cluey-tips.ts`, `markClueyVerified`, every `cluecab-*`

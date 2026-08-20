@@ -94,7 +94,7 @@ export async function startPreview(requestedPort) {
       // Matched on the product name, not the base path above: the path is still
       // /ClueCabulary/ only until the owner renames the repo (D3), and this
       // check should not have to move with it.
-      if (res.ok && (await res.text()).includes('900Words')) {
+      if (res.ok && (await res.text()).includes('900words')) {
         return { proc, base, port, stop: () => proc.kill() }
       }
     } catch {

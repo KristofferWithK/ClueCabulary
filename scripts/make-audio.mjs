@@ -172,7 +172,7 @@ const PROVIDERS = {
             'Ocp-Apim-Subscription-Key': cfg.key,
             'Content-Type': 'application/ssml+xml',
             'X-Microsoft-OutputFormat': 'audio-24khz-96kbitrate-mono-mp3',
-            'User-Agent': '900Words-make-audio',
+            'User-Agent': '900words-make-audio',
           },
           body:
             `<speak version='1.0' xml:lang='${cfg.locale}'>` +

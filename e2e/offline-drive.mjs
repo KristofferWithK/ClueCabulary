@@ -134,7 +134,7 @@ try {
 
   // First visit online: let the service worker install and precache.
   await page.goto(preview.base + '?mock=1&howto=0&collected=5')
-  await page.waitForSelector('h1:has-text("900Words")')
+  await page.waitForSelector('h1:has-text("900words")')
   await page.waitForFunction(
     async () => {
       const reg = await navigator.serviceWorker.getRegistration()
@@ -191,7 +191,7 @@ try {
 
   await context.setOffline(true)
   await page.reload()
-  await page.waitForSelector('h1:has-text("900Words")', { timeout: 15000 })
+  await page.waitForSelector('h1:has-text("900words")', { timeout: 15000 })
 
   // The dictionary must work offline too (bundled data).
   await openSuitcase()

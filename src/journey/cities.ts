@@ -15,7 +15,7 @@ export const CITIES: readonly City[] = ACTIVE.route.cities
 
 /**
  * Words each city owns — the suitcase-load to collect and wrap before moving
- * on. Shared by every language: nine cities of a hundred is what "900Words"
+ * on. Shared by every language: nine cities of a hundred is what "900words"
  * means, and `scripts/validate-words.mjs` reads this constant to check a
  * dataset against its route.
  */

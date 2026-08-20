@@ -1,6 +1,6 @@
-# 900Words
+# 900words
 
-Learn Danish one clue at a time. 900Words is a single-player, mobile-first
+Learn Danish one clue at a time. 900words is a single-player, mobile-first
 word game inspired by cooperative word-association games: a board of Danish
 words, a secret key, and an AI companion — Casey — who gives and guesses clues
 **without ever seeing your key**. Vocabulary sticks because every clue forces
@@ -8,7 +8,7 @@ you to build connections between words.
 
 ## The journey
 
-900Words is a journey through Denmark: nine stops from **Sønderborg** in the
+900words is a journey through Denmark: nine stops from **Sønderborg** in the
 far south, up Jutland to the tip at **Skagen**, then back across Funen and
 Zealand to **København** — made with **Casey**, the suitcase with eyes who is
 also the companion cluing and guessing beside you. Each city owns 100 words —

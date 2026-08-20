@@ -55,7 +55,7 @@ if (UNCOUNTABLE.size === 0) {
 /**
  * The route, read out of the TypeScript rather than restated, for the same
  * reason the uncountable list is: one home per fact. Nine cities of a hundred
- * is what "900Words" means, and the dataset and the route have to agree about
+ * is what "900words" means, and the dataset and the route have to agree about
  * it or a city ends up owning a band with nothing in it.
  *
  * The cities come from the language's own route; WORDS_PER_CITY is the
