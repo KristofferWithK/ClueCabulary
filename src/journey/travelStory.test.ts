@@ -86,6 +86,27 @@ describe('the travel story for a city', () => {
   })
 })
 
+/**
+ * The suite runs in node with no DOM, so the flag needs somewhere to live —
+ * the same stub gameStore.test.ts installs, and for the same reason. Only the
+ * bare global is needed here: `rideEnabled` reads `localStorage` directly, not
+ * `window.localStorage`.
+ *
+ * `rideEnabled` catches its own ReferenceError and reports "off", which is
+ * correct for a phone in private mode and would ALSO have made these two tests
+ * pass without a stub — the "on" half by never running. Stubbing rather than
+ * relying on the catch is what makes the second assertion mean anything.
+ */
+const written = new Map<string, string>()
+Object.defineProperty(globalThis, 'localStorage', {
+  configurable: true,
+  value: {
+    getItem: (k: string) => written.get(k) ?? null,
+    setItem: (k: string, v: string) => void written.set(k, v),
+    removeItem: (k: string) => void written.delete(k),
+  },
+})
+
 describe('the ride flag', () => {
   // The build going to TestFlight is about the words, so the ride must be off
   // for everyone who has not asked for it. Pinned in both directions: the
