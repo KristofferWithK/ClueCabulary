@@ -217,3 +217,37 @@ describe('the proxy’s daily cap', () => {
     expect(ephemeral).not.toBe(first)
   })
 })
+
+/**
+ * The proxy's cascade (H7). This file's whole share of it is one query
+ * parameter; the decision to send it is in companion.ts, where the verdict on
+ * the last answer is, and what it resolves to is in MODEL_ALIASES on the
+ * worker. Nothing here knows which model either tier is.
+ */
+describe('asking the proxy for its better model', () => {
+  const url = (mock: ReturnType<typeof vi.fn>, i = 0) => String(mock.mock.calls[i]![0])
+
+  it('says nothing extra on an ordinary call', async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => jsonResponse('{}'))
+    vi.stubGlobal('fetch', fetchMock)
+    await chatJson({ ...settings, apiKey: '' }, messages)
+    expect(url(fetchMock)).toBe('https://ai.example/v1/chat/completions')
+  })
+
+  it('marks a retry, so the proxy can answer it with the flagship', async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => jsonResponse('{}'))
+    vi.stubGlobal('fetch', fetchMock)
+    await chatJson({ ...settings, apiKey: '' }, messages, { escalate: true })
+    expect(url(fetchMock)).toBe('https://ai.example/v1/chat/completions?tier=escalate')
+  })
+
+  it('never sends it to an endpoint the player is paying for themselves', async () => {
+    // Same rule as X-Install-Id above, and for the same two reasons: nobody
+    // else's server needs a parameter of ours, and a player on their own key is
+    // not talking to our proxy at all. Their retry is today's retry.
+    const fetchMock = vi.fn().mockImplementation(async () => jsonResponse('{}'))
+    vi.stubGlobal('fetch', fetchMock)
+    await chatJson(settings, messages, { escalate: true })
+    expect(url(fetchMock)).toBe('https://ai.example/v1/chat/completions')
+  })
+})

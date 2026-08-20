@@ -204,6 +204,38 @@ describe('OllamaCompanion.getClue', () => {
     expect(tempOf(2)).toBeGreaterThan(tempOf(1))
   })
 
+  /**
+   * The cascade (H7), from the only side that can see whether an answer was any
+   * good. Escalating here costs nothing, because the call it rides on was
+   * already going to be made — see the note in companion.ts.
+   */
+  it('asks for the better model on every retry, and only on a retry', async () => {
+    const notHis = { clue: 'køretøj', number: 1, targetWordIds: ['w2'], rationale: 'x' }
+    const his = { clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'x' }
+    const chat = vi.fn(respondWith(notHis, notHis, his))
+    await new OllamaCompanion(settings, chat).getClue(clueView)
+    const escalated = (i: number) => (chat.mock.calls[i]![2] as { escalate?: boolean }).escalate
+    // The first attempt is the cheap one. That is the whole saving: nothing has
+    // gone wrong yet, and about nine boards in ten never get past it.
+    expect(escalated(0)).toBe(false)
+    expect(escalated(1)).toBe(true)
+    expect(escalated(2)).toBe(true)
+  })
+
+  it('starts the next call over on the cheap tier', async () => {
+    // Per attempt, never sticky. One hard board must not put the rest of the
+    // round on the flagship, or the blended cost is whatever the worst board
+    // of the round was.
+    const his = { clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'x' }
+    const bad = { clue: 'køretøj', number: 1, targetWordIds: ['w2'], rationale: 'x' }
+    const chat = vi.fn(respondWith(bad, his, his))
+    const companion = new OllamaCompanion(settings, chat)
+    await companion.getClue(clueView)
+    await companion.getClue(clueView)
+    const escalated = (i: number) => (chat.mock.calls[i]![2] as { escalate?: boolean }).escalate
+    expect([escalated(0), escalated(1), escalated(2)]).toEqual([false, true, false])
+  })
+
   it('shows the model its own rejected replies, not just a complaint', async () => {
     const notHis = { clue: 'køretøj', number: 1, targetWordIds: ['w2'], rationale: 'x' }
     const his = { clue: 'kæledyr', number: 2, targetWordIds: ['w0', 'w1'], rationale: 'x' }
