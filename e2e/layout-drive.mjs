@@ -493,6 +493,31 @@ for (const vp of [
   await page.waitForSelector('.suitcase-screen')
   await noScroll(`suitcase @${vp.name}`)
 
+  // The open case is the screen rather than a band on it (E1), and it holds
+  // that at every phone size — the compartments are a fixed count of slots on
+  // stretching rows, so a taller phone is meant to grow the case rather than
+  // leave a gap under it. And the city filter scrolls INSIDE itself: the one
+  // sideways scroller on the screen must never become the document's.
+  const caseBox = await page.evaluate(() => {
+    const c = document.querySelector('.case-open')
+    return {
+      h: c ? Math.round(c.getBoundingClientRect().height) : 0,
+      ih: window.innerHeight,
+      dw: document.scrollingElement.scrollWidth,
+      iw: window.innerWidth,
+    }
+  })
+  check(
+    `the open case fills the phone @${vp.name}`,
+    caseBox.h >= caseBox.ih * 0.45,
+    `${caseBox.h} of ${caseBox.ih}`,
+  )
+  check(
+    `no sideways scroll on the suitcase @${vp.name}`,
+    caseBox.dw <= caseBox.iw + 1,
+    `${caseBox.dw} vs ${caseBox.iw}`,
+  )
+
   await open('?mock=1&howto=0')
   await page.locator('.map-button').click()
   await page.waitForSelector('.denmark-map')

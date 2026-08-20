@@ -123,8 +123,10 @@ await page.waitForTimeout(250)
 check('map to home via the in-page Back', (await screen()) === 'home')
 await page.locator('.cluey-button').click()
 await page.waitForTimeout(250)
-// aria-label, not bare .icon-btn: the header now holds the city pager's
-// arrows too, and a five-match locator fails strict mode.
+// aria-label, not bare .icon-btn: the screen is full of pager arrows that are
+// icon buttons too, and a many-match locator fails strict mode. (The header's
+// own city pager went when the city became a filter — E1 — but the band
+// pagers inside the case are still .icon-btn.)
 await page.locator('.suitcase-screen .icon-btn[aria-label="Back"]').click()
 await page.waitForTimeout(300)
 check('collection to home', (await screen()) === 'home')
