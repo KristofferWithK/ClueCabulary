@@ -11,7 +11,7 @@ import { chromium } from 'playwright'
 import { readFileSync, writeFileSync } from 'node:fs'
 
 const SHOT_DIR = process.env.SHOT_DIR ?? '.'
-const src = readFileSync(new URL('../src/journey/denmark.ts', import.meta.url), 'utf8')
+const src = readFileSync(new URL('../src/lang/da/map.ts', import.meta.url), 'utf8')
 const path = src.match(/DENMARK_PATH =\s*\n?\s*'([^']*)'/)[1]
 const sketch = src.match(/DENMARK_SKETCH =\s*\n?\s*'([^']*)'/)?.[1] ?? ''
 const hatch = src.match(/DENMARK_HATCH =\s*\n?\s*'([^']*)'/)?.[1] ?? ''
