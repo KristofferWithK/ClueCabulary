@@ -86,8 +86,21 @@ export async function startFakeOllama(port, { auto = false, cors: sendCors = tru
  */
 function autoReply(request) {
   const text = (request?.messages ?? []).map((m) => m.content ?? '').join('\n')
-  // Board lines are "<id> | <danish> (...) [...] | <status>[ | my key: ROLE]".
-  const rows = [...text.matchAll(/^(\S+) \| .+? \| ([A-Za-z ]+?)(?: \| my key: (\w+))?$/gm)]
+  // Board lines are "<id> | <danish> (...) [...] | <status>[ | my key: ROLE]",
+  // and since A2 they can carry one more field after the role — "** YOU MAY
+  // TARGET THIS **", or the sentence saying a green is already found.
+  //
+  // That trailing field silently broke this. The pattern anchored $ straight
+  // after the role, so every targetable green stopped matching, greens came
+  // back empty, and the auto-reply returned null on every clue prompt — which
+  // the app answers by spending all four correction attempts and giving up.
+  // Nothing failed, because no drive currently plays far enough on the
+  // auto-reply to notice; it was found by reading, not by a red test. Hence
+  // the tolerant tail: this reads a prompt written elsewhere, so it should bend
+  // when that prompt gains a field rather than quietly matching nothing.
+  const rows = [
+    ...text.matchAll(/^(\S+) \| .+? \| ([A-Za-z ]+?)(?: \| my key: (\w+))?(?: \|.*)?$/gm),
+  ]
   const hidden = rows.filter((m) => /hidden|unrevealed/i.test(m[2]))
   if (/You are the GUESSER/.test(text)) {
     const pick = (hidden[0] ?? rows[0])?.[1]
