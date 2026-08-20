@@ -67,18 +67,35 @@ model alias `cluey`).
 - **R1** — A won round earns a wrap-up round, bank of three — merged 2026-08-20 ([PR #67](https://github.com/KristofferWithK/ClueCabulary/pull/67), squash 69844df). Measured: the collected-words gate binds first, so the win gate is phase-shifted rather than idle.
 
 ### Found along the way, not yet carded
-- **`make-audio.mjs --voice` does nothing.** Six different Danish voice names
-  (Neural2-D/F, Wavenet-A/C/D/E) produce byte-identical MP3s. The flag parses
-  (line 272) and reaches the request body (line 132), so the loss is between
-  those two points or Google is falling back silently on a name it does not
-  recognise. **This blocks auditioning any voice but the default**, which is
-  the one thing the owner asked to compare. Reproduce:
-  `node scripts/make-audio.mjs --only da:roed --voice da-DK-Wavenet-C --force`
-  then hash the file against the Neural2-F one.
+- ~~**`make-audio.mjs --voice` does nothing.**~~ **Wrong, and measured wrong
+  on 2026-08-20** once a TTS key existed — see the audition below. The flag
+  works: all 35 voices Google serves for da-DK produce distinct audio. What
+  the finding actually caught is a Google behaviour worth keeping in mind,
+  now recorded in DECISIONS.md.
 - **README's Setup section is stale** — it still tells the player to paste a
   Gemini key, but settings v7 cleared keys and the app talks to the proxy.
   A3 left it deliberately (out of card). **G1 owns it** — the quota work is
-  the same subject.
+  the same subject. *(Done — G1's rewrite shipped; the one survivor is the
+  backup paragraph still promising a file that "never contains your API key",
+  which is now a sentence about a field nobody has.)*
+- **A retired voice name is served, not refused, and can silently be another
+  voice.** `da-DK-Neural2-D` returns 200 and is byte-identical to
+  `da-DK-Neural2-F`; `Wavenet-A` and `Wavenet-D` are byte-identical to
+  `Wavenet-F`. Only a name that does not fit Google's pattern is refused
+  (`da-DK-NotAVoice-Z` → 400 "does not exist. Is it misspelled?"). So a
+  mistyped `TTS_VOICE` can bake all 900 words in the wrong voice and report
+  "900 made, 0 failed". **Worth a guard in `make-audio.mjs`**: validate
+  `--voice` against `voices:list` before spending a bake.
+- **Synthesis is not reproducible, and Chirp3-HD least of all.** Two
+  byte-identical runs of the audition rewrote 84 of 105 clips — 77 of 90
+  Chirp3-HD, 7 of 15 legacy — always at identical file size, so it is
+  encoding noise rather than a different reading. Neural2-F happened to be
+  stable across all three runs, which is why the shipping clips reproduce
+  exactly. It costs nothing today (the manifest skips on
+  provider+voice+locale+text, never on content, and `deploy.yml` bakes only
+  missing words) but it means **any `--force` re-bake is a ~7 MB binary diff
+  even when nothing changed** — worth knowing before picking a Chirp3 voice,
+  given the clips live in the repo.
 - A test file under `src/` cannot name `process`: `tsc -b` rejects it while
   vitest runs it happily. `envVar` helper added; noted in CLAUDE.md.
 

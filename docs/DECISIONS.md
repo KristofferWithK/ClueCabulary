@@ -46,6 +46,42 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · The voice flag was never broken, and there are 30 voices nobody knew about
+You added `TTS_API_KEY`, which made the one carded blocker testable, and it
+did not survive testing. `.github/workflows/audition-voices.yml` asks Google
+what it serves, bakes three words in every voice and fingerprints them; it
+runs on a push that touches the file, because dispatch-by-name only sees
+workflows indexed off the default branch.
+
+**`--voice` works.** All **35** da-DK voices produce distinct audio, and a
+fresh `Neural2-F` bake came back byte-identical to the shipping clips. The
+list frozen in `make-audio.mjs` is four names; Google now serves **30
+Chirp3-HD voices** (16 female, 14 male, 24 kHz) that did not exist when that
+list was written. Clips for all 35 are on this branch under `audition/da/`
+(924 KB) with `voices.json` beside them.
+
+**Why the finding looked true.** Five of the six names it tried are not
+served for da-DK at all — and Google answers them **200 with audio** instead
+of refusing. Worse, they can be *another voice*: `Neural2-D` is byte-identical
+to `Neural2-F`, and `Wavenet-A`/`Wavenet-D` to `Wavenet-F`. Only a name
+outside Google's pattern is refused. So the original comparison saw identical
+bytes and drew the reasonable conclusion. **The live risk this leaves** is a
+mistyped `TTS_VOICE` baking 900 words in the wrong voice under "900 made, 0
+failed" — the guard is one `voices:list` call before the bake, carded in
+PLAN.md, deliberately not written tonight because it changes the bake path.
+
+**Also measured, and it decides the Chirp3 question:** synthesis is not
+reproducible. Two identical runs rewrote 84 of 105 clips, 77 of them
+Chirp3-HD, always at identical file size — encoding noise, not a different
+reading. Nothing breaks today, but with the clips committed, a `--force`
+re-bake is a ~7 MB binary diff that says nothing. Neural2-F was stable across
+all three runs; Chirp3 was not.
+
+**Nothing shipped.** No voice changed, `public/audio/` is untouched, the app
+sounds exactly as it did. **Reverse:** delete `audition/` and the workflow —
+both exist only on this branch, and the clips are the reason to keep them
+until you have listened.
+
 ### 2026-08-20 · A bug shipped and was fixed an hour later — worth knowing how it hid
 C2's Home rework introduced an overlap that only appears when a city is fully
 wrapped: the travel button costs ~61px, Casey's band could not give it up, and
