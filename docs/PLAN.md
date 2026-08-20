@@ -43,11 +43,12 @@ model alias `cluey`).
 
 ### Blocked
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
-- **F2** — Post-round sentences v1 + hear-the-board — READY
+
 - **G2** — Store readiness + release *(needs everything above except C3; submission is held for the owner)*
 
 ### In progress
 - **C2** — Home rework — agent running (dispatched 2026-08-20)
+- **F2** — Post-round sentences + hear-the-board — agent running (dispatched 2026-08-20)
 - **E1** — Suitcase interior redesign — agent running (dispatched 2026-08-20)
 
 ### Done

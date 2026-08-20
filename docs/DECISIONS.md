@@ -46,6 +46,28 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · Audio is built but has never spoken — F1
+There is no TTS key in this session and I did not obtain one, so the bake
+pipeline was proven against a local stub instead: 900 words in 27 seconds with
+the right auth header, endpoint and voice on every request, resumable, and a
+voice change re-bakes rather than skips. **No audio exists in the repo**, and
+the app behaves exactly as it does today (device voice, or silence where the
+phone has no Danish one) until you run it.
+**To make it real:** enable Cloud Text-to-Speech in a Google Cloud project with
+billing on (the bake is inside the free allowance, but the API will not serve
+without billing enabled), make a restricted API key, then
+`node scripts/make-audio.mjs` with `TTS_API_KEY` set — about two minutes. Then
+listen to `hus.mp3`, `koebe.mp3`, `roed.mp3` before trusting the voice.
+`--provider azure` and `--provider elevenlabs` are there if the Google voice
+grates.
+**Reverse:** delete `public/audio/` — it is gitignored, and the app falls back.
+
+### 2026-08-20 · Card reveals stay silent, against the card's own list
+F1's card asked for sound on card reveals. It was left out: that is sound the
+player did not ask for, and a phone that speaks Danish on a quiet train is a
+phone that gets closed. Every sound in the app now follows a tap.
+**Reverse:** say so and it is a small addition — but play it on a train first.
+
 ### 2026-08-20 · The proxy's daily caps: 1000 per install, 25,000 for everyone — G1
 Numbers chosen from the real board arithmetic (worst imaginable round is 60
 requests, ordinary is 7–12), so a thousand is fifteen full rounds with every
