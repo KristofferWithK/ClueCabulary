@@ -39,17 +39,16 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-*(empty — C2 and E1 unblock when D1 lands)*
+*(empty — F2 unblocks when F1 lands; D3/G2 wait for the owner)*
 
 ### Blocked
-- **C2** — Home rework: nudge bug, Casey hero, one-line progress, scribbled map *(needs D1 — same screens)*
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
-- **E1** — Suitcase interior redesign *(needs D1)*
 - **F2** — Post-round sentences v1 + hear-the-board *(needs F1)*
 - **G2** — Store readiness + release *(needs everything above except C3; submission is held for the owner)*
 
 ### In progress
-- **D1** — Rebrand copy: 900Words + Casey + English chrome — agent running (dispatched 2026-08-20)
+- **C2** — Home rework — agent running (dispatched 2026-08-20)
+- **E1** — Suitcase interior redesign — agent running (dispatched 2026-08-20)
 - **F1** — Baked TTS pipeline + playWord + wiring — agent running (dispatched 2026-08-20)
 
 ### Done
@@ -58,6 +57,7 @@ model alias `cluey`).
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
 - **B1** — Round summary replaces the debrief; the debrief call is gone — merged 2026-08-20 ([PR #65](https://github.com/KristofferWithK/ClueCabulary/pull/65), squash 6a80497). Found layout-drive's end-screen section vacuous since it was written.
 - **A3** — Boards re-measured; standard 8 → 7 tokens; README + CLAUDE.md rewritten — merged 2026-08-20 ([PR #66](https://github.com/KristofferWithK/ClueCabulary/pull/66), squash 151b812). See DECISIONS.md — the token change alters game feel.
+- **D1** — 900Words and Casey everywhere a player reads; chrome in English — merged 2026-08-20 ([PR #71](https://github.com/KristofferWithK/ClueCabulary/pull/71), squash c9f1315). Storage keys and CSS classes proven unmoved.
 - **D2** — Dataset trimmed to 900, Viborg off the route, journey migrated — merged 2026-08-20 ([PR #69](https://github.com/KristofferWithK/ClueCabulary/pull/69), squash a17588c)
 - **G1** — Proxy daily caps in KV, friendly 429, README setup rewritten — merged 2026-08-20 ([PR #70](https://github.com/KristofferWithK/ClueCabulary/pull/70), squash 8047731)
 - **C1** — Board rect identical in every phase; 200px of drift to zero — merged 2026-08-20 ([PR #68](https://github.com/KristofferWithK/ClueCabulary/pull/68), squash a92f7c8). Found the preview-server race — see DECISIONS.md.
