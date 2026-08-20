@@ -1,7 +1,7 @@
-# 900Words — Production Kanban
+# 900words — Production Kanban
 
 This board replaces the original build plan (M0–M8, fully shipped — see git
-history). It is the working plan for reshaping ClueCabulary into **900Words**
+history). It is the working plan for reshaping ClueCabulary into **900words**
 and launching it on the App Store. Sessions pick up cards from it; the board
 sections below are the live status.
 
@@ -20,7 +20,7 @@ model alias `cluey`).
 | Dataset | **9 cities × 100 = 900.** Drop frequency ranks 901–1000 and one route stop (default Viborg — confirm on pickup). |
 | Mascot | **Casey the suitcase.** User-facing copy only; code identifiers, CSS classes (`cluey-*`), storage keys unchanged (the `klausVerifiedAt` precedent). |
 | Launch scope | **Free v1**, Danish only, **baked neural TTS launch-blocking**. German, semantic layer, IAP = fast-follows. |
-| App identity | `appId com.kristofferwithk.cluecabulary` **stays**. Display name becomes "900Words". |
+| App identity | `appId com.kristofferwithk.cluecabulary` **stays**. Display name becomes "900words". |
 
 ## How to work this board
 
@@ -39,18 +39,21 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-*(empty — F2 unblocks when F1 lands; D3/G2 wait for the owner)*
+*(empty — what remains waits on the owner: D3, G2's submission half, and the voice)*
 
 ### Blocked
+- **V1** — Choose the Danish voice, re-bake the 900, commit *(held for the owner's EARS: the audition delivered all 35 voices Google serves reading four dataset sentences — clips under `audition/` on the session branch. Name the voice and the re-bake is one command and one commit; the voices:list guard now refuses a name Google does not serve, so a typo cannot bake 900 wrong words. Neural2-F ships today, so doing nothing is also a choice.)*
+
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
 
-- **G2** — Store readiness + release *(needs everything above except C3; submission is held for the owner)*
+- **G2** — Store readiness + release *(paperwork half done 2026-08-20 on the session branch: privacy policy page in `public/`, listing copy + questionnaire in `docs/store/`. Screenshots and the submission remain, and the submission is held for the owner)*
 
 ### In progress
-- **H1** — Language-pack seam — agent running (dispatched 2026-08-20)
-- **H7** — Cascade tier on the proxy — agent running (dispatched 2026-08-20)
+- **H5** — Sentence stories written to a coverage target — implemented 2026-08-20 on branch `claude/plan-decisions-overview-l4bpxi` (verify green there), awaiting merge
 
 ### Done
+- **H7** — Cascade tier: escalation rides the corrective retry — merged 2026-08-20 ([PR #76](https://github.com/KristofferWithK/ClueCabulary/pull/76), squash 2f2a0d8). Zero extra round trips; shipped alias table carries no cascade, byte-for-byte today's behaviour.
+- **H1** — Language-pack seam; Danish runs on it — merged 2026-08-20 ([PR #77](https://github.com/KristofferWithK/ClueCabulary/pull/77), squash 6bee696). H2 adds one registry line and the picker appears by itself.
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
 - **C3** — Keyboard ride behind cluecab-kbfast, ships off — merged 2026-08-19 ([PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63)); awaiting the owner's on-device slo-mo A/B before flipping the default
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
@@ -60,7 +63,7 @@ model alias `cluey`).
 - **E1** — One open hand-drawn suitcase, city as a filter — merged ([PR #74](https://github.com/KristofferWithK/ClueCabulary/pull/74), 45a44ed)
 - **F2** — Post-round sentences + hear-the-board — merged ([PR #75](https://github.com/KristofferWithK/ClueCabulary/pull/75), aaca1ed). Its coverage measurement is the case for H5 — see DECISIONS.md.
 - **F1** — playWord with baked-clip pipeline (unrun, no key) and device-voice fallback — merged 2026-08-20 ([PR #72](https://github.com/KristofferWithK/ClueCabulary/pull/72), squash fa68f97)
-- **D1** — 900Words and Casey everywhere a player reads; chrome in English — merged 2026-08-20 ([PR #71](https://github.com/KristofferWithK/ClueCabulary/pull/71), squash c9f1315). Storage keys and CSS classes proven unmoved.
+- **D1** — 900words and Casey everywhere a player reads; chrome in English — merged 2026-08-20 ([PR #71](https://github.com/KristofferWithK/ClueCabulary/pull/71), squash c9f1315). Storage keys and CSS classes proven unmoved.
 - **D2** — Dataset trimmed to 900, Viborg off the route, journey migrated — merged 2026-08-20 ([PR #69](https://github.com/KristofferWithK/ClueCabulary/pull/69), squash a17588c)
 - **G1** — Proxy daily caps in KV, friendly 429, README setup rewritten — merged 2026-08-20 ([PR #70](https://github.com/KristofferWithK/ClueCabulary/pull/70), squash 8047731)
 - **C1** — Board rect identical in every phase; 200px of drift to zero — merged 2026-08-20 ([PR #68](https://github.com/KristofferWithK/ClueCabulary/pull/68), squash a92f7c8). Found the preview-server race — see DECISIONS.md.
@@ -84,8 +87,10 @@ model alias `cluey`).
   `Wavenet-F`. Only a name that does not fit Google's pattern is refused
   (`da-DK-NotAVoice-Z` → 400 "does not exist. Is it misspelled?"). So a
   mistyped `TTS_VOICE` can bake all 900 words in the wrong voice and report
-  "900 made, 0 failed". **Worth a guard in `make-audio.mjs`**: validate
-  `--voice` against `voices:list` before spending a bake.
+  "900 made, 0 failed". *(Guarded 2026-08-20 on the session branch:
+  `make-audio.mjs` now checks `--voice` against `voices:list` before spending
+  a bake and refuses with the live list; a failed listing warns and
+  continues, so stub and offline runs still work.)*
 - **Synthesis is not reproducible, and Chirp3-HD least of all.** Two
   byte-identical runs of the audition rewrote 84 of 105 clips — 77 of 90
   Chirp3-HD, 7 of 15 legacy — always at identical file size, so it is
@@ -99,14 +104,11 @@ model alias `cluey`).
 - A test file under `src/` cannot name `process`: `tsc -b` rejects it while
   vitest runs it happily. `envVar` helper added; noted in CLAUDE.md.
 
-### Fast-follows (post-launch backlog, in order)
-- **H1** — Language-pack seam (i18n architecture)
-- **H2** — German content: 900 words, Germany route, German audio *(needs H1)*
-- **H3** — Semantic local layer (build-time similarity tables → good offline companion)
+### Fast-follows (post-launch backlog, in order — H1/H7 done, H5 in progress above)
+- **H2** — German content: 900 words, Germany route, German audio *(seam is live; content not started — the owner verifies natively)*
+- **H3** — Semantic local layer (build-time similarity tables → good offline companion; needs an embedding key)
 - **H4** — 900 Pass IAP (StoreKit, first 2 cities free)
-- **H5** — LLM sentence stories + function-word coverage tracking
 - **H6** — Voice-recognition wrap-up unlock (prototype first)
-- **H7** — Cascade tier on the proxy (cheap model + flagship escalation)
 - **H8** — City postcards: wins uncover a souvenir of the city, kept in the suitcase lid *(the v1 reward is R1; this is the content update that follows, and the reason to re-shoot the store listing)*
 
 ---
@@ -277,11 +279,11 @@ rules pinned by tests, one checked to fail without the fix.
   or the card is closed as "current behaviour kept" with the measurement
   attached. This area has eaten builds; no confident edits.
 
-### D1 — Rebrand copy: 900Words + Casey + English chrome
+### D1 — Rebrand copy: 900words + Casey + English chrome
 **Size:** 1 session. **Deps:** A3.
 - Names: `capacitor.config.ts appName`, `index.html` title, PWA manifest
   (`vite.config.ts`), Home `h1`, HowToPlay, README title. `appId` unchanged.
-  **Check "900Words" availability in App Store Connect first** (names are
+  **Check "900words" availability in App Store Connect first** (names are
   unique storewide).
 - Casey copy pass: all user-facing strings, `cluey-tips.ts`, the persona in
   `prompts.ts`, aria-labels. Code identifiers/CSS/storage keys stay `cluey-*`.
@@ -313,7 +315,7 @@ rules pinned by tests, one checked to fail without the fix.
 - Rename repo → `900words`; update `vite.config.ts base`, README links, any
   workflow that names the repo. Old Pages URL + installed PWAs break —
   acceptable now (testers only), never cheaper than today.
-- Set the App Store Connect display name to "900Words".
+- Set the App Store Connect display name to "900words".
 - **Accept:** Pages deploy green at the new URL; TestFlight build shows the new
   name.
 

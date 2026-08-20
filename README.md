@@ -241,7 +241,9 @@ was always the half that taught, and it is untouched.
 It lives in this phone's localStorage and nowhere else, so **Settings → Your
 collection** writes it to a single JSON file. Restoring offers a merge that
 keeps the better record for every word — it can never turn a green word grey —
-or a wholesale replace. The file never contains your API key.
+or a wholesale replace. The file is your learning record and nothing else —
+there has been no API key anywhere in the app to worry about since settings
+v7 retired them.
 
 ## Setup
 
