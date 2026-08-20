@@ -19,6 +19,13 @@ import { setTimeout as sleep } from 'node:timers/promises'
 const PORT = 4189
 // 4190 is skipped on purpose: it is on the fetch spec's blocked-port list
 // (ManageSieve), so both Chromium and Node refuse to connect to it.
+//
+// DRIVE_PORT_OFFSET moves every one of these, the way preview-server.mjs
+// already moves its own. Without it two checkouts running drives at the same
+// time fight over these ports, and the loser looks like a broken proxy — the
+// same trap C1 found in the preview server, one layer down.
+const OFFSET = Number(process.env.DRIVE_PORT_OFFSET ?? 0)
+const port = (n) => n + OFFSET
 const FAKE_PORT = 4191
 const WORKER_PORT = 4192
 const LOCKED_PORT = 4193
@@ -26,8 +33,23 @@ const WRONG_ORIGIN_PORT = 4194
 const CAPPED_PORT = 4195
 const NO_KV_PORT = 4196
 const CEILING_PORT = 4197
+const CASCADE_PORT = 4198
+const CASCADE_CAP_PORT = 4199
 const KEY = 'player-secret-key'
 const WORKER_SECRET = 'secret-that-lives-on-the-worker'
+
+/**
+ * The cascade H7 configures: the app asks for "cluey" and never learns which
+ * of these answered. Named so an assertion reads as the thing it is checking.
+ */
+const CHEAP = 'cheap-tier:8b'
+const FLAGSHIP = 'flagship-tier:400b'
+const CASCADE_ALIASES = JSON.stringify({
+  cluey: { model: CHEAP, escalate: 'cluey-hard' },
+  'cluey-hard': { model: FLAGSHIP },
+})
+/** Which model each upstream call really asked for, in order. */
+const modelsSeen = (f) => f.received.map((r) => JSON.parse(r.raw || '{}').model)
 /** The install id this drive pretends the phone minted, so the quota it spends
  *  by hand is the same bucket the browser's own requests land in. */
 const PHONE_ID = 'drive-phone-install'
@@ -41,8 +63,8 @@ const check = (name, ok, detail = '') => {
 const preview = await startPreview(PORT)
 // preview.base carries the app's base path; an Origin never does.
 const PAGE_ORIGIN = new URL(preview.base).origin
-const fake = await startFakeOllama(FAKE_PORT, { auto: true, cors: false })
-const worker = await startWorker(WORKER_PORT, { upstream: fake.baseUrl })
+const fake = await startFakeOllama(port(FAKE_PORT), { auto: true, cors: false })
+const worker = await startWorker(port(WORKER_PORT), { upstream: fake.baseUrl })
 
 if (!worker) {
   console.log('PROXY DRIVE SKIPPED — miniflare is not installed (npm i)')
@@ -58,11 +80,11 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
 const page = await ctx.newPage()
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
-const settingsFor = (baseUrl, apiKey = KEY) => ({
+const settingsFor = (baseUrl, apiKey = KEY, model = 'fake-model') => ({
   state: {
     apiKey,
     baseUrl,
-    model: 'fake-model',
+    model,
     gridSize: 'beginner',
     clueLanguage: 'en',
     studyPhase: 'never',
@@ -78,7 +100,7 @@ const settingsFor = (baseUrl, apiKey = KEY) => ({
 })
 
 /** Point the app at a base URL and land it on Home with nothing verified. */
-async function useBaseUrl(baseUrl, apiKey = KEY) {
+async function useBaseUrl(baseUrl, apiKey = KEY, model = 'fake-model') {
   await page.goto(`${preview.base}?howto=0`)
   await page.evaluate(
     ({ value, installId }) => {
@@ -90,7 +112,7 @@ async function useBaseUrl(baseUrl, apiKey = KEY) {
       // count one phone at all across reloads.
       localStorage.setItem('cluecab-install-id', installId)
     },
-    { value: settingsFor(baseUrl, apiKey), installId: PHONE_ID },
+    { value: settingsFor(baseUrl, apiKey, model), installId: PHONE_ID },
   )
   await page.goto(`${preview.base}?howto=0`)
   await page.waitForSelector('.city-card')
@@ -205,6 +227,29 @@ try {
     /x-install-id/i.test(pre.headers.get('access-control-allow-headers') ?? ''),
     pre.headers.get('access-control-allow-headers') ?? 'none',
   )
+  // The cascade's most important case, on the worker that has none configured
+  // — which is the one deployed today. The app sends ?tier=escalate on every
+  // corrective retry whether a cascade exists or not, so an unconfigured worker
+  // has to treat it as the noise it is: same model, same URL, nothing new.
+  fake.reset()
+  const unconfigured = await fetch(`${worker.base}/v1/chat/completions?tier=escalate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${KEY}` },
+    body: JSON.stringify({ model: 'gpt-oss:120b', messages: [{ role: 'user', content: 'hi' }] }),
+  })
+  check(
+    'with no cascade configured, asking for one changes nothing',
+    unconfigured.status === 200 &&
+      fake.received.length === 1 &&
+      modelsSeen(fake)[0] === 'gpt-oss:120b',
+    `HTTP ${unconfigured.status}, upstream asked for ${modelsSeen(fake)[0]}`,
+  )
+  check(
+    'and the marker is this worker’s own word, never forwarded',
+    worker.upstreamCalls.at(-1)?.url === 'https://ollama.com/v1/chat/completions',
+    worker.upstreamCalls.at(-1)?.url ?? 'no upstream call',
+  )
+
   const bad = await fetch(`${worker.base}/v1/chat/completions`, { method: 'DELETE' })
   check(
     'an unsupported method is refused but still readable by the browser',
@@ -226,7 +271,7 @@ try {
   // The worker holds the key as a Cloudflare secret, so Settings is empty and
   // nothing that reaches the browser contains it.
   await worker.stop()
-  const keyed = await startWorker(WORKER_PORT, { upstream: fake.baseUrl, apiKey: WORKER_SECRET })
+  const keyed = await startWorker(port(WORKER_PORT), { upstream: fake.baseUrl, apiKey: WORKER_SECRET })
   fake.reset()
   await useBaseUrl(`${keyed.base}/v1`, '')
   const keyless = await testConnection()
@@ -253,14 +298,14 @@ try {
   // it. It has to still let the player in, and it has to actually shut others
   // out — otherwise it is decoration. (The open worker was already disposed
   // above; disposing it twice takes the whole drive down.)
-  const locked = await startWorker(LOCKED_PORT, { upstream: fake.baseUrl, allowedOrigin: PAGE_ORIGIN })
+  const locked = await startWorker(port(LOCKED_PORT), { upstream: fake.baseUrl, allowedOrigin: PAGE_ORIGIN })
   fake.reset()
   await useBaseUrl(`${locked.base}/v1`)
   const lockedRes = await testConnection()
   check('locking ALLOWED_ORIGIN to your own origin still works', lockedRes.ok, lockedRes.message)
   await locked.stop()
 
-  const wrong = await startWorker(WRONG_ORIGIN_PORT, {
+  const wrong = await startWorker(port(WRONG_ORIGIN_PORT), {
     upstream: fake.baseUrl,
     allowedOrigin: 'https://someone-else.example',
   })
@@ -361,7 +406,7 @@ try {
   // Two requests, then the wall. Small on purpose — the shipped numbers are
   // 1000 and 25000, and a drive that had to make a thousand calls to see the
   // cap would be testing patience rather than the cap.
-  const capped = await startWorker(CAPPED_PORT, {
+  const capped = await startWorker(port(CAPPED_PORT), {
     upstream: fake.baseUrl,
     apiKey: WORKER_SECRET,
     kv: true,
@@ -458,7 +503,7 @@ try {
   // because of that is a far worse outcome than one that does not count, so the
   // worker checks for the binding and carries on without it. Same caps, same
   // requests, no KV.
-  const noKv = await startWorker(NO_KV_PORT, {
+  const noKv = await startWorker(port(NO_KV_PORT), {
     upstream: fake.baseUrl,
     apiKey: WORKER_SECRET,
     kv: false,
@@ -485,7 +530,7 @@ try {
   // with a cleverer id — it is why there is a second counter with nothing in
   // the request selecting it. This is the honest version of the claim: the
   // forger gets through the first cap and is stopped by the second.
-  const ceiling = await startWorker(CEILING_PORT, {
+  const ceiling = await startWorker(port(CEILING_PORT), {
     upstream: fake.baseUrl,
     apiKey: WORKER_SECRET,
     kv: true,
@@ -516,6 +561,186 @@ try {
     ceilingBody.slice(0, 120),
   )
   await ceiling.stop()
+
+  // ---- the cascade: a cheap model answers, a flagship answers again ----------
+  // H7. Two triggers, in two places, because only one of them can be checked
+  // from here. The worker escalates on a cheap tier that did not answer at all,
+  // which it can verify because it made the call. The APP escalates on an
+  // answer its own validator refused — the board and the key are what that
+  // takes, and the worker has neither. Both routes are exercised below, the
+  // second one through a real round in a real browser.
+  const cascade = await startWorker(port(CASCADE_PORT), {
+    upstream: fake.baseUrl,
+    apiKey: WORKER_SECRET,
+    vars: { MODEL_ALIASES: CASCADE_ALIASES },
+  })
+  /** One request as the app makes it: an alias, and no key of its own. */
+  const askCluey = (base, { tier, id = PHONE_ID } = {}) =>
+    fetch(`${base}/v1/chat/completions${tier ? `?tier=${tier}` : ''}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Install-Id': id },
+      body: JSON.stringify({ model: 'cluey', messages: [{ role: 'user', content: 'hi' }] }),
+    })
+
+  fake.reset()
+  const cheapest = await askCluey(cascade.base)
+  check(
+    'an ordinary request is answered by the cheap tier — the whole point',
+    cheapest.status === 200 && modelsSeen(fake).join() === CHEAP,
+    modelsSeen(fake).join(' → ') || 'no upstream call',
+  )
+
+  fake.reset()
+  fake.queue({ status: 503 })
+  const rescued = await askCluey(cascade.base)
+  check(
+    'a cheap tier that 503s is escalated, and the app never sees the failure',
+    rescued.status === 200 && modelsSeen(fake).join(' → ') === `${CHEAP} → ${FLAGSHIP}`,
+    `HTTP ${rescued.status}: ${modelsSeen(fake).join(' → ')}`,
+  )
+
+  fake.reset()
+  fake.queue({ status: 503 }, { status: 503 })
+  const bothDown = await askCluey(cascade.base)
+  check(
+    'and when the flagship is down too, the failure comes back readable',
+    bothDown.status === 503 && bothDown.headers.get('access-control-allow-origin') !== null,
+    `HTTP ${bothDown.status}`,
+  )
+  check(
+    'having asked exactly twice — one hop, never a chain',
+    fake.received.length === 2,
+    `${fake.received.length} upstream calls`,
+  )
+
+  fake.reset()
+  fake.queue({ status: 404 })
+  const retired = await askCluey(cascade.base)
+  check(
+    'a 404 is NOT escalated past — a wrong model id must not become a flagship bill',
+    retired.status === 404 && fake.received.length === 1,
+    `HTTP ${retired.status}, ${fake.received.length} upstream calls`,
+  )
+
+  // Already on the top tier: there is nowhere further to go, and a request that
+  // could escalate itself again would be a loop with a bill attached.
+  fake.reset()
+  fake.queue({ status: 503 })
+  const top = await askCluey(cascade.base, { tier: 'escalate' })
+  check(
+    'a request already on the flagship does not escalate again',
+    top.status === 503 && modelsSeen(fake).join() === FLAGSHIP,
+    `HTTP ${top.status}: ${modelsSeen(fake).join(' → ')}`,
+  )
+
+  // ---- G1's caps, with a cascade in front of them ----------------------------
+  // The cap counts requests from the app, and it must go on doing exactly that.
+  // The one honest consequence is measured rather than asserted: a request the
+  // WORKER escalates makes two upstream calls against one count. The bill is
+  // unchanged, because the call it replaced was a 503 and a 503 is not a
+  // generation — which is why a slow-but-working answer is not a trigger.
+  const cascadeCapped = await startWorker(port(CASCADE_CAP_PORT), {
+    upstream: fake.baseUrl,
+    apiKey: WORKER_SECRET,
+    kv: true,
+    vars: { MODEL_ALIASES: CASCADE_ALIASES, DAILY_CAP: 2, GLOBAL_DAILY_CAP: 0 },
+  })
+  fake.reset()
+  fake.queue({ status: 503 })
+  const firstCapped = await askCluey(cascadeCapped.base)
+  const secondCapped = await askCluey(cascadeCapped.base)
+  const thirdCapped = await askCluey(cascadeCapped.base)
+  check(
+    'the cap still fires after two requests, cascade or no cascade',
+    firstCapped.status === 200 && secondCapped.status === 200 && thirdCapped.status === 429,
+    [firstCapped, secondCapped, thirdCapped].map((r) => r.status).join(', '),
+  )
+  check(
+    'the refused one reached neither tier',
+    fake.received.length === 3,
+    `${fake.received.length} upstream calls — ${modelsSeen(fake).join(' → ')}`,
+  )
+  check(
+    'and it is still the cap talking, with the code the app knows',
+    (await thirdCapped.text()).includes('cluecabulary_daily_cap'),
+  )
+  await cascadeCapped.stop()
+
+  // ---- the trigger that needs the board: a real round, in a real browser -----
+  // The first reply is not JSON at all, so the app's own validator refuses it
+  // and retries — and THAT retry is the escalation. It costs no extra round
+  // trip, because it was going to happen anyway, which is the whole reason this
+  // half of the cascade lives in the app.
+  fake.reset()
+  fake.queue({ body: 'Hmm, let me think about this one out loud instead.' })
+  await useBaseUrl(`${cascade.base}/v1`, '', 'cluey')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await page.goto(`${preview.base}?howto=0&seed=5&grid=beginner`)
+  await page.waitForSelector('.city-card')
+  await page.locator('.home-play').click()
+  await page.waitForSelector('.board-grid')
+  const studyCascade = page.locator('.study-dock .btn-primary')
+  if (await studyCascade.isVisible().catch(() => false)) await studyCascade.click()
+  await page.fill('.clue-input input', 'huskeliste')
+  await page.click('.clue-input .btn-primary')
+  await page.waitForSelector('.ai-guess-line, .guess-bar', { timeout: 40000 })
+  // Judged the moment the turn lands, because what happens AFTER it is not
+  // this section's subject: fake-ollama's auto-reply cannot answer a clue
+  // prompt at all — its board regex predates the "** YOU MAY TARGET THIS **"
+  // marker A2 added, so every row fails to match and it replies with null. The
+  // guessing turn is what the escalation rescued, and it is what is measured.
+  const bannerNow = await page.locator('.error-banner').count()
+  const guessed = await page.locator('.ai-guess-line').count()
+  // Then wait on the WIRE rather than on a selector, for a SECOND logical call:
+  // that is what makes "not sticky" a measurement rather than an assumption.
+  for (let i = 0; i < 80 && fake.received.length < 3; i++) await sleep(250)
+  const seen = modelsSeen(fake)
+  const phase = await page.locator('.phase-caption').first().textContent().catch(() => '?')
+  check(
+    'a refused answer does not cost the player the turn — Casey guessed anyway',
+    bannerNow === 0 && guessed > 0,
+    `${bannerNow} error banners, ${guessed} guess lines`,
+  )
+  check(
+    'the first attempt went to the cheap tier',
+    seen[0] === CHEAP,
+    seen.join(' → ') || 'no upstream call',
+  )
+  check(
+    'the corrective retry the app was making anyway went to the flagship',
+    seen[1] === FLAGSHIP,
+    seen.join(' → '),
+  )
+  check(
+    'and the next call starts over cheap — escalation is per attempt, not per round',
+    seen[2] === CHEAP,
+    `${seen.slice(0, 3).join(' → ')} (phase: ${phase})`,
+  )
+
+  // The number the cost arithmetic in proxy/wrangler.toml is written against,
+  // measured off the bytes that actually left the browser rather than guessed.
+  // If this moves a long way, that arithmetic wants re-reading.
+  const promptBytes = Math.max(...fake.received.map((r) => r.raw.length))
+  check(
+    `the biggest prompt a round sends is about ${(promptBytes / 1024).toFixed(1)} kB`,
+    promptBytes > 2_000 && promptBytes < 20_000,
+    `${promptBytes} bytes ≈ ${Math.round(promptBytes / 4)} tokens`,
+  )
+  // Both tiers down, seen from the app. The failure has to arrive as something
+  // the app can name — the error banner offers "Play on without Casey", and the
+  // cap section above proves that button really finishes a round offline. A
+  // cascade that turned a 503 into an inscrutable dead end would have taken the
+  // practice companion with it.
+  fake.reset()
+  fake.queue({ status: 503 }, { status: 503 }, { status: 503 }, { status: 503 })
+  await useBaseUrl(`${cascade.base}/v1`, '', 'cluey')
+  const bothInApp = await testConnection()
+  check(
+    'both tiers down still reads as a server error the app can act on',
+    !bothInApp.ok && /server error/i.test(bothInApp.message),
+    bothInApp.message,
+  )
+  await cascade.stop()
 
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nPROXY DRIVE OK')
   if (fail.length) process.exitCode = 1
