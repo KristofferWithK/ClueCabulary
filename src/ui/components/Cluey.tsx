@@ -16,7 +16,7 @@ import { clueyLines, dailyLineIndex } from '../cluey-tips'
 /**
  * What Casey's face is doing. Every one of these is already a local variable at
  * the site that renders him — the AI panel knows it is waiting, the guess line
- * knows how the guess landed, the debrief knows the outcome — so a mood costs a
+ * knows how the guess landed, the round summary knows the outcome — so a mood costs a
  * prop rather than any new state.
  */
 export type ClueyMood = 'idle' | 'thinking' | 'happy' | 'oops'

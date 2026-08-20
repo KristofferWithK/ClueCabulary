@@ -194,8 +194,7 @@ opens.
    back instantly and offline, and anything else is asked of Casey without
    being asked twice. A hit that is already on the board says so, since it is
    the right translation and an illegal clue.
-6. After each round Casey debriefs: what his clues meant and which words
-   deserve another look. The review page also shows **what was said, and why** —
+6. After each round the summary shows **what was said, and why** —
    every clue and every guess with the reasoning behind it, including what Casey
    deliberately steered away from and how sure he was of each guess. Tap ⚑ on
    anything of his that was a bad call: flags are kept (newest 24) and quoted
