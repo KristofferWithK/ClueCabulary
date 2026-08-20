@@ -90,6 +90,9 @@ export function ClueyFace({
   )
 }
 
+/** What the bubble says when the player's own key has never produced a reply. */
+const CONNECT_LINE = 'I have not answered yet — tap here to test the connection →'
+
 /**
  * Casey on Home: the bubble above him speaks — a tip or fun fact, rotating
  * daily, leafing on a tap — and tapping Casey opens the case.
@@ -97,15 +100,22 @@ export function ClueyFace({
  * His eyes follow the pointer while one is over him. On a phone that fires
  * rarely, which is why the idle wander does the work by default and the follow
  * is a bonus rather than the mechanism.
+ *
+ * `needsConnection` is Home's one remaining setup prompt, and it speaks
+ * *through* Casey rather than as a banner above the map — he is the thing that
+ * is not answering, so he is the one who should say so. It keeps the
+ * `setup-nudge` class it had as a banner: the class names the affordance
+ * ("tap this and land in Settings"), not the position, and three drives walk
+ * that path.
  */
-export function Cluey() {
+export function Cluey({ needsConnection = false }: { needsConnection?: boolean } = {}) {
   const goTo = useUi((s) => s.goTo)
   const cityIndex = useJourney((s) => s.cityIndex)
   const lines = clueyLines(cityIndex)
   const [index, setIndex] = useState(() => dailyLineIndex(lines.length))
   const [mood, setMood] = useState<ClueyMood>('idle')
   const svgRef = useRef<HTMLDivElement>(null)
-  const line = lines[index % lines.length]!
+  const line = needsConnection ? CONNECT_LINE : lines[index % lines.length]!
 
   // A tap is a small celebration; it ends on its own so Home settles back to
   // idle rather than grinning permanently.
@@ -151,9 +161,13 @@ export function Cluey() {
   return (
     <div className="cluey-band">
       <button
-        className="cluey-bubble"
-        aria-label={`Casey says: ${line} Tap for another tip.`}
-        onClick={() => setIndex((i) => i + 1)}
+        className={`cluey-bubble${needsConnection ? ' setup-nudge' : ''}`}
+        aria-label={
+          needsConnection
+            ? 'Casey has not answered yet — open Settings and test the connection'
+            : `Casey says: ${line} Tap for another tip.`
+        }
+        onClick={() => (needsConnection ? goTo('settings') : setIndex((i) => i + 1))}
       >
         {line}
       </button>

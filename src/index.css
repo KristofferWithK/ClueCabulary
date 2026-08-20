@@ -231,14 +231,21 @@ select:focus {
   color: var(--green-deep);
 }
 
-.setup-nudge {
-  background: var(--surface);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  text-align: left;
-  line-height: 1.45;
-  font-size: 0.95rem;
+/* `.setup-nudge` used to be a banner of its own at the top of Home, above the
+   map. It is a modifier on Casey's speech bubble now — see the block at
+   ".cluey-bubble" — because the prompt it carries is Casey saying he has not
+   answered, and there is no reason for that to be a second widget. The class
+   name stayed put: it names the affordance three drives walk (tap this, land
+   in Settings, test the connection), and it should not have to move house
+   every time the prompt does. */
+.cluey-bubble.setup-nudge {
+  background: var(--beige);
+  border-color: var(--text);
+  font-weight: 600;
+}
+
+.cluey-bubble.setup-nudge::after {
+  background: var(--beige);
 }
 
 .grid-picker {
@@ -3463,28 +3470,77 @@ body:has(.kb-up) {
   font-weight: 700;
 }
 
+/* The progress band: one line, and it cannot become two.
+ *
+ * Every child is nowrap, so there is no wrap opportunity anywhere in the row.
+ * The bar is the only thing that flexes, and the city name is the only thing
+ * allowed to shrink — so as the numbers grow (100 wrapped · 100 collected is
+ * the widest they ever get) the bar gives way first and the name ellipsises
+ * second. Nothing can push the row wider than the card, which is C1's rule for
+ * the board applied to Home: the layout must not move because a number got
+ * longer. */
 .home-progress-band {
-  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+}
+
+.home-progress-band .city-eyebrow {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
 }
 
 .home-progress-band .collect-bar {
-  margin-top: 2px;
+  flex: 1 1 auto;
+  min-width: 34px;
+  margin-top: 0;
+  height: 7px;
 }
 
-/* Casey's band: the bubble speaks above him, he sits centred below. */
+.home-progress-band .collect-count {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-progress-band .collect-count strong {
+  font-size: 0.9rem;
+}
+
+/* Casey's band: the bubble speaks above him, he sits centred below, and the
+   band takes every pixel the strips above it did not. */
 .cluey-band {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
   flex: 1;
   justify-content: center;
   min-height: 0;
 }
 
+/* The bubble is a fixed three lines tall whatever it happens to be saying.
+   The tips run from 32 to 78 characters, so letting it size to its content
+   moves Casey up and down by half his own height as the rotation leafs — the
+   same C1 rule again: nothing moves because a string got longer. */
 .cluey-bubble {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   max-width: 300px;
+  min-height: calc(3 * 1.4em + 20px);
   background: var(--surface);
   border: 1px solid var(--text);
   border-radius: 14px;
@@ -3512,7 +3568,7 @@ body:has(.kb-up) {
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: 10px 18px 4px;
+  padding: 4px 18px 0;
   border-radius: var(--radius);
 }
 
@@ -3520,8 +3576,19 @@ body:has(.kb-up) {
   transform: translateY(1px);
 }
 
+/* Casey is the hero of this screen, so he takes the room the four-line count
+   above him used to. Three caps, each binding on a different phone, and all
+   three are needed. 34vh is what holds on a short one (360×640, 375×667): he
+   is 0.8 as tall as he is wide, the band is the only flexible thing on Home,
+   and an oversized Casey is precisely what makes the document scroll — the
+   slack there is about 20px, so do not raise it without re-measuring. 74vw
+   holds on a tall phone, and 290px stops him ballooning on a desktop window
+   where vh is large and .screen is not.
+
+   Measured: 218px wide at 360×640 and 287px at 390×844, against the 150px he
+   was at both. */
 .cluey-svg {
-  width: min(150px, 24vh);
+  width: min(290px, 74vw, 34vh);
   height: auto;
   display: block;
 }

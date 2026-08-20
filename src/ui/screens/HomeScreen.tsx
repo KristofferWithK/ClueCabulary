@@ -1,6 +1,13 @@
 import { WORDS } from '../../data/words'
 import { CITIES, FINAL_CITY_INDEX, WORDS_PER_CITY, cityAt } from '../../journey/cities'
-import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
+import {
+  DENMARK_HATCH,
+  DENMARK_PATH,
+  DENMARK_SKETCH,
+  MAP_HEIGHT,
+  MAP_WIDTH,
+  projectCity,
+} from '../../journey/denmark'
 import {
   canTravel,
   countCollection,
@@ -19,6 +26,14 @@ import { Cluey } from '../components/Cluey'
  * progress) on top, Casey in the middle with something to say, and Play at
  * the bottom between the daily star and the rules. Nothing scrolls; anything
  * deeper lives one tap away — the map, the case, Settings behind the gear.
+ *
+ * Casey is the biggest thing on the screen and that is the point: he is the
+ * app's face and its store screenshot. Everything above him is a strip. The
+ * progress band in particular is *one line that cannot wrap* — the city, a
+ * short bar, and the two numbers that mean something. The four-part count it
+ * replaced took three lines at 360px and pushed him down into a thumbnail; the
+ * rest of the breakdown lives in the suitcase, which is where a breakdown
+ * belongs.
  */
 
 /** Local date key + seed: the same daily board for everyone on that date. */
@@ -54,6 +69,8 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
       aria-label={`Stop ${cityIndex + 1} of ${CITIES.length}: ${cityAt(cityIndex).name}`}
     >
       <path className="map-land" d={DENMARK_PATH} />
+      <path className="map-hatch" d={DENMARK_HATCH} />
+      <path className="map-sketch" d={DENMARK_SKETCH} />
       <polyline className="map-route-ahead" points={ahead} />
       <polyline className="map-route-done" points={done} />
       {points.map((p, i) => (
@@ -101,12 +118,21 @@ export function HomeScreen() {
 
   const daily = dailyChallenge()
   const dailyOutcome = localStorage.getItem(`cluecab-daily:${daily.key}`)
-  // Three states, not two: no key at all, a key that has never been shown to
-  // work, and everything fine. Still suppressed by useMock, deliberately —
-  // someone who ticked "Practice companion" does not need a key, and the
-  // practice note inside the round carries the signal there.
-  const needsSetup = !settings.apiKey && !settings.useMock
-  const unverifiedCluey = !needsSetup && !settings.useMock && settings.klausVerifiedAt === null
+  // There used to be a second banner above this one, shown when `apiKey` was
+  // blank. Settings v7 cleared every stored key and the app talks to the proxy
+  // without one, so "Add your API key in Settings" fired for *every* player,
+  // for a thing none of them needs — it is deleted, not moved.
+  //
+  // What survives is the inverse, and it is the honest one: a player who has
+  // gone to the trouble of entering their own key, and whose key has never
+  // once produced an answer. `klausVerifiedAt` is stamped the moment Casey
+  // replies in ordinary play, so this clears itself on the first round that
+  // works. Testing it without the `apiKey` clause would nag every fresh
+  // profile all over again, since a new install has never heard from Casey
+  // either. useMock suppresses it as before: the practice companion needs
+  // nothing, and the round itself says so.
+  const unverifiedCluey =
+    !settings.useMock && !!settings.apiKey && settings.klausVerifiedAt === null
 
   const play = () => {
     newGame({ seed: pendingSeed ?? undefined })
@@ -127,26 +153,19 @@ export function HomeScreen() {
         </button>
       </header>
 
-      {needsSetup && (
-        <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Add your API key in Settings to wake Casey up →
-        </button>
-      )}
-
-      {unverifiedCluey && (
-        <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Casey has not answered yet — tap Test connection in Settings first →
-        </button>
-      )}
-
       <button className="map-button" onClick={() => goTo('map')} aria-label="Open the map">
         <JourneyMap cityIndex={journey.cityIndex} />
       </button>
 
+      {/* One line, and structurally incapable of becoming two: every part is
+          nowrap, the bar is the only thing that flexes, and the city name
+          ellipsises before anything can overflow. "Stop N of 9" went — the map
+          directly above says where you are, twice, in the label and in its
+          accessible name. The bar keeps the discovered layer, so the number
+          the text no longer prints is still on the screen. */}
       <section className="city-card home-progress-band">
-        <p className="city-eyebrow">
-          Stop {journey.cityIndex + 1} of {CITIES.length} ·{' '}
-          <span lang="da">{city.name}</span>
+        <p className="city-eyebrow" lang="da">
+          {city.name}
         </p>
         <div className="collect-bar" aria-hidden="true">
           <div
@@ -162,13 +181,11 @@ export function HomeScreen() {
         </div>
         <p className="collect-count">
           <strong>{cityCounts.wrapped}</strong> wrapped ·{' '}
-          <span className="dim">{cityCounts.collected} collected</span> ·{' '}
-          <span className="dim">{cityCounts.discovered} discovered</span> ·{' '}
-          <span className="dim">{cityCounts.undiscovered} to find</span>
+          <span className="dim">{cityCounts.collected} collected</span>
         </p>
       </section>
 
-      <Cluey />
+      <Cluey needsConnection={unverifiedCluey} />
 
       {/* The one line of chrome deliberately left in Danish. Everything a
           player must READ to operate the app is English now, but this is not
