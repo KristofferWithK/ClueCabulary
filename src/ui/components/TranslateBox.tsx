@@ -5,7 +5,8 @@ import { articleLabel } from '../../data/gender'
 import { lookupLocal } from '../../data/lookup'
 import { useGame } from '../../stores/gameStore'
 
-import { canSpeak, speakDanish } from '../speak'
+import { useSettings } from '../../stores/settingsStore'
+import { canPlayWords, canSpeak, playWord, speakDanish } from '../speak'
 
 /**
  * A word, either direction, without leaving the round.
@@ -38,6 +39,8 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   // would never compare equal and would spin.
   const boardWords = useGame((s) => s.game?.words)
   const onBoard = useMemo(() => new Set((boardWords ?? []).map((w) => w.wordId)), [boardWords])
+
+  const sound = useSettings((s) => s.sound)
 
   const trimmed = term.trim()
   const local = trimmed ? lookupLocal(trimmed) : []
@@ -87,9 +90,16 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trimmed, local.length])
 
-  const say = (da: string) =>
-    canSpeak() ? (
-      <button className="speak-btn speak-btn-inline" aria-label={`Pronounce ${da}`} onClick={() => speakDanish(da)}>
+  // With a wordId the baked clip plays and the device voice is the fallback;
+  // without one — a word Cluey translated that is outside the 900 — speech is
+  // all there is, which is the reason `speakDanish` did not go away.
+  const say = (da: string, wordId?: string) =>
+    (wordId ? canPlayWords() : canSpeak()) && sound ? (
+      <button
+        className="speak-btn speak-btn-inline"
+        aria-label={`Pronounce ${da}`}
+        onClick={() => (wordId ? void playWord(wordId, da) : speakDanish(da))}
+      >
         🔊
       </button>
     ) : null
@@ -144,7 +154,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
                 {articleLabel(m.entry) ? `${articleLabel(m.entry)} ` : ''}
                 {m.entry.da}
               </span>
-              {say(m.entry.da)} — {m.entry.en.join(', ')}
+              {say(m.entry.da, m.entry.id)} — {m.entry.en.join(', ')}
               {m.approximate && <em className="translate-note"> (from {term.trim()})</em>}
               {/* Looking up "wood" on a board holding træ answers with træ,
                   which is the right translation and an illegal clue. Saying so

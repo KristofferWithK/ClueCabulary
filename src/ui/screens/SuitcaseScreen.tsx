@@ -8,6 +8,7 @@ import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
+import { playWord } from '../speak'
 
 /**
  * Casey, open on the table. Three bands and no scrolling: the words still
@@ -150,7 +151,13 @@ export function SuitcaseScreen() {
         className={`case-tile ${cls}`}
         lang="da"
         aria-label={`${w.da}, ${stateOf(w)}`}
-        onClick={() => openSheet(w.id)}
+        onClick={() => {
+          // The tile says the word and opens its page — the sheet has its own
+          // 🔊 for a second listen, but wanting to hear a word you are looking
+          // at should not cost two taps.
+          void playWord(w.id, w.da)
+          openSheet(w.id)
+        }}
       >
         {w.da}
       </button>

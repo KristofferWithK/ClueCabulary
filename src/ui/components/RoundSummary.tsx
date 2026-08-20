@@ -8,6 +8,7 @@ import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { clueFlagId, guessFlagId, useFeedback } from '../../stores/feedbackStore'
 import { useUi } from '../../stores/uiStore'
+import { SpeakWord } from './SpeakWord'
 
 const CONFETTI_COLORS = ['#6aaa64', '#c9b458', '#567b95', '#121212', '#e3735e']
 
@@ -261,7 +262,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                       <span className="collected-mark" aria-hidden="true">
                         ●
                       </span>
-                      <span lang="da">{w.da}</span>
+                      <SpeakWord wordId={w.wordId} da={w.da} />
                       <span className="collected-en">{w.en[0]}</span>
                     </li>
                   ))}
@@ -295,7 +296,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                     <span className="collected-mark" aria-hidden="true">
                       ●
                     </span>
-                    <span lang="da">{w.da}</span>
+                    <SpeakWord wordId={w.wordId} da={w.da} />
                     <span className="collected-en">{w.en[0]}</span>
                   </li>
                 )
