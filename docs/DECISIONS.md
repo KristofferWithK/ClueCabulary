@@ -46,6 +46,31 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · The proxy's daily caps: 1000 per install, 25,000 for everyone — G1
+Numbers chosen from the real board arithmetic (worst imaginable round is 60
+requests, ordinary is 7–12), so a thousand is fifteen full rounds with every
+reply needing three corrections. **You must do one thing before this works:**
+Actions → *Deploy the AI proxy* → Run workflow, using a Cloudflare token minted
+from the **Edit Cloudflare Workers** template (an older token silently leaves
+the proxy unmetered). The run summary says in bold whether the cap is on.
+**Honest limits, all in the code:** the install id is forgeable, so the real
+bound is the global ceiling; KV has no atomic increment and can serve stale
+reads, so treat the ceiling as a fuse, not an invoice. Raise it from the
+dashboard in thirty seconds if real players approach it.
+**Reverse:** set `GLOBAL_DAILY_CAP` / `DAILY_CAP` to 0 in the dashboard.
+
+### 2026-08-20 · The Pages base path was deliberately NOT changed
+`vite.config.ts` still has `base: '/ClueCabulary/'` because the repo rename is
+held for you. Changing one without the other breaks the deploy, so they move
+together, in your five-minute job.
+
+### 2026-08-20 · `STUDY_UNTIL_CITY` kept at 5 rather than following Viborg — D2
+The constant's own comment gives its reason as "by then the player has met 500
+words". Viborg leaving would have made the landmark reading (Aalborg) cut the
+beginner scaffold to 400 words. The number stayed, the landmark in the copy
+moved to Skagen — the no-behaviour-change option.
+**Reverse:** one line, if you would rather the scaffold end at Aalborg.
+
 ### 2026-08-20 · Worth knowing: some of tonight's drive runs were measuring the wrong build
 C1 found that `e2e/preview-server.mjs` guarded against a stale server holding
 its port and **lost the race to it** — vite's exit on a held port is async, the
