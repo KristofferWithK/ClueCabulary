@@ -8,6 +8,7 @@ import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { clueFlagId, guessFlagId, useFeedback } from '../../stores/feedbackStore'
 import { useUi } from '../../stores/uiStore'
+import { RoundSentences } from './RoundSentences'
 import { SpeakWord } from './SpeakWord'
 
 const CONFETTI_COLORS = ['#6aaa64', '#c9b458', '#567b95', '#121212', '#e3735e']
@@ -304,6 +305,11 @@ export function RoundSummary({ game }: { game: GameState }) {
             </ul>
           </section>
         )}
+
+        {/* The round's greens, each in a sentence. Placed after the lists that
+            name them and before the transcript: the words are the reward, this
+            is what they are for, and the log is for the curious. */}
+        <RoundSentences game={game} />
 
         {/* Every decision Casey made, with his account of it — behind a lid.
             It is the longest thing on the screen and the least urgent: a player

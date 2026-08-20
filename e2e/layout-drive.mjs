@@ -292,6 +292,13 @@ const greens = await page.locator('.word-card.mykey-green').count()
   await page.setViewportSize({ width: 360, height: 640 })
   await page.waitForTimeout(300)
   check('the summary opens with its log shut', (await page.locator('.turn-log').count()) === 0)
+  // Non-vacuity for the two measurements below. The sentences are the tallest
+  // thing on this screen after the transcript — five of them are ~250px on a
+  // 640px phone — so a no-scroll reading taken on a summary that happened to
+  // render none of them would be measuring the old screen and passing for the
+  // wrong reason.
+  const sentenceRows = await page.locator('.round-sentence').count()
+  check('the summary being measured has its sentences on it', sentenceRows > 0, `${sentenceRows} rows`)
   await fits('round summary, log shut')
   await page.locator('.log-toggle').click()
   await page.waitForTimeout(300)
@@ -337,8 +344,29 @@ const studyBtn = page.locator('.study-dock .btn-primary')
 if (await studyBtn.isVisible().catch(() => false)) await studyBtn.click()
 const regions = await page.locator('[aria-live], [role="status"], [role="alert"]').count()
 check('the game loop has a live region', regions > 0, `${regions} found`)
-const pressed = await page.locator('.game-header .icon-btn[aria-pressed]').count()
-check('the translations toggle exposes its state', pressed === 1)
+// Both header toggles have to say what state they are in — the translations
+// overlay, whose on/off used to be carried by background colour alone, and now
+// hear-the-board beside it.
+//
+// This counted every aria-pressed button in the header and expected exactly
+// one, which was a statement about the translations toggle only for as long as
+// it was the only toggle. A second one arriving made it fail while both
+// buttons were behaving correctly, and — worse in the other direction — the
+// old form would have passed just as happily if the Aa button had lost its
+// state and the new button had supplied the missing one. Named individually,
+// so neither can stand in for the other.
+const aa = page.locator('.game-header .icon-btn[aria-label*="translation"]')
+check(
+  'the translations toggle exposes its state',
+  (await aa.count()) === 1 && (await aa.getAttribute('aria-pressed')) === 'false',
+  `${await aa.count()} found, aria-pressed ${await aa.getAttribute('aria-pressed')}`,
+)
+const hearToggle = page.locator('.game-header .hear-board')
+check(
+  'and so does hear-the-board, which is the other one',
+  (await hearToggle.count()) === 1 && (await hearToggle.getAttribute('aria-pressed')) === 'false',
+  `${await hearToggle.count()} found, aria-pressed ${await hearToggle.getAttribute('aria-pressed')}`,
+)
 
 // The clue count. It arrived because a rule turned on it — the last chance
 // opened after a given number of clues — and it outlives that rule: it is how
@@ -550,6 +578,15 @@ for (const vp of [
   await page.waitForSelector('.suitcase-screen')
   await page.locator('.case-actions .btn-primary').click()
   await page.waitForSelector('.packing-dock')
+  // Hear-the-board is gone in this phase, not merely quiet. The cards are
+  // English-side up and the dictionary is shut, so reading the Danish aloud
+  // would be handing over the answer key to the one round that packs words for
+  // good. Absence rather than a disabled button: there is then no control to
+  // explain, and nothing to tap twice by accident.
+  check(
+    `hear-the-board is absent while the board is English-side up @${vp.name}`,
+    (await page.locator('.hear-board').count()) === 0,
+  )
   await page.locator('.card-face-en').first().click()
   await page.waitForTimeout(200)
   await noScroll(`wrap-up packing @${vp.name}`)
@@ -836,6 +873,27 @@ await page.setViewportSize(PHONE)
   })
   const where = (w) => page.evaluate((w) => (window.__where = w), w)
 
+  // Hear-the-board, recorded as its own state so its frames join the one
+  // rectangle every phase is compared against. It is a header control on a
+  // screen whose header is the ceiling the board hangs from, and it swaps its
+  // own glyph while running (▶ → ■) — a header that grew by a line would take
+  // the whole board down with it, silently, in the phase the player is staring
+  // hardest at. Measured mid-tour, not just before and after.
+  await where('hear the board playing')
+  await page.locator('.hear-board').click()
+  await page.waitForTimeout(1500)
+  const tourPressed = await page.locator('.hear-board').getAttribute('aria-pressed')
+  check('hear-the-board reports itself playing', tourPressed === 'true', String(tourPressed))
+  // A second tap stops it — the control is the same control, and a tour that
+  // could only be waited out would be the study phase again with extra steps.
+  await page.locator('.hear-board').click()
+  await page.waitForTimeout(200)
+  check(
+    'and a second tap stops it',
+    (await page.locator('.hear-board').getAttribute('aria-pressed')) === 'false',
+  )
+  await where(null)
+
   // "nice" has seven Danish glosses in the shipped set, cut to four by the UI —
   // the longest answer the offline half of the dictionary can produce, and the
   // single worst offender measured (188px of board on the clue dock).
@@ -939,6 +997,7 @@ await page.setViewportSize(PHONE)
     'Sudden death — no clues left',
     'clue dock + lookup',
     'guess bar + lookup',
+    'hear the board playing',
   ]
   const missing = required.filter((r) => !seen.has(r))
   check(

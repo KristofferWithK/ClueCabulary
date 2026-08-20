@@ -31,6 +31,73 @@ try {
   const cards = await page.locator('.word-card .card-word').allTextContents()
   console.log('BOARD:', cards.join(', '))
 
+  // ---- hear the board -------------------------------------------------------
+  // The opening study phase was removed for being homework before the game, and
+  // a forced pre-game slideshow of every word would be the same thing wearing a
+  // hat. This is the version that survived review: a button. Nothing starts it
+  // but a tap, which is also the rule the whole app follows — every sound in it
+  // follows a touch.
+  //
+  // Headless Chromium carries a speechSynthesis with no voices, so `speak()` is
+  // callable and silent. Audible sound cannot be asserted from here; "the app
+  // asked for these words, in this order" can, and that is the behaviour.
+  await page.evaluate(() => {
+    window.__said = []
+    const synth = window.speechSynthesis
+    const speak = synth.speak.bind(synth)
+    synth.speak = (u) => {
+      window.__said.push(u.text)
+      try {
+        speak(u)
+      } catch {}
+    }
+  })
+  if (!(await page.locator('.hear-board').count())) throw new Error('no hear-the-board button')
+  await page.locator('.hear-board').click()
+  await sleep(2600)
+  const heard = await page.evaluate(() => window.__said.slice())
+  // Board order, which is reading order. Two words in 2.6s at the 1200ms
+  // cadence; a third is allowed for slack rather than required.
+  if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 2.6s`)
+  if (heard.join('|') !== cards.slice(0, heard.length).join('|')) {
+    throw new Error(`hear-the-board went out of order: ${heard.join(', ')} vs ${cards.join(', ')}`)
+  }
+  // Interruptible, and the assertion is that it STAYS stopped — a tour that
+  // merely paused would resume over whatever came next.
+  await page.locator('.hear-board').click()
+  const atStop = await page.evaluate(() => window.__said.length)
+  await sleep(2600)
+  const afterStop = await page.evaluate(() => window.__said.length)
+  if (afterStop !== atStop) throw new Error(`stopping left it running: ${atStop} then ${afterStop}`)
+  if ((await page.locator('.hear-board').getAttribute('aria-pressed')) !== 'false') {
+    throw new Error('hear-the-board still claims to be playing after being stopped')
+  }
+  console.log(`hear the board: ${heard.join(', ')}… stopped at ${atStop} of ${cards.length}`)
+
+  // And it obeys the one switch that governs every sound in the app. A control
+  // that cannot make a noise is worse than no control, so it goes away rather
+  // than sitting there disabled — the same call SpeakWord makes.
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1'))
+    raw.state.sound = false
+    localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
+  })
+  await page.reload()
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.board-grid')
+  if (await page.locator('.hear-board').count()) {
+    throw new Error('hear-the-board is still offered with sound turned off')
+  }
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1'))
+    raw.state.sound = true
+    localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
+  })
+  await page.reload()
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.board-grid')
+  console.log('hear the board: absent with sound off, back with it on')
+
   // A round opens on Danish words and nothing else. No study dock, no glosses.
   // Asserted rather than tolerated: this drive used to accept the study phase if
   // it appeared, so it would have kept passing while every round opened with
