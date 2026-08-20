@@ -56,6 +56,26 @@ describe('the travel story for a city', () => {
     it('agrees with itself about which city it is', () => {
       expect(story.cityIndex).toBe(cityIndex)
     })
+
+    /**
+     * The slug is computed in THREE places — storySlug here, the `--source
+     * stories` branch of make-audio.mjs, and storyAudioUrl in speak.ts — and
+     * the first two cannot import each other across the .mjs/.ts line.
+     *
+     * The check that they agree is NOT here, deliberately. It wants the
+     * filesystem, and a test under src/ cannot have it: this project compiles
+     * src with DOM libs and no node types, so an `import from 'node:fs'` here
+     * passes vitest and fails `tsc -b` — the trap CLAUDE.md records, which
+     * this file walked into on the way to being written. journey-drive.mjs
+     * asks the BUILT app to fetch the first clip instead, which is the better
+     * question anyway: dist is what ships, and a file present in the repo but
+     * missing from the bundle would pass here and still be silent on a phone.
+     */
+    it('numbers its sentences from zero, contiguously', () => {
+      const slugs = storySentences(story).map((_, i) => storySlug(cityIndex, i))
+      expect(new Set(slugs).size).toBe(slugs.length)
+      expect(slugs[0]).toBe(`${cityIndex}-000`)
+    })
   })
 })
 

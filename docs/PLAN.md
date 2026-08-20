@@ -39,7 +39,7 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-- **H9** — The train story: a city's hundred words read aloud on the way out *(owner's idea; card below. Unblocked by V1 — the voice it needs now exists.)*
+*(empty — H9's proof piece is in progress; the eight remaining stories are the work, and they want the owner's read on the first one before they are written)*
 
 ### Blocked
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
@@ -47,6 +47,7 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(paperwork half done 2026-08-20 on the session branch: privacy policy page in `public/`, listing copy + questionnaire in `docs/store/`. Screenshots and the submission remain, and the submission is held for the owner)*
 
 ### In progress
+- **H9** — The train story — **Sønderborg's proof piece is built and playable** on branch `claude/plan-decisions-overview-l4bpxi`: 31 sentences in three chapters covering 100/100 of the city's words (proved by `travelStory.test.ts` against the shipped stemmer), baked per sentence in Aoede at 0.6 (748 KB, $0.02), the ride wired between travel and arrival with play / tap-a-line / slower / skip, and covered by journey-drive and layout-drive at three phone sizes. **Waiting on the owner:** read and listen to Sønderborg before the other eight are written — the prose is the expensive part and eight of them written to the wrong taste is the waste worth avoiding.
 - **H5** — Sentence stories written to a coverage target — implemented 2026-08-20 on branch `claude/plan-decisions-overview-l4bpxi` (verify green there), awaiting merge
 
 ### Done

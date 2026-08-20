@@ -4486,3 +4486,158 @@ body:has(.kb-up) {
   /* Keep the last control clear of home-indicator bars. */
   padding-bottom: 4px;
 }
+
+/* ------------------------------------------------------------------ *
+ * The train ride (H9): a city's hundred words read back on the way out.
+ *
+ * The screen has three fixed parts — the train, the title, the controls —
+ * and one that gives: .ride-scroll. That is the no-scroll rule doing its
+ * usual work, and it matters more here than most places because the story is
+ * thirty sentences long and would otherwise hand the DOCUMENT a scrollbar at
+ * 360×640, which layout-drive fails on every screen.
+ * ------------------------------------------------------------------ */
+.ride-screen {
+  gap: 6px;
+}
+
+.ride-window {
+  flex: none;
+  display: flex;
+  justify-content: center;
+}
+
+.ride-train {
+  width: min(100%, 260px);
+  height: auto;
+}
+
+/* Same graphite as Casey and the coastline — the same hand drew all three.
+   vector-effect for the reason the map comments give: the stroke width is in
+   viewBox units and this is letterboxed down to ~240px on a phone. */
+.ride-train .cluey-hatch rect,
+.ride-train .cluey-hatch circle,
+.ride-train .cluey-hatch path {
+  fill: none;
+  stroke: rgba(18, 18, 18, 0.5);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ride-train .ride-rail {
+  stroke-dasharray: 6 5;
+  opacity: 0.55;
+}
+
+.ride-eyebrow {
+  flex: none;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.ride-title {
+  flex: none;
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.ride-subtitle {
+  flex: none;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+/* The one part that gives. min-height:0 is what lets a flex child actually
+   shrink; without it this grows to its content and pushes the controls off. */
+.ride-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.ride-chapter-title {
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ride-chapter-en {
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.7;
+}
+
+.ride-sentences {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* The line IS the button, the bargain SpeakSentence already makes: a separate
+   play control per sentence would cost thirty tap targets and a lot of height
+   on a screen that has none to spare. */
+.ride-line {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-left: 2px solid transparent;
+  padding: 4px 0 4px 10px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ride-da {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.ride-en {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.ride-sentence.is-current .ride-line {
+  border-left-color: var(--green);
+  background: rgba(46, 125, 50, 0.07);
+}
+
+.ride-controls {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 4px;
+}
+
+.ride-controls .btn-primary {
+  flex: 1;
+}
+
+.btn-toggle.is-on {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}

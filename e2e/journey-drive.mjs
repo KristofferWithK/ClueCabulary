@@ -48,10 +48,35 @@ try {
   await page.waitForSelector('.btn-travel')
   await page.screenshot({ path: `${SHOT_DIR}/j3-travel-open.png` })
 
-  // Travel happens on the map, and lands on the arrival screen.
+  // Travel happens on the map, and now goes through the ride (H9) before the
+  // arrival: the city being LEFT reads its hundred words back as a story.
   await page.click('.btn-travel')
   await page.waitForSelector('.denmark-map')
   await page.click('.map-screen .btn-primary')
+
+  await page.waitForSelector('.ride-screen')
+  const rideLines = await page.locator('.ride-sentence').count()
+  console.log('ride sentences:', rideLines)
+  if (rideLines < 10) throw new Error(`the ride showed ${rideLines} sentences`)
+  // The story is the LEAVING city's, so Sønderborg's words — not Ribe's.
+  const rideEyebrow = await page.locator('.ride-eyebrow').textContent()
+  if (!rideEyebrow?.includes('Sønderborg')) {
+    throw new Error(`the ride should be leaving Sønderborg, got "${rideEyebrow}"`)
+  }
+  // The clip the app will actually ask for must exist in this BUILD, not just
+  // in the repo — dist is what ships, and a missing public/ copy is invisible
+  // to a unit test.
+  const clip = await page.evaluate(async () => {
+    const url = new URL('audio/da/story/0-000.mp3', document.baseURI).href
+    const res = await fetch(url, { method: 'HEAD' })
+    return { url, status: res.status, type: res.headers.get('content-type') }
+  })
+  console.log('first story clip:', clip.status, clip.type)
+  if (clip.status !== 200) throw new Error(`story clip missing from the build: ${clip.url}`)
+  await page.screenshot({ path: `${SHOT_DIR}/j4-ride.png` })
+
+  // Skippable, always — the card's own requirement.
+  await page.click('.ride-skip')
   await page.waitForSelector('.arrival-city')
   const arrived = await page.locator('.arrival-city').textContent()
   console.log('arrived in:', arrived)

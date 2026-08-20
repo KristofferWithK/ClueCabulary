@@ -46,6 +46,48 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · H9's first ride exists, and the stemmer wrote three of its sentences
+Sønderborg's story is built and playable: 31 sentences, three chapters, every
+one of the city's hundred words, baked per sentence in Aoede at 0.6 for **two
+cents** and 748 KB.
+
+**The checker earned itself immediately.** `travelStory.test.ts` asks the
+shipped stemmer rather than a copy of its rules, and it rejected three
+sentences I had reasoned about and got wrong: «katten» stems to `katt`, not
+`kat`; «byen» is too short for the stemmer to strip anything from, so it never
+reaches `by`; and «stjerne» itself ends in `-erne`, so it stems to `stj` while
+«stjerner» stems to `stjern` — the singular and the plural never meet. Those
+three failures are the proof the suite is not vacuous, and they are the reason
+the Danish is written in the forms it is.
+
+**Two of CLAUDE.md's own traps, walked into in one commit.** The first draft
+of the clip-presence check imported `node:fs` in a test under `src/` — passes
+vitest, fails `tsc -b`, exactly as the file warns. And because that broke the
+build, the first drive run measured the PREVIOUS bundle and reported the ride
+missing. Both are recorded in the test's own comment. The clip check now lives
+in journey-drive, which asks the built app to fetch the first clip: dist is
+what ships, and a file present in the repo but absent from the bundle would
+have passed a filesystem test and still been silent on a phone.
+
+**Judgement calls made, all cheap to reverse:**
+- **The story is the LEAVING city's**, not the arriving one — its words are the
+  ones just packed.
+- **Skip is always visible**, per the owner, and layout-drive asserts it stays
+  on screen at 360×640. The study phase was cut once for being homework; an
+  unskippable ritual is how this becomes that.
+- **"Slower" stretches rather than re-times** (playbackRate 0.8 with
+  preservesPitch) because the clips are already baked slow at 0.6. If it
+  sounds poor, a second bake at a lower rate is one flag.
+- **A city with no story written rides straight through** to the arrival, so
+  the other eight cities behave exactly as they do today.
+
+**Held for the owner deliberately:** the eight remaining stories are NOT
+written. The prose is the expensive part and writing eight to the wrong taste
+is the waste worth avoiding, so Sønderborg is a sample to react to.
+**Reverse:** delete `src/data/travel-stories.da.json`'s entry and the ride
+disappears by its own fallback; delete `TrainRide.tsx` and the two lines in
+MapScreen to remove it entirely.
+
 ### 2026-08-20 · The voice is Aoede at 0.6, and the rate was a literal in three places
 You listened and chose **da-DK-Chirp3-HD-Aoede**, then pushed the pace down —
 1.0, 0.9, 0.7, 0.5, 0.6 — and settled on **0.6**. Both are now

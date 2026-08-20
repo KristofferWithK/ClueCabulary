@@ -586,6 +586,37 @@ for (const vp of [
   await page.waitForSelector('.denmark-map')
   await noScroll(`map @${vp.name}`)
 
+  // The ride out of a city (H9). The tallest thing in the app by content —
+  // thirty-one sentences with a gloss each, about 2,500px of them — so it is
+  // the screen most likely to hand the document a scrollbar, and the one
+  // where Skip going off the bottom would trap a player in a story they asked
+  // to leave.
+  await open('?mock=1&howto=0&city=0&wrapped=100')
+  await page.locator('.map-button').click()
+  await page.waitForSelector('.denmark-map')
+  await page.locator('.map-screen .btn-primary').click()
+  await page.waitForSelector('.ride-screen')
+  await noScroll(`train ride @${vp.name}`)
+  const ride = await page.evaluate(() => {
+    const scroller = document.querySelector('.ride-scroll')
+    const skip = document.querySelector('.ride-skip').getBoundingClientRect()
+    return {
+      inner: scroller.scrollHeight > scroller.clientHeight + 1,
+      skipBottom: Math.round(skip.bottom),
+      ih: window.innerHeight,
+    }
+  })
+  check(
+    `the ride scrolls inside itself @${vp.name}`,
+    ride.inner,
+    'the story is longer than the screen; if this is false the check is vacuous',
+  )
+  check(
+    `Skip stays on screen @${vp.name}`,
+    ride.skipBottom <= ride.ih + 1,
+    `${ride.skipBottom} vs ${ride.ih}`,
+  )
+
   await open('?mock=1&howto=0')
   await page.locator('.icon-btn[aria-label="Settings"]').click()
   await page.waitForSelector('.settings-screen')

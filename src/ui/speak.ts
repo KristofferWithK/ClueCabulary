@@ -188,6 +188,21 @@ export function wordAudioUrl(wordId: string): string | undefined {
   return `${import.meta.env.BASE_URL}audio/${parts[1]}/${slug}.mp3`
 }
 
+/**
+ * The URL of one travel-story sentence's baked clip.
+ *
+ * A sentence, unlike a word, is not addressed by a dataset id — there is
+ * nothing to fold or to guard against Windows device names, because the name
+ * is two numbers. It must agree with `storySlug` in journey/travelStory.ts and
+ * with the `--source stories` branch of make-audio.mjs; a test asserts every
+ * sentence in the shipped stories has a file at exactly this path, so the
+ * three cannot drift apart quietly.
+ */
+export function storyAudioUrl(cityIndex: number, sentenceIndex: number): string {
+  const slug = `${cityIndex}-${String(sentenceIndex).padStart(3, '0')}`
+  return `${import.meta.env.BASE_URL}audio/${ACTIVE.code}/story/${slug}.mp3`
+}
+
 /* ------------------------------------------------------------------ *
  * The player
  * ------------------------------------------------------------------ */

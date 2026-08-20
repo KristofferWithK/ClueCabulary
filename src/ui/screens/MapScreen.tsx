@@ -5,6 +5,7 @@ import { MAP } from '../../journey/map'
 import { WRAP_TO_TRAVEL, canTravel, countCollection, wordsForCity } from '../../journey/progress'
 
 import { Arrival } from '../components/Arrival'
+import { TrainRide } from '../components/TrainRide'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
@@ -28,6 +29,12 @@ export function MapScreen() {
   const srs = useSrs((s) => s.stats)
   const [selected, setSelected] = useState<number>(journey.cityIndex)
   const [arrivedIndex, setArrivedIndex] = useState<number | null>(null)
+  /**
+   * The city being LEFT while the ride plays — its words are the ones just
+   * packed. Held separately from `arrivedIndex` because the ride comes first
+   * and the arrival is what it hands over to.
+   */
+  const [ridingFrom, setRidingFrom] = useState<number | null>(null)
 
   const points = CITIES.map((c) => MAP.project(c.lon, c.lat))
   const travelledPath = points
@@ -46,6 +53,21 @@ export function MapScreen() {
     selected < journey.cityIndex ? 'visited' : selected === journey.cityIndex ? 'current' : 'ahead'
   const travelReady = canTravel(WORDS, journey.wrapped, journey.cityIndex)
   const nextCity = journey.cityIndex + 1 < CITIES.length ? cityAt(journey.cityIndex + 1) : null
+
+  // The ride, then the arrival. TrainRide calls onDone by itself when the city
+  // has no story written, so an unwritten city is a straight-through rather
+  // than a blank screen.
+  if (ridingFrom !== null) {
+    return (
+      <TrainRide
+        cityIndex={ridingFrom}
+        onDone={() => {
+          setArrivedIndex(ridingFrom + 1)
+          setRidingFrom(null)
+        }}
+      />
+    )
+  }
 
   if (arrivedIndex !== null) {
     return <Arrival cityIndex={arrivedIndex} onSeeMap={() => setArrivedIndex(null)} />
@@ -159,10 +181,10 @@ export function MapScreen() {
         <button
           className="btn btn-primary btn-big"
           onClick={() => {
-            const destination = journey.cityIndex + 1
+            const leaving = journey.cityIndex
             journey.travel(Date.now())
-            setSelected(destination)
-            setArrivedIndex(destination)
+            setSelected(leaving + 1)
+            setRidingFrom(leaving)
           }}
         >
           Travel on → {nextCity.name}
