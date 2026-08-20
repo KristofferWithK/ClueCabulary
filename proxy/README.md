@@ -25,7 +25,9 @@ Other projects hit the same wall
 This worker answers the preflight **itself** — it never forwards an OPTIONS
 request, so there is no redirect to trip over — and adds the headers the
 browser needs to the real response. It also holds the key, resolves the model
-alias, refuses foreign origins, and caps how much anyone can spend in a day.
+alias, refuses foreign origins, caps how much anyone can spend in a day, and —
+once you configure it — sends the small number of calls that need a big model
+to one, while everything else is answered by a cheap one.
 
 ## Deploy from a phone, with no terminal
 
@@ -179,6 +181,98 @@ silent loss of the cap rather than an error, which is why the deploy summary
 says which one you got, and why `npx wrangler tail` is worth a look after a
 deploy.
 
+## Making it cheaper: the cascade
+
+**Nothing here is switched on.** The proxy behaves today exactly as it did
+before this existed, and it will go on doing that until you follow the list
+below. If you only read one line: a small fast model answers almost everything,
+and the calls it gets wrong — which the app already retries — are re-asked of
+the big one, so the retry that used to be expensive is the *only* thing that is.
+
+Do this:
+
+1. Pick a cheap model your provider serves and a flagship. Anything from about
+   5:1 in price is worth doing; the arithmetic below is worked at 20:1.
+2. Open [`wrangler.toml`](./wrangler.toml) (or the Cloudflare dashboard →
+   Settings → Variables) and replace `MODEL_ALIASES` with **two** entries, the
+   first naming the second:
+
+   ```
+   MODEL_ALIASES = '{"cluey":{"model":"THE-CHEAP-ONE","escalate":"cluey-hard"},
+     "cluey-hard":{"model":"THE-BIG-ONE"}}'
+   ```
+
+   The name `cluey-hard` is yours to choose; it just has to match on both lines.
+   The app keeps asking for `cluey` and never learns either name.
+3. Deploy — Actions → *Deploy the AI proxy* → Run workflow, or `npx wrangler
+   deploy`. Nothing in the app changes and there is no release to make.
+4. **Play a round.** The first attempt of every call is now the cheap model, so
+   this is the attempt you actually experience. If Casey's clues got worse, the
+   cheap model is too cheap; try the next size up. This is the step to do before
+   any of the rest, because a saving that makes the game worse is not a saving.
+5. Play five or six rounds, then run `npx wrangler tail cluecabulary-proxy`.
+   Count the lines beginning `cascade:` and the requests arriving with
+   `?tier=escalate` — those, over the total, are how often the cheap model was
+   refused. Under about a third and the saving is most of the table below. Over
+   a half and a bigger cheap model will cost you less than this one does.
+6. Leave `CHEAP_TIMEOUT_MS` alone unless the cheap model actually hangs on you.
+   It is the one setting here that can cost more than it saves — set below what
+   the model genuinely takes, it turns every request into two.
+
+To turn the whole thing off, delete `"escalate"` from the alias. That is the
+entire switch: one word.
+
+### What it saves
+
+Per AI call, with `p` the price on the cheap model, `P` on the flagship, and `r`
+how often the cheap one's answer is refused:
+
+| | cost of one call |
+| --- | --- |
+| today, one tier | `P × 1.11` |
+| with the cascade | `p + r × P × 1.11` |
+
+At 20:1 (the blueprint's $0.0001 and $0.002):
+
+| how often the cheap model is refused | cost a call | against $0.00222 today |
+| --- | --- | --- |
+| 5% | $0.00021 | 90% less |
+| 20% | $0.00054 | 76% less |
+| 35% | $0.00088 | 60% less |
+| 50% | $0.00121 | 45% less |
+| **96%** | $0.00222 | **break-even** |
+
+The rule behind that table, which barely depends on anything else: **the cascade
+saves money unless the cheap model is refused more often than `1 − p/P`.** At
+20:1 that is 96%, at 10:1 it is 91%, at 2:1 it is 55%. It comes out that
+lopsided because escalation replaces a retry the app was already making rather
+than adding a call — see the long comment in [`worker.js`](./worker.js) for why
+the decision is made in the app and not here.
+
+Against the 25,000-request ceiling above, the worst day this proxy can have goes
+from about $50 to about $11.
+
+`r` is the one number in all of this that has never been measured — it needs a
+real cheap model answering real boards. Step 5 measures it. Everything else here
+is measured or is your own price list: the biggest prompt a round sends is 8,208
+bytes (about 2,050 input tokens), checked by `e2e/proxy-drive.mjs`, and an
+ordinary round is 7 to 12 calls.
+
+### Three things it costs
+
+- **A little more of the daily cap.** The cap counts requests, and a cheap model
+  refused more often makes more of them — about 10% more per round at `r` = 0.2.
+  The cap is 1000 and a long day is under 150, so this is worth knowing rather
+  than worrying about.
+- **Two upstream calls for one counted request**, when the *worker* escalates
+  because the cheap tier returned a 5xx. The bill is unchanged: a 5xx is not a
+  generation. This is also why a 404 is deliberately **not** a trigger — a
+  retired model id has to stay visible instead of quietly putting every request
+  on the flagship.
+- **One extra CORS preflight**, the first time a phone escalates, because the
+  escalated request carries a query parameter and preflights are cached per URL.
+  One round trip, once a day, on the slow path.
+
 ## Fronting Gemini instead
 
 One worker serves either service. Gemini's OpenAI-compatible layer wants the
@@ -222,6 +316,19 @@ binding: the counter trips, the refused request never reaches the upstream, the
 player sees Cluey resting and finishes the round on the practice companion, a
 forged id walks past the per-install cap and is stopped by the ceiling, and a
 worker with no binding serves everyone.
+
+The cascade is exercised there too, both halves and both ways of failing: a
+cheap tier that 503s escalates and the app never sees it, a 404 does not
+escalate, a request already on the flagship does not escalate again, and when
+both tiers are down the failure arrives as something the app can name — with
+the practice companion still one tap away. The app's own half runs in the
+browser: a real round where the first reply is refused, the retry lands on the
+flagship, and the call after that starts over cheap. A worker with no cascade
+configured is checked to ignore the whole thing.
+
+What none of it can test is whether a cheap model is any *good* at this. There
+were no real models in the session that built it, so the failure rate the
+saving turns on is unmeasured and step 5 of the list above is how you find it.
 
 Before deploying anything, you can check what your setup actually does:
 
