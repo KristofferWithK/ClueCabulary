@@ -109,7 +109,7 @@ select:focus {
 
 .screen {
   flex: 1;
-  /* Shrinkable, so a screen's flexible band (the board, Cluey) gives way
+  /* Shrinkable, so a screen's flexible band (the board, Casey) gives way
      instead of pushing the actions off the phone. */
   min-height: 0;
   display: flex;
@@ -1252,7 +1252,7 @@ select:focus {
 /* ---------- your own key ---------- */
 
 /* Your private key card, drawn onto the board: a green border marks a word
-   you must get Cluey to guess. It used to mark a forbidden word too, with a
+   you must get Casey to guess. It used to mark a forbidden word too, with a
    dashed black border — shape plus colour, never colour alone. Those cards
    are gone from the game, so only the one marking is left. */
 .study-dock {
@@ -1412,7 +1412,7 @@ select:focus {
  *
  *   clue dock          board 274..310   (the last-turn recap, now deleted)
  *   + a 4-hit lookup   board 123..310   (188px, the worst of them)
- *   Cluey guessing     board 322
+ *   Casey guessing     board 322
  *   your turn to guess board 182..267   (the confirm row and the stop button)
  *   + a 4-hit lookup   board 123..267
  *   sudden death       board 194..222, and 18px lower down the screen
@@ -1427,7 +1427,7 @@ select:focus {
  * The size is measured, not estimated. Every dock was asked how tall it wants
  * to be (height:auto) in every state a round can put it in, at 360x640:
  *
- *   Cluey guessing                                   116.69
+ *   Casey guessing                                   116.69
  *   clue dock, bare                                  129
  *   ... + a rejected clue                            155
  *   ... + a four-hit lookup answer                   210.59
@@ -1673,7 +1673,7 @@ body:has(.kb-up) {
   }
 }
 
-/* One line, always. "Cluey's clue: «hyggelig» (2) — up to 2 more guesses" is
+/* One line, always. "Casey's clue: «hyggelig» (2) — up to 2 more guesses" is
    the longest of them and it wrapped on any clue of eight letters or more at
    360px, which is most Danish words: 18px off the board, arriving at the
    moment the clue is read. Cut rather than clamped — the clue itself is at the
@@ -1762,8 +1762,8 @@ body:has(.kb-up) {
   }
 }
 
-/* One line too, and this one changes every 1100ms as Cluey works down his
-   queue: "I'm quite sure about soveværelse — got one!" against "Cluey is
+/* One line too, and this one changes every 1100ms as Casey works down his
+   queue: "I'm quite sure about soveværelse — got one!" against "Casey is
    choosing a word…" is a line's difference, arriving and leaving three times
    a turn. */
 .ai-guess-line {
@@ -2133,7 +2133,7 @@ body:has(.kb-up) {
   margin-bottom: 3px;
 }
 
-/* Cluey's own words, set apart from the score so the two do not read as one
+/* Casey's own words, set apart from the score so the two do not read as one
    sentence. Serif because it is prose and everything around it is data. */
 .turn-why {
   font-family: var(--serif);
@@ -2498,7 +2498,7 @@ body:has(.kb-up) {
   .howto,
   .word-card,
   .confetti-piece,
-  /* Cluey's life, all of it. This list is an allowlist rather than a wildcard,
+  /* Casey's life, all of it. This list is an allowlist rather than a wildcard,
      so anything animated and not named here keeps moving for someone who asked
      for stillness â€” which is the easy mistake to make when adding a face. */
   .cluey-figure,
@@ -3029,7 +3029,7 @@ body:has(.kb-up) {
   font-weight: 600;
 }
 
-/* ---------- connect Cluey ---------- */
+/* ---------- connect Casey ---------- */
 
 .connect-cluey {
   background: var(--surface);
@@ -3423,7 +3423,7 @@ body:has(.kb-up) {
   margin-top: 2px;
 }
 
-/* Cluey's band: the bubble speaks above him, he sits centred below. */
+/* Casey's band: the bubble speaks above him, he sits centred below. */
 .cluey-band {
   display: flex;
   flex-direction: column;
@@ -3517,7 +3517,7 @@ body:has(.kb-up) {
   letter-spacing: 0.02em;
 }
 
-/* ---------- Cluey, alive ----------
+/* ---------- Casey, alive ----------
 
    A face that holds still is a picture of a suitcase. Four things make it a
    character, and none of them are big: he blinks, his eyes drift, he breathes,
@@ -3717,7 +3717,7 @@ body:has(.kb-up) {
   }
 }
 
-/* Cluey in a dock, next to what he is saying. */
+/* Casey in a dock, next to what he is saying. */
 .cluey-mini {
   width: 44px;
   flex: none;
@@ -3735,7 +3735,7 @@ body:has(.kb-up) {
 
    2. WOBBLED EDGES, on chrome only. A displacement filter on a border drawn in
       a pseudo-element, so the wobble never touches text. Reserved for things
-      there are a handful of â€” docks, panels, buttons, Cluey â€” never the board.
+      there are a handful of â€” docks, panels, buttons, Casey â€” never the board.
 
    3. THE BOARD, WITHOUT FILTERS. Twenty cards each running a displacement map,
       re-rasterising on every tap and transition, is the kind of cost nothing in
@@ -3917,7 +3917,7 @@ body:has(.kb-up) {
   display: none;
 }
 
-/* Cluey is drawn by the same hand as everything else. He is one element, so he
+/* Casey is drawn by the same hand as everything else. He is one element, so he
    can afford the filter the board cannot. */
 .cluey-svg {
   filter: url(#pencil-edge);

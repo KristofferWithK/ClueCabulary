@@ -25,7 +25,7 @@ export class MockCompanion implements Companion {
   async getClue(view: AiClueView): Promise<ClueResponse> {
     const targetable = aiTargetableIds(view).sort()
     if (targetable.length === 0) {
-      throw new AiError('invalid-response', 'Cluey has no words left to clue this round.')
+      throw new AiError('invalid-response', 'Casey has no words left to clue this round.')
     }
     const targets = targetable.slice(0, Math.min(2, targetable.length))
 

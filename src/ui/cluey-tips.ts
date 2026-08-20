@@ -3,7 +3,7 @@ import { WORDS } from '../data/words'
 import { unlockedWords } from '../journey/progress'
 
 /**
- * What Cluey says on Home: gameplay tips and small true things about Danish,
+ * What Casey says on Home: gameplay tips and small true things about Danish,
  * plus the word of the day. Static and offline on purpose — the bubble opens
  * with the app, before any key is entered, and it must cost nothing.
  *
@@ -41,7 +41,7 @@ export function wordOfTheDay(cityIndex: number) {
   return pool[(dayKey() * 2654435761) % pool.length]!
 }
 
-/** Everything Cluey can say today, word of the day first. */
+/** Everything Casey can say today, word of the day first. */
 export function clueyLines(cityIndex: number): string[] {
   const w = wordOfTheDay(cityIndex)
   const article = articleLabel(w) ? `${articleLabel(w)} ` : ''

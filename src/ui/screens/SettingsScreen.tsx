@@ -182,7 +182,7 @@ export function SettingsScreen() {
         >
           {test === 'testing' ? 'Testing…' : 'Test connection'}
         </button>
-        {test === 'ok' && <p className="test-ok">✓ Connected — Cluey is awake.</p>}
+        {test === 'ok' && <p className="test-ok">✓ Connected — Casey is awake.</p>}
         {test !== 'idle' && test !== 'testing' && test !== 'ok' && (
           <p className="test-fail">{test}</p>
         )}

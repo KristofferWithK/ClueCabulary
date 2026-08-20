@@ -14,7 +14,7 @@ interface Props {
 export function ClueInput({ game, onSubmit }: Props) {
   const [text, setText] = useState('')
   const [number, setNumber] = useState(2)
-  // A word Cluey has confirmed is Danish, so the offline guess does not get to
+  // A word Casey has confirmed is Danish, so the offline guess does not get to
   // refuse it twice.
   const [cleared, setCleared] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
@@ -26,12 +26,12 @@ export function ClueInput({ game, onSubmit }: Props) {
 
   const trimmed = text.trim()
   const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
-  // Cluey reads a Danish board and is handed the clue as a bare string, so an
+  // Casey reads a Danish board and is handed the clue as a bare string, so an
   // English word there is one he cannot place. The shipped thousand settle most
   // of it offline — æ/ø/å, an inflection, a compound of two known words — and
   // 'unknown' means permission rather than suspicion, since every Danish word
   // we do not ship lives there. Only a word that looks positively English is
-  // stopped, and even then Cluey gets the final say on submit.
+  // stopped, and even then Casey gets the final say on submit.
   const english = classifyClue(trimmed) === 'english' && cleared !== trimmed.toLowerCase()
   const canSubmit = trimmed.length > 0 && verdict?.legal === true && !asking
 
@@ -47,7 +47,7 @@ export function ClueInput({ game, onSubmit }: Props) {
           setText('')
         }
       } catch {
-        // Cluey unreachable: trust the player rather than block the round on a
+        // Casey unreachable: trust the player rather than block the round on a
         // guess made from a thousand-word list.
         setCleared(trimmed.toLowerCase())
         onSubmit(trimmed, number)
@@ -115,7 +115,7 @@ export function ClueInput({ game, onSubmit }: Props) {
       {english && (
         <p className="clue-error" id="clue-error" role="alert">
           «{trimmed}» looks English. Look it up beside the field for the Danish — or give the clue
-          anyway and Cluey will check.
+          anyway and Casey will check.
         </p>
       )}
       {/* How many words the clue points at, and the send: one line, the way a
@@ -138,7 +138,7 @@ export function ClueInput({ game, onSubmit }: Props) {
           </button>
         </div>
         <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
-          {asking ? 'Asking Cluey…' : english ? 'Give clue anyway' : 'Give clue'}
+          {asking ? 'Asking Casey…' : english ? 'Give clue anyway' : 'Give clue'}
         </button>
       </div>
     </div>

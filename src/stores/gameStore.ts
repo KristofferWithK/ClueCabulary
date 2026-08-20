@@ -98,14 +98,14 @@ interface GameStore {
   error: string | null
   selectedWordId: string | null
   /**
-   * Finish this round with the practice companion because Cluey could not be
+   * Finish this round with the practice companion because Casey could not be
    * reached. Deliberately per-round, not a settings change: a player who falls
    * back once during an outage must not find themselves quietly playing the
    * offline companion for good. Persisted so a reload mid-round does not walk
    * back into the same failure.
    */
   practiceFallback: boolean
-  /** Give up on Cluey for this round and carry on offline. */
+  /** Give up on Casey for this round and carry on offline. */
   fallBackToPractice: () => void
 
   newGame: (opts?: NewGameOptions) => void
@@ -149,12 +149,12 @@ interface GameStore {
   translate: (term: string) => Promise<TranslationResponse>
   /**
    * Charge a lookup if this term names a board word — for the answers that
-   * come from the shipped dictionary rather than from Cluey. Without it the
+   * come from the shipped dictionary rather than from Casey. Without it the
    * offline half of the lookup field reads the board for free.
    */
   noteLookup: (term: string) => void
   /**
-   * Is this word Danish? Asked of Cluey when the shipped thousand cannot say.
+   * Is this word Danish? Asked of Casey when the shipped thousand cannot say.
    *
    * No new endpoint: translate() already tidies a Danish word to its citation
    * form and returns it as `da`, so a word that comes back as itself was
@@ -176,7 +176,7 @@ function companion(practiceFallback = false): Companion {
 }
 
 /**
- * Is the thing playing Cluey the practice companion rather than Cluey?
+ * Is the thing playing Casey the practice companion rather than Casey?
  *
  * The screen used to answer this with `practiceFallback` alone, which is only
  * one of the two routes into the same object. A player with useMock set — which
@@ -184,7 +184,7 @@ function companion(practiceFallback = false): Companion {
  * NOTHING on screen saying so, while useMock simultaneously suppressed both of
  * Home's setup warnings. Its guesses rank by djb2(clue + wordId), so what they
  * saw was a companion measured to be statistically indistinguishable from
- * naming a card at random, presented as Cluey.
+ * naming a card at random, presented as Casey.
  */
 export function onPracticeCompanion(practiceFallback: boolean): boolean {
   return useSettings.getState().useMock || practiceFallback
@@ -234,7 +234,7 @@ function dealBoard(
         mulberry32(seed ^ 0x9e3779b9),
         Date.now(),
       )
-  // Steer the deal: words the player still struggles with become Cluey's
+  // Steer the deal: words the player still struggles with become Casey's
   // greens, so the player has to recall them. (Well-known ones used to become
   // the forbidden hazards; with those gone they simply drift off both keys.)
   // The daily challenge stays an unbiased shared board.
@@ -283,7 +283,7 @@ const freshRound = () => ({
   newlyLearned: [] as string[],
   newlyDiscovered: [] as string[],
   earnedWrapUp: false,
-  // Every round gets a fresh chance at Cluey.
+  // Every round gets a fresh chance at Casey.
   practiceFallback: false,
   aiGuessQueue: [] as PlannedGuess[],
   planForClueIndex: null,
@@ -693,7 +693,7 @@ export const useGame = create<GameStore>()(
         set({ aiBusy: true, error: null })
         try {
           // Flags the player raised in past reviews travel with the request:
-          // this is the only channel where "that was a bad call" reaches Cluey.
+          // this is the only channel where "that was a bad call" reaches Casey.
           const view = buildAiGuessView(
             game,
             useSettings.getState().clueLanguage,
@@ -706,7 +706,7 @@ export const useGame = create<GameStore>()(
           // dropped without touching state — the new game manages its own.
           if (get().game !== game) return
           const plan = planGuessExecution(res.guesses, currentClue(game)?.number ?? 1)
-          // Cluey answered: ordinary play is proof the credentials work, so
+          // Casey answered: ordinary play is proof the credentials work, so
           // Home stops asking the player to check them.
           useSettings.getState().markClueyVerified(Date.now())
           set({ aiBusy: false, aiGuessQueue: plan, planForClueIndex: game.clueHistory.length })
@@ -741,7 +741,7 @@ export const useGame = create<GameStore>()(
           return
         }
         try {
-          // Cluey's own account of the guess travels with it into the history,
+          // Casey's own account of the guess travels with it into the history,
           // so the round's turn log can say why he named that word rather than
           // another. It is the whole reason that log is worth expanding.
           const after = applyEvent(game, {
@@ -794,7 +794,7 @@ export const useGame = create<GameStore>()(
         const { game, lookedUp, roundRecorded, mode, packed, packingMissed } = get()
         if (!game || game.phase !== 'finished' || roundRecorded) return
         // A guess record's result is judged against the CLUE-GIVER's key
-        // (engine/game.ts), so a green under a clue `by: 'player'` is Cluey
+        // (engine/game.ts), so a green under a clue `by: 'player'` is Casey
         // finding the player's word — the player's CLUE earned it — and a
         // green under `by: 'ai'` is the player's own tap. Sudden death pushes
         // no guess record at all (the reducer writes the reveal and returns),

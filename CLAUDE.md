@@ -1,6 +1,6 @@
 # Working on ClueCabulary
 
-A Danish vocabulary game played solo on a phone with an AI companion — Cluey,
+A Danish vocabulary game played solo on a phone with an AI companion — Casey,
 a suitcase with eyes who also carries every word you learn. Vite + React +
 TypeScript, shipped as a PWA to GitHub Pages. `README.md` is the
 design document — the rules, the measured numbers behind them, and why each one
@@ -57,7 +57,7 @@ git fetch origin main && git checkout -B <branch> origin/main
 A guess is judged against the **clue-giver's** key and nothing else.
 
 That survived the removal of forbidden words and is still the rule everything
-turns on. Under *your* clue, Cluey's guesses are read off *your* key — a card
+turns on. Under *your* clue, Casey's guesses are read off *your* key — a card
 that is green on his and not on yours costs the turn. Under *his* clue it is his
 key that is read, so the same card is worth finding. A bystander reveal is
 therefore **directional**: it burns the card for the side that named it
@@ -129,7 +129,7 @@ commits that added them.
 Numbers in comments and in `README.md` are measured, not estimated. If you
 change something they describe, re-measure rather than reasoning about it —
 several confident predictions here have been reversed by a probe, including one
-where giving Cluey his own key while guessing made him measurably *worse*.
+where giving Casey his own key while guessing made him measurably *worse*.
 
 ## Environment
 

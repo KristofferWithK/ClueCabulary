@@ -67,7 +67,7 @@ export const isDanishWord = (normalized: string): boolean => HEADWORDS.has(norma
  * It cannot be complete in the other direction: a Danish word outside the
  * shipped thousand that happens to be spelled like one of our glosses would be
  * flagged wrongly. The lookup box is one tap away and says so, which is the
- * right cost for a check that stops Cluey being handed a word he cannot read.
+ * right cost for a check that stops Casey being handed a word he cannot read.
  */
 /** Endings that make a Danish headword into another form of itself. */
 const INFLECTIONS = ['en', 'et', 'er', 'ene', 'erne', 'e', 'r', 'ede', 'te', 's']
@@ -92,7 +92,7 @@ const LINKERS = ['', 's', 'e']
  *    linking -s- and -e- Danish puts between the halves.
  *
  * 'unknown' is a real answer and the caller must treat it as permission: it is
- * where every Danish word we do not ship lives. Cluey settles those.
+ * where every Danish word we do not ship lives. Casey settles those.
  */
 export type ClueLanguage = 'danish' | 'english' | 'unknown'
 

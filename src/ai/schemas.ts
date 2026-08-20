@@ -24,7 +24,7 @@ export type GuessResponse = z.infer<typeof GuessResponseSchema>
 
 /**
  * A translation, for the field the player uses to compose a Danish clue or to
- * read one of Cluey's. Deliberately tiny: the whole value is being able to ask
+ * read one of Casey's. Deliberately tiny: the whole value is being able to ask
  * without leaving the round.
  */
 export const TranslationResponseSchema = z.object({
@@ -39,7 +39,7 @@ export const TranslationResponseSchema = z.object({
    * no indefinite article. "trafik" is not something you can have one of, but
    * it is still common gender, and the definite form and every agreeing
    * adjective turn on that. The shipped thousand carry this in the data; a word
-   * from outside them has only Cluey to ask.
+   * from outside them has only Casey to ask.
    */
   gender: z.enum(['common', 'neuter']).optional(),
   /** False for a noun with no ordinary indefinite singular. */

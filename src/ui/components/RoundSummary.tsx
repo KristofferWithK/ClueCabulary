@@ -58,7 +58,7 @@ const OUTCOME_COPY: Record<OutcomeKey, { title: string; sub: string }> = {
  * One tap to say "that was a bad call", on the screen where the reasoning is.
  *
  * A toggle, not a report form: the player is looking at a finished round and
- * the useful signal is cheap to give. Everything needed to show Cluey what he
+ * the useful signal is cheap to give. Everything needed to show Casey what he
  * did — the word, the clue it was made under, and his own account of it — is
  * on screen already, so the flag carries it rather than a bare thumbs-down.
  */
@@ -95,8 +95,8 @@ function FlagButton({
 /**
  * What the round did, in numbers the app already holds.
  *
- * This screen used to open with a paragraph Cluey wrote about the round —
- * one model call per round, several seconds of "Cluey is gathering his
+ * This screen used to open with a paragraph Casey wrote about the round —
+ * one model call per round, several seconds of "Casey is gathering his
  * thoughts…", and prose in place of the two facts a learner is actually
  * counting: how many words were new, and how many crossed into the suitcase.
  * Those are both diffs `finishRound` takes across the SRS, and the collection
@@ -285,7 +285,7 @@ export function RoundSummary({ game }: { game: GameState }) {
             is gone: the stats block above says both halves of it. */}
         {newlyLearned.length > 0 && (
           <section className="summary-section collected-section">
-            <h3>Collected for Cluey</h3>
+            <h3>Collected for Casey</h3>
             <ul className="collected-words">
               {newlyLearned.map((id) => {
                 const w = game.words.find((x) => x.wordId === id)
@@ -304,7 +304,7 @@ export function RoundSummary({ game }: { game: GameState }) {
           </section>
         )}
 
-        {/* Every decision Cluey made, with his account of it — behind a lid.
+        {/* Every decision Casey made, with his account of it — behind a lid.
             It is the longest thing on the screen and the least urgent: a player
             who wants to know why he said «kæledyr» opens it, and the numbers
             above are what everyone else came for. The reasoning itself is not
@@ -343,11 +343,11 @@ export function RoundSummary({ game }: { game: GameState }) {
               <>
                 {/* Flagging lives here and nowhere else: this is the only place
                     the reasoning is visible, and a verdict on a clue is only
-                    worth anything next to the account Cluey gave of it. Cluey's
+                    worth anything next to the account Casey gave of it. Casey's
                     own turns only — flagging your own clue would be marking
                     your own homework. */}
                 <p className="dim log-hint">
-                  Tap ⚑ on anything of Cluey's that was a bad call. He is shown the ones you flag.
+                  Tap ⚑ on anything of Casey's that was a bad call. He is shown the ones you flag.
                 </p>
                 <ol className="turn-log">
                   {game.clueHistory.map((c, i) => {
@@ -355,7 +355,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                     return (
                       <li key={i}>
                         <p className="turn-clue">
-                          <strong>{c.by === 'player' ? 'You' : 'Cluey'}:</strong> «{c.text}» (
+                          <strong>{c.by === 'player' ? 'You' : 'Casey'}:</strong> «{c.text}» (
                           {c.number})
                           {c.by === 'ai' && c.targets && (
                             <span className="dim">
@@ -369,7 +369,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                               kind="clue"
                               what={c.text}
                               why={c.rationale}
-                              label={`Cluey's clue «${c.text}»`}
+                              label={`Casey's clue «${c.text}»`}
                             />
                           )}
                         </p>
@@ -392,7 +392,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                               {g.confidence !== undefined && (
                                 // Said out loud because it is the number that
                                 // decided the ORDER, and the first guess is
-                                // played whatever it is — so a guess Cluey was
+                                // played whatever it is — so a guess Casey was
                                 // never sure of should look like one rather
                                 // than like a considered choice.
                                 <span className="guess-confidence">
@@ -408,7 +408,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                                   what={da(g.wordId)}
                                   underClue={c.text}
                                   why={g.reasoning}
-                                  label={`Cluey's guess «${da(g.wordId)}»`}
+                                  label={`Casey's guess «${da(g.wordId)}»`}
                                 />
                               )}
                             </li>

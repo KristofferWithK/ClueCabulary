@@ -178,7 +178,7 @@ try {
   await page.waitForSelector('.ai-guess-line, .guess-bar', { timeout: 25000 })
   await sleep(2000)
   check('a round plays through the proxy', (await page.locator('.error-banner').count()) === 0)
-  check('and Cluey really answered over the wire', fake.received.length >= 1, `${fake.received.length} upstream calls`)
+  check('and Casey really answered over the wire', fake.received.length >= 1, `${fake.received.length} upstream calls`)
 
   // ---- the worker's own contract, without a browser in the way ----------------
   const pre = await fetch(`${worker.base}/v1/chat/completions`, {
@@ -427,13 +427,13 @@ try {
   await page.waitForSelector('.error-banner', { timeout: 25000 })
   const banner = (await page.locator('.error-banner p').first().textContent()).trim()
   check(
-    'the cap reaches the player as Cluey resting, not as a status code',
+    'the cap reaches the player as Casey resting, not as a status code',
     /today/i.test(banner) && /midnight UTC/.test(banner) && !/429/.test(banner),
     banner,
   )
   check(
     'and it names the way out rather than telling them to wait',
-    /Play on without Cluey/.test(banner) && !/wait a moment/i.test(banner),
+    /Play on without Casey/.test(banner) && !/wait a moment/i.test(banner),
     banner,
   )
   check(
@@ -443,7 +443,7 @@ try {
   )
   // The banner names that button because the button is there. Clicking it has
   // to actually finish the round offline, or the message is a dead end.
-  await page.getByRole('button', { name: 'Play on without Cluey' }).click()
+  await page.getByRole('button', { name: 'Play on without Casey' }).click()
   await page.waitForSelector('.practice-note', { timeout: 5000 })
   check(
     'and the button it names carries on with the practice companion',

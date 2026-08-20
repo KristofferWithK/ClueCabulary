@@ -15,7 +15,7 @@ interface SettingsState {
   /** Play against the deterministic offline companion (dev/e2e). */
   useMock: boolean
   /**
-   * When Cluey last actually answered — a passed connection test, or a real
+   * When Casey last actually answered — a passed connection test, or a real
    * clue or guess in play. Null means the credentials here have never been
    * shown to work, which is different from having none at all: a key that is
    * present but wrong, or blocked by CORS, otherwise announces itself only
@@ -27,7 +27,7 @@ interface SettingsState {
    */
   klausVerifiedAt: number | null
   set: (patch: Partial<Omit<SettingsState, 'set'>>) => void
-  /** Record that Cluey answered. Cheap enough to call on every reply. */
+  /** Record that Casey answered. Cheap enough to call on every reply. */
   markClueyVerified: (now: number) => void
 }
 
@@ -59,7 +59,7 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   }
   // v1 -> v2: the study phase stopped being the default.
   if (from < 2 && s.studyPhase === 'auto') s.studyPhase = 'never'
-  // v2 -> v3: Cluey clues in Danish. Same shape of trap as the study phase —
+  // v2 -> v3: Casey clues in Danish. Same shape of trap as the study phase —
   // changing a default does nothing for a device that already stored one, and
   // this one had every existing player still getting English clues.
   if (from < 3 && s.clueLanguage === 'en') s.clueLanguage = 'da'
@@ -78,11 +78,11 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   // the board that was asked for, which is exactly the trap this app has fallen
   // into three times now.
   if (from < 4 && s.gridSize === 'beginner') s.gridSize = 'middle'
-  // v4 -> v5: the proxy is the default, so Cluey answers with no key at all.
+  // v4 -> v5: the proxy is the default, so Casey answers with no key at all.
   //
   // The fourth outing of the same trap, but the first one where the old value
   // can be told apart from a choice. A device sitting on the Gemini default
-  // with an EMPTY key has never had a working Cluey and could not have: no key
+  // with an EMPTY key has never had a working Casey and could not have: no key
   // means no answers from Gemini direct, and the build bundles none. Moving
   // exactly that group costs them nothing and hands them a partner.
   //

@@ -4,7 +4,17 @@ import { useUi } from '../../stores/uiStore'
 import { clueyLines, dailyLineIndex } from '../cluey-tips'
 
 /**
- * What Cluey's face is doing. Every one of these is already a local variable at
+ * The mascot is called **Casey** everywhere a player can read him, and `Cluey`
+ * everywhere only a developer can: this file, `ClueyFace`, `ClueyMood`,
+ * `ConnectCluey`, `markClueyVerified`, `cluey-tips.ts` and every `cluey-*`
+ * class. That split is deliberate and it is the `klausVerifiedAt` precedent —
+ * he has now been renamed twice, and renaming the identifiers each time buys a
+ * migration, a stale-selector hunt and a drive rewrite for a label nobody sees.
+ * The name in the copy is the only one that has to be right.
+ */
+
+/**
+ * What Casey's face is doing. Every one of these is already a local variable at
  * the site that renders him — the AI panel knows it is waiting, the guess line
  * knows how the guess landed, the debrief knows the outcome — so a mood costs a
  * prop rather than any new state.
@@ -12,7 +22,7 @@ import { clueyLines, dailyLineIndex } from '../cluey-tips'
 export type ClueyMood = 'idle' | 'thinking' | 'happy' | 'oops'
 
 /**
- * Cluey himself: a suitcase with eyes.
+ * Casey himself: a suitcase with eyes.
  *
  * Hand-rolled inline SVG like the Denmark map: CSS-styleable strokes, no asset
  * pipeline. The eyes are the whole point — a face that blinks and looks around
@@ -81,8 +91,8 @@ export function ClueyFace({
 }
 
 /**
- * Cluey on Home: the bubble above him speaks — a tip or fun fact, rotating
- * daily, leafing on a tap — and tapping Cluey opens the case.
+ * Casey on Home: the bubble above him speaks — a tip or fun fact, rotating
+ * daily, leafing on a tap — and tapping Casey opens the case.
  *
  * His eyes follow the pointer while one is over him. On a phone that fires
  * rarely, which is why the idle wander does the work by default and the follow
@@ -142,7 +152,7 @@ export function Cluey() {
     <div className="cluey-band">
       <button
         className="cluey-bubble"
-        aria-label={`Cluey says: ${line} Tap for another tip.`}
+        aria-label={`Casey says: ${line} Tap for another tip.`}
         onClick={() => setIndex((i) => i + 1)}
       >
         {line}
@@ -157,7 +167,7 @@ export function Cluey() {
           <ClueyFace mood={mood} />
         </div>
         <span className="cluey-name" aria-hidden="true">
-          Cluey
+          Casey
         </span>
       </button>
     </div>

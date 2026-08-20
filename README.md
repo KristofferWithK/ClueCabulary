@@ -2,7 +2,7 @@
 
 Learn Danish one clue at a time. 900Words is a single-player, mobile-first
 word game inspired by cooperative word-association games: a board of Danish
-words, a secret key, and an AI companion — Cluey — who gives and guesses clues
+words, a secret key, and an AI companion — Casey — who gives and guesses clues
 **without ever seeing your key**. Vocabulary sticks because every clue forces
 you to build connections between words.
 
@@ -10,7 +10,7 @@ you to build connections between words.
 
 900Words is a journey through Denmark: nine stops from **Sønderborg** in the
 far south, up Jutland to the tip at **Skagen**, then back across Funen and
-Zealand to **København** — made with **Cluey**, the suitcase with eyes who is
+Zealand to **København** — made with **Casey**, the suitcase with eyes who is
 also the companion cluing and guessing beside you. Each city owns 100 words —
 the most frequent hundred first — and only words from the cities you have
 reached appear on your boards. Nine cities of a hundred is the whole dataset:
@@ -18,7 +18,7 @@ reached appear on your boards. Nine cities of a hundred is the whole dataset:
 against each other by `scripts/validate-words.mjs`.
 
 Every word is in one of four states, leafed through in **Kufferten** (tap
-Cluey on Home): **undiscovered** until you meet it, **discovered** once you
+Casey on Home): **undiscovered** until you meet it, **discovered** once you
 have, **collected** after it has earned a green each way — once under your
 clue, once by your own guess — and **wrapped** once a wrap-up round has packed
 it safely.
@@ -54,7 +54,7 @@ opens.
    stays, because *en øl*, *et brød*, *en ost*, *et hår* and *et papir* are all
    things Danes say and they teach the gender in the form a learner meets. The
    validator refuses any drift between the module and the data. Words outside
-   the shipped nine hundred get the same treatment from Cluey, who is asked for
+   the shipped nine hundred get the same treatment from Casey, who is asked for
    gender and countability along with the translation — *trafik* comes back
    `(com)`, not `en trafik`.
 
@@ -63,13 +63,13 @@ opens.
    you is what to clue toward. There was a second, dashed black border for a
    long time — a forbidden word, fatal if it was ever named — and no board has
    one now.
-2. You open: you give a one-word clue, Cluey guesses — then Cluey clues and you
+2. You open: you give a one-word clue, Casey guesses — then Casey clues and you
    guess. A clue's number is the whole allowance: guess that many right and the
    turn ends itself. (There is no Codenames-style bonus guess. It existed to
    pick up a word left over from an earlier clue, and in practice only read as
    the turn refusing to end once you had found everything the clue promised.)
    Stopping short is still yours to choose. Guesses are judged against the
-   clue-giver's key. Cluey is told how
+   clue-giver's key. Casey is told how
    many of his greens are left against how many clues remain, so he aims for
    two or three words a clue rather than picking off one at a time — and on his
    last clue, for everything he has left, since a green he never points at is
@@ -84,7 +84,7 @@ opens.
 
    **A guess is judged against the clue-giver's key and nothing else.** Every
    other rule hangs off that one, and it is the easiest thing here to read
-   backwards. Under *your* clue, Cluey's guesses are read off *your* key: a card
+   backwards. Under *your* clue, Casey's guesses are read off *your* key: a card
    you marked green scores, and one you did not costs the turn even if it is
    green on his. Under *his* clue it is his key that is read. So a card can be
    spent one way round and still be worth finding the other — a bystander reveal
@@ -167,10 +167,10 @@ opens.
    direction composing a clue actually needs. It is a field, not a drawer: it
    was a `<details>` and the lid cost a tap every turn, because the dock
    unmounts with the phase and a `<details>` keeps its open state on the element
-   rather than in React. Cluey clues in Danish too, and one tap loads his clue
+   rather than in React. Casey clues in Danish too, and one tap loads his clue
    into the same box. **Both sides speak Danish**: type an
    English word into the clue box and it says so, with the lookup one tap away,
-   because Cluey is handed the clue as a bare string beside a Danish board and
+   because Casey is handed the clue as a bare string beside a Danish board and
    an English word there is one he cannot place.
 
    The nine hundred settle most of it offline and recognise far more Danish than
@@ -180,7 +180,7 @@ opens.
    rather than suspicion: that is where every Danish word we do not ship lives,
    *trafik* included. Only a word that looks positively English is questioned,
    and even then the offline guess is never the last word — the button becomes
-   *Give clue anyway* and Cluey judges it, so a Danish word we happen not to
+   *Give clue anyway* and Casey judges it, so a Danish word we happen not to
    ship is never refused by a list.
    Toggle **Aa** to overlay every translation — off to start with, so the board
    opens as a grid of Danish words rather than twice as many lines of text, and there
@@ -191,12 +191,12 @@ opens.
    lookup box, which costs exactly what tapping ⓘ costs, and neither is
    available during the translation challenge or a wrap-up packing phase. A clue may be
    any Danish word, so the lookup answers any word: the shipped nine hundred come
-   back instantly and offline, and anything else is asked of Cluey without
+   back instantly and offline, and anything else is asked of Casey without
    being asked twice. A hit that is already on the board says so, since it is
    the right translation and an illegal clue.
-6. After each round Cluey debriefs: what his clues meant and which words
+6. After each round Casey debriefs: what his clues meant and which words
    deserve another look. The review page also shows **what was said, and why** —
-   every clue and every guess with the reasoning behind it, including what Cluey
+   every clue and every guess with the reasoning behind it, including what Casey
    deliberately steered away from and how sure he was of each guess. Tap ⚑ on
    anything of his that was a bad call: flags are kept (newest 24) and quoted
    back to him in later rounds, with his own sentence attached, so the
@@ -212,7 +212,7 @@ weighted toward the three that went worst, and no word may carry twice running
 
 The same signal steers the deal itself. Every slot on a board asks the player
 for one of three things (`SlotTier` in `src/engine/keygen.ts`), and the words
-are handed out in that order: **recall** is green on Cluey's key, so you have to
+are handed out in that order: **recall** is green on Casey's key, so you have to
 retrieve the word from his clue, and the words you keep forgetting go here
 first; **produce** is green only on yours, which needs enough command of a word
 to find an association for it; **filler** is on neither key and asks nothing, so
@@ -238,7 +238,7 @@ That is worth saying plainly because it used to be false. For most of this
 project's life the first screen after install asked you to go and fetch a
 Gemini key, paste it in, and pick a model name off a list — three chores
 between a person and a vocabulary game, and the last one had a wrong answer
-that looked like a broken app. Cluey's key now lives on a Cloudflare Worker
+that looked like a broken app. Casey's key now lives on a Cloudflare Worker
 ([`proxy/`](proxy/README.md)) as a server-side secret, the app sends no key at
 all, and there is no longer a field to type one into. Settings v7 cleared the
 keys already stored on devices, because a stale one would have been sent ahead
@@ -249,9 +249,9 @@ the worker resolves — so which model answers is a proxy setting rather than an
 app release every installed PWA has to notice, and a model id retired upstream
 is fixed in one place instead of breaking every install at once.
 
-Nothing about this needs the network to be good, or to exist. Cluey is the only
+Nothing about this needs the network to be good, or to exist. Casey is the only
 part of the game that talks to a server: if he cannot be reached, the error
-banner offers **Play on without Cluey** and the round finishes with a practice
+banner offers **Play on without Casey** and the round finishes with a practice
 companion that runs entirely on the phone. The same offer appears if the
 proxy's [daily cap](proxy/README.md#the-daily-caps) is spent.
 
@@ -262,7 +262,7 @@ hatch — for a local Ollama, for your own copy of the worker, or for any other
 OpenAI-compatible endpoint. Point it somewhere and tap **List models this
 server accepts**, which asks the server for real names rather than leaving you
 to guess between `gpt-oss:120b` and `gpt-oss:120b-cloud`; a wrong guess returns
-a 404 that reads exactly like a broken endpoint. Tapping the **Cluey** chip
+a 404 that reads exactly like a broken endpoint. Tapping the **Casey** chip
 puts it back.
 
 There is no key field, so a service that wants one needs the key at build time:
@@ -319,7 +319,7 @@ node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
                               # and the two rules that stop it reading the board
 node e2e/article-drive.mjs    # en/et on every card, across all nine cities, on
                               # a 360px phone — and costing the word no line
-node e2e/endgame-drive.mjs    # Cluey opens; the 3x5 board; and sudden death
+node e2e/endgame-drive.mjs    # Casey opens; the 3x5 board; and sudden death
                               # won, lost and walked away from
 node e2e/repeat-drive.mjs     # every board shares exactly three words with the
                               # one before it — across a reload and a v1 save
@@ -357,7 +357,7 @@ Second, whether the clues are any good:
 OLLAMA_API_KEY=... node e2e/live-drive.mjs
 ```
 
-It plays one round and prints the clue Cluey actually gave, so the prompts can
+It plays one round and prints the clue Casey actually gave, so the prompts can
 be judged against real output. Without a key it prints `LIVE DRIVE SKIPPED` and
 exits 0. Set `OLLAMA_BASE_URL` to your Cloudflare Worker (see
 [`proxy/README.md`](proxy/README.md)) if ollama.com refuses browser requests,
@@ -365,7 +365,7 @@ and `OLLAMA_MODEL` to try another model. The key is read from the environment,
 never placed in a URL and never printed.
 
 Useful dev URLs: `?mock=1` forces the offline companion, `?seed=N` fixes the
-board, `?first=player` makes the player open the round instead of Cluey,
+board, `?first=player` makes the player open the round instead of Casey,
 `?howto=0` skips the rules overlay, `?grid=middle` picks the board *Spil
 videre* deals, and `?city=N&collected=K&almost=K&wrapped=W` jumps the journey
 to a given stop with K words collected (or one interaction short of it) and W

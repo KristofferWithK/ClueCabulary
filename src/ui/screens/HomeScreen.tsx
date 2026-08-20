@@ -16,7 +16,7 @@ import { Cluey } from '../components/Cluey'
 
 /**
  * Home in three bands, per the notebook sketch: the journey (map and
- * progress) on top, Cluey in the middle with something to say, and Play at
+ * progress) on top, Casey in the middle with something to say, and Play at
  * the bottom between the daily star and the rules. Nothing scrolls; anything
  * deeper lives one tap away — the map, the case, Settings behind the gear.
  */
@@ -129,13 +129,13 @@ export function HomeScreen() {
 
       {needsSetup && (
         <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Add your API key in Settings to wake Cluey up →
+          Add your API key in Settings to wake Casey up →
         </button>
       )}
 
       {unverifiedCluey && (
         <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Cluey has not answered yet — tap Test connection in Settings first →
+          Casey has not answered yet — tap Test connection in Settings first →
         </button>
       )}
 

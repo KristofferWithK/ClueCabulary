@@ -33,7 +33,7 @@ const stateText = (r: Reveal): string => {
   if (r.kind === 'hidden') return ''
   if (r.kind === 'green') return ', found'
   if (r.against.length === 2) return ', neutral for both sides'
-  return r.against[0] === 'player' ? ', neutral under your clues' : ", neutral under Cluey's clues"
+  return r.against[0] === 'player' ? ', neutral under your clues' : ", neutral under Casey's clues"
 }
 
 /**

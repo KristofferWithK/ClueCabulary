@@ -30,7 +30,7 @@ export function Arrival({
       </p>
       <p className="arrival-blurb-en">{city.blurbEn}</p>
       <p className="arrival-unlock">
-        {WORDS_PER_CITY} new words to discover — Cluey is open and waiting for them.
+        {WORDS_PER_CITY} new words to discover — Casey is open and waiting for them.
       </p>
       <button className="btn btn-primary btn-big" onClick={() => goTo('home')}>
         <span lang="da">Kom i gang</span>

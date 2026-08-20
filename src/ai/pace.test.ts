@@ -46,13 +46,13 @@ const cluePrompt = (grid: 'beginner' | 'middle' | 'standard', spend = 0) => {
 }
 
 /**
- * Cluey was giving clues of 1 on a board where that cannot win — beginner is
+ * Casey was giving clues of 1 on a board where that cannot win — beginner is
  * four clues for eight greens — and the prompt was the reason: it told him
  * "caution beats greed" and "one word your partner will certainly find beats
  * two where the second is a coin flip", with nothing anywhere about the clock.
  * He had the numbers to work it out and no instruction to.
  */
-describe('the clue prompt tells Cluey the pace he has to keep', () => {
+describe('the clue prompt tells Casey the pace he has to keep', () => {
   it('states how many of his greens are left and how many clues remain', () => {
     const { text, view } = cluePrompt('beginner')
     const mine = aiTargetableIds(view).length
@@ -108,7 +108,7 @@ describe('the clue prompt tells Cluey the pace he has to keep', () => {
   /**
    * The last clue is the only information the player will ever get about the
    * greens it does not mention. Running out of clues opens sudden death, where
-   * they name words with nothing new to go on — so a green Cluey never pointed
+   * they name words with nothing new to go on — so a green Casey never pointed
    * at is one they cannot find, and a narrow last clue does not cost a word,
    * it costs the round.
    */
@@ -135,7 +135,7 @@ describe('the clue prompt tells Cluey the pace he has to keep', () => {
 
   /**
    * This used to be "still refuses to gamble near a forbidden word", checking
-   * that pushing Cluey to clue for more had not also pushed him into pointing
+   * that pushing Casey to clue for more had not also pushed him into pointing
    * at a hazard. There are no hazards; a wrong guess costs a turn and the
    * counterweight to ambition is now the turn itself, which the line below
    * carries. Re-measuring what ambition costs on a board with nothing fatal on
