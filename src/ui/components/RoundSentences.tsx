@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { wordById } from '../../data/words'
 import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
@@ -93,6 +94,7 @@ function SpeakSentence({ da }: { da: string }) {
 export function RoundSentences({ game }: { game: GameState }) {
   const newlyDiscovered = useGame((s) => s.newlyDiscovered)
   const newlyLearned = useGame((s) => s.newlyLearned)
+  const requestStory = useGame((s) => s.requestStory)
 
   const greenIds = game.words
     .filter((w) => game.reveals[w.wordId]?.kind === 'green')
@@ -102,20 +104,86 @@ export function RoundSentences({ game }: { game: GameState }) {
     .map((id) => wordById(id))
     .filter((w): w is NonNullable<typeof w> => !!w?.exampleDa && !!w.exampleEn)
 
+  // The story is asked for from here rather than from finishRound, because
+  // this component owns the choice of words — the same picks the sentence
+  // list shows. The store makes repeat calls no-ops, so a remount (or React
+  // strict-mode's double effect) cannot fire a second request.
+  useEffect(() => {
+    void requestStory(chosen)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one ask per round; the guard is in the store
+  }, [requestStory])
+
   // A round can end with nothing green — sudden death on the first name.
   if (rows.length === 0) return null
 
   return (
-    <section className="summary-section sentences-section">
-      <h3>In a sentence</h3>
-      <ul className="round-sentences">
-        {rows.map((w) => (
-          <li key={w.id} className="round-sentence">
-            <SpeakSentence da={w.exampleDa} />
-            <span className="sentence-en">{w.exampleEn}</span>
-          </li>
-        ))}
-      </ul>
+    <>
+      <section className="summary-section sentences-section">
+        <h3>In a sentence</h3>
+        <ul className="round-sentences">
+          {rows.map((w) => (
+            <li key={w.id} className="round-sentence">
+              <SpeakSentence da={w.exampleDa} />
+              <span className="sentence-en">{w.exampleEn}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <RoundStory />
+    </>
+  )
+}
+
+/**
+ * The round's words woven into a tiny story (H5) — the words the sentences
+ * above cannot carry, arriving on purpose.
+ *
+ * BELOW the sentences, never above: it lands a few seconds after the summary
+ * does, and content that appears above what a player is reading yanks the
+ * page out of their hands. Down here it grows into the scroll like a
+ * postscript. While it is on its way there is a single quiet line, so the
+ * arrival changes a line into a paragraph instead of conjuring a section.
+ *
+ * The small words it was asked to include are named under the story — that
+ * list is the feature: «hvis» has no card anywhere in the game, and this line
+ * is the one place the player is told they just met it.
+ */
+function RoundStory() {
+  const story = useGame((s) => s.story)
+  const status = useGame((s) => s.storyStatus)
+  const targets = useGame((s) => s.storyTargets)
+
+  if (status === 'off' || status === 'idle') return null
+  return (
+    <section className="summary-section story-section">
+      <h3>The round, as a story</h3>
+      {status === 'loading' ? (
+        <p className="story-waiting">Casey is writing one…</p>
+      ) : (
+        <>
+          <ul className="round-sentences">
+            {story!.sentences.map((s, i) => (
+              <li key={i} className="round-sentence">
+                <SpeakSentence da={s.da} />
+                <span className="sentence-en">{s.en}</span>
+              </li>
+            ))}
+          </ul>
+          {targets.length > 0 && (
+            <p className="story-targets">
+              Smuggled in:{' '}
+              {targets.map((t, i) => (
+                <span key={t}>
+                  {i > 0 && ' · '}
+                  <span lang={ACTIVE.code} className="story-target">
+                    {t}
+                  </span>
+                </span>
+              ))}
+            </p>
+          )}
+        </>
+      )}
     </section>
   )
 }

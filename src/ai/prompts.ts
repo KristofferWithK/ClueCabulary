@@ -1,6 +1,6 @@
 import type { LanguagePack } from '../lang/types'
 import { aiTargetableIds } from './projections'
-import type { AiClueView, AiGuessView, FlaggedCall, PublicClue } from './projections'
+import type { AiClueView, AiGuessView, FlaggedCall, PublicClue, StoryView } from './projections'
 
 /**
  * Prompt builders. They may import ONLY projection types — never GameState or
@@ -210,6 +210,49 @@ Clue history:
 ${historyLines(view.history)}
 
 Turns left: ${view.turnsLeft}. Your partner's clue: "${view.currentClue.text}" (${view.currentClue.number}) — they are telling you that exactly ${view.currentClue.number} unrevealed word(s) on this board fit it. Rank your guesses as JSON.`
+
+  return [
+    { role: 'system', content: system },
+    { role: 'user', content: user },
+  ]
+}
+
+/**
+ * The post-round story, written TO a coverage target.
+ *
+ * Why a story at all: nothing in the nine hundred is a conjunction, a pronoun
+ * or a particle — none of them can be clued — and the shipped example
+ * sentences were measured to carry barely half of that inventory, with the
+ * subordinating conjunctions at zero because a single-clause A1 example has no
+ * second clause for «hvis» to live in (scripts/measure-function-words.mjs).
+ * So the story is asked for the small words BY NAME, and the round's own words
+ * are the material it weaves them into. The reply is checked, not trusted: a
+ * story missing a target is a rejected story (companion.ts), so what reaches
+ * the screen is what the tracker records as met.
+ *
+ * The two ALL-CAPS list lines are load-bearing beyond the model: the fake
+ * server the drives run against parses them back out to build a valid reply,
+ * so their exact labels are part of the contract (e2e/fake-ollama.mjs).
+ */
+export function buildStoryPrompt(view: StoryView, lang: LanguagePack): ChatMessage[] {
+  const wordList = view.words.map((w) => `${w.da} (${w.en.join('/')})`).join(', ')
+  const system = `You are Casey, a cheerful travelling suitcase (with eyes) accompanying a ${lang.name} learner. The round just ended, and your job now is three or four VERY short connected ${lang.name} sentences — a tiny story or scene — using the words the player just won, so they see them living in real ${lang.name} rather than sitting on a card.
+
+The story must ALSO contain each of these small grammatical words, exactly as written. They are the real point: none of them can ever appear on a board, so this story is the only place the player meets them. Subordinate clauses are welcome — words like «${view.targets[0] ?? 'hvis'}» need a second clause to live in, and that is precisely why they are on this list.
+
+Hard constraints:
+- 2 to 4 sentences, each short and simple (A2 level, roughly 12 words or fewer). ${lang.prompts.spellingRule}
+- Use EVERY listed round word, inflected however the sentence needs.
+- Include EVERY listed small word, in exactly the written form.
+- The English rendering of each sentence must be natural English, not word-by-word.
+- Stay concrete and everyday; no names, no violence, nothing a beginner would need a dictionary for beyond the listed words.
+
+Respond with ONLY a JSON object: {"sentences": [{"da": string, "en": string}]}`
+
+  const user = `WORDS TO WEAVE IN: ${wordList}
+SMALL WORDS TO INCLUDE: ${view.targets.join(', ')}
+
+Write the story now as JSON.`
 
   return [
     { role: 'system', content: system },

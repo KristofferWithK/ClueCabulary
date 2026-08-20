@@ -114,6 +114,7 @@ const FAKE: LanguagePack = {
     reasoningExample: 'FAKE-REASONING-EXAMPLE',
     compoundExample: 'FAKE-COMPOUND-EXAMPLE',
   },
+  functionWords: { connectives: ['zorp', 'blix'] },
 }
 
 describe('the language registry', () => {

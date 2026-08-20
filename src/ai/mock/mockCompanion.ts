@@ -7,7 +7,8 @@ import {
   type AiClueView,
   type AiGuessView,
 } from '../projections'
-import type { ClueResponse, GuessResponse, TranslationResponse } from '../schemas'
+import type { StoryView } from '../projections'
+import type { ClueResponse, GuessResponse, StoryResponse, TranslationResponse } from '../schemas'
 import { ACTIVE } from '../../lang/active'
 
 /** djb2 — stable across runs so e2e tests can rely on mock behavior per seed. */
@@ -61,5 +62,20 @@ export class MockCompanion implements Companion {
 
   async translate(term: string): Promise<TranslationResponse> {
     return { da: `mok-${term}`, en: `mock translation of ${term}` }
+  }
+
+  /**
+   * Never reached in the app — the store skips the story on the practice
+   * companion — but it satisfies the interface honestly: the reply contains
+   * every word and target verbatim, so it passes the same verification the
+   * real one must, and a test can drive the whole path through it.
+   */
+  async getStory(view: StoryView): Promise<StoryResponse> {
+    return {
+      sentences: [
+        { da: `Mok: ${view.words.map((w) => w.da).join(' og ')}.`, en: 'Mock: the words.' },
+        { da: `Mok ${view.targets.join(' ')} mok.`, en: 'Mock: the small words.' },
+      ],
+    }
   }
 }

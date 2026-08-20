@@ -54,7 +54,9 @@
  * sheer repetition and cannot teach the rest at all. That is the argument for
  * H5.
  *
- * The inventory below is hand-built — the Danish closed classes in full plus
+ * The inventory lives in src/data/function-words.da.json — shared with the
+ * language pack, so the story targets and this measurement can never drift
+ * apart. It is hand-built — the Danish closed classes in full plus
  * the high-frequency adverbs and discourse particles — not a corpus cut. It is
  * the one judgement call in the file; everything else is counted.
  */
@@ -105,52 +107,9 @@ const isDatasetWord = (n) => HEADWORDS.has(n) || isInflection(n) || isCompound(n
 /* ------------------------------------------------------------------ *
  * The inventory
  * ------------------------------------------------------------------ */
-const FUNCTION_WORDS = {
-  'personal pronouns': [
-    'jeg', 'mig', 'du', 'dig', 'han', 'ham', 'hun', 'hende', 'den', 'det',
-    'vi', 'os', 'i', 'jer', 'de', 'dem', 'man', 'sig', 'selv', 'hinanden',
-  ],
-  possessives: [
-    'min', 'mit', 'mine', 'din', 'dit', 'dine', 'hans', 'hendes', 'dens',
-    'dets', 'vores', 'jeres', 'deres', 'sin', 'sit', 'sine',
-  ],
-  determiners: [
-    'en', 'et', 'denne', 'dette', 'disse', 'sådan', 'samme', 'anden', 'andet',
-    'andre', 'hver', 'hvert', 'al', 'alt', 'alle', 'begge', 'ingen', 'intet',
-    'nogen', 'noget', 'nogle', 'enhver', 'megen', 'meget', 'mange', 'flere',
-    'fleste', 'færre', 'lidt',
-  ],
-  prepositions: [
-    'i', 'på', 'til', 'fra', 'med', 'uden', 'om', 'over', 'under', 'ved',
-    'af', 'for', 'efter', 'før', 'mellem', 'mod', 'imod', 'hos', 'gennem',
-    'langs', 'omkring', 'bag', 'foran', 'blandt', 'trods', 'ifølge', 'siden',
-    'indtil', 'per', 'ad', 'mens',
-  ],
-  conjunctions: [
-    'og', 'eller', 'men', 'samt', 'at', 'om', 'hvis', 'fordi', 'da', 'når',
-    'mens', 'siden', 'selvom', 'skønt', 'medmindre', 'eftersom', 'således',
-    'både', 'enten', 'hverken', 'som',
-  ],
-  interrogatives: [
-    'hvem', 'hvad', 'hvilken', 'hvilket', 'hvilke', 'hvor', 'hvornår',
-    'hvorfor', 'hvordan', 'hvorhen',
-  ],
-  'auxiliaries and modals': [
-    'er', 'var', 'været', 'være', 'har', 'havde', 'haft', 'have', 'kan',
-    'kunne', 'skal', 'skulle', 'vil', 'ville', 'må', 'måtte', 'bør', 'burde',
-    'bliver', 'blev', 'blive', 'blevet', 'gør', 'gjorde', 'gøre',
-  ],
-  'adverbs and particles': [
-    'ikke', 'jo', 'nu', 'her', 'der', 'altid', 'aldrig', 'ofte', 'sjældent',
-    'straks', 'pludselig', 'endelig', 'allerede', 'stadig', 'endnu', 'igen',
-    'også', 'kun', 'bare', 'næsten', 'helt', 'ret', 'temmelig', 'ganske',
-    'virkelig', 'faktisk', 'måske', 'nok', 'vel', 'dog', 'altså', 'derfor',
-    'desuden', 'alligevel', 'ellers', 'snart', 'længe', 'tit', 'sammen',
-    'hjemme', 'ude', 'inde', 'oppe', 'nede', 'frem', 'tilbage', 'videre',
-    'væk', 'hen', 'netop', 'lige', 'først', 'sidst', 'især', 'omtrent',
-    'vist', 'gerne', 'hellere', 'heller', 'ja', 'nej',
-  ],
-}
+const FUNCTION_WORDS = JSON.parse(
+  readFileSync(new URL('../src/data/function-words.da.json', import.meta.url), 'utf8'),
+)
 
 const ALL = new Set(Object.values(FUNCTION_WORDS).flat())
 

@@ -61,6 +61,14 @@ import type { City } from '../journey/route'
  *  9. `copy` — the four places the UI speaks the language rather than English,
  *     plus the tips. Those tips are NOT translations of the Danish ones:
  *     German's would be about cases, capitalised nouns and separable verbs.
+ * 10. `functionWords` — the closed classes in full, in
+ *     `src/data/function-words.de.json`, hand-built the way the Danish one
+ *     was (see the essay atop `scripts/measure-function-words.mjs`). The
+ *     post-round story is written TO this list, so a class left out is a
+ *     class the game stops trying to teach. Order matters twice: classes are
+ *     walked in priority order when picking story targets, and words within a
+ *     class in list order — put the connectives a single-clause example can
+ *     never contain (weil, obwohl, falls) early.
  *
  * ── AND FOUR THINGS OUTSIDE `src/lang/`, ALL OF THEM TABLES ────────────────
  *
@@ -117,6 +125,17 @@ export interface LanguagePack {
   readonly route: Route
   readonly prompts: PromptStrings
   readonly copy: TargetCopy
+  /**
+   * The language's closed classes — pronouns, prepositions, conjunctions,
+   * auxiliaries, the particles — grouped by class. Nothing in the nine hundred
+   * is one of these, because none of them can be clued; they reach a learner
+   * only as scenery inside a sentence, and the shipped example sentences were
+   * measured to carry barely half of them (`scripts/measure-function-words.mjs`).
+   * The post-round story is written TO this list: the coverage store picks the
+   * least-met entries as targets and the story must weave them in. Class order
+   * is the target-picking priority; word order breaks ties within a class.
+   */
+  readonly functionWords: Readonly<Record<string, readonly string[]>>
 }
 
 /**

@@ -1,0 +1,46 @@
+{
+  "conjunctions": [
+    "hvis", "fordi", "selvom", "mens", "eller", "når", "da", "som", "at",
+    "om", "og", "men", "både", "enten", "hverken", "samt", "skønt",
+    "medmindre", "eftersom", "således"
+  ],
+  "adverbs and particles": [
+    "pludselig", "straks", "sjældent", "alligevel", "desuden", "derfor",
+    "ellers", "temmelig", "omtrent", "netop", "især", "hellere", "heller",
+    "ganske", "endelig", "allerede", "stadig", "endnu", "aldrig", "ofte",
+    "altid", "igen", "også", "kun", "bare", "næsten", "helt", "ret",
+    "virkelig", "faktisk", "måske", "nok", "vel", "dog", "altså", "snart",
+    "længe", "tit", "sammen", "hjemme", "ude", "inde", "oppe", "nede",
+    "frem", "tilbage", "videre", "væk", "hen", "lige", "først", "sidst",
+    "vist", "gerne", "ikke", "jo", "nu", "her", "der", "ja", "nej"
+  ],
+  "interrogatives": [
+    "hvornår", "hvorfor", "hvordan", "hvorhen", "hvilken", "hvilket",
+    "hvilke", "hvem", "hvad", "hvor"
+  ],
+  "prepositions": [
+    "uden", "mellem", "gennem", "langs", "omkring", "bag", "foran", "blandt",
+    "trods", "ifølge", "siden", "indtil", "imod", "mod", "hos", "per", "ad",
+    "før", "efter", "over", "under", "ved", "af", "for", "fra", "til", "med",
+    "om", "på", "i", "mens"
+  ],
+  "possessives": [
+    "sin", "sit", "sine", "vores", "jeres", "deres", "dens", "dets", "hans",
+    "hendes", "min", "mit", "mine", "din", "dit", "dine"
+  ],
+  "determiners": [
+    "hver", "hvert", "begge", "enhver", "sådan", "samme", "anden", "andet",
+    "andre", "al", "alt", "alle", "ingen", "intet", "nogen", "noget",
+    "nogle", "megen", "meget", "mange", "flere", "fleste", "færre", "lidt",
+    "denne", "dette", "disse", "en", "et"
+  ],
+  "personal pronouns": [
+    "hinanden", "selv", "sig", "man", "jer", "os", "ham", "hende", "dem",
+    "mig", "dig", "jeg", "du", "han", "hun", "den", "det", "vi", "i", "de"
+  ],
+  "auxiliaries and modals": [
+    "burde", "bør", "måtte", "blevet", "gjorde", "været", "havde", "haft",
+    "kunne", "skulle", "ville", "blev", "blive", "bliver", "gøre", "gør",
+    "være", "have", "var", "er", "har", "kan", "skal", "vil", "må"
+  ]
+}

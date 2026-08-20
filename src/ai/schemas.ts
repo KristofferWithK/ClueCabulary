@@ -23,6 +23,31 @@ export const GuessResponseSchema = z.object({
 export type GuessResponse = z.infer<typeof GuessResponseSchema>
 
 /**
+ * The post-round story: a few connected sentences that use the round's words
+ * and smuggle in the function words nothing on a board can teach.
+ *
+ * Two to four sentences: one is not a story and cannot hold a subordinate
+ * clause pair, five is a reading exercise on a screen whose job is to end the
+ * round. The per-sentence cap is generous — the prompt asks for short A2
+ * sentences and the cap only exists so a runaway reply is a retry, not a wall
+ * of text on the summary.
+ */
+export const StoryResponseSchema = z.object({
+  sentences: z
+    .array(
+      z.object({
+        /** The sentence in the language being learned. */
+        da: z.string().trim().min(1).max(160),
+        /** Its natural English rendering, shown beneath. */
+        en: z.string().trim().min(1).max(200),
+      }),
+    )
+    .min(2)
+    .max(4),
+})
+export type StoryResponse = z.infer<typeof StoryResponseSchema>
+
+/**
  * A translation, for the field the player uses to compose a Danish clue or to
  * read one of Casey's. Deliberately tiny: the whole value is being able to ask
  * without leaving the round.

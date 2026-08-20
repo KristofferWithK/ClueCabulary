@@ -1,4 +1,5 @@
 import type { WordEntry } from '../../data/types'
+import functionWords from '../../data/function-words.da.json'
 import raw from '../../data/words.da.json'
 import type { LanguagePack } from '../types'
 import { danishCopy } from './copy'
@@ -34,4 +35,8 @@ export const danish: LanguagePack = {
   route: danishRoute,
   prompts: danishPrompts,
   copy: danishCopy,
+  // The same file measure-function-words.mjs counts, so the measurement and
+  // the story targets can never drift apart. Class order is target priority —
+  // conjunctions first, because they are the measured hole (hvis 0/900).
+  functionWords,
 }

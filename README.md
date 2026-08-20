@@ -202,6 +202,21 @@ opens.
    correction has something to bite on. They carry a clue word, a board word and
    his own reasoning — no key data — so they pass the AI firewall by
    construction, which `src/ai/flags.test.ts` asserts directly.
+7. The summary also puts the round's green words back into Danish: each with
+   its example sentence, and then — when Casey is connected — woven into a
+   tiny **story written to a coverage target**. The story exists for the words
+   no board can hold. Nothing in the nine hundred is a conjunction, a pronoun
+   or a particle, because none can be clued, and the shipped example sentences
+   were measured to reach barely half of that inventory, with «hvis», «fordi»
+   and «selvom» effectively absent (`scripts/measure-function-words.mjs`
+   reproduces the numbers). So each story is *asked* for the least-met of them
+   by name, the reply is verified to actually contain them before anything is
+   recorded (`storyProblem` in `src/ai/companion.ts` — a story is rejected and
+   retried rather than trusted), and a ledger (`coverageStore`) walks the
+   targets through the whole 209-word inventory round by round. The line under
+   the story names what was smuggled in. It costs the one model call per round
+   that the retired debrief used to spend; offline or in practice mode the
+   sentences stand alone, exactly as before.
 
 Progress is tracked per word with a spaced-repetition scheduler; new words are
 introduced along the frequency ranking while struggling words return more

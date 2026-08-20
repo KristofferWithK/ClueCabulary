@@ -3,8 +3,8 @@ import { persist } from 'zustand/middleware'
 import { AiError } from '../ai/client'
 import { OllamaCompanion, planGuessExecution, type Companion } from '../ai/companion'
 import { MockCompanion } from '../ai/mock/mockCompanion'
-import { buildAiClueView, buildAiGuessView } from '../ai/projections'
-import type { GuessResponse, TranslationResponse } from '../ai/schemas'
+import { buildAiClueView, buildAiGuessView, buildStoryView } from '../ai/projections'
+import type { GuessResponse, StoryResponse, TranslationResponse } from '../ai/schemas'
 import { GRID_CONFIGS, WRAPUP_CONFIG, type GridConfig, type GridSize } from '../engine/config'
 import { applyEvent as applyEventIn, createGame, currentClue } from '../engine/game'
 import { matchesAnswer } from '../engine/packing'
@@ -18,6 +18,7 @@ import { ACTIVE } from '../lang/active'
 import { DEFAULT_LANGUAGE } from '../lang/index'
 import type { LanguageCode } from '../lang/types'
 import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
+import { pickStoryTargets, useCoverage } from './coverageStore'
 import { wrapUpBias, wrapUpWords, type RoundMode } from '../journey/wrapup'
 import { flagsFor, useFeedback } from './feedbackStore'
 import { useJourney } from './journeyStore'
@@ -108,6 +109,22 @@ interface GameStore {
   earnedWrapUp: boolean
   // Transient (not persisted):
   aiBusy: boolean
+  /**
+   * The post-round story (H5), and why it is transient: the summary is the
+   * only reader, a reload after a finished round starts from Home anyway, and
+   * a persisted story would need a migration story of its own for a feature
+   * whose failure mode is already "show the example sentences instead".
+   */
+  story: StoryResponse | null
+  storyStatus: 'idle' | 'loading' | 'ready' | 'off'
+  /** What the coverage store asked this round's story to contain. */
+  storyTargets: string[]
+  /**
+   * Ask Casey to weave the round's words into a story. Called by the summary
+   * with the same word ids it shows sentences for; safe to call repeatedly —
+   * only the first call after a round finishes does anything.
+   */
+  requestStory: (wordIds: readonly string[]) => Promise<void>
   aiGuessQueue: PlannedGuess[]
   /** clueHistory.length the current guess plan was made for — distinguishes "plan consumed" from "no plan yet". */
   planForClueIndex: number | null
@@ -301,6 +318,9 @@ const freshRound = () => ({
   newlyLearned: [] as string[],
   newlyDiscovered: [] as string[],
   earnedWrapUp: false,
+  story: null as StoryResponse | null,
+  storyStatus: 'idle' as const,
+  storyTargets: [] as string[],
   // Every round gets a fresh chance at Casey.
   practiceFallback: false,
   aiGuessQueue: [] as PlannedGuess[],
@@ -450,6 +470,9 @@ export const useGame = create<GameStore>()(
       newlyLearned: [],
       newlyDiscovered: [],
       earnedWrapUp: false,
+      story: null,
+      storyStatus: 'idle',
+      storyTargets: [],
       practiceFallback: false,
       aiBusy: false,
       aiGuessQueue: [],
@@ -841,6 +864,35 @@ export const useGame = create<GameStore>()(
           set({ aiBusy: false, game: after })
         } catch (e) {
           if (get().game === game) set({ aiBusy: false, error: aiMessage(e) })
+        }
+      },
+
+      requestStory: async (wordIds) => {
+        const { game, storyStatus, mode, practiceFallback } = get()
+        if (!game || game.phase !== 'finished' || storyStatus !== 'idle') return
+        // Wrap-up rounds are the packing ritual over words already collected;
+        // the story is for rounds that MET words. The practice companion
+        // cannot write one worth reading, so those rounds keep the example
+        // sentences — which is also what any failure below falls back to.
+        if (mode === 'wrapup' || onPracticeCompanion(practiceFallback) || wordIds.length === 0) {
+          set({ storyStatus: 'off' })
+          return
+        }
+        const targets = pickStoryTargets(useCoverage.getState().met)
+        set({ storyStatus: 'loading', storyTargets: targets })
+        try {
+          const story = await companion(practiceFallback).getStory(
+            buildStoryView(game, wordIds, targets),
+          )
+          if (get().game !== game) return // a new round started under the request
+          // Recorded only AFTER the companion verified the targets are really
+          // in the text — the ledger holds what was shown, never what was asked.
+          useCoverage.getState().recordStory(story)
+          set({ story, storyStatus: 'ready' })
+        } catch {
+          // The round is over and the sentences are already on screen; a story
+          // that could not be written is a shrug, not an error banner.
+          if (get().game === game) set({ storyStatus: 'off' })
         }
       },
 

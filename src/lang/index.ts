@@ -54,6 +54,7 @@ export const isLanguageCode = (v: unknown): v is LanguageCode => v === 'da' || v
  *
  *   - `srsStore.stats`      (wordId -> WordStats)
  *   - `journeyStore.wrapped` (wordId -> when it was packed)
+ *   - `coverageStore.met`   (functionWordId like `da:hvis` -> stories it was in)
  *
  * — and both stay in ONE store under their existing keys. Splitting them per
  * language would move real progress between storage keys for no gain, and

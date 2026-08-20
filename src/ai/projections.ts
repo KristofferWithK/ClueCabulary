@@ -119,6 +119,36 @@ export function buildAiGuessView(
 }
 
 /** Words the AI may legitimately target with its own clue (giver = 'ai'). */
+/**
+ * What the story prompt may see: the round's already-revealed green words and
+ * the function words the coverage store wants woven in. Nothing else — no
+ * reveal states, no keys, no history. The round is over when this is built,
+ * but the firewall holds anyway: the builder reads only the public face of
+ * the words it is handed, so permuting either key cannot change a byte of it
+ * (pinned in projections.test.ts).
+ */
+export interface StoryView {
+  kind: 'story'
+  words: { da: string; en: string[]; pos: string }[]
+  /** Function words the story must contain, e.g. ['hvis', 'fordi']. */
+  targets: string[]
+}
+
+export function buildStoryView(
+  state: GameState,
+  wordIds: readonly string[],
+  targets: readonly string[],
+): StoryView {
+  return {
+    kind: 'story',
+    words: wordIds.map((id) => {
+      const w = state.words.find((x) => x.wordId === id)!
+      return { da: w.da, en: w.en, pos: w.pos }
+    }),
+    targets: [...targets],
+  }
+}
+
 export function aiTargetableIds(view: AiClueView): string[] {
   return view.words
     .filter((w) => w.roleOnMyKey === 'green' && isOpenFor(w.reveal, 'ai'))

@@ -265,17 +265,20 @@ try {
   check('the next round goes back to Casey', fake.received.length >= 1, `${fake.received.length} calls`)
 
   // ---- and the round ENDS without asking the model anything -----------------
-  // Finishing a round used to fire a debrief request: one POST per round, whose
-  // answer is not on the screen any more. This is the assertion that the call
-  // is gone rather than merely unused — it is made against the bytes the
-  // browser sends, which is the only place that can tell the difference.
+  // What a finished round asks the model for changed twice. The debrief was
+  // one POST per round narrating what the screen already said — B1 deleted it,
+  // and the deletion was asserted here against the bytes the browser sends.
+  // H5 spends that vacated budget on the story: a round that ends with greens
+  // makes exactly ONE request, for the words no board can carry, and a round
+  // that ends with nothing green still makes none. Both halves are pinned,
+  // because each is a way the feature can quietly rot — the story call
+  // sneaking into greenless rounds, or dying out of green ones.
   //
-  // Verified to bite: putting `void get().requestDebrief()` back at the end of
-  // finishRound makes it read 1 call instead of 0.
-  //
-  // Sudden death is the cheap way to an ending here. The clue-and-guess loop
+  // Sudden death is the cheap way to both endings. The clue-and-guess loop
   // above would need a scripted reply for every turn of a full round; this
-  // needs none, because sudden death has no clue-giver and therefore no AI turn.
+  // needs none, because sudden death has no clue-giver and therefore no AI
+  // turn — and a green on either key keeps it going, so one round can bank a
+  // green and then end on a dud.
   await freshRound()
   await page.evaluate(() => {
     const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
@@ -303,9 +306,62 @@ try {
   await page.waitForSelector('.round-summary', { timeout: 20000 })
   await sleep(2500)
   check(
-    'finishing a round sends nothing to the model',
+    'a round ending with nothing green sends nothing to the model',
     fake.received.length === 0,
     `${fake.received.length} calls`,
+  )
+
+  // The green ending: bank one green in sudden death, then end on the dud.
+  await freshRound()
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
+    raw.state.game.phase = 'suddenDeath'
+    raw.state.game.turnsLeft = 0
+    localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
+  })
+  await page.reload()
+  await page.waitForSelector('.city-card')
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.sudden-death-bar', { timeout: 20000 })
+  const sd2 = await gameState()
+  const green = sd2.words.find(
+    (w) =>
+      (sd2.playerKey[w.wordId] === 'green' || sd2.aiKey[w.wordId] === 'green') &&
+      sd2.reveals[w.wordId].kind === 'hidden',
+  )
+  const dud2 = sd2.words.find(
+    (w) =>
+      sd2.playerKey[w.wordId] !== 'green' &&
+      sd2.aiKey[w.wordId] !== 'green' &&
+      sd2.reveals[w.wordId].kind === 'hidden',
+  )
+  if (!green || !dud2) throw new Error('sudden death board lacks a green or a dud')
+  await page.locator(`.word-card:has(.card-word:text-is("${green.da}"))`).click()
+  await page.locator('.guess-confirm .btn-primary').click()
+  await page.waitForSelector('.sudden-death-bar', { timeout: 20000 })
+  fake.reset()
+  await page.locator(`.word-card:has(.card-word:text-is("${dud2.da}"))`).click()
+  await page.locator('.guess-confirm .btn-primary').click()
+  await page.waitForSelector('.round-summary', { timeout: 20000 })
+  // The story is asked for from the summary, answered by the fake's echo, and
+  // must reach the screen — asserted on the section, not the store, because a
+  // request that succeeds into a hidden section is the failure mode a vacuous
+  // green here would hide.
+  await page.waitForSelector('.story-section .round-sentence', { timeout: 20000 })
+  await sleep(1500)
+  check(
+    'a round ending with a green asks for exactly the story',
+    fake.received.length === 1,
+    `${fake.received.length} calls`,
+  )
+  const storyReq = fake.received[0]?.raw ?? ''
+  check(
+    'and the story request is board-blind',
+    storyReq.includes('SMALL WORDS TO INCLUDE') && !storyReq.includes('my key'),
+  )
+  check(
+    'and the smuggled words are named on the summary',
+    (await page.locator('.story-targets .story-target').count()) >= 1,
   )
 
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nAI DRIVE OK')

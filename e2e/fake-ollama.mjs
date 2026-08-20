@@ -47,7 +47,12 @@ export async function startFakeOllama(port, { auto = false, cors: sendCors = tru
       }
       received.push({ messages: parsed?.messages ?? [], raw, auth: req.headers.authorization ?? '' })
 
-      const next = script.shift() ?? (auto ? autoReply(parsed) : { json: null })
+      // A story request that nothing scripted is answered rather than nulled,
+      // in scripted mode too: its valid reply must echo the request's own two
+      // list lines, so it cannot be queued ahead of time the way a clue can.
+      // A drive that wants to test the story's failure path still can — queue
+      // the bad replies and they are served first.
+      const next = script.shift() ?? (auto ? autoReply(parsed) : storyOrNull(parsed))
       if (next.status && next.status >= 400) {
         res.writeHead(next.status, { ...cors, 'Content-Type': 'application/json' })
         res.end(JSON.stringify({ error: { message: 'fake failure' } }))
@@ -79,13 +84,20 @@ export async function startFakeOllama(port, { auto = false, cors: sendCors = tru
   }
 }
 
+const promptText = (request) => (request?.messages ?? []).map((m) => m.content ?? '').join('\n')
+
+const storyOrNull = (request) => {
+  const text = promptText(request)
+  return /SMALL WORDS TO INCLUDE/.test(text) ? storyReply(text) : { json: null }
+}
+
 /**
  * Answer any prompt plausibly by reading the board back out of it. Lets the
  * fake stand in for a model with no script at all, which is how live-drive's
  * own machinery gets exercised without a key.
  */
 function autoReply(request) {
-  const text = (request?.messages ?? []).map((m) => m.content ?? '').join('\n')
+  const text = promptText(request)
   // Board lines are "<id> | <danish> (...) [...] | <status>[ | my key: ROLE]",
   // and since A2 they can carry one more field after the role — "** YOU MAY
   // TARGET THIS **", or the sentence saying a green is already found.
@@ -102,12 +114,37 @@ function autoReply(request) {
     ...text.matchAll(/^(\S+) \| .+? \| ([A-Za-z ]+?)(?: \| my key: (\w+))?(?: \|.*)?$/gm),
   ]
   const hidden = rows.filter((m) => /hidden|unrevealed/i.test(m[2]))
+  if (/SMALL WORDS TO INCLUDE/.test(text)) return storyReply(text)
   if (/You are the GUESSER/.test(text)) {
     const pick = (hidden[0] ?? rows[0])?.[1]
     return pick ? guessReply([pick], 0.8) : { json: null }
   }
   const greens = rows.filter((m) => (m[3] ?? '').toUpperCase() === 'GREEN').map((m) => m[1])
   return greens.length ? clueReply(greens.slice(0, 2), 'autoklue') : { json: null }
+}
+
+/**
+ * A valid story reply, built by reading the request back out of its own two
+ * list lines — the labels are a contract stated in buildStoryPrompt. The
+ * "story" is nonsense, but it contains every asked-for word verbatim, so it
+ * passes the same verification the real model's reply must (companion.ts) and
+ * the drive proves the checked path rather than a hole through it.
+ */
+export const storyReply = (promptText) => {
+  const words = [...(promptText.match(/^WORDS TO WEAVE IN: (.*)$/m)?.[1] ?? '').matchAll(/([^,(]+) \(/g)]
+    .map((m) => m[1].trim())
+  const targets = (promptText.match(/^SMALL WORDS TO INCLUDE: (.*)$/m)?.[1] ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  return {
+    json: {
+      sentences: [
+        { da: `Fake: ${words.join(' og ')}.`, en: 'Fake: the words.' },
+        { da: `Og ${targets.join(' ')} fake.`, en: 'Fake: the small words.' },
+      ],
+    },
+  }
 }
 
 /** A well-formed clue reply for the given board word ids. */

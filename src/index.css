@@ -2699,6 +2699,30 @@ body:has(.kb-up) {
   line-height: 1.4;
 }
 
+/* ---------- the round, as a story (H5) ---------- */
+
+/* One quiet line while Casey writes. The section arrives BELOW the sentences,
+   inside .summary-scroll, so its growth never moves what is being read. */
+.story-waiting {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* The small words the story exists to deliver. Same visual weight as the
+   English glosses around it — a footnote, not a badge row: the words are the
+   payload and decoration would outshout three short particles. */
+.story-targets {
+  margin-top: 8px;
+  font-size: 0.83rem;
+  color: var(--text-dim);
+}
+
+.story-target {
+  font-weight: 600;
+  color: var(--text);
+}
+
 /* ---------- journey: end of the road, and a resumable exam ---------- */
 
 .journey-done {

@@ -6,10 +6,12 @@ import {
   aiTargetableIds,
   type AiClueView,
   type AiGuessView,
+  type StoryView,
 } from './projections'
 import {
   buildCluePrompt,
   buildGuessPrompt,
+  buildStoryPrompt,
   buildTranslatePrompt,
   type ChatMessage,
 } from './prompts'
@@ -17,9 +19,11 @@ import { ACTIVE } from '../lang/active'
 import {
   ClueResponseSchema,
   GuessResponseSchema,
+  StoryResponseSchema,
   TranslationResponseSchema,
   type ClueResponse,
   type GuessResponse,
+  type StoryResponse,
   type TranslationResponse,
 } from './schemas'
 
@@ -35,6 +39,57 @@ export interface Companion {
   getGuesses(view: AiGuessView): Promise<GuessResponse>
   /** One word, either direction. Takes no view: it must not see the board. */
   translate(term: string): Promise<TranslationResponse>
+  /**
+   * The post-round story (H5). One call per finished round, in the seat the
+   * debrief vacated — B1 deleted a call that narrated what the player could
+   * already see, and this spends the same budget on the words no board can
+   * hold. The round is over when it runs, so nothing about it is on the
+   * critical path: a failure falls back to the shipped example sentences.
+   */
+  getStory(view: StoryView): Promise<StoryResponse>
+}
+
+/**
+ * Words out of a sentence, the same way `scripts/measure-function-words.mjs`
+ * cuts them: hyphens and apostrophes stay inside a token, every other mark is
+ * a boundary. \p{L} rather than a Danish letter class, so the same knife works
+ * for German without an edit.
+ */
+export const storyTokens = (text: string): string[] =>
+  text
+    .toLowerCase()
+    .split(/[^\p{L}'-]+/u)
+    .filter(Boolean)
+
+/**
+ * Does the story actually contain what it was asked for? Split out of the
+ * companion and exported because this check IS the feature: a story that
+ * merely claims to contain «hvis» would still be marked as teaching it, so
+ * whatever the tracker records must have been verified here first.
+ *
+ * Targets are matched exactly — the closed classes are asked for in a fixed
+ * form and mostly do not inflect. Round words are matched through the pack's
+ * stemmer, because «huset» is «hus» doing its job in a sentence and rejecting
+ * it would teach the model to write unnaturally bare Danish.
+ */
+export function storyProblem(story: StoryResponse, view: StoryView): string | null {
+  const tokens = new Set(storyTokens(story.sentences.map((s) => s.da).join(' ')))
+  const missingTarget = view.targets.filter((t) => !tokens.has(t.toLowerCase()))
+  if (missingTarget.length > 0) {
+    return (
+      `the story does not contain ${missingTarget.map((t) => `«${t}»`).join(', ')} — ` +
+      `each listed small word must appear exactly as written; a subordinate clause is the natural home for a connective`
+    )
+  }
+  const stem = ACTIVE.morphology.stem
+  const stems = new Set([...tokens].map(stem))
+  const missingWord = view.words.filter(
+    (w) => !tokens.has(w.da.toLowerCase()) && !stems.has(stem(w.da.toLowerCase())),
+  )
+  if (missingWord.length > 0) {
+    return `the story does not use ${missingWord.map((w) => `«${w.da}»`).join(', ')} — every listed round word must appear, inflected freely`
+  }
+  return null
 }
 
 /**
@@ -254,6 +309,25 @@ export class OllamaCompanion implements Companion {
       },
       0.3,
       'Casey could not work out which words your clue points at.',
+    )
+  }
+
+  async getStory(view: StoryView): Promise<StoryResponse> {
+    return askValidated(
+      this.chat,
+      this.settings,
+      buildStoryPrompt(view, ACTIVE),
+      (raw) => {
+        const parsed = StoryResponseSchema.safeParse(raw)
+        if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
+        const problem = storyProblem(parsed.data, view)
+        return problem ? { ok: false, problem } : { ok: true, value: parsed.data }
+      },
+      // The highest temperature in the file: a story is the one reply where
+      // sameness is a defect, and the checks above catch anything that wanders
+      // off the contract.
+      0.8,
+      'Casey could not put this round into a story.',
     )
   }
 
