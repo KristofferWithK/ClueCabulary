@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GameState } from '../../engine/types'
 import { useSettings } from '../../stores/settingsStore'
 import { canPlayWords, playWord, stopWordAudio } from '../speak'
@@ -44,41 +44,49 @@ export function HearBoard({ game }: { game: GameState }) {
   const [playing, setPlaying] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
-  // Leaving the round — or the phase that renders this — must not leave a
-  // voice running over the summary screen. The board unmounts at `finished`,
-  // so this cleanup IS the stop for the ordinary end of a round.
-  useEffect(() => {
-    return () => {
-      if (timer.current) clearTimeout(timer.current)
-      stopWordAudio()
-    }
-  }, [])
-
-  // Turning sound off mid-tour. `playWord` would fall silent by itself on the
-  // next word, but the button would sit there claiming to be playing.
-  useEffect(() => {
-    if (sound) return
+  const stop = useCallback(() => {
     if (timer.current) clearTimeout(timer.current)
     timer.current = undefined
     stopWordAudio()
     setPlaying(false)
-  }, [sound])
+  }, [])
+
+  // Leaving the round — or the phase that renders this — must not leave a
+  // voice running over the summary screen. The board unmounts at `finished`,
+  // so this cleanup IS the stop for the ordinary end of a round.
+  useEffect(() => stop, [stop])
+
+  // Turning sound off mid-tour. `playWord` would fall silent by itself on the
+  // next word, but the button would sit there claiming to be playing.
+  useEffect(() => {
+    if (!sound) stop()
+  }, [sound, stop])
+
+  // A re-deal mid-tour. The two controls sit in the same header and ↻ is only
+  // offered before the first clue, which is exactly when someone would ask to
+  // hear the board — so this is reachable, not theoretical. Without it the
+  // tour would read out twenty words that are no longer on screen.
+  const boardKey = game.words.map((w) => w.wordId).join(',')
+  useEffect(() => {
+    // Guarded on a tour actually being in flight — `timer.current` is set only
+    // between the first word and the last — so that mounting does not fire
+    // `stopWordAudio` at whatever the previous screen was still saying.
+    if (timer.current) stop()
+    // Keyed on the board's identity rather than on the object: the store hands
+    // back a new GameState on every reveal, and stopping on each of those
+    // would leave the tour unable to outlive a single word.
+  }, [boardKey, stop])
 
   // The same reasoning SpeakWord gives: with sound off these would be a
   // control that does nothing, which is worse than no control.
   if (!sound || !canPlayWords()) return null
 
-  const stop = () => {
-    if (timer.current) clearTimeout(timer.current)
-    timer.current = undefined
-    stopWordAudio()
-    setPlaying(false)
-  }
-
   const start = () => {
-    // Board order, which is reading order — the same left-to-right, top-to-
-    // bottom the eye is already using. Snapshotted rather than read per tick
-    // so a re-deal cannot leave the tour walking a board that is gone.
+    // Board order, which is reading order — the same left-to-right,
+    // top-to-bottom the eye is already using. Snapshotted rather than read per
+    // tick because the store hands back a new GameState on every reveal, and
+    // the tour should walk the board it was started on; the effect above is
+    // what handles the one case where that board stops existing.
     const words = game.words.map((w) => ({ id: w.wordId, da: w.da }))
     let i = 0
     setPlaying(true)

@@ -32,6 +32,18 @@
  *   - Conjunctions are the hole: 9 of 21, and «hvis», «selvom», «eller» and
  *     «mens» are each 0/900. Two of the three words that prompted the feature —
  *     «hvis» at 0 and «fordi» at 2 — are effectively absent.
+ *
+ * ONE PART OF THAT IS AN ARTIFACT, and saying so is the difference between a
+ * measurement and a scare. The auxiliaries look far worse than they are: the
+ * dataset forbids an example from containing its own headword (validate-words
+ * warns on it), and være/kunne/skulle/ville/måtte are all headwords, so their
+ * infinitives are suppressed by rule. Their finite forms are everywhere —
+ * er 211, kan 39, skal 21, vil 16, må 9 — so the modal system IS taught and
+ * only the infinitive and past forms are missing.
+ *
+ * The conjunction gap is NOT an artifact. eller, hvis, mens and selvom are not
+ * dataset headwords at all, so no rule suppresses them; they are simply absent
+ * from nine hundred sentences. That gap is real and it is the one H5 exists for.
  *   - A round of five sentences shows ~11 distinct function words (median 11),
  *     and two thirds of them come from the same twenty: i, er, en, jeg, vi, på,
  *     har, hun, han, du…

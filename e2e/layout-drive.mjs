@@ -344,8 +344,29 @@ const studyBtn = page.locator('.study-dock .btn-primary')
 if (await studyBtn.isVisible().catch(() => false)) await studyBtn.click()
 const regions = await page.locator('[aria-live], [role="status"], [role="alert"]').count()
 check('the game loop has a live region', regions > 0, `${regions} found`)
-const pressed = await page.locator('.game-header .icon-btn[aria-pressed]').count()
-check('the translations toggle exposes its state', pressed === 1)
+// Both header toggles have to say what state they are in — the translations
+// overlay, whose on/off used to be carried by background colour alone, and now
+// hear-the-board beside it.
+//
+// This counted every aria-pressed button in the header and expected exactly
+// one, which was a statement about the translations toggle only for as long as
+// it was the only toggle. A second one arriving made it fail while both
+// buttons were behaving correctly, and — worse in the other direction — the
+// old form would have passed just as happily if the Aa button had lost its
+// state and the new button had supplied the missing one. Named individually,
+// so neither can stand in for the other.
+const aa = page.locator('.game-header .icon-btn[aria-label*="translation"]')
+check(
+  'the translations toggle exposes its state',
+  (await aa.count()) === 1 && (await aa.getAttribute('aria-pressed')) === 'false',
+  `${await aa.count()} found, aria-pressed ${await aa.getAttribute('aria-pressed')}`,
+)
+const hearToggle = page.locator('.game-header .hear-board')
+check(
+  'and so does hear-the-board, which is the other one',
+  (await hearToggle.count()) === 1 && (await hearToggle.getAttribute('aria-pressed')) === 'false',
+  `${await hearToggle.count()} found, aria-pressed ${await hearToggle.getAttribute('aria-pressed')}`,
+)
 
 // The clue count. It arrived because a rule turned on it — the last chance
 // opened after a given number of clues — and it outlives that rule: it is how
