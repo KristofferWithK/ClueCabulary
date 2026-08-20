@@ -112,9 +112,21 @@ const PROVIDERS = {
   google: {
     keyEnv: 'TTS_API_KEY',
     host: 'https://texttospeech.googleapis.com',
+    /**
+     * The ones worth trying, first is the default.
+     *
+     * Chosen by ear from a 35-voice audition (the `Audition TTS voices`
+     * workflow bakes every voice Google serves reading the same four
+     * sentences). Aoede is a Chirp3-HD voice — a tier that did not exist when
+     * this list was first written, and which is 30 of the 35 today. The
+     * legacy names below it are kept as fallbacks rather than aspirations.
+     *
+     * Do NOT add a name here without checking it against `listVoices`: a
+     * retired name is SERVED rather than refused, as a different voice.
+     */
     voices: {
-      da: ['da-DK-Neural2-F', 'da-DK-Wavenet-F', 'da-DK-Wavenet-G', 'da-DK-Standard-F'],
-      de: ['de-DE-Neural2-F'],
+      da: ['da-DK-Chirp3-HD-Aoede', 'da-DK-Neural2-F', 'da-DK-Wavenet-F', 'da-DK-Wavenet-G'],
+      de: ['de-DE-Chirp3-HD-Aoede', 'de-DE-Neural2-F'],
     },
     perMillion: 16,
     rps: 8, // documented 1000/min for these tiers; a comfortable eighth of it
@@ -132,7 +144,7 @@ const PROVIDERS = {
             voice: { languageCode: cfg.locale, name: cfg.voice },
             // Google's MP3 is 32 kbps unless a rate is asked for. These are
             // single words a learner is trying to hear precisely.
-            audioConfig: { audioEncoding: 'MP3', sampleRateHertz: 24000, speakingRate: 0.9 },
+            audioConfig: { audioEncoding: 'MP3', sampleRateHertz: 24000, speakingRate: cfg.rate },
           }),
         },
       }
@@ -194,7 +206,9 @@ const PROVIDERS = {
           body:
             `<speak version='1.0' xml:lang='${cfg.locale}'>` +
             `<voice xml:lang='${cfg.locale}' name='${cfg.voice}'>` +
-            `<prosody rate='-10%'>${safe}</prosody>` +
+            // Azure wants the rate as a percentage OFF normal, signed, where
+            // Google wants a multiplier. 0.6 here is '-40%'.
+            `<prosody rate='${cfg.rate >= 1 ? '+' : ''}${Math.round((cfg.rate - 1) * 100)}%'>${safe}</prosody>` +
             `</voice></speak>`,
         },
       }
@@ -226,7 +240,7 @@ const PROVIDERS = {
             text,
             model_id: 'eleven_multilingual_v2',
             language_code: cfg.lang,
-            voice_settings: { stability: 0.5, similarity_boost: 0.75, speed: 0.9 },
+            voice_settings: { stability: 0.5, similarity_boost: 0.75, speed: cfg.rate },
           }),
         },
       }
@@ -286,6 +300,25 @@ const region = flag('region', 'northeurope')
 const rps = Number(flag('rps', provider.rps))
 const retries = Number(flag('retries', 4))
 
+/**
+ * How fast the voice speaks, as a multiplier of its normal pace.
+ *
+ * 0.6 by design, not by default: this is a vocabulary app, the clips are single
+ * words a learner is trying to hear precisely, and the owner picked the number
+ * by ear from a rate audition (1.0 / 0.9 / 0.7 / 0.6 / 0.5 of the same
+ * sentence — audition/da-rate/, and the workflow that made them). Below about
+ * 0.6 a neural voice stops sounding patient and starts sounding drawn out.
+ *
+ * Each provider spells it differently — Google a multiplier, Azure a signed
+ * percentage, ElevenLabs a speed — so the number is normalised here and each
+ * adapter converts. It is part of the stamp below, so changing it re-bakes.
+ */
+const rate = Number(flag('rate', 0.6))
+if (!Number.isFinite(rate) || rate < 0.25 || rate > 4) {
+  console.error(`--rate must be between 0.25 and 4; got "${flag('rate')}".`)
+  process.exit(2)
+}
+
 const voice = flag('voice', provider.voices[lang]?.[0])
 if (!voice) {
   console.error(
@@ -316,6 +349,7 @@ if (!LOCALES[lang]) {
 const cfg = {
   key,
   voice,
+  rate,
   lang,
   // The BCP-47 tag each provider wants, and it is NOT derivable from the code:
   // da is da-DK, not da-DA. Uppercasing the code happens to be right for German
@@ -370,10 +404,18 @@ try {
   // does not need to be.
 }
 
-/** What identifies "the same file as last time": change any of it and re-bake. */
+/**
+ * What identifies "the same file as last time": change any of it and re-bake.
+ *
+ * The RATE is in here, and it has to be. It was not, for as long as the speed
+ * was a literal inside each adapter — which meant changing it and re-running
+ * would have matched every stamp, skipped all 900 words, and printed
+ * "0 to make · Nothing to do." The one thing you changed would have been the
+ * one thing the manifest could not see.
+ */
 const stamp = (job) =>
   createHash('sha256')
-    .update([providerName, cfg.voice, cfg.locale, job.text].join(' '))
+    .update([providerName, cfg.voice, cfg.locale, String(cfg.rate), job.text].join(' '))
     .digest('hex')
     .slice(0, 16)
 
@@ -404,7 +446,7 @@ const chars = todo.reduce((n, j) => n + j.text.length, 0)
 const estimate = (chars / 1_000_000) * provider.perMillion
 
 console.log(
-  `${providerName}${providerName === 'stub' ? '' : ` · ${cfg.voice}`} → ${outDir.replace(ROOT, '.')}`,
+  `${providerName}${providerName === 'stub' ? '' : ` · ${cfg.voice} · rate ${cfg.rate}`} → ${outDir.replace(ROOT, '.')}`,
 )
 console.log(
   `${jobs.length} words · ${skipped.length} already baked · ${todo.length} to make · ` +
@@ -517,6 +559,7 @@ for (const job of todo) {
     // to instead of paying for the first half again.
     manifest.provider = providerName
     manifest.voice = cfg.voice
+    manifest.rate = cfg.rate
     manifest.lang = lang
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
   } catch (e) {

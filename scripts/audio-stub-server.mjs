@@ -60,7 +60,9 @@ const server = createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(
       JSON.stringify({
-        voices: [`${locale}-Neural2-F`, `${locale}-Stub-A`].map((name) => ({
+        // Chirp3-HD-Aoede first because it is the shipping default; the
+        // legacy name and the invented one keep both guard outcomes walkable.
+        voices: [`${locale}-Chirp3-HD-Aoede`, `${locale}-Neural2-F`, `${locale}-Stub-A`].map((name) => ({
           name,
           languageCodes: [locale],
           ssmlGender: 'FEMALE',

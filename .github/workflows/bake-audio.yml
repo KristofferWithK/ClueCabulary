@@ -1,0 +1,100 @@
+# Bake every word of a language and commit the clips.
+#
+# The clips ship IN the repository (see the long note in deploy.yml), so this
+# is how they get there: the TTS key is an Actions secret and never leaves it,
+# which means the bake happens here or on the owner's own machine, not in a
+# session.
+#
+# It fires on a push that touches this file — the same mechanism the audition
+# workflow uses, and for the same reason: the dispatch API only sees workflows
+# indexed off the default branch, so a branch-only copy has no start button.
+# Bump BAKE_NONCE below to run it again.
+#
+# What it does NOT do is decide anything. The voice and the rate are
+# make-audio.mjs's defaults, chosen by ear from the audition; passing them here
+# would put the real values in two places and let them disagree.
+name: Bake word audio
+
+on:
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: Dataset language to bake (da, de)
+        default: da
+      force:
+        description: Re-bake every word even if the manifest says it is current
+        type: boolean
+        default: false
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/bake-audio.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bake-audio-${{ github.ref }}
+
+env:
+  # Bump to re-run on a push. 2 = Aoede at rate 0.6.
+  BAKE_NONCE: '2'
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # No npm ci — make-audio.mjs runs on node builtins alone.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Bake
+        env:
+          TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
+          LANG_CODE: ${{ inputs.lang || 'da' }}
+          FORCE: ${{ inputs.force && '--force' || '' }}
+        run: |
+          set -eu
+          if [ -z "$TTS_API_KEY" ]; then
+            echo "**No TTS_API_KEY secret** — nothing to bake with." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          before=$(ls public/audio/"$LANG_CODE"/*.mp3 2>/dev/null | wc -l)
+          # The voice guard inside the script refuses a name Google does not
+          # serve, so a bad default fails here rather than producing 900 wrong
+          # clips that sound fine one at a time.
+          node scripts/make-audio.mjs --lang "$LANG_CODE" $FORCE
+          after=$(ls public/audio/"$LANG_CODE"/*.mp3 2>/dev/null | wc -l)
+          {
+            echo "### Baked $LANG_CODE"
+            echo
+            echo '```'
+            python3 -c "
+          import json
+          m = json.load(open('public/audio/$LANG_CODE/manifest.json'))
+          print('provider', m.get('provider'))
+          print('voice   ', m.get('voice'))
+          print('rate    ', m.get('rate'))
+          print('clips   ', len(m.get('entries', {})))
+          "
+            echo '```'
+            echo "$before clips before, $after after."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit the clips
+        env:
+          LANG_CODE: ${{ inputs.lang || 'da' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "public/audio/$LANG_CODE"
+          if git diff --cached --quiet; then
+            echo "Nothing changed — the clips on disk already match the manifest."
+          else
+            # Chirp3 is not byte-reproducible, so this diff is large by nature
+            # even when the audio is indistinguishable. That is the accepted
+            # cost of committing the clips; see docs/DECISIONS.md.
+            git commit -m "Bake the word audio ($LANG_CODE)"
+            git push
+          fi
