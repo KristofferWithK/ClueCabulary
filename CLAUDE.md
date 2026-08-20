@@ -1,6 +1,6 @@
-# Working on ClueCabulary
+# Working on 900Words
 
-A Danish vocabulary game played solo on a phone with an AI companion — Cluey,
+A Danish vocabulary game played solo on a phone with an AI companion — Casey,
 a suitcase with eyes who also carries every word you learn. Vite + React +
 TypeScript, shipped as a PWA to GitHub Pages. `README.md` is the
 design document — the rules, the measured numbers behind them, and why each one
@@ -19,7 +19,7 @@ npm run drives --list             names (19; three are opt-in, not run by defaul
 npm run validate:words            the Danish dataset's own rules
 ```
 
-## Four things that have each cost a session real time
+## Five things that have each cost a session real time
 
 **1. `npx tsc --noEmit` checks nothing here.** The root `tsconfig.json` is
 `files: []` with project references, so that command exits 0 on a tree full of
@@ -52,12 +52,29 @@ commit and shows its diff twice.
 git fetch origin main && git checkout -B <branch> origin/main
 ```
 
+**5. The app is called 900Words and the mascot Casey, but the code says
+neither.** The rename is user-facing copy ONLY. Every identifier keeps the old
+name: the `cluey-*` CSS classes, `ClueyFace`, `ClueyMood`, `ConnectCluey`,
+`Cluey.tsx`, `cluey-tips.ts`, `markClueyVerified`, every `cluecab-*`
+localStorage key, the backup format's `app: 'cluecabulary'` literal, and the
+Capacitor `appId com.kristofferwithk.cluecabulary`. This is the
+`klausVerifiedAt` precedent — a field named after an even older mascot — and
+the reason is that renaming a stored key wipes progress (`src/journey/rescue.ts`
+is the apology for the one time that happened) while renaming a class or a
+component buys a stale-selector hunt across nineteen drives for a label nobody
+sees. `vite.config.ts`'s `base`, `start_url` and `scope` are `/ClueCabulary/`
+for a different reason: that is the repo name, and the repo rename is held for
+the owner (D3). Move one without the other and the Pages deploy breaks.
+
+So: change a string a player reads, leave everything else. If you are renaming
+an identifier, you have misread this.
+
 ## The rule that is easiest to get backwards
 
 A guess is judged against the **clue-giver's** key and nothing else.
 
 That survived the removal of forbidden words and is still the rule everything
-turns on. Under *your* clue, Cluey's guesses are read off *your* key — a card
+turns on. Under *your* clue, Casey's guesses are read off *your* key — a card
 that is green on his and not on yours costs the turn. Under *his* clue it is his
 key that is read, so the same card is worth finding. A bystander reveal is
 therefore **directional**: it burns the card for the side that named it
@@ -100,8 +117,8 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   three boards plus `WRAPUP_CONFIG` and the tuning constants, each with the
   measurement behind it. `packing.ts` grades the wrap-up round's
   English→Danish answers, with the dataset injected rather than imported.
-- `src/data/` — the ~1000 Danish words plus the systems over them:
-  `countability.ts` (a stated rule applied to all 433 nouns, not a list of
+- `src/data/` — the 900 Danish words plus the systems over them:
+  `countability.ts` (a stated rule applied to all 366 nouns, not a list of
   exceptions), `gender.ts`, `words.ts` (`classifyClue`).
 - `src/srs/` — the scheduler and `sampler.ts`, which decides what is on a board.
   `CARRY_OVER` and `avoid` pull opposite ways on purpose; read the comments.
@@ -129,7 +146,7 @@ commits that added them.
 Numbers in comments and in `README.md` are measured, not estimated. If you
 change something they describe, re-measure rather than reasoning about it —
 several confident predictions here have been reversed by a probe, including one
-where giving Cluey his own key while guessing made him measurably *worse*.
+where giving Casey his own key while guessing made him measurably *worse*.
 
 ## Environment
 

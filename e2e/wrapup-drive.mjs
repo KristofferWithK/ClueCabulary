@@ -79,7 +79,7 @@ try {
   // driven in suitcase-drive, and this drive is about the round it buys.
   await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=9&wraps=1`)
   await page.waitForSelector('.city-card')
-  // The wrap-up button lives in the open suitcase — tap Cluey to get there.
+  // The wrap-up button lives in the open suitcase — tap Casey to get there.
   await page.click('.cluey-button')
   await page.waitForSelector('.suitcase-screen')
   await page.click('.case-actions .btn-primary')
@@ -148,7 +148,7 @@ try {
   await page.evaluate(() => localStorage.clear())
   await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=40&seed=31&wraps=1`)
   await page.waitForSelector('.city-card')
-  // The wrap-up button lives in the open suitcase — tap Cluey to get there.
+  // The wrap-up button lives in the open suitcase — tap Casey to get there.
   await page.click('.cluey-button')
   await page.waitForSelector('.suitcase-screen')
   await page.click('.case-actions .btn-primary')

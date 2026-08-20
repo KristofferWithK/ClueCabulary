@@ -13,9 +13,9 @@ import { TranslateBox } from '../components/TranslateBox'
 import { TurnTokens } from '../components/TurnTokens'
 
 const PHASE_CAPTION: Record<GameState['phase'], string> = {
-  playerClueInput: 'Give Cluey a clue',
-  aiGuessing: 'Cluey is guessing',
-  aiClueInput: 'Cluey prepares a clue',
+  playerClueInput: 'Give Casey a clue',
+  aiGuessing: 'Casey is guessing',
+  aiClueInput: 'Casey prepares a clue',
   playerGuessing: 'Your turn to guess',
   suddenDeath: 'Sudden death — no clues left',
   finished: 'Round over',
@@ -72,10 +72,10 @@ export function GameScreen() {
       const word = game.words.find((w) => w.wordId === lastAiGuess.wordId)
       const result = game.reveals[lastAiGuess.wordId]?.kind
       if (word && result) {
-        return `Cluey guessed ${word.da} — ${result === 'green' ? 'correct' : 'neutral'}.`
+        return `Casey guessed ${word.da} — ${result === 'green' ? 'correct' : 'neutral'}.`
       }
     }
-    if (aiBusy) return 'Cluey is thinking.'
+    if (aiBusy) return 'Casey is thinking.'
     return PHASE_CAPTION[game.phase]
   })()
 
@@ -152,7 +152,7 @@ export function GameScreen() {
         </button>
       </header>
 
-      {/* Cluey's whole turn happened in silence: every status message in the
+      {/* Casey's whole turn happened in silence: every status message in the
           loop was a plain paragraph that never took focus, so no screen reader
           had reason to speak it. This region is mounted for the whole round —
           a live region that appears with its content does not announce. */}
@@ -171,7 +171,7 @@ export function GameScreen() {
                 blocked — and the board is already dealt. This finishes the
                 round offline rather than throwing it away. */}
             <button className="btn btn-small" onClick={fallBackToPractice}>
-              Play on without Cluey
+              Play on without Casey
             </button>
           </div>
         </div>
@@ -179,11 +179,11 @@ export function GameScreen() {
 
       {onPracticeCompanion(practiceFallback) && !error && (
         // Say it for as long as it is true: these clues and guesses are not
-        // Cluey's, and the player should not judge the AI companion by them.
+        // Casey's, and the player should not judge the AI companion by them.
         // Keyed on the companion actually in use, not on the fallback flag —
         // the settings route reached the same object and said nothing.
         <p className="practice-note">
-          Practice companion — random guesses, Cluey is not playing. Settings turns it off.
+          Practice companion — random guesses, Casey is not playing. Settings turns it off.
         </p>
       )}
 
@@ -220,15 +220,13 @@ export function GameScreen() {
 
       {studying && (
         <div className="dock study-dock">
-          <p className="dock-title">
-            <span lang="da">Lær ordene</span> — study the board
-          </p>
+          <p className="dock-title">Study the board</p>
           <p className="study-hint">
             Every translation is shown. Once you start they hide, and you can tap a single word to
             look it up.
           </p>
           <button className="btn btn-primary btn-big" onClick={() => useGame.getState().endStudy()}>
-            <span lang="da">Klar</span> — start the round
+            Start the round
           </button>
         </div>
       )}
@@ -254,7 +252,7 @@ export function GameScreen() {
  * what the clues already meant, and one wrong name ends it.
  *
  * The greens on your own key are the ones you can already see, so what is left
- * is whatever Cluey was pointing at and you never worked out. No target count
+ * is whatever Casey was pointing at and you never worked out. No target count
  * is shown on purpose — knowing how many remain is most of the puzzle.
  */
 function SuddenDeathBar({ game }: { game: GameState }) {
@@ -263,9 +261,7 @@ function SuddenDeathBar({ game }: { game: GameState }) {
 
   return (
     <div className="dock guess-bar sudden-death-bar">
-      <p className="dock-title">
-        <span lang="da">Alt eller intet</span> — no clues left
-      </p>
+      <p className="dock-title">All or nothing — no clues left</p>
       {/* The dock's give-way region: selecting a card swaps a one-line hint for
           a 44px confirm row below, and this absorbs the difference so the give-
           up button stays where the thumb last saw it. */}
@@ -305,7 +301,7 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   return (
     <div className="dock guess-bar">
       <p className="dock-title">
-        Cluey's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
+        Casey's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
         {left === 1 ? '' : 'es'}
       </p>
       {/* A stake note stood here explaining what a forbidden tap cost and whose
@@ -324,11 +320,11 @@ function PlayerGuessBar({ game }: { game: GameState }) {
           </button>
         </div>
       ) : (
-        <p className="dim">Tap a word you think Cluey means.</p>
+        <p className="dim">Tap a word you think Casey means.</p>
       )}
-      {/* Cluey clues in Danish when asked to, and a clue you cannot read is
+      {/* Casey clues in Danish when asked to, and a clue you cannot read is
           not a clue. Prefilled from his, one tap. */}
-      <TranslateBox prefill={{ term: clue.text, label: "Cluey's clue" }} />
+      <TranslateBox prefill={{ term: clue.text, label: "Casey's clue" }} />
       {made > 0 && (
         <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
           Stop guessing (keep what we have)

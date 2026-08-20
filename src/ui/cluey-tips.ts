@@ -3,7 +3,7 @@ import { WORDS } from '../data/words'
 import { unlockedWords } from '../journey/progress'
 
 /**
- * What Cluey says on Home: gameplay tips and small true things about Danish,
+ * What Casey says on Home: gameplay tips and small true things about Danish,
  * plus the word of the day. Static and offline on purpose — the bubble opens
  * with the app, before any key is entered, and it must cost nothing.
  *
@@ -17,7 +17,7 @@ const TIPS: readonly string[] = [
   'Collected words still break on the road. Wrap them up to keep them.',
   'In a wrap-up round the cards start in English. Type the Danish to pack them.',
   'Skipping a card in a wrap-up is allowed — but it cannot be wrapped that round.',
-  'Your dashed cards are safe to tap. It is your CLUES that must keep away from them.',
+  "While you guess, it is Casey's greens that count — his key, not yours.",
   'Out of clues is not out of game: sudden death lets you keep naming words.',
   'æ, ø and å can only be Danish. A word with one of them is never English.',
   'Danish nouns carry their gender like luggage: learn «et hus», not just «hus».',
@@ -25,7 +25,7 @@ const TIPS: readonly string[] = [
   'The definite article goes on the END in Danish: huset is “the house”.',
   'Danes count in twenties: halvtreds — fifty — is “half third times twenty”.',
   'Look a word up mid-round from the clue box — English in, Danish out.',
-  'The last chance opens after three clues: translate the board, one shot.',
+  'Win a normal round to earn a wrap-up round. You can bank up to three.',
   'Wrap all hundred words of a city and the road onward opens.',
 ]
 
@@ -41,11 +41,14 @@ export function wordOfTheDay(cityIndex: number) {
   return pool[(dayKey() * 2654435761) % pool.length]!
 }
 
-/** Everything Cluey can say today, word of the day first. */
+/** Everything Casey can say today, word of the day first. */
 export function clueyLines(cityIndex: number): string[] {
   const w = wordOfTheDay(cityIndex)
   const article = articleLabel(w) ? `${articleLabel(w)} ` : ''
-  return [`Dagens ord: ${article}${w.da} — ${w.en[0]}.`, ...TIPS]
+  // The label is chrome and the word is content: "Word of the day: et hus —
+  // house." Per-language, so H1's seam will want the label from the pack and
+  // the word from the dataset.
+  return [`Word of the day: ${article}${w.da} — ${w.en[0]}.`, ...TIPS]
 }
 
 /** Where today's rotation starts; tapping the bubble leafs onward. */

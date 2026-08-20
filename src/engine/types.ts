@@ -50,7 +50,7 @@ export interface GuessRecord {
    * the round is over, like a clue's rationale.
    *
    * The model has always produced both and the engine always threw them away,
-   * so the one thing a player could never find out was why Cluey named the word
+   * so the one thing a player could never find out was why Casey named the word
    * he named. That is the question they kept asking, and it is the question a
    * companion in a LEARNING game exists to answer: the association he saw is
    * worth as much as the word.

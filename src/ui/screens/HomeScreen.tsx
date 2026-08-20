@@ -16,7 +16,7 @@ import { Cluey } from '../components/Cluey'
 
 /**
  * Home in three bands, per the notebook sketch: the journey (map and
- * progress) on top, Cluey in the middle with something to say, and Play at
+ * progress) on top, Casey in the middle with something to say, and Play at
  * the bottom between the daily star and the rules. Nothing scrolls; anything
  * deeper lives one tap away — the map, the case, Settings behind the gear.
  */
@@ -121,7 +121,7 @@ export function HomeScreen() {
   return (
     <div className="screen home-screen">
       <header className="home-top">
-        <h1 className="home-title">ClueCabulary</h1>
+        <h1 className="home-title">900Words</h1>
         <button className="icon-btn" aria-label="Settings" onClick={() => goTo('settings')}>
           ⚙
         </button>
@@ -129,13 +129,13 @@ export function HomeScreen() {
 
       {needsSetup && (
         <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Add your API key in Settings to wake Cluey up →
+          Add your API key in Settings to wake Casey up →
         </button>
       )}
 
       {unverifiedCluey && (
         <button className="setup-nudge" onClick={() => goTo('settings')}>
-          Cluey has not answered yet — tap Test connection in Settings first →
+          Casey has not answered yet — tap Test connection in Settings first →
         </button>
       )}
 
@@ -170,6 +170,11 @@ export function HomeScreen() {
 
       <Cluey />
 
+      {/* The one line of chrome deliberately left in Danish. Everything a
+          player must READ to operate the app is English now, but this is not
+          operable — it is the last thing the game ever says, after nine
+          hundred words, and by then it is a sentence you can read. Nothing is
+          lost if you cannot: the English clause carries the meaning. */}
       {journeyDone && (
         <p className="journey-done">
           <span lang="da">Rejsen er slut</span> — you packed the last suitcase in København.
@@ -177,7 +182,7 @@ export function HomeScreen() {
       )}
       {travelReady && (
         <button className="btn btn-travel" onClick={() => goTo('map')}>
-          <span lang="da">Rejs videre</span> → {nextCity?.name}
+          Travel on → {nextCity?.name}
         </button>
       )}
 
@@ -199,7 +204,7 @@ export function HomeScreen() {
           </button>
         ) : (
           <button className="btn btn-primary btn-big home-play" onClick={play}>
-            <span lang="da">Spil videre</span>
+            Play
           </button>
         )}
         <button

@@ -116,7 +116,7 @@ export const GRID_CONFIGS: Record<GridSize, GridConfig> = {
    * got it backwards and the removal of forbidden words does not change it:
    * outside sudden death a guess is judged against the CLUE-GIVER's key and
    * nothing else (game.ts, the GUESS case). A card that is neutral on your key
-   * may be green on Cluey's, and under his clue it is his key that is read —
+   * may be green on Casey's, and under his clue it is his key that is read —
    * which is why bystander reveals are directional and burn one side at a time.
    */
   middle: {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 /**
- * The practice fallback exists so a round is not lost when Cluey cannot be
+ * The practice fallback exists so a round is not lost when Casey cannot be
  * reached — no key yet, the wrong key, or a browser that will not talk to
  * ollama.com. Three rules make it a rescue rather than a trap: it must not
  * touch settings, it must not survive into the next round, and it must survive
@@ -37,7 +37,7 @@ const { newStats } = await import('../srs/scheduler')
 const { wordsForCity } = await import('../journey/progress')
 const { WRAP_UP_BANK_CAP } = await import('../journey/wrapup')
 
-describe('gameStore: finishing a round without Cluey', () => {
+describe('gameStore: finishing a round without Casey', () => {
   beforeEach(() => {
     useSettings.setState({ apiKey: 'a-key', useMock: false })
     useGame.getState().abandonGame()
@@ -54,7 +54,7 @@ describe('gameStore: finishing a round without Cluey', () => {
     expect(useGame.getState().error).toBeNull()
   })
 
-  it('changes no setting — the next round still tries Cluey', () => {
+  it('changes no setting — the next round still tries Casey', () => {
     useGame.getState().fallBackToPractice()
     expect(useSettings.getState().useMock).toBe(false)
     expect(useSettings.getState().apiKey).toBe('a-key')
@@ -182,7 +182,7 @@ describe('gameStore: rerolling the board before the first clue', () => {
 /**
  * Collection depends on knowing whose work earned each green, and finishRound
  * is the only place that can still tell: a guess is judged against the
- * clue-giver's key, so a green under a clue `by: 'player'` is Cluey finding
+ * clue-giver's key, so a green under a clue `by: 'player'` is Casey finding
  * the player's word (clue credit), a green under `by: 'ai'` is the player's
  * own tap (guess credit), and a green reveal that appears in NO clue's guess
  * list was named in sudden death — the reducer writes that reveal without a
@@ -223,13 +223,13 @@ describe('gameStore: which side earned each green', () => {
     useGame.getState().abandonGame()
   })
 
-  it("credits the player's clue when Cluey finds the word", () => {
+  it("credits the player's clue when Casey finds the word", () => {
     useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
     useGame.getState().finishRound()
     expect(useSrs.getState().stats.a).toMatchObject({ greenByClue: 1, greenByGuess: 0 })
   })
 
-  it("credits the player's guess when they find Cluey's word", () => {
+  it("credits the player's guess when they find Casey's word", () => {
     useGame.setState({ game: finishedGame(), roundRecorded: false, lookedUp: [] })
     useGame.getState().finishRound()
     expect(useSrs.getState().stats.b).toMatchObject({ greenByClue: 0, greenByGuess: 1 })
@@ -318,7 +318,7 @@ describe('gameStore: the v4 -> v5 migration', () => {
     packed: [],
     packingMissed: [],
     packingDone: true,
-    debrief: { summary: 'Cluey said something.', takeaways: ['one thing'] },
+    debrief: { summary: 'Casey said something.', takeaways: ['one thing'] },
     debriefFailed: false,
     newlyLearned: ['w1'],
     practiceFallback: false,

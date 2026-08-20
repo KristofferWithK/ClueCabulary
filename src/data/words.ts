@@ -53,7 +53,7 @@ export const normalizeGloss = (s: string): string =>
 
 const HEADWORDS: ReadonlySet<string> = new Set(WORDS.map((w) => w.da.toLowerCase()))
 
-/** One of the shipped thousand, as a Danish headword. */
+/** One of the shipped nine hundred, as a Danish headword. */
 export const isDanishWord = (normalized: string): boolean => HEADWORDS.has(normalized)
 
 /**
@@ -65,9 +65,9 @@ export const isDanishWord = (normalized: string): boolean => HEADWORDS.has(norma
  * eager check would get wrong.
  *
  * It cannot be complete in the other direction: a Danish word outside the
- * shipped thousand that happens to be spelled like one of our glosses would be
+ * shipped nine hundred that happens to be spelled like one of our glosses would be
  * flagged wrongly. The lookup box is one tap away and says so, which is the
- * right cost for a check that stops Cluey being handed a word he cannot read.
+ * right cost for a check that stops Casey being handed a word he cannot read.
  */
 /** Endings that make a Danish headword into another form of itself. */
 const INFLECTIONS = ['en', 'et', 'er', 'ene', 'erne', 'e', 'r', 'ede', 'te', 's']
@@ -76,12 +76,12 @@ const INFLECTIONS = ['en', 'et', 'er', 'ene', 'erne', 'e', 'r', 'ede', 'te', 's'
 const LINKERS = ['', 's', 'e']
 
 /**
- * Danish, English, or not decidable from the shipped thousand.
+ * Danish, English, or not decidable from the shipped nine hundred.
  *
  * The old check was a single test — an English gloss that is not a Danish
  * headword — which is right about the obvious cases and silent about everything
  * else. Everything else is most good clues: Danish compounds freely, so
- * «dyreliv», «morgenmad» and «huskeliste» are all outside the thousand.
+ * «dyreliv», «morgenmad» and «huskeliste» are all outside the nine hundred.
  *
  * So this recognises Danish first, three ways, and only then asks whether the
  * word looks English:
@@ -92,7 +92,7 @@ const LINKERS = ['', 's', 'e']
  *    linking -s- and -e- Danish puts between the halves.
  *
  * 'unknown' is a real answer and the caller must treat it as permission: it is
- * where every Danish word we do not ship lives. Cluey settles those.
+ * where every Danish word we do not ship lives. Casey settles those.
  */
 export type ClueLanguage = 'danish' | 'english' | 'unknown'
 

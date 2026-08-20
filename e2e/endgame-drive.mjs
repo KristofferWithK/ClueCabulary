@@ -2,7 +2,7 @@
 // out.
 //
 // Both are rules, not decoration. The player opens, so the round starts on
-// their clue rather than on waiting for Cluey.
+// their clue rather than on waiting for Casey.
 // Sudden death means the clue tokens running out is not the end — you keep
 // naming words with nothing to go on, and one wrong name finishes it. Neither
 // is provable from the engine alone: the phase has to reach the screen, the
@@ -75,7 +75,7 @@ try {
     (await page.locator('.clue-input').count()) === 1 &&
       (await page.locator('.guess-bar').count()) === 0,
   )
-  check('and Cluey has not clued yet', opened.clueHistory.length === 0, `${opened.clueHistory.length} clues`)
+  check('and Casey has not clued yet', opened.clueHistory.length === 0, `${opened.clueHistory.length} clues`)
 
   // ---- the 3x5 board ----------------------------------------------------------
   await start(1)
@@ -93,11 +93,12 @@ try {
 
   // ---- a turn ends itself on the last guess the clue asked for ---------------
   // "when you have guessed the amount of words Cluey gives you the turn ends
-  // automatically". Before this the number bought one guess more than it said,
+  // automatically" — asked for before the rename, and Casey is the same
+  // suitcase. Before this the number bought one guess more than it said,
   // so finding everything the clue promised left the turn open with nothing to
   // do in it — which reads as the app having stopped rather than as a bonus.
   //
-  // Driven from a forced state rather than by playing on: reaching a Cluey clue
+  // Driven from a forced state rather than by playing on: reaching a Casey clue
   // of a known number, with that many of his greens still on the board, is a
   // matter of luck with the mock companion.
   await start(0)

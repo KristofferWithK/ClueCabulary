@@ -30,7 +30,7 @@ export function AiTurnPanel({ game }: { game: GameState }) {
       <div className="dock ai-panel">
         <ClueyFace mood="thinking" className="cluey-mini" />
         <p className="thinking">
-          <span className="dots" /> Cluey is thinking…
+          <span className="dots" /> Casey is thinking…
         </p>
       </div>
     )
@@ -66,7 +66,7 @@ export function AiTurnPanel({ game }: { game: GameState }) {
         </p>
       ) : (
         <p className="ai-guess-line">
-          Cluey is choosing {aiGuessQueue.length > 0 ? 'a word' : 'whether to guess'}…
+          Casey is choosing {aiGuessQueue.length > 0 ? 'a word' : 'whether to guess'}…
         </p>
       )}
     </div>

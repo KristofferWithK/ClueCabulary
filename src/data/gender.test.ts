@@ -90,9 +90,10 @@ describe('the dataset says what gender every noun is', () => {
 
 /**
  * "The clue Cluey gets must be always danish. If someone types an English word
- * they are prompted to use the dictionary."
+ * they are prompted to use the dictionary." (Said before the rename; Casey is
+ * the same suitcase.)
  *
- * Cluey is handed the clue as a bare string beside a Danish board, so an
+ * Casey is handed the clue as a bare string beside a Danish board, so an
  * English word there is one he cannot place — and reaching for the Danish is
  * the point of the round. The check is deliberately narrow: a word must be one
  * of our English glosses AND not one of our Danish headwords.
@@ -141,7 +142,7 @@ describe('spotting a clue the player reached for in English', () => {
  * Trafik for example is also not really countable. You are the danish master.
  * This should not be a word by word patchwork coming from me."
  *
- * So it is a rule applied to all 433, not a list of complaints. A noun is
+ * So it is a rule applied to all 366, not a list of complaints. A noun is
  * uncountable when "en X" / "et X" would be wrong or clearly odd in everyday
  * Danish — and where BOTH readings are ordinary the article stays, because
  * "en øl" and "et brød" are things Danes say and they teach the gender in the
@@ -199,8 +200,10 @@ describe('which nouns can be counted', () => {
  * "If it's ambiguous words outside of the thousand words can't the llm just
  * judge it?"
  *
+ * (Asked when the dataset was a thousand words; it is nine hundred now.)
+ *
  * Yes — but most clues should never need him. Danish compounds freely, so the
- * shipped thousand recognise far more Danish than they contain, and 'unknown'
+ * shipped nine hundred recognise far more Danish than they contain, and 'unknown'
  * is permission rather than suspicion.
  */
 describe('classifying a clue without asking anybody', () => {
@@ -219,7 +222,7 @@ describe('classifying a clue without asking anybody', () => {
   /**
    * Both halves have to be words we ship — «dyreliv» resolves through the
    * linking -e-, «boghandel» does not, because «handel» is outside the
-   * thousand. That one lands in 'unknown', which is allowed, so the limit
+   * nine hundred. That one lands in 'unknown', which is allowed, so the limit
    * costs nothing.
    */
   it('and a compound of two of them is Danish', () => {

@@ -11,7 +11,7 @@ import { migrateSettings, useSettings } from './settingsStore'
  */
 const NOW = 1_700_000_000_000
 
-describe('settingsStore: has Cluey ever answered?', () => {
+describe('settingsStore: has Casey ever answered?', () => {
   beforeEach(() => {
     useSettings.setState({
       apiKey: 'key-one',
@@ -112,7 +112,7 @@ describe('the study phase, which the board should no longer open with', () => {
 
 /**
  * "Why did it pick hvid at foster?" — one candidate answer was that the player
- * was not talking to Cluey at all. `?mock=1` writes useMock permanently into
+ * was not talking to Casey at all. `?mock=1` writes useMock permanently into
  * persisted settings, and the practice companion ranks guesses by
  * djb2(clue + wordId): measured statistically indistinguishable from naming a
  * card at random, and at chance on greens too.
@@ -122,7 +122,7 @@ describe('the study phase, which the board should no longer open with', () => {
  * Home's setup warnings — so a player with no API key and this switched on was
  * told nothing anywhere.
  */
-describe('knowing when Cluey is not playing', () => {
+describe('knowing when Casey is not playing', () => {
   it('the practice companion is announced by either route to it', () => {
     useSettings.setState({ useMock: false })
     expect(onPracticeCompanion(false)).toBe(false)
@@ -136,15 +136,16 @@ describe('knowing when Cluey is not playing', () => {
 
 
 /**
- * "Also the clues Cluey sends should be in danish as well."
+ * "Also the clues Cluey sends should be in danish as well." (Said before the
+ * rename; Casey is the same suitcase.)
  *
  * The clue dock has always asked the PLAYER for "ét dansk ord"; this setting
- * governed only Cluey's own clues, and its default had him answering in English
+ * governed only Casey's own clues, and its default had him answering in English
  * on a Danish board. Same shape of trap as the study phase: moving the default
  * does nothing for a device that already stored one, which is every device that
  * has ever opened Settings.
  */
-describe('which language Cluey clues in', () => {
+describe('which language Casey clues in', () => {
   const migrate = migrateSettings
 
   it('is Danish for anyone who has never stored a setting', () => {
@@ -173,14 +174,14 @@ describe('which language Cluey clues in', () => {
  * only what a device that has never stored one gets, and this store has no
  * partialize — every save ever written carries a gridSize whether the player
  * touched the picker or not. Moving the default alone would have left every
- * existing device dealing 3x4 from «Spil videre» forever.
+ * existing device dealing 3x4 from Play forever.
  *
  * Unlike the study phase, the old value cannot be told apart from a deliberate
  * choice of it, so this migration moves everyone. That is a decision, recorded
  * here rather than discovered later: 3x4 is one tap away on Home and the tap
  * sticks, whereas not moving means the board that was asked for never arrives.
  */
-describe('which board «Spil videre» deals', () => {
+describe('which board Play deals', () => {
   const migrate = migrateSettings
 
   it('is 3x5 for anyone who has never stored a setting', () => {
@@ -221,12 +222,12 @@ describe('which board «Spil videre» deals', () => {
 })
 
 /**
- * Cluey answers a fresh install with no key typed anywhere.
+ * Casey answers a fresh install with no key typed anywhere.
  *
  * The proxy holds the key as a Cloudflare secret, so the default Base URL now
  * points at it. Fourth outing of the persisted-default trap — and the first
  * where the old value CAN be told apart from a deliberate choice: a save
- * holding the Gemini default with an empty key has never had a working Cluey
+ * holding the Gemini default with an empty key has never had a working Casey
  * and could not have, because the build bundles no key and Gemini direct
  * answers nothing without one. That group is pure gain to move. A typed key or
  * a hand-entered Base URL is a decision, possibly on a paid account, and
@@ -304,7 +305,7 @@ describe('which server a device talks to', () => {
 })
 
 /**
- * Cluey's brain stops being named in the bundle.
+ * Casey's brain stops being named in the bundle.
  *
  * "cluey" is an alias the proxy resolves (MODEL_ALIASES in
  * proxy/wrangler.toml), so which model actually answers is a proxy deploy

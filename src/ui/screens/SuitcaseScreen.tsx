@@ -10,7 +10,7 @@ import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 
 /**
- * Cluey, open on the table. Three bands and no scrolling: the words still
+ * Casey, open on the table. Three bands and no scrolling: the words still
  * loose in the city (discovered and undiscovered), then the open suitcase —
  * collected words in the top compartment, wrapped ones packed below — and the
  * wrap-up button that moves words from one compartment to the other.
@@ -163,9 +163,7 @@ export function SuitcaseScreen() {
         <button className="icon-btn" aria-label="Back" onClick={() => goTo('home')}>
           ←
         </button>
-        <h1>
-          <span lang="da">Kufferten</span>
-        </h1>
+        <h1>The suitcase</h1>
         <span className="case-city-pager">
           <button
             className="icon-btn icon-btn-small"

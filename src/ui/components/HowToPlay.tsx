@@ -20,7 +20,7 @@ export function HowToPlay() {
       >
         <h2 id="howto-title">How to Play</h2>
         <p className="howto-sub">
-          Find every green word with Cluey, your AI partner — and learn Danish on the way.
+          Find every green word with Casey, your AI partner — and learn Danish on the way.
         </p>
 
         {/* Two tiles, and now they are the entire vocabulary of the board: a
@@ -35,12 +35,12 @@ export function HowToPlay() {
 
         <ol>
           <li>
-            The board is a grid of Danish words. You and Cluey each hold a secret key: on it some
+            The board is a grid of Danish words. You and Casey each hold a secret key: on it some
             words are <strong>green</strong> — your targets — and the rest are neutral. There is
             no third kind of card, and the two keys differ.
           </li>
           <li>
-            Take turns: you give a one-word clue and Cluey guesses, then he clues and you guess.
+            Take turns: you give a one-word clue and Casey guesses, then he clues and you guess.
             Every guess is judged against the <em>clue-giver's</em> key, so while you are guessing
             it is <em>his</em> greens that count — and he never sees yours.
           </li>
@@ -51,7 +51,7 @@ export function HowToPlay() {
             is the whole cost of a wrong tap, and the reason the clock is what beats you.
           </li>
           <li>
-            A neutral is spent only for the side that hit it. A word Cluey burned while guessing
+            A neutral is spent only for the side that hit it. A word Casey burned while guessing
             your clue can still be green on his own key, so it is crossed out for him and back in
             play the moment he is the one cluing.
           </li>
@@ -61,7 +61,7 @@ export function HowToPlay() {
             Name anything else and the round is over.
           </li>
           <li>
-            Nothing connects? Before the first clue, <strong lang="da">Nye ord</strong> deals a
+            Nothing connects? Before the first clue, <strong>↻</strong> in the header deals a
             different board of the same size — nothing has been spent yet, and the words you turned
             down do not come back on it. Any time, tap <strong>ⓘ</strong> on a word for the
             dictionary or <strong>Aa</strong> to show every translation; each lookup tells the app
@@ -69,7 +69,7 @@ export function HowToPlay() {
           </li>
           <li>
             You are travelling Denmark, south to north and home to København, with{' '}
-            <strong>Cluey the suitcase</strong> carrying every word you learn. Each city holds{' '}
+            <strong>Casey the suitcase</strong> carrying every word you learn. Each city holds{' '}
             <strong>100 words</strong>. A word you meet is <em>discovered</em>; clue it once{' '}
             <em>and</em> guess it once — a green earned each way — and it is{' '}
             <strong>collected</strong> into the case.

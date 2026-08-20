@@ -180,7 +180,7 @@ if (await study.isVisible().catch(() => false)) await study.click()
 await page.fill('.clue-input input', 'huskeliste')
 await page.click('.clue-input .btn-primary')
 await page.waitForFunction(
-  () => !document.querySelector('.phase-caption')?.textContent?.includes('Cluey is guessing'),
+  () => !document.querySelector('.phase-caption')?.textContent?.includes('Casey is guessing'),
   undefined,
   { timeout: 20000 },
 )
@@ -270,7 +270,7 @@ const greens = await page.locator('.word-card.mykey-green').count()
   console.log('SKIP round did not reach a summary on this seed')
 }
 
-// Cluey's whole turn used to happen in silence: no live region existed
+// Casey's whole turn used to happen in silence: no live region existed
 // anywhere in the game loop.
 await open('?mock=1&howto=0&seed=7&city=0&grid=beginner')
 await page.locator('.home-play').click()
@@ -320,7 +320,7 @@ check('Escape closes the rules', (await page.locator('.howto').count()) === 0)
 await open('?mock=1&howto=0&city=0')
 check('no setup nudge with the practice companion', (await page.locator('.setup-nudge').count()) === 0)
 
-// Connecting Cluey is the one thing a stuck player must be able to do from the
+// Connecting Casey is the one thing a stuck player must be able to do from the
 // phone in their hand, so the steps live in the app rather than behind a link
 // to a markdown file. They have to fit the screen and be reachable.
 await page.evaluate(() => {
@@ -333,7 +333,7 @@ await page.locator('.setup-nudge').first().click()
 await page.waitForSelector('.settings-screen')
 const panel = page.locator('.connect-cluey')
 check('the setup steps are in the app', (await panel.count()) === 1)
-check('and open while Cluey has never answered', await panel.evaluate((el) => el.open))
+check('and open while Casey has never answered', await panel.evaluate((el) => el.open))
 const steps = await page.locator('.connect-steps li').count()
 check('with every step listed', steps === 6, `${steps} steps`)
 const box = await panel.boundingBox()
@@ -345,7 +345,7 @@ check(
 const links = await page.locator('.connect-steps a').count()
 check('and its links are tappable, not a wall of prose', links >= 4, `${links} links`)
 
-// Once Cluey has answered it is history, and must stop eating the screen.
+// Once Casey has answered it is history, and must stop eating the screen.
 await page.evaluate(() => {
   const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1'))
   raw.state.klausVerifiedAt = Date.now()
@@ -359,7 +359,7 @@ if ((await page.locator('.settings-screen').count()) === 0) {
 }
 await page.waitForSelector('.settings-screen', { timeout: 5000 })
 check(
-  'and collapses once Cluey has answered',
+  'and collapses once Casey has answered',
   (await page.locator('.connect-cluey').evaluate((el) => el.open)) === false,
 )
 
@@ -650,7 +650,7 @@ await page.setViewportSize(PHONE)
 //
 // Sampled on every animation frame rather than polled between phases, because
 // the drift is a WITHIN-phase event: a lookup answer arriving, a card being
-// selected, Cluey's guess line changing every 1100ms. A poll placed at the
+// selected, Casey's guess line changing every 1100ms. A poll placed at the
 // phase boundaries would have caught none of the seven states below, and would
 // have passed just as happily before the fix.
 {
@@ -806,8 +806,8 @@ await page.setViewportSize(PHONE)
   // "they all match" is a statement about one of them.
   const seen = new Set(states.map(([k]) => k))
   const required = [
-    'Give Cluey a clue',
-    'Cluey is guessing',
+    'Give Casey a clue',
+    'Casey is guessing',
     'Your turn to guess',
     'Sudden death — no clues left',
     'clue dock + lookup',
@@ -819,12 +819,12 @@ await page.setViewportSize(PHONE)
     missing.length === 0,
     missing.length ? `missing ${missing.join(', ')}` : [...seen].join(' | '),
   )
-  // aiClueInput ("Cluey prepares a clue") is deliberately not in that list,
+  // aiClueInput ("Casey prepares a clue") is deliberately not in that list,
   // and its absence is a measurement rather than an oversight: against the
   // offline companion it does not survive a paint — the mock's clue resolves
   // in a microtask, so React has committed playerGuessing before the next
   // frame, and ~4800 sampled frames over two full rounds caught it zero times.
-  // It renders the same .ai-panel dock as "Cluey is guessing", which IS
+  // It renders the same .ai-panel dock as "Casey is guessing", which IS
   // measured, and the reserve below is declared on the dock's class rather
   // than on the phase — so the two cannot come out different.
   const docks = rects.map(([k, v]) => [k, v.docklo, v.dockhi])

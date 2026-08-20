@@ -31,7 +31,7 @@ export class AiError extends Error {
  * The project's own proxy, because it is the only default that needs no setup.
  *
  * Gemini was the default while it was the one measured to answer a browser at
- * all, but it still asked every new player for an API key before Cluey could
+ * all, but it still asked every new player for an API key before Casey could
  * say a word. This worker holds the key as a Cloudflare secret, so a fresh
  * install plays immediately with the key field left empty.
  *
@@ -52,7 +52,7 @@ export const DEFAULT_BASE_URL = 'https://cluecabulary-proxy.kristoffer-kai.worke
  * This was empty for as long as the app talked to services directly, because
  * Ollama and Gemini publish conflicting ids for the same model and a wrong
  * default returns a 404 that reads as a broken endpoint. Then it was
- * gpt-oss:120b, which fixed a fresh install but pinned Cluey's brain inside the
+ * gpt-oss:120b, which fixed a fresh install but pinned Casey's brain inside the
  * bundle: changing it meant a release, and every phone waiting to notice one.
  *
  * "cluey" is resolved by MODEL_ALIASES on the worker (proxy/wrangler.toml), so
@@ -77,7 +77,7 @@ export const DEFAULT_MODEL = 'cluey'
  * something the person playing can fix from here.
  */
 const AUTH_REFUSED =
-  'Cluey’s server refused the request. Nothing to fix on this phone — try again in a moment, or play on without Cluey.'
+  'Casey’s server refused the request. Nothing to fix on this phone — try again in a moment, or play on without Casey.'
 
 /**
  * What a 429 says when it is the proxy's own daily cap rather than the
@@ -91,12 +91,12 @@ const AUTH_REFUSED =
  * evening. So the worker marks its own, and the two are told apart below.
  *
  * Names the button that is actually on screen. The error banner offers "Retry"
- * and "Play on without Cluey" side by side, and Retry is the wrong one here —
+ * and "Play on without Casey" side by side, and Retry is the wrong one here —
  * the practice companion needs no network at all, so the round can still be
  * finished. Same lesson as the 401 above: say the thing the player can do.
  */
 const DAILY_CAP_SPENT =
-  'Cluey has done all his thinking for today — this phone’s daily limit on his server is used up, and it resets at midnight UTC. Play on without Cluey to finish the round: the practice companion needs no connection at all.'
+  'Casey has done all his thinking for today — this phone’s daily limit on his server is used up, and it resets at midnight UTC. Play on without Casey to finish the round: the practice companion needs no connection at all.'
 
 /** The `code` the proxy puts in its own 429 body. See proxy/worker.js. */
 const DAILY_CAP_CODE = 'cluecabulary_daily_cap'
@@ -156,7 +156,7 @@ export function installId(): string {
  * Generous, because a large model composing a clue from a 1,800-token prompt
  * is genuinely slow and cutting it off early would be worse than waiting. But
  * finite: with no timeout at all a request on a weak mobile connection hangs
- * until the network gives up on its own, and the app sits on "Cluey is
+ * until the network gives up on its own, and the app sits on "Casey is
  * thinking…" with nothing to retry.
  */
 const REQUEST_TIMEOUT_MS = 90_000
@@ -250,7 +250,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
         }),
         // A clue from a large model is slow, and a phone on one bar can hold a
         // request open indefinitely. Without this, a stalled call showed
-        // "Cluey is thinking…" forever, then failed — seen on the device.
+        // "Casey is thinking…" forever, then failed — seen on the device.
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       })
     } catch (e) {
@@ -264,7 +264,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       if (e instanceof DOMException && e.name === 'TimeoutError') {
         throw new AiError(
           'network',
-          `Cluey took longer than ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds and the request was dropped. Retry, or play on without him.`,
+          `Casey took longer than ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds and the request was dropped. Retry, or play on without him.`,
         )
       }
       // A rejected fetch is a TypeError either way: the browser does not tell
@@ -277,7 +277,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
         'cors',
         endpoint.hostname === 'ollama.com'
           ? 'ollama.com refused the browser request. It is reported to answer the CORS preflight with a redirect, which browsers will not follow — a key or model name cannot fix that. Deploy the small proxy and set it as the Base URL; Settings has the steps.'
-          : 'Could not reach Cluey — the connection dropped, or the server refused the browser request (CORS). Retry, or play on without him; if it keeps happening, check the Base URL in Settings.',
+          : 'Could not reach Casey — the connection dropped, or the server refused the browser request (CORS). Retry, or play on without him; if it keeps happening, check the Base URL in Settings.',
       )
     }
   }

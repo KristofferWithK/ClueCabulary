@@ -204,8 +204,8 @@ describe('inflections of short board words, ASCII-folded', () => {
 
 /**
  * Danish minimal pairs are not near-misses, they are different words. An
- * edit-distance rule used to block 271 such pairs across the shipped
- * thousand — every one a clue a person would reasonably give, and the reason
+ * edit-distance rule used to block 271 such pairs across the thousand words
+ * the dataset held at the time — every one a clue a person would reasonably give, and the reason
  * "mand" was refused on a board holding "mund".
  */
 describe('words that merely rhyme with a board word', () => {

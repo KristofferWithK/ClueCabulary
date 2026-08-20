@@ -37,7 +37,7 @@ export interface Provider {
 export const PROVIDERS: readonly Provider[] = [
   {
     id: 'cluecabulary',
-    label: 'Cluey',
+    label: 'Casey',
     baseUrl: 'https://cluecabulary-proxy.kristoffer-kai.workers.dev/v1',
     note: 'No key needed — this one is set up for you, and which model answers is set on the server.',
   },

@@ -22,13 +22,13 @@ const start = (): GameState =>
   })
 
 // The instructions are the system message and the board is the user message;
-// what Cluey reads is both, so these assertions read both.
+// what Casey reads is both, so these assertions read both.
 const textOf = (msgs: { content: string }[]) => msgs.map((m) => m.content).join('\n')
 const promptFor = (s: GameState) => textOf(buildCluePrompt(buildAiClueView(s, 'en')))
 const lineFor = (text: string, id: string) =>
   text.split('\n').find((l) => l.startsWith(`${id} |`)) ?? `(no row for ${id})`
 
-/** Play until one of Cluey's own greens has been found, so it is spent. */
+/** Play until one of Casey's own greens has been found, so it is spent. */
 function findOneOfHisGreens(s: GameState): { state: GameState; found: string } {
   const target = s.words.map((w) => w.wordId).find((id) => s.aiKey[id] === 'green')!
   let next = applyEvent(s, { type: 'SUBMIT_CLUE', by: 'ai', text: 'klods', number: 1 })
@@ -37,7 +37,7 @@ function findOneOfHisGreens(s: GameState): { state: GameState; found: string } {
 }
 
 /**
- * Reported from a real game, twice over: Cluey asked for a word he had already
+ * Reported from a real game, twice over: Casey asked for a word he had already
  * found, the validator refused it, the one corrective retry made the same
  * mistake, and the round ended on "The AI kept answering invalidly: w1 (bog) is
  * not an unrevealed GREEN word on your key".
@@ -59,7 +59,7 @@ describe('the clue prompt says which words are actually targetable', () => {
     }
   })
 
-  it('marks a green Cluey has already found as spent, in words, on its own row', () => {
+  it('marks a green Casey has already found as spent, in words, on its own row', () => {
     const { state, found } = findOneOfHisGreens(start())
     const text = promptFor(state)
     const row = lineFor(text, found)
@@ -84,7 +84,7 @@ describe('the clue prompt says which words are actually targetable', () => {
  * WHAT THIS FILE USED TO HOLD, and what replaced it.
  *
  * A block here pinned the FORBIDDEN FOR YOU section of the clue prompt: that
- * Cluey's own hazards were named in a block of their own rather than only in
+ * Casey's own hazards were named in a block of their own rather than only in
  * the board table, that the association test came with the player's own example
  * ("kitchen" fetches "food") attached, and that an already-hit hazard dropped
  * out of the list. A second block pinned which boards dealt a card that was
@@ -93,7 +93,7 @@ describe('the clue prompt says which words are actually targetable', () => {
  * Those cards are gone from every board, so all of it asserted the presence of
  * prompt text that must no longer be there — the opposite of what is wanted.
  * What took its place is the block below: with two roles left, the neutrals are
- * the only trap on the board, and the instruction telling Cluey to hunt for
+ * the only trap on the board, and the instruction telling Casey to hunt for
  * them before he commits is now the only thing standing between a clue and the
  * turn it throws away. That instruction is what this file guards now.
  */
@@ -117,7 +117,7 @@ describe('the clue prompt says which words are actually targetable', () => {
  * to "the strongest board word you deliberately steered away from" fails the
  * third and nothing else.
  */
-describe('the clue prompt makes Cluey score the neutrals before he commits', () => {
+describe('the clue prompt makes Casey score the neutrals before he commits', () => {
   it('demands every non-target be scored against the candidate clue', () => {
     const text = promptFor(start())
     expect(text).toMatch(/EVERY unrevealed word on the board that is not one of your targets/)
@@ -139,7 +139,7 @@ describe('the clue prompt makes Cluey score the neutrals before he commits', () 
 })
 
 /**
- * The board can be dealt so that every one of Cluey's greens is also a word he
+ * The board can be dealt so that every one of Casey's greens is also a word he
  * cannot reach — the prompt still has to be a legal string. Guarded because the
  * targetable list is interpolated from an array that the caller has already
  * refused to let be empty, and a guard that only exists in the caller is one
@@ -174,7 +174,7 @@ describe('the prompts say nothing about forbidden words', () => {
   it('nor in the guess prompt', () => {
     const s = applyEvent(start(), { type: 'SUBMIT_CLUE', by: 'ai', text: 'klods', number: 1 })
     // The guesser is the player under an AI clue, so build the view the other
-    // way: a player clue, with Cluey guessing.
+    // way: a player clue, with Casey guessing.
     const fresh = createGame({
       config: GRID_CONFIGS.beginner,
       words: words(GRID_CONFIGS.beginner.totalWords),

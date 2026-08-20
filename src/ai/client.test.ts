@@ -54,7 +54,7 @@ describe('chatJson error taxonomy', () => {
 
   it('says a stalled request timed out rather than leaving it hanging', async () => {
     // No timeout at all meant a request on a weak connection hung until the
-    // network gave up on its own, with "Cluey is thinking…" on screen and
+    // network gave up on its own, with "Casey is thinking…" on screen and
     // nothing to retry.
     const timeout = new DOMException('The operation was aborted', 'TimeoutError')
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(timeout))
@@ -135,16 +135,16 @@ describe('the proxy’s daily cap', () => {
     error: { message: 'This install has made 1000 requests today.', code: 'cluecabulary_daily_cap' },
   })
 
-  it('tells the player Cluey is resting, and points at the button that works', async () => {
+  it('tells the player Casey is resting, and points at the button that works', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(capBody, { status: 429 })))
     const e = await catchError(chatJson(settings, messages))
     expect(e.kind).toBe('rate-limit')
     expect(e.message).toMatch(/today/i)
     expect(e.message).toMatch(/midnight UTC/)
-    // The error banner shows Retry and "Play on without Cluey" together, and
+    // The error banner shows Retry and "Play on without Casey" together, and
     // Retry is the one that cannot help here. Naming the other is the whole
     // point of the message — the practice companion needs no network.
-    expect(e.message).toContain('Play on without Cluey')
+    expect(e.message).toContain('Play on without Casey')
     expect(e.message).not.toMatch(/wait a moment/i)
   })
 

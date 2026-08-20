@@ -31,7 +31,7 @@ import { SettingsScreen } from './ui/screens/SettingsScreen'
  * The grain is a single fixed rect — one filtered element for every screen —
  * because a texture repeated per card is the same picture rendered forty times.
  *
- * The wobbles are used on chrome only (docks, panels, buttons, Cluey), never on
+ * The wobbles are used on chrome only (docks, panels, buttons, Casey), never on
  * the board: twenty cards each running a displacement map is the kind of cost
  * no test here would catch, and the cards get their hand-drawn edge from plain
  * geometry instead. See index.css, "the pencil pass".
@@ -107,12 +107,12 @@ export default function App() {
     if (seed && /^\d+$/.test(seed)) {
       useUi.setState({ pendingSeed: Number(seed) })
     }
-    // ?first=player makes the player open the round. Cluey opens by default,
+    // ?first=player makes the player open the round. Casey opens by default,
     // and a drive that is about the AI client rather than the turn order needs
     // to get to the clue box without spending a guess first.
     const first = params.get('first')
     if (first === 'player' || first === 'ai') useUi.setState({ pendingFirstGiver: first })
-    // ?grid= picks the board «Spil videre» deals. The picker left Home for
+    // ?grid= picks the board Play deals. The picker left Home for
     // Settings, and a drive cannot type into a select mid-run.
     const grid = params.get('grid')
     if (grid === 'beginner' || grid === 'middle' || grid === 'standard') {

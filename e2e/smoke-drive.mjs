@@ -17,7 +17,7 @@ page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
   await page.goto(preview.base + '?mock=1&seed=5&grid=beginner')
-  await page.waitForSelector('h1:has-text("ClueCabulary")')
+  await page.waitForSelector('h1:has-text("900Words")')
 
   // First visit opens with the How-to-play overlay — read it like a new player would.
   await page.waitForSelector('.howto', { timeout: 8000 })
@@ -58,7 +58,7 @@ try {
     throw new Error(`clue box still autocorrects: ${JSON.stringify(clueAttrs)}`)
   }
 
-  // Cluey reads a Danish board and gets the clue as a bare string, so an
+  // Casey reads a Danish board and gets the clue as a bare string, so an
   // English word there is one he cannot place. The box says so and puts the
   // lookup one tap away rather than passing the English along.
   await page.fill('.clue-input input', 'water')
@@ -73,7 +73,7 @@ try {
     throw new Error(`no one-tap lookup offered: ${JSON.stringify(warned.lookup)}`)
   }
 
-  // Everything the shipped thousand can settle offline must never reach that
+  // Everything the shipped nine hundred can settle offline must never reach that
   // path: a homograph that is also Danish, a compound of two known words, and
   // a Danish word we simply do not ship — 'unknown' is permission, not
   // suspicion, which is where «trafik» and most real clues live.
@@ -90,7 +90,7 @@ try {
   console.log('clue submitted; waiting for AI guesses…')
   // Wait until phase leaves aiGuessing (AI finishes its guesses)
   await page.waitForFunction(
-    () => !document.querySelector('.phase-caption')?.textContent?.includes('Cluey is guessing'),
+    () => !document.querySelector('.phase-caption')?.textContent?.includes('Casey is guessing'),
     undefined,
     { timeout: 20000 },
   )
@@ -172,13 +172,13 @@ try {
   // This whole drive runs on ?mock=1, which writes useMock into settings. The
   // in-round note used to key on the FALLBACK flag alone, so this route — the
   // one a stray URL puts a player on permanently — produced random guesses
-  // under Cluey's name with nothing on screen saying so, while also suppressing
+  // under Casey's name with nothing on screen saying so, while also suppressing
   // both of Home's setup warnings.
   const note = await page.locator('.practice-note').textContent()
   if (!/Practice companion/.test(note ?? '')) {
     throw new Error(`no practice note while on the mock: ${note}`)
   }
-  if (!/Cluey is not playing/.test(note)) throw new Error(`note is too coy: ${note}`)
+  if (!/Casey is not playing/.test(note)) throw new Error(`note is too coy: ${note}`)
   console.log('practice companion says so:', note.replace(/\s+/g, ' ').trim().slice(0, 60) + '…')
 
   // ---- the round summary: numbers first, the transcript behind a lid -------
@@ -194,7 +194,7 @@ try {
   await page.waitForSelector('.board-grid')
   for (let i = 0; i < 30 && (await page.locator('.round-summary').count()) === 0; i++) {
     const cap = await page.locator('.phase-caption').textContent().catch(() => '')
-    if (cap === 'Give Cluey a clue') {
+    if (cap === 'Give Casey a clue') {
       await page.fill('.clue-input input', `huskeliste${i}`)
       await page.click('.clue-input .btn-primary')
     } else if (cap === 'Your turn to guess' || cap?.includes('Sudden')) {
@@ -212,7 +212,7 @@ try {
   }
   await page.waitForSelector('.summary-stats', { timeout: 10000 })
 
-  // What the round actually did, in the four tiles that replaced Cluey's
+  // What the round actually did, in the four tiles that replaced Casey's
   // paragraph about it. Read as text and checked as shapes: a tile saying
   // "undefined/100" still looks like a stat.
   const tiles = await page.evaluate(() => {
@@ -265,7 +265,7 @@ try {
   )
 
   // ---- flagging a bad call, on the one screen that shows the reasoning ------
-  // The flag is only worth tapping because Cluey is shown it next round, so
+  // The flag is only worth tapping because Casey is shown it next round, so
   // this checks it reaches storage rather than just toggling a glyph.
   const flags = page.locator('.flag-btn')
   const flagCount = await flags.count()

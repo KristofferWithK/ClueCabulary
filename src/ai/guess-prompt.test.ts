@@ -68,13 +68,13 @@ describe('the guess prompt tells the truth about the guess that is forced', () =
 })
 
 /**
- * The other half of «foster»: Cluey is handed the clue as a bare string beside
+ * The other half of «foster»: Casey is handed the clue as a bare string beside
  * a Danish board and is never told which language it is in. «foster» is a
  * Danish/English homograph whose senses are unrelated — a fetus, or to raise a
  * child — so he had two readings and no way to choose.
  *
  * The clue-language SETTING is not the fix and is deliberately not used here:
- * it governs only the language Cluey clues in, while the clue dock hardcodes
+ * it governs only the language Casey clues in, while the clue dock hardcodes
  * "ét dansk ord" for the player. Feeding the setting into this prompt would
  * label a Danish clue as English on the default.
  */
@@ -93,7 +93,7 @@ describe('the guess prompt says the clue may be in either language', () => {
     expect(promptText()).toMatch(/which reading you took/i)
   })
 
-  /** The setting is for Cluey's own clues; it must not leak into this prompt. */
+  /** The setting is for Casey's own clues; it must not leak into this prompt. */
   it('does not claim to know the language from the setting', () => {
     const text = promptText()
     expect(text).not.toMatch(/your partner clued in English/i)

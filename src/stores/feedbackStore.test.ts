@@ -13,7 +13,7 @@ describe('flagging a bad call', () => {
     expect(f!.at).toBeGreaterThan(0)
   })
 
-  /** A mis-tap on a phone must not be a permanent judgement about Cluey. */
+  /** A mis-tap on a phone must not be a permanent judgement about Casey. */
   it('tapping it again takes it back', () => {
     const { toggleFlag } = useFeedback.getState()
     toggleFlag(clue('c:1:0'))

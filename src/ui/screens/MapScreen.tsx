@@ -56,9 +56,7 @@ export function MapScreen() {
         <button className="icon-btn" aria-label="Back" onClick={() => goTo('home')}>
           ←
         </button>
-        <h1>
-          <span lang="da">Rejsen</span>
-        </h1>
+        <h1>The journey</h1>
       </header>
 
       <svg
@@ -162,7 +160,7 @@ export function MapScreen() {
             setArrivedIndex(destination)
           }}
         >
-          <span lang="da">Rejs videre</span> → {nextCity.name}
+          Travel on → {nextCity.name}
         </button>
       )}
 

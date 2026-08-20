@@ -166,17 +166,17 @@ describe('full game flows', () => {
    * get it wrong — an audit mutated the engine to the naive rule ("a forbidden
    * word is fatal to whoever names it") and 411 of 413 tests went on passing.
    * Forbidden words are gone; the rule is not, because the two keys still
-   * disagree about most of the board. Every green Cluey holds is a card the
+   * disagree about most of the board. Every green Casey holds is a card the
    * player's own key shows as neutral, with nothing on screen to say otherwise,
    * and it scores anyway — that is now what the rule buys, and it is what these
    * pin.
    */
   describe('a guess is judged against the clue-giver key, and only that key', () => {
-    /** Green for Cluey, neutral for the player — the ordinary case, not a corner. */
+    /** Green for Casey, neutral for the player — the ordinary case, not a corner. */
     const onlyHis = (s: GameState) =>
       Object.keys(s.aiKey).find((w) => s.aiKey[w] === 'green' && s.playerKey[w] === 'bystander')!
 
-    it('the player scores a word their OWN key calls neutral, under Cluey clue', () => {
+    it('the player scores a word their OWN key calls neutral, under Casey clue', () => {
       let s = newGame('standard', 7, 'ai')
       const card = onlyHis(s)
       expect(card).toBeDefined()
@@ -186,7 +186,7 @@ describe('full game flows', () => {
       expect(s.outcome).toBeUndefined()
     })
 
-    it('and the same card scores nothing when Cluey names it under the PLAYER clue', () => {
+    it('and the same card scores nothing when Casey names it under the PLAYER clue', () => {
       let s = newGame('standard', 7, 'player')
       const card = onlyHis(s)
       s = clue(s, 'player', 2)
@@ -195,7 +195,7 @@ describe('full game flows', () => {
       // player only, and the turn is over.
       expect(s.reveals[card]).toEqual({ kind: 'bystander', against: ['player'] })
       expect(s.phase).toBe('aiClueInput')
-      // Still Cluey's green, and still there to be taken under his own clue.
+      // Still Casey's green, and still there to be taken under his own clue.
       s = clue(s, 'ai', 1)
       expect(isGuessable(s, card)).toBe(true)
       s = applyEvent(s, { type: 'GUESS', wordId: card })
@@ -297,9 +297,10 @@ describe('full game flows', () => {
 
   /**
    * The number is the whole allowance: no bonus (number + 1)-th guess. Asked
-   * for as "when you have guessed the amount of words Cluey gives you the turn
-   * ends automatically", after the old rule read on a phone as the turn simply
-   * not ending once you had found everything the clue promised.
+   * for, before the rename, as "when you have guessed the amount of words
+   * Cluey gives you the turn ends automatically", after the old rule read on a
+   * phone as the turn simply not ending once you had found everything the clue
+   * promised.
    */
   it('ends the turn on the number-th correct guess, with no bonus', () => {
     let s = clue(newGame(), 'player', 1)

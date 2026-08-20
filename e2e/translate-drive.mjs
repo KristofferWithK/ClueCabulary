@@ -80,8 +80,8 @@ try {
   const hits = await box.locator('.translate-hits li').allTextContents()
   check('an English word gives the Danish', hits.join(' ').includes('hund'), hits[0] ?? '(none)')
 
-  // And no request was needed: the thousand words answer offline.
-  check('with no Ask Cluey needed', (await box.locator('.translate-ask').count()) === 0)
+  // And no request was needed: the nine hundred words answer offline.
+  check('with no Ask Casey needed', (await box.locator('.translate-ask').count()) === 0)
 
   // Looking up an English word whose Danish is ON the board. This is the case
   // that read as a broken dictionary from a phone: "wood" answers "et træ",
@@ -97,11 +97,11 @@ try {
     `${boardEn} → ${(await box.locator('.translate-hits li').allTextContents()).join(' | ')}`,
   )
 
-  // A word outside the set offers Cluey rather than inventing something.
+  // A word outside the set offers Casey rather than inventing something.
   await box.locator('input').fill('helicopter')
   await sleep(250)
   check(
-    'a word outside the set offers to ask Cluey',
+    'a word outside the set offers to ask Casey',
     (await box.locator('.translate-ask').count()) === 1,
   )
   check('and claims nothing on its own', (await box.locator('.translate-hits').count()) === 0)

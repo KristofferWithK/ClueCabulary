@@ -51,10 +51,10 @@ const BAD_GUESS: FlaggedCall = {
  *
  * The flag lives on the review page because that is the only screen where the
  * reasoning is visible, and a verdict on a clue is worth nothing next to a card
- * with no account attached. What makes it worth tapping is that Cluey is shown
+ * with no account attached. What makes it worth tapping is that Casey is shown
  * the ones you flag — a flag that goes nowhere is a dead button.
  */
-describe('flagged calls reach Cluey', () => {
+describe('flagged calls reach Casey', () => {
   it('are absent from both prompts when nothing is flagged', () => {
     expect(cluePrompt()).not.toMatch(/marked as bad/i)
     expect(guessPrompt()).not.toMatch(/marked as bad/i)
@@ -101,7 +101,7 @@ describe('flagged calls reach Cluey', () => {
 })
 
 /**
- * A flag carries a clue word, a Danish board word and Cluey's own sentence —
+ * A flag carries a clue word, a Danish board word and Casey's own sentence —
  * no key data at all. That is true by construction, and asserted anyway,
  * because the flag is the newest thing to cross the projection boundary and a
  * future field added to Flag would ride straight through it.
@@ -112,7 +112,7 @@ describe('flags carry nothing about anybody key', () => {
       ...BAD_CLUE,
       // Shape of something a store might grow later. The value is a sentinel
       // rather than a real role, so a hit is unambiguous: role words like
-      // "green" appear all over the clue prompt legitimately, since Cluey is
+      // "green" appear all over the clue prompt legitimately, since Casey is
       // shown his OWN key there.
       playerKey: { w0: 'LEAKED_PLAYER_KEY' },
       id: 'c:7:0',

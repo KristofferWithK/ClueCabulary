@@ -3,7 +3,7 @@ import { boardWordFor, lookupLocal } from './lookup'
 
 /**
  * The lookup a player uses while composing a Danish clue. It has to answer in
- * both directions from the shipped thousand, so the common case never costs a
+ * both directions from the shipped nine hundred, so the common case never costs a
  * request — and it has to be able to say "this is a board word", because
  * looking one up here must cost exactly what tapping ⓘ costs.
  */
