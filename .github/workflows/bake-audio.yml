@@ -36,8 +36,9 @@ concurrency:
   group: bake-audio-${{ github.ref }}
 
 env:
-  # Bump to re-run on a push. 2 = Aoede at rate 0.6.
-  BAKE_NONCE: '2'
+  # Bump to re-run on a push. 3 = Aoede at rate 0.6, after run 1 baked the
+  # clips correctly and then lost the push to a race.
+  BAKE_NONCE: '3'
 
 jobs:
   bake:
@@ -85,16 +86,34 @@ jobs:
       - name: Commit the clips
         env:
           LANG_CODE: ${{ inputs.lang || 'da' }}
+          BRANCH: ${{ github.ref_name }}
         run: |
+          set -eu
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "public/audio/$LANG_CODE"
           if git diff --cached --quiet; then
             echo "Nothing changed — the clips on disk already match the manifest."
-          else
-            # Chirp3 is not byte-reproducible, so this diff is large by nature
-            # even when the audio is indistinguishable. That is the accepted
-            # cost of committing the clips; see docs/DECISIONS.md.
-            git commit -m "Bake the word audio ($LANG_CODE)"
-            git push
+            exit 0
           fi
+          # Chirp3 is not byte-reproducible, so this diff is large by nature
+          # even when the audio is indistinguishable. That is the accepted
+          # cost of committing the clips; see docs/DECISIONS.md.
+          git commit -m "Bake the word audio ($LANG_CODE)"
+          # Nine minutes is long enough for the branch to move underneath us —
+          # one docs commit from a session is all it takes, and that is exactly
+          # how the first run of this job lost its clips: baked fine, then the
+          # push was rejected as non-fast-forward and the work died with the
+          # runner. Rebase onto whatever arrived and try again. Nothing can
+          # conflict: this job writes only public/audio, which nothing else
+          # touches by hand.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected — rebasing onto origin/$BRANCH and retrying"
+            git pull --rebase origin "$BRANCH"
+          done
+          echo "::error::could not push the clips after 3 attempts"
+          exit 1
