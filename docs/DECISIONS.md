@@ -46,6 +46,48 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · The voice is Aoede at 0.6, and the rate was a literal in three places
+You listened and chose **da-DK-Chirp3-HD-Aoede**, then pushed the pace down —
+1.0, 0.9, 0.7, 0.5, 0.6 — and settled on **0.6**. Both are now
+`make-audio.mjs`'s defaults and all 900 clips are baked in them.
+
+**What the change uncovered.** The speaking rate was a literal inside each of
+the three provider adapters, spelled differently in each (Google a multiplier,
+Azure a signed percentage, ElevenLabs a speed), and it was **not in the
+manifest stamp**. The stamp was provider + voice + locale + text. So changing
+only the speed and re-running would have matched all nine hundred stamps,
+skipped every word and printed "0 to make · Nothing to do" — the one thing you
+changed being the one thing the manifest could not see. It is `--rate` now,
+normalised once and converted per adapter, and it is in the stamp. Walked
+against the stub in all three states: first bake makes them, unchanged re-run
+skips them, a `--rate` change alone re-bakes them.
+
+**A measurement worth keeping in mind:** Chirp3 is not reproducible, and the
+wobble between two generations of the SAME request is *larger than one step of
+the rate dial* — a rate-1.0 clip came back 39% longer on a second draw. That
+is why 0.9 and 0.7 looked identical in the first probe. Consequences: never
+judge a rate from a single clip, and a `--force` re-bake always produces a
+~7 MB binary diff even when nothing audibly changed.
+
+**Reverse:** `node scripts/make-audio.mjs --force` with `--voice` and `--rate`
+set to whatever you prefer, or bump `BAKE_NONCE` in `bake-audio.yml`. The old
+Neural2-F clips are in git history at `32233b8~1`.
+
+### 2026-08-20 · The train story (H9) is carded, and it dodges the cost problem
+You asked whether per-board stories would be too expensive to voice. They
+would: every board differs, so it means live TTS through the proxy, metered
+and online-only — which is why H5's post-round story uses the device voice.
+
+The train story is a different shape and the journey code is why. `canTravel`
+opens the road only when **all hundred** of a city's words are wrapped, so at
+the moment anyone boards, the words they packed are the city's band —
+*identical for every player*. Nine legs, nine fixed stories, written once and
+baked once: ~20k characters, under a dollar, one time, then zero runtime calls
+and it works offline. Carded as **H9** with the shape, the per-sentence baking
+(Chirp3 has no SSML, so sentence clips are the only route to highlighting and
+a slow toggle), and the honest hard part written down — the prose, not the
+money. **Nothing built yet; the card is the decision.**
+
 ### 2026-08-20 · Daytime session: H5 shipped, the voice pinned for your ears, the paperwork made real
 Worked with you awake this time, so less was decided FOR you — but three
 things landed on the session branch worth pinning:

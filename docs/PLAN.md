@@ -39,11 +39,9 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-*(empty — what remains waits on the owner: D3, G2's submission half, and the voice)*
+- **H9** — The train story: a city's hundred words read aloud on the way out *(owner's idea; card below. Unblocked by V1 — the voice it needs now exists.)*
 
 ### Blocked
-- **V1** — Choose the Danish voice, re-bake the 900, commit *(held for the owner's EARS: the audition delivered all 35 voices Google serves reading four dataset sentences — clips under `audition/` on the session branch. Name the voice and the re-bake is one command and one commit; the voices:list guard now refuses a name Google does not serve, so a typo cannot bake 900 wrong words. Neural2-F ships today, so doing nothing is also a choice.)*
-
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
 
 - **G2** — Store readiness + release *(paperwork half done 2026-08-20 on the session branch: privacy policy page in `public/`, listing copy + questionnaire in `docs/store/`. Screenshots and the submission remain, and the submission is held for the owner)*
@@ -52,6 +50,7 @@ model alias `cluey`).
 - **H5** — Sentence stories written to a coverage target — implemented 2026-08-20 on branch `claude/plan-decisions-overview-l4bpxi` (verify green there), awaiting merge
 
 ### Done
+- **V1** — The voice is **da-DK-Chirp3-HD-Aoede at rate 0.6** — decided by the owner 2026-08-20 from a 35-voice audition and a five-point rate audition, both under `audition/`. `--rate` became a real flag (it was a literal in three adapters) and entered the manifest stamp, without which a speed change would have skipped all 900 words and reported success. Baked and committed by `bake-audio.yml`.
 - **H7** — Cascade tier: escalation rides the corrective retry — merged 2026-08-20 ([PR #76](https://github.com/KristofferWithK/ClueCabulary/pull/76), squash 2f2a0d8). Zero extra round trips; shipped alias table carries no cascade, byte-for-byte today's behaviour.
 - **H1** — Language-pack seam; Danish runs on it — merged 2026-08-20 ([PR #77](https://github.com/KristofferWithK/ClueCabulary/pull/77), squash 6bee696). H2 adds one registry line and the picker appears by itself.
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
@@ -414,6 +413,53 @@ rules pinned by tests, one checked to fail without the fix.
   C2's scribbled map) and they should match it. Held back from v1 only because
   the art is the slow part; the mechanic itself is small, and it stacks with R1
   rather than replacing it.
+
+### H9 — The train story: a city's hundred words, read aloud on the way out
+**Size:** 2–3 sessions (one of them writing). **Deps:** the Aoede bake (done).
+**Owner's idea, 2026-08-20.**
+
+**Why this escapes the cost problem that H5 has.** A post-round story cannot be
+voiced by the baked pipeline — every board differs, so it would mean live TTS
+through the proxy, metered, online-only. The train story is the opposite shape,
+and `canTravel` is the reason: the road opens only when **all hundred** of a
+city's words are wrapped (`WRAP_TO_TRAVEL = WORDS_PER_CITY`,
+`src/journey/progress.ts`). So at the moment anyone boards, the set of words
+they packed is *the city's band, identical for every player*. Nine legs, nine
+FIXED stories, written once and baked once. About 20k characters — under a
+dollar, one time — and then zero runtime calls, offline, forever.
+
+**The moment.** Travel happens on the map and lands on `Arrival` (never
+silent, by that component's own note). The ride goes between them: pencil train
+car in the `Cluey.tsx` hatching style, Casey at the window, the story on screen
+with the wrapped words set bold — the payoff being *you can read this now*.
+Play is a tap (every sound in this app follows a tap — the standing rule) and
+**Skip is always visible**, per the owner.
+
+**Shape.**
+- Baked PER SENTENCE, not one file per story: Chirp3 has no SSML and therefore
+  no timing marks, so sentence-level clips are the only way to get
+  sentence-by-sentence highlighting, tap-to-replay, and the slow toggle. Two
+  bakes per sentence — 0.6 and the slow variant — is still pennies.
+- Coverage is CHECKED, not hoped: reuse H5's stemmed matcher to assert every
+  one of the city's hundred appears. "All the words they wrapped" is a promise
+  the validator can keep.
+- The H5 function-word ledger plugs straight in — a 100-word story has room for
+  «hvis», «fordi», «selvom» in a way five single-clause examples never did, and
+  this is where the unreachable tail finally gets met.
+- Replayable from the map afterwards; a leg already travelled keeps its story.
+
+**The honest hard part is prose, not money.** A hundred specific words in a
+story that does not read like a packing list is a real writing constraint.
+Mitigations: three short chapters a ride rather than one monolith, machine
+coverage report per draft, and **Sønderborg written first as the proof piece**
+before committing to nine. Danish quality sits in the same trust class as the
+shipped example sentences — generated, machine-validated, awaiting a native
+pass.
+
+**Accept:** verify green; Sønderborg's story covers 100/100 by the checker;
+the ride plays, skips, replays a sentence and survives a reload mid-ride; no
+scroll at 360×640; a drive asserts the story is reachable from the map after
+travelling.
 
 ## Verification (every card)
 
