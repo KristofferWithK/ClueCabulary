@@ -671,14 +671,28 @@ for (const vp of [
   await page.locator('.card-face-en').first().click()
   await page.waitForTimeout(200)
   await noScroll(`wrap-up packing @${vp.name}`)
+
+  // The card tap focuses the packing input PROGRAMMATICALLY (an effect in
+  // PackingDock.tsx), so this is the one keyboard raise where no finger ever
+  // touches the dock — and the dock the ride lifts is chosen by a focusin
+  // listener. If that listener misses programmatic focus, the ride has no
+  // target on exactly the phase whose dock has no reserved height. Assertable
+  // here because markDock runs outside the native guard; the class is inert
+  // styling-wise without .kb-up, so this checks selection, not appearance.
+  check(
+    `the packing dock is marked as the lifted dock after a card tap @${vp.name}`,
+    (await page.locator('.packing-dock.kb-lifted').count()) === 1,
+  )
 }
 await page.setViewportSize(PHONE)
 
 // ---- The keyboard, as the native shell actually delivers it. ---------------
-// Keyboard.resize 'native' makes the OS shrink the webview to end where the
-// keyboard begins. That is a viewport resize, which a browser can do exactly —
-// so the behaviour is checkable here rather than only on a phone, which is
-// where several builds went.
+// Keyboard.resize 'body' makes the plugin shrink document.body to end where
+// the keyboard begins — a bridge eval writing el.style.height, which a browser
+// can perform VERBATIM. This block used to shrink the viewport instead, which
+// is the 'native' mode's mechanism, two config eras ago: same assertions, but
+// they were exercising a code path the app no longer ships. The write below is
+// character-for-character what Keyboard.m's resizeElement does.
 {
   const KB = 336
   await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
@@ -693,7 +707,8 @@ await page.setViewportSize(PHONE)
   const gridBefore = await page.locator('.board-grid').boundingBox()
   const cardBefore = await page.locator('.word-card').first().boundingBox()
 
-  // What the native listener does on keyboardWillShow, then the OS resize.
+  // What the native listener does on keyboardWillShow, then the plugin's
+  // delayed body shrink.
   await page.evaluate(() => {
     const grid = document.querySelector('.board-grid')
     document.documentElement.style.setProperty(
@@ -703,7 +718,9 @@ await page.setViewportSize(PHONE)
     document.documentElement.classList.add('kb-up')
     document.querySelector('.clue-input')?.classList.add('kb-lifted')
   })
-  await page.setViewportSize({ width: PHONE.width, height: PHONE.height - KB })
+  await page.evaluate((kb) => {
+    document.body.style.height = `${window.innerHeight - kb}px`
+  }, KB)
   await page.waitForTimeout(300)
 
   const gridDuring = await page.locator('.board-grid').boundingBox()
@@ -730,8 +747,10 @@ await page.setViewportSize(PHONE)
   )
   await noScroll('game with the keyboard up')
 
-  await page.setViewportSize(PHONE)
+  // The hide path: the plugin writes height null, which removes the inline
+  // style — the same restore the willHide listener's class removals pair with.
   await page.evaluate(() => {
+    document.body.style.height = ''
     document.documentElement.classList.remove('kb-up')
     document.documentElement.style.removeProperty('--board-h')
     document.querySelector('.clue-input')?.classList.remove('kb-lifted')

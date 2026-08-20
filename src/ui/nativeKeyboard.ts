@@ -298,8 +298,30 @@ export function useNativeKeyboard() {
   useSimulatedKeyboard()
 
   useEffect(() => {
+    // Which dock to lift: the one holding what is focused. Read at focus time
+    // rather than assumed, because the clue dock, the lookup and the packing
+    // dock are all docks with fields in them.
+    //
+    // OUTSIDE the native guard below, on purpose: without .kb-up nothing
+    // styles .kb-lifted, so on the web the class is inert — but it being set
+    // is what lets layout-drive assert the packing dock's self-focus path
+    // (a board-card tap focuses the input programmatically, PackingDock.tsx)
+    // in a browser, instead of that path being testable only on a phone.
+    const markDock = (e: FocusEvent) => {
+      const dock = e.target instanceof HTMLElement ? e.target.closest('.dock') : null
+      for (const d of document.querySelectorAll('.dock.kb-lifted')) {
+        if (d !== dock) d.classList.remove('kb-lifted')
+      }
+      if (dock) dock.classList.add('kb-lifted')
+    }
+    window.addEventListener('focusin', markDock)
+    const unmark = () => {
+      window.removeEventListener('focusin', markDock)
+      for (const d of document.querySelectorAll('.dock.kb-lifted')) d.classList.remove('kb-lifted')
+    }
+
     const cap = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
-    if (!cap?.isNativePlatform?.()) return
+    if (!cap?.isNativePlatform?.()) return unmark
 
     const root = document.documentElement
     let removers: Array<() => void> = []
@@ -318,18 +340,6 @@ export function useNativeKeyboard() {
       endRide?.()
       endRide = null
     }
-
-    // Which dock to lift: the one holding what is focused. Read at focus time
-    // rather than assumed, because the clue dock, the lookup and the packing
-    // dock are all docks with fields in them.
-    const markDock = (e: FocusEvent) => {
-      const dock = e.target instanceof HTMLElement ? e.target.closest('.dock') : null
-      for (const d of document.querySelectorAll('.dock.kb-lifted')) {
-        if (d !== dock) d.classList.remove('kb-lifted')
-      }
-      if (dock) dock.classList.add('kb-lifted')
-    }
-    window.addEventListener('focusin', markDock)
 
     // The vendored fork (ios-plugins/cluecab-keyboard) — same plugin, same
     // 'Keyboard' name, plus the animation's real duration in the payload.
@@ -382,11 +392,9 @@ export function useNativeKeyboard() {
     return () => {
       cancelled = true
       land()
-      window.removeEventListener('focusin', markDock)
+      unmark()
       for (const off of removers) off()
       root.classList.remove('kb-up')
-      root.style.removeProperty('--kb')
-      for (const d of document.querySelectorAll('.dock.kb-lifted')) d.classList.remove('kb-lifted')
     }
   }, [])
 }
