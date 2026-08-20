@@ -7,12 +7,22 @@
 // naming words with nothing to go on, and one wrong name finishes it. Neither
 // is provable from the engine alone: the phase has to reach the screen, the
 // board has to stay tappable, and the round has to be able to end both ways.
+import { readFileSync } from 'node:fs'
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 
 const PORT = 4195
 const preview = await startPreview(PORT)
 const SIZES = ['beginner', 'middle', 'standard']
+
+// Read off disk rather than out of the page: the sentences the summary shows
+// have to be checkable against the dataset they claim to come from, and the app
+// does not put WORDS on the window.
+const DATASET = new Map(
+  JSON.parse(readFileSync(new URL('../src/data/words.da.json', import.meta.url), 'utf8')).map(
+    (w) => [w.id, w],
+  ),
+)
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -21,6 +31,26 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
 const page = await ctx.newPage()
 const crashes = []
 page.on('pageerror', (e) => crashes.push(String(e)))
+
+// Every utterance the page asks for, in order. Headless Chromium has a
+// speechSynthesis with no voices in it, so `speak()` is callable and silent —
+// which is all this needs: audible sound cannot be asserted, but "the app asked
+// for these words, in this order" can. The same trick offline-drive plays with
+// clip requests, for the half of `playWord` that has no clip to fetch.
+await page.addInitScript(() => {
+  window.__said = []
+  const synth = window.speechSynthesis
+  if (!synth) return
+  const speak = synth.speak.bind(synth)
+  synth.speak = (u) => {
+    window.__said.push(u.text)
+    try {
+      speak(u)
+    } catch {
+      /* no voice installed; the record is the point */
+    }
+  }
+})
 
 const fail = []
 const check = (name, ok, detail = '') => {
@@ -205,6 +235,55 @@ try {
     'and a board of new words is not counted as zero new words',
     Number(stats.discovered) > 0,
     stats.discovered,
+  )
+
+  // ---- the round's words, put in a sentence ---------------------------------
+  // The point of this section is the words that are NOT on the board. Nothing
+  // in the nine hundred is a preposition, a conjunction or a pronoun, because
+  // none of them can be clued — there is no clue for «hvis» — so they arrive as
+  // scenery in somebody else's sentence or they do not arrive at all. How much
+  // scenery the shipped examples actually carry is measured by
+  // `scripts/measure-function-words.mjs`; what is checked here is that the
+  // section exists, is drawn from THIS round's greens rather than from the
+  // dataset at large, and can be heard.
+  const sentences = await page.evaluate(() =>
+    [...document.querySelectorAll('.round-sentence')].map((li) => ({
+      da: li.querySelector('[lang="da"]')?.textContent ?? '',
+      en: li.querySelector('.sentence-en')?.textContent ?? '',
+      speakable: !!li.querySelector('button.speak-sentence'),
+    })),
+  )
+  check('the summary puts the round in sentences', sentences.length > 0, `${sentences.length} shown`)
+  check('at most five of them', sentences.length <= 5, `${sentences.length}`)
+  check(
+    'each with a Danish sentence and its English',
+    sentences.length > 0 && sentences.every((s) => s.da.length > 2 && s.en.length > 2),
+    JSON.stringify(sentences[0] ?? null),
+  )
+  // Non-vacuous in the way that matters: not "there are sentences" but "these
+  // are the sentences of words this round turned green". A component that
+  // showed the first five words of the dataset would satisfy every check above
+  // and fail this one.
+  const greenExamples = new Set(
+    won.words
+      .filter((w) => won.reveals[w.wordId].kind === 'green')
+      .map((w) => DATASET.get(w.wordId)?.exampleDa),
+  )
+  check(
+    "and every one belongs to a word this round greened",
+    sentences.length > 0 && sentences.every((s) => greenExamples.has(s.da)),
+    sentences.map((s) => s.da).join(' | '),
+  )
+  check('each one a speak button', sentences.every((s) => s.speakable))
+
+  await page.evaluate(() => (window.__said.length = 0))
+  await page.locator('.round-sentence button.speak-sentence').first().click()
+  await page.waitForTimeout(250)
+  const saidSentence = await page.evaluate(() => window.__said.slice())
+  check(
+    'tapping a sentence says the whole sentence, not just the word',
+    saidSentence.includes(sentences[0].da),
+    JSON.stringify(saidSentence),
   )
 
   // The transcript is behind a lid, shut. It is the longest thing on the screen
