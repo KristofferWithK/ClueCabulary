@@ -51,6 +51,26 @@ const server = createServer(async (req, res) => {
     return
   }
 
+  // The voice guard in make-audio.mjs asks this before spending a bake. Serve
+  // the default voice for the locale plus one stub name, so both of the
+  // guard's outcomes are walkable offline: the default proceeds, anything
+  // else is refused with this list printed.
+  if (url.pathname === '/v1/voices') {
+    const locale = url.searchParams.get('languageCode') ?? 'da-DK'
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(
+      JSON.stringify({
+        voices: [`${locale}-Neural2-F`, `${locale}-Stub-A`].map((name) => ({
+          name,
+          languageCodes: [locale],
+          ssmlGender: 'FEMALE',
+          naturalSampleRateHertz: 24000,
+        })),
+      }),
+    )
+    return
+  }
+
   let provider = 'unknown'
   let text = ''
   let voice = ''

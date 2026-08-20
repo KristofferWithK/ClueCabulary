@@ -142,6 +142,23 @@ const PROVIDERS = {
       if (!body.audioContent) throw new Error('no audioContent in the response')
       return Buffer.from(body.audioContent, 'base64')
     },
+    /**
+     * The names Google actually serves for the locale. The guard before the
+     * bake asks this, because the synthesize endpoint SERVES a retired name
+     * rather than refusing it — da-DK-Neural2-D answers 200 with Neural2-F's
+     * audio, da-DK-Wavenet-A with Wavenet-F's (measured 2026-08-20, audition
+     * workflow run 3) — so a mistyped voice bakes 900 words in the wrong voice
+     * and reports "900 made, 0 failed". Only a name outside Google's pattern
+     * is refused. The list above is a frozen convenience; this is the truth.
+     */
+    async listVoices(cfg) {
+      const res = await fetch(`${cfg.host}/v1/voices?languageCode=${cfg.locale}`, {
+        headers: { 'X-goog-api-key': cfg.key },
+        signal: AbortSignal.timeout(10_000),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return ((await res.json()).voices ?? []).map((v) => v.name)
+    },
   },
 
   /**
@@ -405,6 +422,33 @@ if (dryRun) {
   console.log(`\nDry run. First few: ${todo.slice(0, 8).map((j) => `${j.text}→${j.slug}.mp3`).join(', ')}`)
   console.log(`Set $${provider.keyEnv} and drop --dry-run to spend the $${estimate.toFixed(2)}.`)
   process.exit(0)
+}
+
+/* ------------------------------------------------------------------ *
+ * The voice guard
+ *
+ * Refuse a voice the service does not serve, BEFORE spending the bake. Without
+ * this the mistake is invisible: Google answers a retired name with SOME
+ * voice's audio and a 200, so the wrong voice bakes clean through and the only
+ * check left is a human listening to 900 files. A failed listing is a warning
+ * rather than a stop — the guard must never be the reason an offline stub run
+ * or a flaky network breaks a bake that was going to work.
+ * ------------------------------------------------------------------ */
+
+if (provider.listVoices) {
+  try {
+    const served = await provider.listVoices(cfg)
+    if (served.length && !served.includes(cfg.voice)) {
+      console.error(
+        `"${cfg.voice}" is not a voice ${providerName} serves for ${cfg.locale} — and it would not refuse it: ` +
+          `a retired name is answered with some OTHER voice's audio, the bake reports success, and every word comes out wrong.\n` +
+          `Voices it serves for ${cfg.locale}:\n  ${served.join('\n  ')}`,
+      )
+      process.exit(2)
+    }
+  } catch (e) {
+    console.warn(`Could not check "${cfg.voice}" against ${providerName}'s voice list (${e.message}) — continuing unguarded.`)
+  }
 }
 
 /* ------------------------------------------------------------------ *
