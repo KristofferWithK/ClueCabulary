@@ -39,9 +39,13 @@ check('no page errors at the final city', errors.length === 0, errors.join(' | '
 
 // The "you are here" label must stay inside the map — Skagen sits at the top
 // edge, København at the right.
+// Indices, not names, so they moved when Viborg came off the route: Skagen
+// was 6 and is 5, København was 9 and is 8. Both cases still passed at the old
+// numbers — they landed on Odense and on nothing at all — which is the quiet
+// way an edge-case check stops being one.
 for (const [city, name] of [
-  [6, 'Skagen'],
-  [9, 'Kobenhavn'],
+  [5, 'Skagen'],
+  [8, 'Kobenhavn'],
   [0, 'Sonderborg'],
 ]) {
   await open(`?mock=1&howto=0&city=${city}`)
