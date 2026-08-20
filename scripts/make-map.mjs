@@ -185,8 +185,10 @@ const HATCH_DIR = [Math.SQRT1_2, -Math.SQRT1_2]
 const HATCH_SPACING = 15 // units of coast between strokes
 const HATCH_LENGTH = 19
 const HATCH_SKIP = 0.22 // dropped at random, so it reads as a hand, not a comb
-// Lifted off the coastline by this much before it starts, so a 2.6-wide
-// outline does not swallow the root of every stroke.
+// Started just inside the line rather than on it. Small: the coastline is a
+// non-scaling 1.6 CSS px, which is about five projected units on the map screen
+// and ten on Home, so at phone sizes the outline covers the root of the stroke
+// whatever this is — it earns its place at the detail zoom the preview renders.
 const HATCH_INSET = 2
 
 /** mulberry32 — small, fast, and the same everywhere node runs. */
