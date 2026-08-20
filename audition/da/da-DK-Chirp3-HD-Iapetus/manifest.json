@@ -4,22 +4,22 @@
       "id": "da:hus",
       "text": "hus",
       "stamp": "1f3317c6ff162e4a",
-      "bytes": 6048,
-      "at": "2026-08-20T12:30:40.116Z"
+      "bytes": 5856,
+      "at": "2026-08-20T12:33:42.850Z"
     },
     "roed": {
       "id": "da:rød",
       "text": "rød",
       "stamp": "2a3dedf9cb58fdd4",
-      "bytes": 4608,
-      "at": "2026-08-20T12:30:40.542Z"
+      "bytes": 4224,
+      "at": "2026-08-20T12:33:43.249Z"
     },
     "koebe": {
       "id": "da:købe",
       "text": "købe",
       "stamp": "117f846cc7187215",
-      "bytes": 5856,
-      "at": "2026-08-20T12:30:41.114Z"
+      "bytes": 3648,
+      "at": "2026-08-20T12:33:43.628Z"
     }
   },
   "provider": "google",
