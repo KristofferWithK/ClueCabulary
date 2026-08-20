@@ -77,6 +77,113 @@ ALLOWED_ORIGIN = "https://kristofferwithk.github.io, capacitor://localhost"
 # A name that is not listed here is forwarded as-is, so real model ids still work.
 MODEL_ALIASES = '{"cluey":{"model":"gpt-oss:120b"}}'
 
+# ---------------------------------------------------------------------------
+# THE CASCADE (H7) — not switched on. This is the line that switches it on:
+#
+#   MODEL_ALIASES = '''{"cluey":      {"model":"<a small fast model>", "escalate":"cluey-hard"},
+#     "cluey-hard": {"model":"gpt-oss:120b"}}'''
+#
+# Read the whole of this comment before you paste it. The saving is real and
+# the arithmetic is below, but it turns on ONE number that nobody has measured,
+# and the last section says how to measure it.
+#
+# WHAT IT DOES. "cluey" answers on the cheap model. When an answer comes back
+# that the APP's own validator refuses — not JSON, or the schema rejects it, or
+# checkClueLegality does, or the clue names a word that is not one of Casey's
+# unrevealed greens — the app retries, and that retry asks for "cluey-hard".
+# The worker also escalates by itself when the cheap model returns a 5xx or a
+# 429, or cannot be reached at all.
+#
+# The retry is the part that makes this pay. It was already going to happen —
+# src/ai/companion.ts has retried up to MAX_CORRECTIONS = 3 times since long
+# before this existed — so escalating adds no call and no waiting. The round
+# gets FASTER on average, because the first attempt is now the quick model.
+#
+# ---------------------------------------------------------------------------
+# THE ARITHMETIC. Per logical AI call — one clue given, one set of guesses, one
+# word translated — with
+#
+#     p  price of one call answered by the cheap model
+#     P  price of one call answered by the flagship
+#     r  share of cheap-model answers the app's validator refuses
+#     s  the same share for the flagship
+#
+# and attempts capped at four (1 + MAX_CORRECTIONS):
+#
+#     today, one tier      P x (1 + s + s^2 + s^3)
+#     with the cascade     p + r x P x (1 + s + s^2)
+#
+# Put s = 0.1 and the blueprint's own two prices — $0.0001 a call on the cheap
+# tier, $0.002 on the flagship, a 20:1 ratio:
+#
+#     today                        $0.00222 a call
+#     cascade, r = 0.05            $0.00021   90% less
+#     cascade, r = 0.20            $0.00054   76% less
+#     cascade, r = 0.35            $0.00088   60% less
+#     cascade, r = 0.50            $0.00121   45% less
+#     cascade, r = 0.956           $0.00222   break-even
+#
+# In the blueprint's own form — cheap share x cheap price + escalation share x
+# flagship price — r = 0.2 makes 81.8% of REQUESTS cheap-tier ones, blending to
+# $0.00045 a request against $0.002 today. Against the 25,000-request global
+# ceiling below, that is the worst day this proxy can have costing $11 instead
+# of $50.
+#
+# THE RESULT WORTH REMEMBERING, because it barely depends on s at all:
+#
+#     the cascade saves money unless  r  >  1 - p/P
+#
+# At 20:1 the cheap model would have to be refused on 96% of first attempts
+# before this costs more than one tier. At 10:1, 91%. At 2:1 — barely a cascade
+# — 55%. That is not luck; it is what escalating on a retry instead of adding a
+# call buys you.
+#
+# WHAT IS MEASURED HERE AND WHAT IS NOT.
+#   Measured: the biggest request a round sends is 8,208 bytes, about 2,050
+#     input tokens (e2e/proxy-drive.mjs checks it, and fails if it moves far).
+#     An ordinary round is 7 to 12 calls; worker.js works that out from the
+#     board configs.
+#   Not measured: r, the one number the whole thing turns on. It needs a real
+#     cheap model answering real boards, and there was none in the session that
+#     wrote this. s is assumed at 0.1 for the worked example and the break-even
+#     hardly moves if it is wrong.
+#   Not measured: output tokens, and the prices, which are yours to fill in.
+#     Note that ollama.com is a flat subscription rather than per-token, so
+#     there the currency is the rate limit; the cascade conserves it in exactly
+#     the same proportion.
+#
+# HOW TO MEASURE r BEFORE TRUSTING ANY OF THIS. Set the cascade up, play five
+# or six rounds, and run `npx wrangler tail cluecabulary-proxy`. Every
+# escalation logs a line beginning "cascade:", and every request that arrives
+# with ?tier=escalate is one the app refused. Escalations over total requests
+# is r. If it is over about a third, try a bigger cheap model before deciding
+# the cascade does not work.
+#
+# THE COSTS, so they are not a surprise:
+#   - The daily cap counts requests, and a cheap model that is refused more
+#     often makes more of them. At r = 0.2 a round spends about 10% more of
+#     DAILY_CAP than it does today. The cap is 1000 and an enthusiastic day is
+#     under 150, so this is noted rather than a problem.
+#   - A worker-side escalation makes two upstream calls against one counted
+#     request. The BILL is unchanged, because the call it replaced was a 5xx
+#     and a 5xx is not a generation.
+#   - The first time a phone escalates it pays one extra CORS preflight,
+#     because the preflight cache is keyed by URL and the escalated one carries
+#     ?tier=escalate. One round trip, cached for a day, on the slow path.
+#   - A bad cheap model does not just cost more, it plays worse on the attempt
+#     the player actually waits for. Play a round on it before shipping it.
+#
+# CHEAP_TIMEOUT_MS = "20000"
+#
+# Optional, off unless set, and the one setting here that can cost more than it
+# saves: how long to wait for the cheap model before giving up and asking the
+# flagship. It is for a tier that has HUNG. Set below what the cheap model
+# genuinely takes on a 2,000-token prompt and every request becomes two — the
+# abandoned one may still be billed — so watch `wrangler tail` first and then
+# set it well above the slowest ordinary answer. The app abandons the whole
+# request at 90 seconds anyway, so anything at or above that never fires.
+# ---------------------------------------------------------------------------
+
 # Which service this worker fronts. One worker serves either: Gemini's
 # OpenAI-compatible layer wants the same Bearer token, so only the host moves
 # and the app's Base URL supplies the path (/v1, or /v1beta/openai).

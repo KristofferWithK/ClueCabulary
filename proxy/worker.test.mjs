@@ -385,6 +385,369 @@ describe('the CORS proxy worker', () => {
     })
   })
 
+  /**
+   * The cascade (H7). Two triggers, both facts rather than opinions: the app
+   * asks for the harder tier when its OWN validator refused an answer — the
+   * only side of this that can judge a clue, because judging one needs the key
+   * — and this worker escalates by itself when the cheap tier does not answer
+   * at all, which is the one thing it can verify without a board.
+   *
+   * The first case below is the one that has to keep working forever: nothing
+   * configured, and the whole feature is invisible.
+   */
+  describe('the cascade tier', () => {
+    const CASCADE = {
+      MODEL_ALIASES: JSON.stringify({
+        cluey: { model: 'cheap:8b', escalate: 'cluey-hard' },
+        'cluey-hard': { model: 'flagship:400b' },
+      }),
+      OLLAMA_API_KEY: 'ollama-secret',
+    }
+    /** No `escalate` anywhere — the configuration the owner is running today. */
+    const NO_CASCADE = {
+      MODEL_ALIASES: JSON.stringify({ cluey: { model: 'gpt-oss:120b' } }),
+      OLLAMA_API_KEY: 'ollama-secret',
+    }
+    const ask = (env, { tier, model = 'cluey' } = {}) =>
+      worker.fetch(
+        new Request(`${ENDPOINT}${tier ? `?tier=${tier}` : ''}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, messages: [{ role: 'user', content: 'hej' }] }),
+        }),
+        env,
+      )
+    /** Which model each upstream call actually asked for, in order. */
+    const models = (spy) => spy.mock.calls.map((c) => JSON.parse(c[1].body).model)
+    /** Answer differently per model, so a two-call cascade is legible. */
+    const perModel = (handlers) =>
+      vi.fn(async (_url, init) => {
+        const asked = JSON.parse(init.body).model
+        const reply = handlers[asked]
+        if (typeof reply === 'function') return reply(init)
+        return reply ?? new Response('{"choices":[]}', { status: 200 })
+      })
+
+    describe('with nothing configured, which is the shipped state', () => {
+      it('serves ?tier=escalate as the same model, unchanged', async () => {
+        const fetchSpy = upstreamOk()
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask(NO_CASCADE, { tier: 'escalate' })
+        expect(res.status).toBe(200)
+        expect(models(fetchSpy)).toEqual(['gpt-oss:120b'])
+      })
+
+      it('and never makes a second call when the first one fails', async () => {
+        // Without an escalation there is nowhere to go, so a 503 is a 503 —
+        // the app retries on its own, exactly as it did before this existed.
+        const fetchSpy = vi.fn(async () => new Response('', { status: 503 }))
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask(NO_CASCADE)
+        expect(res.status).toBe(503)
+        expect(fetchSpy).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('answers on the cheap tier when nothing asks for anything else', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await ask(CASCADE)
+      expect(models(fetchSpy)).toEqual(['cheap:8b'])
+    })
+
+    it('gives the flagship to a request that asks for it', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await ask(CASCADE, { tier: 'escalate' })
+      expect(models(fetchSpy)).toEqual(['flagship:400b'])
+    })
+
+    it('keeps the rest of the body when it swaps the model', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await ask(CASCADE, { tier: 'escalate' })
+      expect(JSON.parse(fetchSpy.mock.calls[0][1].body)).toEqual({
+        model: 'flagship:400b',
+        messages: [{ role: 'user', content: 'hej' }],
+      })
+    })
+
+    it('does not leak the tier marker upstream — it is this worker’s word', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await ask(CASCADE, { tier: 'escalate' })
+      expect(fetchSpy.mock.calls[0][0]).toBe('https://ollama.com/v1/chat/completions')
+    })
+
+    it('leaves every other query string exactly as it arrived', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await worker.fetch(
+        new Request(`${ENDPOINT}?beta=1&tier=escalate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'cluey' }),
+        }),
+        CASCADE,
+      )
+      expect(fetchSpy.mock.calls[0][0]).toBe('https://ollama.com/v1/chat/completions?beta=1')
+    })
+
+    it('ignores a tier it does not know', async () => {
+      const fetchSpy = upstreamOk()
+      vi.stubGlobal('fetch', fetchSpy)
+      await ask(CASCADE, { tier: 'gold' })
+      expect(models(fetchSpy)).toEqual(['cheap:8b'])
+    })
+
+    describe('escalating on a cheap tier that did not answer', () => {
+      it('re-asks the flagship after a 5xx, and serves its reply', async () => {
+        const fetchSpy = perModel({
+          'cheap:8b': new Response('', { status: 503 }),
+          'flagship:400b': new Response('{"choices":[{"message":{"content":"{}"}}]}', { status: 200 }),
+        })
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask(CASCADE)
+        expect(res.status).toBe(200)
+        expect(models(fetchSpy)).toEqual(['cheap:8b', 'flagship:400b'])
+      })
+
+      it('and after a 429, which is a busy model rather than a wrong one', async () => {
+        const fetchSpy = perModel({
+          'cheap:8b': new Response('', { status: 429 }),
+          'flagship:400b': new Response('{}', { status: 200 }),
+        })
+        vi.stubGlobal('fetch', fetchSpy)
+        expect((await ask(CASCADE)).status).toBe(200)
+        expect(models(fetchSpy)).toEqual(['cheap:8b', 'flagship:400b'])
+      })
+
+      it('and when the cheap tier cannot be reached at all', async () => {
+        const fetchSpy = perModel({
+          'cheap:8b': () => {
+            throw new TypeError('fetch failed')
+          },
+          'flagship:400b': new Response('{}', { status: 200 }),
+        })
+        vi.stubGlobal('fetch', fetchSpy)
+        expect((await ask(CASCADE)).status).toBe(200)
+        expect(models(fetchSpy)).toEqual(['cheap:8b', 'flagship:400b'])
+      })
+
+      it('but NOT after a 404, because that is a configuration error', async () => {
+        // A retired or misspelled cheap model id 404s. Escalating past it would
+        // hide the mistake and quietly put every request on the flagship — the
+        // exact opposite of what a cost control is for.
+        const fetchSpy = perModel({ 'cheap:8b': new Response('', { status: 404 }) })
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask(CASCADE)
+        expect(res.status).toBe(404)
+        expect(models(fetchSpy)).toEqual(['cheap:8b'])
+      })
+
+      it('gives up after one hop when the flagship fails too', async () => {
+        // The player must still get an answer they can act on, and the round
+        // must not turn into an unbounded chain of calls.
+        const fetchSpy = perModel({
+          'cheap:8b': new Response('', { status: 503 }),
+          'flagship:400b': new Response('', { status: 503 }),
+        })
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask(CASCADE)
+        expect(res.status).toBe(503)
+        expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
+        expect(fetchSpy).toHaveBeenCalledTimes(2)
+      })
+
+      it('keeps the cheap tier’s readable failure when the flagship is unreachable', async () => {
+        const fetchSpy = perModel({
+          'cheap:8b': new Response('', { status: 503 }),
+          'flagship:400b': () => {
+            throw new TypeError('fetch failed')
+          },
+        })
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask(CASCADE)
+        expect(res.status).toBe(503)
+      })
+
+      it('answers 502 itself when neither tier can be reached', async () => {
+        vi.stubGlobal(
+          'fetch',
+          vi.fn(async () => {
+            throw new TypeError('fetch failed')
+          }),
+        )
+        const res = await ask(CASCADE)
+        expect(res.status).toBe(502)
+        expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*')
+      })
+
+      it('never escalates a request that is already on the top tier', async () => {
+        const fetchSpy = perModel({ 'flagship:400b': new Response('', { status: 503 }) })
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask(CASCADE, { tier: 'escalate' })
+        expect(res.status).toBe(503)
+        expect(fetchSpy).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('carries the escalation onto another service, key and path with it', async () => {
+      const env = {
+        MODEL_ALIASES: JSON.stringify({
+          cluey: { model: 'cheap:8b', escalate: 'cluey-hard' },
+          'cluey-hard': {
+            model: 'gemini-3.6-pro',
+            upstream: 'https://generativelanguage.googleapis.com',
+            path: '/v1beta/openai',
+            key: 'GEMINI_API_KEY',
+          },
+        }),
+        OLLAMA_API_KEY: 'ollama-secret',
+        GEMINI_API_KEY: 'gemini-secret',
+      }
+      const fetchSpy = perModel({
+        'cheap:8b': new Response('', { status: 503 }),
+        'gemini-3.6-pro': new Response('{}', { status: 200 }),
+      })
+      vi.stubGlobal('fetch', fetchSpy)
+      await ask(env)
+      expect(fetchSpy.mock.calls[1][0]).toBe(
+        'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+      )
+      expect(fetchSpy.mock.calls[1][1].headers.Authorization).toBe('Bearer gemini-secret')
+      expect(fetchSpy.mock.calls[0][1].headers.Authorization).toBe('Bearer ollama-secret')
+    })
+
+    it('does not escalate to a tier whose secret is missing', async () => {
+      // Half-configured is the likeliest state of any two-part setting. The
+      // cheap failure the app can already read beats a 401 invented here.
+      const env = {
+        MODEL_ALIASES: JSON.stringify({
+          cluey: { model: 'cheap:8b', escalate: 'cluey-hard' },
+          'cluey-hard': { model: 'gemini-3.6-pro', key: 'GEMINI_API_KEY' },
+        }),
+        OLLAMA_API_KEY: 'ollama-secret',
+      }
+      const fetchSpy = perModel({ 'cheap:8b': new Response('', { status: 503 }) })
+      vi.stubGlobal('fetch', fetchSpy)
+      const res = await ask(env)
+      expect(res.status).toBe(503)
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('ignores an escalate pointing at a name that is not there', async () => {
+      const env = {
+        MODEL_ALIASES: JSON.stringify({ cluey: { model: 'cheap:8b', escalate: 'typo' } }),
+        OLLAMA_API_KEY: 'k',
+      }
+      const fetchSpy = perModel({ 'cheap:8b': new Response('', { status: 503 }) })
+      vi.stubGlobal('fetch', fetchSpy)
+      expect((await ask(env)).status).toBe(503)
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('ignores an escalate pointing at itself, so nothing can loop', async () => {
+      const env = {
+        MODEL_ALIASES: JSON.stringify({ cluey: { model: 'cheap:8b', escalate: 'cluey' } }),
+        OLLAMA_API_KEY: 'k',
+      }
+      const fetchSpy = perModel({ 'cheap:8b': new Response('', { status: 503 }) })
+      vi.stubGlobal('fetch', fetchSpy)
+      expect((await ask(env)).status).toBe(503)
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('leaves a real model id alone, cascade or no cascade', async () => {
+      const fetchSpy = perModel({ 'qwen3.5:397b': new Response('', { status: 503 }) })
+      vi.stubGlobal('fetch', fetchSpy)
+      expect((await ask(CASCADE, { model: 'qwen3.5:397b', tier: 'escalate' })).status).toBe(503)
+      expect(models(fetchSpy)).toEqual(['qwen3.5:397b'])
+    })
+
+    /**
+     * G1's caps, unweakened. The cascade must not become a way around them,
+     * and the one place it touches the arithmetic is written down rather than
+     * left to be discovered.
+     */
+    describe('and the daily caps, which it must not loosen', () => {
+      const kv = (seed = {}) => {
+        const store = new Map(Object.entries(seed))
+        return { store, get: async (k) => store.get(k) ?? null, put: async (k, v) => void store.set(k, v) }
+      }
+      const day = new Date().toISOString().slice(0, 10)
+      const fromPhone = (tier) =>
+        new Request(`${ENDPOINT}${tier ? `?tier=${tier}` : ''}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Install-Id': 'phone-1' },
+          body: JSON.stringify({ model: 'cluey' }),
+        })
+
+      it('counts an escalated request exactly once, like any other', async () => {
+        const QUOTA = kv()
+        vi.stubGlobal('fetch', upstreamOk())
+        await worker.fetch(fromPhone('escalate'), { ...CASCADE, QUOTA })
+        expect(QUOTA.store.get(`q:${day}:i:phone-1`)).toBe('1')
+      })
+
+      it('counts a worker-side escalation once too, for two upstream calls', async () => {
+        // The honest note, pinned: one counted request can make two upstream
+        // calls when the cheap tier fails. The BILL is unchanged, because the
+        // call that failed was a 5xx and a 5xx is not a generation — which is
+        // exactly why 404 and slow-but-working answers are not triggers.
+        const QUOTA = kv()
+        const fetchSpy = perModel({
+          'cheap:8b': new Response('', { status: 503 }),
+          'flagship:400b': new Response('{}', { status: 200 }),
+        })
+        vi.stubGlobal('fetch', fetchSpy)
+        await worker.fetch(fromPhone(), { ...CASCADE, QUOTA })
+        expect(fetchSpy).toHaveBeenCalledTimes(2)
+        expect(QUOTA.store.get(`q:${day}:i:phone-1`)).toBe('1')
+      })
+
+      it('refuses a capped request before either tier is asked', async () => {
+        const QUOTA = kv({ [`q:${day}:i:phone-1`]: '2' })
+        const fetchSpy = upstreamOk()
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await worker.fetch(fromPhone('escalate'), {
+          ...CASCADE,
+          QUOTA,
+          DAILY_CAP: '2',
+        })
+        expect(res.status).toBe(429)
+        expect(fetchSpy).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('CHEAP_TIMEOUT_MS, which is off unless you set it', () => {
+      it('escalates past a cheap tier that has hung', async () => {
+        const fetchSpy = perModel({
+          'cheap:8b': (init) =>
+            new Promise((_resolve, reject) => {
+              init.signal.addEventListener('abort', () =>
+                reject(new DOMException('aborted', 'AbortError')),
+              )
+            }),
+          'flagship:400b': new Response('{}', { status: 200 }),
+        })
+        vi.stubGlobal('fetch', fetchSpy)
+        const res = await ask({ ...CASCADE, CHEAP_TIMEOUT_MS: '20' })
+        expect(res.status).toBe(200)
+        expect(models(fetchSpy)).toEqual(['cheap:8b', 'flagship:400b'])
+      })
+
+      it('and waits indefinitely when it is unset, which is the default', async () => {
+        // No signal is passed at all, so a slow-but-working cheap tier is never
+        // abandoned — the case where a timeout would double both bill and wait.
+        const fetchSpy = perModel({ 'cheap:8b': new Response('{}', { status: 200 }) })
+        vi.stubGlobal('fetch', fetchSpy)
+        await ask(CASCADE)
+        expect(fetchSpy.mock.calls[0][1].signal).toBeUndefined()
+      })
+    })
+  })
+
   it('answers an unreachable upstream itself, with CORS intact', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('fetch failed') }))
     const res = await worker.fetch(post(), {})

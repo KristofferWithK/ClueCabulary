@@ -105,9 +105,40 @@ async function askValidated<T>(
     // same answer, which is exactly what a second correction means it must not
     // do — so the later attempts are allowed to wander further from it.
     const temp = Math.min(1, temperature + Math.max(0, attempt - 1) * 0.2)
+    /**
+     * THE CASCADE, and this loop is the whole of it: every retry asks the proxy
+     * for its better model.
+     *
+     * This is where the escalation decision belongs, because this is where the
+     * facts are. Reaching a retry at all means something verifiable went wrong
+     * — the reply was not JSON, or the schema refused it, or
+     * `checkClueLegality` did, or the clue named a word that is not one of
+     * Casey's unrevealed greens, or every guessed id was revealed or invented.
+     * Those are checks against the board and the key, and the proxy has
+     * neither: projections.ts exists to keep key data out of the request, so a
+     * worker-side cascade would have to judge a clue with the information the
+     * app deliberately withholds from it. See the long note in proxy/worker.js.
+     *
+     * It also costs nothing. This retry was already going to happen and already
+     * costs a call; sending it to a better model does not add a round trip, so
+     * the round is no slower than it is today, and the common case — a first
+     * answer that is fine — gets FASTER, because the cheap tier is the quick
+     * one. A cascade inside the worker would have put two model calls in series
+     * behind one "Casey is thinking…".
+     *
+     * From the FIRST retry rather than the second, on the evidence in
+     * MAX_CORRECTIONS above: on the boards where the clue check fires, the same
+     * model usually makes the same mistake twice, because the strongest
+     * association on the board belongs to a word that is not his. A second
+     * cheap attempt is the attempt most likely to be wasted.
+     *
+     * Escalation is per attempt, never sticky: the next call in the round
+     * starts again on the cheap tier. And with no cascade configured on the
+     * proxy the flag resolves to the same model, which is exactly today.
+     */
     let raw: unknown
     try {
-      raw = await chat(settings, conversation, { temperature: temp })
+      raw = await chat(settings, conversation, { temperature: temp, escalate: attempt > 0 })
     } catch (e) {
       // A non-JSON reply (prose around the object) deserves the same corrective
       // retry as a schema-invalid one — both are fixed by "reply with only

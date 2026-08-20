@@ -198,10 +198,31 @@ export function resolveEndpoint(baseUrl: string): URL {
   return url
 }
 
+/**
+ * The proxy's cascade marker: "the last answer was refused, give me the better
+ * model". A query parameter rather than a header on purpose — a custom header
+ * has to be listed in the proxy's Access-Control-Allow-Headers or the browser
+ * refuses the request at the preflight, and the app and the worker deploy
+ * separately, so a new app talking to an older worker would lose every
+ * corrective retry to a CORS failure mid-round. An unknown query parameter is
+ * ignored instead, and the retry simply happens on the same model as today.
+ *
+ * The app never learns which model this means. That stays in MODEL_ALIASES on
+ * the worker (`escalate`), the same division of labour the alias itself has:
+ * changing Casey's brain, either tier of it, is a proxy deploy and not a
+ * release every phone has to notice.
+ */
+const TIER_PARAM = 'tier'
+const ESCALATE_TIER = 'escalate'
+
 export type ChatFn = (
   settings: AiSettings,
   messages: ChatMessage[],
-  opts?: { temperature?: number },
+  opts?: {
+    temperature?: number
+    /** Ask the proxy for its escalation tier. See TIER_PARAM. */
+    escalate?: boolean
+  },
 ) => Promise<unknown>
 
 /**
@@ -230,6 +251,12 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       'No API key. Add one above, or point the Base URL at a proxy that holds the key — the steps are at the top of this screen.',
     )
   }
+  // Only when the server is the one paying, which is the same rule X-Install-Id
+  // follows above and for the same reason: that is exactly the case where the
+  // Base URL is our proxy, and nobody else's endpoint needs to be sent a
+  // parameter it has never heard of. A player using their own key gets today's
+  // retry, to today's model, on today's URL.
+  if (opts?.escalate && !key) endpoint.searchParams.set(TIER_PARAM, ESCALATE_TIER)
   const doFetch = async (): Promise<Response> => {
     try {
       return await fetch(endpoint, {
