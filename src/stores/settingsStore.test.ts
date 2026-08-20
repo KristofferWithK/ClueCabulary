@@ -408,3 +408,32 @@ describe('the API key, now that nothing asks for one', () => {
     expect(up.apiKey).toBe('still-here')
   })
 })
+
+/**
+ * The sound switch, and the fifth outing of the trap CLAUDE.md records three
+ * times — with the sign flipped, which is the only reason it is one line.
+ *
+ * The previous four were defaults that MOVED and left every existing device on
+ * the old value. This one is a field that did not exist: no blob written before
+ * it carries `sound`, this store has no partialize so every blob overwrites the
+ * whole state, and an old save restoring `sound: undefined` over the default
+ * would come up silent. The default and the migration have to agree, and the
+ * migration is what actually reaches an existing phone.
+ */
+describe('the sound switch', () => {
+  const migrate = migrateSettings
+
+  it('is on for a device that has never stored a setting', () => {
+    expect(useSettings.getInitialState().sound).toBe(true)
+  })
+
+  it.each([1, 2, 3, 4, 5, 6, 7])('and is written into a v%i save that predates it', (from) => {
+    const up = migrate({ apiKey: '' }, from) as Record<string, unknown>
+    expect(up.sound).toBe(true)
+  })
+
+  it('but a v8 save that turned it off stays off', () => {
+    const up = migrate({ sound: false }, 8) as Record<string, unknown>
+    expect(up.sound).toBe(false)
+  })
+})
