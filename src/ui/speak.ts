@@ -320,6 +320,27 @@ export function stopWordAudio(): void {
   cancelSpeech()
 }
 
+/**
+ * There is no clip here — and get rid of whatever the cache thinks there is.
+ *
+ * Needed because "no clip" does not reliably arrive as a 404. A single-page
+ * host answers an unknown path with index.html and a 200: `vite preview` does,
+ * and so does the Capacitor shell the iOS build runs inside. offline-drive
+ * measured it — a word with no baked file came back 200, and the service
+ * worker filed the HTML under the clip's URL, where CacheFirst would have kept
+ * it for a year. Deleting it costs one pass over the cache names, once per word
+ * per session, since the answer is memoised after that.
+ */
+function noClipAt(url: string): ClipLoad {
+  if (typeof caches !== 'undefined') {
+    void caches
+      .keys()
+      .then((names) => Promise.all(names.map((n) => caches.open(n).then((c) => c.delete(url)))))
+      .catch(() => {})
+  }
+  return { kind: 'absent' }
+}
+
 const browserPorts: WordAudioPorts = {
   async load(url) {
     try {
@@ -330,8 +351,11 @@ const browserPorts: WordAudioPorts = {
       // offline playback would quietly never work. A plain GET returns a plain
       // 200, which caches. See the workbox block in vite.config.ts.
       const res = await fetch(url, { cache: 'force-cache' })
-      if (res.status === 404) return { kind: 'absent' }
+      if (res.status === 404) return noClipAt(url)
       if (!res.ok) return { kind: 'unreachable' }
+      // Trust the type, not the status. See `noClipAt`: a 200 here is as likely
+      // to be the app's own index.html as it is to be a clip.
+      if (!/^audio\//i.test(res.headers.get('content-type') ?? '')) return noClipAt(url)
       return { kind: 'clip', clip: await res.blob() }
     } catch {
       return { kind: 'unreachable' }
