@@ -87,13 +87,21 @@ jobs:
           TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
         run: |
           set -u
-          for bogus in da-DK-Wavenet-C da-DK-Neural2-D da-DK-NotAVoice-Z; do
+          # The six names the finding tried, plus the two that really exist as
+          # reference. Hashing the audio rather than eyeballing it is the whole
+          # point: identical hashes across names is what "byte-identical" meant.
+          for v in da-DK-Neural2-D da-DK-Neural2-F da-DK-Wavenet-A da-DK-Wavenet-C \
+                   da-DK-Wavenet-D da-DK-Wavenet-E da-DK-Wavenet-F da-DK-NotAVoice-Z; do
             code=$(curl -sS -o body.json -w '%{http_code}' \
               -H "X-goog-api-key: $TTS_API_KEY" -H 'Content-Type: application/json' \
               -X POST "https://texttospeech.googleapis.com/v1/text:synthesize" \
-              -d "{\"input\":{\"text\":\"hus\"},\"voice\":{\"languageCode\":\"da-DK\",\"name\":\"$bogus\"},\"audioConfig\":{\"audioEncoding\":\"MP3\"}}")
-            echo "── $bogus → HTTP $code"
-            head -c 400 body.json; echo
+              -d "{\"input\":{\"text\":\"hus\"},\"voice\":{\"languageCode\":\"da-DK\",\"name\":\"$v\"},\"audioConfig\":{\"audioEncoding\":\"MP3\"}}")
+            if [ "$code" = "200" ]; then
+              hash=$(jq -r '.audioContent' body.json | base64 -d | sha256sum | cut -c1-12)
+              echo "PROBE $v HTTP $code audio $hash"
+            else
+              echo "PROBE $v HTTP $code $(jq -rc '.error.message' body.json)"
+            fi
           done
 
       - name: Bake the probe words in every voice
