@@ -61,11 +61,26 @@ jobs:
         # and the summary below says which one you got. The usual reason this
         # step cannot do its job is an API token minted before the "Edit
         # Cloudflare Workers" template included Workers KV Storage:Edit.
+        #
+        # THE TITLE IS NOT THE BINDING, and the first run of this step proved it
+        # the expensive way. `wrangler kv namespace create QUOTA` was expected
+        # to title the namespace `<worker>-QUOTA`, the way older wrangler did;
+        # wrangler 4 titles it plainly `QUOTA`. So the step created the
+        # namespace, reported "✨ Success!" with its id, then failed to find a
+        # namespace by the name it expected and exited — leaving a real
+        # namespace in the account and an unmetered proxy in production, with
+        # the summary correctly reporting no cap.
+        #
+        # Nothing local could have caught this: miniflare implements the KV API
+        # but never mints a namespace, so the naming convention only exists on
+        # the real account. Hence both names are accepted, newest first — the
+        # one wrangler makes today, and the one an earlier run may have left.
         continue-on-error: true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          TITLE: cluecabulary-proxy-QUOTA
+          TITLE: QUOTA
+          LEGACY_TITLE: cluecabulary-proxy-QUOTA
         working-directory: proxy
         run: |
           set -o pipefail
@@ -73,7 +88,9 @@ jobs:
             npx --yes wrangler@4 kv namespace list 2>/dev/null \
               | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
                   const m=s.match(/\[[\s\S]*\]/); if(!m){process.exit(1)}
-                  const hit=JSON.parse(m[0]).find(n=>n.title===process.env.TITLE)
+                  const all=JSON.parse(m[0])
+                  const hit=all.find(n=>n.title===process.env.TITLE)
+                    ?? all.find(n=>n.title===process.env.LEGACY_TITLE)
                   if(!hit){process.exit(1)}
                   process.stdout.write(hit.id)
                 })'
@@ -84,7 +101,7 @@ jobs:
             id="$(find_id || true)"
           fi
           if [ -z "$id" ]; then
-            echo "could not create or find the $TITLE namespace" >&2
+            echo "could not create or find a KV namespace titled $TITLE or $LEGACY_TITLE" >&2
             exit 1
           fi
           printf '\n[[kv_namespaces]]\nbinding = "QUOTA"\nid = "%s"\n' "$id" >> wrangler.toml
@@ -108,7 +125,7 @@ jobs:
         run: |
           url="${{ steps.deploy.outputs.deployment-url }}"
           {
-            echo "### Klaus is deployed"
+            echo "### Casey is deployed"
             echo
             if [ -n "$url" ]; then
               echo "In the app: **Settings → Base URL**, paste this, and leave the API key field **empty**:"
