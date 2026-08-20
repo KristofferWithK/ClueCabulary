@@ -7,6 +7,7 @@ import { AiTurnPanel } from '../components/AiTurnPanel'
 import { BoardGrid } from '../components/BoardGrid'
 import { ClueInput } from '../components/ClueInput'
 import { useOpenDictionary } from '../components/DictionarySheet'
+import { HearBoard } from '../components/HearBoard'
 import { PackingDock } from '../components/PackingDock'
 import { RoundSummary } from '../components/RoundSummary'
 import { TranslateBox } from '../components/TranslateBox'
@@ -130,6 +131,11 @@ export function GameScreen() {
             {__TF_BUILD__ && <span className="build-tag"> · b{__TF_BUILD__}</span>}
           </p>
         </div>
+        {/* Optional, never automatic, and gone during packing — the cards are
+            English-side up in that phase and the Danish would be the answer.
+            Only while the board is on screen: at `finished` there is no board
+            to read. */}
+        {showBoard && !packing && <HearBoard game={game} />}
         <button
           className="icon-btn"
           aria-label="How to play"

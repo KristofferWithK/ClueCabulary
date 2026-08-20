@@ -1066,6 +1066,39 @@ select:focus {
   border-bottom: 1px solid var(--line-soft);
 }
 
+/* Five 42px targets and the pips do not fit a 360px phone at a 10px gap, and
+   the failure is silent: nothing wraps and the header stays 58px, so the board
+   does not move and no drive complains — the pip row simply overflows its
+   column and paints on top of the buttons. Measured, with «hear the board» as
+   the fifth button: 328px of content, 210px of buttons, 50px of gaps, 68px
+   left for a column that needs 105. The first pip landed 8.5px inside the
+   re-deal button and the last 8.5px inside «hear the board», and the caption
+   clipped from its natural 104px to 68px — "Give Casey a clue" became "Give
+   Cas…".
+   The gap is the only slack that costs nothing real: 42px stays 42px, which is
+   the number that matters on a phone. At 2px the column gets 108px, so the
+   longest common caption fits whole and the pips stop overlapping.
+   Keyed to the viewport rather than the button count because the count is not
+   a thing CSS can ask about, and the two agree: the shell is max-width 480, so
+   above ~420px the roomy gap fits with 23px to spare. */
+@media (max-width: 419px) {
+  .game-header {
+    gap: 2px;
+  }
+
+  .game-header .token-row {
+    gap: 6px;
+  }
+}
+
+/* A pip row can never again paint outside its column, whatever the board's
+   token count turns out to be — the pips squash into ovals instead, which is
+   ugly and contained rather than tidy and wrong. */
+.turn-tokens,
+.game-header .token-row {
+  max-width: 100%;
+}
+
 .game-header-mid {
   flex: 1;
   /* Without this the caption can never shrink below its longest word, so
@@ -1090,6 +1123,15 @@ select:focus {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ▶ and ■ are both wider and heavier than the ← ? Aa beside them at the shared
+   1rem, and ■ especially reads as a filled block rather than a stop symbol.
+   Size is the only thing changed: the 42px box is shared with every other
+   header button, because the header's height is what the board hangs from. */
+.hear-board span {
+  font-size: 0.72rem;
+  line-height: 1;
 }
 
 .turn-tokens {
@@ -2611,6 +2653,45 @@ body:has(.kb-up) {
   margin-top: 10px;
   font-size: 0.8rem;
   color: var(--text-dim);
+}
+
+/* ---------- the round's words, used in a sentence ---------- */
+
+.round-sentences {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.round-sentence {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* A sentence is the one speak target that wraps to a second line, and the
+   dotted underline is what says it is a control. `inline` rather than the
+   button default so the underline follows the text around the wrap instead of
+   ruling a line under the whole block; `text-align: left` because the global
+   button reset centres, which on a two-line sentence looks like a pull quote.
+   Nothing here sets a height — the section sits inside .summary-scroll, which
+   is what keeps five of these off the document's scrollbar. */
+.speak-sentence {
+  display: inline;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.round-sentence [lang='da'] {
+  font-weight: 600;
+}
+
+.sentence-en {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  line-height: 1.4;
 }
 
 /* ---------- journey: end of the road, and a resumable exam ---------- */
