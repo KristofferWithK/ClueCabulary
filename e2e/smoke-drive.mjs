@@ -118,7 +118,15 @@ try {
   // Compared in slug space, since one channel reports the word and the other
   // reports its filename, and «øje»/«oeje» are the same statement.
   const asSlug = (e) => (e.startsWith('clip:') ? e.slice(5) : audioSlug(e))
-  const heard = (await page.evaluate(() => window.__asked.slice())).map(asSlug)
+  // Consecutive repeats of ONE word collapse to one. A single "say this" can
+  // legitimately reach both channels: headless Chromium has no audio device, so
+  // the clip is fetched, `play()` rejects, and playWord falls back to the
+  // speech engine exactly as it is designed to on a phone with a broken
+  // decoder — which shows up here as far, far, seng, seng. What is under test
+  // is the ORDER the tour asks for words in, not how many ways it tried to say
+  // each one, so the run is flattened before comparing.
+  const raw = (await page.evaluate(() => window.__asked.slice())).map(asSlug)
+  const heard = raw.filter((s, i) => i === 0 || s !== raw[i - 1])
   // Board order, which is reading order. Two words in 2.6s at the 1200ms
   // cadence; a third is allowed for slack rather than required.
   if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 2.6s`)
