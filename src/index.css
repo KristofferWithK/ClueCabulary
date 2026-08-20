@@ -3267,24 +3267,34 @@ body:has(.kb-up) {
 .translate-hits .hit-on-board {
   color: var(--text-dim);
 }
-/* ---------- the suitcase ---------- */
+/* ---------- the suitcase ----------
+
+   ONE case, lying open, filling the screen. The lid (wrapped words, packed for
+   good) is the upper compartment, the tray (collected words, still in play) is
+   the lower one, and the hinge between them is Casey's closed seam split open.
+   Words not yet in the case sit in a strip below it, on the table.
+
+   The whole shell is drawn: hand-wobbled inline SVG in Cluey.tsx's hand, run
+   through the same #pencil-edge filter the rest of the chrome uses. Nothing
+   here is a border-radius pretending to be a suitcase.
+
+   Two constraints shape every number below. The document may not scroll at
+   360x640, so the case is the one band that flexes and every other row is as
+   short as it can honestly be. And the compartments must fill a 390x844 screen
+   without measuring it, which is why the tile grids are a FIXED number of
+   slots on `1fr` rows: the slots stretch, the count does not, and an empty
+   slot reads as room left in the case. */
 
 .suitcase-screen {
-  gap: 12px;
+  gap: 8px;
 }
 
-.case-city-pager {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.case-city-name {
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  min-width: 84px;
-  text-align: center;
+/* The hero of this screen is the case, not the word "suitcase". Every row of
+   chrome comes straight out of the compartments below it, and at 360×640 the
+   title at the shared 1.6rem was costing the tiles a line. Scoped, because
+   Settings and the map want their headings the size they are. */
+.suitcase-screen .screen-header h1 {
+  font-size: 1.25rem;
 }
 
 .icon-btn-small {
@@ -3294,10 +3304,57 @@ body:has(.kb-up) {
   font-size: 1rem;
 }
 
+/* ---- the city filter ----
+
+   Nine Danish city names plus «All» do not fit across 360px and never will,
+   so the row scrolls sideways inside itself. That is an internal scroller,
+   like Settings' — the DOCUMENT still does not scroll, which is what
+   layout-drive measures. The scrollbar is hidden in both engines because a
+   classic scrollbar in headless Chromium is 15px of height this screen has
+   not got. */
+.case-filter {
+  display: flex;
+  gap: 6px;
+  flex: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* Bleed to the screen edge, so the last chip runs off the phone rather than
+     stopping short of it — the visual cue that there is more to scroll to. */
+  margin: 0 -16px;
+  padding: 1px 16px 3px;
+}
+
+.case-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.case-filter .chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Where the player is standing. ::after, because the pencil pass has already
+   spoken for every chip's ::before; scoped to this row, because `.chip` is a
+   shared class and Settings' model list wants nothing to do with a dot. */
+.case-filter .chip-home::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 5px;
+  vertical-align: 1px;
+  border-radius: 50%;
+  background: var(--green-deep);
+}
+
+/* ---- a band: label, pager, tiles ---- */
+
 .case-band {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   min-height: 0;
 }
 
@@ -3306,10 +3363,12 @@ body:has(.kb-up) {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  /* Positioned, so it paints above the corner hatching drawn behind it. */
+  position: relative;
 }
 
 .case-band-label {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -3329,27 +3388,95 @@ body:has(.kb-up) {
   text-align: center;
 }
 
+/* A fixed slot count on stretching rows — see the note at the top.
+
+   `position: relative` on everything in a band that has to be SEEN is
+   load-bearing, not tidiness: the drawn panel is an absolutely-positioned
+   sibling that comes first in the DOM, and a positioned element paints over
+   every static one after it. The empty-compartment line went missing exactly
+   that way — present in the DOM, measured at 284×96, painted under the case. */
 .case-tiles {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* The slot, not the tile, is the positioned parent: a per-tile control hangs
+   off it. The audio card's speak button is `.case-tile-speak` below. */
+.case-slot {
+  position: relative;
+  display: flex;
+  min-height: 0;
 }
 
 .case-tile {
-  width: 100%;
-  min-height: 36px;
-  border-radius: 7px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  /* Uneven on both axes, like the board's cards: a box drawn by hand never
+     has four matching corners. */
+  border-radius: 9px 5px 8px 6px / 6px 8px 5px 9px;
   font-size: 0.78rem;
   font-weight: 600;
-  padding: 5px 4px;
+  line-height: 1.12;
+  padding: 3px 5px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   word-break: break-word;
+  hyphens: auto;
+  overflow: hidden;
+}
+
+/* One line, always, inside the case: the rows are short at 360×640 and a
+   second line is the thing that clips. */
+.case-panel .case-tile {
+  white-space: nowrap;
+}
+
+/* The eleven words too long for a 3-column tile at the normal size. */
+.case-tile-long {
+  font-size: 0.65rem;
+  letter-spacing: -0.01em;
+}
+
+/* Reserved for the audio card's speak button, so adding it is one element and
+   no reflow: `<button class="case-tile-speak">` as a SIBLING of the tile
+   inside `.case-slot`. It sits in the slot's top-right corner, over the tile
+   rather than beside it, because the compartments are three columns wide and
+   there is height to spare but never width — and out of flow, so it cannot
+   push a Danish word onto a second line, which is the one thing a compartment
+   tile has no room for.
+
+   Nesting it INSIDE the tile would be a button in a button; that is why the
+   slot exists at all. */
+.case-tile-speak {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  border-radius: 50%;
+  color: var(--text);
+}
+
+/* A wrapped tile is solid --green-tile with white text, so the control lying
+   on top of it has to be white too. Stated here rather than left to whoever
+   adds the button, because it is not visible from their side. */
+.case-slot:has(.case-wrapped) .case-tile-speak {
+  color: #fff;
 }
 
 .case-discovered {
@@ -3371,63 +3498,182 @@ body:has(.kb-up) {
 }
 
 .case-unknown {
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.5);
   border: 1px dashed var(--line);
   color: var(--text-dim);
 }
 
 .case-empty {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-dim);
   border: 1px dashed var(--line);
   border-radius: 8px;
   padding: 10px 12px;
 }
 
-/* The open case: two compartments in one lidless frame, handle on top. */
-.suitcase-open {
-  border: 2px solid var(--text);
-  border-radius: 14px;
-  padding: 10px 12px 12px;
+/* Inside a drawn compartment the dashed box would be a second, worse case, so
+   the empty line is just words in the middle of the space. */
+.case-panel .case-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  /* Positioned, or the drawn panel paints straight over it — see .case-tiles. */
+  position: relative;
+}
+
+/* ---- the case, open ---- */
+
+.case-open {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   position: relative;
-  background: var(--surface);
+  /* Room above the lid for the handle, which straddles the top edge. */
+  margin-top: 13px;
 }
 
-.suitcase-open::before {
-  /* The handle â€” the one flourish the pencil pass will inherit. */
-  content: '';
+.case-panel {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Clears the drawn inner wall on three sides and hugs the hinge on the
+     fourth. The wall's inset is a fraction of the panel, so it grows on a
+     tall phone: 22px is the inset at the tallest panel this screen produces,
+     plus a hair. */
+  padding: 22px 22px 8px;
+}
+
+.case-panel-tray {
+  padding: 8px 22px 22px;
+}
+
+/* The drawn shell. `preserveAspectRatio="none"` stretches it to whatever the
+   flex layout hands over; `non-scaling-stroke` keeps the pencil the same
+   weight in both directions while it does. */
+.case-art {
   position: absolute;
-  top: -12px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: url(#pencil-edge);
+}
+
+.case-edge,
+.case-wall {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.case-edge {
+  stroke: var(--text);
+  stroke-width: 2.6;
+}
+
+/* The inner wall, a hand's width inside the outer edge, joined to it by short
+   spurs at the corners. Two outlines and a corner joint is what a box with
+   depth looks like, and it costs four strokes. */
+.case-wall {
+  stroke: #b3a996;
+  stroke-width: 1.5;
+}
+
+/* The lid is the half angled away from the light, so its floor is a shade
+   deeper than the tray's. */
+.case-art-lid .case-floor {
+  fill: #ebe4d4;
+}
+
+.case-art-tray .case-floor {
+  fill: #f4efe3;
+}
+
+/* Clasps and hinge barrels are the case's brass: drawn, not filled in solid.
+   Solid black tabs at this size read as blobs stuck to the edge — measured by
+   looking at them at 3x, which is also how they got fixed. */
+.case-clasp,
+.case-hinge-barrel {
+  fill: #ded6c5;
+  stroke: var(--text);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.case-handle {
+  position: absolute;
+  top: -19px;
   left: 50%;
   transform: translateX(-50%);
-  width: 64px;
-  height: 20px;
-  border: 2px solid var(--text);
-  border-bottom: none;
-  border-radius: 10px 10px 0 0;
-  background: transparent;
+  width: 74px;
+  height: 31px;
+  z-index: 1;
+  pointer-events: none;
+  filter: url(#pencil-edge-fine);
 }
 
-.suitcase-open .case-band + .case-band {
-  border-top: 1px dashed var(--line);
-  padding-top: 10px;
+.case-hinge-art {
+  flex: none;
+  width: 100%;
+  height: 16px;
+  display: block;
+  filter: url(#pencil-edge-fine);
 }
 
-.case-locked {
-  color: var(--text-dim);
-  border: 1px dashed var(--line);
-  border-radius: 8px;
-  padding: 14px;
+/* Casey's own shading, in the corners of his own inside — same class, so the
+   one stroke rule draws both and they can never drift apart. Fixed size and
+   placed by CSS: an ancestor's non-uniform stretch would otherwise change the
+   angle the hatch was drawn at. */
+.case-hatch {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+}
+
+.case-panel-lid .case-hatch {
+  right: 10px;
+  bottom: 2px;
+  transform: scaleX(-1);
+}
+
+.case-panel-tray .case-hatch {
+  left: 10px;
+  bottom: 6px;
+}
+
+/* ---- the table below the case ---- */
+
+.case-loose {
+  flex: none;
+}
+
+.case-loose .case-tiles {
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 34px;
+  flex: none;
+}
+
+.case-loose .case-tile {
+  font-size: 0.7rem;
 }
 
 .case-actions {
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  flex: none;
 }
 
 .case-hint {

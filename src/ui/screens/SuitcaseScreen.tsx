@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react'
 import type { WordEntry } from '../../data/types'
 import { WORDS } from '../../data/words'
-import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
-import { WRAP_TO_TRAVEL, wordState, wordsForCity } from '../../journey/progress'
+import { cityAt } from '../../journey/cities'
+import {
+  WRAP_TO_TRAVEL,
+  isCollected,
+  unlockedWords,
+  wordState,
+  wordsForCity,
+} from '../../journey/progress'
 import { WRAP_UP_UNLOCK, wrapUpUnlocked } from '../../journey/wrapup'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
@@ -11,18 +17,167 @@ import { useUi } from '../../stores/uiStore'
 import { playWord } from '../speak'
 
 /**
- * Casey, open on the table. Three bands and no scrolling: the words still
- * loose in the city (discovered and undiscovered), then the open suitcase —
- * collected words in the top compartment, wrapped ones packed below — and the
- * wrap-up button that moves words from one compartment to the other.
+ * Inside Casey: ONE suitcase, lying open, filling the screen.
  *
- * Everything pages sideways instead of scrolling; each strip is a fixed grid
- * of slots with ‹ › to leaf through.
+ * The screen used to page between cities in the header, which made nine
+ * containers out of one — you left Ribe's suitcase to visit Aarhus's. A city
+ * is a **filter** now, a chip over one continuous case, so the case never
+ * changes; only how much of it you are looking at does. "All" is the default
+ * for exactly that reason.
+ *
+ * The lid holds the WRAPPED words and the tray holds the COLLECTED ones. That
+ * reading round rather than the other one because wrapping is the terminal
+ * state — add-only, never regresses — and the lid is the half you strap shut
+ * and stop reaching into, while the tray is the half you keep rummaging in. It
+ * also puts the wrap-up button's job on the screen as a direction: the button
+ * moves words up, out of the open half and into the closed one.
+ *
+ * Words still loose in the world are not in the case at all, which is the
+ * point of them, so they sit in a compact strip on the table below it.
+ *
+ * Nothing scrolls. Every band is a fixed grid of slots with ‹ › to leaf
+ * through, and the slots stretch to fill whatever height the phone gives them
+ * — that is how the case fills a 390×844 screen without a measurement.
  */
 
-/** Slots per page in each band; small enough to fit 360x640 with room over. */
-const LOOSE_PAGE = 8
-const CASE_PAGE = 6
+/** Slots per page. The compartments are 3 wide; the loose strip is 4. */
+const LOOSE_PAGE = 4
+const CASE_PAGE = 12
+
+/** The "All" filter — one suitcase, everything reached in it. */
+const ALL = -1
+
+/* ---------- the drawn case ----------
+
+   Hand-rolled inline SVG in the same hand as Cluey.tsx: wobbled paths, real
+   stroke weights, the `cluey-hatch` shading reused verbatim so the corners are
+   shaded by the same pencil. No images, no asset pipeline.
+
+   The two panels stretch (`preserveAspectRatio="none"`), so they carry only
+   shapes that survive being stretched: long edges, short diagonals, and tabs
+   that are wider than they are tall. Everything with a fixed aspect — the
+   handle, the corner hatching — is its own small SVG placed by CSS instead,
+   because a nested <svg> does NOT escape an ancestor's non-uniform scale. */
+
+/**
+ * A compartment: outer edge, the inner wall a hand's width inside it, and
+ * short spurs joining the two at the corners. Those spurs are the whole trick
+ * — two outlines and a corner joint is what a box with depth looks like, and
+ * it costs four strokes.
+ *
+ * Each panel is left OPEN on its hinge side, so the lid's bottom edge and the
+ * tray's top edge are the hinge itself rather than four parallel lines
+ * stacked up in the middle of the case.
+ */
+function CasePanel({ half }: { half: 'lid' | 'tray' }) {
+  const lid = half === 'lid'
+  return (
+    <svg
+      className={`case-art case-art-${half}`}
+      viewBox="0 0 300 200"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {lid ? (
+        <>
+          <path
+            className="case-floor"
+            d="M8 22 Q8 8 22 7 L151 5 L278 7 Q292 8 292 22 L293 200 L7 200 Z"
+          />
+          <path
+            className="case-edge"
+            d="M7 200 L9 146 L7 90 L8 22 Q8 8 22 7 L96 6 L151 5 L214 6 L278 7 Q292 8 292 23 L291 94 L293 148 L292 200"
+          />
+          <path
+            className="case-wall"
+            d="M18 200 L19 148 L17 94 L18 26 Q18 16 29 15 L151 13 L272 15 Q283 16 283 26 L282 94 L284 148 L283 200"
+          />
+          <path className="case-wall" d="M8 22 L18 26 M292 22 L283 26" />
+          {/* The pen carried past two corners, as a pen does. */}
+          <path className="case-edge" d="M285 7 L297 10 M22 7 L11 3" />
+        </>
+      ) : (
+        <>
+          <path
+            className="case-floor"
+            d="M7 0 L8 178 Q8 192 22 193 L151 195 L278 193 Q292 192 292 178 L293 0 Z"
+          />
+          <path
+            className="case-edge"
+            d="M8 0 L9 54 L7 110 L8 178 Q8 192 22 193 L96 194 L151 195 L214 194 L278 193 Q292 192 292 177 L291 106 L293 52 L292 0"
+          />
+          <path
+            className="case-wall"
+            d="M18 0 L19 52 L17 108 L18 174 Q18 184 29 185 L151 187 L272 185 Q283 184 283 174 L282 108 L284 52 L283 0"
+          />
+          <path className="case-wall" d="M8 178 L18 174 M292 178 L283 174" />
+          {/* The two clasps, on the outer edge the lid closes onto. Wider than
+              they are tall on purpose: stretched to a tall phone they stay
+              wider than they are tall, and so stay clasps. */}
+          <rect className="case-clasp" x="88" y="184" width="26" height="11" rx="4" />
+          <rect className="case-clasp" x="186" y="184" width="26" height="11" rx="4" />
+          <path className="case-edge" d="M285 193 L297 190 M22 193 L11 197" />
+        </>
+      )}
+    </svg>
+  )
+}
+
+/** The hinge the case opens about — Casey's closed seam, split. */
+function CaseHinge() {
+  return (
+    <svg
+      className="case-hinge-art"
+      viewBox="0 0 300 18"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path className="case-edge" d="M10 4 L150 3 L290 5" />
+      <path className="case-edge" d="M10 14 L150 15 L290 13" />
+      <rect className="case-hinge-barrel" x="44" y="2" width="30" height="14" rx="5" />
+      <rect className="case-hinge-barrel" x="135" y="2" width="30" height="14" rx="5" />
+      <rect className="case-hinge-barrel" x="226" y="2" width="30" height="14" rx="5" />
+    </svg>
+  )
+}
+
+/**
+ * The handle, on top, where Casey wears his. A case opened flat would really
+ * have it on the tray's outer edge — but Casey IS this suitcase, the player
+ * just tapped him to come in here, and matching his silhouette is worth more
+ * than being right about which half carries the grip.
+ */
+function CaseHandle() {
+  return (
+    <svg className="case-handle" viewBox="0 0 100 42" aria-hidden="true" focusable="false">
+      <path className="case-edge" d="M9 42 L8 17 Q8 6 21 5 L79 6 Q92 7 92 18 L91 42" />
+      <path className="case-wall" d="M23 42 L22 21 Q22 18 27 18 L73 19 Q78 19 78 22 L77 42" />
+      <rect className="case-clasp" x="1" y="31" width="20" height="10" rx="3" />
+      <rect className="case-clasp" x="79" y="31" width="20" height="10" rx="3" />
+    </svg>
+  )
+}
+
+/**
+ * Pencil shading in a corner, lifted straight from Casey — same `cluey-hatch`
+ * class, so the one stroke rule draws both and they can never drift into
+ * different hands. Fixed aspect and placed by CSS (which corner it lands in is
+ * the panel's business, not this component's), so the hatch keeps the angle it
+ * was drawn at however far the panel around it is stretched.
+ */
+function CornerHatch() {
+  return (
+    <svg className="case-hatch" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+      <g className="cluey-hatch">
+        <line x1="5" y1="34" x2="17" y2="22" />
+        <line x1="11" y1="36" x2="24" y2="23" />
+        <line x1="18" y1="37" x2="30" y2="25" />
+      </g>
+    </svg>
+  )
+}
 
 function Pager({
   label,
@@ -32,6 +187,8 @@ function Pager({
   onPage,
   render,
   empty,
+  className = '',
+  children,
 }: {
   label: string
   words: WordEntry[]
@@ -40,12 +197,16 @@ function Pager({
   onPage: (p: number) => void
   render: (w: WordEntry) => React.ReactNode
   empty: string
+  className?: string
+  /** The drawn panel, if this band is one — it lies behind the words. */
+  children?: React.ReactNode
 }) {
   const pages = Math.max(1, Math.ceil(words.length / perPage))
   const clamped = Math.min(page, pages - 1)
   const slice = words.slice(clamped * perPage, (clamped + 1) * perPage)
   return (
-    <div className="case-band">
+    <div className={`case-band ${className}`}>
+      {children}
       <div className="case-band-head">
         <span className="case-band-label">{label}</span>
         {pages > 1 && (
@@ -88,29 +249,37 @@ export function SuitcaseScreen() {
   const banked = useSrs((s) => s.wrapUpsBanked)
   const won = useSrs((s) => s.games.won)
   const journey = useJourney()
-  const [city, setCity] = useState(journey.cityIndex)
+  const [filter, setFilter] = useState<number>(ALL)
   const [loosePage, setLoosePage] = useState(0)
   const [collectedPage, setCollectedPage] = useState(0)
   const [wrappedPage, setWrappedPage] = useState(0)
 
-  // Changing city rewinds every strip to its first page.
+  // Changing the filter rewinds every band to its first page.
   useEffect(() => {
     setLoosePage(0)
     setCollectedPage(0)
     setWrappedPage(0)
-  }, [city])
+  }, [filter])
 
-  const words = wordsForCity(WORDS, city)
   const stateOf = (w: WordEntry) => wordState(srs[w.id], w.id in journey.wrapped)
-  const loose = words.filter((w) => {
-    const s = stateOf(w)
-    return s === 'undiscovered' || s === 'discovered'
-  })
-  const collected = words.filter((w) => stateOf(w) === 'collected')
-  const wrapped = words.filter((w) => stateOf(w) === 'wrapped')
 
-  const isHome = city === journey.cityIndex
-  const reached = city <= journey.cityIndex
+  // One case: All is everything the journey has reached, and a chip narrows
+  // the view without moving the player anywhere.
+  const shown =
+    filter === ALL ? unlockedWords(WORDS, journey.cityIndex) : wordsForCity(WORDS, filter)
+  /**
+   * The table below the case. Words MET but not collected are worth leafing
+   * through; undiscovered ones are not — there is nothing to see on a ? and
+   * eight hundred of them paged four at a time is two hundred pages of it. So
+   * only one page-worth of ? is ever put in the list, as texture behind the
+   * met words, while the label counts every last one of them honestly.
+   */
+  const met = shown.filter((w) => stateOf(w) === 'discovered')
+  const unmet = shown.filter((w) => stateOf(w) === 'undiscovered')
+  const loose = [...met, ...unmet.slice(0, LOOSE_PAGE)]
+  const collected = shown.filter((w) => stateOf(w) === 'collected')
+  const wrapped = shown.filter((w) => stateOf(w) === 'wrapped')
+  const wrapGoal = filter === ALL ? (journey.cityIndex + 1) * WRAP_TO_TRAVEL : WRAP_TO_TRAVEL
 
   /**
    * Two conditions, and they are different in kind — so the hint below names
@@ -123,20 +292,29 @@ export function SuitcaseScreen() {
    * rounds even with every round won, against a first win that is very likely
    * the first or second. So this hint mostly asks for words at the start of a
    * city and mostly asks for a win afterwards. See WRAP_UP_BANK_CAP.
+   *
+   * Every number here is read off the city the player is IN, never off the
+   * filter. A filter is a view; a wrap-up round always deals from home, and a
+   * hint that counted the chip's words would ask for words that no board
+   * would ever be dealt from. That is why the hint names the city out loud.
    */
-  const boardReady = isHome && wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
+  const home = cityAt(journey.cityIndex)
+  const homePool = wordsForCity(WORDS, journey.cityIndex).filter((w) =>
+    isCollected(srs[w.id], w.id in journey.wrapped),
+  ).length
+  const boardReady = wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
   const wrapUpReady = boardReady && banked > 0
   // How many more words the city owes a board. This counts the POOL, while
   // boardReady above answers by dealing — so a pool of exactly twenty that
   // cannot seat twenty (two words that clash on one board) lands here at zero
   // with the button still dark, and the hint has to say something true rather
   // than «Collect 0 more».
-  const shortBy = Math.max(0, WRAP_UP_UNLOCK - collected.length - wrapped.length)
+  const shortBy = Math.max(0, WRAP_UP_UNLOCK - homePool)
   const blockers = [
     !boardReady &&
       (shortBy > 0
-        ? `Collect ${shortBy} more to open wrap-up rounds.`
-        : 'A couple of these words clash on one board — collect one or two more to open wrap-up rounds.'),
+        ? `Collect ${shortBy} more in ${home.name} to open wrap-up rounds.`
+        : `A couple of ${home.name}'s words clash on one board — collect one or two more to open wrap-up rounds.`),
     // The first win is the unlock, so it is worded as the next thing to do
     // rather than as a counter at zero.
     banked === 0 &&
@@ -145,10 +323,21 @@ export function SuitcaseScreen() {
         : 'Win a round to earn another wrap-up round.'),
   ].filter((s): s is string => typeof s === 'string')
 
+  /**
+   * A tile is a slot with the word button in it, never a bare button: the
+   * slot is the positioned parent a per-tile control hangs off. The audio card
+   * (F1) adds its speak button here as a second child with class
+   * `case-tile-speak` — the stylesheet already places it, so that merge is one
+   * element and no layout change.
+   */
   const wordTile = (w: WordEntry, cls: string) => (
-    <li key={w.id}>
+    <li key={w.id} className="case-slot">
       <button
-        className={`case-tile ${cls}`}
+        // A compartment tile never wraps: the rows are short at 360×640 and a
+        // second line is what would clip. Eleven of the nine hundred words are
+        // longer than a 3-column tile holds at the normal size, so those get a
+        // smaller one instead — «international» whole beats «internatio-» cut.
+        className={`case-tile ${cls}${w.da.length > 10 ? ' case-tile-long' : ''}`}
         lang="da"
         aria-label={`${w.da}, ${stateOf(w)}`}
         onClick={() => {
@@ -171,99 +360,118 @@ export function SuitcaseScreen() {
           ←
         </button>
         <h1>The suitcase</h1>
-        <span className="case-city-pager">
-          <button
-            className="icon-btn icon-btn-small"
-            aria-label="Previous city"
-            disabled={city === 0}
-            onClick={() => setCity((c) => c - 1)}
-          >
-            ‹
-          </button>
-          <span className="case-city-name" lang="da">
-            {cityAt(city).name}
-          </span>
-          <button
-            className="icon-btn icon-btn-small"
-            aria-label="Next city"
-            disabled={city >= CITIES.length - 1}
-            onClick={() => setCity((c) => c + 1)}
-          >
-            ›
-          </button>
-        </span>
       </header>
 
-      {reached ? (
-        <>
-          <Pager
-            label={`Loose in ${cityAt(city).name} — ${loose.length}`}
-            words={loose}
-            page={loosePage}
-            perPage={LOOSE_PAGE}
-            onPage={setLoosePage}
-            empty="Nothing loose — every word here has been collected."
-            render={(w) =>
-              stateOf(w) === 'undiscovered' ? (
-                <li key={w.id} className="case-tile case-unknown" aria-label="Undiscovered word">
-                  <span aria-hidden="true">?</span>
-                </li>
-              ) : (
-                wordTile(w, 'case-discovered')
-              )
-            }
-          />
-
-          <div className="suitcase-open">
-            <Pager
-              label={`Collected — ${collected.length}`}
-              words={collected}
-              page={collectedPage}
-              perPage={CASE_PAGE}
-              onPage={setCollectedPage}
-              empty="Clue a word and guess it — one green each way — to collect it."
-              render={(w) => wordTile(w, 'case-collected')}
-            />
-            <Pager
-              label={`Wrapped — ${wrapped.length} of ${WRAP_TO_TRAVEL}`}
-              words={wrapped}
-              page={wrappedPage}
-              perPage={CASE_PAGE}
-              onPage={setWrappedPage}
-              empty="Nothing wrapped yet — wrap-up rounds pack collected words safely."
-              render={(w) => wordTile(w, 'case-wrapped')}
-            />
-          </div>
-        </>
-      ) : (
-        <p className="case-locked">
-          {WORDS_PER_CITY} words waiting — reach {cityAt(city).name} to meet them.
-        </p>
-      )}
-
-      <div className="case-actions">
-        {isHome && (
-          <button
-            className="btn btn-primary btn-big"
-            disabled={!wrapUpReady}
-            aria-label={banked > 0 ? `Wrap up words — ${banked} banked` : 'Wrap up words'}
-            onClick={() => {
-              useGame.getState().newWrapUpGame()
-              goTo('game')
-            }}
-          >
-            Wrap up words
-            {banked > 0 && (
-              <span className="wrap-bank" aria-hidden="true">
-                {banked}
-              </span>
-            )}
-          </button>
-        )}
-        {isHome && !wrapUpReady && <p className="case-hint">{blockers.join(' ')}</p>}
-        <button className="btn" onClick={() => goTo('home')}>
-          Back
+      {/* The city filter. Only cities reached are offered — the road ahead is
+          the map's job, and a chip for a place you have never been would be a
+          door into an empty half of the case. It scrolls sideways INSIDE
+          itself: nine Danish city names do not fit across 360px, and the
+          document is not allowed to scroll. */}
+      <div className="case-filter" role="group" aria-label="Filter the suitcase by city">
+        <button
+          className={`chip ${filter === ALL ? 'chip-on' : ''}`}
+          aria-pressed={filter === ALL}
+          onClick={() => setFilter(ALL)}
+        >
+          All
         </button>
+        {Array.from({ length: journey.cityIndex + 1 }, (_, i) => (
+          <button
+            key={i}
+            // The city you are standing in wears a dot. Nine chips and no
+            // marker leaves the one that the wrap-up button is actually about
+            // looking like any other place you have been.
+            className={`chip ${filter === i ? 'chip-on' : ''}${
+              i === journey.cityIndex ? ' chip-home' : ''
+            }`}
+            aria-pressed={filter === i}
+            aria-current={i === journey.cityIndex ? 'location' : undefined}
+            lang="da"
+            onClick={() => setFilter(i)}
+          >
+            {cityAt(i).name}
+          </button>
+        ))}
+      </div>
+
+      {/* The case itself, open on the table and filling everything left. */}
+      <div className="case-open">
+        <CaseHandle />
+        <Pager
+          label={`Wrapped — ${wrapped.length} of ${wrapGoal}`}
+          words={wrapped}
+          page={wrappedPage}
+          perPage={CASE_PAGE}
+          onPage={setWrappedPage}
+          className="case-panel case-panel-lid"
+          empty="Nothing packed under the lid yet — wrap-up rounds put words here for good."
+          render={(w) => wordTile(w, 'case-wrapped')}
+        >
+          <CasePanel half="lid" />
+          <CornerHatch />
+        </Pager>
+
+        <CaseHinge />
+
+        <Pager
+          label={`Collected — ${collected.length}`}
+          words={collected}
+          page={collectedPage}
+          perPage={CASE_PAGE}
+          onPage={setCollectedPage}
+          className="case-panel case-panel-tray"
+          empty="Clue a word and guess it — one green each way — to collect it into the tray."
+          render={(w) => wordTile(w, 'case-collected')}
+        >
+          <CasePanel half="tray" />
+          <CornerHatch />
+        </Pager>
+      </div>
+
+      {/* Not in the case, which is the point of them. */}
+      <Pager
+        label={`Still out there — ${met.length + unmet.length}`}
+        words={loose}
+        page={loosePage}
+        perPage={LOOSE_PAGE}
+        onPage={setLoosePage}
+        className="case-loose"
+        empty="Nothing loose — every word here is in the case."
+        render={(w) =>
+          stateOf(w) === 'undiscovered' ? (
+            <li key={w.id} className="case-slot">
+              <span className="case-tile case-unknown" aria-label="Undiscovered word">
+                <span aria-hidden="true">?</span>
+              </span>
+            </li>
+          ) : (
+            wordTile(w, 'case-discovered')
+          )
+        }
+      />
+
+      {/* No second Back button down here: the case is the whole point of the
+          screen and every row it does not need is a row it grows by. Settings
+          already gets by on the header arrow alone, and nav-drive uses that
+          one. */}
+      <div className="case-actions">
+        <button
+          className="btn btn-primary btn-big"
+          disabled={!wrapUpReady}
+          aria-label={banked > 0 ? `Wrap up words — ${banked} banked` : 'Wrap up words'}
+          onClick={() => {
+            useGame.getState().newWrapUpGame()
+            goTo('game')
+          }}
+        >
+          Wrap up words
+          {banked > 0 && (
+            <span className="wrap-bank" aria-hidden="true">
+              {banked}
+            </span>
+          )}
+        </button>
+        {!wrapUpReady && <p className="case-hint">{blockers.join(' ')}</p>}
       </div>
     </div>
   )
