@@ -46,6 +46,27 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · A bug shipped and was fixed an hour later — worth knowing how it hid
+C2's Home rework introduced an overlap that only appears when a city is fully
+wrapped: the travel button costs ~61px, Casey's band could not give it up, and
+the column *overflowed* — "Casey" drawn sliced across the green button. It was
+in `main` for about an hour before the agent that caused it noticed, after its
+own card had merged.
+
+**Why nothing caught it:** flex overflow paints over what is below rather than
+lengthening the document, so `scrollHeight <= innerHeight` — the rule this
+whole codebase leans on for layout — stayed true at exactly 640 the entire
+time. An iPhone SE was clearing it by 0.2px, which is not clearance.
+
+Fixed, mutation-checked, and the drive now measures the *drawing's* rectangle
+rather than the button's, because the first attempted fix let the button shrink
+while the drawing kept painting outside it — and a check on the button would
+have called that fixed.
+
+**What to take from it:** the no-scroll rule does not cover overlap, and no
+other check did either. If more layout work happens, that gap is worth a
+general assertion rather than one per screen.
+
 ### 2026-08-20 · Read this one: the sentences cannot teach the words you named — F2
 You asked for post-round sentences so the game could smuggle in words that
 cannot be clued — *"if", "suddenly"*. The feature shipped, and then the coverage
