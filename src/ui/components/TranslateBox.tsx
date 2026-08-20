@@ -16,7 +16,7 @@ import { canSpeak, speakDanish } from '../speak'
  * been given the answer to. This answers "what is the Danish for X?" — and
  * reads Casey's clue back when he gives one you do not know.
  *
- * The thousand shipped words answer instantly, offline, for free, and cover
+ * The nine hundred shipped words answer instantly, offline, for free, and cover
  * every board word. Casey is asked only for what is outside them, and only on
  * a tap: a request per keystroke would be someone else's bill.
  */
@@ -72,9 +72,9 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
   }
 
   // A clue may be any word in the language, so the lookup has to answer any
-  // word in the language. The shipped thousand are the instant, free, offline
+  // word in the language. The shipped nine hundred are the instant, free, offline
   // half; everything else is Casey, and it should not need a second tap to say
-  // yes — being told "not among the thousand words this app teaches" reads as
+  // yes — being told "not among the words this app teaches" reads as
   // a refusal when it was only ever meant as a note about where the answer is
   // coming from. Asked automatically once typing settles, so it is one request
   // per word rather than one per keystroke.
@@ -174,7 +174,7 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
         <ul className="translate-hits">
           <li>
             <span lang="da">
-              {/* Casey answers for the words outside the shipped thousand, so
+              {/* Casey answers for the words outside the shipped nine hundred, so
                   his answer has to say the same thing the data does: an article
                   when the noun can be counted, the gender when it cannot. */}
               {articleLabel({ pos: 'noun', ...asked }) ? `${articleLabel({ pos: 'noun', ...asked })} ` : ''}

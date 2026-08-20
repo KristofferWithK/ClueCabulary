@@ -27,7 +27,7 @@ export function ClueInput({ game, onSubmit }: Props) {
   const trimmed = text.trim()
   const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
   // Casey reads a Danish board and is handed the clue as a bare string, so an
-  // English word there is one he cannot place. The shipped thousand settle most
+  // English word there is one he cannot place. The shipped nine hundred settle most
   // of it offline — æ/ø/å, an inflection, a compound of two known words — and
   // 'unknown' means permission rather than suspicion, since every Danish word
   // we do not ship lives there. Only a word that looks positively English is
@@ -48,7 +48,7 @@ export function ClueInput({ game, onSubmit }: Props) {
         }
       } catch {
         // Casey unreachable: trust the player rather than block the round on a
-        // guess made from a thousand-word list.
+        // guess made from a nine-hundred-word list.
         setCleared(trimmed.toLowerCase())
         onSubmit(trimmed, number)
         setText('')

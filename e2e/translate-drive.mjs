@@ -80,7 +80,7 @@ try {
   const hits = await box.locator('.translate-hits li').allTextContents()
   check('an English word gives the Danish', hits.join(' ').includes('hund'), hits[0] ?? '(none)')
 
-  // And no request was needed: the thousand words answer offline.
+  // And no request was needed: the nine hundred words answer offline.
   check('with no Ask Casey needed', (await box.locator('.translate-ask').count()) === 0)
 
   // Looking up an English word whose Danish is ON the board. This is the case

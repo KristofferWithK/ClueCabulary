@@ -38,7 +38,7 @@ export const TranslationResponseSchema = z.object({
    * The gender, on every noun — including the mass and abstract ones that take
    * no indefinite article. "trafik" is not something you can have one of, but
    * it is still common gender, and the definite form and every agreeing
-   * adjective turn on that. The shipped thousand carry this in the data; a word
+   * adjective turn on that. The shipped nine hundred carry this in the data; a word
    * from outside them has only Casey to ask.
    */
   gender: z.enum(['common', 'neuter']).optional(),

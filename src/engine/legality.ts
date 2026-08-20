@@ -33,7 +33,7 @@ function isInflectionOfShort(longer: string, short: string): boolean {
  * Danish letter, so that is not a corner: øl/oellet, æg/aegget, søn/soennen.
  *
  * Two details the obvious version gets wrong, both measured against the whole
- * thousand-word set. The fold is applied only when the SHORT word really
+ * dataset. The fold is applied only when the SHORT word really
  * contains a Danish letter, and the length test stays on the unfolded
  * spelling — folding unconditionally lengthens the short word into a prefix it
  * never was, and blocks four real pairs: "to" swallows "tør", "ko" swallows
@@ -99,7 +99,7 @@ function isPastOf(clue: string, board: string, boardPos: string): boolean {
 
 /**
  * Irregular plurals, which no suffix rule reaches: the vowel changes. Only the
- * ones actually in the shipped thousand, so the list is checkable rather than
+ * ones actually in the shipped nine hundred, so the list is checkable rather than
  * a grab-bag of Danish grammar. Both directions, since either can be the clue.
  */
 const IRREGULAR_PLURALS: ReadonlyArray<readonly [string, string]> = [
@@ -172,7 +172,8 @@ export function checkClueLegality(clue: string, words: readonly BoardWord[]): Le
       // There was an edit-distance rule here — one letter apart counted as too
       // close — and it was wrong for this language. Danish runs on minimal
       // pairs: hund/hånd, bord/jord, læse/næse, lige/pige, mand/mund,
-      // skole/stole, fisk/frisk. Across the shipped thousand it blocked 271
+      // skole/stole, fisk/frisk. Across the thousand words the dataset held at
+      // the time it blocked 271
       // pairs of entirely unrelated words, every one of them a clue a person
       // would reasonably give. The inflections it was meant to catch are
       // already caught above, by the stem and short-word guards, which is

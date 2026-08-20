@@ -73,7 +73,7 @@ try {
     throw new Error(`no one-tap lookup offered: ${JSON.stringify(warned.lookup)}`)
   }
 
-  // Everything the shipped thousand can settle offline must never reach that
+  // Everything the shipped nine hundred can settle offline must never reach that
   // path: a homograph that is also Danish, a compound of two known words, and
   // a Danish word we simply do not ship — 'unknown' is permission, not
   // suspicion, which is where «trafik» and most real clues live.

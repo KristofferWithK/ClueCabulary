@@ -154,7 +154,7 @@ interface GameStore {
    */
   noteLookup: (term: string) => void
   /**
-   * Is this word Danish? Asked of Casey when the shipped thousand cannot say.
+   * Is this word Danish? Asked of Casey when the shipped nine hundred cannot say.
    *
    * No new endpoint: translate() already tidies a Danish word to its citation
    * form and returns it as `da`, so a word that comes back as itself was
