@@ -67,6 +67,14 @@ model alias `cluey`).
 - **R1** — A won round earns a wrap-up round, bank of three — merged 2026-08-20 ([PR #67](https://github.com/KristofferWithK/ClueCabulary/pull/67), squash 69844df). Measured: the collected-words gate binds first, so the win gate is phase-shifted rather than idle.
 
 ### Found along the way, not yet carded
+- **`make-audio.mjs --voice` does nothing.** Six different Danish voice names
+  (Neural2-D/F, Wavenet-A/C/D/E) produce byte-identical MP3s. The flag parses
+  (line 272) and reaches the request body (line 132), so the loss is between
+  those two points or Google is falling back silently on a name it does not
+  recognise. **This blocks auditioning any voice but the default**, which is
+  the one thing the owner asked to compare. Reproduce:
+  `node scripts/make-audio.mjs --only da:roed --voice da-DK-Wavenet-C --force`
+  then hash the file against the Neural2-F one.
 - **README's Setup section is stale** — it still tells the player to paste a
   Gemini key, but settings v7 cleared keys and the app talks to the proxy.
   A3 left it deliberately (out of card). **G1 owns it** — the quota work is
