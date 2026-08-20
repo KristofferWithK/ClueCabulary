@@ -46,6 +46,28 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-20 · Read this one: the sentences cannot teach the words you named — F2
+You asked for post-round sentences so the game could smuggle in words that
+cannot be clued — *"if", "suddenly"*. The feature shipped, and then the coverage
+was measured, and **the measurement contradicts the reason for it**.
+
+Across all 900 example sentences: of a 209-word Danish closed-class inventory,
+147 appear at least once — but 62 never appear and 50 appear exactly once, so
+**54% are out of reach** of a feature that shows five sentences a round. A round
+shows about eleven distinct function words and two thirds of them are the same
+twenty. Meeting even the reachable ones once each takes 771 rounds.
+
+And the words you actually named are the missing ones: **`hvis` 0 of 900,
+`fordi` 2, `pludselig` 1**, `eller`/`mens`/`selvom` all 0. The cause is
+structural rather than an oversight — these are single-clause A1 examples, and a
+subordinating conjunction needs a second clause to live in.
+
+**So v1 teaches the core twenty by repetition and cannot teach the tail at all.**
+It is still worth having; it just is not the thing you asked for. The thing you
+asked for is **H5** — sentences written to a coverage target — and this
+measurement is its justification. The numbers are reproducible:
+`node scripts/measure-function-words.mjs`.
+
 ### 2026-08-20 · Audio is built but has never spoken — F1
 There is no TTS key in this session and I did not obtain one, so the bake
 pipeline was proven against a local stub instead: 900 words in 27 seconds with

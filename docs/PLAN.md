@@ -47,9 +47,8 @@ model alias `cluey`).
 - **G2** — Store readiness + release *(needs everything above except C3; submission is held for the owner)*
 
 ### In progress
-- **C2** — Home rework — agent running (dispatched 2026-08-20)
-- **F2** — Post-round sentences + hear-the-board — agent running (dispatched 2026-08-20)
-- **E1** — Suitcase interior redesign — agent running (dispatched 2026-08-20)
+- **H1** — Language-pack seam — agent running (dispatched 2026-08-20)
+- **H7** — Cascade tier on the proxy — agent running (dispatched 2026-08-20)
 
 ### Done
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
@@ -57,6 +56,9 @@ model alias `cluey`).
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
 - **B1** — Round summary replaces the debrief; the debrief call is gone — merged 2026-08-20 ([PR #65](https://github.com/KristofferWithK/ClueCabulary/pull/65), squash 6a80497). Found layout-drive's end-screen section vacuous since it was written.
 - **A3** — Boards re-measured; standard 8 → 7 tokens; README + CLAUDE.md rewritten — merged 2026-08-20 ([PR #66](https://github.com/KristofferWithK/ClueCabulary/pull/66), squash 151b812). See DECISIONS.md — the token change alters game feel.
+- **C2** — Home given to Casey, key-prompt bug deleted, coastline drawn by hand — merged ([PR #73](https://github.com/KristofferWithK/ClueCabulary/pull/73), 69c4140)
+- **E1** — One open hand-drawn suitcase, city as a filter — merged ([PR #74](https://github.com/KristofferWithK/ClueCabulary/pull/74), 45a44ed)
+- **F2** — Post-round sentences + hear-the-board — merged ([PR #75](https://github.com/KristofferWithK/ClueCabulary/pull/75), aaca1ed). Its coverage measurement is the case for H5 — see DECISIONS.md.
 - **F1** — playWord with baked-clip pipeline (unrun, no key) and device-voice fallback — merged 2026-08-20 ([PR #72](https://github.com/KristofferWithK/ClueCabulary/pull/72), squash fa68f97)
 - **D1** — 900Words and Casey everywhere a player reads; chrome in English — merged 2026-08-20 ([PR #71](https://github.com/KristofferWithK/ClueCabulary/pull/71), squash c9f1315). Storage keys and CSS classes proven unmoved.
 - **D2** — Dataset trimmed to 900, Viborg off the route, journey migrated — merged 2026-08-20 ([PR #69](https://github.com/KristofferWithK/ClueCabulary/pull/69), squash a17588c)
@@ -362,9 +364,16 @@ rules pinned by tests, one checked to fail without the fix.
   structural cost control for free users.
 - **H4 900 Pass IAP**: StoreKit via Capacitor plugin; first 2 cities free;
   restore purchases; decide the PWA channel's gating then.
-- **H5 Sentence stories**: LLM-woven post-round narratives deliberately
-  including untaught function words (`function-words.da.json`,
-  coverage-tracked) — funded by the deleted debrief call.
+- **H5 Sentence stories** — NOW MEASURED AND JUSTIFIED. F2 shipped v1 (the
+  shipped example sentences) and measured what it can teach: 147 of a 209-word
+  closed-class inventory appear at all, but 62 never do and 50 appear once, so
+  54% is unreachable at five sentences a round, and the words the owner named
+  are absent outright — hvis 0/900, fordi 2, pludselig 1, eller/mens/selvom 0.
+  Structural: single-clause A1 examples give a subordinating conjunction no
+  second clause. So H5 is LLM-woven post-round narratives written TO a coverage
+  target, with function-words.da.json tracking what has been met. Reproduce the
+  numbers with node scripts/measure-function-words.mjs. Funded by the debrief
+  call B1 deleted.
 - **H6 Voice-recognition wrap-up**: native speech plugin; prototype first —
   false rejections would poison the ritual.
 - **H7 Cascade tier**: proxy routes to a cheap model by default, escalates to a
