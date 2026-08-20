@@ -20,7 +20,8 @@ export function audioSlug(headword) {
     .normalize('NFC')
     .toLowerCase()
     // Before the decomposition below, which would otherwise split å into a plus
-    // a ring, strip the ring, and turn both `hår` and `har` into `har`.
+    // a ring and strip the ring — merging være/vare, bare/bære, tænke/tanke,
+    // svær/svar, blød/blod and påstå/pasta, all six of which are in the 900.
     .replace(/æ/g, 'ae')
     .replace(/ø/g, 'oe')
     .replace(/å/g, 'aa')

@@ -10,9 +10,9 @@ import { type ClipLoad, type WordAudioPorts, audioSlug, createWordPlayer, wordAu
  * either.
  *
  * The failure mode if they ever drift is not a wrong filename. The script
- * writes `haar.mp3`, the app asks for `har.mp3`, every request 404s and every
- * word silently falls back to the device voice — which is exactly what the app
- * does today when there is no audio at all, so nothing would look broken.
+ * writes `koebe.mp3`, the app asks for `kobe.mp3`, every request 404s, and
+ * every word falls back to the device voice — which is exactly what the app
+ * does today with no audio at all, so nothing would look broken.
  */
 async function scriptSlug() {
   // Not a literal specifier, so tsc leaves the untyped .mjs alone.
@@ -31,13 +31,33 @@ describe('the name a clip is baked under', () => {
     expect(audioSlug('hånd')).toBe('haand')
   })
 
-  it('keeps å and a apart, which the obvious accent-strip does not', () => {
-    // NFD-then-strip-marks turns å into a. `hår` (hair) and `har` (has) are
-    // both in the dataset, so that version of the rule would have given them
-    // one file between them.
-    expect(audioSlug('hår')).toBe('haar')
-    expect(audioSlug('har')).toBe('har')
-    expect(audioSlug('hår')).not.toBe(audioSlug('har'))
+  it('keeps æøå apart from their ASCII bases, which the obvious rule does not', () => {
+    // The obvious rule is NFD-then-strip-marks, and it turns å into a, æ into
+    // ae's first letter and ø into o. Six pairs in the dataset differ by
+    // exactly that, so the obvious rule hands each pair one file — and the app
+    // would play «vare» when asked for «være» with nothing looking broken.
+    const naive = (s: string) =>
+      s
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/æ/g, 'a')
+        .replace(/ø/g, 'o')
+    const pairs = [
+      ['være', 'vare'],
+      ['bare', 'bære'],
+      ['tænke', 'tanke'],
+      ['svær', 'svar'],
+      ['blød', 'blod'],
+      ['påstå', 'pasta'],
+    ]
+    const inDataset = new Set(WORDS.map((w) => w.da))
+    for (const [a, b] of pairs) {
+      expect(inDataset.has(a), a).toBe(true)
+      expect(inDataset.has(b), b).toBe(true)
+      expect(naive(a), `${a}/${b} is why the fold happens first`).toBe(naive(b))
+      expect(audioSlug(a)).not.toBe(audioSlug(b))
+    }
   })
 
   it('does not care which normalisation the word arrived in', () => {

@@ -121,7 +121,11 @@ export function audioSlug(headword: string): string {
       .normalize('NFC')
       .toLowerCase()
       // Before the decomposition below, which would otherwise split å into
-      // a + ring and strip the ring, turning både `hår` and `har` into `har`.
+      // a + ring and strip the ring. Six pairs in the 900 differ only by a
+      // Danish letter and its ASCII base — være/vare, bare/bære, tænke/tanke,
+      // svær/svar, blød/blod, påstå/pasta — so the naive strip gives each pair
+      // one file between them and teaches whichever word baked second.
+      // Counted over the dataset by speak.test.ts, not guessed at.
       .replace(/æ/g, 'ae')
       .replace(/ø/g, 'oe')
       .replace(/å/g, 'aa')
