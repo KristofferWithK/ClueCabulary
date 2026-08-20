@@ -1,3 +1,7 @@
+// Still the old name because it is a live URL, not a label: four deep links
+// below hang off it and every one would 404 the moment this changed. It moves
+// when the owner renames the repo (D3), together with vite.config.ts's base.
+// No player reads it — it only ever appears in an href.
 const REPO = 'https://github.com/KristofferWithK/ClueCabulary'
 
 /**
