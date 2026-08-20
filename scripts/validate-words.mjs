@@ -1,7 +1,11 @@
-// Validates src/data/words.da.json: schema, uniqueness, single-token Danish
+// Validates src/data/words.<lang>.json: schema, uniqueness, single-token
 // citation forms, POS whitelist, and that the dataset is exactly the route's
 // worth of words. Exits non-zero on hard errors; prints warnings for things a
 // human/model review pass should look at.
+//
+// Every rule that is a fact about the language — the alphabet, the genders and
+// their articles, which nouns cannot be counted, the route — is read from the
+// language's pack rather than written here. `--lang da` is the default.
 import { readFileSync, readdirSync } from 'node:fs'
 
 /**
@@ -85,6 +89,25 @@ if (extra === undefined) {
 }
 const DA_TOKEN = new RegExp(`^[a-zA-Z${extra}]+$`)
 
+/**
+ * The genders this language has and the article each one takes, read out of the
+ * same pack the app prints from.
+ *
+ * Hardcoded as common/neuter and en/et until the language seam, which would
+ * have rejected every German noun in the dataset as "no gender" — a validator
+ * that fails a correct dataset is as bad as one that passes a broken one, and
+ * this one gates the build. Note the article is NOT unique per gender in
+ * German (der and das both take ein), so the checks below read gender→article
+ * and never the reverse.
+ */
+const GENDERS = Object.fromEntries(
+  [...grammarSrc.matchAll(/^ {2}(\w+): \{ article: '([^']+)'/gm)].map((m) => [m[1], m[2]]),
+)
+if (Object.keys(GENDERS).length === 0) {
+  console.error(`read no genders out of src/lang/${LANG}/grammar.ts — the scrape broke`)
+  process.exit(2)
+}
+
 const words = JSON.parse(readFileSync(PATH, 'utf8'))
 const errors = []
 const warnings = []
@@ -142,26 +165,25 @@ for (const [i, w] of words.entries()) {
   // it with the gender field, and the card prints (com)/(neut). A noun with
   // neither tells the learner nothing, which is a hard error rather than a
   // warning: gender is not decoration in Danish.
-  if (w.pos === 'noun' && w.gender !== 'common' && w.gender !== 'neuter') {
-    errors.push(`${at}: noun with no gender (needs en/et or an explicit gender)`)
+  if (w.pos === 'noun' && GENDERS[w.gender] === undefined) {
+    errors.push(
+      `${at}: noun with no gender the pack knows (has "${w.gender}", knows ${Object.keys(GENDERS).join('/')})`,
+    )
   }
-  if (w.article === 'en' && w.gender !== 'common') {
-    errors.push(`${at}: article "en" disagrees with gender ${w.gender}`)
-  }
-  if (w.article === 'et' && w.gender !== 'neuter') {
-    errors.push(`${at}: article "et" disagrees with gender ${w.gender}`)
+  if (w.article && w.gender && GENDERS[w.gender] !== w.article) {
+    errors.push(`${at}: article "${w.article}" disagrees with gender ${w.gender}`)
   }
   if (w.pos === 'noun' && !w.article) {
-    warnings.push(`${at}: noun with no article — shown as (${w.gender === 'neuter' ? 'neut' : 'com'})`)
+    warnings.push(`${at}: noun with no article — shown as its gender, ${w.gender}`)
   }
   if (w.pos !== 'noun' && (w.article || w.gender || w.countable !== undefined)) {
     warnings.push(`${at}: non-noun with article, gender or countability`)
   }
-  // The countability classification lives in src/data/countability.ts and is
-  // applied to the whole noun set, so the data and the module must not drift.
+  // The countability classification lives in the language pack's grammar
+  // module and is applied to the whole noun set, so the two must not drift.
   if (w.pos === 'noun' && (w.countable === false) !== UNCOUNTABLE.has(w.da)) {
     errors.push(
-      `${at}: countable=${w.countable} disagrees with countability.ts (listed: ${UNCOUNTABLE.has(w.da)})`,
+      `${at}: countable=${w.countable} disagrees with the pack's grammar module (listed: ${UNCOUNTABLE.has(w.da)})`,
     )
   }
   if (w.en?.some((g) => /^to /.test(g))) warnings.push(`${at}: gloss with leading "to " (${w.en})`)
@@ -179,7 +201,7 @@ if (curriculum.size && curriculum.size !== words.length) {
 
 // The dataset is exactly the route: nine cities owning a hundred words each.
 if (!CITY_IDS.length || !Number.isInteger(WORDS_PER_CITY)) {
-  errors.push('could not read the route out of src/journey/cities.ts')
+  errors.push(`could not read the route out of src/lang/${LANG}/route.ts`)
 } else if (words.length !== EXPECTED) {
   errors.push(
     `${words.length} words for ${CITY_IDS.length} cities × ${WORDS_PER_CITY} — expected ${EXPECTED}`,

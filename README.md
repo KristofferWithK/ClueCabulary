@@ -48,7 +48,7 @@ opens.
    so it is shown whether or not the word can be counted.
 
    Countability is a rule applied to all 366 nouns, not a list of exceptions
-   (`src/data/countability.ts`): a noun is uncountable when "en X" / "et X"
+   (`src/lang/da/grammar.ts`): a noun is uncountable when "en X" / "et X"
    would be wrong or clearly odd in everyday Danish — mass and abstract nouns,
    plus the plural-only ones. Where **both** readings are ordinary the article
    stays, because *en øl*, *et brød*, *en ost*, *et hår* and *et papir* are all
