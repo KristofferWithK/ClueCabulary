@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { AiClueView, AiGuessView } from '../ai/projections'
+import { buildCluePrompt, buildGuessPrompt, buildTranslatePrompt } from '../ai/prompts'
 import { createDataset } from '../data/dataset'
 import type { WordEntry } from '../data/types'
 import { checkClueLegality } from '../engine/legality'
@@ -89,7 +91,16 @@ const FAKE: LanguagePack = {
     answerFiller: ['yo'],
   },
   route: danish.route,
-  prompts: { translateRules: 'fake', spellingRule: 'fake', functionWordNote: 'fake' },
+  prompts: {
+    translateRules: 'FAKE-TRANSLATE-RULES',
+    spellingRule: 'FAKE-SPELLING-RULE',
+    functionWordNote: 'FAKE-FUNCTION-WORDS',
+    clueExampleWord: 'FAKE-CLUE-WORD',
+    homographNote: 'FAKE-HOMOGRAPHS',
+    guessExample: 'FAKE-GUESS-EXAMPLE',
+    reasoningExample: 'FAKE-REASONING-EXAMPLE',
+    compoundExample: 'FAKE-COMPOUND-EXAMPLE',
+  },
 }
 
 describe('the language registry', () => {
@@ -254,6 +265,71 @@ describe('the dataset indexes read their rules off the pack', () => {
     expect(fake.wordById('da:mor')).toBeUndefined()
     expect(da.wordById('da:mor')?.da).toBe('mor')
     expect(da.wordById('de:blorp')).toBeUndefined()
+  })
+})
+
+describe("the prompts carry the pack's language, not Danish", () => {
+  // Built as literals rather than off a real game: these views are pure data,
+  // and the point here is only what the prompt does with a pack.
+  const words = [
+    { id: 'w1', da: 'hus', en: ['house'], pos: 'noun', reveal: { kind: 'hidden' } as const },
+    { id: 'w2', da: 'kat', en: ['cat'], pos: 'noun', reveal: { kind: 'hidden' } as const },
+  ]
+  const clueView: AiClueView = {
+    kind: 'ai-clue',
+    clueLanguage: 'target',
+    turnsLeft: 4,
+    words: words.map((w) => ({ ...w, roleOnMyKey: 'green' as const })),
+    history: [],
+    flagged: [],
+  }
+  const guessView: AiGuessView = {
+    kind: 'ai-guess',
+    clueLanguage: 'target',
+    turnsLeft: 4,
+    words,
+    currentClue: { text: 'dyr', number: 1 },
+    history: [],
+    flagged: [],
+  }
+  const clueText = (pack: LanguagePack) => JSON.stringify(buildCluePrompt(clueView, pack))
+
+  it('names the pack in the rules and asks for a clue in it', () => {
+    expect(clueText(danish)).toContain('learn Danish')
+    expect(clueText(FAKE)).toContain('learn Fake')
+    expect(clueText(FAKE)).not.toContain('learn Danish')
+  })
+
+  it('quotes the pack spelling rule, function words and worked example', () => {
+    const fake = clueText(FAKE)
+    expect(fake).toContain('FAKE-SPELLING-RULE')
+    expect(fake).toContain('FAKE-FUNCTION-WORDS')
+    expect(fake).toContain('FAKE-CLUE-WORD')
+    // And Danish's own are gone from it, which is the half that would still
+    // pass if the strings were merely appended rather than substituted.
+    expect(fake).not.toContain('æ, ø and å')
+    expect(fake).not.toContain('kæledyr')
+    // No Danish letter anywhere in a prompt for another language.
+    expect(fake).not.toMatch(/[æøå]/)
+  })
+
+  it('does the same for the guess prompt', () => {
+    const fake = JSON.stringify(buildGuessPrompt(guessView, FAKE))
+    expect(fake).toContain('FAKE-HOMOGRAPHS')
+    expect(fake).toContain('FAKE-GUESS-EXAMPLE')
+    expect(fake).toContain('FAKE-REASONING-EXAMPLE')
+    expect(fake).not.toContain('is a cheek')
+    // Catches a Danish example anywhere in the prompt, including inside a rule
+    // rather than in the examples block — which is where the last one was.
+    expect(fake).not.toContain('æble')
+    expect(fake).not.toMatch(/[æøå]/)
+  })
+
+  it('says nothing about a language in the translate prompt but the pack one', () => {
+    const fake = JSON.stringify(buildTranslatePrompt('haus', FAKE))
+    expect(fake).toContain('FAKE-TRANSLATE-RULES')
+    expect(fake).toContain('learning Fake')
+    expect(fake).not.toContain('Danish')
   })
 })
 

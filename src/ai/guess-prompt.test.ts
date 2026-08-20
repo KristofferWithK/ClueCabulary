@@ -3,8 +3,15 @@ import { GRID_CONFIGS } from '../engine/config'
 import { applyEvent as applyEventIn, createGame } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { buildAiGuessView } from './projections'
-import { buildGuessPrompt } from './prompts'
+import { buildGuessPrompt as buildGuessPromptIn } from './prompts'
 import { danish } from '../lang/da'
+
+/**
+ * The prompt builders take the language pack now (H1). Bound to Danish here so
+ * every assertion below keeps testing the prompt it was written against.
+ */
+const buildGuessPrompt = (v: Parameters<typeof buildGuessPromptIn>[0]) =>
+  buildGuessPromptIn(v, danish)
 
 /**
  * The engine takes the language pack now (H1). Wrapped here so the suite's

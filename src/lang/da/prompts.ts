@@ -33,4 +33,15 @@ export const danishPrompts: PromptStrings = {
   spellingRule: 'Write Danish with æ, ø and å — never ae, oe or aa.',
   functionWordNote:
     'op, ind, ud, ned, så, lige, jo, gang, samme, anden, altid, igen and the like. Association clues do not reach these, so never hang one on the back of a real clue. Take one only alone, with number 1, pointing at the everyday phrase it lives in (stå op, en gang til, lige nu)',
+  clueExampleWord: 'kæledyr',
+  // Chosen because each is a word a learner meets early AND has a completely
+  // unrelated English sense, which is the case where reading the clue the
+  // wrong way costs the turn rather than merely slowing it down.
+  homographNote:
+    'Danish "foster" is a fetus, English "foster" is to raise a child; Danish "kind" is a cheek, English "kind" is friendly; Danish "sky" is a cloud or gravy.',
+  compoundExample: 'with "værelse" on the board, "soveværelse" is illegal',
+  reasoningExample:
+    '"æble is the fruit; pære is also a fruit but the clue said one, and æble is the commoner word" — not "æble is a fruit"',
+  guessExample: `Example of a well-calibrated reply, from a DIFFERENT board where the clue was "frugt" (2):
+{"guesses": [{"wordId": "w2", "confidence": 0.9, "reasoning": "æble (apple) is literally a fruit; the nearest decoy is træ (tree), which is where fruit grows rather than a fruit"}, {"wordId": "w9", "confidence": 0.8, "reasoning": "pære (pear) is also a fruit, and the clue says two — apple and pear are the pair meant"}, {"wordId": "w5", "confidence": 0.3, "reasoning": "træ (tree) is only loosely related — it is where fruit grows, not a fruit, and naming it would end the turn and spend a token, so stop above it"}, {"wordId": "w11", "confidence": 0.15, "reasoning": "sød (sweet) describes fruit but is not one"}]}`,
 }

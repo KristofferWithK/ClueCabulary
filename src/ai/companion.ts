@@ -181,7 +181,7 @@ export class OllamaCompanion implements Companion {
     return askValidated(
       this.chat,
       this.settings,
-      buildCluePrompt(view),
+      buildCluePrompt(view, ACTIVE),
       (raw) => {
         const parsed = ClueResponseSchema.safeParse(raw)
         if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
@@ -244,7 +244,7 @@ export class OllamaCompanion implements Companion {
     return askValidated(
       this.chat,
       this.settings,
-      buildGuessPrompt(view),
+      buildGuessPrompt(view, ACTIVE),
       (raw) => {
         const parsed = GuessResponseSchema.safeParse(raw)
         if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
@@ -261,7 +261,7 @@ export class OllamaCompanion implements Companion {
     return askValidated(
       this.chat,
       this.settings,
-      buildTranslatePrompt(term),
+      buildTranslatePrompt(term, ACTIVE),
       (raw) => {
         const parsed = TranslationResponseSchema.safeParse(raw)
         return parsed.success

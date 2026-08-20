@@ -8,7 +8,18 @@ export type PartOfSpeech =
 
 export interface WordEntry {
   id: string
-  /** Danish citation form: nouns singular indefinite, verbs bare infinitive, adjectives common gender. */
+  /**
+   * The citation form in the language being learned: nouns singular
+   * indefinite, verbs bare infinitive, adjectives in the base gender.
+   *
+   * Still called `da` in every language, including German, and that is a
+   * deliberate non-rename rather than an oversight. It is the JSON key in
+   * `words.<lang>.json`, a field on `BoardWord`, part of the persisted game and
+   * part of the AI response schema, so moving it costs a migration and forty
+   * call sites to buy a better name for a field whose meaning is never in
+   * doubt at the point of use. Read it as "the headword" — the same reasoning
+   * CLAUDE.md records for `klausVerifiedAt` and the `cluey-*` classes.
+   */
   da: string
   /** English glosses, most common first. Verbs in bare form ("run", not "to run"). */
   en: string[]

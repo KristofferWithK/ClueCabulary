@@ -3,8 +3,17 @@ import { GRID_CONFIGS } from '../engine/config'
 import { applyEvent as applyEventIn, createGame } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { buildAiClueView, buildAiGuessView, type FlaggedCall } from './projections'
-import { buildCluePrompt, buildGuessPrompt } from './prompts'
+import { buildCluePrompt as buildCluePromptIn, buildGuessPrompt as buildGuessPromptIn } from './prompts'
 import { danish } from '../lang/da'
+
+/**
+ * The prompt builders take the language pack now (H1). Bound to Danish here so
+ * every assertion below keeps testing the prompt it was written against.
+ */
+const buildCluePrompt = (v: Parameters<typeof buildCluePromptIn>[0]) =>
+  buildCluePromptIn(v, danish)
+const buildGuessPrompt = (v: Parameters<typeof buildGuessPromptIn>[0]) =>
+  buildGuessPromptIn(v, danish)
 
 /**
  * The engine takes the language pack now (H1). Wrapped here so the suite's
@@ -25,7 +34,7 @@ const start = (firstGiver: 'player' | 'ai' = 'ai') =>
   createGame({ config: GRID_CONFIGS.beginner, words: words(12), seed: 7, firstGiver })
 
 const cluePrompt = (flagged: FlaggedCall[] = []) =>
-  buildCluePrompt(buildAiClueView(start('ai'), 'da', flagged))
+  buildCluePrompt(buildAiClueView(start('ai'), 'target', flagged))
     .map((m) => m.content)
     .join('\n')
 
@@ -36,7 +45,7 @@ const guessPrompt = (flagged: FlaggedCall[] = []) => {
     text: 'huskeliste',
     number: 2,
   })
-  return buildGuessPrompt(buildAiGuessView(s, 'da', flagged))
+  return buildGuessPrompt(buildAiGuessView(s, 'target', flagged))
     .map((m) => m.content)
     .join('\n')
 }
@@ -126,12 +135,12 @@ describe('flags carry nothing about anybody key', () => {
       id: 'c:7:0',
       at: 1234,
     } as unknown as FlaggedCall
-    const view = buildAiClueView(start('ai'), 'da', [sneaky])
+    const view = buildAiClueView(start('ai'), 'target', [sneaky])
     expect(Object.keys(view.flagged[0]!).sort()).toEqual(['kind', 'underClue', 'what', 'why'])
     expect(JSON.stringify(buildCluePrompt(view))).not.toContain('LEAKED_PLAYER_KEY')
     expect(JSON.stringify(buildGuessPrompt(buildAiGuessView(
       applyEvent(start('player'), { type: 'SUBMIT_CLUE', by: 'player', text: 'huskeliste', number: 2 }),
-      'da',
+      'target',
       [sneaky],
     )))).not.toContain('LEAKED_PLAYER_KEY')
   })

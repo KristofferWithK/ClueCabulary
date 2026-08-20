@@ -149,7 +149,7 @@ describe('export and parse', () => {
         trialsSpent: { 2: 3 },
         arrivedAt: { 2: NOW - DAY },
       },
-      prefs: { gridSize: 'middle', clueLanguage: 'da', studyPhase: 'never' },
+      prefs: { gridSize: 'middle', clueLanguage: 'target', studyPhase: 'never' },
     }
     const parsed = parseBackup(JSON.stringify(v1))
     expect(parsed.ok).toBe(true)
@@ -279,10 +279,10 @@ describe('merge', () => {
 
   it('leaves this device its own preferences', () => {
     const merged = mergeSnapshot(
-      snapshot({ prefs: { gridSize: 'standard', clueLanguage: 'da', studyPhase: 'never' } }),
+      snapshot({ prefs: { gridSize: 'standard', clueLanguage: 'target', studyPhase: 'never' } }),
       roundTrip(snapshot()),
     )
-    expect(merged.prefs).toEqual({ gridSize: 'standard', clueLanguage: 'da', studyPhase: 'never' })
+    expect(merged.prefs).toEqual({ gridSize: 'standard', clueLanguage: 'target', studyPhase: 'never' })
   })
 
   it('is idempotent: merging the same file twice changes nothing', () => {
@@ -309,7 +309,7 @@ describe('replace', () => {
     const file = roundTrip(
       snapshot({
         stats: { hus: stats({ correctGuesses: 3 }) },
-        prefs: { gridSize: 'standard', clueLanguage: 'da', studyPhase: 'never' },
+        prefs: { gridSize: 'standard', clueLanguage: 'target', studyPhase: 'never' },
         journey: { cityIndex: 4, wrapped: { hus: NOW }, arrivedAt: {} },
       }),
     )

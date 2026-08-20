@@ -48,7 +48,7 @@ function writeSnapshot(next: Snapshot, restorePrefs: boolean) {
   if (restorePrefs) {
     useSettings.getState().set({
       gridSize: next.prefs.gridSize as GridSize,
-      clueLanguage: next.prefs.clueLanguage as 'da' | 'en',
+      clueLanguage: next.prefs.clueLanguage,
       studyPhase: next.prefs.studyPhase as StudyMode,
     })
   }

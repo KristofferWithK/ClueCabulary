@@ -3,13 +3,14 @@ import { persist } from 'zustand/middleware'
 import { DEFAULT_BASE_URL, DEFAULT_MODEL } from '../ai/client'
 import type { GridSize } from '../engine/config'
 import type { StudyMode } from '../journey/progress'
+import type { ClueLanguageSetting } from '../lang/types'
 
 interface SettingsState {
   apiKey: string
   baseUrl: string
   model: string
   gridSize: GridSize
-  clueLanguage: 'da' | 'en'
+  clueLanguage: ClueLanguageSetting
   /** Show the whole board translated before a round starts. */
   studyPhase: StudyMode
   /** Play against the deterministic offline companion (dev/e2e). */
@@ -57,11 +58,11 @@ interface SettingsState {
  * middleware would be testing nothing.
  */
 export function migrateSettings(persisted: unknown, from: number): unknown {
-  if (from >= 8) return persisted
+  if (from >= 9) return persisted
   const s = {
     ...((persisted ?? {}) as {
       studyPhase?: StudyMode
-      clueLanguage?: 'da' | 'en'
+      clueLanguage?: ClueLanguageSetting | 'da'
       gridSize?: GridSize
       apiKey?: string
       baseUrl?: string
@@ -71,9 +72,10 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   }
   // v1 -> v2: the study phase stopped being the default.
   if (from < 2 && s.studyPhase === 'auto') s.studyPhase = 'never'
-  // v2 -> v3: Casey clues in Danish. Same shape of trap as the study phase —
-  // changing a default does nothing for a device that already stored one, and
-  // this one had every existing player still getting English clues.
+  // v2 -> v3: Casey clues in the language being learned. Same shape of trap as
+  // the study phase — changing a default does nothing for a device that already
+  // stored one, and this one had every existing player still getting English
+  // clues. It wrote the literal 'da'; v9 below is what that cost.
   if (from < 3 && s.clueLanguage === 'en') s.clueLanguage = 'da'
   // v3 -> v4: 3x5 is the board Play deals.
   //
@@ -144,6 +146,20 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   // every existing device would come up silent. The new field is written in
   // explicitly rather than left to the default it happens to agree with.
   if (from < 8) s.sound = true
+  // v8 -> v9: 'da' stops naming Danish and becomes 'target'.
+  //
+  // The setting was never about Danish. It asks whether Casey clues in the
+  // language you are learning or falls back to English, and it stored the
+  // answer as the literal 'da' because Danish was the only thing that could be
+  // learned. With a seam under it that value is a bug waiting for a second
+  // language: a German player's saved 'da' would read as "clue me in Danish",
+  // and the prompt would have obliged.
+  //
+  // Every existing save carries it, so every existing save is rewritten. This
+  // one is safe in a way the four before it were not — the old value and the
+  // new one mean exactly the same thing today, so nobody's choice changes,
+  // and 'en' is left alone because it always meant English and still does.
+  if (from < 9 && (s.clueLanguage as string) === 'da') s.clueLanguage = 'target'
   return s
 }
 
@@ -158,12 +174,13 @@ export const useSettings = create<SettingsState>()(
       // word a side when that was chosen; no board does now.)
       // 3x4 is still a tap away in the picker for a first sitting.
       gridSize: 'middle',
-      // Danish, both ways. The player has always been asked for "ét dansk ord"
-      // by the clue dock; this setting governs only CLUEY's clues, and its
-      // old default had him answering in English on a Danish board. Both sides
-      // speak Danish now, and the setting is the escape hatch rather than the
+      // The target language, both ways. The player has always been asked for
+      // one word in it by the clue dock; this setting governs only CLUEY's
+      // clues, and its old default had him answering in English on a Danish
+      // board. Both sides speak it now, and the setting is the escape hatch
+      // rather than the
       // norm.
-      clueLanguage: 'da',
+      clueLanguage: 'target',
       // Off. Opening every round with all twelve translations on screen
       // clutters the board you are about to read, and the lookup box and ⓘ
       // both answer the same question on demand. 'auto' and 'always' are
@@ -188,7 +205,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'cluecab-settings-v1',
-      version: 8,
+      version: 9,
       migrate: migrateSettings,
     },
   ),

@@ -215,10 +215,10 @@ export function SettingsScreen() {
           <span>Clue language</span>
           <select
             value={settings.clueLanguage}
-            onChange={(e) => settings.set({ clueLanguage: e.target.value as 'da' | 'en' })}
+            onChange={(e) => settings.set({ clueLanguage: e.target.value as 'target' | 'en' })}
           >
             <option value="en">English clues (gentler)</option>
-            <option value="da">Danish clues (immersion)</option>
+            <option value="target">Danish clues (immersion)</option>
           </select>
         </label>
 

@@ -86,6 +86,18 @@ export interface LanguagePack {
  */
 export type LanguageCode = 'da' | 'de'
 
+/**
+ * Which language Casey gives HIS clues in — not which language is being
+ * learned, which is `LanguageCode` above and a different question entirely.
+ *
+ * 'target' means "whatever we are learning"; it was stored as the literal 'da'
+ * until settings v9, which is exactly the kind of value that reads fine until
+ * there are two languages and then means the wrong one. The player is always
+ * asked for a target-language clue; this setting is the escape hatch for
+ * Casey's half, and 'en' is what it escapes to.
+ */
+export type ClueLanguageSetting = 'target' | 'en'
+
 export interface SpeechSpec {
   /** BCP-47 tag for the device's own speech engine: "da-DK". */
   readonly tag: string
@@ -238,11 +250,21 @@ export interface MapArt {
   readonly hatch: string
 }
 
+/**
+ * The language-specific strings inside Casey's prompts.
+ *
+ * The GAME's rules are shared verbatim by every language and stay in
+ * `src/ai/prompts.ts`; these are the parts that are facts about the language,
+ * and every one of them is a place a German prompt would otherwise have had to
+ * fork the file. Each is quoted into a fixed surrounding sentence, so a pack
+ * writes the clause and not the paragraph — see how they are used before
+ * writing a new one.
+ */
 export interface PromptStrings {
   /**
    * The language-specific half of the translate prompt: how gender, articles
-   * and countability work, with worked examples. The rest of that prompt is
-   * language-neutral and lives in `prompts.ts`.
+   * and countability work, the JSON shape, and worked examples. The rest of
+   * that prompt is language-neutral and lives in `prompts.ts`.
    */
   readonly translateRules: string
   /**
@@ -254,8 +276,50 @@ export interface PromptStrings {
   /**
    * Grammatical words in this language that no association clue can reach —
    * op, ind, ud, så, lige — named in the clue prompt so Casey does not hang one
-   * on the back of a real clue. Two or three examples of the everyday phrases
-   * they live in, in the shape "stå op, en gang til, lige nu".
+   * on the back of a real clue. Ends with two or three of the everyday phrases
+   * they live in; the sentence it completes begins "Some greens are
+   * grammatical words — ".
    */
   readonly functionWordNote: string
+  /**
+   * A one-word clue in this language for "pets", used in the clue prompt's
+   * worked example. Only the word: the example around it is neutral.
+   */
+  readonly clueExampleWord: string
+  /**
+   * False friends between this language and English, for the guess prompt —
+   * the guesser is told a learner's clue may arrive in either language, and
+   * these are the pairs where reading it the wrong way is a real mistake.
+   * Completes "…especially if it is a homograph with unrelated senses — ".
+   */
+  readonly homographNote: string
+  /**
+   * The guess prompt's worked example: a whole `{"guesses": [...]}` JSON reply
+   * on an imaginary board, showing the confidence bands being used honestly.
+   *
+   * In the pack rather than shared because a prompt written in one language
+   * that demonstrates itself with another's words is asking the model to reply
+   * in the wrong one — and this example is long enough, and near enough the
+   * end, to be the strongest thing in the prompt about what a reply looks like.
+   */
+  readonly guessExample: string
+  /**
+   * One quoted sentence showing the shape of a good reasoning: the word, the
+   * board word it was weighed against, and what decided between them.
+   * Completes "…name the board word you weighed it against and what decided
+   * it. " and is followed by "— not …".
+   *
+   * Found by `seam.test.ts` rather than by reading the prompt: it is a Danish
+   * example buried inside a rule rather than in the examples block, which is
+   * exactly the kind of thing an audit by eye walks past.
+   */
+  readonly reasoningExample: string
+  /**
+   * A worked example of the compound rule: a board word, and a longer word
+   * containing it that is therefore an illegal clue. Completes "A compound
+   * contains its parts: " and is the single most useful line in the hard
+   * constraints, because compounding is how both these languages build the
+   * clues a model most wants to give.
+   */
+  readonly compoundExample: string
 }

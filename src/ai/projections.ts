@@ -1,4 +1,5 @@
 import type { CardRole, GameState, Reveal, Side } from '../engine/types'
+import type { ClueLanguageSetting } from '../lang/types'
 
 /**
  * THE FIREWALL. These projections are the only game data the AI layer may see.
@@ -40,7 +41,7 @@ export interface FlaggedCall {
 
 export interface AiClueView {
   kind: 'ai-clue'
-  clueLanguage: 'da' | 'en'
+  clueLanguage: ClueLanguageSetting
   turnsLeft: number
   words: (PublicWord & { roleOnMyKey: CardRole })[]
   history: PublicClue[]
@@ -50,7 +51,7 @@ export interface AiClueView {
 
 export interface AiGuessView {
   kind: 'ai-guess'
-  clueLanguage: 'da' | 'en'
+  clueLanguage: ClueLanguageSetting
   turnsLeft: number
   words: PublicWord[]
   currentClue: { text: string; number: number }
@@ -83,7 +84,7 @@ const publicHistory = (state: GameState): PublicClue[] =>
 
 export function buildAiClueView(
   state: GameState,
-  clueLanguage: 'da' | 'en',
+  clueLanguage: ClueLanguageSetting,
   flagged: readonly FlaggedCall[] = [],
 ): AiClueView {
   return {
@@ -101,7 +102,7 @@ export function buildAiClueView(
 
 export function buildAiGuessView(
   state: GameState,
-  clueLanguage: 'da' | 'en',
+  clueLanguage: ClueLanguageSetting,
   flagged: readonly FlaggedCall[] = [],
 ): AiGuessView {
   const clue = state.clueHistory[state.clueHistory.length - 1]

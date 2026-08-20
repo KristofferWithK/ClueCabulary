@@ -79,7 +79,10 @@ const PrefsSchema = z.object({
   // Enumerated, not free strings: these are cast straight into settings, and a
   // bad gridSize makes every new game throw when it looks up its config.
   gridSize: z.enum(['beginner', 'middle', 'standard']),
-  clueLanguage: z.enum(['da', 'en']),
+  // 'da' is what every file written before settings v9 carries, and it meant
+  // "the language being learned". Read and rewritten rather than rejected: a
+  // backup is the one artefact a player keeps for years.
+  clueLanguage: z.enum(['da', 'target', 'en']).transform((v) => (v === 'da' ? 'target' : v)),
   studyPhase: z.enum(['auto', 'always', 'never']),
 })
 
