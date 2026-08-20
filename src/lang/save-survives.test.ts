@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { canTravel, countCollection, wordState } from '../journey/progress'
 import { WORDS } from '../data/words'
+import { flagsFor, type Flag } from '../stores/feedbackStore'
 import { migrateGame } from '../stores/gameStore'
 import { migrateJourney } from '../stores/journeyStore'
 import { migrateSettings } from '../stores/settingsStore'
@@ -22,9 +23,9 @@ import type { SrsMap } from '../srs/types'
  * costs a player one wrapped word is a worse outcome than no seam at all, and
  * this file is what says it did not.
  *
- * Mutation-checked: dropping `wrapped` from the journey migration fails four of
- * these, and dropping the v9 clue-language rewrite fails 'every setting is the
- * one the player chose'.
+ * Mutation-checked: dropping `wrapped` from the journey migration fails five of
+ * these, and dropping the v9 clue-language rewrite fails 'keeps every setting
+ * the player chose'.
  */
 
 const NOW = 1_755_000_000_000
@@ -171,6 +172,20 @@ describe('a save written before the language seam', () => {
     expect(game.game).toEqual(before.game.game)
     expect(game.lookedUp).toEqual(['da:hus'])
     expect(game.gameLanguage).toBe('da')
+  })
+
+  it('still shows Casey the corrections the player made before the seam', () => {
+    // Flags written before the seam carry no language. Read as anything but
+    // Danish they would vanish from the prompt, and the only channel where the
+    // player gets to say "that was wrong" would silently empty itself.
+    const old: Flag[] = [
+      { id: 'c:1:0', kind: 'clue', what: 'kæledyr', why: 'too broad', at: NOW },
+      { id: 'g:1:0:1', kind: 'guess', what: 'hest', underClue: 'dyr', at: NOW },
+    ]
+    expect(flagsFor(old, 'da')).toHaveLength(2)
+    // And they do not leak into another language's round.
+    expect(flagsFor(old, 'de')).toHaveLength(0)
+    expect(flagsFor([...old, { id: 'c:2:0', kind: 'clue', what: 'Haus', at: NOW, lang: 'de' }], 'de')).toHaveLength(1)
   })
 
   it('lands nothing on another language', () => {

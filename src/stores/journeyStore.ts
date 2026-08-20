@@ -173,10 +173,13 @@ function stampRoute(persisted: unknown, code: LanguageCode): unknown {
  * the only way to test it at all while Danish is the only pack that ships. A
  * seam that only Danish ever exercises is a seam that will not fit German.
  */
-export function switchRoute<T extends RoutePosition & { routeLanguage: LanguageCode; parked: Partial<Record<LanguageCode, RoutePosition>> }>(
-  state: T,
-  to: LanguageCode,
-): T {
+/** The shape `switchRoute` needs: a live position, its stamp, and the parked ones. */
+type Travelling = RoutePosition & {
+  routeLanguage: LanguageCode
+  parked: Partial<Record<LanguageCode, RoutePosition>>
+}
+
+export function switchRoute<T extends Travelling>(state: T, to: LanguageCode): T {
   if (state.routeLanguage === to) return state
   const resumed = state.parked[to] ?? { cityIndex: 0, arrivedAt: {} }
   const parked = { ...state.parked }

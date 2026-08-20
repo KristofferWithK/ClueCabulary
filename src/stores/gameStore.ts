@@ -19,7 +19,7 @@ import { DEFAULT_LANGUAGE } from '../lang/index'
 import type { LanguageCode } from '../lang/types'
 import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
 import { wrapUpBias, wrapUpWords, type RoundMode } from '../journey/wrapup'
-import { useFeedback } from './feedbackStore'
+import { flagsFor, useFeedback } from './feedbackStore'
 import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
@@ -751,7 +751,7 @@ export const useGame = create<GameStore>()(
           const view = buildAiGuessView(
             game,
             useSettings.getState().clueLanguage,
-            useFeedback.getState().flags,
+            flagsFor(useFeedback.getState().flags, ACTIVE.code),
           )
           const res = await companion(get().practiceFallback).getGuesses(view)
           // Any event replaces the game object, so reference equality proves
@@ -823,7 +823,7 @@ export const useGame = create<GameStore>()(
           const view = buildAiClueView(
             game,
             useSettings.getState().clueLanguage,
-            useFeedback.getState().flags,
+            flagsFor(useFeedback.getState().flags, ACTIVE.code),
           )
           const res = await companion(get().practiceFallback).getClue(view)
           // Reference check: never apply a clue composed for a previous game.

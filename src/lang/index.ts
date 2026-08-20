@@ -86,4 +86,14 @@ export const isLanguageCode = (v: unknown): v is LanguageCode => v === 'da' || v
  * board of one language's words; it is stamped with its language and dropped
  * when that does not match. One abandoned mid-round on a switch is the same
  * cost A1 already accepted for a mid-round update.
+ *
+ * **Kept, but filtered.** `feedbackStore.flags` hold a clue word and a board
+ * word, and they are shown back to Casey verbatim in a later prompt. They stay
+ * in one store — they are a record of what the player thought — but
+ * `flagsFor` hands the prompt only the ones from the language being played. A
+ * flag with no language on it was written before the seam and is Danish.
+ *
+ * **Recorded, so a restore can be careful.** A backup file carries the
+ * language its journey position belongs to (`backup.ts`). Words merge across
+ * languages; a city index does not.
  */
