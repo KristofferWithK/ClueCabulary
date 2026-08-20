@@ -1,6 +1,7 @@
 // Manual-style smoke drive of the built app with the mock companion.
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
+import { audioSlug } from '../scripts/audio-slug.mjs'
 
 const PORT = 4173
 const preview = await startPreview(PORT)
@@ -31,6 +32,45 @@ try {
   const cards = await page.locator('.word-card .card-word').allTextContents()
   console.log('BOARD:', cards.join(', '))
 
+  // ---- tapping a word says it ----------------------------------------------
+  // The board was the one surface where a word could be touched without being
+  // heard: the guess-confirm button spoke and the packing hit spoke, so the
+  // word arrived only at the moment of committing to it, never while it was
+  // being read.
+  //
+  // Asserted on the network, because that is the only observable that tells a
+  // wired tap from a silent one — headless Chromium will happily construct an
+  // Audio element for a file that was never requested. The clip is committed,
+  // so the request is real and its 200 is worth asserting too: a 404 here is
+  // the slug drift that speak.test.ts exists to prevent, seen end to end.
+  // The LAST card, deliberately: `speak.ts` memoises a played clip, so a word
+  // played here would not be fetched again when the tour below reaches it, and
+  // this check would silently steal an assertion from that one. The tour only
+  // gets a few words into board order in its 2.6s, so the end of the board is
+  // out of its way.
+  const audioHits = []
+  page.on('response', (r) => {
+    if (r.url().includes('/audio/')) audioHits.push({ url: r.url(), status: r.status() })
+  })
+  const tapWord = cards[cards.length - 1]
+  const wantSlug = `${audioSlug(tapWord)}.mp3`
+  await page.locator('.word-card').last().click()
+  await sleep(600)
+  const hit = audioHits.find((h) => h.url.endsWith(wantSlug))
+  if (!hit) {
+    throw new Error(
+      `tapping «${tapWord}» requested no audio (wanted ${wantSlug}; saw ${
+        audioHits.map((h) => h.url.split('/').pop()).join(', ') || 'nothing'
+      })`,
+    )
+  }
+  if (hit.status !== 200) throw new Error(`${wantSlug} came back ${hit.status}`)
+  console.log(`tap spoke: ${tapWord} -> ${wantSlug} ${hit.status}`)
+  // The tap may have opened the dictionary (a card that is not guessable looks
+  // up instead); put it away so the rest of the drive starts where it expects.
+  const opened = page.locator('.sheet .btn')
+  if (await opened.isVisible().catch(() => false)) await opened.click()
+
   // ---- hear the board -------------------------------------------------------
   // The opening study phase was removed for being homework before the game, and
   // a forced pre-game slideshow of every word would be the same thing wearing a
@@ -41,33 +81,57 @@ try {
   // Headless Chromium carries a speechSynthesis with no voices, so `speak()` is
   // callable and silent. Audible sound cannot be asserted from here; "the app
   // asked for these words, in this order" can, and that is the behaviour.
+  //
+  // BOTH channels are recorded, because which one fires is not a fact about
+  // this feature — it is a fact about whether `make-audio.mjs` has been run.
+  // Watching only the speech engine is what this drive used to do, and it went
+  // blind the moment the clips were committed: `playWord` found a real file,
+  // played it, and never reached the fallback the assertion was counting. The
+  // tour was working the whole time. A drive that fails when the app gains
+  // audio is measuring the wrong thing, and the no-clip state is supported
+  // (see the note at the top of speak.ts), so both have to count.
   await page.evaluate(() => {
-    window.__said = []
+    window.__asked = []
     const synth = window.speechSynthesis
     const speak = synth.speak.bind(synth)
     synth.speak = (u) => {
-      window.__said.push(u.text)
+      window.__asked.push(u.text)
       try {
         speak(u)
       } catch {}
+    }
+    // The clip path goes through fetch (speak.ts takes the bytes rather than
+    // handing the element a src, for the 206 reason documented there), so the
+    // request carries the word's own filename even though the element only
+    // ever sees a blob: URL.
+    const fetch0 = window.fetch.bind(window)
+    window.fetch = (...args) => {
+      const raw = typeof args[0] === 'string' ? args[0] : (args[0]?.url ?? '')
+      const m = String(raw).match(/\/audio\/[^/]+\/([^/?]+)\.mp3/)
+      if (m) window.__asked.push(`clip:${m[1]}`)
+      return fetch0(...args)
     }
   })
   if (!(await page.locator('.hear-board').count())) throw new Error('no hear-the-board button')
   await page.locator('.hear-board').click()
   await sleep(2600)
-  const heard = await page.evaluate(() => window.__said.slice())
+  // Compared in slug space, since one channel reports the word and the other
+  // reports its filename, and «øje»/«oeje» are the same statement.
+  const asSlug = (e) => (e.startsWith('clip:') ? e.slice(5) : audioSlug(e))
+  const heard = (await page.evaluate(() => window.__asked.slice())).map(asSlug)
   // Board order, which is reading order. Two words in 2.6s at the 1200ms
   // cadence; a third is allowed for slack rather than required.
   if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 2.6s`)
-  if (heard.join('|') !== cards.slice(0, heard.length).join('|')) {
-    throw new Error(`hear-the-board went out of order: ${heard.join(', ')} vs ${cards.join(', ')}`)
+  const wanted = cards.slice(0, heard.length).map(audioSlug)
+  if (heard.join('|') !== wanted.join('|')) {
+    throw new Error(`hear-the-board went out of order: ${heard.join(', ')} vs ${wanted.join(', ')}`)
   }
   // Interruptible, and the assertion is that it STAYS stopped — a tour that
   // merely paused would resume over whatever came next.
   await page.locator('.hear-board').click()
-  const atStop = await page.evaluate(() => window.__said.length)
+  const atStop = await page.evaluate(() => window.__asked.length)
   await sleep(2600)
-  const afterStop = await page.evaluate(() => window.__said.length)
+  const afterStop = await page.evaluate(() => window.__asked.length)
   if (afterStop !== atStop) throw new Error(`stopping left it running: ${atStop} then ${afterStop}`)
   if ((await page.locator('.hear-board').getAttribute('aria-pressed')) !== 'false') {
     throw new Error('hear-the-board still claims to be playing after being stopped')

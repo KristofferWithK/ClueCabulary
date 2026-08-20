@@ -2,6 +2,7 @@ import { articleLabel, genderLabel } from '../../data/gender'
 import type { CardRole, GameState, Reveal } from '../../engine/types'
 import { isGuessable } from '../../engine/game'
 import { ACTIVE } from '../../lang/active'
+import { playWord } from '../speak'
 
 interface Props {
   game: GameState
@@ -113,6 +114,24 @@ export function BoardGrid({
               }
               aria-pressed={selectedWordId === w.wordId}
               onClick={() => {
+                /**
+                 * Tapping a word says it. The board is where nearly every tap
+                 * in the app lands, and it was the one surface that stayed
+                 * silent — the guess-confirm button and the packing hit spoke,
+                 * so a word was only ever heard at the moment it was being
+                 * committed to, never while it was being read.
+                 *
+                 * Not on a face-down card. There the English is showing and
+                 * the Danish is what the player has to produce from memory, so
+                 * saying it aloud would hand over the one thing the packing
+                 * phase exists to withhold — the same reasoning PackingDock
+                 * gives for only speaking on a hit.
+                 *
+                 * `playWord` checks the sound setting itself and falls back to
+                 * the device voice when a clip is missing, so there is nothing
+                 * to gate here.
+                 */
+                if (!faceDown) void playWord(w.wordId, w.da)
                 if (guessable || packable) onCardTap(w.wordId)
                 else if (tapLooksUp) onInfoTap(w.wordId)
               }}

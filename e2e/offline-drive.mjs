@@ -10,10 +10,13 @@
 // falls back to the device voice on any failure, so a broken cache and a
 // working one look identical from the outside.
 //
-// The clips are written into dist/ here rather than committed: public/audio/ is
-// gitignored and `scripts/make-audio.mjs` needs a key this repo does not carry.
-// A hand-built silent MP3 is enough — what is under test is the fetch, the
-// cache and the fallback, not the voice.
+// The clips this drive uses are hand-built silent MP3s written into dist/, and
+// they stay that way now that the real ones are committed: what is under test
+// is the fetch, the cache and the fallback, not the voice, and a fixed 300-byte
+// file keeps the assertions about cached bytes independent of whatever
+// `make-audio.mjs` last baked. (The note that used to stand here said
+// public/audio/ was gitignored and unbakeable without a key. Both stopped being
+// true when the clips were committed and the TTS key became an Actions secret.)
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
