@@ -1,0 +1,152 @@
+# Audition the neural voices for a language, because listening is the only
+# review audio gets.
+#
+# Asks Google which voices exist for the locale — the list in make-audio.mjs
+# is a guess frozen in code, this is the live answer — then bakes the probe
+# words in every one of them and fingerprints the results. The finding this
+# exists to settle is fb3ec2f: six different voice names produced
+# byte-identical MP3s, which either means the names alias to one server-side
+# model or the comparison measured stale files. The fingerprint table in the
+# run summary answers that without downloading anything, and the clips are
+# committed back to the branch that ran this, so a session can hand them over
+# for the actual listen.
+#
+# Needs the TTS_API_KEY repository secret — a Google key restricted to the
+# Cloud Text-to-Speech API.
+name: Audition TTS voices
+
+on:
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: Dataset language to audition (da, de)
+        default: da
+      words:
+        description: Probe words, comma-separated slugs or ids
+        default: hus,koebe,roed
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audition-${{ github.ref }}
+
+jobs:
+  audition:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # No npm ci: make-audio.mjs runs on node builtins alone.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Ask Google which voices exist
+        env:
+          TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
+          LANG_CODE: ${{ inputs.lang }}
+        run: |
+          set -eu
+          if [ -z "$TTS_API_KEY" ]; then
+            echo "**No TTS_API_KEY secret** — nothing can be auditioned." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          case "$LANG_CODE" in
+            da) locale=da-DK ;;
+            de) locale=de-DE ;;
+            *) echo "No locale for lang \"$LANG_CODE\""; exit 2 ;;
+          esac
+          curl -sS --fail-with-body -H "X-goog-api-key: $TTS_API_KEY" \
+            "https://texttospeech.googleapis.com/v1/voices?languageCode=$locale" > voices.json
+          count=$(jq '.voices | length' voices.json)
+          {
+            echo "### $count voices for $locale"
+            echo
+            echo "| voice | gender | Hz |"
+            echo "|---|---|---|"
+            jq -r '.voices[] | "| \(.name) | \(.ssmlGender) | \(.naturalSampleRateHertz) |"' voices.json
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          test "$count" -gt 0
+
+      - name: Bake the probe words in every voice
+        env:
+          TTS_API_KEY: ${{ secrets.TTS_API_KEY }}
+          WORDS: ${{ inputs.words }}
+          LANG_CODE: ${{ inputs.lang }}
+        run: |
+          set -u
+          failed=""
+          for v in $(jq -r '.voices[].name' voices.json); do
+            echo "── $v"
+            node scripts/make-audio.mjs --lang "$LANG_CODE" --only "$WORDS" \
+              --voice "$v" --out "audition/$LANG_CODE/$v" --force || failed="$failed $v"
+          done
+          if [ -n "$failed" ]; then
+            # Some voice tiers want a different API surface; a refusal is
+            # itself an answer, so it is recorded rather than failing the run.
+            echo "**Refused to bake:**$failed" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fingerprint which names are the same audio
+        env:
+          LANG_CODE: ${{ inputs.lang }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import hashlib, json, os
+          from pathlib import Path
+
+          lang = os.environ["LANG_CODE"]
+          root = Path("audition") / lang
+
+          def fp(files):
+              h = hashlib.sha256()
+              for f in files:
+                  h.update(f.read_bytes())
+              return h.hexdigest()[:12]
+
+          rows, slugs = [], set()
+          for d in sorted(root.iterdir()) if root.exists() else []:
+              mp3s = sorted(d.glob("*.mp3"))
+              if not mp3s:
+                  continue
+              slugs.update(p.stem for p in mp3s)
+              rows.append((d.name, fp(mp3s)))
+
+          # The shipping clips join the comparison: if a fresh bake of the
+          # shipping voice matches them, synthesis is deterministic — and then
+          # any other name in the same row really is the same model.
+          committed = Path("public/audio") / lang
+          files = [committed / f"{s}.mp3" for s in sorted(slugs)]
+          files = [f for f in files if f.exists()]
+          if files:
+              try:
+                  voice = json.loads((committed / "manifest.json").read_text()).get("voice", "?")
+              except Exception:
+                  voice = "?"
+              rows.append((f"shipping clips ({voice})", fp(files)))
+
+          groups = {}
+          for name, h in rows:
+              groups.setdefault(h, []).append(name)
+
+          print(f"### {len(groups)} distinct outputs from {len(rows)} sources")
+          print()
+          print("| fingerprint | identical sources |")
+          print("|---|---|")
+          for h, names in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+              print(f"| `{h}` | {', '.join(names)} |")
+          print()
+          PY
+
+      - name: Commit the clips to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audition
+          if git diff --cached --quiet; then
+            echo "Nothing new to commit."
+          else
+            git commit -m "Bake the voice audition clips"
+            git push
+          fi
