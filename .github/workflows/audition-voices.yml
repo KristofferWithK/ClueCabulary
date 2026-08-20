@@ -191,7 +191,7 @@ jobs:
             ['sentence', 'Der står en mand ved døren.'],
             ['word', 'rød'],
           ]
-          const RATES = [1.0, 0.9, 0.7]
+          const RATES = [1.0, 0.9, 0.7, 0.6, 0.5]
           mkdirSync('audition/da-rate', { recursive: true })
           for (const [label, text] of CASES) {
             for (const rate of RATES) {
