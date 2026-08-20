@@ -5,6 +5,7 @@ import { classifyClue } from '../../data/words'
 import { checkClueLegality } from '../../engine/legality'
 import type { GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
+import { ACTIVE } from '../../lang/active'
 
 interface Props {
   game: GameState
@@ -18,14 +19,14 @@ export function ClueInput({ game, onSubmit }: Props) {
   // refuse it twice.
   const [cleared, setCleared] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
-  const judgeDanish = useGame((s) => s.judgeDanish)
+  const judgeTargetWord = useGame((s) => s.judgeTargetWord)
   // The re-deal ("a reroll button at the beginning, if I have no idea how to
   // connect the words") now lives in the game header as a symbol — see
   // GameScreen. It kept the same conditions and lost a line of this dock,
   // which is a line of board while the keyboard is up.
 
   const trimmed = text.trim()
-  const verdict = trimmed ? checkClueLegality(trimmed, game.words) : null
+  const verdict = trimmed ? checkClueLegality(trimmed, game.words, ACTIVE) : null
   // Casey reads a Danish board and is handed the clue as a bare string, so an
   // English word there is one he cannot place. The shipped nine hundred settle most
   // of it offline — æ/ø/å, an inflection, a compound of two known words — and
@@ -41,7 +42,7 @@ export function ClueInput({ game, onSubmit }: Props) {
       // it is never the last word: ask before refusing.
       setAsking(true)
       try {
-        if (await judgeDanish(trimmed)) {
+        if (await judgeTargetWord(trimmed)) {
           setCleared(trimmed.toLowerCase())
           onSubmit(trimmed, number)
           setText('')
@@ -85,7 +86,7 @@ export function ClueInput({ game, onSubmit }: Props) {
             type="text"
             value={text}
             placeholder="Your clue"
-            aria-label="Your one-word clue, in Danish"
+            aria-label={`Your one-word clue, in ${ACTIVE.name}`}
             aria-invalid={trimmed ? !canSubmit : undefined}
             aria-describedby={(verdict && !verdict.legal) || english ? 'clue-error' : undefined}
             autoCapitalize="off"
@@ -114,7 +115,7 @@ export function ClueInput({ game, onSubmit }: Props) {
       )}
       {english && (
         <p className="clue-error" id="clue-error" role="alert">
-          «{trimmed}» looks English. Look it up beside the field for the Danish — or give the clue
+          «{trimmed}» looks English. Look it up beside the field for the {ACTIVE.name} — or give the clue
           anyway and Casey will check.
         </p>
       )}

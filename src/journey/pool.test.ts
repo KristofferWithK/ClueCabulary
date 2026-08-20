@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { WORDS, curriculumRank } from '../data/words'
 import { GRID_CONFIGS } from '../engine/config'
 import { mulberry32 } from '../engine/rng'
-import { danishStem, levenshtein, normalize } from '../engine/text'
+import { levenshtein, normalize } from '../engine/text'
+import { danish } from '../lang/da'
+
+const danishStem = danish.morphology.stem
 import { newStats } from '../srs/scheduler'
 import { selectBoardWords } from '../srs/sampler'
 import type { SrsMap } from '../srs/types'

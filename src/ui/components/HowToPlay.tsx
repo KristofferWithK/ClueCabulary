@@ -1,5 +1,7 @@
 import { useUi } from '../../stores/uiStore'
 import { useDialog } from '../useDialog'
+import { ACTIVE } from '../../lang/active'
+import { FINAL_CITY_INDEX, cityAt } from '../../journey/cities'
 
 export function HowToPlay() {
   const open = useUi((s) => s.howToOpen)
@@ -20,7 +22,7 @@ export function HowToPlay() {
       >
         <h2 id="howto-title">How to Play</h2>
         <p className="howto-sub">
-          Find every green word with Casey, your AI partner — and learn Danish on the way.
+          Find every green word with Casey, your AI partner — and learn {ACTIVE.name} on the way.
         </p>
 
         {/* Two tiles, and now they are the entire vocabulary of the board: a
@@ -35,7 +37,7 @@ export function HowToPlay() {
 
         <ol>
           <li>
-            The board is a grid of Danish words. You and Casey each hold a secret key: on it some
+            The board is a grid of {ACTIVE.name} words. You and Casey each hold a secret key: on it some
             words are <strong>green</strong> — your targets — and the rest are neutral. There is
             no third kind of card, and the two keys differ.
           </li>
@@ -68,7 +70,7 @@ export function HowToPlay() {
             which words to bring back.
           </li>
           <li>
-            You are travelling Denmark, south to north and home to København, with{' '}
+            You are travelling {ACTIVE.route.country}, stop by stop to {cityAt(FINAL_CITY_INDEX).name}, with{' '}
             <strong>Casey the suitcase</strong> carrying every word you learn. Each city holds{' '}
             <strong>100 words</strong>. A word you meet is <em>discovered</em>; clue it once{' '}
             <em>and</em> guess it once — a green earned each way — and it is{' '}
@@ -77,7 +79,7 @@ export function HowToPlay() {
           <li>
             Collected words still break on the road. <strong>Wrap-up rounds</strong> pack them
             safely: a big board dealt from your collected words, every card starting in{' '}
-            <em>English</em>. Type the Danish to pack a card before the clues begin — skip one and
+            <em>English</em>. Type the {ACTIVE.name} to pack a card before the clues begin — skip one and
             it plays on, English-side up, but cannot be wrapped that round. Every packed word
             found green is <strong>wrapped</strong> for good, win or lose. Wrap all hundred and
             the road onward opens.

@@ -3,7 +3,7 @@ import { GRID_CONFIGS, type GridSize } from './config'
 import {
   IllegalClueError,
   IllegalEventError,
-  applyEvent,
+  applyEvent as applyEventIn,
   createGame,
   giverOf,
   isGuessable,
@@ -11,6 +11,14 @@ import {
   targetableGreenIds,
 } from './game'
 import type { BoardWord, CardRole, GameState, Side } from './types'
+import { danish } from '../lang/da'
+
+/**
+ * The engine takes the language pack now (H1). Wrapped here so the suite's
+ * call sites stay exactly as they were and keep pinning what they pinned.
+ */
+const applyEvent = (s: Parameters<typeof applyEventIn>[0], e: Parameters<typeof applyEventIn>[1]) =>
+  applyEventIn(s, e, danish)
 
 // Word forms chosen so simple test clues never collide with legality checks.
 const makeWords = (n: number): BoardWord[] =>

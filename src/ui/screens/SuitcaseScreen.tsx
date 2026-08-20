@@ -15,6 +15,7 @@ import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { playWord } from '../speak'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * Inside Casey: ONE suitcase, lying open, filling the screen.
@@ -338,7 +339,7 @@ export function SuitcaseScreen() {
         // longer than a 3-column tile holds at the normal size, so those get a
         // smaller one instead — «international» whole beats «internatio-» cut.
         className={`case-tile ${cls}${w.da.length > 10 ? ' case-tile-long' : ''}`}
-        lang="da"
+        lang={ACTIVE.code}
         aria-label={`${w.da}, ${stateOf(w)}`}
         onClick={() => {
           // The tile says the word and opens its page — the sheet has its own
@@ -386,7 +387,7 @@ export function SuitcaseScreen() {
             }`}
             aria-pressed={filter === i}
             aria-current={i === journey.cityIndex ? 'location' : undefined}
-            lang="da"
+            lang={ACTIVE.code}
             onClick={() => setFilter(i)}
           >
             {cityAt(i).name}

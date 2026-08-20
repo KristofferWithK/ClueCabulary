@@ -13,6 +13,7 @@ import {
   buildTranslatePrompt,
   type ChatMessage,
 } from './prompts'
+import { ACTIVE } from '../lang/active'
 import {
   ClueResponseSchema,
   GuessResponseSchema,
@@ -180,11 +181,11 @@ export class OllamaCompanion implements Companion {
     return askValidated(
       this.chat,
       this.settings,
-      buildCluePrompt(view),
+      buildCluePrompt(view, ACTIVE),
       (raw) => {
         const parsed = ClueResponseSchema.safeParse(raw)
         if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
-        const verdict = checkClueLegality(parsed.data.clue, boardWords)
+        const verdict = checkClueLegality(parsed.data.clue, boardWords, ACTIVE)
         if (!verdict.legal) return { ok: false, problem: `illegal clue: ${verdict.reason}` }
         /**
          * A clue is only worth what its targets are worth, so a reply naming a
@@ -243,7 +244,7 @@ export class OllamaCompanion implements Companion {
     return askValidated(
       this.chat,
       this.settings,
-      buildGuessPrompt(view),
+      buildGuessPrompt(view, ACTIVE),
       (raw) => {
         const parsed = GuessResponseSchema.safeParse(raw)
         if (!parsed.success) return { ok: false, problem: parsed.error.issues[0]?.message ?? 'schema mismatch' }
@@ -260,7 +261,7 @@ export class OllamaCompanion implements Companion {
     return askValidated(
       this.chat,
       this.settings,
-      buildTranslatePrompt(term),
+      buildTranslatePrompt(term, ACTIVE),
       (raw) => {
         const parsed = TranslationResponseSchema.safeParse(raw)
         return parsed.success

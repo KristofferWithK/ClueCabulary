@@ -7,8 +7,16 @@ import {
   distinctGreens,
   type GridConfig,
 } from './config'
-import { applyEvent, createGame, giverOf, remainingGreenIds } from './game'
+import { applyEvent as applyEventIn, createGame, giverOf, remainingGreenIds } from './game'
 import type { BoardWord } from './types'
+import { danish } from '../lang/da'
+
+/**
+ * The engine takes the language pack now (H1). Wrapped here so the suite's
+ * call sites stay exactly as they were and keep pinning what they pinned.
+ */
+const applyEvent = (s: Parameters<typeof applyEventIn>[0], e: Parameters<typeof applyEventIn>[1]) =>
+  applyEventIn(s, e, danish)
 
 describe('the shipped boards', () => {
   it('are internally consistent', () => {

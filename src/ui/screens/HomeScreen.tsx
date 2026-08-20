@@ -1,14 +1,7 @@
 import { DEFAULT_BASE_URL } from '../../ai/client'
 import { WORDS } from '../../data/words'
 import { CITIES, FINAL_CITY_INDEX, WORDS_PER_CITY, cityAt } from '../../journey/cities'
-import {
-  DENMARK_HATCH,
-  DENMARK_PATH,
-  DENMARK_SKETCH,
-  MAP_HEIGHT,
-  MAP_WIDTH,
-  projectCity,
-} from '../../journey/denmark'
+import { MAP } from '../../journey/map'
 import {
   canTravel,
   countCollection,
@@ -21,6 +14,7 @@ import { useSettings } from '../../stores/settingsStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { Cluey } from '../components/Cluey'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * Home in three bands, per the notebook sketch: the journey (map and
@@ -51,7 +45,7 @@ function dailyChallenge() {
 
 /** The route so far, drawn small enough to live above the fold. */
 function JourneyMap({ cityIndex }: { cityIndex: number }) {
-  const points = CITIES.map((c) => projectCity(c.lon, c.lat))
+  const points = CITIES.map((c) => MAP.project(c.lon, c.lat))
   const done = points
     .slice(0, cityIndex + 1)
     .map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`)
@@ -65,13 +59,13 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
   return (
     <svg
       className="home-map"
-      viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+      viewBox={`0 0 ${MAP.width} ${MAP.height}`}
       role="img"
       aria-label={`Stop ${cityIndex + 1} of ${CITIES.length}: ${cityAt(cityIndex).name}`}
     >
-      <path className="map-land" d={DENMARK_PATH} />
-      <path className="map-hatch" d={DENMARK_HATCH} />
-      <path className="map-sketch" d={DENMARK_SKETCH} />
+      <path className="map-land" d={MAP.path} />
+      <path className="map-hatch" d={MAP.hatch} />
+      <path className="map-sketch" d={MAP.sketch} />
       <polyline className="map-route-ahead" points={ahead} />
       <polyline className="map-route-done" points={done} />
       {points.map((p, i) => (
@@ -88,7 +82,7 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
           where a centred label would run off the right edge. */}
       <text
         className="home-map-here"
-        x={Math.min(Math.max(here.x, 110), MAP_WIDTH - 110)}
+        x={Math.min(Math.max(here.x, 110), MAP.width - 110)}
         y={here.y < 90 ? here.y + 62 : here.y - 42}
         textAnchor="middle"
       >
@@ -175,7 +169,7 @@ export function HomeScreen() {
           accessible name. The bar keeps the discovered layer, so the number
           the text no longer prints is still on the screen. */}
       <section className="city-card home-progress-band">
-        <p className="city-eyebrow" lang="da">
+        <p className="city-eyebrow" lang={ACTIVE.code}>
           {city.name}
         </p>
         <div className="collect-bar" aria-hidden="true">
@@ -205,7 +199,8 @@ export function HomeScreen() {
           lost if you cannot: the English clause carries the meaning. */}
       {journeyDone && (
         <p className="journey-done">
-          <span lang="da">Rejsen er slut</span> — you packed the last suitcase in København.
+          <span lang={ACTIVE.code}>{ACTIVE.copy.journeyOver}</span> — you packed the last suitcase in{' '}
+          {cityAt(FINAL_CITY_INDEX).name}.
         </p>
       )}
       {travelReady && (

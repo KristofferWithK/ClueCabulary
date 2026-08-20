@@ -1,3 +1,4 @@
+import type { LanguagePack } from '../lang/types'
 import { type GridConfig } from './config'
 import { distinctGreenIds, generateKeys, type KeyBias } from './keygen'
 import { checkClueLegality, type LegalityVerdict } from './legality'
@@ -110,7 +111,13 @@ function endTurn(s: GameState, giver: Side): GameState {
   return s
 }
 
-export function applyEvent(state: GameState, event: GameEvent): GameState {
+/**
+ * `lang` is here for one branch only — SUBMIT_CLUE, which has to ask whether a
+ * clue is too close to a board word, and that is a question about the language.
+ * Passed in rather than imported so `src/engine` stays what CLAUDE.md says it
+ * is: rules, no data.
+ */
+export function applyEvent(state: GameState, event: GameEvent, lang: LanguagePack): GameState {
   const s = structuredClone(state)
 
   switch (event.type) {
@@ -122,7 +129,7 @@ export function applyEvent(state: GameState, event: GameEvent): GameState {
       if (!Number.isInteger(event.number) || event.number < 1 || event.number > 4) {
         throw new IllegalEventError('clue number must be an integer 1-4')
       }
-      const verdict = checkClueLegality(event.text, s.words)
+      const verdict = checkClueLegality(event.text, s.words, lang)
       if (!verdict.legal) throw new IllegalClueError(verdict)
       s.clueHistory.push({
         by: event.by,

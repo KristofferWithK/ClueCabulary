@@ -1,3 +1,5 @@
+import type { Grammar } from '../types'
+
 /**
  * Which Danish nouns have no ordinary indefinite singular.
  *
@@ -26,6 +28,8 @@
  * hundred, and sodavand, lyn, venskab and ægteskab left the note above with
  * them. Every one of those calls was right about Danish and would be right
  * again, so this is the place to look first if the dataset ever grows back.
+ *
+ * German needs its own version of this file, not a translation of this list.
  */
 
 /** Substances and materials: measured, not counted. */
@@ -71,3 +75,27 @@ export const UNCOUNTABLE_CLASSES: ReadonlyArray<readonly [string, readonly strin
 ]
 
 export const isUncountable = (da: string): boolean => UNCOUNTABLE.has(da.toLowerCase())
+
+/**
+ * Danish has two genders, and each prints three ways.
+ *
+ * The short forms are short because this sits on a 64px-wide card at 360px.
+ * German's three go here unchanged in shape — and note that `article` is stated
+ * per gender rather than derived from it, because German der and das both take
+ * "ein" and a derivation would have to know that.
+ *
+ * Below the UNCOUNTABLE export on purpose: `scripts/validate-words.mjs` reads
+ * the word lists out of this file by taking every quoted string ABOVE that
+ * export, so anything up there that is not a headword poisons its set.
+ */
+const GENDERS = {
+  common: { article: 'en', short: '(com)', full: 'common gender' },
+  neuter: { article: 'et', short: '(neut)', full: 'neuter gender' },
+} as const
+
+export const danishGrammar: Grammar = {
+  genders: GENDERS,
+  isUncountable,
+  // "et hus", "en kat", "at løbe" — the article, and the infinitive marker.
+  answerFiller: ['en', 'et', 'at'],
+}

@@ -10,6 +10,7 @@ import { clueFlagId, guessFlagId, useFeedback } from '../../stores/feedbackStore
 import { useUi } from '../../stores/uiStore'
 import { RoundSentences } from './RoundSentences'
 import { SpeakWord } from './SpeakWord'
+import { ACTIVE } from '../../lang/active'
 
 const CONFETTI_COLORS = ['#6aaa64', '#c9b458', '#567b95', '#121212', '#e3735e']
 
@@ -222,7 +223,7 @@ export function RoundSummary({ game }: { game: GameState }) {
           <p>{copy.sub}</p>
           {fatal && (
             <p className="outcome-culprit">
-              {fatalBy} «<span lang="da">{fatal.da}</span>» — {fatal.en[0]}.
+              {fatalBy} «<span lang={ACTIVE.code}>{fatal.da}</span>» — {fatal.en[0]}.
             </p>
           )}
         </div>
@@ -367,7 +368,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                           {c.by === 'ai' && c.targets && (
                             <span className="dim">
                               {' '}
-                              for <span lang="da">{c.targets.map(da).join(', ')}</span>
+                              for <span lang={ACTIVE.code}>{c.targets.map(da).join(', ')}</span>
                             </span>
                           )}
                           {c.by === 'ai' && (
@@ -387,7 +388,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                               <span className="result-mark" aria-hidden="true">
                                 {g.result === 'green' ? '✓' : '·'}
                               </span>
-                              <span lang="da" className="guess-word">
+                              <span lang={ACTIVE.code} className="guess-word">
                                 {da(g.wordId)}
                               </span>
                               <span className="visually-hidden">

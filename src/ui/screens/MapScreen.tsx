@@ -1,20 +1,14 @@
 import { useState } from 'react'
 import { WORDS } from '../../data/words'
 import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
-import {
-  DENMARK_HATCH,
-  DENMARK_PATH,
-  DENMARK_SKETCH,
-  MAP_HEIGHT,
-  MAP_WIDTH,
-  projectCity,
-} from '../../journey/denmark'
+import { MAP } from '../../journey/map'
 import { WRAP_TO_TRAVEL, canTravel, countCollection, wordsForCity } from '../../journey/progress'
 
 import { Arrival } from '../components/Arrival'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
+import { ACTIVE } from '../../lang/active'
 
 type Placement = { anchor: 'start' | 'end'; dx: number; dy: number }
 
@@ -26,7 +20,7 @@ const PLACEMENT: Record<string, Placement> = {
   odense: { anchor: 'start', dx: 26, dy: 26 },
 }
 const defaultPlacement = (x: number): Placement =>
-  x > MAP_WIDTH * 0.62 ? { anchor: 'end', dx: -34, dy: 6 } : { anchor: 'start', dx: 34, dy: 6 }
+  x > MAP.width * 0.62 ? { anchor: 'end', dx: -34, dy: 6 } : { anchor: 'start', dx: 34, dy: 6 }
 
 export function MapScreen() {
   const goTo = useUi((s) => s.goTo)
@@ -35,7 +29,7 @@ export function MapScreen() {
   const [selected, setSelected] = useState<number>(journey.cityIndex)
   const [arrivedIndex, setArrivedIndex] = useState<number | null>(null)
 
-  const points = CITIES.map((c) => projectCity(c.lon, c.lat))
+  const points = CITIES.map((c) => MAP.project(c.lon, c.lat))
   const travelledPath = points
     .slice(0, journey.cityIndex + 1)
     .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
@@ -68,15 +62,15 @@ export function MapScreen() {
 
       <svg
         className="denmark-map"
-        viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+        viewBox={`0 0 ${MAP.width} ${MAP.height}`}
         role="img"
-        aria-label={`Map of Denmark. Stop ${journey.cityIndex + 1} of ${CITIES.length}: ${cityAt(journey.cityIndex).name}.`}
+        aria-label={`Map of ${ACTIVE.route.country}. Stop ${journey.cityIndex + 1} of ${CITIES.length}: ${cityAt(journey.cityIndex).name}.`}
       >
         {/* Three passes, under the route: the land, its shading, and the
             second time round the coastline. */}
-        <path className="map-land" d={DENMARK_PATH} />
-        <path className="map-hatch" d={DENMARK_HATCH} />
-        <path className="map-sketch" d={DENMARK_SKETCH} />
+        <path className="map-land" d={MAP.path} />
+        <path className="map-hatch" d={MAP.hatch} />
+        <path className="map-sketch" d={MAP.sketch} />
         <polyline className="map-route-ahead" points={aheadPath} />
         <polyline className="map-route-done" points={travelledPath} />
 
@@ -122,11 +116,11 @@ export function MapScreen() {
           Stop {selected + 1} of {CITIES.length} ·{' '}
           {state === 'visited' ? 'visited' : state === 'current' ? 'you are here' : 'ahead'}
         </p>
-        <h2 className="city-name" lang="da">
+        <h2 className="city-name" lang={ACTIVE.code}>
           {city.name}
         </h2>
-        <p className="city-blurb" lang="da">
-          {city.blurbDa}
+        <p className="city-blurb" lang={ACTIVE.code}>
+          {city.blurbTarget}
         </p>
         <p className="city-blurb-en">{city.blurbEn}</p>
 

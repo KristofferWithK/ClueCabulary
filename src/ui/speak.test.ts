@@ -131,7 +131,7 @@ function harness(over: Partial<WordAudioPorts> = {}) {
     prime: () => void (calls.primed++, calls.order.push('prime')),
     speak: (t) => void (calls.spoke.push(t), calls.order.push('speak')),
     wanted: () => true,
-    danishFor: (id) => id.replace(/^[a-z]{2}:/, ''),
+    headwordFor: (id) => id.replace(/^[a-z]{2}:/, ''),
     ...over,
   }
   return {
@@ -293,7 +293,7 @@ describe('playWord', () => {
   it('speaks a word from outside the dataset rather than dropping it', async () => {
     // TranslateBox can be holding a word Cluey translated that has no id and
     // no clip. The caller passes the text; speech is the only route.
-    const h = harness({ danishFor: () => undefined })
+    const h = harness({ headwordFor: () => undefined })
     await h.player.playWord('not-an-id', 'kæledyr')
     expect(h.calls.load).toEqual([])
     expect(h.calls.spoke).toEqual(['kæledyr'])

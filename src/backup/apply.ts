@@ -1,3 +1,4 @@
+import { ACTIVE } from '../lang/active'
 import { useJourney } from '../stores/journeyStore'
 import { useSettings } from '../stores/settingsStore'
 import { useSrs } from '../stores/srsStore'
@@ -26,6 +27,7 @@ export function readSnapshot(): Snapshot {
       arrivedAt: j.arrivedAt,
     },
     prefs: { gridSize: s.gridSize, clueLanguage: s.clueLanguage, studyPhase: s.studyPhase },
+    language: ACTIVE.code,
   }
 }
 
@@ -40,15 +42,25 @@ function writeSnapshot(next: Snapshot, restorePrefs: boolean) {
   // The cost is that a restored device needs one win before its first wrap-up,
   // which is the unlock beat every device meets anyway.
   useSrs.setState({ stats: next.stats, games: next.games })
-  useJourney.setState({
-    cityIndex: next.journey.cityIndex,
-    wrapped: next.journey.wrapped,
-    arrivedAt: asNumberKeys(next.journey.arrivedAt as unknown as Record<string, number>),
-  })
+  // The words always land. The POSITION only lands if it is a position on the
+  // route being travelled — a city index from another language counts
+  // different cities, and writing it would move the player to a stop whose
+  // hundred words they have never seen. A replace from a foreign file
+  // therefore restores the whole collection and leaves the journey standing
+  // where it was; `restore` returns that fact so the panel can say it.
+  useJourney.setState(
+    next.language === ACTIVE.code
+      ? {
+          cityIndex: next.journey.cityIndex,
+          wrapped: next.journey.wrapped,
+          arrivedAt: asNumberKeys(next.journey.arrivedAt as unknown as Record<string, number>),
+        }
+      : { wrapped: next.journey.wrapped },
+  )
   if (restorePrefs) {
     useSettings.getState().set({
       gridSize: next.prefs.gridSize as GridSize,
-      clueLanguage: next.prefs.clueLanguage as 'da' | 'en',
+      clueLanguage: next.prefs.clueLanguage,
       studyPhase: next.prefs.studyPhase as StudyMode,
     })
   }
@@ -56,10 +68,15 @@ function writeSnapshot(next: Snapshot, restorePrefs: boolean) {
 
 export type RestoreMode = 'merge' | 'replace'
 
-export function restore(backup: Backup, mode: RestoreMode) {
+/**
+ * Returns whether the file was from the language being played. False means the
+ * words were restored and the journey position was not — see `writeSnapshot`.
+ */
+export function restore(backup: Backup, mode: RestoreMode): { sameLanguage: boolean } {
   const current = readSnapshot()
   if (mode === 'replace') writeSnapshot(replaceSnapshot(backup), true)
   else writeSnapshot(mergeSnapshot(current, backup), false)
+  return { sameLanguage: backup.language === ACTIVE.code }
 }
 
 export function backupText(now: number): string {

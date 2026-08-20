@@ -17,6 +17,7 @@ npm run drives        build, then run all 16 browser drives
 npm run drives repeat layout      just those two
 npm run drives --list             names (19; three are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
+node scripts/validate-words.mjs --lang de    once a second dataset exists
 ```
 
 ## Five things that have each cost a session real time
@@ -42,6 +43,14 @@ phone kept the old value, and the change was invisible to the only player.
 `settingsStore` has no `partialize`, so *every save ever written* carries every
 field. A default change needs a `version` bump and a `migrate` step in the same
 commit. `settingsStore.test.ts` documents all three.
+
+And one thing the seam adds to it: word ids carry their language (`da:mor`),
+so anything keyed by a word id is ALREADY partitioned and must not be
+namespaced again. `srsStore.stats` and `journeyStore.wrapped` hold every
+language in one store on purpose. What genuinely needs namespacing is anything
+route-relative — a city index counts different cities on a different route.
+The reasoning, and the list of what is deliberately shared, is at the bottom of
+`src/lang/index.ts`.
 
 **4. PRs here are squash-merged, so start every new branch from `main`.** After
 a merge, your local branch's commits are content-identical to `main` but not
@@ -115,11 +124,21 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
 
 - `src/engine/` — pure game rules, no React, no data. `config.ts` holds the
   three boards plus `WRAPUP_CONFIG` and the tuning constants, each with the
-  measurement behind it. `packing.ts` grades the wrap-up round's
-  English→Danish answers, with the dataset injected rather than imported.
-- `src/data/` — the 900 Danish words plus the systems over them:
-  `countability.ts` (a stated rule applied to all 366 nouns, not a list of
-  exceptions), `gender.ts`, `words.ts` (`classifyClue`).
+  measurement behind it. `packing.ts` grades the wrap-up round's typed
+  answers, with the dataset injected rather than imported. Since the language
+  seam it takes a **language pack** the same way: `checkClueLegality`,
+  `matchesAnswer` and `applyEvent` all have one as a parameter, and nothing
+  under `src/engine/` may import one.
+- `src/lang/` — the language seam, and the first place to look before adding
+  anything language-shaped. One pack per language; `types.ts` is the interface
+  and its top comment is the checklist for German (H2). `src/lang/index.ts`
+  holds the registry AND the note on what is namespaced per language and what
+  is deliberately not — read that before touching a store.
+- `src/data/` — the 900 words plus the systems over them: `dataset.ts`
+  (`createDataset(pack)`, which builds the indexes and `classifyClue`),
+  `words.ts` (the same thing bound to the active pack), `gender.ts` (prints
+  whatever genders the pack declares). The Danish-specific parts —
+  countability, the stemmer, the compound linkers — live in `src/lang/da/`.
 - `src/srs/` — the scheduler and `sampler.ts`, which decides what is on a board.
   `CARRY_OVER` and `avoid` pull opposite ways on purpose; read the comments.
 - `src/ai/` — `projections.ts` is a firewall: prompt builders may import only

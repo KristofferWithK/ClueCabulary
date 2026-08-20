@@ -342,9 +342,25 @@ describe('gameStore: the v4 -> v5 migration', () => {
     expect(out.recentBoards).toEqual([['w1']])
   })
 
-  it('leaves a save already at v5 exactly as it found it', () => {
-    const already = { game: null, newlyDiscovered: ['w9'] }
-    expect(migrateGame(already, 5)).toBe(already)
+  it('leaves a save already at v6 exactly as it found it', () => {
+    const already = { game: null, newlyDiscovered: ['w9'], gameLanguage: 'da' }
+    expect(migrateGame(already, 6)).toBe(already)
+  })
+
+  /**
+   * v5 -> v6: the round learns its language.
+   *
+   * Every save written before the seam is Danish, so it is stamped as Danish
+   * and KEPT. Dropping the board would have been the lazy reading and would
+   * have cost every existing player the round they were in the middle of, for
+   * a language change that has not happened.
+   */
+  it('stamps a v5 round as Danish and keeps it', () => {
+    const mid = { game: { words: [{ wordId: 'w1' }] }, newlyDiscovered: [], lookedUp: ['w1'] }
+    const out = migrateGame(mid, 5) as Record<string, unknown>
+    expect(out.gameLanguage).toBe('da')
+    expect(out.game).toBe(mid.game)
+    expect(out.lookedUp).toEqual(['w1'])
   })
 
   /**

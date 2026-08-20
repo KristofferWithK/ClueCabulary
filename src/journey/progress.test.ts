@@ -186,7 +186,7 @@ describe('cities data', () => {
       expect(c.lat).toBeLessThan(58)
       expect(c.lon).toBeGreaterThan(8)
       expect(c.lon).toBeLessThan(13)
-      expect(c.blurbDa.length).toBeGreaterThan(10)
+      expect(c.blurbTarget.length).toBeGreaterThan(10)
     }
   })
 

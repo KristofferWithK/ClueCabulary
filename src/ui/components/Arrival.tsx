@@ -1,5 +1,6 @@
 import { WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { useUi } from '../../stores/uiStore'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * The moment a city is reached. Travelling happens on the map — Home's travel
@@ -22,14 +23,14 @@ export function Arrival({
   // rather than chrome. The two buttons are chrome and speak English.
   return (
     <div className="screen arrival-screen">
-      <p className="arrival-eyebrow" lang="da">
-        Velkommen til
+      <p className="arrival-eyebrow" lang={ACTIVE.code}>
+        {ACTIVE.copy.welcome}
       </p>
-      <h1 className="arrival-city" lang="da">
+      <h1 className="arrival-city" lang={ACTIVE.code}>
         {city.name}
       </h1>
-      <p className="arrival-blurb" lang="da">
-        {city.blurbDa}
+      <p className="arrival-blurb" lang={ACTIVE.code}>
+        {city.blurbTarget}
       </p>
       <p className="arrival-blurb-en">{city.blurbEn}</p>
       <p className="arrival-unlock">

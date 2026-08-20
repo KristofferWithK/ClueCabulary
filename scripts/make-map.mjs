@@ -1,5 +1,5 @@
 /**
- * Generates src/journey/denmark.ts — a small inline SVG path of Denmark's
+ * Generates src/lang/da/map.ts — a small inline SVG path of Denmark's
  * coastline, so the map screen needs no runtime fetch and the PWA stays
  * offline-capable.
  *
@@ -404,7 +404,9 @@ export const DENMARK_HATCH =
   '${hatch}'
 `
 
-writeFileSync(new URL('../src/journey/denmark.ts', import.meta.url), out)
+// Inside the Danish pack since the language seam: the map is part of the
+// language's route, and src/lang/da/route.ts packages what this writes.
+writeFileSync(new URL('../src/lang/da/map.ts', import.meta.url), out)
 
 const points = drawable.reduce((n, s) => n + s.length, 0)
 console.log(

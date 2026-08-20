@@ -1,6 +1,7 @@
 import { articleLabel, genderLabel } from '../../data/gender'
 import type { CardRole, GameState, Reveal } from '../../engine/types'
 import { isGuessable } from '../../engine/game'
+import { ACTIVE } from '../../lang/active'
 
 interface Props {
   game: GameState
@@ -105,7 +106,7 @@ export function BoardGrid({
               disabled={!guessable && !tapLooksUp && !packable}
               aria-label={
                 faceDown
-                  ? `${w.en[0]}${packable ? ', not yet packed. Tap to type the Danish' : ', unpacked'}${stateText(reveal)}`
+                  ? `${w.en[0]}${packable ? `, not yet packed. Tap to type the ${ACTIVE.name}` : ', unpacked'}${stateText(reveal)}`
                   : `${genderLabel(w) ? `${genderLabel(w)} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
                       tapLooksUp ? '. Tap to look up' : ''
                     }`
@@ -140,7 +141,7 @@ export function BoardGrid({
                   <span className="card-word card-word-en">{w.en[0]}</span>
                 </span>
               ) : (
-                <span className="card-da" lang="da">
+                <span className="card-da" lang={ACTIVE.code}>
                   {articleLabel(w) && <span className="card-article">{articleLabel(w)}</span>}
                   {/* The Danish word alone, so a selector can still ask for it
                       without the article coming along in the text. */}

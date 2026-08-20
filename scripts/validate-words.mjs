@@ -1,37 +1,112 @@
-// Validates src/data/words.da.json: schema, uniqueness, single-token Danish
+// Validates src/data/words.<lang>.json: schema, uniqueness, single-token
 // citation forms, POS whitelist, and that the dataset is exactly the route's
 // worth of words. Exits non-zero on hard errors; prints warnings for things a
 // human/model review pass should look at.
+//
+// Every rule that is a fact about the language — the alphabet, the genders and
+// their articles, which nouns cannot be counted, the route — is read from the
+// language's pack rather than written here. `--lang da` is the default.
 import { readFileSync, readdirSync } from 'node:fs'
 
 /**
- * The uncountable list, read out of the TypeScript module rather than copied,
- * so the classification has exactly one home. A plain regex over the quoted
- * strings above the export is enough — the file is a list of literals by
- * design, and a validator that needs a bundler is a validator nobody runs.
+ * Which language to validate. Danish is the only dataset that exists, so it is
+ * the default; `--lang de` will work the moment H2 lands `words.de.json` and a
+ * `src/lang/de/` pack, with no change here beyond an entry in ALPHABETS.
  */
-const countabilitySrc = readFileSync(
-  new URL('../src/data/countability.ts', import.meta.url),
+const argLang = process.argv.indexOf('--lang')
+const LANG = argLang === -1 ? 'da' : (process.argv[argLang + 1] ?? 'da')
+if (!/^[a-z]{2}$/.test(LANG)) {
+  console.error(`--lang must be a two-letter code, got "${LANG}"`)
+  process.exit(2)
+}
+
+/**
+ * The uncountable list, read out of the language pack rather than copied, so
+ * the classification has exactly one home. A plain regex over the quoted
+ * strings above the export is enough — that part of the file is a list of
+ * literals by design, and a validator that needs a bundler is a validator
+ * nobody runs. (Which is why `grammar.ts` keeps its gender table BELOW the
+ * export: a quoted string up there would land in this set.)
+ */
+const grammarSrc = readFileSync(
+  new URL(`../src/lang/${LANG}/grammar.ts`, import.meta.url),
   'utf8',
 )
 const UNCOUNTABLE = new Set(
-  [...countabilitySrc.split('export const UNCOUNTABLE')[0].matchAll(/'([^']+)'/g)].map((m) => m[1]),
+  [
+    ...grammarSrc
+      .split('export const UNCOUNTABLE')[0]
+      // Import lines carry quoted paths, and '../types' scraped straight into
+      // the set when countability moved into the pack. It matched no headword
+      // so nothing failed, which is exactly why it is worth removing: a
+      // validator that silently reads junk is one bad line away from silently
+      // reading nothing.
+      .split('\n')
+      .filter((line) => !/^\s*import\b/.test(line))
+      .join('\n')
+      .matchAll(/'([^']+)'/g),
+  ].map((m) => m[1]),
 )
+if (UNCOUNTABLE.size === 0) {
+  console.error(`read no uncountable nouns out of src/lang/${LANG}/grammar.ts — the scrape broke`)
+  process.exit(2)
+}
 
 /**
  * The route, read out of the TypeScript rather than restated, for the same
  * reason the uncountable list is: one home per fact. Nine cities of a hundred
  * is what "900Words" means, and the dataset and the route have to agree about
  * it or a city ends up owning a band with nothing in it.
+ *
+ * The cities come from the language's own route; WORDS_PER_CITY is the
+ * journey's constant and is shared by every language.
  */
+const routeSrc = readFileSync(new URL(`../src/lang/${LANG}/route.ts`, import.meta.url), 'utf8')
+const CITY_IDS = [...routeSrc.matchAll(/^ {4}id: '([a-z]+)',/gm)].map((m) => m[1])
 const citiesSrc = readFileSync(new URL('../src/journey/cities.ts', import.meta.url), 'utf8')
-const CITY_IDS = [...citiesSrc.matchAll(/^ {4}id: '([a-z]+)',/gm)].map((m) => m[1])
 const WORDS_PER_CITY = Number(citiesSrc.match(/WORDS_PER_CITY = (\d+)/)?.[1])
 const EXPECTED = CITY_IDS.length * WORDS_PER_CITY
 
-const PATH = new URL('../src/data/words.da.json', import.meta.url)
+const PATH = new URL(`../src/data/words.${LANG}.json`, import.meta.url)
 const POS = new Set(['noun', 'verb', 'adjective', 'adverb', 'numeral', 'interjection'])
-const DA_TOKEN = /^[a-zA-ZæøåÆØÅé]+$/
+
+/**
+ * The letters a citation form may be spelled with, beyond plain ASCII.
+ *
+ * Per language because the check is real: it is what catches a stray digit, a
+ * space or a smuggled English word in the dataset. German needs äöüß and its
+ * capitals — and note that German nouns are capitalised, so the existing
+ * allowance for upper case is not a looseness there but the rule.
+ */
+const ALPHABETS = {
+  da: 'æøåÆØÅé',
+  de: 'äöüßÄÖÜ',
+}
+const extra = ALPHABETS[LANG]
+if (extra === undefined) {
+  console.error(`no alphabet listed for "${LANG}" — add one to ALPHABETS in this file`)
+  process.exit(2)
+}
+const DA_TOKEN = new RegExp(`^[a-zA-Z${extra}]+$`)
+
+/**
+ * The genders this language has and the article each one takes, read out of the
+ * same pack the app prints from.
+ *
+ * Hardcoded as common/neuter and en/et until the language seam, which would
+ * have rejected every German noun in the dataset as "no gender" — a validator
+ * that fails a correct dataset is as bad as one that passes a broken one, and
+ * this one gates the build. Note the article is NOT unique per gender in
+ * German (der and das both take ein), so the checks below read gender→article
+ * and never the reverse.
+ */
+const GENDERS = Object.fromEntries(
+  [...grammarSrc.matchAll(/^ {2}(\w+): \{ article: '([^']+)'/gm)].map((m) => [m[1], m[2]]),
+)
+if (Object.keys(GENDERS).length === 0) {
+  console.error(`read no genders out of src/lang/${LANG}/grammar.ts — the scrape broke`)
+  process.exit(2)
+}
 
 const words = JSON.parse(readFileSync(PATH, 'utf8'))
 const errors = []
@@ -90,26 +165,25 @@ for (const [i, w] of words.entries()) {
   // it with the gender field, and the card prints (com)/(neut). A noun with
   // neither tells the learner nothing, which is a hard error rather than a
   // warning: gender is not decoration in Danish.
-  if (w.pos === 'noun' && w.gender !== 'common' && w.gender !== 'neuter') {
-    errors.push(`${at}: noun with no gender (needs en/et or an explicit gender)`)
+  if (w.pos === 'noun' && GENDERS[w.gender] === undefined) {
+    errors.push(
+      `${at}: noun with no gender the pack knows (has "${w.gender}", knows ${Object.keys(GENDERS).join('/')})`,
+    )
   }
-  if (w.article === 'en' && w.gender !== 'common') {
-    errors.push(`${at}: article "en" disagrees with gender ${w.gender}`)
-  }
-  if (w.article === 'et' && w.gender !== 'neuter') {
-    errors.push(`${at}: article "et" disagrees with gender ${w.gender}`)
+  if (w.article && w.gender && GENDERS[w.gender] !== w.article) {
+    errors.push(`${at}: article "${w.article}" disagrees with gender ${w.gender}`)
   }
   if (w.pos === 'noun' && !w.article) {
-    warnings.push(`${at}: noun with no article — shown as (${w.gender === 'neuter' ? 'neut' : 'com'})`)
+    warnings.push(`${at}: noun with no article — shown as its gender, ${w.gender}`)
   }
   if (w.pos !== 'noun' && (w.article || w.gender || w.countable !== undefined)) {
     warnings.push(`${at}: non-noun with article, gender or countability`)
   }
-  // The countability classification lives in src/data/countability.ts and is
-  // applied to the whole noun set, so the data and the module must not drift.
+  // The countability classification lives in the language pack's grammar
+  // module and is applied to the whole noun set, so the two must not drift.
   if (w.pos === 'noun' && (w.countable === false) !== UNCOUNTABLE.has(w.da)) {
     errors.push(
-      `${at}: countable=${w.countable} disagrees with countability.ts (listed: ${UNCOUNTABLE.has(w.da)})`,
+      `${at}: countable=${w.countable} disagrees with the pack's grammar module (listed: ${UNCOUNTABLE.has(w.da)})`,
     )
   }
   if (w.en?.some((g) => /^to /.test(g))) warnings.push(`${at}: gloss with leading "to " (${w.en})`)
@@ -127,7 +201,7 @@ if (curriculum.size && curriculum.size !== words.length) {
 
 // The dataset is exactly the route: nine cities owning a hundred words each.
 if (!CITY_IDS.length || !Number.isInteger(WORDS_PER_CITY)) {
-  errors.push('could not read the route out of src/journey/cities.ts')
+  errors.push(`could not read the route out of src/lang/${LANG}/route.ts`)
 } else if (words.length !== EXPECTED) {
   errors.push(
     `${words.length} words for ${CITY_IDS.length} cities × ${WORDS_PER_CITY} — expected ${EXPECTED}`,

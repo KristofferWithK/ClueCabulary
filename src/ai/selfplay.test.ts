@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { GRID_CONFIGS, WRAPUP_CONFIG, distinctGreens, type GridConfig } from '../engine/config'
 import {
-  applyEvent,
+  applyEvent as applyEventIn,
   createGame,
   currentClue,
   giverOf,
@@ -15,6 +15,14 @@ import type { BoardWord, GameState } from '../engine/types'
 import { MockCompanion } from './mock/mockCompanion'
 import { buildAiClueView, buildAiGuessView } from './projections'
 import { planGuessExecution } from './companion'
+import { danish } from '../lang/da'
+
+/**
+ * The engine takes the language pack now (H1). Wrapped here so the suite's
+ * call sites stay exactly as they were and keep pinning what they pinned.
+ */
+const applyEvent = (s: Parameters<typeof applyEventIn>[0], e: Parameters<typeof applyEventIn>[1]) =>
+  applyEventIn(s, e, danish)
 
 const words = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -34,7 +42,7 @@ function hash(s: string): number {
 function playerClue(state: GameState, turn: number): string {
   for (let i = 0; i < 50; i++) {
     const candidate = `klods${turn}x${i}`
-    if (checkClueLegality(candidate, state.words).legal) return candidate
+    if (checkClueLegality(candidate, state.words, danish).legal) return candidate
   }
   throw new Error('could not produce a legal player clue')
 }

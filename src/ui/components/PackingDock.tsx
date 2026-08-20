@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
 import { playWord } from '../speak'
+import { ACTIVE } from '../../lang/active'
 
 /**
  * The wrap-up packing phase: every card starts English-side up, and typing a
@@ -53,7 +54,7 @@ export function PackingDock({ game }: { game: GameState }) {
       {selected ? (
         <>
           <p className="packing-prompt">
-            The Danish for <strong>{selected.en[0]}</strong>?
+            The {ACTIVE.name} for <strong>{selected.en[0]}</strong>?
           </p>
           <div className="clue-row">
             <input
@@ -61,8 +62,8 @@ export function PackingDock({ game }: { game: GameState }) {
               className="packing-input"
               type="text"
               value={text}
-              placeholder="dansk…"
-              aria-label={`The Danish for ${selected.en[0]}`}
+              placeholder={ACTIVE.copy.answerPlaceholder}
+              aria-label={`The ${ACTIVE.name} for ${selected.en[0]}`}
               autoCapitalize="none"
               autoCorrect="off"
               spellCheck={false}
@@ -82,7 +83,7 @@ export function PackingDock({ game }: { game: GameState }) {
         </>
       ) : (
         <p className="dim">
-          Tap an English card and type its Danish. The dictionary is closed — this is the part
+          Tap an English card and type its {ACTIVE.name}. The dictionary is closed — this is the part
           that packs the word safely.
         </p>
       )}

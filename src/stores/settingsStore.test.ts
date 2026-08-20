@@ -39,7 +39,7 @@ describe('settingsStore: has Casey ever answered?', () => {
   it.each([
     ['gridSize', { gridSize: 'standard' as const }],
     ['studyPhase', { studyPhase: 'never' as const }],
-    ['clueLanguage', { clueLanguage: 'da' as const }],
+    ['clueLanguage', { clueLanguage: 'target' as const }],
   ])('changing the %s does not', (_field, patch) => {
     useSettings.getState().set(patch)
     expect(useSettings.getState().klausVerifiedAt).toBe(NOW)
@@ -149,12 +149,12 @@ describe('which language Casey clues in', () => {
   const migrate = migrateSettings
 
   it('is Danish for anyone who has never stored a setting', () => {
-    expect(useSettings.getInitialState().clueLanguage).toBe('da')
+    expect(useSettings.getInitialState().clueLanguage).toBe('target')
   })
 
   it('and is switched to Danish on a save that still holds the old default', () => {
-    expect((migrate({ clueLanguage: 'en' }, 2) as Record<string, unknown>).clueLanguage).toBe('da')
-    expect((migrate({ clueLanguage: 'en' }, 1) as Record<string, unknown>).clueLanguage).toBe('da')
+    expect((migrate({ clueLanguage: 'en' }, 2) as Record<string, unknown>).clueLanguage).toBe('target')
+    expect((migrate({ clueLanguage: 'en' }, 1) as Record<string, unknown>).clueLanguage).toBe('target')
   })
 
   it('a v3 save keeps its clue language, whatever it holds', () => {
@@ -163,7 +163,7 @@ describe('which language Casey clues in', () => {
 
   it('and the v1 study-phase fix still happens on the way past', () => {
     const up = migrate({ studyPhase: 'auto', clueLanguage: 'en' }, 1) as Record<string, unknown>
-    expect(up).toMatchObject({ studyPhase: 'never', clueLanguage: 'da' })
+    expect(up).toMatchObject({ studyPhase: 'never', clueLanguage: 'target' })
   })
 })
 
@@ -213,7 +213,7 @@ describe('which board Play deals', () => {
       string,
       unknown
     >
-    expect(up).toMatchObject({ gridSize: 'middle', clueLanguage: 'da', studyPhase: 'never' })
+    expect(up).toMatchObject({ gridSize: 'middle', clueLanguage: 'target', studyPhase: 'never' })
   })
 
   it('survives a save with no gridSize at all', () => {
@@ -285,6 +285,40 @@ describe('which server a device talks to', () => {
     expect(up.baseUrl).toBe(DEFAULT_BASE_URL)
   })
 
+  /**
+   * v8 -> v9: the stored 'da' stops naming Danish.
+   *
+   * The value always meant "clue me in the language I am learning" and only
+   * happened to be spelled 'da'. With a language seam under it, a German
+   * player's saved 'da' would have read as a request for Danish clues and the
+   * prompt would have obliged, so every save is rewritten.
+   */
+  it('rewrites the clue language from da to target, and leaves en alone', () => {
+    expect((migrate({ clueLanguage: 'da' }, 8) as Record<string, unknown>).clueLanguage).toBe(
+      'target',
+    )
+    expect((migrate({ clueLanguage: 'en' }, 8) as Record<string, unknown>).clueLanguage).toBe('en')
+  })
+
+  it('does not touch a save that is already v9', () => {
+    const at9 = { clueLanguage: 'en', sound: false, gridSize: 'beginner' }
+    expect(migrate(at9, 9)).toBe(at9)
+  })
+
+  it('changes nothing else about a v8 save while renaming it', () => {
+    const v8 = {
+      clueLanguage: 'da',
+      gridSize: 'beginner',
+      studyPhase: 'always',
+      sound: false,
+      baseUrl: 'https://example.test/v1',
+      model: 'mine',
+      apiKey: '',
+    }
+    const up = migrate(v8, 8) as Record<string, unknown>
+    expect(up).toEqual({ ...v8, clueLanguage: 'target' })
+  })
+
   it('a v6 save is left alone entirely', () => {
     const up = migrate({ baseUrl: GEMINI_DIRECT, apiKey: '' }, 6) as Record<string, unknown>
     expect(up.baseUrl).toBe(GEMINI_DIRECT)
@@ -297,7 +331,10 @@ describe('which server a device talks to', () => {
     >
     expect(up).toMatchObject({
       studyPhase: 'never',
-      clueLanguage: 'da',
+      // v3 rewrites 'en' to 'da' and v9 rewrites 'da' to 'target', so the two
+      // compose on the way past rather than one undoing the other. That is the
+      // whole reason this case is here.
+      clueLanguage: 'target',
       gridSize: 'middle',
       baseUrl: DEFAULT_BASE_URL,
     })

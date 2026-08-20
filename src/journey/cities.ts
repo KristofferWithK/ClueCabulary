@@ -1,113 +1,25 @@
-export type Region = 'Sønderjylland' | 'Jylland' | 'Fyn' | 'Sjælland'
+import { ACTIVE } from '../lang/active'
+import type { City } from './route'
 
-export interface City {
-  id: string
-  name: string
-  region: Region
-  /** Real coordinates — the map plots cities on a true projection. */
-  lat: number
-  lon: number
-  blurbDa: string
-  blurbEn: string
-}
-
-/** Words each city owns — the suitcase-load to collect and wrap before moving on. */
-export const WORDS_PER_CITY = 100
+export type { City } from './route'
 
 /**
- * The route: from the far south, up Jutland to the tip where two seas meet,
- * then back down across Funen to Zealand and journey's end in the capital.
+ * The active language's route.
  *
- * NINE stops, and the length is not decoration — nine cities of
- * WORDS_PER_CITY is the 900 the game is named for, and
- * scripts/validate-words.mjs reads this array to check the dataset against it.
- * Viborg, the inland mid-Jutland detour, was the stop that left when the
- * dataset came down from a thousand; a saved journey past it is shifted by
- * migrateJourney (src/stores/journeyStore.ts).
+ * The Denmark data itself moved to `src/lang/da/route.ts` — which cities you
+ * travel through is part of the language you are learning. This file stays as
+ * the facade every screen already imports, so the seam cost nothing at the call
+ * sites; only the source of `CITIES` changed.
  */
-export const CITIES: City[] = [
-  {
-    id: 'sonderborg',
-    name: 'Sønderborg',
-    region: 'Sønderjylland',
-    lat: 54.909,
-    lon: 9.792,
-    blurbDa: 'Rejsen begynder på Als, længst mod syd.',
-    blurbEn: 'The journey begins on Als, at the southern edge.',
-  },
-  {
-    id: 'ribe',
-    name: 'Ribe',
-    region: 'Jylland',
-    lat: 55.33,
-    lon: 8.768,
-    blurbDa: 'Danmarks ældste by — vikinger og skæve brosten.',
-    blurbEn: "Denmark's oldest town — Vikings and crooked cobblestones.",
-  },
-  {
-    id: 'kolding',
-    name: 'Kolding',
-    region: 'Jylland',
-    lat: 55.491,
-    lon: 9.472,
-    blurbDa: 'Ved fjorden, hvor Koldinghus har stået i 750 år.',
-    blurbEn: 'By the fjord, where Koldinghus has stood for 750 years.',
-  },
-  {
-    id: 'aarhus',
-    name: 'Aarhus',
-    region: 'Jylland',
-    lat: 56.163,
-    lon: 10.203,
-    blurbDa: 'Den anden hovedstad — regnbuen ligger på taget.',
-    blurbEn: 'The second capital — the rainbow sits on the roof.',
-  },
-  {
-    id: 'aalborg',
-    name: 'Aalborg',
-    region: 'Jylland',
-    lat: 57.048,
-    lon: 9.921,
-    blurbDa: 'Limfjordens by — nu er der ikke langt til toppen.',
-    blurbEn: 'The city on the Limfjord — the top is not far now.',
-  },
-  {
-    id: 'skagen',
-    name: 'Skagen',
-    region: 'Jylland',
-    lat: 57.724,
-    lon: 10.581,
-    blurbDa: 'Vendepunktet: her mødes to have, og rejsen drejer sydpå.',
-    blurbEn: 'The turning point: two seas meet here, and the journey turns south.',
-  },
-  {
-    id: 'odense',
-    name: 'Odense',
-    region: 'Fyn',
-    lat: 55.403,
-    lon: 10.402,
-    blurbDa: 'H.C. Andersens by midt på Fyn — eventyr på hvert hjørne.',
-    blurbEn: "Hans Christian Andersen's city on Funen — fairy tales on every corner.",
-  },
-  {
-    id: 'roskilde',
-    name: 'Roskilde',
-    region: 'Sjælland',
-    lat: 55.642,
-    lon: 12.087,
-    blurbDa: 'Vikingeskibe i fjorden og konger i domkirken.',
-    blurbEn: 'Viking ships in the fjord and kings in the cathedral.',
-  },
-  {
-    id: 'kobenhavn',
-    name: 'København',
-    region: 'Sjælland',
-    lat: 55.676,
-    lon: 12.568,
-    blurbDa: 'Rejsens mål. Ni hundrede ord senere er du hjemme i sproget.',
-    blurbEn: "Journey's end. Nine hundred words later, the language is home.",
-  },
-]
+export const CITIES: readonly City[] = ACTIVE.route.cities
+
+/**
+ * Words each city owns — the suitcase-load to collect and wrap before moving
+ * on. Shared by every language: nine cities of a hundred is what "900Words"
+ * means, and `scripts/validate-words.mjs` reads this constant to check a
+ * dataset against its route.
+ */
+export const WORDS_PER_CITY = 100
 
 export const FINAL_CITY_INDEX = CITIES.length - 1
 
@@ -121,6 +33,9 @@ export const FINAL_CITY_INDEX = CITIES.length - 1
  * holding the landmark would have cut the scaffold to 400 words. The five
  * hundred is the reason and the city was only where five hundred landed, so
  * the count is what was kept and the landmark moved on to Skagen.
+ *
+ * Stated in stops rather than in cities, so it needs no per-language value: any
+ * route of nine hundreds fades its scaffold at the same word count.
  */
 export const STUDY_UNTIL_CITY = 5
 

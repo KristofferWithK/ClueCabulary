@@ -8,6 +8,7 @@ import {
   type AiGuessView,
 } from '../projections'
 import type { ClueResponse, GuessResponse, TranslationResponse } from '../schemas'
+import { ACTIVE } from '../../lang/active'
 
 /** djb2 — stable across runs so e2e tests can rely on mock behavior per seed. */
 function hash(s: string): number {
@@ -33,7 +34,7 @@ export class MockCompanion implements Companion {
     let clue = ''
     for (let i = 1; i < 100 && !clue; i++) {
       const candidate = `mok${i}`
-      if (checkClueLegality(candidate, boardWords).legal) clue = candidate
+      if (checkClueLegality(candidate, boardWords, ACTIVE).legal) clue = candidate
     }
 
     return {
