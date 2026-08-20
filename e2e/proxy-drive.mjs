@@ -23,8 +23,14 @@ const FAKE_PORT = 4191
 const WORKER_PORT = 4192
 const LOCKED_PORT = 4193
 const WRONG_ORIGIN_PORT = 4194
+const CAPPED_PORT = 4195
+const NO_KV_PORT = 4196
+const CEILING_PORT = 4197
 const KEY = 'player-secret-key'
 const WORKER_SECRET = 'secret-that-lives-on-the-worker'
+/** The install id this drive pretends the phone minted, so the quota it spends
+ *  by hand is the same bucket the browser's own requests land in. */
+const PHONE_ID = 'drive-phone-install'
 
 const fail = []
 const check = (name, ok, detail = '') => {
@@ -75,8 +81,16 @@ const settingsFor = (baseUrl, apiKey = KEY) => ({
 async function useBaseUrl(baseUrl, apiKey = KEY) {
   await page.goto(`${preview.base}?howto=0`)
   await page.evaluate(
-    ({ value }) => localStorage.setItem('cluecab-settings-v1', JSON.stringify(value)),
-    { value: settingsFor(baseUrl, apiKey) },
+    ({ value, installId }) => {
+      localStorage.setItem('cluecab-settings-v1', JSON.stringify(value))
+      // Pinned rather than left to the app's own crypto.randomUUID, so this
+      // drive can spend a known bucket's quota from outside the browser and
+      // then watch the app walk into the cap it just filled. The app reads
+      // whatever is stored here — that it does so is the reason the cap can
+      // count one phone at all across reloads.
+      localStorage.setItem('cluecab-install-id', installId)
+    },
+    { value: settingsFor(baseUrl, apiKey), installId: PHONE_ID },
   )
   await page.goto(`${preview.base}?howto=0`)
   await page.waitForSelector('.city-card')
@@ -182,6 +196,14 @@ try {
       /authorization/i.test(pre.headers.get('access-control-allow-headers') ?? '') &&
       /content-type/i.test(pre.headers.get('access-control-allow-headers') ?? ''),
     `${pre.status} ${pre.headers.get('access-control-allow-headers')}`,
+  )
+  // X-Install-Id makes the request non-simple, so a preflight that does not
+  // list it is a hard refusal before the real request is sent — the quota
+  // would be unreachable from a browser and only ever count scripts.
+  check(
+    'and the preflight allows the install-id header the quota needs',
+    /x-install-id/i.test(pre.headers.get('access-control-allow-headers') ?? ''),
+    pre.headers.get('access-control-allow-headers') ?? 'none',
   )
   const bad = await fetch(`${worker.base}/v1/chat/completions`, { method: 'DELETE' })
   check(
@@ -314,6 +336,186 @@ try {
     `HTTP ${rawAllowed.status}, ${fake.received.length} upstream calls`,
   )
   await wrong.stop()
+
+  // ---- the daily cap, on a real KV binding -----------------------------------
+  // The origin lock above stops a browser and stops curl-with-no-Origin, and
+  // that is where it ends: Origin is a header, and one `-H` makes a script
+  // indistinguishable from the app. The cap is what bounds the spend after
+  // that. Miniflare gives the worker the same KV binding Cloudflare does, so
+  // the counting below is the deployed code path and not a stand-in.
+  const spend = (base, { id, auth, n = 1 } = {}) =>
+    Promise.all(
+      Array.from({ length: n }, () =>
+        fetch(`${base}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(id ? { 'X-Install-Id': id } : {}),
+            ...(auth ? { Authorization: auth } : {}),
+          },
+          body: JSON.stringify({ model: 'm', messages: [{ role: 'user', content: 'hi' }] }),
+        }),
+      ),
+    )
+
+  // Two requests, then the wall. Small on purpose — the shipped numbers are
+  // 1000 and 25000, and a drive that had to make a thousand calls to see the
+  // cap would be testing patience rather than the cap.
+  const capped = await startWorker(CAPPED_PORT, {
+    upstream: fake.baseUrl,
+    apiKey: WORKER_SECRET,
+    kv: true,
+    vars: { DAILY_CAP: 2, GLOBAL_DAILY_CAP: 0 },
+  })
+  fake.reset()
+  // Sequential, not Promise.all: KV has no atomic increment, so two requests
+  // racing can both read the same count. That looseness is documented and
+  // accepted in the worker; it is not what this drive is measuring.
+  const under = []
+  for (let i = 0; i < 2; i++) under.push((await spend(capped.base, { id: PHONE_ID }))[0])
+  check(
+    'the first requests under the cap go through',
+    under.every((r) => r.status === 200),
+    under.map((r) => r.status).join(', '),
+  )
+  const over = (await spend(capped.base, { id: PHONE_ID }))[0]
+  const overBody = await over.text()
+  check('the one over the cap is refused with 429', over.status === 429, `HTTP ${over.status}`)
+  check(
+    'and it never reached the upstream, so it cost nothing',
+    fake.received.length === 2,
+    `${fake.received.length} upstream calls for 3 requests`,
+  )
+  check(
+    'the refusal is machine-readable and says when it lifts',
+    overBody.includes('cluecabulary_daily_cap') && /midnight UTC/.test(overBody),
+    overBody.slice(0, 120),
+  )
+  check(
+    'with Retry-After pointing at the next UTC day',
+    Number(over.headers.get('retry-after')) > 0 &&
+      Number(over.headers.get('retry-after')) <= 86400,
+    `Retry-After ${over.headers.get('retry-after')}`,
+  )
+
+  // A different install is a different bucket. Otherwise the first enthusiast
+  // of the day locks out everyone else, which is the failure this must not have.
+  const neighbour = (await spend(capped.base, { id: 'someone-else' }))[0]
+  check('a different install still gets its own allowance', neighbour.status === 200, `HTTP ${neighbour.status}`)
+
+  // A player's own key is their own money. Metering it would be an arbitrary
+  // limit on somebody else's budget, and it is the escape hatch the README
+  // documents, so it must survive a spent cap.
+  const byok = (await spend(capped.base, { id: PHONE_ID, auth: `Bearer ${KEY}` }))[0]
+  check('a request carrying its own key is not metered', byok.status === 200, `HTTP ${byok.status}`)
+
+  // ---- and the player sees something they can act on -------------------------
+  // The bucket above was spent with PHONE_ID, which is exactly the id the app
+  // has in localStorage — so the browser now walks into a cap that is already
+  // full, mid-round, with a board dealt.
+  fake.reset()
+  await useBaseUrl(`${capped.base}/v1`, '')
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await page.goto(`${preview.base}?howto=0&seed=5&grid=beginner`)
+  await page.waitForSelector('.city-card')
+  await page.locator('.home-play').click()
+  await page.waitForSelector('.board-grid')
+  const studyAgain = page.locator('.study-dock .btn-primary')
+  if (await studyAgain.isVisible().catch(() => false)) await studyAgain.click()
+  await page.fill('.clue-input input', 'huskeliste')
+  await page.click('.clue-input .btn-primary')
+  await page.waitForSelector('.error-banner', { timeout: 25000 })
+  const banner = (await page.locator('.error-banner p').first().textContent()).trim()
+  check(
+    'the cap reaches the player as Cluey resting, not as a status code',
+    /today/i.test(banner) && /midnight UTC/.test(banner) && !/429/.test(banner),
+    banner,
+  )
+  check(
+    'and it names the way out rather than telling them to wait',
+    /Play on without Cluey/.test(banner) && !/wait a moment/i.test(banner),
+    banner,
+  )
+  check(
+    'the browser really was refused before the upstream, spending nothing',
+    fake.received.length === 0,
+    `${fake.received.length} upstream calls`,
+  )
+  // The banner names that button because the button is there. Clicking it has
+  // to actually finish the round offline, or the message is a dead end.
+  await page.getByRole('button', { name: 'Play on without Cluey' }).click()
+  await page.waitForSelector('.practice-note', { timeout: 5000 })
+  check(
+    'and the button it names carries on with the practice companion',
+    (await page.locator('.error-banner').count()) === 0,
+    'error banner cleared',
+  )
+  await capped.stop()
+
+  // ---- fail open: no binding must never mean no service ----------------------
+  // The likeliest way this feature breaks in the field is a namespace that was
+  // never created, or an id pasted wrong. A proxy that answers 429 to everyone
+  // because of that is a far worse outcome than one that does not count, so the
+  // worker checks for the binding and carries on without it. Same caps, same
+  // requests, no KV.
+  const noKv = await startWorker(NO_KV_PORT, {
+    upstream: fake.baseUrl,
+    apiKey: WORKER_SECRET,
+    kv: false,
+    vars: { DAILY_CAP: 2, GLOBAL_DAILY_CAP: 2 },
+  })
+  fake.reset()
+  const unmetered = []
+  for (let i = 0; i < 5; i++) unmetered.push((await spend(noKv.base, { id: PHONE_ID }))[0])
+  check(
+    'with no KV binding the worker serves everyone rather than refusing everyone',
+    unmetered.every((r) => r.status === 200),
+    unmetered.map((r) => r.status).join(', '),
+  )
+  check(
+    'and every one of them was really forwarded',
+    fake.received.length === 5,
+    `${fake.received.length} upstream calls`,
+  )
+  await noKv.stop()
+
+  // ---- the ceiling, which is the only number an attacker cannot dodge --------
+  // The install id arrives in a header, so a script can send a new one every
+  // request and the per-install cap never fires. That is not a bug to be fixed
+  // with a cleverer id — it is why there is a second counter with nothing in
+  // the request selecting it. This is the honest version of the claim: the
+  // forger gets through the first cap and is stopped by the second.
+  const ceiling = await startWorker(CEILING_PORT, {
+    upstream: fake.baseUrl,
+    apiKey: WORKER_SECRET,
+    kv: true,
+    vars: { DAILY_CAP: 1000, GLOBAL_DAILY_CAP: 3 },
+  })
+  fake.reset()
+  const forged = []
+  for (let i = 0; i < 5; i++) forged.push((await spend(ceiling.base, { id: `forged-${i}` }))[0])
+  check(
+    'a fresh install id every time walks past the per-install cap',
+    forged.slice(0, 3).every((r) => r.status === 200),
+    forged.map((r) => r.status).join(', '),
+  )
+  check(
+    'and is stopped dead by the global ceiling',
+    forged.slice(3).every((r) => r.status === 429),
+    forged.map((r) => r.status).join(', '),
+  )
+  check(
+    'so the worst case for the bill is the ceiling and not the internet',
+    fake.received.length === 3,
+    `${fake.received.length} upstream calls for 5 forged requests`,
+  )
+  const ceilingBody = await forged[4].text()
+  check(
+    'and it says which limit it was, so the owner knows what to raise',
+    /"scope":"global"/.test(ceilingBody),
+    ceilingBody.slice(0, 120),
+  )
+  await ceiling.stop()
 
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nPROXY DRIVE OK')
   if (fail.length) process.exitCode = 1

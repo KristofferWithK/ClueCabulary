@@ -23,8 +23,18 @@ export const WORKER_PATH = join(HERE, '..', 'proxy', 'worker.js')
  * `apiKey` and `allowedOrigin` are delivered as Cloudflare bindings, so the
  * recommended setup — the key living on the worker rather than on the phone —
  * is exercised the way it is actually deployed.
+ *
+ * `kv: true` adds the QUOTA namespace the daily cap counts in. Miniflare
+ * implements KV on workerd with the real binding API, so the cap is exercised
+ * against the same `get`/`put` the deployed worker calls — including
+ * `expirationTtl`, which it accepts. Leaving it false is the fail-open case:
+ * the worker sees no binding at all, exactly as it would if the namespace were
+ * never created, and must serve every request anyway.
+ *
+ * `vars` are any other Worker variables (DAILY_CAP, GLOBAL_DAILY_CAP). They
+ * arrive as strings, which is what Cloudflare delivers for a [vars] entry.
  */
-export async function startWorker(port, { upstream, allowedOrigin, apiKey } = {}) {
+export async function startWorker(port, { upstream, allowedOrigin, apiKey, kv, vars } = {}) {
   let Miniflare
   try {
     ;({ Miniflare } = await import('miniflare'))
@@ -51,7 +61,11 @@ export async function startWorker(port, { upstream, allowedOrigin, apiKey } = {}
         bindings: {
           ...(apiKey ? { OLLAMA_API_KEY: apiKey } : {}),
           ...(allowedOrigin ? { ALLOWED_ORIGIN: allowedOrigin } : {}),
+          ...Object.fromEntries(Object.entries(vars ?? {}).map(([k, v]) => [k, String(v)])),
         },
+        // The counters the daily cap keeps. Omitted entirely when kv is falsy,
+        // which is how the fail-open path gets tested for real.
+        ...(kv ? { kvNamespaces: { QUOTA: 'cluecabulary-proxy-QUOTA' } } : {}),
         outboundService: async (request) => {
           upstreamCalls.push({
             url: request.url,

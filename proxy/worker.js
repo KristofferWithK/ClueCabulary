@@ -21,7 +21,8 @@
  *
  * Whenever the key lives here, set ALLOWED_ORIGIN too. It is enforced on the
  * way in — see originAllowed — and without it this worker will attach your key
- * to a request from anyone who learns its URL.
+ * to a request from anyone who learns its URL. The daily caps below are the
+ * second layer, for the case where the lock is not enough.
  *
  * See proxy/README.md. Deploy: `npx wrangler deploy` from this directory, then
  * `npx wrangler secret put OLLAMA_API_KEY`.
@@ -105,6 +106,234 @@ function originAllowed(request, env) {
   return origin !== '' && allowed.includes(origin)
 }
 
+/**
+ * ---------------------------------------------------------------------------
+ * The daily caps: what stops one runaway client spending the whole budget.
+ * ---------------------------------------------------------------------------
+ *
+ * The origin lock above is the first layer and it is not enough on its own. It
+ * is a real check, but Origin is a header, and a header is whatever the caller
+ * types — a browser refuses to lie about it, curl has no opinion at all. Anyone
+ * who reads the deployed JS bundle learns this worker's address, and one line
+ * of curl with `-H "Origin: <the app's origin>"` is then indistinguishable from
+ * the app. So there has to be something that bounds the spend even when the
+ * caller is pretending perfectly.
+ *
+ * THE COUNT. Two counters per UTC day, in KV: one for the install that asked,
+ * one for everybody together. A request that would take either over its cap is
+ * answered 429 and never reaches the upstream, so it costs nothing. Only
+ * requests the worker attaches its OWN key to are counted — a player who brings
+ * their own key spends their own money and is not metered.
+ *
+ * THE INSTALL ID IS FORGEABLE, AND THAT IS THE POINT OF THE SECOND COUNTER.
+ * The id is a random string the app generates once and keeps in localStorage;
+ * it arrives in a header, so a caller can send any id they like, and a new one
+ * per request defeats the per-install cap entirely. That cap is honest about
+ * what it is for: an accidental retry loop, a stuck client, one person hammering
+ * the endpoint out of curiosity — the failure modes that actually happen. It is
+ * not a defence against someone who wants to get through.
+ *
+ * The global counter is the cheap second signal that IS bounded whatever the
+ * caller does, because there is nothing in the request that selects it. The
+ * worst case for the bill is GLOBAL_DAILY_CAP calls a day, full stop. What it
+ * costs is that abuse and real play share one number: a determined attacker
+ * cannot spend more than the ceiling, but they can spend it, and while it is
+ * spent nobody plays. That is the right way round — an outage is recoverable by
+ * raising a variable in the dashboard, an unbounded bill is not — but it is a
+ * real cost and not a free win.
+ *
+ * COUNTING IS APPROXIMATE, deliberately, and it is loosest exactly when it is
+ * being attacked. KV is built for many reads and few writes, and a counter is
+ * the opposite of that, so three things all point the same way:
+ *
+ *   - There is no atomic increment. This reads then writes, and two requests in
+ *     flight together can both read the same number and both write one more.
+ *   - A read can be stale. KV serves reads from a local cache and propagates
+ *     writes between locations in the background, so the number this sees is
+ *     not necessarily the number that has been written.
+ *   - Writing one key over and over is the case KV asks you not to make, and
+ *     the global counter is one key written on every metered request. Under a
+ *     fast burst those writes are throttled or fail, and a failure here fails
+ *     open like every other — served, uncounted.
+ *
+ * So the ceiling holds to an order of magnitude at ordinary rates and can be
+ * overshot by a determined burst. Sharding the global key would soften the
+ * third point at the cost of a read per shard on every request; Durable Objects
+ * would fix all three exactly, and cost money and a paid plan, which is the
+ * thing this whole feature exists to avoid. Nothing here has been measured
+ * against production KV — miniflare implements the API, not the propagation —
+ * so treat the ceiling as a fuse rather than an invoice, and watch the
+ * Cloudflare dashboard on a launch day rather than trusting this to the digit.
+ */
+
+/**
+ * How many requests one install may make in a UTC day. Override with the
+ * DAILY_CAP variable; 0 means no per-install cap.
+ *
+ * THE ARITHMETIC, from src/engine/config.ts. Turn tokens are a shared pool and
+ * each token is exactly one clue-giving, which is exactly one AI call: Cluey's
+ * clue is one `getClue`, and the player's clue is one `getGuesses`. So the
+ * clue/guess calls in a round are at most the token count —
+ *
+ *   beginner  4x3   5 tokens
+ *   middle    5x3   6 tokens
+ *   standard  5x4   7 tokens   (was 8 until the A3 re-tune)
+ *   wrap-up   5x4  10 tokens   (the longest board in the game)
+ *
+ * — and sudden death adds none, because there is no clue-giver in it: the
+ * player just taps. Two things multiply that. A reply that fails validation is
+ * asked again up to MAX_CORRECTIONS = 3 times (src/ai/companion.ts), so one
+ * logical call is at most 4 HTTP requests; and the translate box is one call
+ * per word looked up, bounded in practice by the 20 words on the biggest board.
+ *
+ *   worst imaginable round   10 x 4 + 20  =  60 requests
+ *   ordinary round           7 to 12 requests
+ *
+ * An enthusiastic day is maybe ten rounds — each is five to ten minutes, so
+ * that is already an hour or two of play. Ten worst-case rounds is 600. Fifteen
+ * is 900. 1000 is the round number above that, which means a player who somehow
+ * hits this cap has played fifteen full rounds in a day with every single reply
+ * needing three corrections. Nobody does that by playing.
+ *
+ * Generous on purpose. Locking out the one person who loves this game is a much
+ * worse outcome than serving a few hundred calls that were not strictly needed,
+ * and the global ceiling below is what actually bounds the bill.
+ */
+const DEFAULT_DAILY_CAP = 1000
+
+/**
+ * How many requests EVERYONE may make in a UTC day, together. Override with
+ * GLOBAL_DAILY_CAP; 0 means no ceiling.
+ *
+ * 25,000 is 25 installs at the full per-install cap, or — at the ordinary ten
+ * calls a round, three rounds a sitting — around 800 people playing on the same
+ * day. That is far more than this app is going to see in its first week, and it
+ * is a hard bound on the worst day possible: whatever anyone does with a
+ * forged install id, the upstream is asked at most this many times.
+ *
+ * Raise it from the Cloudflare dashboard (Settings → Variables) the moment real
+ * players are anywhere near it. That is a thirty-second change with no deploy.
+ */
+const DEFAULT_GLOBAL_DAILY_CAP = 25_000
+
+/**
+ * The header the app puts its install id in. It must also be listed in
+ * Access-Control-Allow-Headers below, or the browser refuses the request at
+ * the preflight and the app cannot talk to this worker at all.
+ */
+const INSTALL_HEADER = 'X-Install-Id'
+
+/** Two days: long enough that a day's counter outlives the day, short enough
+ *  that nothing accumulates. KV expires these itself, so there is no cleanup. */
+const COUNTER_TTL_SECONDS = 172_800
+
+/** A marker the app can recognise, to tell this 429 from an upstream one.
+ *  They mean opposite things: this one lasts until midnight, an upstream rate
+ *  limit usually lasts seconds, and telling a player to come back tomorrow
+ *  when they could retry now would cost them the session. */
+const DAILY_CAP_CODE = 'cluecabulary_daily_cap'
+
+/** Read a cap from a Worker variable. A typo must not silently remove the cap
+ *  NOR lock everyone out, so anything unreadable falls back to the default;
+ *  only a deliberate 0 disables. */
+function capFrom(raw, fallback) {
+  if (raw === undefined || raw === null || String(raw).trim() === '') return fallback
+  const n = Number(raw)
+  if (!Number.isFinite(n) || n < 0) return fallback
+  return Math.floor(n)
+}
+
+/**
+ * The KV key for whoever is asking.
+ *
+ * Sanitised rather than trusted: the id only has to be stable and unique per
+ * phone, so everything outside [A-Za-z0-9_-] is dropped and the length capped.
+ * That keeps a client from choosing an unbounded KV key, or one shaped like the
+ * global counter's. A request with no id shares one bucket — an old build or a
+ * script, and one shared cap is the right answer for both.
+ */
+function installBucket(request) {
+  const clean = (request.headers.get(INSTALL_HEADER) ?? '')
+    .trim()
+    .replace(/[^A-Za-z0-9_-]/g, '')
+    .slice(0, 64)
+  return clean ? `i:${clean}` : 'i:no-install-id'
+}
+
+const utcDay = () => new Date().toISOString().slice(0, 10)
+
+/**
+ * Count this request, and say whether it may proceed.
+ *
+ * FAILS OPEN, on purpose, in every direction: no KV binding, a binding that
+ * throws, a namespace that was never created. A proxy that refuses everyone
+ * because a namespace id was pasted wrong is a worse outcome than an unmetered
+ * one — the first breaks the app for the only player, the second costs money
+ * the owner can see and stop. Every fail-open path logs, so `wrangler tail`
+ * says which one happened.
+ */
+async function checkQuota(request, env) {
+  const kv = env?.QUOTA
+  if (!kv || typeof kv.get !== 'function' || typeof kv.put !== 'function') {
+    console.log('quota: no QUOTA KV binding — serving unmetered')
+    return { ok: true }
+  }
+  const perInstall = capFrom(env?.DAILY_CAP, DEFAULT_DAILY_CAP)
+  const ceiling = capFrom(env?.GLOBAL_DAILY_CAP, DEFAULT_GLOBAL_DAILY_CAP)
+  if (perInstall === 0 && ceiling === 0) return { ok: true }
+
+  const day = utcDay()
+  const mine = `q:${day}:${installBucket(request)}`
+  const all = `q:${day}:@all`
+  try {
+    const [rawMine, rawAll] = await Promise.all([kv.get(mine), kv.get(all)])
+    const used = Number(rawMine) || 0
+    const usedAll = Number(rawAll) || 0
+    if (perInstall > 0 && used >= perInstall) return { ok: false, scope: 'install', cap: perInstall }
+    if (ceiling > 0 && usedAll >= ceiling) return { ok: false, scope: 'global', cap: ceiling }
+    // Only a request that is going through gets counted, so a refused one does
+    // not push the number further past the cap or keep renewing its TTL.
+    await Promise.all([
+      kv.put(mine, String(used + 1), { expirationTtl: COUNTER_TTL_SECONDS }),
+      kv.put(all, String(usedAll + 1), { expirationTtl: COUNTER_TTL_SECONDS }),
+    ])
+    return { ok: true }
+  } catch (e) {
+    console.log('quota: KV failed, serving anyway —', e?.message ?? e)
+    return { ok: true }
+  }
+}
+
+/** Seconds until the counters roll, for Retry-After. */
+function secondsToUtcMidnight(now = new Date()) {
+  const next = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)
+  return Math.max(1, Math.ceil((next - now.getTime()) / 1000))
+}
+
+/**
+ * The 429 body. Shaped like an OpenAI error because that is what an
+ * OpenAI-compatible endpoint should return, so a client that already reads
+ * `error.message` gets a sentence rather than nothing; `code` is the marker the
+ * app matches on.
+ */
+function capReached(scope, cap, cors) {
+  const message =
+    scope === 'global'
+      ? `This proxy has served ${cap} requests today, which is its ceiling across every install. It resets at midnight UTC.`
+      : `This install has made ${cap} requests today, which is its daily cap. It resets at midnight UTC.`
+  return new Response(
+    JSON.stringify({ error: { message, type: 'daily_cap_reached', code: DAILY_CAP_CODE, scope } }),
+    {
+      status: 429,
+      headers: {
+        ...cors,
+        'Content-Type': 'application/json',
+        'Retry-After': String(secondsToUtcMidnight()),
+      },
+    },
+  )
+}
+
 function corsHeaders(request, env) {
   const allowed = allowList(env)
   const origin = (request?.headers.get('Origin') ?? '').trim().replace(/\/+$/, '')
@@ -116,7 +345,10 @@ function corsHeaders(request, env) {
     'Access-Control-Allow-Origin':
       allowed.length === 0 ? '*' : allowed.includes(origin) ? origin : allowed[0],
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+    // X-Install-Id belongs here or the quota never works from a browser: a
+    // custom header makes the request non-simple, and a preflight that does not
+    // list it is a hard refusal before the real request is ever sent.
+    'Access-Control-Allow-Headers': `Authorization, Content-Type, ${INSTALL_HEADER}`,
     'Access-Control-Max-Age': '86400',
     Vary: 'Origin',
   }
@@ -180,6 +412,17 @@ export default {
         `No API key: send one from the app, or set ${secretName} as a secret on this worker.`,
         { status: 401, headers: cors },
       )
+    }
+
+    // Metered only when the worker is the one paying. A request carrying the
+    // player's own key spends the player's own budget, so counting it would
+    // just be an arbitrary limit on somebody else's money — and it is also the
+    // bring-your-own-key path in proxy/README.md, which must keep working
+    // whatever the caps say. Nothing has been sent upstream yet, so a refusal
+    // here costs nothing at all.
+    if (!usable) {
+      const quota = await checkQuota(request, env)
+      if (!quota.ok) return capReached(quota.scope, quota.cap, cors)
     }
 
     const base = (alias?.upstream || env?.UPSTREAM || DEFAULT_UPSTREAM).replace(/\/+$/, '')

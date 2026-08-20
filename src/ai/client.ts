@@ -80,6 +80,77 @@ const AUTH_REFUSED =
   'Cluey’s server refused the request. Nothing to fix on this phone — try again in a moment, or play on without Cluey.'
 
 /**
+ * What a 429 says when it is the proxy's own daily cap rather than the
+ * upstream's transient rate limit.
+ *
+ * The two are the same status code and mean opposite things: an upstream rate
+ * limit clears in seconds and the right advice is "retry", while the cap lasts
+ * until midnight UTC and retrying is the one thing that cannot help. Telling a
+ * player to come back tomorrow when they could retry now would cost them the
+ * session; telling them to keep retrying against a spent cap would waste the
+ * evening. So the worker marks its own, and the two are told apart below.
+ *
+ * Names the button that is actually on screen. The error banner offers "Retry"
+ * and "Play on without Cluey" side by side, and Retry is the wrong one here —
+ * the practice companion needs no network at all, so the round can still be
+ * finished. Same lesson as the 401 above: say the thing the player can do.
+ */
+const DAILY_CAP_SPENT =
+  'Cluey has done all his thinking for today — this phone’s daily limit on his server is used up, and it resets at midnight UTC. Play on without Cluey to finish the round: the practice companion needs no connection at all.'
+
+/** The `code` the proxy puts in its own 429 body. See proxy/worker.js. */
+const DAILY_CAP_CODE = 'cluecabulary_daily_cap'
+
+/**
+ * A random id for this install, so the proxy can meter per phone.
+ *
+ * Opaque and meaningless on purpose: a UUID with nothing in it derived from the
+ * person, the device or anything they typed. It exists so a runaway retry loop
+ * on one phone cannot spend the whole budget, and it identifies an install
+ * rather than a player — clearing site data or reinstalling mints a new one,
+ * which is fine, because the cap is a fuse and not an account.
+ *
+ * Sent ONLY when the app has no key of its own, which is exactly when the
+ * server is paying. That rule does two things at once. It keeps the id off
+ * every third-party endpoint a player might point their own key at — nobody
+ * else needs to know this install exists — and it avoids adding a custom header
+ * to a request bound for a service whose CORS policy has never heard of it,
+ * which would turn the bring-your-own-key escape hatch into a preflight
+ * failure.
+ *
+ * One case slips through that rule: a local Ollama also takes no key, so it
+ * gets the header too. Whether it lists X-Install-Id in its preflight has not
+ * been measured here — if a local endpoint ever fails at the preflight with
+ * this header in it, that is the reason, and the fix is to send the id only to
+ * hosts that are known proxies. It is left as-is because a local Ollama is a
+ * deliberate Base URL edit on a developer's own machine, not a path any player
+ * takes, and there is nothing to leak to your own laptop.
+ */
+const INSTALL_ID_KEY = 'cluecab-install-id'
+let installIdCache: string | null = null
+
+export function installId(): string {
+  if (installIdCache) return installIdCache
+  const mint = () =>
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : // Older WebViews have crypto but not randomUUID. Any random string does;
+        // this is a bucket key, not a secret.
+        `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+  try {
+    const stored = localStorage.getItem(INSTALL_ID_KEY)
+    if (stored) return (installIdCache = stored)
+    const made = mint()
+    localStorage.setItem(INSTALL_ID_KEY, made)
+    return (installIdCache = made)
+  } catch {
+    // Private mode, or storage full. A per-session id still buckets a runaway
+    // loop, which is the case this is really for; it just does not persist.
+    return (installIdCache = mint())
+  }
+}
+
+/**
  * How long to wait for a clue before giving up on it.
  *
  * Generous, because a large model composing a clue from a 1,800-token prompt
@@ -165,9 +236,11 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Omitted entirely when empty: a bare "Bearer " would shadow the
-          // key a proxy holds as its own secret.
-          ...(key ? { Authorization: `Bearer ${key}` } : {}),
+          // One or the other, never both. A key is omitted entirely when empty
+          // — a bare "Bearer " would shadow the key a proxy holds as its own
+          // secret — and having none is precisely the case where the server is
+          // paying and wants to know which install is asking.
+          ...(key ? { Authorization: `Bearer ${key}` } : { 'X-Install-Id': installId() }),
         },
         body: JSON.stringify({
           model: settings.model,
@@ -220,7 +293,16 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       throw new AiError('not-found', 'Model or endpoint not found. Check the model name and Base URL in Settings.')
     }
     if (res.status === 429) {
-      throw new AiError('rate-limit', 'Rate limited by the AI server. Wait a moment and retry.')
+      // Readable cross-origin because the proxy puts its CORS headers on the
+      // 429 too; an upstream 429 that arrives without a body simply misses the
+      // marker and gets the transient advice, which is the safe way round.
+      const body = await res.text().catch(() => '')
+      throw new AiError(
+        'rate-limit',
+        body.includes(DAILY_CAP_CODE)
+          ? DAILY_CAP_SPENT
+          : 'Rate limited by the AI server. Wait a moment and retry.',
+      )
     }
     throw new AiError('server', `AI server error (HTTP ${res.status}).`)
   }
@@ -264,7 +346,8 @@ export async function listModels(settings: AiSettings): Promise<string[]> {
   try {
     const key = effectiveKey(settings.apiKey)
     res = await fetch(endpoint, {
-      headers: key ? { Authorization: `Bearer ${key}` } : {},
+      // Same either/or as a chat call: whoever is paying is who gets told.
+      headers: key ? { Authorization: `Bearer ${key}` } : { 'X-Install-Id': installId() },
     })
   } catch {
     throw new AiError(

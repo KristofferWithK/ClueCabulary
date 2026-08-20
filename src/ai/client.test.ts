@@ -124,3 +124,96 @@ describe('chatJson error taxonomy', () => {
     expect(body.response_format).toEqual({ type: 'json_object' })
   })
 })
+
+describe('the proxy’s daily cap', () => {
+  // Both of these are 429 and they mean opposite things. The proxy's own cap
+  // lasts until midnight UTC, so "wait a moment and retry" is advice that
+  // cannot work; an upstream rate limit clears in seconds, so "come back
+  // tomorrow" would throw away an evening that was fine. The worker marks its
+  // own — see DAILY_CAP_CODE in proxy/worker.js.
+  const capBody = JSON.stringify({
+    error: { message: 'This install has made 1000 requests today.', code: 'cluecabulary_daily_cap' },
+  })
+
+  it('tells the player Cluey is resting, and points at the button that works', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(capBody, { status: 429 })))
+    const e = await catchError(chatJson(settings, messages))
+    expect(e.kind).toBe('rate-limit')
+    expect(e.message).toMatch(/today/i)
+    expect(e.message).toMatch(/midnight UTC/)
+    // The error banner shows Retry and "Play on without Cluey" together, and
+    // Retry is the one that cannot help here. Naming the other is the whole
+    // point of the message — the practice companion needs no network.
+    expect(e.message).toContain('Play on without Cluey')
+    expect(e.message).not.toMatch(/wait a moment/i)
+  })
+
+  it('still says "retry" for a 429 that is not the cap', async () => {
+    // An upstream rate limit arrives without the marker, and often without a
+    // body at all. Missing the marker has to mean "transient", not "tomorrow".
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('', { status: 429 })))
+    const e = await catchError(chatJson(settings, messages))
+    expect(e.kind).toBe('rate-limit')
+    expect(e.message).toMatch(/wait a moment/i)
+    expect(e.message).not.toMatch(/midnight/i)
+  })
+
+  it('identifies the install only when the server is the one paying', async () => {
+    // A fresh Response each time: a body can only be read once, so a single
+    // mocked one would pass the first call and fail the second.
+    const fetchMock = vi.fn().mockImplementation(async () => jsonResponse('{}'))
+    vi.stubGlobal('fetch', fetchMock)
+
+    // A key of the player's own: their money, their business, and a custom
+    // header on a request to a third-party endpoint is a preflight waiting to
+    // fail. Nothing is sent.
+    await chatJson(settings, messages)
+    expect(fetchMock.mock.calls[0]![1].headers['X-Install-Id']).toBeUndefined()
+
+    // No key means a proxy is holding one, which is exactly when it needs to
+    // know which install is spending it.
+    await chatJson({ ...settings, apiKey: '' }, messages)
+    const sent = fetchMock.mock.calls[1]![1].headers['X-Install-Id']
+    expect(typeof sent).toBe('string')
+    expect(sent.length).toBeGreaterThan(8)
+    expect(fetchMock.mock.calls[1]![1].headers.Authorization).toBeUndefined()
+
+    // Stable, or the cap counts one phone as a hundred and never fires.
+    await chatJson({ ...settings, apiKey: '' }, messages)
+    expect(fetchMock.mock.calls[2]![1].headers['X-Install-Id']).toBe(sent)
+  })
+
+  it('keeps the id across restarts, and survives storage that refuses', async () => {
+    // The module caches the id, so a fresh copy is the only way to see what it
+    // does on a cold start.
+    const store = new Map<string, string>()
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+    })
+    vi.resetModules()
+    const first = (await import('./client')).installId()
+    expect(store.get('cluecab-install-id')).toBe(first)
+
+    // A second cold start reads what the first one wrote — otherwise every
+    // reload is a new install and the per-install cap means nothing.
+    vi.resetModules()
+    expect((await import('./client')).installId()).toBe(first)
+
+    // Private mode: localStorage exists and throws on touch. An id is still
+    // produced, because a runaway loop inside one session is most of what this
+    // is for; it simply does not outlive the session.
+    vi.stubGlobal('localStorage', {
+      getItem: () => {
+        throw new Error('denied')
+      },
+      setItem: () => {
+        throw new Error('denied')
+      },
+    })
+    vi.resetModules()
+    const ephemeral = (await import('./client')).installId()
+    expect(ephemeral).toMatch(/\S/)
+    expect(ephemeral).not.toBe(first)
+  })
+})
