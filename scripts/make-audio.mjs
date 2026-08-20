@@ -304,7 +304,15 @@ const cfg = {
  * ------------------------------------------------------------------ */
 
 const wordsPath = resolve(ROOT, `src/data/words.${lang}.json`)
-const words = JSON.parse(readFileSync(wordsPath, 'utf8'))
+let words
+try {
+  words = JSON.parse(readFileSync(wordsPath, 'utf8'))
+} catch {
+  // Reachable today by typing `--lang de`: the language seam is H1 and the
+  // German dataset is H2, so `da` is the only one that exists.
+  console.error(`No dataset at src/data/words.${lang}.json — there is nothing to bake for "${lang}".`)
+  process.exit(2)
+}
 
 const jobs = []
 const bySlug = new Map()

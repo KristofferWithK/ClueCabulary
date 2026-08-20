@@ -314,7 +314,10 @@ function audioElement(): HTMLAudioElement {
   return element
 }
 
-/** Exposed for the drives, which need to know a tap actually reached audio. */
+/**
+ * Silence everything at once — the clip and any utterance behind it. Called at
+ * the top of every `playWord`, so a second tap never lands on top of the first.
+ */
 export function stopWordAudio(): void {
   element?.pause()
   cancelSpeech()
@@ -350,7 +353,14 @@ const browserPorts: WordAudioPorts = {
       // service worker's runtime cache for /audio/ would fill with nothing and
       // offline playback would quietly never work. A plain GET returns a plain
       // 200, which caches. See the workbox block in vite.config.ts.
-      const res = await fetch(url, { cache: 'force-cache' })
+      // No `cache: 'force-cache'`. It reads like the right thing for a file
+      // that never changes, and it buys nothing — the service worker's
+      // CacheFirst already keeps the network out of a repeat play, and the
+      // native shell reads the clip off local storage. What it would cost is
+      // the miss path: a word with no clip answers 200 text/html with a
+      // max-age, and force-cache would keep serving that HTML from the HTTP
+      // cache after the bake had put a real clip there.
+      const res = await fetch(url)
       if (res.status === 404) return noClipAt(url)
       if (!res.ok) return { kind: 'unreachable' }
       // Trust the type, not the status. See `noClipAt`: a 200 here is as likely
