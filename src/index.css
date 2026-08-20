@@ -280,7 +280,7 @@ select:focus {
   font-size: 0.85rem;
 }
 
-/* The board Â«Spil videreÂ» deals. Marked by a second border rather than a
+/* The board Â«PlayÂ» deals. Marked by a second border rather than a
    colour, so it reads the same to anyone who cannot tell the two apart. */
 .grid-card-current {
   border-color: var(--text);
@@ -3212,7 +3212,7 @@ body:has(.kb-up) {
 .translate-hits .hit-on-board {
   color: var(--text-dim);
 }
-/* ---------- the suitcase (Kufferten) ---------- */
+/* ---------- the suitcase ---------- */
 
 .suitcase-screen {
   gap: 12px;
@@ -3883,7 +3883,7 @@ body:has(.kb-up) {
 
 /* Buttons: the same trick, gentler. A pill is a 999px radius, and displacement
    that reads as "drawn by hand" on a panel's soft corner reads as "scratched
-   out" on a tight curve â€” measured by looking at it, at scale 5, on Â«Nye ordÂ». */
+   out" on a tight curve â€” measured by looking at it, at scale 5, on Â«Deal new wordsÂ». */
 .btn,
 .chip,
 .icon-btn {

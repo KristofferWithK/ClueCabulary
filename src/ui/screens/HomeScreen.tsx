@@ -170,6 +170,11 @@ export function HomeScreen() {
 
       <Cluey />
 
+      {/* The one line of chrome deliberately left in Danish. Everything a
+          player must READ to operate the app is English now, but this is not
+          operable — it is the last thing the game ever says, after nine
+          hundred words, and by then it is a sentence you can read. Nothing is
+          lost if you cannot: the English clause carries the meaning. */}
       {journeyDone && (
         <p className="journey-done">
           <span lang="da">Rejsen er slut</span> — you packed the last suitcase in København.
@@ -177,7 +182,7 @@ export function HomeScreen() {
       )}
       {travelReady && (
         <button className="btn btn-travel" onClick={() => goTo('map')}>
-          <span lang="da">Rejs videre</span> → {nextCity?.name}
+          Travel on → {nextCity?.name}
         </button>
       )}
 
@@ -199,7 +204,7 @@ export function HomeScreen() {
           </button>
         ) : (
           <button className="btn btn-primary btn-big home-play" onClick={play}>
-            <span lang="da">Spil videre</span>
+            Play
           </button>
         )}
         <button

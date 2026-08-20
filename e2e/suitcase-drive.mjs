@@ -1,4 +1,4 @@
-// Kufferten, open on the table: the loose words of the city, the collected
+// The suitcase, open on the table: the loose words of the city, the collected
 // and wrapped compartments, sideways paging instead of scrolling, and the
 // wrap-up button that moves words from one compartment to the other.
 import { chromium } from 'playwright'

@@ -163,9 +163,7 @@ export function SuitcaseScreen() {
         <button className="icon-btn" aria-label="Back" onClick={() => goTo('home')}>
           ←
         </button>
-        <h1>
-          <span lang="da">Kufferten</span>
-        </h1>
+        <h1>The suitcase</h1>
         <span className="case-city-pager">
           <button
             className="icon-btn icon-btn-small"

@@ -17,7 +17,7 @@ reached appear on your boards. Nine cities of a hundred is the whole dataset:
 900 words, and the route length and the word count are one number, checked
 against each other by `scripts/validate-words.mjs`.
 
-Every word is in one of four states, leafed through in **Kufferten** (tap
+Every word is in one of four states, leafed through in **the suitcase** (tap
 Casey on Home): **undiscovered** until you meet it, **discovered** once you
 have, **collected** after it has earned a green each way — once under your
 clue, once by your own guess — and **wrapped** once a wrap-up round has packed
@@ -146,8 +146,8 @@ opens.
    nobody ever has to point at. The padding made that board easier, not slower.
    What the twenty cards should be is a design question with the deal behind it;
    it is not a tuning fix, and nothing measured here asked for one.
-4. **Reroll before you start.** If nothing on the board connects, **Nye ord**
-   in the clue dock deals a different board of the same size. Only before the
+4. **Reroll before you start.** If nothing on the board connects, **↻**
+   in the header deals a different board of the same size. Only before the
    first clue — once one is on the table the round has a history, and re-dealing
    under it would be a way to unsee a bad guess — and never on the daily
    challenge, which is one shared board per date.
@@ -304,7 +304,7 @@ Worker, or produce a PNG to look at rather than a pass.)
 node e2e/smoke-drive.mjs      # a round played end to end
 node e2e/wrapup-drive.mjs     # the packing gate: type the Danish, then play
 node e2e/journey-drive.mjs    # a packed suitcase opens the road → travel → arrival
-node e2e/suitcase-drive.mjs   # Kufferten: four word states, paging, the wrap-up button
+node e2e/suitcase-drive.mjs   # the suitcase: four word states, paging, the wrap-up button
 node e2e/key-visible-drive.mjs # your own key is drawn on the board
 node e2e/backup-drive.mjs     # export, wipe, restore, merge without loss
 node e2e/update-drive.mjs     # a new service worker is noticed and applied

@@ -208,7 +208,7 @@ export function SettingsScreen() {
             <option value="middle">3×5 — Middle, 6 clues</option>
             <option value="standard">4×5 — Standard, 8 clues</option>
           </select>
-          <small>What «Spil videre» deals. Wrap-up rounds bring their own board.</small>
+          <small>What Play deals. Wrap-up rounds bring their own board.</small>
         </label>
 
         <label className="field">

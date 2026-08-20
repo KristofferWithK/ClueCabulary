@@ -159,7 +159,7 @@ export function Cluey() {
       </button>
       <button
         className="cluey-button"
-        aria-label="Open Kufferten — your collection"
+        aria-label="Open the suitcase — your collection"
         onClick={() => goTo('suitcase')}
         onPointerDown={() => setMood('happy')}
       >

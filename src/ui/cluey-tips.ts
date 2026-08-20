@@ -45,7 +45,10 @@ export function wordOfTheDay(cityIndex: number) {
 export function clueyLines(cityIndex: number): string[] {
   const w = wordOfTheDay(cityIndex)
   const article = articleLabel(w) ? `${articleLabel(w)} ` : ''
-  return [`Dagens ord: ${article}${w.da} — ${w.en[0]}.`, ...TIPS]
+  // The label is chrome and the word is content: "Word of the day: et hus —
+  // house." Per-language, so H1's seam will want the label from the pack and
+  // the word from the dataset.
+  return [`Word of the day: ${article}${w.da} — ${w.en[0]}.`, ...TIPS]
 }
 
 /** Where today's rotation starts; tapping the bubble leafs onward. */

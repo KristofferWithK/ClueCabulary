@@ -242,8 +242,8 @@ export function RoundSummary({ game }: { game: GameState }) {
             <h3>{gamesWon === 1 ? 'Wrap-up round unlocked' : 'Wrap-up round earned'}</h3>
             <p className="collected-note">
               {gamesWon === 1
-                ? 'Winning earns a wrap-up round — the one round that packs collected words into the suitcase for good. Open Kufferten to spend it.'
-                : `${banked} banked. Spend one in Kufferten to pack collected words for good.`}
+                ? 'Winning earns a wrap-up round — the one round that packs collected words into the suitcase for good. Open the suitcase to spend it.'
+                : `${banked} banked. Spend one in the suitcase to pack collected words for good.`}
             </p>
           </section>
         )}

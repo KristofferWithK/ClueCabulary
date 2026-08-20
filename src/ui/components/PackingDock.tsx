@@ -42,7 +42,7 @@ export function PackingDock({ game }: { game: GameState }) {
   return (
     <div className="dock packing-dock">
       <p className="dock-title">
-        <span lang="da">Pak ordene</span> — {packed.length} of {game.words.length} packed
+        Pack the words — {packed.length} of {game.words.length} packed
       </p>
       {selected ? (
         <>

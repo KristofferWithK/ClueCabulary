@@ -63,7 +63,7 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   // changing a default does nothing for a device that already stored one, and
   // this one had every existing player still getting English clues.
   if (from < 3 && s.clueLanguage === 'en') s.clueLanguage = 'da'
-  // v3 -> v4: 3x5 is the board «Spil videre» deals.
+  // v3 -> v4: 3x5 is the board Play deals.
   //
   // This one is not clean, and the dishonest thing would be to pretend it is.
   // 'always' could be left alone in the study-phase migration because it was
@@ -134,7 +134,7 @@ export const useSettings = create<SettingsState>()(
       baseUrl: DEFAULT_BASE_URL,
       model: DEFAULT_MODEL,
       // 3x5. Fifteen words, six clues — the board the game is actually tuned
-      // around, and the one «Spil videre» deals. (It carried one forbidden
+      // around, and the one Play deals. (It carried one forbidden
       // word a side when that was chosen; no board does now.)
       // 3x4 is still a tap away in the picker for a first sitting.
       gridSize: 'middle',

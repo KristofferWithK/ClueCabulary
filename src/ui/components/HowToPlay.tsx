@@ -61,7 +61,7 @@ export function HowToPlay() {
             Name anything else and the round is over.
           </li>
           <li>
-            Nothing connects? Before the first clue, <strong lang="da">Nye ord</strong> deals a
+            Nothing connects? Before the first clue, <strong>↻</strong> in the header deals a
             different board of the same size — nothing has been spent yet, and the words you turned
             down do not come back on it. Any time, tap <strong>ⓘ</strong> on a word for the
             dictionary or <strong>Aa</strong> to show every translation; each lookup tells the app

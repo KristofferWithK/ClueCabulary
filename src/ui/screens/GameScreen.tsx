@@ -221,14 +221,14 @@ export function GameScreen() {
       {studying && (
         <div className="dock study-dock">
           <p className="dock-title">
-            <span lang="da">Lær ordene</span> — study the board
+Study the board
           </p>
           <p className="study-hint">
             Every translation is shown. Once you start they hide, and you can tap a single word to
             look it up.
           </p>
           <button className="btn btn-primary btn-big" onClick={() => useGame.getState().endStudy()}>
-            <span lang="da">Klar</span> — start the round
+Start the round
           </button>
         </div>
       )}
@@ -264,7 +264,7 @@ function SuddenDeathBar({ game }: { game: GameState }) {
   return (
     <div className="dock guess-bar sudden-death-bar">
       <p className="dock-title">
-        <span lang="da">Alt eller intet</span> — no clues left
+All or nothing — no clues left
       </p>
       {/* The dock's give-way region: selecting a card swaps a one-line hint for
           a 44px confirm row below, and this absorbs the difference so the give-

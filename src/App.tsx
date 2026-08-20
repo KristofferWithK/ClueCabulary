@@ -112,7 +112,7 @@ export default function App() {
     // to get to the clue box without spending a guess first.
     const first = params.get('first')
     if (first === 'player' || first === 'ai') useUi.setState({ pendingFirstGiver: first })
-    // ?grid= picks the board «Spil videre» deals. The picker left Home for
+    // ?grid= picks the board Play deals. The picker left Home for
     // Settings, and a drive cannot type into a select mid-run.
     const grid = params.get('grid')
     if (grid === 'beginner' || grid === 'middle' || grid === 'standard') {

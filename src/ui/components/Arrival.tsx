@@ -17,6 +17,9 @@ export function Arrival({
   const goTo = useUi((s) => s.goTo)
   const city = cityAt(cityIndex)
 
+  // Danish above, English below, on purpose: the welcome, the city and its
+  // blurb are a bilingual block with blurbEn as the gloss, which is content
+  // rather than chrome. The two buttons are chrome and speak English.
   return (
     <div className="screen arrival-screen">
       <p className="arrival-eyebrow" lang="da">
@@ -33,10 +36,10 @@ export function Arrival({
         {WORDS_PER_CITY} new words to discover — Casey is open and waiting for them.
       </p>
       <button className="btn btn-primary btn-big" onClick={() => goTo('home')}>
-        <span lang="da">Kom i gang</span>
+        Get started
       </button>
       <button className="btn" onClick={() => (onSeeMap ? onSeeMap() : goTo('map'))}>
-        <span lang="da">Se kortet</span>
+        See the map
       </button>
     </div>
   )

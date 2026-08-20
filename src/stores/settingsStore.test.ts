@@ -174,14 +174,14 @@ describe('which language Casey clues in', () => {
  * only what a device that has never stored one gets, and this store has no
  * partialize — every save ever written carries a gridSize whether the player
  * touched the picker or not. Moving the default alone would have left every
- * existing device dealing 3x4 from «Spil videre» forever.
+ * existing device dealing 3x4 from Play forever.
  *
  * Unlike the study phase, the old value cannot be told apart from a deliberate
  * choice of it, so this migration moves everyone. That is a decision, recorded
  * here rather than discovered later: 3x4 is one tap away on Home and the tap
  * sticks, whereas not moving means the board that was asked for never arrives.
  */
-describe('which board «Spil videre» deals', () => {
+describe('which board Play deals', () => {
   const migrate = migrateSettings
 
   it('is 3x5 for anyone who has never stored a setting', () => {
