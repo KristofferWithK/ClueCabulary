@@ -77,6 +77,64 @@ for (const vp of [
 }
 await page.setViewportSize(PHONE)
 
+// Home's progress band is one line and has to stay one line. It used to be an
+// eyebrow, a bar and a four-part count that took THREE lines at 360px and left
+// Casey a thumbnail. The widest the two counts can ever get is four digits
+// between them — they are disjoint states, so the hundred splits one way or
+// the other — and city 0 is Sønderborg, the longest name on the route.
+//
+// Counting lines by the tops of the range's client rects does not work here: a
+// 0.9rem <strong> beside 0.72rem text has a different top on the SAME line and
+// reads as two. Group by the vertical centre instead.
+//
+// Both checks were run against the band this replaced — the column layout with
+// the four-part count — and both fail on it: three lines at 360px. Worth
+// knowing which of them a given regression trips, because it is not the
+// obvious one. Putting `discovered` and `to find` back *without* reverting the
+// CSS still measures one line, because the count is `flex: 0 0 auto` and a
+// flex item that cannot shrink never wraps; it pushes the row wider instead
+// and the second check is what catches it. The line count only moves once the
+// row goes back to a column. Between them they cover both ways out.
+const progressLines = async () =>
+  page.evaluate(() => {
+    const el = document.querySelector('.collect-count')
+    const range = document.createRange()
+    range.selectNodeContents(el)
+    const centres = []
+    for (const r of range.getClientRects()) {
+      if (r.height < 2) continue
+      const c = r.top + r.height / 2
+      if (!centres.some((x) => Math.abs(x - c) < 5)) centres.push(c)
+    }
+    const row = document.querySelector('.home-progress-band')
+    const name = document.querySelector('.city-eyebrow')
+    return {
+      lines: centres.length,
+      text: `${name.textContent} — ${el.textContent.replace(/\s+/g, ' ').trim()}`,
+      overflows: row.scrollWidth > row.clientWidth + 1,
+      clipped: name.scrollWidth > name.clientWidth + 1,
+      wide: document.scrollingElement.scrollWidth > window.innerWidth + 1,
+    }
+  })
+
+for (const query of [
+  '?mock=1&howto=0&city=0&collected=30',
+  '?mock=1&howto=0&city=0&wrapped=50&collected=100',
+]) {
+  await page.setViewportSize({ width: 360, height: 640 })
+  await open(query)
+  const p = await progressLines()
+  check('the progress band is one line at 360px', p.lines === 1, p.text)
+  check('and nothing in it overflows or is cut off', !p.overflows && !p.clipped && !p.wide)
+}
+// Wipe what that seeded. `?collected=100` gives every word in city 0 a full
+// stats record, and `?almost=…` further down explicitly skips words that
+// already have one — so leaving it stood there turned the round-greening
+// section into a round that could not green anything, and the check under it
+// failed a hundred lines away from the cause.
+await page.evaluate(() => localStorage.clear())
+await page.setViewportSize(PHONE)
+
 // Settings is the one screen with more to say than a phone is tall. The
 // DOCUMENT must not scroll — its internal container does, under a header
 // that stays put.
@@ -320,6 +378,43 @@ check('Escape closes the rules', (await page.locator('.howto').count()) === 0)
 await open('?mock=1&howto=0&city=0')
 check('no setup nudge with the practice companion', (await page.locator('.setup-nudge').count()) === 0)
 
+// Nor on a fresh profile, which is the case that mattered: Home used to test
+// `settings.apiKey`, a field settings v7 cleared everywhere and nothing writes
+// any more, so "Add your API key in Settings" greeted every player of a game
+// that talks to the proxy without one. This is the check that would have
+// caught it — a real first run, no mock, nothing stored.
+await page.evaluate(() => localStorage.clear())
+await open('?howto=0&city=0')
+check(
+  'and none at all on a fresh profile',
+  (await page.locator('.setup-nudge').count()) === 0,
+  await page.locator('.cluey-bubble').first().innerText(),
+)
+
+// But a base URL of your own with no key in the app is NOT a fresh profile —
+// it is the setup the deploy guide recommends, a worker holding the key as a
+// Cloudflare secret. Those players have configured something and have to be
+// able to hear that it is not answering. Testing the key alone left them with
+// nothing, which proxy-drive found the hard way: it walks that exact setup and
+// reached Settings through the banner this card deleted.
+await page.evaluate(() => {
+  const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1') ?? '{}')
+  raw.state = {
+    ...raw.state,
+    useMock: false,
+    apiKey: '',
+    baseUrl: 'http://127.0.0.1:9/v1',
+    klausVerifiedAt: null,
+  }
+  localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
+})
+await open('?howto=0&city=0')
+check(
+  'a worker of your own that has never answered does prompt, with no key in the app',
+  (await page.locator('.cluey-bubble.setup-nudge').count()) === 1,
+)
+await page.evaluate(() => localStorage.clear())
+
 // Connecting Casey is the one thing a stuck player must be able to do from the
 // phone in their hand, so the steps live in the app rather than behind a link
 // to a markdown file. They have to fit the screen and be reachable.
@@ -329,6 +424,13 @@ await page.evaluate(() => {
   localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
 })
 await open('?howto=0&city=0')
+// The prompt that survives is the one that means something — an own key that
+// has never produced an answer — and it speaks through Casey now rather than
+// from a banner above the map.
+check(
+  'the prompt that survives comes out of Casey mouth',
+  (await page.locator('.cluey-bubble.setup-nudge').count()) === 1,
+)
 await page.locator('.setup-nudge').first().click()
 await page.waitForSelector('.settings-screen')
 const panel = page.locator('.connect-cluey')

@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import { WORDS } from '../../data/words'
 import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
-import { DENMARK_PATH, MAP_HEIGHT, MAP_WIDTH, projectCity } from '../../journey/denmark'
+import {
+  DENMARK_HATCH,
+  DENMARK_PATH,
+  DENMARK_SKETCH,
+  MAP_HEIGHT,
+  MAP_WIDTH,
+  projectCity,
+} from '../../journey/denmark'
 import { WRAP_TO_TRAVEL, canTravel, countCollection, wordsForCity } from '../../journey/progress'
 
 import { Arrival } from '../components/Arrival'
@@ -65,7 +72,11 @@ export function MapScreen() {
         role="img"
         aria-label={`Map of Denmark. Stop ${journey.cityIndex + 1} of ${CITIES.length}: ${cityAt(journey.cityIndex).name}.`}
       >
+        {/* Three passes, under the route: the land, its shading, and the
+            second time round the coastline. */}
         <path className="map-land" d={DENMARK_PATH} />
+        <path className="map-hatch" d={DENMARK_HATCH} />
+        <path className="map-sketch" d={DENMARK_SKETCH} />
         <polyline className="map-route-ahead" points={aheadPath} />
         <polyline className="map-route-done" points={travelledPath} />
 
