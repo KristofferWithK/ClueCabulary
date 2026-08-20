@@ -1,7 +1,30 @@
 // Merges the verified generation batches in src/data/generated/ into the
 // final src/data/words.da.json: dedupes, estimates a global frequency rank by
 // proportionally interleaving the per-POS slices, assigns stable ids.
+//
+// THIS IS A BOOTSTRAP, NOT A BUILD STEP. It has not been the way
+// src/data/words.da.json is produced since the dataset was first laid down:
+// the shipped file carries curriculumRank, concepts, gender and countable,
+// none of which this script writes. Running it over the shipped file would
+// silently undo all of that, and would also need apply-city-one.mjs run again
+// after it. The batches are the raw generation record and the ranked pool;
+// src/data/words.da.json is the dataset.
+//
+// The two had already drifted by one headword before anyone noticed:
+// "sommerfugl" replaced "ked" in the shipped file — "ked" is not a word on its
+// own, only ever "ked af det" — and the batch kept saying "ked" for a year.
+// It has been back-ported at the same slice and order, so the ranking is
+// unchanged, and scripts/validate-words.mjs now fails on any headword that is
+// in no batch. That is the drift worth catching.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
+
+/**
+ * How many words the game teaches: nine cities of WORDS_PER_CITY each
+ * (src/journey/cities.ts). The name says it — 900Words. Ranks 901-1000 were
+ * dropped from the shipped dataset when the tenth city went; the batches keep
+ * them, so this cap is what decides the size rather than the size of the pool.
+ */
+const TARGET_SIZE = 900
 
 const GEN_DIR = new URL('../src/data/generated/', import.meta.url)
 const OUT = new URL('../src/data/words.da.json', import.meta.url)
@@ -45,7 +68,7 @@ const scored = [...seen.values()].map((e) => {
 })
 scored.sort((a, b) => a.score - b.score || a.entry.da.localeCompare(b.entry.da, 'da'))
 
-const final = scored.slice(0, 1000).map(({ entry }, i) => {
+const final = scored.slice(0, TARGET_SIZE).map(({ entry }, i) => {
   const out = {
     // Stable, word-derived id: SRS progress survives future dataset revisions.
     id: `da:${entry.da.trim().toLowerCase()}`,

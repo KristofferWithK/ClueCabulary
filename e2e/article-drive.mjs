@@ -7,7 +7,7 @@
 // curated short and concrete, so the longest word it ever saw was "køkken" and
 // it reported 192/192 cards fine. The words that can actually break a 76px
 // card — "sygeplejerske", "vaskemaskine", "badeværelse" — are dealt only to a
-// player who has reached cities 5 through 9. So this walks the whole journey,
+// player who has reached the later cities. So this walks the whole journey,
 // and then asserts it got to the long end: a sweep that measures only short
 // words has to fail rather than report OK.
 //
@@ -124,7 +124,7 @@ try {
   let longestSeen = ''
   const linesByWord = new Map()
 
-  for (const city of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+  for (const city of [0, 1, 2, 3, 4, 5, 6, 7, 8]) {
     // Fresh arrival, then most of the way through: the second reaches the far
     // end of the city, which is where the long words are.
     for (const learned of [0, 62]) {

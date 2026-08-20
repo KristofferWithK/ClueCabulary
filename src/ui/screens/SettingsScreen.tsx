@@ -228,13 +228,13 @@ export function SettingsScreen() {
             value={settings.studyPhase}
             onChange={(e) => settings.set({ studyPhase: e.target.value as StudyMode })}
           >
-            <option value="auto">Auto — fades after Viborg</option>
+            <option value="auto">Auto — fades after Aalborg</option>
             <option value="always">Always show translations first</option>
             <option value="never">Never — straight into the round</option>
           </select>
           <small>
             A round can open with the whole board translated. On auto it disappears once the
-            journey turns north at Aalborg. Studying never counts as looking a word up.
+            journey reaches Skagen. Studying never counts as looking a word up.
           </small>
         </label>
       </section>
