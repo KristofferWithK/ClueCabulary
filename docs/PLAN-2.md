@@ -490,12 +490,12 @@ pass to flip.
 ### Ready
 - **D4** — Casey is she *(settled; no dependencies)*
 - **D5** — Sudden death becomes the last chance *(settled; ships with D4)*
-- **K1** — The composer never changes size
 - **U1** — A tap says the word; ⓘ opens the dictionary
 - **S1** — Casey's guesses are spoken
 - **X1** — The stale-copy sweep
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
+- **K2** — Every dock the same fixed height, the legend gone, the drive measuring the panel *(K1 landed)*
 - **E1** — The judged matrix, city 1 *(city 1 is final; may start now)*
 - **E2** — The book, city 1 *(beside E1)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
@@ -509,7 +509,6 @@ pass to flip.
 - **E4** — Measure the engine, and decide *(E3)*
 - **E6** — Matrix and book for cities 2–9 *(E4's decision)*
 - **E5** — The hybrid *(E4's decision)*
-- **K2** — Every dock the same fixed height, the legend gone, the drive measuring the panel *(K1)*
 - **N1** — One board: 3×6, and the sizes go *(K1 + K2: measured, a sixth row does not fit until they land)*
 - **N2** — The wrap-up round on 3×6 *(N1)*
 - **U3** — Casey thinks aloud before each guess *(K2; S1 for the spoken reveal)*
@@ -540,6 +539,12 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 - **WS1** — Apply the word selection — 2026-08-21 (PR #100). 113 out, 113 in,
   `curriculumRank` re-dealt by `scripts/apply-word-selection.mjs`; the ledger
   rule is a hard error in `validate:words` with a mutation recorded.
+- **K1** — The composer never changes size — 2026-08-22 (PR #101). Three rows,
+  one shared line (verdict left, the dictionary's one answer right), and a
+  measured `--dock-h` of 9.375rem = 150px that holds in all seven states.
+  The panel is unpainted: the composer sits on the page ground under a
+  hairline rule. `--dock-slot-h` still holds the old 12.5rem reserve for the
+  docks K2 redraws.
 - **C4** — closed 2026-08-21, "it feels attached enough"; the ride ships as it is
 - **C5** — closed unbuilt with it
 

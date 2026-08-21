@@ -1635,103 +1635,106 @@ select:focus {
   gap: 8px;
 }
 
-/* ---- the board never moves ------------------------------------------------
+/* ---- the board never moves, and now neither does the composer -------------
  *
  * The complaint: "when guessing it's a giant text block that adjusts the
  * sizing of the grid. The grid should stay locked. and the text can be cut."
  *
  * The board is a flex:1 area sharing this column with the dock, so every line
  * the dock gained or lost came straight off the grid — and the grid resizes
- * every card with it. Measured over one seeded round at 360x640, before this:
- *
- *   clue dock          board 274..310   (the last-turn recap, now deleted)
- *   + a 4-hit lookup   board 123..310   (188px, the worst of them)
- *   Casey guessing     board 322
- *   your turn to guess board 182..267   (the confirm row and the stop button)
- *   + a 4-hit lookup   board 123..267
- *   sudden death       board 194..222, and 18px lower down the screen
- *
- *   -> 200px of height and 18px of position, over one round.
+ * every card with it. Measured over one seeded round at 360x640, before any of
+ * this: 200px of height and 18px of position, over one round.
  *
  * The fix is to reserve rather than to shrink. Every dock a round can be in
  * gets the SAME height, so the flex:1 board above it is handed the same
  * leftover in every phase and the grid is locked by construction — no
  * measuring, no JS, nothing to keep in sync with the phase machine.
  *
- * The size is measured, not estimated. Every dock was asked how tall it wants
- * to be (height:auto) in every state a round can put it in, at 360x640. It was
- * 16.25rem = 260px for one release, sized off the four rows the guess bar had
- * then; the second complaint was about that number — "the composer is way too
- * big, can we reduce the grey space and increase the grid card sizes" — and it
- * was fair. The clue dock wants 126px and was being handed 260, so a third of
- * that phase's screen was empty panel, and the board paid for it.
+ * Two numbers, and they are two because K1 landed before K2:
  *
- * You cannot answer that by shrinking the composer: the reserve is the TALLEST
- * dock, and every other dock's spare room is the price of the board not
- * moving. The only thing that lowers it is making the tallest dock shorter, so
- * three rows came out of the guess bar and one out of the composer:
+ *   --dock-h       the composer's own fixed height. It is the composer's
+ *                  MEASURED height, not a budget it is squeezed into.
+ *   --dock-slot-h  the reserve the slot holds, which is still the tallest dock
+ *                  a round can reach — and that is still the guess bar, until
+ *                  K2 redraws it and the other docks to --dock-h. When it
+ *                  does, these two become one number and the slot can go.
  *
- *   - "Look up Casey's clue", a row inside the dictionary, printed the clue a
- *     second time one row under the title that had just named it. The title's
- *     copy is the button now (.clue-lookup), and the same trick took the same
- *     row out of the composer's English verdict.  -21px
- *   - "Stop guessing (keep what we have)" had a row of its own under the
- *     confirm row, and wrapped to two lines in it — 66px and an 8px gap.
- *     Stopping and confirming a guess are alternatives — you cancel a
- *     selection before you walk away — so it shares the row the hint and the
- *     confirm buttons already use, under a label that fits one line.  -74px
- *   - "Give clue anyway" wrapped beside the stepper; "Give it anyway" does
- *     not.  -18px, in the composer's tallest state.
+ * ---- --dock-h: 9.375rem = 150px --------------------------------------------
  *
- * What each dock wants now, measured the same way:
+ * Measured with e2e/composer-probe.mjs (opt-in), at 360x640, by asking the
+ * panel how tall it wants to be (height:auto) in every state a clue turn can
+ * put it in. After K1 the answer is the SAME in all of them:
  *
- *   Casey guessing                                   116.69
- *   clue dock, bare                                  126
- *   ... + the first-clue-ever line (O4)              191
- *   ... + an English clue, so a verdict + its button 180
- *   ... + a four-hit lookup answer                   272.59
- *   guess bar, bare                                  143.86
- *   ... + the stop button, or a card selected        153.86
- *   ... + a four-hit lookup answer                   241.45
- *   sudden death, either row                         181.86
+ *   empty, with the first-clue-ever line (O4)     149.41
+ *   typing a legal clue                           149.41
+ *   an illegal clue (a board word)                149.41
+ *   an English-looking clue                       149.41
+ *   a lookup with seven glosses behind it         149.41
+ *   the longest verdict AND that answer together  149.41
+ *   "Asking Casey…", and Casey's answer           149.41
  *
- * The lookup answers still cannot be reserved for, and are still where the
- * reserve deliberately runs out: the list scrolls inside itself. What the size
- * has to buy is that running out never hides anything — 12.5rem = 200px hands
- * the fullest guess state's answers list 32.1px, which is one whole answer
- * line (the min-height on .translate-hits below, 20.9) and half of the next,
- * with every control still inside the dock. It is also what the composer's
- * tallest state needs: the O4 first-clue line takes it to 191, so 200 leaves
- * 9px. 12rem clears the guess bar and leaves that line 3px, which is not
- * clearance. Sudden death gains from the same swap and is the one dock with
- * room over: its prose is the give-way region and it now shows all 94px of
- * itself rather than being cut.
+ * which is the whole of K1 in one column of numbers. It is three rows and
+ * nothing else: 47 (the field row) + 26.41 (the shared line) + 49 (the stepper
+ * and the send), two 8px gaps, 10px of padding and the 1px rule above it.
+ * 149.41 -> 9.375rem leaves 0.59px, and layout-drive samples the panel's
+ * rectangle per frame across all seven states above to say it stays there.
  *
- * 60px came off, and it is 60px of board in every phase: on the default 3x5
- * board at 390x844 a card row goes 70.9 -> 82.9, and the composer's empty
- * panel goes 134px -> 74px.
+ * The line is 26.41 rather than 20 because the inline 🔊 in a dictionary
+ * answer is taller than the 0.8rem text beside it; it is declared at that
+ * height whether or not an answer is up, so there is one natural height rather
+ * than two. See .composer-line.
  *
  * In rem, not px, so it tracks the text it has to hold when the phone's font
  * size is turned up.
  *
- * The tutorial keeps the old number, and that is deliberate rather than a
+ * ---- --dock-slot-h: 12.5rem = 200px ---------------------------------------
+ *
+ * Unchanged, and re-measured rather than assumed: the docks K2 has not
+ * redrawn yet, asked the same way, at 360x640, after the dictionary lost its
+ * four-row scroller —
+ *
+ *   Casey guessing                                116.69
+ *   guess bar, bare                               155.73
+ *   ... + the first-guess-ever line (O4)          176.73
+ *   ... + the stop button                         183.73
+ *   ... + a lookup answer on top of that          189.27   <- the tallest
+ *   sudden death                                  169.86
+ *   the composer, every state                     149.41
+ *
+ * so 200px still covers the tallest by 10.7px, with nothing hanging out of any
+ * of them (spill 0) and the document at 640 on a 640px screen. Lowering it is
+ * K2's move, not this card's: the gap between the tallest dock and the
+ * shortest is the price of the board not moving, and it is paid in whichever
+ * phase is not the tallest. What K1 changes is that the composer's share of
+ * that gap is now air rather than panel — see the paint note on
+ * .dock.clue-input.
+ *
+ * The story this replaces, kept in one line so the diff is legible: the docks
+ * used to want 126 (composer) / 154 (guess bar) / 191 (composer + the O4 line)
+ * and the reserve was set to 200 for the four-row lookup list, which no longer
+ * exists.
+ *
+ * The tutorial keeps its own number, and that is deliberate rather than a
  * leftover — see .dock.tutorial-dock below.
  */
 .game-screen {
-  --dock-h: 12.5rem;
+  --dock-h: 9.375rem;
+  --dock-slot-h: 12.5rem;
   --tutorial-dock-h: 16.25rem;
 }
 
-/* The slot IS the reserve, and it is the only thing here with a height.
+/* The slot IS the reserve, and until K1 it was the only thing here with a
+ * height. The composer has one of its own now; the other docks are still
+ * content-sized inside this.
  *
  * This was the panel's own height for two releases, and the second complaint
  * was the cost of that: "it's still way too much grey — the text field should
  * be so low that only one or two small text lines fit below it." Both halves
- * were right. The composer wants 126px and the guess bar 154, so a single
- * height for both means one of them is drawn as a sheet of grey with its
- * fields stranded at the top — and no amount of trimming fixes it, because the
- * gap between the tallest dock and the shortest one is the price of the board
- * not moving, and it is paid in whichever phase is not the tallest.
+ * were right. The composer wants 149.41px and the guess bar 189.27, so a
+ * single height for both means one of them is drawn as a sheet of grey with
+ * its fields stranded at the top — and no amount of trimming fixes it, because
+ * the gap between the tallest dock and the shortest one is the price of the
+ * board not moving, and it is paid in whichever phase is not the tallest.
  *
  * So the space is held here, where it costs nothing to look at, and the panel
  * inside hugs its own content against the bottom edge. The board sees exactly
@@ -1744,9 +1747,14 @@ select:focus {
  * lookup answer grows the panel UPWARDS into space that was already spoken
  * for, so nothing below it moves and nothing above it resizes; and the dock
  * is still the last thing in the layout, so the native keyboard still lands
- * against it with no arithmetic (see .kb-up below). */
+ * against it with no arithmetic (see .kb-up below).
+ *
+ * The middle one is now true of the composer by construction rather than by
+ * arithmetic: it does not grow at all. The slack above it is invisible (#90
+ * took the paint off this slot) and K1 took the paint off the panel too, so
+ * what is between the board and the clue field is a hairline and background. */
 .dock-slot {
-  height: var(--dock-h);
+  height: var(--dock-slot-h);
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -1761,7 +1769,8 @@ select:focus {
 /* Content-sized, up to the slot. The cap is what keeps the give-way rules
    below meaningful: past it the panel stops growing and the one region marked
    flexible gives way inside itself, exactly as it did when the height was
-   fixed. */
+   fixed. The composer opts out by declaring a height of its own, which is
+   under this cap and therefore never fights it. */
 .dock-slot > .dock {
   max-height: 100%;
   min-height: 0;
@@ -1782,8 +1791,14 @@ select:focus {
  * whose content spills still lengthens the document, so if a future dock
  * outgrows its reserve the no-scroll assertion in layout-drive fails and says
  * so. Clipping the dock would hide the content AND silence the check — the
- * trap the shell's own overflow comment is about. */
-.dock.clue-input > .composer-fields,
+ * trap the shell's own overflow comment is about.
+ *
+ * The composer is no longer in this list, and that is the K1 change stated in
+ * one rule: it has no give-way region because it has nothing that can grow.
+ * Three rows of fixed height, the middle one a single line that ellipsizes
+ * rather than wraps, so the panel's own height IS its content's height and
+ * there is no leftover to hand anywhere. The guess bar still needs one until
+ * K2 redraws it. */
 .dock.guess-bar > .translate-box,
 .dock.guess-bar > .dock-flex {
   flex: 1 1 auto;
@@ -1898,16 +1913,68 @@ select:focus {
   justify-content: center;
 }
 
-/* ---- the composer: two fields, one line ----
+/* ---- the composer: three rows, one height (K1) ----
 
-   A clue is one short word, so the field does not need a row of its own — and
-   the word you are hunting for goes in the field beside it. Two lines instead
-   of five, which is what lets the whole thing sit on the keyboard without
-   swallowing the board behind it. */
+   "I don't want the size of the composer to change ever. Below clue and
+   dictionary should be enough space for one small line of text where the
+   translation, or the clue warning can be."
+
+   Three rows and nothing else may be added: the field row, ONE shared line,
+   the action row. The height that follows is measured and declared as
+   --dock-h above; everything here is sized so that measurement holds in every
+   state the composer can be in.
+
+   ---- is the composer painted? No, and that is a decision ----
+
+   PR #90 took the paint off the dock's RESERVE after "it's still way too much
+   grey", leaving the slot invisible and the panel content-sized inside it.
+   This takes it off the PANEL, which is the same move one step further: the
+   composer sits on the page ground with a single hairline rule above it, and
+   the two fields carry their own borders as they already did. Three reasons it
+   is the right call here rather than a matter of taste:
+
+     - a panel is a container drawn to say "these things belong together", and
+       at a fixed height it is drawn at its FULLEST in every state — so the
+       states with less to say (which is most turns: no verdict, no answer) are
+       the ones paying for a rectangle of grey around three controls;
+     - the grey was already the whole of the complaint, twice;
+     - the surface behind the composer is the game screen, and the keyboard
+       lands against the composer directly (.kb-up below) — a second surface
+       between them is one edge more than the eye needs to find the field.
+
+   The rule above it stays, because it is doing the one job the panel did that
+   nothing else does: saying where the board stops and the controls start.
+   Written down rather than left to `--surface` by inheritance, per the card.
+
+   The other docks keep their panel until K2 redraws them to this height. */
+.dock.clue-input {
+  background: none;
+  border: none;
+  border-top: 1px solid var(--line-soft);
+  border-radius: 0;
+  padding: 10px 0 0;
+  /* The fixed height itself. Not a min/max pair: the whole claim is that this
+     box is one rectangle, and layout-drive samples it per frame to say so. */
+  height: var(--dock-h);
+}
+
+/* No pencil-edge chrome either — that ::before IS the panel's border, drawn
+   through the wobble filter, and a hairline rule does not want a wobbling
+   rectangle behind it. */
+.dock.clue-input::before {
+  content: none;
+}
+
+/* A clue is one short word, so the field does not need a row of its own — and
+   the word you are hunting for goes in the field beside it. */
 .composer-fields {
   display: flex;
   gap: 8px;
-  align-items: start;
+  /* stretch, not start: the two fields are the same control twice and a row
+     whose halves are different heights reads as a mistake. It also pins the
+     row's height to the taller of them, which is what the measurement above
+     is taken against. */
+  align-items: stretch;
 }
 
 .composer-fields > * {
@@ -1915,27 +1982,63 @@ select:focus {
      dictionary answer widen its column and squeeze the clue field. */
   flex: 1 1 0;
   min-width: 0;
-  /* And may not grow taller than the row the dock reserved for them, which is
-     how a long lookup answer is bounded rather than allowed to push. */
-  max-height: 100%;
 }
 
-.composer-field {
-  display: flex;
-  flex-direction: column;
-}
+/* ---- THE line ----
 
-.composer-label {
+   One row, always present, holding at most two things: the verdict (or the
+   first-clue hint) on the left and the dictionary's one answer on the right.
+   Present even when empty — a line that appears when it has something to say
+   is a line that moves everything under it, which is the bug this card exists
+   to kill.
+
+   min-height rather than height so a phone with its text turned up gets a
+   taller line rather than a clipped one; the box around it is what is fixed,
+   and it has the padding to absorb a point or two.
+
+   Both halves shrink and both ellipsize, so either one ALONE takes the full
+   width. When both are up the answer is the half that gives way — shrink 8
+   against 1 — because the verdict is carrying the tappable word and a verdict
+   cut to its first syllable says nothing at all. */
+.composer-line {
   display: flex;
-  align-items: baseline;
+  /* center, not baseline: baseline-aligning a 26.41px button against 0.8rem
+     text pushes the row to 27.41 and the composer with it, so the box would
+     have had two heights again — one with an answer up and one without, which
+     is precisely the bug. */
+  align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  font-size: 0.62rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 3px;
-  min-height: 14px;
+  gap: 8px;
+  /* 1.65rem, and it is measured: the inline 🔊 in a dictionary answer is
+     0.9rem of glyph on .speak-btn's 6px padding and line-height 1, which is
+     26.41px — taller than the 0.8rem text beside it and therefore the thing
+     that sets the row. Declared as the line-height too, so the row is that
+     height whether or not an answer is up and the composer has ONE natural
+     height rather than two. Shrinking the speaker to fit the text instead was
+     the other way out; it would have taken 6px off a tap target that is the
+     same 🔊 the round summary and the sheet use. */
+  min-height: 1.65rem;
+  font-size: 0.8rem;
+  line-height: 1.65rem;
+  overflow: hidden;
+}
+
+.composer-line > * {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+}
+
+/* The answer gives way first — but not to nothing. Shrink 4 against the
+   verdict's 1, with a floor on the text below (.dict-hit's min-width) so what
+   survives is always the target word and the start of its gloss. Measured with
+   the longest verdict and the longest answer up together at 360px: without the
+   floor the answer was squeezed to 13px, which is a word cut to its first
+   letter and no better than not being there. */
+.composer-line > .dict-answer {
+  flex-shrink: 4;
 }
 
 /* A small inline action on a label line — re-dealing the board, or sending the
@@ -1966,17 +2069,15 @@ select:focus {
   flex: none;
 }
 
-/* The dictionary's answers hang under its own field, where the eye already
-   is, rather than pushing the send button down a line. */
-.composer-fields .translate-box {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.composer-fields .translate-hits {
-  margin-top: 4px;
-  font-size: 0.72rem;
+/* The dictionary's field, in the composer, is the composer's other field:
+   the same padding as the clue beside it, and no box of its own. The
+   `.translate-box` wrapper (border, padding, a column) is not rendered here at
+   all any more — ClueInput places the field and the answer separately, which
+   is what lets the answer share a line with the verdict instead of hanging
+   under its own field. */
+.composer-fields .translate-input {
+  padding: 12px;
+  margin-top: 0;
 }
 
 /* ---- the keyboard, in the native shell ----
@@ -3648,12 +3749,18 @@ select:focus {
 
 /* ---------- look up a word ---------- */
 
-/* A flex column everywhere, not only inside the composer. It was a plain block
-   in the guess bar, and a plain block's children cannot flex — so the answers
-   list below sat at its full 4.6rem and hung 29.5px out of the bottom of the
-   reserved dock, taking the document with it (657px on a 640px screen). The
-   guess bar is the dock with the least room and the one the complaint was
-   about, so that is exactly the wrong place for the give-way to not work. */
+/* The STACKED form of the dictionary — the field with its one answer under it.
+   Still what the guess bar, the tutorial dock and Casey's clue line render;
+   the composer takes the same two pieces apart and places them in two
+   different rows (see .composer-fields and .composer-line above), which is
+   what lets the answer share a line with the verdict.
+
+   A flex column, still, and still for the reason it was made one: it was a
+   plain block in the guess bar, and a plain block's children cannot flex — so
+   the answers list below sat at its full 4.6rem and hung 29.5px out of the
+   bottom of the reserved dock, taking the document with it (657px on a 640px
+   screen). The list is one line now and cannot do that, but the give-way rule
+   above still points here and K2 is what redraws this dock. */
 .translate-box {
   border-top: 1px solid var(--line-soft);
   padding-top: 6px;
@@ -3662,8 +3769,8 @@ select:focus {
   min-height: 0;
 }
 
-/* The field, its label and its error keep their size; only the answers give
-   way. Overridden below by .translate-hits, which is declared later. */
+/* The field keeps its size; the answer line below is the one that may be cut.
+   Overridden by .translate-line, which is declared later. */
 .translate-box > * {
   flex: none;
 }
@@ -3681,71 +3788,78 @@ select:focus {
   margin-top: 4px;
 }
 
-/* The answers, in a box that is the same size whether it holds four of them or
-   none. This cap used to apply only while the keyboard was up, where a long
-   answer pushing the send button under the keyboard was the visible symptom;
-   the invisible one was the answer pushing the BOARD, which happens keyboard
-   or no keyboard and was the biggest single source of drift measured — 188px
-   of board on a four-hit lookup. Generalised, so the box scrolls its own
-   overflow the way it already did there.
+/* ---- ONE answer, on ONE line (K1) ----
 
-   flex 1 1 auto rather than a bare max-height: inside a reserved dock the row
-   may be shorter than 4.6rem, and then this has to give way rather than spill
-   over the button below it. */
-.translate-hits {
-  list-style: none;
-  margin: 10px 0 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+   `.translate-hits` (a four-row scroller with its own max-height, min-height
+   and overflow), `.translate-ask` (the "Ask Casey" button's row) and
+   `.hit-on-board` were declared here. All three are gone from the markup and
+   deleted rather than left standing, because a dead rule for a dead row is how
+   the next reader concludes the row is still there.
+
+   What replaces them: the best hit, its first gloss and a 🔊, on one line that
+   is the same height whether the answer came from the shipped nine hundred,
+   from Casey, or not at all. Everything else about the word — the other six
+   glosses, the example, the 🐢 — is one tap away in the sheet, which is where
+   it already lived. The scroller was carrying that content in the one box on
+   the screen whose height is the board's height. */
+.translate-line {
+  min-height: 1.45em;
   font-size: 0.9rem;
   line-height: 1.45;
+  margin-top: 6px;
+  /* One line of its own text is the floor under "gives way" — the same floor
+     .translate-hits carried, and for the same reason: without it the give-way
+     is unbounded and the answer is in the DOM with none of it on screen, which
+     is a hidden control wearing a scrollbar. */
   flex: 1 1 auto;
-  max-height: 4.6rem;
-  overflow-y: auto;
-  /* One line of its own text, whatever that text is sized at — the floor under
-     "gives way". Without it the give-way is unbounded, and in the fullest the
-     guess dock gets (a card selected, the stop button showing, four answers
-     up) it gave way to exactly zero: four answers in the DOM and none of them
-     on screen, which is a hidden control wearing a scrollbar. The reserve
-     above is sized so this floor is never the thing that spills — and if a
-     future dock makes it spill, the no-scroll check says so. */
-  min-height: 1.45em;
-}
-
-/* One line per answer. A Danish gloss list runs long — "flink — nice, kind,
-   friendly, pleasant" — and wrapping it moved everything under it by a line
-   per hit. Cut instead: the Danish word is at the start, which is the thing
-   being looked up. */
-.translate-hits > li {
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.translate-hits [lang] {
+/* The answer itself. A flex row so the 🔊 stays on screen while the gloss is
+   the part that gets cut — a Danish gloss list runs long ("flink — nice, kind,
+   friendly, pleasant") and the Danish word is the thing being looked up, so it
+   is the head of the line and the last thing to go. */
+.dict-answer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* The text, and the tap that opens the sheet behind it. Not a .btn: it has to
+   read as a line of text you may tap, and any padding here is height in the
+   one row the composer reserves for it. */
+.dict-hit {
+  /* The floor the answer stops giving way at — about five characters, so the
+     word being looked up survives a squeeze. Under the natural width of any
+     real answer, so it only ever bites while being crushed. */
+  min-width: 3.25rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+  color: var(--text);
+}
+
+.dict-hit [lang] {
   font-weight: 700;
+  color: var(--green-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Casey's answer has no entry behind it, so there is no sheet to open and the
+   headword must not claim there is. */
+.dict-hit-flat [lang] {
+  color: inherit;
+  text-decoration: none;
 }
 
 .translate-note {
   color: var(--text-dim);
   font-size: 0.85rem;
   font-style: italic;
-}
-
-.translate-ask {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-/* A lookup hit that is already on the board. It is the right translation and
-   an illegal clue, so it is dimmed rather than removed: the player asked what
-   the word was, and the answer is still the answer. */
-.translate-hits .hit-on-board {
-  color: var(--text-dim);
 }
 /* ---------- the suitcase ----------
 

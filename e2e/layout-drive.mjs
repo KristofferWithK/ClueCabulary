@@ -1171,8 +1171,11 @@ await page.setViewportSize(PHONE)
     await where(label)
     await field.fill('nice')
     await page.waitForTimeout(900)
-    const hits = await page.locator('.translate-hits li').count()
-    if (hits >= 4) lookedUp++
+    // One answer, not four rows (K1). "nice" still has seven Danish glosses
+    // behind it — that is what makes it the worst case — but they are in the
+    // sheet the line opens rather than in a scroller inside the dock.
+    const hits = await page.locator('.dict-hit').count()
+    if (hits >= 1) lookedUp++
     await page.waitForTimeout(200)
     if (while_) await while_()
     await field.fill('')
@@ -1247,7 +1250,7 @@ await page.setViewportSize(PHONE)
               sh: document.scrollingElement.scrollHeight,
               ih: window.innerHeight,
               spill: Math.max(0, ...out),
-              hits: dock.querySelectorAll('.translate-hits li').length,
+              hits: dock.querySelectorAll('.dict-hit').length,
             }
           })
           if (!worst || r.spill > worst.spill) worst = { ...r, label }
@@ -1330,8 +1333,8 @@ await page.setViewportSize(PHONE)
       : docks.map(([k, lo, hi]) => `${k} ${lo}..${hi}`).join(' | '),
   )
   check(
-    'and the lookups really put four answers on screen',
-    clueLookupHits >= 4 && guessLookupHits >= 4,
+    'and the lookups really put an answer on screen',
+    clueLookupHits >= 1 && guessLookupHits >= 1,
     `clue dock ${clueLookupHits}, guess bar ${guessLookupHits}`,
   )
 
@@ -1365,10 +1368,10 @@ await page.setViewportSize(PHONE)
   // document must not lengthen.
   check(
     'the fullest the guess dock gets stays inside its reserve',
-    worst ? worst.spill <= 0.5 && worst.sh <= worst.ih + 1 && worst.hits >= 4 : false,
+    worst ? worst.spill <= 0.5 && worst.sh <= worst.ih + 1 && worst.hits >= 1 : false,
     worst
       ? `${worst.label}: ${worst.hits} answers up, ${worst.spill}px past the dock, document ${worst.sh} vs ${worst.ih}`
-      : 'never reached the guess bar with four answers up',
+      : 'never reached the guess bar with an answer up',
   )
   // And the swap really is a swap. Without this the reserve could be bought
   // back the expensive way — two rows and a taller dock — and every check
@@ -1377,6 +1380,233 @@ await page.setViewportSize(PHONE)
     'stopping and confirming a guess share one row, never two',
     sharedRow,
     'the stop button and the confirm row were on screen together',
+  )
+  await page.setViewportSize(PHONE)
+}
+
+// ---- The composer never changes size (K1). ---------------------------------
+//
+// "I don't want the size of the composer to change ever. Below clue and
+// dictionary should be enough space for one small line of text where the
+// translation, or the clue warning can be."
+//
+// The block above pins the BOARD across phases, which the reserve buys by
+// holding a slot the docks sit inside. This pins the composer itself, which is
+// a different claim and a stronger one: the panel is a fixed height and every
+// state a clue turn can reach has to fit in it, so nothing can grow the panel
+// and nothing may hang out of the bottom of it either.
+//
+// Six states, sampled per frame the way the board is — a poll between them
+// would miss the ones that only exist for a moment ("Asking Casey…" is gone in
+// under a second against the mock). Each is asserted to have really happened,
+// because "they were all the same rectangle" is a statement about one state if
+// only one of them was ever on screen.
+//
+// The check that has teeth is the SPILL one. A fixed-height panel keeps its
+// rectangle no matter what you put in it, so a rect comparison alone would
+// pass a composer with a fourth row hanging over the board. Mutation checked:
+// adding a fourth row to ClueInput (a bare <p> beside .composer-line) fails
+// 'nothing hangs out of the composer' at 28.4px past the panel and takes the
+// document to 656px on a 640px screen, while the rectangle check goes on
+// passing — which is the whole reason both are here.
+{
+  const VP = { width: 360, height: 640 }
+  await page.setViewportSize(VP)
+  // A fresh profile, so the first-clue-ever line (O4) is one of the states.
+  // ?howto=0 keeps the intro out of the way — a fresh device otherwise opens
+  // in the train, not on Home.
+  const Q = '?mock=1&howto=0&seed=11&city=0&grid=standard&first=player'
+  await open(Q)
+  await page.evaluate(() => localStorage.clear())
+  await open(Q)
+  await page.locator('.home-play').click()
+  await page.waitForSelector('.board-grid')
+  const study2 = page.locator('.study-dock .btn-primary')
+  if (await study2.isVisible().catch(() => false)) await study2.click()
+  await page.waitForTimeout(400)
+
+  // Installed with evaluate rather than addInitScript, and therefore again
+  // after the reload below. A reload wipes `window`, so what it collected is
+  // read out into node first and the two halves are merged there — the states
+  // before and after the reload are compared as one set.
+  const sampler = () => {
+    window.__cx = {}
+    window.__saw = {}
+    const tick = () => {
+      const d = document.querySelector('.game-screen .dock.clue-input')
+      const key = window.__cwhere
+      if (d && key) {
+        const r = d.getBoundingClientRect()
+        const at = (window.__cx[key] ??= { n: 0 })
+        for (const f of ['x', 'y', 'width', 'height']) {
+          const v = Math.round(r[f] * 100) / 100
+          at[`${f}lo`] = at.n ? Math.min(at[`${f}lo`], v) : v
+          at[`${f}hi`] = at.n ? Math.max(at[`${f}hi`], v) : v
+        }
+        // How far past the panel's own bottom edge anything inside it reaches.
+        // A box that clips its own overflow is skipped — the shared line is
+        // designed to cut its text rather than wrap it, so what it hides is
+        // painted nowhere and says nothing about the panel.
+        const out = [...d.querySelectorAll('*')]
+          .filter((el) => {
+            for (let p = el.parentElement; p && p !== d; p = p.parentElement) {
+              const cs = getComputedStyle(p)
+              if (cs.overflowY !== 'visible' || cs.overflowX !== 'visible') return false
+            }
+            return true
+          })
+          .map((el) => Math.round((el.getBoundingClientRect().bottom - r.bottom) * 10) / 10)
+        const sp = Math.max(0, ...out)
+        at.spill = at.n ? Math.max(at.spill, sp) : sp
+        at.sh = Math.max(at.sh ?? 0, document.scrollingElement.scrollHeight)
+        at.ih = window.innerHeight
+        at.n++
+        // What was actually on screen, so none of the six is vacuous.
+        const line = document.querySelector('.clue-input .composer-line')
+        const txt = line?.innerText ?? ''
+        if (document.querySelector('.clue-input .first-hint')) window.__saw.hint = true
+        if (/looks English/.test(txt)) window.__saw.english = true
+        if (document.querySelector('.clue-input .clue-error') && !/looks English/.test(txt))
+          window.__saw.illegal = true
+        if (document.querySelector('.clue-input .dict-hit')) window.__saw.answer = true
+        if (/Asking Casey/.test(txt)) window.__saw.asking = true
+        if (document.querySelector('.clue-input .composer-line .test-fail')) window.__saw.failed = true
+      }
+      requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+  await page.evaluate(sampler)
+  const cwhere = (w) => page.evaluate((w) => (window.__cwhere = w), w)
+
+  const clueField = page.locator('.clue-input #clue-word')
+  const dictField = page.locator('.clue-input .translate-input')
+  const boardDa = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-game-v1')).state.game.words[0].da,
+  )
+
+  await cwhere('empty, the first-clue line')
+  await page.waitForTimeout(500)
+  await cwhere('typing a legal clue')
+  await clueField.fill('kat')
+  await page.waitForTimeout(400)
+  await cwhere('an illegal clue')
+  await clueField.fill(boardDa)
+  await page.waitForTimeout(400)
+  await cwhere('an English-looking clue')
+  await clueField.fill('nice')
+  await page.waitForTimeout(400)
+  // "nice" has seven Danish glosses in the shipped set — the longest answer the
+  // offline half can produce, and the state this height is measured against.
+  await cwhere('the longest verdict and the longest answer together')
+  await dictField.fill('nice')
+  await page.waitForTimeout(1000)
+  const squeezed = await page.evaluate(() => {
+    const a = document.querySelector('.clue-input .dict-hit')
+    const v = document.querySelector('.clue-input .clue-error')
+    return {
+      answer: a ? [a.scrollWidth, a.clientWidth] : null,
+      verdict: v ? [v.scrollWidth, v.clientWidth] : null,
+    }
+  })
+  await cwhere(null)
+
+  // ---- the two states that only exist while a request is in flight ----
+  //
+  // "Asking Casey…" and the error that can follow it cannot be PAINTED against
+  // the mock: MockCompanion.translate resolves in a microtask, so React has
+  // committed the answer before the next frame and ~970 sampled frames caught
+  // it zero times — the same measurement the aiClueInput note above records.
+  // So Casey is made slow rather than fake for these two: the real client, a
+  // request held for 1.4s and then refused. Both land in the same
+  // .composer-line as everything above, and the panel is compared across the
+  // reload as one set of states, which makes this the strictest sample here.
+  const cxA = await page.evaluate(() => window.__cx)
+  const sawA = await page.evaluate(() => window.__saw)
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-settings-v1') ?? '{}')
+    raw.state = {
+      ...raw.state,
+      useMock: false,
+      apiKey: 'fake-key-for-tests',
+      baseUrl: 'https://casey.invalid/v1',
+      model: 'fake-model',
+    }
+    localStorage.setItem('cluecab-settings-v1', JSON.stringify(raw))
+  })
+  await page.route('**/chat/completions', async (route) => {
+    await sleep(1400)
+    await route.abort()
+  })
+  // Back in WITHOUT ?mock=1 — a reload would carry it, and App.tsx writes
+  // useMock:true from that param on every load, which is what quietly kept the
+  // fake companion the first time this was written.
+  await open('?howto=0')
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.clue-input')
+  await page.waitForTimeout(300)
+  await page.evaluate(sampler)
+  await cwhere('Asking Casey')
+  await page.locator('.clue-input .translate-input').fill('helicopter')
+  await page.waitForTimeout(1000)
+  await cwhere('Casey could not answer')
+  await page.waitForTimeout(1600)
+  await cwhere(null)
+  await page.unroute('**/chat/completions')
+
+  const cx = { ...cxA, ...(await page.evaluate(() => window.__cx)) }
+  const saw = { ...sawA, ...(await page.evaluate(() => window.__saw)) }
+  const states = Object.entries(cx)
+  const missing = ['hint', 'illegal', 'english', 'answer', 'asking', 'failed'].filter(
+    (k) => !saw[k],
+  )
+  check(
+    'the composer really passed through every state this compares',
+    missing.length === 0,
+    missing.length ? `never saw ${missing.join(', ')}` : Object.keys(saw).join(' | '),
+  )
+  const span = (f) => {
+    const lo = Math.min(...states.map(([, v]) => v[`${f}lo`]))
+    const hi = Math.max(...states.map(([, v]) => v[`${f}hi`]))
+    return { lo, hi, drift: Math.round((hi - lo) * 100) / 100 }
+  }
+  const cy = span('y')
+  const ch = span('height')
+  const cxx = span('x')
+  const cw = span('width')
+  const cframes = states.reduce((n, [, v]) => n + v.n, 0)
+  check(
+    'the composer is the same rectangle in every state of a clue turn',
+    cy.drift === 0 && ch.drift === 0 && cxx.drift === 0 && cw.drift === 0,
+    `${states.length} states, ${cframes} frames — top drift ${cy.drift}px, height drift ${ch.drift}px` +
+      (cy.drift || ch.drift
+        ? `\n     ${states.map(([k, v]) => `${k} ${v.ylo}..${v.yhi} h${v.heightlo}..${v.heighthi}`).join(' | ')}`
+        : ` (top ${cy.lo}, height ${ch.lo})`),
+  )
+  // And it holds its content rather than merely holding its shape. This is the
+  // half a fourth row fails.
+  const spill = Math.max(...states.map(([, v]) => v.spill))
+  const longest = states.reduce((a, [k, v]) => (v.spill > (a?.[1] ?? -1) ? [k, v.spill] : a), null)
+  check(
+    'and nothing hangs out of the composer in any of them',
+    spill <= 0.5,
+    `worst ${longest?.[0]} at ${spill}px past the panel`,
+  )
+  check(
+    'and the document never scrolled at 360x640',
+    states.every(([, v]) => v.sh <= v.ih + 1),
+    states.map(([k, v]) => `${k} ${v.sh}/${v.ih}`).join(' | '),
+  )
+  // The shared line is doing its job rather than getting away with it: with
+  // the longest verdict and the longest answer up together, both are cut
+  // inside the one line instead of one of them pushing a second one.
+  check(
+    'the verdict and the answer share the line, both ellipsized',
+    !!squeezed.verdict &&
+      !!squeezed.answer &&
+      squeezed.verdict[0] > squeezed.verdict[1] &&
+      squeezed.answer[0] > squeezed.answer[1],
+    JSON.stringify(squeezed),
   )
   await page.setViewportSize(PHONE)
 }
