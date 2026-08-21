@@ -184,6 +184,15 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   still passing. `e2e/home-space-probe.mjs` (opt-in) prints the budget that
   height is chosen against, including how much of the map's card is empty.
 - `e2e/` — browser drives. Each opens the built app in Chromium and uses it.
+- `ios-plugins/` — vendored native forks, installed as `file:` npm packages
+  (`npm ci` installs them from the tree; their `dist/` is committed, which is
+  why `.gitignore` says `/dist` and not `dist`). `cluecab-keyboard` is
+  @capacitor/keyboard 8.0.5 plus one payload field, and its naming is
+  load-bearing: the SPM package and product are `CluecabKeyboard` because the
+  Capacitor CLI derives that from the npm name (`fixName`) — rename the npm
+  package, the SPM names, or the `KeyboardPlugin` class and `cap sync` writes
+  a manifest that no longer links. `ios/App/CapApp-SPM/Package.swift` is a
+  build artifact of `cap sync`: regenerate it, never hand-edit.
 
 ## What a change is expected to come with
 

@@ -54,11 +54,14 @@ model alias `cluey`).
 - **O2** — The tutorial round: a guided beginner board, Casey on screen *(needs O1)*
 - **O3** — The suitcase tour and the arrival *(needs O2)*
 - **O4** — Onboarding aftercare: the reference card, first-time dock lines, tips order *(needs O2; parallel with O3)*
+- **C5** — Native composer *(needs C4 judged on the owner's phone; built only on a "still not attached" verdict — the spec is on the C4 card)*
+
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
 
 - **G2** — Store readiness + release *(paperwork half done 2026-08-20 on the session branch: privacy policy page in `public/`, listing copy + questionnaire in `docs/store/`. Screenshots and the submission remain, and the submission is held for the owner)*
 
 ### In progress
+- **C4** — The composer rides by default — implemented 2026-08-21 on branch `claude/plan-decisions-overview-l4bpxi`: the keyboard plugin is vendored (`ios-plugins/cluecab-keyboard/`) so `keyboardWillShow` reports the real animation duration, the ride animates with it, and it ships **on** — `cluecab-kbstill` is the opt-out, for filming and rollback only. Verify green. **Remaining:** the ios-sim film against the ≤16px acceptance, then a TestFlight build for the owner's judged-by-normal-play verdict.
 - **H9** — The train story — **Sønderborg's proof piece is built and playable** on branch `claude/plan-decisions-overview-l4bpxi`: 31 sentences in three chapters covering 100/100 of the city's words (proved by `travelStory.test.ts` against the shipped stemmer), baked per sentence in Aoede at 0.6 (748 KB, $0.02), the ride wired between travel and arrival with play / tap-a-line / slower / skip, and covered by journey-drive and layout-drive at three phone sizes. **Waiting on the owner:** read and listen to Sønderborg before the other eight are written — the prose is the expensive part and eight of them written to the wrong taste is the waste worth avoiding.
 - **H5** — Sentence stories written to a coverage target — implemented 2026-08-20 on branch `claude/plan-decisions-overview-l4bpxi` (verify green there), awaiting merge
 
@@ -67,7 +70,7 @@ model alias `cluey`).
 - **H7** — Cascade tier: escalation rides the corrective retry — merged 2026-08-20 ([PR #76](https://github.com/KristofferWithK/ClueCabulary/pull/76), squash 2f2a0d8). Zero extra round trips; shipped alias table carries no cascade, byte-for-byte today's behaviour.
 - **H1** — Language-pack seam; Danish runs on it — merged 2026-08-20 ([PR #77](https://github.com/KristofferWithK/ClueCabulary/pull/77), squash 6bee696). H2 adds one registry line and the picker appears by itself.
 - **A1** — Engine: forbidden words out, redemption retired — merged 2026-08-19 ([PR #62](https://github.com/KristofferWithK/ClueCabulary/pull/62), squash a4517bf)
-- **C3** — Keyboard ride behind cluecab-kbfast, ships off — merged 2026-08-19 ([PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63)); awaiting the owner's on-device slo-mo A/B before flipping the default
+- **C3** — Keyboard ride behind cluecab-kbfast, ships off — merged 2026-08-19 ([PR #63](https://github.com/KristofferWithK/ClueCabulary/pull/63)). **Closed superseded 2026-08-21 by C4:** the on-device A/B it was waiting for never happened — the owner couldn't find the toggle — and their verdict on build 23 (composer still detached) retired the flag-and-judge plan itself
 - **A2** — Rules rewritten for two roles + neutral lookahead pinned — merged 2026-08-20 ([PR #64](https://github.com/KristofferWithK/ClueCabulary/pull/64))
 - **B1** — Round summary replaces the debrief; the debrief call is gone — merged 2026-08-20 ([PR #65](https://github.com/KristofferWithK/ClueCabulary/pull/65), squash 6a80497). Found layout-drive's end-screen section vacuous since it was written.
 - **A3** — Boards re-measured; standard 8 → 7 tokens; README + CLAUDE.md rewritten — merged 2026-08-20 ([PR #66](https://github.com/KristofferWithK/ClueCabulary/pull/66), squash 151b812). See DECISIONS.md — the token change alters game feel.
@@ -291,6 +294,61 @@ rules pinned by tests, one checked to fail without the fix.
 - **Accept:** side-by-side video shows the composer arriving with the keyboard,
   or the card is closed as "current behaviour kept" with the measurement
   attached. This area has eaten builds; no confident edits.
+- **Outcome (2026-08-21):** closed superseded. The ride worked but shipped off
+  behind a five-tap toggle the owner never found, so the A/B never happened;
+  their verdict on build 23 — composer still detached — became C4, which ships
+  the ride on and retires the flag. The "no confident edits" caution is
+  superseded by that verdict too: C4 carries the confidence budget instead.
+
+### C4 — The composer rides by default (in progress 2026-08-21)
+**Size:** 1 session + film + 1 TestFlight. **Deps:** C3 (its ride is the
+mechanism; its flag is retired).
+- The owner's verdict on build 23, on device: the composer arrives *after* the
+  keyboard, and "I couldn't find the toggle and your description was bad".
+  Both complaints are the card. The fix ships **on by default** and is judged
+  by normal play; no hidden switch sits on the owner's path again —
+  `cluecab-kbstill` (opt-out) exists for A/B filming and rollback only.
+- The keyboard plugin is vendored (`ios-plugins/cluecab-keyboard/`, fork of
+  @capacitor/keyboard 8.0.5) so `keyboardWillShow` carries `durationMs` and
+  `curve`; the ride animates with the platform's real duration instead of a
+  hardcoded 250ms. The `+0.2s` body-resize delay is deliberately **kept** —
+  `setKeyboardHeight` runs before `notifyListeners` and a zero delay executes
+  synchronously, so trimming it would shrink the body before JS freezes the
+  board. See DECISIONS.md for the reversal.
+- kb-scrim scoped to GameScreen — rendered app-wide it ate the first tap on
+  Settings and the backup panel, whose inputs sit in no dock.
+- **Accept:** layout-drive's three-leg ride block green (by default the dock
+  rides ahead of the document — the mutation-killer; kbstill and
+  reduced-motion never transform; identical rest pixel and board height);
+  ios-sim film: dock top ≤ 16 px above the keyboard top in every mid-rise
+  frame, readout `dur` plausible and `drift 0`; the owner plays a TestFlight
+  build and the composer simply feels attached.
+
+### C5 — Native composer (specced; built only on a "still not attached" C4 verdict)
+**Size:** 2–3 sessions, 4–6 TestFlight builds. **Deps:** C4 judged on device.
+- A second vendored package (`ios-plugins/cluecab-composer/`, same `file:` +
+  SPM shape as the keyboard fork; Swift class `@objc(ComposerPlugin)`). The
+  bar is a subview of the WKWebView constrained to
+  `webView.keyboardLayoutGuide.topAnchor` (iOS 15 floor, unused today) — UIKit
+  animates it inside the keyboard's own transaction, including interactive
+  tracking, which is the one thing no web ride can do.
+- Split: native bar = clue `UITextField` (Danish config, `.done`), − N +
+  stepper, submit. TranslateBox/dictionary stays DOM (async lookups,
+  `playWord`, tap-to-prefill are deep in the stores). `resize:'body'` keeps
+  the page ending at the keyboard, so the bar overlays the facade row exactly;
+  facade contents hide via visibility (the dock may never change size while
+  lifted). Facade renders no real `<input>` in native mode, so a two-keyboards
+  fight is structurally impossible.
+- Bridge: `show({mode, placeholder, text, number, min, max, submitLabel,
+  submitEnabled})`, `hide()`, `setState(partial)`; events `composerText`,
+  `composerNumber`, `composerSubmit`, `composerDismissed`. JS owns durable
+  state; native owns in-flight text. PackingDock's programmatic focus maps to
+  `show({mode:'packing'})`.
+- Rollback: opt-in `cluecab-nativecomposer`, ships off; C4's ride stays the
+  default underneath. Drives keep every DOM layout contract and assert the
+  bridge protocol against a stubbed `window.Capacitor`; the bar itself is
+  device-only — ios-sim film per iteration.
+- **Accept:** the owner's phone, nothing less.
 
 ### D1 — Rebrand copy: 900words + Casey + English chrome
 **Size:** 1 session. **Deps:** A3.

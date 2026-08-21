@@ -46,6 +46,51 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-21 · The keyboard plugin is forked, and the ride ships on
+
+Build 23 on your phone settled C3's open question the other way: the composer
+still arrived after the keyboard, and the five-tap toggle that would have shown
+the remedy was never found — your words: "I couldn't find the toggle and your
+description was bad". Two decisions follow, and they are one card (C4).
+
+**The ride ships ON, judged by normal play.** No hidden switch on your path
+again. The flag inverted: `cluecab-kbfast` (opt-in) is retired — BuildFooter
+sweeps it from localStorage once — and `cluecab-kbstill` (opt-out) restores
+the wait-for-the-document behaviour, existing for A/B filming and rollback
+only. The BuildFooter five-tap toggle now reads "Composer ride: on" /
+"off (waits for the document)".
+
+**The keyboard plugin is vendored** as `ios-plugins/cluecab-keyboard/` — a
+fork of @capacitor/keyboard 8.0.5 installed as a `file:` dependency, whose
+whole native diff is the `keyboardWillShow` payload gaining `durationMs` and
+`curve`. The ride now animates with the platform's real keyboard duration
+instead of a hardcoded 250 ms, so the dock and the keyboard cover their
+different distances in the same time. Two things the fork deliberately does
+NOT change:
+
+- **The `+0.2 s` delay on the body resize stays.** The obvious edit — trim the
+  delay so the document arrives sooner — is actively harmful: in the plugin,
+  `setKeyboardHeight` runs *before* `notifyListeners`, and a zero delay
+  executes synchronously, so the body would shrink before JS sets
+  `kb-up`/`--board-h` and the un-frozen board would reflow. With the ride on,
+  the late resize is invisible anyway: the transform holds the dock in place
+  until the MutationObserver hands over, measured drift 0.
+- **The names.** npm `cluecab-keyboard`, JS plugin `"Keyboard"`, Obj-C class
+  `KeyboardPlugin` — and the SPM package and product are both
+  `CluecabKeyboard` because that is the Capacitor CLI's
+  `fixName('cluecab-keyboard')`. `cap sync` derives the SPM manifest from
+  these; rename any one of them and the app stops linking the plugin.
+
+**Reversal:** put `@capacitor/keyboard` back in package.json, delete
+`ios-plugins/` and the `cluecab-keyboard` dep, run `npm install && npx cap
+sync ios` (CapApp-SPM/Package.swift regenerates), re-invert the
+`cluecab-kbstill` guards in `src/ui/nativeKeyboard.ts` and `BuildFooter.tsx`,
+and drop layout-drive's duration-witness assertion (the ride itself keeps
+passing — it predates the fork). Per device, no code: five taps on the build
+number → "Composer ride: off (waits for the document)" — that is
+`cluecab-kbstill`, and it reproduces the pre-fork behaviour exactly
+(layout-drive pins the rest pixel identical both ways).
+
 ### 2026-08-20 · H9's first ride exists, and the stemmer wrote three of its sentences
 Sønderborg's story is built and playable: 31 sentences, three chapters, every
 one of the city's hundred words, baked per sentence in Aoede at 0.6 for **two
