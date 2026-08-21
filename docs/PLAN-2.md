@@ -496,7 +496,6 @@ pass to flip.
 - **X1** — The stale-copy sweep
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
-- **WS2** — Bake the new headwords *(WS1 landed; the 113 slugs are waiting)*
 - **E1** — The judged matrix, city 1 *(city 1 is final; may start now)*
 - **E2** — The book, city 1 *(beside E1)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
@@ -532,6 +531,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **WS2** — Bake the new headwords — 2026-08-22 (PR #102). 226 clips baked, 227 orphans retired; `public/audio` back to 1,893, under the service worker cap. `scripts/validate-audio.mjs` cross-checks the manifests against the dataset in `npm run verify`, mutation-checked.
 - **T1** — The train is the way you travel, and a dev switch to ride it *(2026-08-21, PR #97)*
 - **E0** — City-only journey boards, closed 2026-08-21 (PR #98) — ordinary
   boards (and free play) now deal from `wordsForCity`, not `unlockedWords`;
