@@ -47,51 +47,81 @@ export function PackingDock({ game }: { game: GameState }) {
   }
 
   return (
+    // Three rows and one height, the same --dock-h every other dock in a round
+    // holds (K2). It used to be five, two of which came and went with the
+    // selection — the word being packed had a prompt row of its own, the miss
+    // note appeared under the field, and "Start with N unpacked" was a ghost
+    // button whose sentence wrapped to two lines at 360px. The clue phases of
+    // the same wrap-up round were sized against that, so the board moved
+    // between packing and cluing.
+    //
+    // What replaced them: the word goes INTO the title, the field row is
+    // rendered in both states (disabled with nothing selected, so the row
+    // cannot appear and move the rest), the note is one line that always
+    // stands, and start-early is a nowrap link riding the title row.
     <div className="dock packing-dock">
-      <p className="dock-title">
-        Pack the words — {packed.length} of {game.words.length} packed
-      </p>
-      {selected ? (
-        <>
-          <p className="packing-prompt">
-            The {ACTIVE.name} for <strong>{selected.en[0]}</strong>?
-          </p>
-          <div className="clue-row">
-            <input
-              ref={inputRef}
-              className="packing-input"
-              type="text"
-              value={text}
-              placeholder={ACTIVE.copy.answerPlaceholder}
-              aria-label={`The ${ACTIVE.name} for ${selected.en[0]}`}
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              enterKeyHint="done"
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && submit()}
-            />
-            <button className="btn btn-primary" onClick={submit} disabled={!text.trim()}>
-              Pack
-            </button>
-          </div>
-          {missed && (
-            <p className="packing-miss" role="status">
-              Not it — that miss is remembered, but you can keep trying.
-            </p>
-          )}
-        </>
-      ) : (
-        <p className="dim">
-          Tap an English card and type its {ACTIVE.name}. The dictionary is closed — this is the part
-          that packs the word safely.
+      <div className="dock-head">
+        <p className="dock-title">
+          {selected ? (
+            <>
+              Pack «{selected.en[0]}»
+            </>
+          ) : (
+            'Pack the board'
+          )}{' '}
+          — {packed.length} of {game.words.length}
         </p>
-      )}
-      {remaining > 0 && (
-        <button className="btn btn-ghost" onClick={() => useGame.getState().startRoundEarly()}>
-          Start with {remaining} unpacked — they stay English and cannot be wrapped this round
+        {remaining > 0 && (
+          // A link, not a .btn: the sentence it used to carry ("they stay
+          // English and cannot be wrapped this round") wrapped to two lines in
+          // a ghost button, and both lines came off the board. The warning
+          // survives as the accessible name and the tooltip.
+          <button
+            className="composer-link packing-early"
+            title={`Start with ${remaining} unpacked — they stay English and cannot be wrapped this round`}
+            aria-label={`Start with ${remaining} unpacked — they stay English and cannot be wrapped this round`}
+            onClick={() => useGame.getState().startRoundEarly()}
+          >
+            Start with {remaining}
+          </button>
+        )}
+      </div>
+      <div className="clue-row">
+        <input
+          ref={inputRef}
+          className="packing-input"
+          type="text"
+          value={text}
+          disabled={!selected}
+          placeholder={selected ? ACTIVE.copy.answerPlaceholder : 'Tap an English card'}
+          aria-label={
+            selected ? `The ${ACTIVE.name} for ${selected.en[0]}` : `Tap an English card first`
+          }
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="done"
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+        />
+        <button
+          className="btn btn-primary"
+          onClick={submit}
+          disabled={!selected || !text.trim()}
+        >
+          Pack
         </button>
-      )}
+      </div>
+      {/* ONE line, always present. role=status on the element rather than on a
+          paragraph that appears with the miss: a live region that arrives with
+          its content does not announce. */}
+      <p className={`packing-note ${missed ? 'packing-miss' : 'dim'}`} role="status">
+        {missed
+          ? 'Not it — that miss is remembered. Keep trying.'
+          : selected
+            ? 'The dictionary is shut — this is the recall.'
+            : `Tap an English card and type its ${ACTIVE.name}.`}
+      </p>
     </div>
   )
 }

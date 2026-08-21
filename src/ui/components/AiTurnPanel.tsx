@@ -13,7 +13,18 @@ const confidencePhrase = (c: number): string => {
   return "I'm really just guessing"
 }
 
-/** Shows the AI side of a turn and paces its guesses one by one. */
+/**
+ * Shows the AI side of a turn and paces its guesses one by one.
+ *
+ * Two regions, one height (K2), and the shape is chosen for what comes next
+ * rather than for what is in it today: Casey's face beside a bubble clamped to
+ * TWO lines, then one line for the clue and how the last guess landed. Today
+ * the bubble restates the clue it is guessing against; U3 puts the model's own
+ * reasoning there, which is why it is two lines and clamped rather than one
+ * line ellipsized. Nothing here may add a third region — the dock is --dock-h
+ * like every other one, and the board's size in every phase of the round is
+ * that number.
+ */
 export function AiTurnPanel({ game }: { game: GameState }) {
   const { aiBusy, aiGuessQueue, planForClueIndex, lastAiGuess, stepAiGuess } = useGame()
   const clue = currentClue(game)
@@ -28,10 +39,19 @@ export function AiTurnPanel({ game }: { game: GameState }) {
   if (game.phase === 'aiClueInput' || aiBusy) {
     return (
       <div className="dock ai-panel">
-        <ClueyFace mood="thinking" className="cluey-mini" />
-        <p className="thinking">
-          <span className="dots" /> Casey is thinking…
-        </p>
+        <div className="ai-say">
+          <ClueyFace mood="thinking" className="cluey-mini" />
+          <p className="ai-bubble thinking">
+            <span className="dots" /> Casey is thinking…
+          </p>
+        </div>
+        {/* The line's ROOM, rendered empty rather than omitted: the same two
+            regions in every state is what keeps the face and the bubble at the
+            same height while Casey thinks. A different class on purpose —
+            ai-drive, live-drive and proxy-drive all treat `.ai-guess-line`
+            as "a guess has been reported", and an empty one wearing that name
+            would answer them with nothing. */}
+        <p className="ai-line-blank" aria-hidden="true" />
       </div>
     )
   }
@@ -54,10 +74,16 @@ export function AiTurnPanel({ game }: { game: GameState }) {
 
   return (
     <div className="dock ai-panel">
-      <ClueyFace mood={mood} className="cluey-mini" />
-      <p className="dock-title">
-        Your clue: <strong>«{clue.text}»</strong> ({clue.number})
-      </p>
+      <div className="ai-say">
+        <ClueyFace mood={mood} className="cluey-mini" />
+        {/* Two lines, clamped, with the whole text as the title — the shape
+            U3's reasoning arrives into. What stands in it until then is the
+            clue Casey is guessing against, which used to be a .dock-title of
+            its own row. */}
+        <p className="ai-bubble" title={`Your clue: «${clue.text}» (${clue.number})`}>
+          Your clue: <strong>«{clue.text}»</strong> ({clue.number})
+        </p>
+      </div>
       {lastAiGuess && lastWord && lastResult ? (
         <p className={`ai-guess-line result-${lastResult.result}`}>
           {confidencePhrase(lastAiGuess.confidence)} <strong>{lastWord.da}</strong>

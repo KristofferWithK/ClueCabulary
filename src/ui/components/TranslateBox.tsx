@@ -234,9 +234,11 @@ export function useDictionary(fill?: { term: string; nonce: number }): Dictionar
 }
 
 /**
- * The stacked form: the field with its answer under it. Still what the guess
- * bar, the tutorial dock and Casey's clue line use — K2 redraws those docks, so
- * this stays the shape they already expect and simply got a row shorter.
+ * The stacked form: the field with its answer under it. The TUTORIAL DOCK is
+ * the only caller left — K2 redrew the guess bar, which now places the same
+ * two pieces side by side on its last row (`.dock-dictionary`), because the
+ * box's own rule and its second row were most of what stood between that dock
+ * and --dock-h. The tutorial has the room and I2 is what redraws it.
  *
  * A field, not a drawer. It was a <details> and the lid cost a tap every time —
  * and not once: the component unmounts and remounts with the phase, so a

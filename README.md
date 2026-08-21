@@ -84,7 +84,11 @@ The map keeps that button, and its train now boards as well. Under
    targets and nothing at all around the rest, so the only thing your key tells
    you is what to clue toward. There was a second, dashed black border for a
    long time — a forbidden word, fatal if it was ever named — and no board has
-   one now.
+   one now. Nothing under the board explains that any more: there was a legend
+   reading *▭ your target · ⓘ look up*, and it was deleted for saying in 17.3px
+   of every phase of every round what the border already says and what a ⓘ
+   explains the moment it is tapped. The card's accessible name still says
+   "your target" in words.
 2. You open: you give a one-word clue, Casey guesses — then Casey clues and you
    guess. A clue's number is the whole allowance: guess that many right and the
    turn ends itself. (There is no Codenames-style bonus guess. It existed to
@@ -219,6 +223,24 @@ The map keeps that button, and its train now boards as well. Under
    because the composer is a fixed height and that line is all the room there
    is. A hit that is already on the board says so, since it is the right
    translation and an illegal clue.
+
+   The composer is a fixed height because **every dock is the same one**. The
+   complaint it answers: *"when guessing it's a giant text block that adjusts
+   the sizing of the grid. The grid should stay locked. and the text can be
+   cut."* The board is a flexible band sharing the screen with whatever dock
+   the phase is in, so every line a dock gained came straight off the grid and
+   resized every card with it. The clue composer, the guess bar, Casey's panel,
+   the last-chance bar, the study dock and the wrap-up packing dock are now one
+   measured height — 150px, the composer's own 149.41 rounded up — each with
+   three regions and one line where anything variable goes, so the leftover
+   handed to the board is identical in every phase and the grid is locked by
+   construction rather than by arithmetic. Measured at 360×640: the board is
+   318.56px with a 57.31px card row in all of them, where before the docks
+   agreed it was 239.3px with cards riding their 44px minimum inside a 41.46px
+   row. `layout-drive` samples the dock's rectangle on every animation frame of
+   a whole round, of a wrap-up round from packing through the clues, and of the
+   tutorial — the board's rectangle beside it, so a failure says which of the
+   two broke.
 6. After each round the summary shows **what was said, and why** —
    every clue and every guess with the reasoning behind it, including what Casey
    deliberately steered away from and how sure she was of each guess. Tap ⚑ on

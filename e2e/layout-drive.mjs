@@ -1084,13 +1084,20 @@ await page.setViewportSize(PHONE)
   // finishes before it can produce.
   const Q = '?mock=1&howto=0&seed=7&city=0&grid=standard&first=player'
   await open(Q)
-  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await page.evaluate(() => {
+    localStorage.removeItem('cluecab-game-v1')
+    // The study phase ships OFF (settingsStore's default is 'never'), so this
+    // comparison never saw its dock — and the study dock is one of the docks
+    // K2 sized. Asked for by name rather than left out of "every phase of a
+    // round". `version: 9` is settingsStore's; persist merges the rest.
+    localStorage.setItem(
+      'cluecab-settings-v1',
+      JSON.stringify({ state: { studyPhase: 'always' }, version: 9 }),
+    )
+  })
   await open(Q)
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
-  const studyDock = page.locator('.study-dock .btn-primary')
-  if (await studyDock.isVisible().catch(() => false)) await studyDock.click()
-  await page.waitForTimeout(300)
 
   // Installed with evaluate rather than addInitScript on purpose: the round is
   // played without a navigation, and addInitScript accumulates across the ones
@@ -1112,21 +1119,28 @@ await page.setViewportSize(PHONE)
           at[`${f}lo`] = at.n ? Math.min(at[`${f}lo`], v) : v
           at[`${f}hi`] = at.n ? Math.max(at[`${f}hi`], v) : v
         }
-        // The SLOT's height, which is the mechanism: the board is what is left
-        // over once the slot has taken its reserve, so a slot that is the same
-        // height in every phase IS a board that does not move. Recorded beside
-        // the effect so a failure says which of the two broke.
+        // The PANEL's whole rectangle, which is the mechanism: the board is
+        // what is left over once the dock has taken --dock-h, so a dock that
+        // is the same rectangle in every phase IS a board that does not move.
+        // Recorded beside the effect so a failure says which of the two broke.
         //
-        // The slot, not the dock inside it. The dock used to be the reserve
-        // and is now content-sized on purpose — the composer wants 126px and
-        // the guess bar 154, and holding the difference as panel rather than
-        // as air is what "way too much grey" was about. Measuring the panel
-        // here would now report a drift that is the fix working.
-        const slot = document.querySelector('.game-screen .dock-slot')
-        if (slot) {
-          const d = Math.round(slot.getBoundingClientRect().height * 100) / 100
-          at.docklo = at.n ? Math.min(at.docklo, d) : d
-          at.dockhi = at.n ? Math.max(at.dockhi, d) : d
+        // The panel, and no longer the `.dock-slot` that used to hold it (K2).
+        // Between #90 and K1 the docks were different heights, so the reserve
+        // was held by an invisible slot and each panel hugged its own content
+        // inside it — measuring the panel then would have reported a drift
+        // that was the fix working. Every dock is --dock-h now, the slot is
+        // gone, and the panel's rect is the stronger of the two claims: x and
+        // width as well as height, so a dock that changed its padding or its
+        // paint would be caught too.
+        const dock = document.querySelector('.game-screen .dock')
+        if (dock) {
+          const d = dock.getBoundingClientRect()
+          for (const f of ['x', 'y', 'width', 'height']) {
+            const v = Math.round(d[f] * 100) / 100
+            at[`dock${f}lo`] = at.dockn ? Math.min(at[`dock${f}lo`], v) : v
+            at[`dock${f}hi`] = at.dockn ? Math.max(at[`dock${f}hi`], v) : v
+          }
+          at.dockn = (at.dockn ?? 0) + 1
         }
         at.n++
       }
@@ -1135,6 +1149,20 @@ await page.setViewportSize(PHONE)
     requestAnimationFrame(tick)
   })
   const where = (w) => page.evaluate((w) => (window.__where = w), w)
+
+  // The study phase, which is a flag rather than a phase — the caption still
+  // says "Give Casey a clue" behind it — so it is recorded by name or it would
+  // smear into the clue turn it precedes.
+  const studyDock = page.locator('.study-dock .btn-primary')
+  const studied = await studyDock.isVisible().catch(() => false)
+  if (studied) {
+    await where('study the board')
+    await page.waitForTimeout(400)
+    await studyDock.click()
+    await where(null)
+  }
+  await page.waitForTimeout(300)
+  check('the study phase was on screen to be compared', studied)
 
   // Hear-the-board, recorded as its own state so its frames join the one
   // rectangle every phase is compared against. It is a header control on a
@@ -1190,6 +1218,10 @@ await page.setViewportSize(PHONE)
   // Set false the moment the stop button and the confirm row are seen on
   // screen together; the check that reads it is beside the reserve's own.
   let sharedRow = true
+  // The guess bar's dictionary answer, which K2 moved out of a stacked box and
+  // onto the dock's last row beside the field.
+  let answerFits = true
+  let sawAnswer = false
   // .round-summary, not .debrief — the round-end screen was renamed while this
   // was being written, and a loop that waits for a class nobody renders any
   // more just runs its full count. This file already carries one scar of that
@@ -1246,13 +1278,35 @@ await page.setViewportSize(PHONE)
                 return true
               })
               .map((el) => Math.round((el.getBoundingClientRect().bottom - bottom) * 10) / 10)
+            // And the answer is really ON SCREEN, inside the one line the
+            // guess bar reserves for it (K2). A line that gives way by
+            // clipping can be honest about the dock and still be hiding the
+            // whole answer inside itself, which is a control wearing a
+            // scrollbar — so the answer's own rectangle is compared with the
+            // line's rather than with the dock's.
+            const line = dock.querySelector('.dict-line')
+            const ans = dock.querySelector('.dict-answer')
+            const lr = line?.getBoundingClientRect()
+            const ar = ans?.getBoundingClientRect()
             return {
               sh: document.scrollingElement.scrollHeight,
               ih: window.innerHeight,
               spill: Math.max(0, ...out),
               hits: dock.querySelectorAll('.dict-hit').length,
+              answer:
+                lr && ar
+                  ? {
+                      w: Math.round(ar.width),
+                      inside:
+                        ar.width > 20 &&
+                        ar.right <= lr.right + 0.5 &&
+                        ar.bottom <= lr.bottom + 0.5,
+                    }
+                  : null,
             }
           })
+          if (r.answer) answerFits = answerFits && r.answer.inside
+          if (r.answer) sawAnswer = true
           if (!worst || r.spill > worst.spill) worst = { ...r, label }
         })
       }
@@ -1300,6 +1354,7 @@ await page.setViewportSize(PHONE)
   // "they all match" is a statement about one of them.
   const seen = new Set(states.map(([k]) => k))
   const required = [
+    'study the board',
     'Give Casey a clue',
     'Casey is guessing',
     'Your turn to guess',
@@ -1322,15 +1377,26 @@ await page.setViewportSize(PHONE)
   // It renders the same .ai-panel dock as "Casey is guessing", which IS
   // measured, and the reserve below is declared on the dock's class rather
   // than on the phase — so the two cannot come out different.
-  const docks = rects.map(([k, v]) => [k, v.docklo, v.dockhi])
-  const dockLo = Math.min(...docks.map(([, lo]) => lo))
-  const dockHi = Math.max(...docks.map(([, , hi]) => hi))
+  // The mechanism, as one rectangle rather than one number (K2): x, y, width
+  // and height of the panel itself, over every frame of every phase.
+  const withDock = rects.filter(([, v]) => v.dockn)
+  const dockSpan = (f) => {
+    const lo = Math.min(...withDock.map(([, v]) => v[`dock${f}lo`]))
+    const hi = Math.max(...withDock.map(([, v]) => v[`dock${f}hi`]))
+    return { lo, hi, drift: Math.round((hi - lo) * 100) / 100 }
+  }
+  const dockDrift = ['x', 'y', 'width', 'height'].map((f) => [f, dockSpan(f)])
   check(
-    'and every phase it rendered reserved the same slot height',
-    dockLo === dockHi,
-    dockLo === dockHi
-      ? `${dockLo}px in all of them`
-      : docks.map(([k, lo, hi]) => `${k} ${lo}..${hi}`).join(' | '),
+    'and the dock is the same rectangle in every phase it rendered',
+    withDock.length === rects.length && dockDrift.every(([, s]) => s.drift === 0),
+    withDock.length !== rects.length
+      ? `${rects.length - withDock.length} states had no dock at all`
+      : dockDrift.every(([, s]) => s.drift === 0)
+        ? `${withDock.length} states at ${dockSpan('width').lo}x${dockSpan('height').lo} from ` +
+          `(${dockSpan('x').lo}, ${dockSpan('y').lo})`
+        : withDock
+            .map(([k, v]) => `${k} y${v.dockylo}..${v.dockyhi} h${v.dockheightlo}..${v.dockheighthi}`)
+            .join(' | '),
   )
   check(
     'and the lookups really put an answer on screen',
@@ -1361,17 +1427,23 @@ await page.setViewportSize(PHONE)
       (y.drift || h.drift ? `\n     ${worstOf(y.drift ? 'y' : 'height')}` : ` (top ${y.lo}, height ${h.lo})`),
   )
 
-  // The fullest state the guess dock reaches — its swap row at its tallest,
-  // with four lookup answers up. This is where the reserve is deliberately
-  // smaller than the content, and the answers list is what has to give. It
-  // must give way INSIDE itself: nothing may hang out of the dock, and the
-  // document must not lengthen.
+  // The fullest state the guess dock reaches — its action row at its tallest,
+  // with a lookup answer up. The dock is a fixed height, so a rect comparison
+  // alone would pass one whose content hangs over the board: nothing may reach
+  // past the panel's bottom edge, and the document must not lengthen.
   check(
-    'the fullest the guess dock gets stays inside its reserve',
+    'the fullest the guess dock gets stays inside its height',
     worst ? worst.spill <= 0.5 && worst.sh <= worst.ih + 1 && worst.hits >= 1 : false,
     worst
       ? `${worst.label}: ${worst.hits} answers up, ${worst.spill}px past the dock, document ${worst.sh} vs ${worst.ih}`
       : 'never reached the guess bar with an answer up',
+  )
+  // And the answer is on screen in the line beside the field, rather than
+  // clipped out of existence by the region that gives way.
+  check(
+    'the guess bar shows its answer inside the one line it has for it',
+    sawAnswer && answerFits,
+    sawAnswer ? `${worst?.answer?.w}px wide inside its line` : 'no answer was ever measured',
   )
   // And the swap really is a swap. Without this the reserve could be bought
   // back the expensive way — two rows and a taller dock — and every check
@@ -1381,6 +1453,184 @@ await page.setViewportSize(PHONE)
     sharedRow,
     'the stop button and the confirm row were on screen together',
   )
+  await page.setViewportSize(PHONE)
+}
+
+// ---- and the same rectangle across a WRAP-UP round, packing included (K2).
+//
+// The packing dock was the one dock outside the reserve: five rows, two of
+// which came and went with the selection, and it stood where the round's docks
+// stand. So a wrap-up round moved its board once, at the moment packing gave
+// way to cluing — inside ONE round, which is exactly what the rule forbids.
+// It is --dock-h now like everything else, and this is what says so.
+const dockSampler = () => {
+  window.__d = {}
+  const tick = () => {
+    const dock = document.querySelector('.game-screen .dock')
+    const grid = document.querySelector('.board-grid')
+    const key = window.__dwhere
+    if (dock && grid && key) {
+      const r = dock.getBoundingClientRect()
+      const g = grid.getBoundingClientRect()
+      const at = (window.__d[key] ??= { n: 0 })
+      for (const [p, box] of [
+        ['', r],
+        ['g', g],
+      ]) {
+        for (const f of ['x', 'y', 'width', 'height']) {
+          const v = Math.round(box[f] * 100) / 100
+          at[`${p}${f}lo`] = at.n ? Math.min(at[`${p}${f}lo`], v) : v
+          at[`${p}${f}hi`] = at.n ? Math.max(at[`${p}${f}hi`], v) : v
+        }
+      }
+      at.sh = Math.max(at.sh ?? 0, document.scrollingElement.scrollHeight)
+      at.ih = window.innerHeight
+      at.n++
+    }
+    requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
+}
+/** One rectangle across everything sampled, dock and board alike. */
+const oneRect = (states, prefix) => {
+  const span = (f) => {
+    const lo = Math.min(...states.map(([, v]) => v[`${prefix}${f}lo`]))
+    const hi = Math.max(...states.map(([, v]) => v[`${prefix}${f}hi`]))
+    return { lo, hi, drift: Math.round((hi - lo) * 100) / 100 }
+  }
+  const parts = ['x', 'y', 'width', 'height'].map((f) => [f, span(f)])
+  return {
+    ok: parts.every(([, s]) => s.drift === 0),
+    where: `${span('width').lo}x${span('height').lo} at (${span('x').lo}, ${span('y').lo})`,
+    drift: parts.map(([f, s]) => `${f} ${s.drift}`).join(', '),
+  }
+}
+{
+  const VP = { width: 360, height: 640 }
+  await page.setViewportSize(VP)
+  // &wraps=1 banks the earned wrap-up round the button costs.
+  const W = '?mock=1&howto=0&city=0&collected=40&seed=9&wraps=1'
+  await open(W)
+  await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
+  await open(W)
+  await page.locator('.cluey-button').click()
+  await page.waitForSelector('.suitcase-screen')
+  await page.locator('.case-actions .btn-primary').click()
+  await page.waitForSelector('.packing-dock')
+  await page.evaluate(dockSampler)
+  const dwhere = (w) => page.evaluate((w) => (window.__dwhere = w), w)
+
+  await dwhere('packing, nothing selected')
+  await page.waitForTimeout(400)
+  await page.locator('.card-face-en').first().click()
+  await page.waitForTimeout(300)
+  await dwhere('packing, a card selected')
+  await page.waitForTimeout(400)
+  await page.locator('.packing-input').fill('zzzzz')
+  await page.locator('.packing-dock .btn-primary').click()
+  await page.waitForTimeout(400)
+  await dwhere('packing, a miss')
+  await page.waitForTimeout(400)
+  // Start early: the same round carries on into the clue phases.
+  await page.locator('.packing-early').click()
+  await page.waitForSelector('.clue-input')
+  await page.waitForTimeout(300)
+  await dwhere('the same round, cluing')
+  await page.waitForTimeout(500)
+  await page.locator('.clue-input #clue-word').fill('snurretop')
+  await page.waitForTimeout(200)
+  const send = page.locator('.clue-input .btn-primary')
+  if (await send.isEnabled().catch(() => false)) {
+    await send.click()
+    await dwhere('the same round, Casey guessing')
+    await page.waitForTimeout(1400)
+  }
+  await dwhere(null)
+
+  const wrap = Object.entries(await page.evaluate(() => window.__d))
+  const seen = wrap.map(([k]) => k)
+  check(
+    'the wrap-up round went packing -> clues with both on screen',
+    seen.length >= 4 && seen.includes('the same round, cluing'),
+    seen.join(' | '),
+  )
+  const wd = oneRect(wrap, '')
+  check(
+    'the dock is one rectangle from packing through the clue turns',
+    wd.ok,
+    wd.ok ? wd.where : `${wd.drift} — ${wrap.map(([k, v]) => `${k} y${v.ylo}..${v.yhi}`).join(' | ')}`,
+  )
+  const wg = oneRect(wrap, 'g')
+  check('and the board with it', wg.ok, wg.ok ? wg.where : wg.drift)
+  check(
+    'and a wrap-up round never scrolled at 360x640',
+    wrap.every(([, v]) => v.sh <= v.ih + 1),
+    wrap.map(([k, v]) => `${k} ${v.sh}/${v.ih}`).join(' | '),
+  )
+  await page.setViewportSize(PHONE)
+}
+
+// ---- the tutorial's dock is one rectangle too, beat to beat ----------------
+//
+// A different number from the round's (--tutorial-dock-h, and the comment on
+// .dock.tutorial-dock says why), so it is compared with ITSELF rather than
+// with the docks above: the claim is that the board does not move during the
+// scripted round either, which is the same rule bought a different way — the
+// tutorial dock FILLS its slot rather than being its own height.
+{
+  const VP = { width: 360, height: 640 }
+  await page.setViewportSize(VP)
+  await open('?mock=1')
+  await page.evaluate(() => localStorage.clear())
+  await open('?mock=1')
+  for (let i = 0; i < 6 && (await page.locator('.onboard-ticket').count()) === 0; i++) {
+    await page.locator('.onboard-next').click()
+    await page.waitForTimeout(150)
+  }
+  await page.locator('.onboard-ticket').click()
+  await page.waitForSelector('.tutorial-dock')
+  await page.evaluate(dockSampler)
+  const dwhere = (w) => page.evaluate((w) => (window.__dwhere = w), w)
+
+  // Walk the script the way onboarding-drive does — off data-beat, so an edit
+  // to the script cannot leave a parallel copy of it here to rot.
+  const beat = () =>
+    page.evaluate(() => document.querySelector('.tutorial-dock')?.dataset.beat ?? null)
+  for (let i = 0; i < 40; i++) {
+    const kind = await beat()
+    if (!kind || kind === 'win') break
+    await dwhere(`beat ${i}: ${kind}`)
+    await page.waitForTimeout(260)
+    if (kind === 'say') await page.locator('.tutorial-next').click()
+    else if (kind === 'tapCard') await page.locator('.word-card').first().click()
+    else if (kind === 'chooseClue') await page.locator('.tutorial-clue-option').first().click()
+    else if (kind === 'watchGuess') {
+      const btn = page.locator('.tutorial-next')
+      for (let w = 0; w < 20 && !(await btn.isEnabled()); w++) await page.waitForTimeout(100)
+      await btn.click()
+    } else if (kind === 'guess') {
+      const target = await page.evaluate(
+        () => document.querySelector('.tutorial-dock')?.dataset.target,
+      )
+      if (!target) break
+      await page.locator(`.word-card:has(.card-word:text-is("${target}"))`).click()
+      await page.waitForTimeout(200)
+      await page.locator('.guess-confirm .btn-primary').click()
+    } else break
+    await page.waitForTimeout(220)
+  }
+  await dwhere(null)
+
+  const beats = Object.entries(await page.evaluate(() => window.__d))
+  check('the tutorial walked more than one beat', beats.length >= 4, `${beats.length} beats`)
+  const td = oneRect(beats, '')
+  check(
+    'the tutorial dock is the same rectangle at every beat',
+    beats.length >= 4 && td.ok,
+    td.ok ? td.where : `${td.drift} — ${beats.map(([k, v]) => `${k} h${v.heightlo}..${v.heighthi}`).join(' | ')}`,
+  )
+  const tg = oneRect(beats, 'g')
+  check('and the tutorial board never moves either', beats.length >= 4 && tg.ok, tg.ok ? tg.where : tg.drift)
   await page.setViewportSize(PHONE)
 }
 

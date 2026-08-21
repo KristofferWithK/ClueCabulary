@@ -109,8 +109,11 @@ try {
   check('a second card packs clean', (await page.locator('.card-face-en').count()) === 18)
   const packedIds = [words[0].wordId, words[1].wordId]
 
-  // Start early: the remaining cards stay English for the whole round.
-  await page.click('.packing-dock .btn-ghost')
+  // Start early: the remaining cards stay English for the whole round. A link
+  // in the dock's title row since K2, not a ghost button of its own — the
+  // sentence it used to carry wrapped to two lines at 360px, and both came off
+  // the board.
+  await page.click('.packing-early')
   await page.waitForTimeout(400)
   check('the clues begin', (await page.locator('.packing-dock').count()) === 0)
   check('skipped cards stay English-side up', (await page.locator('.card-face-en').count()) === 18)

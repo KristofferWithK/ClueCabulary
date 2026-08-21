@@ -146,7 +146,9 @@ try {
   const hisGreens = turn.words
     .filter((w) => turn.aiKey[w.wordId] === 'green' && turn.reveals[w.wordId].kind === 'hidden')
     .map((w) => w.da)
-  check('the bar offers exactly the number, not the number plus one', /up to 2 more guesses/.test(
+  // "· 2 guesses left" since K2, where it read "— up to 2 more guesses": the
+  // title is one nowrap line and has a Danish clue to fit beside it.
+  check('the bar offers exactly the number, not the number plus one', /2 guesses left/.test(
     await page.locator('.guess-bar .dock-title').textContent(),
   ), await page.locator('.guess-bar .dock-title').textContent())
 

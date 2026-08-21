@@ -72,18 +72,17 @@ try {
     .getAttribute('aria-label')
   if (plain?.includes('your target')) throw new Error(`unmarked card announced as a target: ${plain}`)
 
-  // The legend explains the marker, and the dictionary is reachable by tapping
-  // a card outside your guessing turn.
-  await page.waitForSelector('.key-legend')
-  const legend = (await page.locator('.key-legend').textContent()) ?? ''
-  if (!legend.includes('your target')) {
-    throw new Error(`legend does not explain the border: ${legend.trim()}`)
+  // The legend that explained the marker is GONE (K2), and its absence is
+  // asserted rather than merely no longer checked: the border IS the legend
+  // (README's rule), the aria-label above is the other half of it, and a
+  // paragraph restating both cost 17.3px of board in every phase of every
+  // round. If it comes back, it comes back on purpose.
+  if ((await page.locator('.key-legend').count()) !== 0) {
+    throw new Error('the key legend is back between the board and the dock')
   }
-  // The legend had a second swatch for the dashed cards. It must not describe
-  // a marking the board no longer draws.
-  if (/forbidden/i.test(legend)) {
-    throw new Error(`legend still describes forbidden words: ${legend.trim()}`)
-  }
+
+  // The dictionary is still reachable by tapping a card outside your guessing
+  // turn.
   await page.locator('.word-card').first().click()
   await page.waitForSelector('.sheet', { timeout: 5000 })
   console.log('tap-to-look-up opened:', (await page.locator('.sheet h2').textContent())?.trim())

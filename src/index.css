@@ -1488,10 +1488,19 @@ select:focus {
   background: var(--bg);
 }
 
+/* Two lines, and this dock's give-way region (see the dock block below): the
+   sentence was four lines at 360px, and four lines of prose read once is the
+   board's height for the whole round. 0.85rem rather than the 0.9 it was, and
+   that is measured too: at 0.9 this dock wants 149.61px, which is 0.2 TALLER
+   than the composer --dock-h is measured from and 0.39 under the number
+   itself. Under the composer by a couple of points is where it belongs. */
 .study-hint {
   color: var(--text-dim);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   line-height: 1.45;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 /* ---------- wrap-up packing ---------- */
@@ -1514,47 +1523,42 @@ select:focus {
   background: var(--bg);
 }
 
-.packing-prompt {
-  font-size: 0.95rem;
-}
+/* `.packing-prompt` — "The Danish for <word>?" on a row of its own — was
+   declared here. The word being packed is in the dock's title now, so the row
+   is gone from the markup and the rule with it, rather than left standing for
+   the next reader to conclude the row is still there. */
 
 .packing-input {
   flex: 1;
   min-width: 0;
 }
 
-.packing-miss {
-  color: var(--red);
+/* ONE note line, always rendered, and this dock's give-way region. It carries
+   three different sentences — the miss, the instruction while a card is
+   selected, and the instruction while none is — and only the miss is red. */
+.packing-note {
   font-size: 0.85rem;
 }
 
-.key-legend {
-  text-align: center;
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  line-height: 1.5;
+.packing-miss {
+  color: var(--red);
 }
 
-/* Miniatures of the card border itself, since that is what the board draws.
-   The legend used to show a â— and a âœ– that no longer exist anywhere on it. */
-.legend-swatch {
-  display: inline-block;
-  width: 15px;
-  height: 12px;
-  border-radius: 3px;
-  vertical-align: -1px;
-  margin-right: 2px;
+/* Start early, as a link riding the title row. It was a .btn-ghost carrying
+   "Start with 4 unpacked — they stay English and cannot be wrapped this
+   round", which wrapped to two lines at 360px and cost the board both of them
+   in every packing phase. The sentence survives as the button's title and its
+   accessible name. */
+.packing-early {
+  flex: none;
 }
 
-.legend-target {
-  border: 3px solid var(--green-tile);
-}
-
-
-.legend-sep {
-  margin: 0 8px;
-  color: var(--text-dim);
-}
+/* `.key-legend`, `.legend-swatch`, `.legend-target` and `.legend-sep` were
+   declared here — one 17.3px line between the board and the dock reading
+   "your target · look up". K2 deleted the paragraph (README: your own key IS
+   the card's border, and the info glyph explains itself when tapped), so these
+   are deleted rather than left standing. The board has the line's height and
+   the column's 12px gap with it. */
 
 
 /* Your own key, drawn as the card's border: solid green for a target. It is
@@ -1635,13 +1639,13 @@ select:focus {
   gap: 8px;
 }
 
-/* ---- the board never moves, and now neither does the composer -------------
+/* ---- the board never moves, and neither does any dock --------------------
  *
  * The complaint: "when guessing it's a giant text block that adjusts the
  * sizing of the grid. The grid should stay locked. and the text can be cut."
  *
  * The board is a flex:1 area sharing this column with the dock, so every line
- * the dock gained or lost came straight off the grid — and the grid resizes
+ * a dock gained or lost came straight off the grid — and the grid resizes
  * every card with it. Measured over one seeded round at 360x640, before any of
  * this: 200px of height and 18px of position, over one round.
  *
@@ -1650,171 +1654,276 @@ select:focus {
  * leftover in every phase and the grid is locked by construction — no
  * measuring, no JS, nothing to keep in sync with the phase machine.
  *
- * Two numbers, and they are two because K1 landed before K2:
+ * ---- ONE number, and how it stopped being two (K2) ------------------------
  *
- *   --dock-h       the composer's own fixed height. It is the composer's
- *                  MEASURED height, not a budget it is squeezed into.
- *   --dock-slot-h  the reserve the slot holds, which is still the tallest dock
- *                  a round can reach — and that is still the guess bar, until
- *                  K2 redraws it and the other docks to --dock-h. When it
- *                  does, these two become one number and the slot can go.
+ * K1 had to declare two. It measured the composer at 149.41px and made that
+ * --dock-h, but the guess bar still wanted 189.27 — a title, a swap row and a
+ * dictionary BOX with its own rule, its own field row and its own answer row
+ * under it — so a second variable, --dock-slot-h, went on holding the old
+ * 200px reserve in an invisible slot the docks sat inside.
  *
- * ---- --dock-h: 9.375rem = 150px --------------------------------------------
+ * K2 redrew the other docks to the composer's shape, and the second number
+ * went with the slot. The shape is the whole of it: three regions, each a
+ * fixed number of lines, and nothing that appears and vanishes.
  *
- * Measured with e2e/composer-probe.mjs (opt-in), at 360x640, by asking the
- * panel how tall it wants to be (height:auto) in every state a clue turn can
- * put it in. After K1 the answer is the SAME in all of them:
+ *   composer      field row      · ONE shared line   · stepper + send
+ *   guess bar     title          · ONE action row    · dictionary + its answer
+ *   last chance   title          · ONE line          · one action row
+ *   packing       title + link   · field + Pack      · ONE note line
+ *   Casey's turn  face + bubble (2 lines, clamped)   · ONE clue/result line
+ *   study         title          · hint (2 lines)    · Start the round
  *
- *   empty, with the first-clue-ever line (O4)     149.41
- *   typing a legal clue                           149.41
- *   an illegal clue (a board word)                149.41
- *   an English-looking clue                       149.41
- *   a lookup with seven glosses behind it         149.41
- *   the longest verdict AND that answer together  149.41
- *   "Asking Casey…", and Casey's answer           149.41
+ * ---- --dock-h: 9.375rem = 150px, unchanged -------------------------------
  *
- * which is the whole of K1 in one column of numbers. It is three rows and
- * nothing else: 47 (the field row) + 26.41 (the shared line) + 49 (the stepper
- * and the send), two 8px gaps, 10px of padding and the 1px rule above it.
- * 149.41 -> 9.375rem leaves 0.59px, and layout-drive samples the panel's
- * rectangle per frame across all seven states above to say it stays there.
+ * Measured with e2e/dock-probe.mjs (opt-in), at 360x640, by asking each dock
+ * how tall it WANTS to be (height:auto) in the fullest state its phase can
+ * reach — the same question e2e/composer-probe.mjs asks of the composer alone:
  *
- * The line is 26.41 rather than 20 because the inline 🔊 in a dictionary
- * answer is taller than the 0.8rem text beside it; it is declared at that
- * height whether or not an answer is up, so there is one natural height rather
- * than two. See .composer-line.
+ *   the composer, every state (K1's seven)      149.41   <- the tallest
+ *   study the board                             147.27
+ *   packing, a card selected                    146.00
+ *   guess bar, a card selected + a lookup       141.86
+ *   guess bar, bare, and with that lookup       135.86
+ *   packing, nothing selected / after a miss    128.00
+ *   last chance, nothing selected               113.86
+ *   last chance, a card selected                112.86
+ *   Casey's turn (thinking, and each guess)      77.83
+ *
+ * so the composer is still the tallest of them and --dock-h is still its own
+ * measured height rather than a budget anything is squeezed into. The gap
+ * between the tallest dock and the shortest is the price of the board not
+ * moving, and it is paid in whichever phase is not the tallest — but it is
+ * 72.17 now rather than the 83.31 it was, and it is air rather than panel.
  *
  * In rem, not px, so it tracks the text it has to hold when the phone's font
  * size is turned up.
  *
- * ---- --dock-slot-h: 12.5rem = 200px ---------------------------------------
+ * ---- what the board got ---------------------------------------------------
  *
- * Unchanged, and re-measured rather than assumed: the docks K2 has not
- * redrawn yet, asked the same way, at 360x640, after the dictionary lost its
- * four-row scroller —
+ * Measured the same way, at 360x640, seed 7, the standard board, in the
+ * opening clue phase — and it is the same rectangle in all fifteen states
+ * above, which it was not before:
  *
- *   Casey guessing                                116.69
- *   guess bar, bare                               155.73
- *   ... + the first-guess-ever line (O4)          176.73
- *   ... + the stop button                         183.73
- *   ... + a lookup answer on top of that          189.27   <- the tallest
- *   sudden death                                  169.86
- *   the composer, every state                     149.41
+ *              board top   height   5 rows of   card    a 6th row
+ *   before        147.44    239.30       41.46   44.00      33.22
+ *   after         147.44    318.56       57.31   57.31      46.43
  *
- * so 200px still covers the tallest by 10.7px, with nothing hanging out of any
- * of them (spill 0) and the document at 640 on a 640px screen. Lowering it is
- * K2's move, not this card's: the gap between the tallest dock and the
- * shortest is the price of the board not moving, and it is paid in whichever
- * phase is not the tallest. What K1 changes is that the composer's share of
- * that gap is now air rather than panel — see the paint note on
- * .dock.clue-input.
- *
- * The story this replaces, kept in one line so the diff is legible: the docks
- * used to want 126 (composer) / 154 (guess bar) / 191 (composer + the O4 line)
- * and the reserve was set to 200 for the four-row lookup list, which no longer
- * exists.
+ * 79.26px, of which 50 is the reserve coming down from 200 and the rest is
+ * the key legend and the column's gap. The card row grows by 13.31px — the
+ * cards were riding their own 44px min-height floor INSIDE a 41.46px row, and
+ * now they are not. And the sixth row N1 is waiting for measures 46.43, clear
+ * of the 44px floor by 2.43 — N1 predicted 46.1 from this card and K1's
+ * together, and that is what it turned out to be.
  *
  * The tutorial keeps its own number, and that is deliberate rather than a
  * leftover — see .dock.tutorial-dock below.
  */
 .game-screen {
   --dock-h: 9.375rem;
-  --dock-slot-h: 12.5rem;
   --tutorial-dock-h: 16.25rem;
 }
 
-/* The slot IS the reserve, and until K1 it was the only thing here with a
- * height. The composer has one of its own now; the other docks are still
- * content-sized inside this.
+/* Every dock a round can be in, at that one height.
  *
- * This was the panel's own height for two releases, and the second complaint
- * was the cost of that: "it's still way too much grey — the text field should
- * be so low that only one or two small text lines fit below it." Both halves
- * were right. The composer wants 149.41px and the guess bar 189.27, so a
- * single height for both means one of them is drawn as a sheet of grey with
- * its fields stranded at the top — and no amount of trimming fixes it, because
- * the gap between the tallest dock and the shortest one is the price of the
- * board not moving, and it is paid in whichever phase is not the tallest.
- *
- * So the space is held here, where it costs nothing to look at, and the panel
- * inside hugs its own content against the bottom edge. The board sees exactly
- * the same leftover it saw before — the numbers above are unchanged, and
- * layout-drive still measures every phase's slot as one rectangle — while the
- * phase with room to spare spends it on air rather than on panel.
+ * The `.dock-slot` wrapper that used to hold it is gone, and the ripple table
+ * in PLAN-2 is why: the slot existed because the docks were different heights,
+ * so the difference had to be held somewhere invisible while each panel hugged
+ * its own content against the bottom edge (PR #90 — "it's still way too much
+ * grey"). Once every dock is the same height the PANEL is the reserve again
+ * and the slot has nothing left to hold. Deleted rather than kept as a
+ * documented no-op: a wrapper that reserves exactly what its only child
+ * declares is a second place to look for the number, and the next reader would
+ * have to prove it does nothing before changing either.
  *
  * Three things follow, and all three are the point rather than side effects:
- * the clue field sits at the bottom of the screen where a thumb already is; a
- * lookup answer grows the panel UPWARDS into space that was already spoken
- * for, so nothing below it moves and nothing above it resizes; and the dock
- * is still the last thing in the layout, so the native keyboard still lands
- * against it with no arithmetic (see .kb-up below).
- *
- * The middle one is now true of the composer by construction rather than by
- * arithmetic: it does not grow at all. The slack above it is invisible (#90
- * took the paint off this slot) and K1 took the paint off the panel too, so
- * what is between the board and the clue field is a hairline and background. */
-.dock-slot {
-  height: var(--dock-slot-h);
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  /* The panel sits on the floor of the slot; the slack is above it. */
-  justify-content: flex-end;
+ * the field sits at the bottom of the screen where a thumb already is; a
+ * lookup answer cannot grow the panel at all, so nothing below it moves and
+ * nothing above it resizes; and the dock is still the last thing in the
+ * layout, so the native keyboard still lands against it with no arithmetic
+ * (see .kb-up below). */
+.dock.clue-input,
+.dock.guess-bar,
+.dock.ai-panel,
+.dock.study-dock,
+.dock.packing-dock {
+  height: var(--dock-h);
 }
 
-.tutorial-slot {
-  height: var(--tutorial-dock-h);
-}
-
-/* Content-sized, up to the slot. The cap is what keeps the give-way rules
-   below meaningful: past it the panel stops growing and the one region marked
-   flexible gives way inside itself, exactly as it did when the height was
-   fixed. The composer opts out by declaring a height of its own, which is
-   under this cap and therefore never fights it. */
-.dock-slot > .dock {
-  max-height: 100%;
-  min-height: 0;
-}
-
-/* Inside a reserved dock, everything holds its natural height... */
+/* Inside a fixed dock, everything holds its natural height... */
 .dock.clue-input > *,
+.dock.guess-bar > *,
 .dock.ai-panel > *,
-.dock.guess-bar > * {
+.dock.study-dock > *,
+.dock.packing-dock > * {
   flex: none;
 }
 
-/* ...except one region per dock, which takes the leftover and clips inside
-   itself. That is what keeps the send/guess button pinned: the growth has
-   somewhere to go that is not the button's row, and not the board.
+/* ...except ONE region per dock, which takes the leftover and clips inside
+ * itself. That is what keeps the send/guess button pinned: the growth has
+ * somewhere to go that is not the button's row, and not the board. Which
+ * region it is, is a design choice per dock — the row that may be cut without
+ * costing the player the thing they are in the phase to do.
+ *
+ * The composer is not in this list, and that is the K1 change stated in one
+ * rule: it has no give-way region because it has nothing that can grow. Three
+ * rows of fixed height, the middle one a single line that ellipsizes rather
+ * than wraps, so the panel's own height IS its content's height.
  *
  * Deliberately NOT overflow:hidden on the dock itself. A fixed-height box
  * whose content spills still lengthens the document, so if a future dock
- * outgrows its reserve the no-scroll assertion in layout-drive fails and says
+ * outgrows its height the no-scroll assertion in layout-drive fails and says
  * so. Clipping the dock would hide the content AND silence the check — the
- * trap the shell's own overflow comment is about.
- *
- * The composer is no longer in this list, and that is the K1 change stated in
- * one rule: it has no give-way region because it has nothing that can grow.
- * Three rows of fixed height, the middle one a single line that ellipsizes
- * rather than wraps, so the panel's own height IS its content's height and
- * there is no leftover to hand anywhere. The guess bar still needs one until
- * K2 redraws it. */
-.dock.guess-bar > .translate-box,
-.dock.guess-bar > .dock-flex {
+ * trap the shell's own overflow comment is about. */
+.dock.guess-bar > .dock-actions,
+.dock.guess-bar > .dock-flex,
+.dock.study-dock > .study-hint,
+.dock.packing-dock > .packing-note {
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 /* Prose rather than a control: it may be cut, and it is the thing that gives
    way so the button under it does not move when a card is selected. */
 .dock-flex {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
   overflow: hidden;
 }
 
-/* The AI panel has nothing that grows, so its spare room goes above and below
-   the face rather than under it. */
+/* ---- the play docks are not painted either (K2) ----
+
+   K1 took the panel off the composer and said why: a panel is a container
+   drawn to say "these things belong together", and at a FIXED height it is
+   drawn at its fullest in every state — so the turns with less to say, which
+   is most of them, pay for a rectangle of grey around three controls. That
+   was the whole of the owner's complaint, twice.
+
+   Every dock is at a fixed height now, so the argument covers all of them —
+   and it gained a second half. The composer, the guess bar and the AI panel
+   alternate turn by turn in the SAME rectangle, so a panel on two of the three
+   is a sheet of grey blinking in and out of a box that never moves. One
+   hairline rule for all three, and the fields carry their own borders.
+
+   It is also what makes the height reachable: a panel costs 20px of padding
+   and 2px of border, the rule costs 10 and 1, and the guess bar redrawn wants
+   141.86 of the 150 either way.
+
+   The study dock and the packing dock KEEP their ink border, and that is the
+   one deliberate exception. Neither is a turn: they are the two moments the
+   board is not in play — reading it, and recalling it from the English side —
+   each shown once and then not again, and the border is what says the round
+   has not started. They take --dock-h like everything else. */
+.dock.clue-input,
+.dock.guess-bar,
+.dock.ai-panel {
+  background: none;
+  border: none;
+  border-top: 1px solid var(--line-soft);
+  border-radius: 0;
+  padding: 10px 0 0;
+}
+
+/* No pencil-edge chrome either — that ::before IS the panel's border, drawn
+   through the wobble filter, and a hairline rule does not want a wobbling
+   rectangle behind it. */
+.dock.clue-input::before,
+.dock.guess-bar::before,
+.dock.ai-panel::before {
+  content: none;
+}
+
+/* ---- the guess bar's three rows (K2) ----
+
+   Title, one action row, then the dictionary's field beside its one answer.
+   The action row is the give-way region above, which is what absorbs the
+   difference between a 49px button and a one-line hint — the three states of
+   this row — so the dictionary under it does not move when a card is
+   selected. */
+.dock-actions {
+  display: flex;
+  align-items: center;
+  min-height: 49px;
+}
+
+.dock-actions > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The dictionary, side by side rather than stacked: the field on the left, its
+   one answer on the right. Stacked — the .translate-box wrapper, which the
+   tutorial dock still renders — that was a rule, a field row and an answer row
+   under it, which is most of what the guess bar was over its budget by. */
+.dock-dictionary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dock-dictionary > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.dock-dictionary .translate-input {
+  padding: 12px;
+  margin-top: 0;
+}
+
+/* The same line the composer's answer half is, and for the same measured
+   reason: the inline 🔊 is 26.41px, taller than the 0.8rem text beside it, so
+   the row is declared at that height whether or not an answer is up. */
+.dict-line {
+  font-size: 0.8rem;
+  line-height: 1.65rem;
+  min-height: 1.65rem;
+  overflow: hidden;
+}
+
+.dict-line > * {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Casey's turn: a face, a two-line bubble, one line (K2/U3) ----
+
+   The bubble is clamped to two lines rather than ellipsized to one because of
+   what goes in it next: U3 puts the model's own reasoning for each guess
+   there. Until then it holds the clue Casey is guessing against, which used to
+   be a .dock-title row of its own. */
 .dock.ai-panel {
   justify-content: center;
+}
+
+.ai-say {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ai-bubble {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* One line, whatever it says. */
+.ai-guess-line,
+.ai-line-blank {
+  min-height: 1.35em;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---- the tutorial dock (O2) ----
@@ -1823,26 +1932,40 @@ select:focus {
    one and never moves — the rule C1 bought for real play holds through the
    tutorial by the same construction.
 
-   It is its OWN height, and only since the round's reserve came down to
-   12.5rem. This dock has Casey's face, his bubble and a list of clues to
-   choose from in it, and its tallest beat wants 237.1px at 360x640 — the
-   round's docks were the constraint before and are not any more. Held at the
-   old 16.25rem it clips nothing; cut to 12.5rem it would silently take 37px
-   off a bubble mid-sentence, because .tutorial-body's give-way is
-   overflow:hidden and would say nothing about it. The cost is a smaller board
-   during the tutorial than during real play, and on the phones where that is
-   visible it is small: the 3×4 board's cards are capped by their own aspect
-   ratio at 390x844, so both numbers draw the same 91.2px card there and only
-   the gaps between them differ.
+   It is its OWN height, and further from the round's than ever now that the
+   round's is 150px. This dock has Casey's face, his bubble and a list of clues
+   to choose from in it, and its tallest beat wants 237.1px at 360x640. Held at
+   16.25rem it clips nothing; cut to --dock-h it would silently take 87px off a
+   bubble mid-sentence, because .tutorial-body's give-way is overflow:hidden
+   and would say nothing about it. The cost is a smaller board during the
+   tutorial than during real play, and on the phones where that is visible it
+   is small: the 3×4 board's cards are capped by their own aspect ratio at
+   390x844, so both numbers draw the same 91.2px card there and only the gaps
+   between them differ. I2 is the card that changes this — Casey's bubble moves
+   into the band the 3×4 board frees — and it is the reason the tutorial keeps
+   a slot at all now that the round's docks do not.
 
-   And this is the one dock that still FILLS its slot rather than hugging its
-   content. The phase docks hug because each phase holds one shape for as long
-   as the player is in it; the tutorial changes shape every beat — 99.5px on
-   the tap-a-card beat, 238 on the one with the clue list — and a panel that
+   And this is the one dock that FILLS a slot rather than being its own height.
+   The phase docks ARE the height because each phase holds one shape for as
+   long as the player is in it; the tutorial changes shape every beat — 99.5px
+   on the tap-a-card beat, 238 on the one with the clue list — and a panel that
    resized under Casey between beats would take his Next button up and down
    the screen with it, mid-sentence, which is a moving tap target in the one
    place a first-time player is being led by the hand. Stable is worth more
    than tight here. */
+.tutorial-slot {
+  height: var(--tutorial-dock-h);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.tutorial-slot > .dock {
+  max-height: 100%;
+  min-height: 0;
+}
+
 .dock.tutorial-dock {
   height: 100%;
 }
@@ -1927,43 +2050,17 @@ select:focus {
    ---- is the composer painted? No, and that is a decision ----
 
    PR #90 took the paint off the dock's RESERVE after "it's still way too much
-   grey", leaving the slot invisible and the panel content-sized inside it.
-   This takes it off the PANEL, which is the same move one step further: the
-   composer sits on the page ground with a single hairline rule above it, and
-   the two fields carry their own borders as they already did. Three reasons it
-   is the right call here rather than a matter of taste:
+   grey", leaving the slot invisible and the panel content-sized inside it. K1
+   took it off the PANEL — the composer sits on the page ground with a single
+   hairline rule above it, and the two fields carry their own borders as they
+   already did — and K2 extended that to the guess bar and the AI panel, which
+   share this rectangle turn by turn. Both declarations, and the argument for
+   them, are in the dock block above; the rule is written down there rather
+   than left to `--surface` by inheritance, per the card.
 
-     - a panel is a container drawn to say "these things belong together", and
-       at a fixed height it is drawn at its FULLEST in every state — so the
-       states with less to say (which is most turns: no verdict, no answer) are
-       the ones paying for a rectangle of grey around three controls;
-     - the grey was already the whole of the complaint, twice;
-     - the surface behind the composer is the game screen, and the keyboard
-       lands against the composer directly (.kb-up below) — a second surface
-       between them is one edge more than the eye needs to find the field.
-
-   The rule above it stays, because it is doing the one job the panel did that
-   nothing else does: saying where the board stops and the controls start.
-   Written down rather than left to `--surface` by inheritance, per the card.
-
-   The other docks keep their panel until K2 redraws them to this height. */
-.dock.clue-input {
-  background: none;
-  border: none;
-  border-top: 1px solid var(--line-soft);
-  border-radius: 0;
-  padding: 10px 0 0;
-  /* The fixed height itself. Not a min/max pair: the whole claim is that this
-     box is one rectangle, and layout-drive samples it per frame to say so. */
-  height: var(--dock-h);
-}
-
-/* No pencil-edge chrome either — that ::before IS the panel's border, drawn
-   through the wobble filter, and a hairline rule does not want a wobbling
-   rectangle behind it. */
-.dock.clue-input::before {
-  content: none;
-}
+   The height is declared there too, on every dock at once. Not a min/max pair:
+   the whole claim is that this box is one rectangle, and layout-drive samples
+   it per frame to say so. */
 
 /* A clue is one short word, so the field does not need a row of its own — and
    the word you are hunting for goes in the field beside it. */
@@ -3750,17 +3847,21 @@ select:focus {
 /* ---------- look up a word ---------- */
 
 /* The STACKED form of the dictionary — the field with its one answer under it.
-   Still what the guess bar, the tutorial dock and Casey's clue line render;
-   the composer takes the same two pieces apart and places them in two
-   different rows (see .composer-fields and .composer-line above), which is
-   what lets the answer share a line with the verdict.
+   The TUTORIAL DOCK is the only thing that renders it now: K2 took the guess
+   bar off it (the box was a rule, a field row and an answer row, and the guess
+   bar had to lose two of those three to reach --dock-h) and the guess bar
+   places the same two pieces side by side instead — see .dock-dictionary
+   above. The composer takes them apart the other way, field in one row and
+   answer in another, which is what lets the answer share a line with the
+   verdict.
 
    A flex column, still, and still for the reason it was made one: it was a
    plain block in the guess bar, and a plain block's children cannot flex — so
    the answers list below sat at its full 4.6rem and hung 29.5px out of the
    bottom of the reserved dock, taking the document with it (657px on a 640px
-   screen). The list is one line now and cannot do that, but the give-way rule
-   above still points here and K2 is what redraws this dock. */
+   screen). The list is one line now and cannot do that, and the dock that
+   still holds this one is the tutorial's, whose give-way region is
+   .tutorial-body. */
 .translate-box {
   border-top: 1px solid var(--line-soft);
   padding-top: 6px;
@@ -4827,10 +4928,9 @@ select:focus {
   transform: scale(0.97) rotate(0deg);
 }
 
-/* The legend and the how-to tiles are miniature copies of a card. They pick up
-   the same hand-drawn corners, or the legend stops matching the board it is
-   explaining. */
-.legend-swatch,
+/* The how-to tiles are miniature copies of a card, so they pick up the same
+   hand-drawn corners. The key legend's swatch was the other one of these and
+   went with the legend (K2). */
 .demo-tile {
   border-radius: 9px 5px 8px 6px / 6px 8px 5px 9px;
 }
