@@ -339,9 +339,16 @@ jobs:
         # The artifact below needs a browser login or a PAT to download, and
         # the agent sessions that fire this workflow hold neither — they reach
         # GitHub only as git. So the film also goes out as an orphan branch,
-        # sim-film/<run_number>, in a mini-repo of its own (no index games
-        # with the build tree). The reader deletes the branch after fetching;
-        # nothing triggers on sim-film/* pushes (deploy.yml is main-only).
+        # in a mini-repo of its own (no index games with the build tree).
+        # Nothing triggers on sim-film/* pushes (deploy.yml is main-only).
+        #
+        # ONE branch, force-pushed, rather than one per run: a session cannot
+        # delete a remote branch — the agent proxy answers a delete refspec
+        # with "Everything up-to-date" and does nothing — so a per-run name
+        # would leave litter nobody in a session can sweep up. Overwriting is
+        # the cleanup. The run number is in the commit message, and the film
+        # for a run that matters should be read before the next run replaces
+        # it (the artifact keeps its own copy either way).
         if: always()
         run: |
           mkdir sim-film
@@ -356,8 +363,8 @@ jobs:
           git commit -qm "sim film, run ${{ github.run_number }}"
           git push -q -f \
             "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
-            "HEAD:refs/heads/sim-film/${{ github.run_number }}"
-          echo "pushed sim-film/${{ github.run_number }}"
+            "HEAD:refs/heads/sim-film/latest"
+          echo "pushed sim-film/latest (run ${{ github.run_number }})"
 
       - uses: actions/upload-artifact@v4
         if: always()
