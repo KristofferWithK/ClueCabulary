@@ -100,9 +100,11 @@ const config: CapacitorConfig = {
        * guesses 250ms. The whole native diff is one method; Keyboard.m says
        * why in place.
        *
-       * Borrowing that height to move the composer early is the experiment
-       * behind localStorage cluecab-kbfast — see src/ui/nativeKeyboard.ts. It
-       * ships off, and it changes only when the composer arrives, never where.
+       * Borrowing that height — and now the duration beside it — to move the
+       * composer WITH the keyboard is the ride in src/ui/nativeKeyboard.ts.
+       * It ships on; localStorage cluecab-kbstill restores the
+       * wait-for-the-document behaviour per device. It changes only when the
+       * composer arrives, never where.
        *
        * What either costs is the board reflowing into the smaller space, which
        * is the one thing it must never do. So the board is frozen at its full

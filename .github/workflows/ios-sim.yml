@@ -13,10 +13,11 @@ name: iOS simulator check
 #
 # It now also films the launch, because the open question stopped being WHERE
 # the composer ends up and became WHEN it gets there. A still cannot tell a
-# composer that rode up with the keyboard from one that appeared after it, and
-# that difference is the whole of the cluecab-kbfast experiment. Read the two
-# limitations under "Raise a real keyboard" before trusting a film of the
-# seeded path to answer it.
+# composer that rode up with the keyboard from one that appeared after it —
+# and the ride ships ON now, so the default run films the shipped behaviour
+# and `still` films the old wait-for-the-document one (localStorage
+# cluecab-kbstill). Read the two limitations under "Raise a real keyboard"
+# before trusting a film of the seeded path to answer the timing question.
 on:
   workflow_dispatch:
     inputs:
@@ -28,8 +29,8 @@ on:
         description: 'Pretend the keyboard is this many points tall (0 for none)'
         default: '336'
         type: string
-      fast:
-        description: 'Ride the composer up early (localStorage cluecab-kbfast)'
+      still:
+        description: 'Opt OUT of the ride — the dock waits for the document (cluecab-kbstill)'
         default: false
         type: boolean
       debug:
@@ -76,15 +77,15 @@ jobs:
         # only. Nothing here is committed and none of it reaches a device.
         env:
           KB: ${{ inputs.keyboard }}
-          FAST: ${{ inputs.fast }}
+          STILL: ${{ inputs.still }}
           DEBUG: ${{ inputs.debug }}
           TAP: ${{ inputs.tap }}
         run: |
-          python3 - "$KB" "$FAST" "$DEBUG" "$TAP" <<'PY'
+          python3 - "$KB" "$STILL" "$DEBUG" "$TAP" <<'PY'
           import json, sys, pathlib
 
           kb = sys.argv[1]
-          fast = sys.argv[2] == 'true'
+          still = sys.argv[2] == 'true'
           debug = sys.argv[3] == 'true'
           tap = sys.argv[4] == 'true'
 
@@ -99,8 +100,8 @@ jobs:
           seed = json.load(open('ios/sim-seed.json'))
           seed['cluecab-howto-v3'] = 'seen'
           seed['cluecab-kbsim'] = kb
-          if fast:
-              seed['cluecab-kbfast'] = '1'
+          if still:
+              seed['cluecab-kbstill'] = '1'
           if debug:
               seed['cluecab-kbdebug'] = '1'
           js = ''.join(
@@ -139,7 +140,7 @@ jobs:
 
           p = pathlib.Path('ios/App/App/public/index.html')
           p.write_text(p.read_text() + '<script>try{' + js + '}catch(e){}</script>', encoding='utf-8')
-          print(f'seeded {len(seed)} keys, keyboard {kb}, fast {fast}, debug {debug}, tap {tap}')
+          print(f'seeded {len(seed)} keys, keyboard {kb}, still {still}, debug {debug}, tap {tap}')
           PY
 
       - name: Build for the simulator
@@ -211,7 +212,7 @@ jobs:
         # stands the finished keyboard-up state up on a timer; there is no
         # keyboard animating beside it, so a film of it shows where things end
         # and says nothing about when they got there — which is the only
-        # question cluecab-kbfast asks. For that a real keyboard has to come up,
+        # question the ride answers. For that a real keyboard has to come up,
         # and a real keyboard needs a touch.
         #
         # This is a second attempt, and it is narrower than the first. That one
@@ -233,6 +234,14 @@ jobs:
           set -o pipefail
           idb ui tap --udid "$UDID" 200 400
           sleep 4
+          # A second tap, high on the screen, away from any dock. The shim
+          # consumed itself on the first touch, so this one reaches the page —
+          # where the scrim turns any board tap into a dismissal. That puts
+          # the HIDE on film too: the dock has no hide ride (the departing
+          # keyboard occludes the body restore), and this film is the evidence
+          # for whether that stays true.
+          idb ui tap --udid "$UDID" 200 100
+          sleep 3
 
       - name: Let it settle
         run: sleep 8
@@ -256,7 +265,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: simulator-${{ inputs.fast && 'fast' || 'today' }}${{ inputs.tap && '-realkb' || '' }}
+          name: simulator-${{ inputs.still && 'still' || 'ride' }}${{ inputs.tap && '-realkb' || '' }}
           path: |
             keyboard.png
             keyboard.mp4

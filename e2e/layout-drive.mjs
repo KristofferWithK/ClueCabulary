@@ -217,6 +217,26 @@ const opaque = await page
   .locator('.screen-header')
   .evaluate((el) => getComputedStyle(el).backgroundColor)
 check('and is opaque, so content passes behind it', !/rgba\(0, 0, 0, 0\)|transparent/.test(opaque), opaque)
+
+// The scrim stays out of Settings. Its inputs live in no dock, so kb-up used
+// to engage with nothing at z-index 5 above the fixed inset-0 scrim — and the
+// first tap after focusing a field landed on the scrim instead of the thing
+// tapped. Stood up the way a real keyboard stands it up (kb-up on the root),
+// then a second field is clicked: with the scrim rendered app-wide this focus
+// never happens.
+await page.evaluate(() => document.documentElement.classList.add('kb-up'))
+const scrimInSettings = await page.locator('.kb-scrim').count()
+const inputs = page.locator('.settings-section input')
+await inputs.nth(1).click()
+const focusedSecond = await page.evaluate(
+  () => document.activeElement instanceof HTMLInputElement,
+)
+await page.evaluate(() => document.documentElement.classList.remove('kb-up'))
+check(
+  'the keyboard scrim does not exist on settings, so a field tap lands',
+  scrimInSettings === 0 && focusedSecond,
+  `${scrimInSettings} scrims, second input focused: ${focusedSecond}`,
+)
 await page.goBack()
 await page.waitForTimeout(250)
 
@@ -745,6 +765,15 @@ await page.setViewportSize(PHONE)
     bottom <= PHONE.height - KB + 1 && bottom >= PHONE.height - KB - 40,
     `composer ends at ${Math.round(bottom)}, screen ends at ${PHONE.height - KB}`,
   )
+  // The scrim moved from the app shell into the game screen (Settings' inputs
+  // live in no dock, and app-wide it ate their first tap) — this is the other
+  // half of that pair: in the game, where the board needs protecting, it must
+  // still be there and covering.
+  const scrim = await page.evaluate(() => {
+    const s = document.querySelector('.game-screen .kb-scrim')
+    return s ? getComputedStyle(s).display : 'missing'
+  })
+  check('and the dismissal scrim still covers the game', scrim === 'block', scrim)
   await noScroll('game with the keyboard up')
 
   // The hide path: the plugin writes height null, which removes the inline
@@ -760,18 +789,20 @@ await page.setViewportSize(PHONE)
   check('and comes back untouched', same(gridBefore, gridAfter), `${Math.round(gridAfter.height)}`)
 }
 
-// ---- the ride (localStorage cluecab-kbfast), and what it may not change ----
+// ---- the ride (ON by default; cluecab-kbstill opts out) -------------------
 //
-// The experiment makes the composer arrive EARLY. It is allowed to change when
-// the dock moves and nothing else — least of all where it stops, which cost
-// three builds to get right.
+// The ride makes the composer travel WITH the keyboard, and it ships on. It
+// is allowed to change when the dock moves and nothing else — least of all
+// where it stops, which cost three builds to get right.
 //
-// Both modes are run through the app's own keyboard path rather than through a
-// hand-written imitation of it, which is what cluecab-kbsim is for. What that
-// cannot show is the real thing's timing, since there is no iOS keyboard here
-// to be early relative to; what it can show is that the ride happens at all,
-// that it does not happen with the flag off, and that both come to rest in
-// exactly the same place. Those are the three claims this experiment makes.
+// Three legs through the app's own keyboard path (cluecab-kbsim), not a
+// hand-written imitation: the DEFAULT, which must ride with no flag set —
+// this is the assertion that fails on the code that shipped the ride as an
+// opt-in; the OPT-OUT (cluecab-kbstill), which must never transform the dock;
+// and REDUCED MOTION, which must behave exactly like the opt-out — the
+// accessibility promise, previously untested. What a browser cannot show is
+// timing against a real keyboard; what it can show is that the ride happens,
+// on the duration it was given, and that every leg rests at the same pixel.
 {
   const KB = 336
   // Watch rather than sample. Reading the transform "while the ride is on" is a
@@ -800,6 +831,9 @@ await page.setViewportSize(PHONE)
           // of nothing.
           what: el === document.body ? 'body' : el.classList.contains('dock') ? 'dock' : 'other',
           transform: el.style.transform,
+          // The transition too: it carries the duration the ride was given,
+          // which is the one CI-visible trace of the payload plumbing.
+          transition: el.style.transition,
           shrunk,
         })
         if (el === document.body) shrunk = document.body.style.height !== ''
@@ -807,7 +841,11 @@ await page.setViewportSize(PHONE)
     }).observe(document, { attributes: true, subtree: true, attributeFilter: ['style'] })
   })
 
-  const arm = async (fast) => {
+  // The pretend duration for the default leg — an ODD number no constant in
+  // the app shares, so finding "421ms" in a transition can only mean the
+  // value travelled from the kbsim payload through startRide.
+  const DUR = 421
+  const arm = async (mode) => {
     // A round to be in the middle of, saved, and then resumed by the reload —
     // cluecab-kbsim and the flag are both read once, at mount.
     await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
@@ -819,13 +857,14 @@ await page.setViewportSize(PHONE)
     if (await study.isVisible().catch(() => false)) await study.click()
     await page.waitForTimeout(250)
 
+    await page.emulateMedia({ reducedMotion: mode === 'reduced' ? 'reduce' : null })
     await page.evaluate(
-      ([kb, on]) => {
-        localStorage.setItem('cluecab-kbsim', String(kb))
-        if (on) localStorage.setItem('cluecab-kbfast', '1')
-        else localStorage.removeItem('cluecab-kbfast')
+      ([kb, dur, still]) => {
+        localStorage.setItem('cluecab-kbsim', `${kb}/${dur}`)
+        if (still) localStorage.setItem('cluecab-kbstill', '1')
+        else localStorage.removeItem('cluecab-kbstill')
       },
-      [KB, fast],
+      [KB, DUR, mode === 'still'],
     )
     await open('?mock=1&howto=0')
     // A condition, not a duration: the keyboard is up, the document has
@@ -853,49 +892,69 @@ await page.setViewportSize(PHONE)
     })
     await page.evaluate(() => {
       localStorage.removeItem('cluecab-kbsim')
-      localStorage.removeItem('cluecab-kbfast')
+      localStorage.removeItem('cluecab-kbstill')
     })
+    await page.emulateMedia({ reducedMotion: null })
     return { during, rest }
   }
 
-  const off = await arm(false)
-  const on = await arm(true)
+  const still = await arm('still')
+  const dflt = await arm('default')
+  const reduced = await arm('reduced')
 
-  // Inert without the flag: the dock is never given a transform, and the
-  // document shrinks the moment the keyboard is declared, exactly as before.
   const moved = (log) => log.filter((e) => e.what === 'dock' && e.transform !== '')
+
+  // The opt-out restores exactly the old behaviour: the dock is never given a
+  // transform, and the document shrinks the moment the keyboard is declared.
   check(
-    'without cluecab-kbfast the dock is never transformed',
-    moved(off.during).length === 0 && off.rest.transform === '' && off.rest.transition === '',
-    `${off.during.length} style writes, ${moved(off.during).length} of them a transform`,
+    'with cluecab-kbstill the dock is never transformed',
+    moved(still.during).length === 0 && still.rest.transform === '' && still.rest.transition === '',
+    `${still.during.length} style writes, ${moved(still.during).length} of them a transform`,
+  )
+  // The accessibility promise, previously untested: reduced motion means the
+  // dock arrives with the layout, never on its own.
+  check(
+    'and under reduced motion the dock is never transformed',
+    moved(reduced.during).length === 0 && reduced.rest.transform === '',
+    `${reduced.during.length} style writes, ${moved(reduced.during).length} of them a transform`,
   )
 
-  // Not a vacuous pair: with the flag on there really is a ride, and it is
-  // carrying the dock while the document is still at its full height — which
-  // is the lateness being compensated for, caught in the act.
-  const ahead = moved(on.during).filter((e) => /^translateY\(-\d/.test(e.transform) && !e.shrunk)
+  // The default flip's own assertion — this is the one that fails on the code
+  // that shipped the ride as an opt-in: no flag is set, and there really is a
+  // ride, carrying the dock while the document is still at its full height,
+  // which is the lateness being compensated for, caught in the act.
+  const ahead = moved(dflt.during).filter((e) => /^translateY\(-\d/.test(e.transform) && !e.shrunk)
   check(
-    'with cluecab-kbfast the dock rides ahead of the document',
+    'by default the dock rides ahead of the document',
     ahead.length > 0,
-    ahead.length ? ahead[0].transform : `nothing rode: ${JSON.stringify(on.during)}`,
+    ahead.length ? ahead[0].transform : `nothing rode: ${JSON.stringify(dflt.during)}`,
+  )
+  // The payload plumbing, witnessed: the ride animates over the duration the
+  // keyboard event carried, not over a constant. 421 exists nowhere in the
+  // app, so its appearance in a transition can only be the plumb working.
+  check(
+    'and carries the duration the keyboard reported',
+    ahead.some((e) => e.transition.includes(`${DUR}ms`)),
+    ahead.map((e) => e.transition).join(' | ') || '(no rides recorded)',
   )
   // And hands back: what holds the dock up afterwards is the layout, not us.
   check(
     'and hands the dock back to the layout when it lands',
-    on.rest.transform === '' && on.rest.transition === '' && on.rest.body === off.rest.body,
-    `transform ${JSON.stringify(on.rest.transform)}, body ${on.rest.body} vs ${off.rest.body}`,
+    dflt.rest.transform === '' && dflt.rest.transition === '' && dflt.rest.body === still.rest.body,
+    `transform ${JSON.stringify(dflt.rest.transform)}, body ${dflt.rest.body} vs ${still.rest.body}`,
   )
 
-  // The measurement that matters: same resting place, to the pixel.
+  // The measurement that matters: same resting place, to the pixel, ridden or
+  // not.
   check(
     'and comes to rest in exactly the same place either way',
-    on.rest.top === off.rest.top && on.rest.bottom === off.rest.bottom,
-    `fast ${on.rest.top}–${on.rest.bottom}, today ${off.rest.top}–${off.rest.bottom}`,
+    dflt.rest.top === still.rest.top && dflt.rest.bottom === still.rest.bottom,
+    `default ${dflt.rest.top}–${dflt.rest.bottom}, still ${still.rest.top}–${still.rest.bottom}`,
   )
   check(
     'and the board is the same height either way',
-    on.rest.board === off.rest.board,
-    `${on.rest.board} vs ${off.rest.board}`,
+    dflt.rest.board === still.rest.board,
+    `${dflt.rest.board} vs ${still.rest.board}`,
   )
 }
 
