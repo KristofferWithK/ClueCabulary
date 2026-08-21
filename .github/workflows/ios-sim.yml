@@ -86,7 +86,7 @@ jobs:
           TAP: ${{ inputs.tap }}
         run: |
           python3 - "$KB" "$STILL" "$DEBUG" "$TAP" <<'PY'
-          import json, sys, pathlib
+          import json, re, sys, pathlib
 
           kb = sys.argv[1]
           still = sys.argv[2] == 'true'
@@ -102,7 +102,19 @@ jobs:
               kb = '0'
 
           seed = json.load(open('ios/sim-seed.json'))
-          seed['cluecab-howto-v3'] = 'seen'
+
+          # The rules overlay's key, read from the store rather than written
+          # here. It used to be the literal 'cluecab-howto-v3'; the store
+          # bumped to v4 and this line did not, so the overlay opened over
+          # every screenshot this workflow has taken since -- run 10 is a
+          # photograph of How to Play, not of a keyboard. A missing key is a
+          # hard failure now: seeding nothing is what made that silent.
+          src = pathlib.Path('src/stores/uiStore.ts').read_text(encoding='utf-8')
+          m = re.search(r"HOWTO_KEY = '([^']+)'", src)
+          if not m:
+              raise SystemExit('no HOWTO_KEY in src/stores/uiStore.ts: the rules would cover the screen')
+          seed[m.group(1)] = 'seen'
+          print(f'rules suppressed via {m.group(1)}')
           seed['cluecab-kbsim'] = kb
           if still:
               seed['cluecab-kbstill'] = '1'
