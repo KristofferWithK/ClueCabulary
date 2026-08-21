@@ -140,19 +140,29 @@ try {
     const m = r.url().match(/audio\/da\/(story[^?]*)\.mp3/)
     if (m) asked.push(m[1])
   })
+  // Long enough for the first pass to finish and the second to start.
+  // Headless Chromium really does play these — probed: play() resolves and
+  // the element advances in real time — so the chain is observable, but only
+  // at the speed of the audio. Sønderborg's first sentence is 4.5s of Danish,
+  // hence the wait; asserting the whole four-pass cycle here would mean
+  // twenty seconds of drive for what rideCycle.test.ts pins in a millisecond.
   await page.click('.ride-play')
-  await sleep(2500)
+  await sleep(6500)
   if (!asked.length) throw new Error('pressing Listen asked for no story audio at all')
   if (asked[0] !== 'story/0-000') {
     throw new Error(`the ride opened with ${asked[0]} rather than the Danish sentence`)
   }
   console.log('ride asked for:', asked.join(' → '))
-  // The whole cycle, but only once every set is baked: an unbaked pass 404s,
-  // play() rejects, and the chain stops at the fallback by design — so this
-  // assertion would be measuring the missing bake rather than the order.
+  // That it MOVES ON, and moves on to the translation. The second pass is the
+  // one worth asserting in a browser: it proves the sentence is not simply
+  // played once as it used to be, and it proves the step reaches story/en/
+  // rather than replaying the Danish. The rest of the order is rideCycle's own
+  // test. Skipped while a pass is unbaked — then the clip 404s, play() gets
+  // the preview server's index.html, and the chain stops at the fallback by
+  // design, so this would be measuring the missing bake.
   if (!unbaked.length) {
-    const wantOrder = ['story/0-000', 'story/en/0-000', 'story/slow/0-000', 'story/0-000']
-    const got = asked.slice(0, 4)
+    const wantOrder = ['story/0-000', 'story/en/0-000']
+    const got = asked.slice(0, 2)
     if (got.join('|') !== wantOrder.join('|')) {
       throw new Error(`the cycle went ${got.join(' → ')}, wanted ${wantOrder.join(' → ')}`)
     }
