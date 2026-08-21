@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { FINAL_CITY_INDEX, cityAt } from '../../journey/cities'
+import { useJourney } from '../../stores/journeyStore'
+import { devSwitchesAllowed } from '../../stores/uiStore'
 
 /**
  * Which build this is, and a way to go and get a newer one.
@@ -107,6 +110,38 @@ export function BuildFooter() {
     }
   }
 
+  /**
+   * Jump a stop up the route, without playing the hundred words that open it.
+   *
+   * Playtesting nine cities is otherwise a fiction. The URL switches are the
+   * honest answer for a drive — `?city=N` jumps, `?wrapped=K` fills — but they
+   * need a keyboard and a phone has none, so the only device the game is
+   * actually played on is the one that cannot reach stop seven.
+   *
+   * It moves the position and nothing else: no wrapping, no ride, no arrival.
+   * The suitcase is left exactly as it was, so the city you land in shows its
+   * own hundred words untouched and the train there is empty — which is the
+   * state worth looking at, and it is also why this is not "travel" in the
+   * game's sense. Going back is the language picker or Settings' reset; there
+   * is deliberately no reverse gear, because a wrong tap on one would move a
+   * real journey backwards.
+   *
+   * Gated twice over: `devSwitchesAllowed()`, so no deployed origin ever has
+   * it, and the five taps, so it is invisible until it is wanted. The native
+   * shell serves from localhost, which is why it still ships to TestFlight —
+   * where the playtesting happens — while GitHub Pages never sees it.
+   */
+  const [travelled, setTravelled] = useState<string | null>(null)
+  // Subscribed rather than read, so the button disables itself the moment the
+  // last stop is reached instead of one render later.
+  const journeyIndex = useJourney((s) => s.cityIndex)
+  const travelOn = () => {
+    const j = useJourney.getState()
+    if (j.cityIndex >= FINAL_CITY_INDEX) return
+    j.travel(Date.now())
+    setTravelled(cityAt(useJourney.getState().cityIndex).name)
+  }
+
   const check = async () => {
     setState('checking')
     try {
@@ -138,6 +173,18 @@ export function BuildFooter() {
         <button className="btn btn-small" onClick={toggleRide}>
           Train story: {ride ? 'on' : 'off'}
         </button>
+      )}
+      {debug && devSwitchesAllowed() && (
+        <button
+          className="btn btn-small dev-travel"
+          disabled={journeyIndex >= FINAL_CITY_INDEX}
+          onClick={travelOn}
+        >
+          Travel to the next city
+        </button>
+      )}
+      {debug && devSwitchesAllowed() && travelled && (
+        <span className="build-note">Now at {travelled}. The suitcase is untouched.</span>
       )}
       <button className="btn btn-small" disabled={state === 'checking'} onClick={check}>
         {state === 'checking' ? 'Checking…' : 'Check for updates'}

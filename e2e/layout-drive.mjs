@@ -83,31 +83,48 @@ for (const vp of [
   )
 
   /**
-   * And Home still fits once the travel button appears.
+   * And Home still fits once the road opens.
    *
    * This is the state the no-scroll rule cannot see. A city wrapped to the last
-   * word grows a "Travel on → ⟨city⟩" button worth about 61px, Casey's band is
-   * the only thing that can give it up, and when it could not, the column
-   * OVERFLOWED rather than lengthening — flex overflow paints over what is
-   * below it, so `scrollHeight <= innerHeight` stayed true at exactly 640 while
-   * the word "Casey" was drawn sliced across the green button.
+   * word used to grow a "Travel on → ⟨city⟩" button worth about 61px UNDER
+   * Casey, his band was the only thing that could give it up, and when it could
+   * not, the column OVERFLOWED rather than lengthening — flex overflow paints
+   * over what is below it, so `scrollHeight <= innerHeight` stayed true at
+   * exactly 640 while the word "Casey" was drawn sliced across the green
+   * button. Measured before that fix: name over button by 6.8px here, and
+   * iPhone SE clear by 0.2px, which is not clearance, it is luck.
    *
-   * Measured before the fix: name over button by 6.8px here, and iPhone SE
-   * clear by 0.2px, which is not clearance, it is luck.
-   *
-   * Both rects are checked, and the SVG one is the point: the first attempt at
-   * this fix let the BUTTON shrink, which left the drawing painting outside a
-   * button that now measured correctly. A check on the button alone would have
-   * called that fixed.
+   * T1 deleted that button. The train in the progress band ABOVE him is the
+   * control now, so the same state costs 12px of button padding instead of
+   * 61px of button — but the hazard is the identical one and it is checked in
+   * both directions: Casey must start below whatever the train became, and he
+   * must still end above the play row, which is what he would now overflow
+   * onto. Both his rects, not just one: the first attempt at the old fix let
+   * the BUTTON shrink, which left the drawing painting outside a button that
+   * measured correctly, and a check on one rect would have called that fixed.
    */
   await open('?mock=1&howto=0&city=0&wrapped=100')
-  const travel = await page.locator('.btn-travel').boundingBox()
+  const train = await page.locator('.train-board').boundingBox()
   const name = await page.locator('.cluey-name').boundingBox()
   const svg = await page.locator('.cluey-svg').boundingBox()
+  const actions = await page.locator('.home-actions').boundingBox()
   check(
-    `Casey clears the travel button on ${vp.name}`,
-    name.y + name.height <= travel.y + 0.5 && svg.y + svg.height <= travel.y + 0.5,
-    `name ${(travel.y - name.y - name.height).toFixed(1)}px clear, drawing ${(travel.y - svg.y - svg.height).toFixed(1)}px`,
+    `Casey's band clears the train it boards on ${vp.name}`,
+    name.y >= train.y + train.height - 0.5 &&
+      svg.y >= train.y + train.height - 0.5 &&
+      name.y + name.height <= actions.y + 0.5 &&
+      svg.y + svg.height <= actions.y + 0.5,
+    `${(name.y - train.y - train.height).toFixed(1)}px under the train, ` +
+      `drawing ${(actions.y - svg.y - svg.height).toFixed(1)}px above the play row`,
+  )
+  // The train is the door, so it has to be pressable: a real button, and tall
+  // enough to hit. It is the row's flexible child and spans most of the width,
+  // which is where the rest of the target comes from.
+  const trainTag = await page.locator('.train-board').evaluate((el) => el.tagName)
+  check(
+    `and the train is a real button on ${vp.name}`,
+    trainTag === 'BUTTON' && train.height >= 28,
+    `<${trainTag.toLowerCase()}>, ${train.height.toFixed(0)}px tall, ${train.width.toFixed(0)}px wide`,
   )
   const bubble = await page.locator('.cluey-bubble').boundingBox()
   const band = await page.locator('.home-progress-band').boundingBox()

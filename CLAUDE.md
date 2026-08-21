@@ -241,12 +241,19 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   that assertion lie).
   That rule does NOT catch a Home band that grew too tall: a flex column
   overflows by painting OVER what is below rather than lengthening the
-  document, so `scrollHeight` stays honest while Casey's name sits on the
-  travel button. The check that catches it is layout-drive's "Casey clears the
-  travel button", and it is what sets the ceiling on `.home-map`'s height —
-  measured at 25vh and 30vh, both of which overlap at 360×640 with no-scroll
-  still passing. `e2e/home-space-probe.mjs` (opt-in) prints the budget that
-  height is chosen against, including how much of the map's card is empty.
+  document, so `scrollHeight` stays honest while Casey's name is drawn sliced
+  across whatever is under him. The check that catches it is layout-drive's
+  "Casey's band clears the train it boards", and it is what sets the ceiling on
+  `.home-map`'s height — measured at 25vh and 30vh, both of which overlap at
+  360×640 with no-scroll still passing. `e2e/home-space-probe.mjs` (opt-in)
+  prints the budget that height is chosen against, including how much of the
+  map's card is empty.
+  That check used to be called "Casey clears the travel button", and there is
+  no travel button on Home any more (T1): the TRAIN in the progress band is the
+  control — tapping it boards straight into the ride — and the state that used
+  to cost 61px under Casey now costs 12px of button padding above him. Do not
+  go looking for `.btn-travel`; on Home it is `.train-board`, and the map keeps
+  its own `btn-primary`.
 - `e2e/` — browser drives. Each opens the built app in Chromium and uses it.
 - `ios-plugins/` — vendored native forks, installed as `file:` npm packages
   (`npm ci` installs them from the tree; their `dist/` is committed, which is

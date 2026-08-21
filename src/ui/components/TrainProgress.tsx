@@ -14,6 +14,13 @@
  *
  * Pencil and hatching are the ride train's (`TrainRide.tsx`) — the same hand
  * drew Casey, the coastline and this.
+ *
+ * Since T1 it is also the DOOR. Pass `onBoard` and the drawing is wrapped in a
+ * real button: the thing you spent a hundred words filling is the thing you
+ * press to ride it. Home had a separate green "Travel on → ⟨city⟩" button for
+ * that and no longer does — it was a second control for a train already on the
+ * screen, and it was exactly what Casey's band overflowed onto (the bug
+ * DECISIONS records as "Casey drawn sliced across the green button").
  */
 
 /** Wagons on the train. Ten, so one wagon is ten of a city's hundred words. */
@@ -48,6 +55,17 @@ export function trainLabel(remaining: number, nextCity: string | null): string {
     : `You need ${remaining} more wrapped-up ${words} to take the train to ${nextCity}.`
 }
 
+/**
+ * The train's name once it is a control rather than a readout.
+ *
+ * A button is named for what pressing it does, which `trainLabel` is not: at
+ * nothing left to wrap it says the train "is ready", and ready is a state, not
+ * an action. Both screens say this same sentence so the door is the same door.
+ */
+export function boardLabel(nextCity: string): string {
+  return `Board the train to ${nextCity}`
+}
+
 /** Geometry, in viewBox units. The wagons start after the locomotive. */
 const LOCO = 42
 const WAGON_W = 18
@@ -62,6 +80,7 @@ export function TrainProgress({
   goal,
   label,
   className = '',
+  onBoard,
 }: {
   wrapped: number
   collected?: number
@@ -70,9 +89,18 @@ export function TrainProgress({
    * The whole sentence, for anyone who cannot see the train. Omit it where the
    * sentence is already printed next to the train — the map screen prints it
    * in full, and a label there would only read it out twice.
+   *
+   * When `onBoard` is given this is the BUTTON's name instead, so pass
+   * `boardLabel(city)` there rather than the countdown.
    */
   label?: string
   className?: string
+  /**
+   * Board it. Given only where the road is actually open: with it the train is
+   * a real button, without it the drawing is a readout and must not be
+   * focusable or announced as anything you can press.
+   */
+  onBoard?: () => void
 }) {
   const packed = wagonFills(wrapped, goal)
   // The second layer is drawn for wrapped AND collected together, so a wagon
@@ -80,11 +108,15 @@ export function TrainProgress({
   // wagon.
   const waiting = wagonFills(wrapped + collected, goal)
 
-  return (
+  // Inside a button the drawing is decoration: the button carries the name,
+  // and a role="img" with the same words would read it out twice.
+  const named = onBoard === undefined && label !== undefined
+
+  const train = (
     <svg
-      className={`train-progress ${className}`}
+      className={`train-progress ${onBoard === undefined ? className : ''}`.trimEnd()}
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      {...(label === undefined ? { 'aria-hidden': true } : { role: 'img', 'aria-label': label })}
+      {...(named ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true })}
     >
       <g className="cluey-hatch">
         <path className="train-rail" d={`M0 34 H${VB_W}`} />
@@ -130,5 +162,18 @@ export function TrainProgress({
         })}
       </g>
     </svg>
+  )
+
+  if (onBoard === undefined) return train
+
+  return (
+    <button
+      type="button"
+      className={`train-board ${className}`.trimEnd()}
+      aria-label={label}
+      onClick={onBoard}
+    >
+      {train}
+    </button>
   )
 }

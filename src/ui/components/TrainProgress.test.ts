@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { WAGONS, trainLabel, wagonFills } from './TrainProgress'
+import { WAGONS, boardLabel, trainLabel, wagonFills } from './TrainProgress'
 
 describe('wagonFills', () => {
   it('leaves every wagon empty at nothing wrapped', () => {
@@ -67,5 +67,21 @@ describe('trainLabel', () => {
 
   it('says the train is ready once the suitcase is packed', () => {
     expect(trainLabel(0, 'Ribe')).toBe('The suitcase is packed — the train to Ribe is ready.')
+  })
+})
+
+describe('boardLabel', () => {
+  it('names what pressing the train does, and where it goes', () => {
+    expect(boardLabel('Ribe')).toBe('Board the train to Ribe')
+  })
+
+  /**
+   * The readout's sentence would be a poor button name and this is the whole
+   * reason there are two of them: "the train to Ribe is ready" is a state, and
+   * a control is named for its action. Both screens use this one once the road
+   * opens, so the door reads the same wherever it is pressed.
+   */
+  it('is not the readout sentence', () => {
+    expect(boardLabel('Ribe')).not.toBe(trainLabel(0, 'Ribe'))
   })
 })
