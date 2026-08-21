@@ -10,7 +10,7 @@ import { newStats } from '../srs/scheduler'
 import { selectBoardWords } from '../srs/sampler'
 import type { SrsMap } from '../srs/types'
 import { CITIES } from './cities'
-import { unlockedWords } from './progress'
+import { cityBand, unlockedWords, wordsForCity } from './progress'
 
 const NOW = 1_700_000_000_000
 
@@ -35,12 +35,18 @@ describe('board sampling from a journey-restricted pool', () => {
     },
   )
 
-  it('never returns a word from a city the player has not reached', () => {
+  // Ordinary journey boards are now dealt from the CURRENT city only (owner
+  // decision, docs/clue-engine.md §3.4): a word from an earlier city must not
+  // appear either. Asserting the lower bound (rank >= lo), not just the upper
+  // one, is what makes this fail if the pool were still built with
+  // `unlockedWords` (which is cumulative and would let city 0's words through
+  // once the player is in city 1+) — checked by hand before this landed.
+  it('never returns a word from another city', () => {
     const config = GRID_CONFIGS.standard
     for (let city = 0; city < CITIES.length; city++) {
-      const pool = unlockedWords(WORDS, city)
+      const pool = wordsForCity(WORDS, city)
       const allowed = new Set(pool.map((w) => w.id))
-      const maxRank = (city + 1) * 100
+      const [lo, hi] = cityBand(city)
       for (let seed = 1; seed <= 25; seed++) {
         const board = selectBoardWords(
           pool,
@@ -51,7 +57,8 @@ describe('board sampling from a journey-restricted pool', () => {
         )
         for (const w of board) {
           expect(allowed.has(w.id)).toBe(true)
-          expect(curriculumRank(w)).toBeLessThanOrEqual(maxRank)
+          expect(curriculumRank(w)).toBeGreaterThanOrEqual(lo)
+          expect(curriculumRank(w)).toBeLessThanOrEqual(hi)
         }
       }
     }
@@ -130,9 +137,9 @@ describe('board sampling from a journey-restricted pool', () => {
 
   it('still respects the new-word cap once the player has history', () => {
     const config = GRID_CONFIGS.standard
-    const pool = unlockedWords(WORDS, 1) // 200 words
+    const pool = wordsForCity(WORDS, 1) // 100 words: city 1 alone, not city 0 too
     const srs: SrsMap = {}
-    for (const w of pool.slice(0, 120)) srs[w.id] = { ...newStats(NOW - 3 * 864e5), seen: 2 }
+    for (const w of pool.slice(0, 60)) srs[w.id] = { ...newStats(NOW - 3 * 864e5), seen: 2 }
     for (let seed = 1; seed <= 50; seed++) {
       const board = selectBoardWords(
         pool,

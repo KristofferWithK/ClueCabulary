@@ -19,7 +19,7 @@ import { TUTORIAL_SEED, TUTORIAL_WORD_IDS } from '../onboarding/tutorial'
 import { ACTIVE } from '../lang/active'
 import { DEFAULT_LANGUAGE } from '../lang/index'
 import type { LanguageCode } from '../lang/types'
-import { isCollected, studyPhaseEnabled, unlockedWords } from '../journey/progress'
+import { isCollected, studyPhaseEnabled, wordsForCity } from '../journey/progress'
 import { pickStoryTargets, useCoverage } from './coverageStore'
 import { wrapUpBias, wrapUpWords, type RoundMode } from '../journey/wrapup'
 import { flagsFor, useFeedback } from './feedbackStore'
@@ -259,9 +259,11 @@ function dealBoard(
 ): { game: GameState; wordIds: string[] } {
   // The daily challenge is the same board for everyone on that date: a seeded
   // uniform draw over the whole dataset, ignoring personal SRS. Journey rounds
-  // (and free play) draw only from words the player has travelled far enough to
-  // unlock; the daily challenge stays global so everyone gets the same board.
-  const pool = unlockedWords(WORDS, useJourney.getState().cityIndex)
+  // (and free play) draw only from the current city's words — earlier cities
+  // are reviewed by travelling back, not by them bleeding onto later boards
+  // (owner decision, docs/clue-engine.md §3.4); the daily challenge stays
+  // global so everyone gets the same board.
+  const pool = wordsForCity(WORDS, useJourney.getState().cityIndex)
   const entries = dailyKey
     ? selectDailyWords(WORDS, config.totalWords, mulberry32(seed ^ 0x9e3779b9))
     : selectBoardWords(
