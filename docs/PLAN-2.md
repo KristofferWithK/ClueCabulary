@@ -496,7 +496,7 @@ pass to flip.
 - **X1** — The stale-copy sweep
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
-- **WS1** — Apply the word selection *(`word-selection.md`; upstream of T3, S2, E6)*
+- **WS2** — Bake the new headwords *(WS1 landed; the 113 slugs are waiting)*
 - **E1** — The judged matrix, city 1 *(city 1 is final; may start now)*
 - **E2** — The book, city 1 *(beside E1)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
@@ -504,12 +504,11 @@ pass to flip.
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
 
 ### Blocked
-- **T3** — The next city's sentences reinforce the chapter *(T2 · WS1 — the sentences must be written for the words that stay)*
+- **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
 - **S2** — Bake the 900 example sentences *(T3 — last of the three; push-gated, the bake runs in Actions)*
-- **WS2** — Bake the new headwords *(WS1)*
 - **E3** — The evaluator, the search and the engine companion *(E1 · E2)*
 - **E4** — Measure the engine, and decide *(E3)*
-- **E6** — Matrix and book for cities 2–9 *(WS1 · E4's decision)*
+- **E6** — Matrix and book for cities 2–9 *(E4's decision)*
 - **E5** — The hybrid *(E4's decision)*
 - **K2** — Every dock the same fixed height, the legend gone, the drive measuring the panel *(K1)*
 - **N1** — One board: 3×6, and the sizes go *(K1 + K2: measured, a sixth row does not fit until they land)*
@@ -537,7 +536,10 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 - **E0** — City-only journey boards, closed 2026-08-21 (PR #98) — ordinary
   boards (and free play) now deal from `wordsForCity`, not `unlockedWords`;
   the daily challenge stays global and the wrap-up untouched. The word of the
-  day and the suitcase's ALL filter stay on `unlockedWords` on purpose.
+  day and the suitcase’s ALL filter stay on `unlockedWords` on purpose.
+- **WS1** — Apply the word selection — 2026-08-21 (PR #100). 113 out, 113 in,
+  `curriculumRank` re-dealt by `scripts/apply-word-selection.mjs`; the ledger
+  rule is a hard error in `validate:words` with a mutation recorded.
 - **C4** — closed 2026-08-21, "it feels attached enough"; the ride ships as it is
 - **C5** — closed unbuilt with it
 

@@ -27,7 +27,14 @@ import type { Grammar } from '../types'
  * left with the hundred words that went when the dataset came down to nine
  * hundred, and sodavand, lyn, venskab and ægteskab left the note above with
  * them. Every one of those calls was right about Danish and would be right
- * again, so this is the place to look first if the dataset ever grows back.
+ * again — and the dataset DID grow back: docs/word-selection.md put all eleven
+ * on a card again, so the seven are below and the four are in the note above,
+ * exactly where the last reader said to put them.
+ *
+ * «mod» went the other way in the same change. It was here as the abstraction
+ * — courage — and it is also the preposition *mod*, which is on the
+ * functionWords ledger; a headword may no longer be both, so the noun left the
+ * nine hundred and its entry left this list with it.
  *
  * German needs its own version of this file, not a translation of this list.
  */
@@ -36,18 +43,19 @@ import type { Grammar } from '../types'
 const SUBSTANCES = [
   'mad', 'mælk', 'vand', 'kød', 'smør', 'salt', 'sukker', 'blod',
   'luft', 'jord', 'sne', 'regn', 'ild', 'pasta', 'chokolade', 'sæbe',
+  'peber', 'græs', 'skinke', 'slik',
 ]
 
 /** Collectives: already plural or already the whole of the thing. */
-const COLLECTIVES = ['tøj', 'undertøj', 'penge']
+const COLLECTIVES = ['tøj', 'undertøj', 'penge', 'bagage']
 
 /** Weather and the natural world, as conditions rather than events. */
-const CONDITIONS = ['vejr', 'vind', 'solskin', 'varme', 'kulde', 'natur']
+const CONDITIONS = ['vejr', 'vind', 'solskin', 'varme', 'kulde', 'natur', 'torden', 'tåge']
 
 /** States of mind and other abstractions you have rather than have one of. */
 const ABSTRACTIONS = [
   'kærlighed', 'lykke', 'sorg', 'fred', 'viden', 'hjælp', 'vrede', 'frygt',
-  'angst', 'humør', 'stolthed', 'skam', 'ensomhed', 'tillid', 'tvivl', 'mod',
+  'angst', 'humør', 'stolthed', 'skam', 'ensomhed', 'tillid', 'tvivl',
   'ro', 'sundhed', 'lyst', 'håb', 'glæde', 'tid', 'fritid',
 ]
 

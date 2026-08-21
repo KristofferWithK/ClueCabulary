@@ -34,9 +34,14 @@ describe('the name a clip is baked under', () => {
 
   it('keeps æøå apart from their ASCII bases, which the obvious rule does not', () => {
     // The obvious rule is NFD-then-strip-marks, and it turns å into a, æ into
-    // ae's first letter and ø into o. Six pairs in the dataset differ by
+    // ae's first letter and ø into o. Seven pairs in the dataset differ by
     // exactly that, so the obvious rule hands each pair one file — and the app
-    // would play «vare» when asked for «være» with nothing looking broken.
+    // would play «tage» when asked for «tåge» with nothing looking broken.
+    //
+    // The list is the whole set, re-derived after the word selection
+    // (docs/word-selection.md) took «være» and «bare» out of the nine hundred
+    // and brought «får», «tåge» and «bad» in. It is worth re-deriving whenever
+    // the dataset changes: a pair that leaves takes a real trap with it.
     const naive = (s: string) =>
       s
         .toLowerCase()
@@ -45,10 +50,11 @@ describe('the name a clip is baked under', () => {
         .replace(/æ/g, 'a')
         .replace(/ø/g, 'o')
     const pairs = [
-      ['være', 'vare'],
-      ['bare', 'bære'],
+      ['får', 'far'],
+      ['tåge', 'tage'],
       ['tænke', 'tanke'],
       ['svær', 'svar'],
+      ['båd', 'bad'],
       ['blød', 'blod'],
       ['påstå', 'pasta'],
     ]

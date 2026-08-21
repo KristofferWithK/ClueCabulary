@@ -128,10 +128,23 @@ export interface LanguagePack {
   readonly copy: TargetCopy
   /**
    * The language's closed classes — pronouns, prepositions, conjunctions,
-   * auxiliaries, the particles — grouped by class. Nothing in the nine hundred
-   * is one of these, because none of them can be clued; they reach a learner
-   * only as scenery inside a sentence, and the shipped example sentences were
-   * measured to carry barely half of them (`scripts/measure-function-words.mjs`).
+   * auxiliaries, the particles, and now the numerals and the greetings —
+   * grouped by class. Nothing in the nine hundred is one of these, because
+   * none of them can be clued; they reach a learner only as scenery inside a
+   * sentence.
+   *
+   * That first sentence was FALSE from the day it was written until
+   * docs/word-selection.md: 69 card words were on this very list, 66 of them
+   * in cities 2 to 4, so Ribe asked the player to collect and type «også»
+   * before Kolding would open. It is true now because a headword that is also
+   * on the ledger is a hard error in `scripts/validate-words.mjs` — a claim
+   * this load-bearing should be checked rather than asserted, and it is the
+   * one rule of that file with a mutation recorded against it.
+   *
+   * The shipped example sentences reach 139 of the Danish 252
+   * (`scripts/measure-function-words.mjs`), which is worse than the 147 of 209
+   * they reached before: the words that left took their sentences with them,
+   * and writing the scenery back in is T3's card.
    * The post-round story is written TO this list: the coverage store picks the
    * least-met entries as targets and the story must weave them in. Class order
    * is the target-picking priority; word order breaks ties within a class.

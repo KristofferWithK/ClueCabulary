@@ -13,6 +13,11 @@
  * Danish sentence — hvis, fordi, selvom, mens, eller — can only ever arrive as
  * scenery inside somebody else's sentence.
  *
+ * That was not true when it was written. 69 card words were on this very
+ * inventory until docs/word-selection.md took them off the cards, and
+ * validate-words now fails on a headword that is also on the ledger, so it is
+ * a checked rule rather than a description.
+ *
  * F2 puts up to five `exampleDa` sentences on the round summary for exactly
  * that reason. This script answers whether the shipped sentences are carrying
  * enough scenery to make it work, so the answer is a measurement rather than a
@@ -33,17 +38,38 @@
  *     «mens» are each 0/900. Two of the three words that prompted the feature —
  *     «hvis» at 0 and «fordi» at 2 — are effectively absent.
  *
- * ONE PART OF THAT IS AN ARTIFACT, and saying so is the difference between a
- * measurement and a scare. The auxiliaries look far worse than they are: the
- * dataset forbids an example from containing its own headword (validate-words
- * warns on it), and være/kunne/skulle/ville/måtte are all headwords, so their
- * infinitives are suppressed by rule. Their finite forms are everywhere —
- * er 211, kan 39, skal 21, vil 16, må 9 — so the modal system IS taught and
- * only the infinitive and past forms are missing.
+ * ONE PART OF THAT PARAGRAPH WAS WRONG, and it is worth naming because it was
+ * repeated into docs/word-selection.md and argued from there. It said the
+ * dataset forbids an example from containing its own headword, and that this
+ * suppressed the infinitives of være/kunne/skulle/ville/måtte. The validator
+ * says the opposite: it warns when an example does NOT contain its headword,
+ * and 885 of the 900 shipped examples do. The observation was right and the
+ * reason was invented — a sentence built around a modal uses its finite form,
+ * which is why the infinitives were rare. The finite forms are everywhere —
+ * er 211, kan 39, skal 21, vil 16, må 9 — so the modal system IS taught.
  *
- * The conjunction gap is NOT an artifact. eller, hvis, mens and selvom are not
- * dataset headwords at all, so no rule suppresses them; they are simply absent
- * from nine hundred sentences. That gap is real and it is the one H5 exists for.
+ * WHAT IT FINDS NOW, after the word selection (2026-08-21):
+ *
+ *   - The inventory is 252 rather than 209: the greetings and the numerals
+ *     joined it, and so did fourteen adverbs, when all of them stopped being
+ *     cards.
+ *   - 139 of 252 appear at least once — 55%, down from 70%, because the 113
+ *     words that left took their own example sentences with them and the 113
+ *     that arrived brought 113 new ones.
+ *   - The conjunction hole is half filled, and by the arrivals: hvis 0 → 10,
+ *     fordi 2 → 20, selvom 0 → 7, mens 0 → 6. Those sentences were written for
+ *     the ninth city, whose grammar chapter is the subordinate clause, so the
+ *     structure the words need came with the words.
+ *   - The greetings are the new hole, 1 of 11, for the same reason the
+ *     conjunctions were the old one: nothing has a reason to say «farvel» yet.
+ *     That is T3's, and this is the measurement it will be judged on.
+ *
+ * The conjunction gap was NOT an artifact. eller, hvis, mens and selvom are not
+ * dataset headwords at all, so no rule suppressed them; they were simply absent
+ * from nine hundred sentences. That gap was real, it is the one H5 exists for,
+ * and the 113 sentences the word selection brought with it are the first real
+ * dent in it. «eller» is still 0, because a one-clause sentence has no reason
+ * to offer an alternative either.
  *   - A round of five sentences shows ~11 distinct function words (median 11),
  *     and two thirds of them come from the same twenty: i, er, en, jeg, vi, på,
  *     har, hun, han, du…

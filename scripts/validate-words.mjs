@@ -68,7 +68,44 @@ const WORDS_PER_CITY = Number(citiesSrc.match(/WORDS_PER_CITY = (\d+)/)?.[1])
 const EXPECTED = CITY_IDS.length * WORDS_PER_CITY
 
 const PATH = new URL(`../src/data/words.${LANG}.json`, import.meta.url)
-const POS = new Set(['noun', 'verb', 'adjective', 'adverb', 'numeral', 'interjection'])
+
+/**
+ * The parts of speech a card word may be.
+ *
+ * Numerals and interjections USED to be here, and twenty numerals and fifteen
+ * interjections shipped on cards. They are gone: docs/word-selection.md is the
+ * decision, and the reason is that a card is answered by a one-word clue and
+ * there is no clue for «syv» or for «av». They are sentence words now — the
+ * numerals have a class of their own on the ledger, the interjections sit with
+ * the greetings — so they are taught by turning up in other words' example
+ * sentences, which a numeral does constantly and a card never could.
+ *
+ * Listed separately from the unknown-POS case so the error says which of the
+ * two things went wrong.
+ */
+const POS = new Set(['noun', 'verb', 'adjective', 'adverb'])
+const CLUELESS_POS = new Set(['numeral', 'interjection'])
+
+/**
+ * The per-hundred mix, from docs/word-selection.md: about 55 nouns, 25 verbs
+ * and 20 adjectives, give or take ten.
+ *
+ * CITY ONE IS EXEMPT, and that is not a loophole. It is curated for
+ * clueability rather than dealt by frequency (scripts/apply-city-one.mjs) and
+ * holds 84 nouns to 8 verbs and 8 adjectives on purpose — the opening board
+ * has to be pointable-at before it has to be balanced.
+ *
+ * Which leaves an arithmetic fact worth writing down, because it is what the
+ * placer has to work against: 84 of the dataset's nouns are spent on that one
+ * city, so the eight that are left share 360, which is 45 each with nothing
+ * over. The noun figure below therefore sits exactly on the band's floor and a
+ * single city taking 46 puts another one under. It is meant to be tight.
+ */
+const POS_QUOTA = [
+  ['noun', 55, 10],
+  ['verb', 25, 10],
+  ['adjective', 20, 10],
+]
 
 /**
  * The letters a citation form may be spelled with, beyond plain ASCII.
@@ -107,6 +144,32 @@ if (Object.keys(GENDERS).length === 0) {
   console.error(`read no genders out of src/lang/${LANG}/grammar.ts — the scrape broke`)
   process.exit(2)
 }
+
+/**
+ * The closed-class ledger — the words that are taught as scenery inside other
+ * words' example sentences and must never be a card.
+ *
+ * The rule this reads it for is one line long and it is the point of the whole
+ * word selection: a headword may not also be on the ledger. Nothing could clue
+ * «hvis» or «også», and a card the player can neither be given a clue for nor
+ * type an answer to is a card that teaches nothing while occupying a hundredth
+ * of a city. 69 words were on both sides of this line before
+ * docs/word-selection.md; the answer is now none.
+ */
+const LEDGER_FILE = JSON.parse(
+  readFileSync(new URL(`../src/data/function-words.${LANG}.json`, import.meta.url), 'utf8'),
+)
+const LEDGER_CLASS = new Map(
+  Object.entries(LEDGER_FILE).flatMap(([klass, list]) => list.map((w) => [w.toLowerCase(), klass])),
+)
+const LEDGER = new Set(LEDGER_CLASS.keys())
+if (LEDGER.size === 0) {
+  console.error(`src/data/function-words.${LANG}.json is empty — the ledger check would pass vacuously`)
+  process.exit(2)
+}
+
+/** The gloss key a board compares on — `conflicts()` in src/srs/sampler.ts. */
+const normGloss = (s) => s.toLowerCase().trim().replace(/^(to|a|an|the) /, '')
 
 const words = JSON.parse(readFileSync(PATH, 'utf8'))
 const errors = []
@@ -156,7 +219,16 @@ for (const [i, w] of words.entries()) {
     }
   }
   if (!DA_TOKEN.test(w.da)) errors.push(`${at}: da is not a single Danish token`)
-  if (!POS.has(w.pos)) errors.push(`${at}: pos "${w.pos}" not in whitelist`)
+  if (CLUELESS_POS.has(w.pos)) {
+    errors.push(`${at}: pos "${w.pos}" cannot be clued — it belongs on the ledger, not on a card`)
+  } else if (!POS.has(w.pos)) {
+    errors.push(`${at}: pos "${w.pos}" not in whitelist`)
+  }
+  if (LEDGER.has(daKey)) {
+    errors.push(
+      `${at}: is on the function-words ledger (${LEDGER_CLASS.get(daKey)}) — a word cannot be both a card and scenery`,
+    )
+  }
   if (!Array.isArray(w.en) || w.en.length === 0 || w.en.some((g) => typeof g !== 'string' || !g.trim())) {
     errors.push(`${at}: en must be a non-empty string array`)
   }
@@ -222,8 +294,55 @@ if (curriculum.size === words.length) {
   for (const [c, id] of CITY_IDS.entries()) {
     const lo = c * WORDS_PER_CITY + 1
     const hi = (c + 1) * WORDS_PER_CITY
-    const n = words.filter((w) => w.curriculumRank >= lo && w.curriculumRank <= hi).length
-    if (n !== WORDS_PER_CITY) errors.push(`${id} (ranks ${lo}-${hi}) owns ${n} words, not ${WORDS_PER_CITY}`)
+    const owned = words.filter((w) => w.curriculumRank >= lo && w.curriculumRank <= hi)
+    if (owned.length !== WORDS_PER_CITY) {
+      errors.push(`${id} (ranks ${lo}-${hi}) owns ${owned.length} words, not ${WORDS_PER_CITY}`)
+    }
+
+    // The mix. City one is curated rather than dealt, and exempt; see
+    // POS_QUOTA above for the arithmetic that makes the noun figure tight.
+    if (c > 0) {
+      for (const [pos, target, slack] of POS_QUOTA) {
+        const n = owned.filter((w) => w.pos === pos).length
+        if (Math.abs(n - target) > slack) {
+          errors.push(`${id} has ${n} ${pos}s of ${WORDS_PER_CITY} — outside ${target}±${slack}`)
+        }
+      }
+    }
+
+    // Two words in one city answering to the same English gloss. A board
+    // refuses to deal them together (`conflicts` in src/srs/sampler.ts), so the
+    // pair is quietly never seen side by side and the city's usable pool is a
+    // little smaller than a hundred. Was the opening fifteen only; a whole city
+    // is what a board actually draws from.
+    //
+    // A WARNING, not an error, and the number is the reason: the placer avoids
+    // these where the 250-rank drift rule leaves it room and gets 40 down to 9,
+    // all of them in the last two cities where it has none. Nine glosses is a
+    // rewording job for whoever revises the sentences, not a reason to fail a
+    // build.
+    const owner = new Map()
+    for (const w of owned) {
+      for (const g of w.en.map(normGloss)) {
+        if (owner.has(g)) warnings.push(`${id}: "${g}" is the gloss of both ${owner.get(g)} and ${w.da}`)
+        else owner.set(g, w.da)
+      }
+    }
+
+    // Inside the opening fifteen it IS an error, because those are the whole
+    // pool the first boards draw from and a collision there shrinks it
+    // silently. The rule was scripts/apply-city-one.mjs's; that script runs
+    // once and this one runs in `npm run verify`, so it lives here now too.
+    if (c === 0) {
+      const first = new Map()
+      for (const w of owned.sort((a, b) => a.curriculumRank - b.curriculumRank).slice(0, 15)) {
+        for (const g of w.en.map(normGloss)) {
+          if (first.has(g)) {
+            errors.push(`"${g}" is the gloss of both ${first.get(g)} and ${w.da}, inside the opening fifteen`)
+          } else first.set(g, w.da)
+        }
+      }
+    }
   }
 }
 

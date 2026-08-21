@@ -76,12 +76,14 @@ describe('the dataset says what gender every noun is', () => {
   /**
    * Named rather than counted, so adding another is a deliberate act with a
    * gender decision attached rather than something that slips in. There were
-   * three; briller and bukser went with the hundred words the tenth city took,
-   * and penge is the one plurale tantum the nine hundred still ship.
+   * three; briller and bukser went with the hundred words the tenth city took
+   * and penge held the fort alone, and the word selection
+   * (docs/word-selection.md) brought both of them back with the rest of that
+   * hundred. All three are common, from the singular that does exist.
    */
-  it('the one with no article is the plural-only one', () => {
+  it('the ones with no article are the plural-only ones', () => {
     const noArticle = nouns.filter((w) => !w.article).map((w) => w.da)
-    expect(noArticle.sort()).toEqual(['penge'])
+    expect(noArticle.sort()).toEqual(['briller', 'bukser', 'penge'])
     for (const da of noArticle) {
       expect(WORDS.find((w) => w.da === da)!.gender, da).toBe('common')
     }
@@ -117,9 +119,10 @@ describe('spotting a clue the player reached for in English', () => {
    * a player has every reason to clue with.
    */
   it('never flags a word that is Danish too', () => {
-    // «kind» stood here until the nine-hundred trim took it; «gift» is the
-    // same trap and still shipped — English present, Danish married.
-    for (const w of ['arm', 'gift', 'sky', 'mad', 'salt', 'fast', 'time', 'hold', 'land', 'hat']) {
+    // «kind» stood here until the nine-hundred trim took it, and the word
+    // selection put it back — English kind, Danish cheek. «gift» is the same
+    // trap and never left: English present, Danish married.
+    for (const w of ['arm', 'gift', 'kind', 'sky', 'mad', 'salt', 'fast', 'time', 'hold', 'land', 'hat']) {
       expect(looksEnglish(w), w).toBe(false)
     }
   })

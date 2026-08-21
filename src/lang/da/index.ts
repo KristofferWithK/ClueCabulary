@@ -43,5 +43,12 @@ export const danish: LanguagePack = {
   // The same file measure-function-words.mjs counts, so the measurement and
   // the story targets can never drift apart. Class order is target priority —
   // conjunctions first, because they are the measured hole (hvis 0/900).
+  //
+  // Greetings and numerals come SECOND and THIRD, added by the word selection
+  // (docs/word-selection.md). They are the scenery a beginner meets first, and
+  // that document asks for them early; they are not first because the
+  // conjunctions are the hole the priority list exists for, and because the
+  // greetings arrived at zero appearances by the same change that removed
+  // them from the cards — new, not neglected.
   functionWords,
 }
