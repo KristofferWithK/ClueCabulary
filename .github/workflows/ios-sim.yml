@@ -103,6 +103,26 @@ jobs:
 
           seed = json.load(open('ios/sim-seed.json'))
 
+          # The seeded round has to be one the CURRENT stores will still
+          # rehydrate. gameStore reached version 6 while the seed said 3, and
+          # migrateGame drops a round saved before v4 on purpose -- so the app
+          # opened on Home with nothing to lift, and the check photographed it
+          # happily for four runs. Regenerate with:
+          #     npm run build && node scripts/make-sim-seed.mjs
+          for path, key in (('src/stores/gameStore.ts', 'cluecab-game-v1'),
+                            ('src/stores/settingsStore.ts', 'cluecab-settings-v1')):
+              store = pathlib.Path(path).read_text(encoding='utf-8')
+              want = re.search(r"name: '" + key + r"',\s*\n\s*version: (\d+)", store)
+              if not want:
+                  raise SystemExit(f'no version for {key} in {path}')
+              have = json.loads(seed[key]).get('version')
+              if have != int(want.group(1)):
+                  raise SystemExit(
+                      f'{key}: seed is version {have}, store is {want.group(1)} -- '
+                      'rerun scripts/make-sim-seed.mjs'
+                  )
+              print(f'{key} version {have} matches the store')
+
           # The rules overlay's key, read from the store rather than written
           # here. It used to be the literal 'cluecab-howto-v3'; the store
           # bumped to v4 and this line did not, so the overlay opened over
@@ -184,6 +204,21 @@ jobs:
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false || true
           xcrun simctl bootstatus "$udid" -b
 
+      - name: A Python that fb-idb still runs on
+        # fb-idb calls asyncio.get_event_loop() at startup. That stopped
+        # creating a loop on demand and now raises, so under Homebrew's
+        # python@3.14 every idb command dies in the same traceback before it
+        # reaches the simulator:
+        #     RuntimeError: There is no current event loop in thread
+        #     'MainThread'
+        # That is what sank run 11 -- the step failed in one second, pipefail
+        # aborted it, continue-on-error made it look like a tap that simply
+        # did nothing. 3.11 is the newest where get_event_loop still obliges.
+        if: inputs.tap
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Fetch idb
         # Before the recording starts, not during it: brew takes minutes and
         # there is no reason to film them.
@@ -201,7 +236,12 @@ jobs:
           # than with an error, which read as an empty screen.
           brew tap facebook/fb
           brew install --formula facebook/fb/idb-companion
-          pip3 install --break-system-packages fb-idb
+          # Into the pinned 3.11 from the step above, which is ahead of
+          # Homebrew's python on PATH. Printed, because "which idb" is the
+          # one line that tells the next reader whether the pin took.
+          pip3 install fb-idb
+          python3 -V
+          which idb
           # The companion is a daemon; idb talks to it rather than to the
           # simulator. nohup so it outlives this step.
           nohup idb_companion --udid "$UDID" > idb-companion.log 2>&1 &
