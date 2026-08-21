@@ -23,8 +23,17 @@ import { ACTIVE } from '../../lang/active'
  * The screen used to page between cities in the header, which made nine
  * containers out of one — you left Ribe's suitcase to visit Aarhus's. A city
  * is a **filter** now, a chip over one continuous case, so the case never
- * changes; only how much of it you are looking at does. "All" is the default
- * for exactly that reason.
+ * changes; only how much of it you are looking at does.
+ *
+ * It OPENS on the city you are standing in. "All" was the default while it
+ * was the proof that the case is one thing, and it cost more than it proved:
+ * the strip above the case pages through every word not yet in it, so All at
+ * the last stop is eight hundred-odd words and a hundred-odd pages of them,
+ * against thirteen for the stop actually being played. The wrap-up button
+ * below has always been about the city you are in — a board is dealt from
+ * home whatever the chips say — so opening on that city is the view the rest
+ * of the screen was already talking about. All is one tap away and still
+ * shows the whole case; nothing about it moved except which chip starts lit.
  *
  * The screen reads TOP TO BOTTOM in the order a word travels: the strip of
  * loose words first, then the lid holding what is COLLECTED, then the tray
@@ -253,7 +262,11 @@ export function SuitcaseScreen() {
   const banked = useSrs((s) => s.wrapUpsBanked)
   const won = useSrs((s) => s.games.won)
   const journey = useJourney()
-  const [filter, setFilter] = useState<number>(ALL)
+  // Opens on the stop you are standing in — see the note at the top of the
+  // file. Safe as a plain initial value because the screen UNMOUNTS when you
+  // leave it (App.tsx renders one screen at a time), so travelling and coming
+  // back re-reads the new city rather than holding the old one.
+  const [filter, setFilter] = useState<number>(journey.cityIndex)
   const [loosePage, setLoosePage] = useState(0)
   const [collectedPage, setCollectedPage] = useState(0)
   const [wrappedPage, setWrappedPage] = useState(0)
@@ -272,15 +285,26 @@ export function SuitcaseScreen() {
   const shown =
     filter === ALL ? unlockedWords(WORDS, journey.cityIndex) : wordsForCity(WORDS, filter)
   /**
-   * The table above the case. Words MET but not collected are worth leafing
-   * through; undiscovered ones are not — there is nothing to see on a ? and
-   * eight hundred of them paged eight at a time is a hundred pages of it. So
-   * only one page-worth of ? is ever put in the list, as texture behind the
-   * met words, while the label counts every last one of them honestly.
+   * The table above the case: everything not in it yet. The words already MET
+   * lead, because those are the ones worth opening, and the undiscovered ?
+   * follow them.
+   *
+   * The ? used to be capped at one page-worth — texture behind the met words
+   * rather than a list, on the grounds that there is nothing to see on a ? and
+   * eight hundred of them paged eight at a time is a hundred pages of it. What
+   * that cap actually bought was a label that disagreed with its own pager:
+   * «Still out there — 80» sitting over three pages of twenty-three tiles,
+   * which reads as a list that broke rather than one that was trimmed on
+   * purpose. So the strip holds every one of them now and the label counts
+   * exactly what the ‹ › leaf through — one number, one meaning.
+   *
+   * It is a long leaf under "All" at a late city — a hundred-odd pages — and
+   * that is why the screen opens on one stop instead: a city is a hundred
+   * words, thirteen pages, and the only hundred a board is dealt from.
    */
   const met = shown.filter((w) => stateOf(w) === 'discovered')
   const unmet = shown.filter((w) => stateOf(w) === 'undiscovered')
-  const loose = [...met, ...unmet.slice(0, LOOSE_PAGE)]
+  const loose = [...met, ...unmet]
   const collected = shown.filter((w) => stateOf(w) === 'collected')
   const wrapped = shown.filter((w) => stateOf(w) === 'wrapped')
   const wrapGoal = filter === ALL ? (journey.cityIndex + 1) * WRAP_TO_TRAVEL : WRAP_TO_TRAVEL
@@ -401,7 +425,10 @@ export function SuitcaseScreen() {
       {/* Not in the case, which is the point of them — and above it, because
           these are the words the next round is for. */}
       <Pager
-        label={`Still out there — ${met.length + unmet.length}`}
+        // `loose.length`, not `met.length + unmet.length`: they are the same
+        // number now, and reading it off the list the pager pages through is
+        // what keeps them the same if anything is ever dropped from it again.
+        label={`Still out there — ${loose.length}`}
         words={loose}
         page={loosePage}
         perPage={LOOSE_PAGE}
