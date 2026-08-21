@@ -96,6 +96,23 @@ export function GameScreen() {
 
   return (
     <div className="screen game-screen">
+      {/* While the keyboard is up, a tap anywhere else puts it away — and does
+          nothing else. It is a real element rather than a document listener
+          precisely so the tap lands HERE: dismissing the keyboard and also
+          guessing the card you happened to touch is two actions from one tap,
+          and the second one costs a turn nobody chose to spend. (It used to
+          cost the whole round — that tap could land on a forbidden word.)
+          The next tap, with the keyboard down, does what it says.
+          IN THE GAME SCREEN only, because the board is what it protects:
+          rendered app-wide it swallowed the first tap on Settings and the
+          backup panel, whose inputs live in no dock. */}
+      <div
+        className="kb-scrim"
+        aria-hidden="true"
+        onPointerDown={() => {
+          if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+        }}
+      />
       <header className="game-header">
         <button className="icon-btn" aria-label="Home" onClick={() => goTo('home')}>
           ←

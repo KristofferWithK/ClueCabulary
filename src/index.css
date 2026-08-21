@@ -1773,8 +1773,9 @@ select:focus {
   padding-bottom: 4px;
 }
 
-.kb-up body,
-body:has(.kb-up) {
+/* Just the descendant form: kb-up lives on <html>, an ANCESTOR of body, so a
+   body:has(.kb-up) twin that used to sit here could never match anything. */
+.kb-up body {
   padding-bottom: 0;
 }
 
@@ -1813,9 +1814,10 @@ body:has(.kb-up) {
    say here. */
 
 /* Belt to the braces only. The dock has no transition of its own to suppress;
-   the one it can be given — the cluecab-kbfast ride — is an inline style, which
-   this could not override anyway, so that path checks the same query itself
-   before it starts. See startRide() in src/ui/nativeKeyboard.ts. */
+   the one it can be given — the ride, on by default now — is an inline style,
+   which this could not override anyway, so that path checks the same query
+   itself before it starts (and layout-drive pins it: under reduced motion the
+   dock is never transformed). See startRide() in src/ui/nativeKeyboard.ts. */
 @media (prefers-reduced-motion: reduce) {
   .dock.kb-lifted {
     transition: none;

@@ -18,9 +18,13 @@ export function BuildFooter() {
       return false
     }
   })
-  const [fast, setFast] = useState(() => {
+  const [still, setStill] = useState(() => {
     try {
-      return localStorage.getItem('cluecab-kbfast') === '1'
+      // One-time sweep of the ride's opt-IN era: the composer riding the
+      // keyboard is the default now, and a device that had turned the old
+      // flag on has nothing to say about the new one.
+      localStorage.removeItem('cluecab-kbfast')
+      return localStorage.getItem('cluecab-kbstill') === '1'
     } catch {
       return false
     }
@@ -58,24 +62,26 @@ export function BuildFooter() {
   }
 
   /**
-   * The composer ride, on and off without a rebuild.
+   * The composer ride's OPT-OUT, on and off without a rebuild.
    *
-   * It is an experiment and it ships off, but the only way to judge it is to
-   * watch both modes on a real phone, one after the other — and a TestFlight
-   * build has no console to set localStorage from. So it sits here, behind the
-   * five taps that already reveal the readout: invisible to anyone who has not
-   * gone looking, one tap away for the person filming.
+   * The ride ships on — the composer travels with the keyboard — and the only
+   * way to judge that against the old wait-for-the-document behaviour is to
+   * film both on a real phone, one after the other. A TestFlight build has no
+   * console to set localStorage from, so the switch sits here, behind the
+   * five taps that already reveal the readout: invisible to anyone who has
+   * not gone looking, one tap away for the person filming. It is also the
+   * per-device revert if the ride ever misbehaves on hardware CI never met.
    *
-   * Live rather than latched, which is why nativeKeyboard.ts reads the flag at
-   * keyboardWillShow rather than at mount: put the keyboard away, tap the
+   * Live rather than latched, which is why nativeKeyboard.ts reads the flag
+   * at keyboardWillShow rather than at mount: put the keyboard away, tap the
    * field again, and it is already the other mode.
    */
-  const toggleFast = () => {
-    const on = !fast
-    setFast(on)
+  const toggleStill = () => {
+    const on = !still
+    setStill(on)
     try {
-      if (on) localStorage.setItem('cluecab-kbfast', '1')
-      else localStorage.removeItem('cluecab-kbfast')
+      if (on) localStorage.setItem('cluecab-kbstill', '1')
+      else localStorage.removeItem('cluecab-kbstill')
     } catch {
       /* private mode */
     }
@@ -124,8 +130,8 @@ export function BuildFooter() {
       </span>
       {debug && <span className="build-note">Keyboard readout on. Tap the build five times to hide it.</span>}
       {debug && (
-        <button className="btn btn-small" onClick={toggleFast}>
-          Composer ride: {fast ? 'on' : 'off'}
+        <button className="btn btn-small" onClick={toggleStill}>
+          Composer ride: {still ? 'off (waits for the document)' : 'on'}
         </button>
       )}
       {debug && (

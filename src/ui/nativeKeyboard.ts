@@ -25,14 +25,21 @@ import { useEffect } from 'react'
  */
 
 /**
- * The iOS keyboard's own curve and duration, near enough that a layer moving
- * on this timing reads as attached to the keyboard rather than chasing it.
- * UIKit does not publish the curve as a bezier; this is the approximation the
- * platform's own animations are routinely matched with.
+ * How the dock LOOKS while it travels — never where it lands, which is the
+ * layout's own, measured and handed back at the end of the ride.
  *
- * Nothing rests on these being exactly right. They decide only how the dock
- * LOOKS while it travels — the position it comes to rest at is the layout's,
- * measured, and handed back at the end of the ride. See landing() below.
+ * The duration is no longer a guess: the vendored plugin forwards the
+ * keyboard animation's real duration in the willShow payload and the ride
+ * animates over exactly that. RIDE_MS survives only as the fallback for a
+ * payload without one (a zero from a keyboard re-reporting mid-layout, or
+ * the kbsim path without a /duration suffix).
+ *
+ * The curve is still an approximation — UIKit animates its keyboard on a
+ * private spring it does not publish as a bezier, and this is the bezier the
+ * platform's animations are routinely matched with. The payload also carries
+ * the raw curve constant (7 in practice), unused today, so RIDE_EASE can be
+ * tuned per-curve from JS if filming ever shows a mid-flight gap — without
+ * another native build.
  */
 const RIDE_MS = 250
 const RIDE_EASE = 'cubic-bezier(0.38, 0.7, 0.125, 1)'
@@ -108,28 +115,33 @@ function probeFinalTop(dock: HTMLElement, px: number): number {
 }
 
 /**
- * ---- the ride (localStorage cluecab-kbfast = '1', off otherwise) ----
+ * ---- the ride (ON by default; localStorage cluecab-kbstill = '1' opts out) --
  *
  * The complaint this answers: the composer's resting place is exactly right,
  * but it arrives late — it appears at the keyboard's top edge some time after
  * the keyboard has finished arriving, instead of travelling up with it.
  *
- * That is not a mystery, it is a line in the plugin. Keyboard.m,
- * onKeyboardWillShow:
+ * That is not a mystery, it is a line in the plugin (the vendored fork,
+ * ios-plugins/cluecab-keyboard — same line as upstream). onKeyboardWillShow:
  *
  *     double duration = [[... UIKeyboardAnimationDurationUserInfoKey ...]
- *                        doubleValue] + 0.2;
- *     [self setKeyboardHeight:(int)height delay:duration];
+ *                        doubleValue];
+ *     [self setKeyboardHeight:(int)height delay:duration + 0.2];
  *
  * The document is not shrunk on keyboardWillShow at all. It is shrunk by a
  * delayed perform, one keyboard-animation duration PLUS 200ms later — about
  * 450ms after the event, roughly 200ms after the keyboard has stopped moving.
- * (Hiding is not affected: willHide schedules the same call with a 10ms delay.)
+ * That schedule is kept on purpose: the delay is what lets this listener
+ * freeze the board before anything reflows, and with the ride holding the
+ * dock in place the late shrink has nothing visible left to be late FOR.
+ * (Hiding is not affected: willHide schedules the same call with a 10ms
+ * delay, and the departing keyboard occludes the dock's drop entirely — the
+ * dock is uncovered in place, which is why only coming up ever looked wrong.)
  *
- * So the exact height is known at willShow and simply is not used until later.
- * The ride borrows it: the dock is translated to the place the shrunk layout
- * will put it, on the keyboard's own curve, and the transform is dropped again
- * the moment the shrink actually lands.
+ * So the exact height AND the animation's duration are known at willShow.
+ * The ride uses both: the dock is translated to the place the shrunk layout
+ * will put it, over exactly the keyboard's own duration, and the transform is
+ * dropped again the moment the shrink actually lands.
  *
  * The double-offset trap is the whole difficulty — when the document shrinks,
  * the layout moves the dock up too, and a transform still in force would move
@@ -156,8 +168,13 @@ function probeFinalTop(dock: HTMLElement, px: number): number {
  * Returns the release, or null when there is nothing to ride.
  */
 let rideT0 = 0
-function startRide(px: number): (() => void) | null {
+function startRide(px: number, durMs?: number): (() => void) | null {
   rideT0 = performance.now()
+  // The keyboard's own duration, from the fork's payload. Zero can genuinely
+  // arrive — a keyboard already on screen re-reporting during a layout change
+  // — and so can nothing at all (the kbsim path without a /duration suffix),
+  // so the old guess survives as the fallback rather than as the answer.
+  const ms = durMs && durMs > 0 ? Math.round(durMs) : RIDE_MS
   const dock = document.querySelector<HTMLElement>('.dock.kb-lifted')
   if (!dock || !px) {
     report({ lift: 0 })
@@ -186,9 +203,9 @@ function startRide(px: number): (() => void) | null {
   dock.style.transition = 'none'
   dock.style.transform = 'translateY(0)'
   void dock.offsetHeight
-  dock.style.transition = `transform ${RIDE_MS}ms ${RIDE_EASE}`
+  dock.style.transition = `transform ${ms}ms ${RIDE_EASE}`
   dock.style.transform = `translateY(${dy}px)`
-  report({ lift: dy, land: Math.round(to), ride: Math.round(performance.now() - rideT0) })
+  report({ lift: dy, land: Math.round(to), dur: ms, ride: Math.round(performance.now() - rideT0) })
 
   let done = false
   return () => {
@@ -230,8 +247,16 @@ function startRide(px: number): (() => void) | null {
 function useSimulatedKeyboard() {
   useEffect(() => {
     let px = 0
+    let simDur = 0
     try {
-      px = Number(localStorage.getItem('cluecab-kbsim') ?? 0)
+      // "336" pretends a keyboard of that height; "336/421" also pretends the
+      // animation took 421ms, which is how a drive proves the duration from
+      // the payload actually reaches the transition — the only part of the
+      // plumb a browser can witness.
+      const raw = localStorage.getItem('cluecab-kbsim') ?? '0'
+      const [h, d] = raw.split('/')
+      px = Number(h)
+      simDur = Number(d ?? 0)
     } catch {
       /* private mode */
     }
@@ -271,16 +296,19 @@ function useSimulatedKeyboard() {
       const shrink = () => {
         document.body.style.height = `${window.innerHeight - px}px`
       }
-      if (flagOn('cluecab-kbfast')) {
-        const release = startRide(px)
+      if (!flagOn('cluecab-kbstill')) {
+        const release = startRide(px, simDur)
         if (release) {
           // The plugin's late shrink, stood up the same way the keyboard is:
           // the dock travels first and the document catches up underneath it.
           // The two land together, which is the part worth checking here.
-          ride = setTimeout(() => {
-            shrink()
-            release()
-          }, RIDE_MS)
+          ride = setTimeout(
+            () => {
+              shrink()
+              release()
+            },
+            simDur > 0 ? simDur : RIDE_MS,
+          )
           return
         }
       }
@@ -298,8 +326,30 @@ export function useNativeKeyboard() {
   useSimulatedKeyboard()
 
   useEffect(() => {
+    // Which dock to lift: the one holding what is focused. Read at focus time
+    // rather than assumed, because the clue dock, the lookup and the packing
+    // dock are all docks with fields in them.
+    //
+    // OUTSIDE the native guard below, on purpose: without .kb-up nothing
+    // styles .kb-lifted, so on the web the class is inert — but it being set
+    // is what lets layout-drive assert the packing dock's self-focus path
+    // (a board-card tap focuses the input programmatically, PackingDock.tsx)
+    // in a browser, instead of that path being testable only on a phone.
+    const markDock = (e: FocusEvent) => {
+      const dock = e.target instanceof HTMLElement ? e.target.closest('.dock') : null
+      for (const d of document.querySelectorAll('.dock.kb-lifted')) {
+        if (d !== dock) d.classList.remove('kb-lifted')
+      }
+      if (dock) dock.classList.add('kb-lifted')
+    }
+    window.addEventListener('focusin', markDock)
+    const unmark = () => {
+      window.removeEventListener('focusin', markDock)
+      for (const d of document.querySelectorAll('.dock.kb-lifted')) d.classList.remove('kb-lifted')
+    }
+
     const cap = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor
-    if (!cap?.isNativePlatform?.()) return
+    if (!cap?.isNativePlatform?.()) return unmark
 
     const root = document.documentElement
     let removers: Array<() => void> = []
@@ -319,19 +369,9 @@ export function useNativeKeyboard() {
       endRide = null
     }
 
-    // Which dock to lift: the one holding what is focused. Read at focus time
-    // rather than assumed, because the clue dock, the lookup and the packing
-    // dock are all docks with fields in them.
-    const markDock = (e: FocusEvent) => {
-      const dock = e.target instanceof HTMLElement ? e.target.closest('.dock') : null
-      for (const d of document.querySelectorAll('.dock.kb-lifted')) {
-        if (d !== dock) d.classList.remove('kb-lifted')
-      }
-      if (dock) dock.classList.add('kb-lifted')
-    }
-    window.addEventListener('focusin', markDock)
-
-    void import('@capacitor/keyboard').then(({ Keyboard }) => {
+    // The vendored fork (ios-plugins/cluecab-keyboard) — same plugin, same
+    // 'Keyboard' name, plus the animation's real duration in the payload.
+    void import('cluecab-keyboard').then(({ Keyboard }) => {
       if (cancelled) return
       const show = Keyboard.addListener('keyboardWillShow', (info) => {
         // The only measurement left, and it is of OUR OWN board rather than of
@@ -352,13 +392,27 @@ export function useNativeKeyboard() {
         const h = grid ? Math.round(grid.getBoundingClientRect().height) : 0
         if (h) root.style.setProperty('--board-h', `${h}px`)
         root.classList.add('kb-up')
-        report({ kb: Math.round(info.keyboardHeight), inner: window.innerHeight, board: h })
+        // `said` is the fork's payload verbatim, before any fallback is
+        // applied, and it is in the readout for one reason: iOS's own keyboard
+        // duration is 250ms, which is also RIDE_MS — so `dur 250` on a film
+        // cannot tell a forwarded duration from the guess it replaced. `said`
+        // can: 0 means the payload arrived without one (upstream plugin, or a
+        // keyboard re-reporting mid-layout) and the fallback is what ran.
+        report({
+          kb: Math.round(info.keyboardHeight),
+          said: Math.round(info.durationMs ?? 0),
+          inner: window.innerHeight,
+          board: h,
+        })
 
-        // Everything above this line is what ships. Below it is the experiment,
-        // and with the flag unset nothing below it touches the document.
-        if (!flagOn('cluecab-kbfast')) return
+        // The ride is the product now — the composer travels with the keyboard
+        // unless someone has asked it not to. The opt-out exists because the
+        // A/B that judges this can only be filmed on a phone, and a TestFlight
+        // build has no console: the toggle in BuildFooter is the one way to
+        // stand yesterday's behaviour up next to today's without a rebuild.
+        if (flagOn('cluecab-kbstill')) return
         land()
-        endRide = startRide(Math.round(info.keyboardHeight))
+        endRide = startRide(Math.round(info.keyboardHeight), info.durationMs)
         if (!endRide) return
         // The handover, triggered by the shrink itself. The plugin performs it
         // as `el.style.height = ...` through the bridge, so it arrives here as
@@ -380,11 +434,9 @@ export function useNativeKeyboard() {
     return () => {
       cancelled = true
       land()
-      window.removeEventListener('focusin', markDock)
+      unmark()
       for (const off of removers) off()
       root.classList.remove('kb-up')
-      root.style.removeProperty('--kb')
-      for (const d of document.querySelectorAll('.dock.kb-lifted')) d.classList.remove('kb-lifted')
     }
   }, [])
 }

@@ -17,7 +17,7 @@
   "dependencies": {
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
-    "@capacitor/keyboard": "^8.0.5",
+    "cluecab-keyboard": "file:./ios-plugins/cluecab-keyboard",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zod": "^4.4.3",

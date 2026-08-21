@@ -246,20 +246,11 @@ export default function App() {
   return (
     <main className="app-shell">
       <PencilDefs />
-      {/* While the keyboard is up, a tap anywhere else puts it away — and does
-          nothing else. It is a real element rather than a document listener
-          precisely so the tap lands HERE: dismissing the keyboard and also
-          guessing the card you happened to touch is two actions from one tap,
-          and the second one costs a turn nobody chose to spend. (It used to
-          cost the whole round — that tap could land on a forbidden word.)
-          The next tap, with the keyboard down, does what it says. */}
-      <div
-        className="kb-scrim"
-        aria-hidden="true"
-        onPointerDown={() => {
-          if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
-        }}
-      />
+      {/* The keyboard scrim lives in GameScreen now, not here: its job is to
+          protect the BOARD from a dismissal tap, and only the game has a
+          board. Rendered app-wide it was eating the first tap on Settings and
+          the backup panel, whose inputs sit in no dock — kb-up engaged with
+          nothing at z-index 5 to punch through the scrim at 4. */}
       {/* The intro REPLACES the screens rather than covering one: a fresh
           device opens inside the train, not on a Home it has never seen. */}
       {onboarding ? (

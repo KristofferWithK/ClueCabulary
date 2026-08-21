@@ -13,10 +13,11 @@ name: iOS simulator check
 #
 # It now also films the launch, because the open question stopped being WHERE
 # the composer ends up and became WHEN it gets there. A still cannot tell a
-# composer that rode up with the keyboard from one that appeared after it, and
-# that difference is the whole of the cluecab-kbfast experiment. Read the two
-# limitations under "Raise a real keyboard" before trusting a film of the
-# seeded path to answer it.
+# composer that rode up with the keyboard from one that appeared after it —
+# and the ride ships ON now, so the default run films the shipped behaviour
+# and `still` films the old wait-for-the-document one (localStorage
+# cluecab-kbstill). Read the two limitations under "Raise a real keyboard"
+# before trusting a film of the seeded path to answer the timing question.
 on:
   workflow_dispatch:
     inputs:
@@ -28,8 +29,8 @@ on:
         description: 'Pretend the keyboard is this many points tall (0 for none)'
         default: '336'
         type: string
-      fast:
-        description: 'Ride the composer up early (localStorage cluecab-kbfast)'
+      still:
+        description: 'Opt OUT of the ride — the dock waits for the document (cluecab-kbstill)'
         default: false
         type: boolean
       debug:
@@ -44,6 +45,10 @@ on:
 jobs:
   simulator:
     runs-on: macos-15
+    # contents: write is for the film branch below, nothing else — this job
+    # never touches an existing ref.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -76,15 +81,15 @@ jobs:
         # only. Nothing here is committed and none of it reaches a device.
         env:
           KB: ${{ inputs.keyboard }}
-          FAST: ${{ inputs.fast }}
+          STILL: ${{ inputs.still }}
           DEBUG: ${{ inputs.debug }}
           TAP: ${{ inputs.tap }}
         run: |
-          python3 - "$KB" "$FAST" "$DEBUG" "$TAP" <<'PY'
-          import json, sys, pathlib
+          python3 - "$KB" "$STILL" "$DEBUG" "$TAP" <<'PY'
+          import json, re, sys, pathlib
 
           kb = sys.argv[1]
-          fast = sys.argv[2] == 'true'
+          still = sys.argv[2] == 'true'
           debug = sys.argv[3] == 'true'
           tap = sys.argv[4] == 'true'
 
@@ -97,10 +102,42 @@ jobs:
               kb = '0'
 
           seed = json.load(open('ios/sim-seed.json'))
-          seed['cluecab-howto-v3'] = 'seen'
+
+          # The seeded round has to be one the CURRENT stores will still
+          # rehydrate. gameStore reached version 6 while the seed said 3, and
+          # migrateGame drops a round saved before v4 on purpose -- so the app
+          # opened on Home with nothing to lift, and the check photographed it
+          # happily for four runs. Regenerate with:
+          #     npm run build && node scripts/make-sim-seed.mjs
+          for path, key in (('src/stores/gameStore.ts', 'cluecab-game-v1'),
+                            ('src/stores/settingsStore.ts', 'cluecab-settings-v1')):
+              store = pathlib.Path(path).read_text(encoding='utf-8')
+              want = re.search(r"name: '" + key + r"',\s*\n\s*version: (\d+)", store)
+              if not want:
+                  raise SystemExit(f'no version for {key} in {path}')
+              have = json.loads(seed[key]).get('version')
+              if have != int(want.group(1)):
+                  raise SystemExit(
+                      f'{key}: seed is version {have}, store is {want.group(1)} -- '
+                      'rerun scripts/make-sim-seed.mjs'
+                  )
+              print(f'{key} version {have} matches the store')
+
+          # The rules overlay's key, read from the store rather than written
+          # here. It used to be the literal 'cluecab-howto-v3'; the store
+          # bumped to v4 and this line did not, so the overlay opened over
+          # every screenshot this workflow has taken since -- run 10 is a
+          # photograph of How to Play, not of a keyboard. A missing key is a
+          # hard failure now: seeding nothing is what made that silent.
+          src = pathlib.Path('src/stores/uiStore.ts').read_text(encoding='utf-8')
+          m = re.search(r"HOWTO_KEY = '([^']+)'", src)
+          if not m:
+              raise SystemExit('no HOWTO_KEY in src/stores/uiStore.ts: the rules would cover the screen')
+          seed[m.group(1)] = 'seen'
+          print(f'rules suppressed via {m.group(1)}')
           seed['cluecab-kbsim'] = kb
-          if fast:
-              seed['cluecab-kbfast'] = '1'
+          if still:
+              seed['cluecab-kbstill'] = '1'
           if debug:
               seed['cluecab-kbdebug'] = '1'
           js = ''.join(
@@ -139,7 +176,7 @@ jobs:
 
           p = pathlib.Path('ios/App/App/public/index.html')
           p.write_text(p.read_text() + '<script>try{' + js + '}catch(e){}</script>', encoding='utf-8')
-          print(f'seeded {len(seed)} keys, keyboard {kb}, fast {fast}, debug {debug}, tap {tap}')
+          print(f'seeded {len(seed)} keys, keyboard {kb}, still {still}, debug {debug}, tap {tap}')
           PY
 
       - name: Build for the simulator
@@ -167,6 +204,21 @@ jobs:
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false || true
           xcrun simctl bootstatus "$udid" -b
 
+      - name: A Python that fb-idb still runs on
+        # fb-idb calls asyncio.get_event_loop() at startup. That stopped
+        # creating a loop on demand and now raises, so under Homebrew's
+        # python@3.14 every idb command dies in the same traceback before it
+        # reaches the simulator:
+        #     RuntimeError: There is no current event loop in thread
+        #     'MainThread'
+        # That is what sank run 11 -- the step failed in one second, pipefail
+        # aborted it, continue-on-error made it look like a tap that simply
+        # did nothing. 3.11 is the newest where get_event_loop still obliges.
+        if: inputs.tap
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Fetch idb
         # Before the recording starts, not during it: brew takes minutes and
         # there is no reason to film them.
@@ -184,7 +236,12 @@ jobs:
           # than with an error, which read as an empty screen.
           brew tap facebook/fb
           brew install --formula facebook/fb/idb-companion
-          pip3 install --break-system-packages fb-idb
+          # Into the pinned 3.11 from the step above, which is ahead of
+          # Homebrew's python on PATH. Printed, because "which idb" is the
+          # one line that tells the next reader whether the pin took.
+          pip3 install fb-idb
+          python3 -V
+          which idb
           # The companion is a daemon; idb talks to it rather than to the
           # simulator. nohup so it outlives this step.
           nohup idb_companion --udid "$UDID" > idb-companion.log 2>&1 &
@@ -211,7 +268,7 @@ jobs:
         # stands the finished keyboard-up state up on a timer; there is no
         # keyboard animating beside it, so a film of it shows where things end
         # and says nothing about when they got there — which is the only
-        # question cluecab-kbfast asks. For that a real keyboard has to come up,
+        # question the ride answers. For that a real keyboard has to come up,
         # and a real keyboard needs a touch.
         #
         # This is a second attempt, and it is narrower than the first. That one
@@ -227,12 +284,37 @@ jobs:
         # carry: that armour meant a broken tap produced a green run and a
         # screenshot that looked plausible. This one goes red and still uploads
         # its film.
+        #
+        # What run 13 established, and what it did not. The tap works: the app
+        # receives a real keyboardWillShow with a real height (291 on an
+        # iPhone 16 Pro), and the readout shows the ride running against it —
+        # lift -291, ride 14ms, handover 614ms, drift 0. But NO KEYBOARD IS
+        # EVER DRAWN in the film. Every frame's bottom third stays between 218
+        # and 247 mean luminance, brightest of all right after the tap; a
+        # keyboard would darken it and fill it with key shapes. A headless
+        # simctl boot delivers the keyboard's geometry to the app without
+        # rendering the keyboard itself, and `defaults write
+        # com.apple.iphonesimulator ConnectHardwareKeyboard` cannot fix that
+        # from here because it configures Simulator.app, which is not running.
+        #
+        # So the film shows the app's half of the rise and the readout carries
+        # the numbers; the picture of a composer travelling beside a keyboard
+        # is a phone's job. Do not read a keyboard-less film as a failed tap
+        # again — check the readout for `kb`.
         if: inputs.tap
         continue-on-error: true
         run: |
           set -o pipefail
           idb ui tap --udid "$UDID" 200 400
           sleep 4
+          # A second tap, high on the screen, away from any dock. The shim
+          # consumed itself on the first touch, so this one reaches the page —
+          # where the scrim turns any board tap into a dismissal. That puts
+          # the HIDE on film too: the dock has no hide ride (the departing
+          # keyboard occludes the body restore), and this film is the evidence
+          # for whether that stays true.
+          idb ui tap --udid "$UDID" 200 100
+          sleep 3
 
       - name: Let it settle
         run: sleep 8
@@ -253,10 +335,41 @@ jobs:
           sleep 4
           ls -l keyboard.mp4 || echo 'no video was written'
 
+      - name: Push the film where a keyless session can fetch it
+        # The artifact below needs a browser login or a PAT to download, and
+        # the agent sessions that fire this workflow hold neither — they reach
+        # GitHub only as git. So the film also goes out as an orphan branch,
+        # in a mini-repo of its own (no index games with the build tree).
+        # Nothing triggers on sim-film/* pushes (deploy.yml is main-only).
+        #
+        # ONE branch, force-pushed, rather than one per run: a session cannot
+        # delete a remote branch — the agent proxy answers a delete refspec
+        # with "Everything up-to-date" and does nothing — so a per-run name
+        # would leave litter nobody in a session can sweep up. Overwriting is
+        # the cleanup. The run number is in the commit message, and the film
+        # for a run that matters should be read before the next run replaces
+        # it (the artifact keeps its own copy either way).
+        if: always()
+        run: |
+          mkdir sim-film
+          cp keyboard.mp4 sim-film/ 2>/dev/null || true
+          cp keyboard.png sim-film/ 2>/dev/null || true
+          ls sim-film
+          cd sim-film
+          git init -q -b film
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -A
+          git commit -qm "sim film, run ${{ github.run_number }}"
+          git push -q -f \
+            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
+            "HEAD:refs/heads/sim-film/latest"
+          echo "pushed sim-film/latest (run ${{ github.run_number }})"
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: simulator-${{ inputs.fast && 'fast' || 'today' }}${{ inputs.tap && '-realkb' || '' }}
+          name: simulator-${{ inputs.still && 'still' || 'ride' }}${{ inputs.tap && '-realkb' || '' }}
           path: |
             keyboard.png
             keyboard.mp4
