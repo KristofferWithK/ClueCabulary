@@ -310,8 +310,14 @@ rather than glossing; one miss is staged on purpose so the game's central rule
 it visibly happens, and the burned card is then won back under your own clue.
 The round is offline by construction, its words count toward the collection
 for real, and it records no game — the first won *real* round stays the moment
-that earns anything. Skip is always on screen; Settings → **Replay the intro**
-brings the whole thing back any time.
+that earns anything. The win opens Casey himself: a four-step spotlight walks
+the real suitcase screen top to bottom — the loose strip holding the twelve
+words just met, the empty lid (collected needs a green each way, and one round
+gives each word one), the tray, and the sleeping wrap-up button with both of
+its conditions named. Then the arrival at Sønderborg, exactly as travelling
+lands one, and the app is Home — with zero coach marks waiting there. Skip is
+always on screen; Settings → **Replay the intro** brings the whole thing back
+any time.
 
 After the intro the teaching goes quiet rather than away. **?** opens a
 trimmed reference card — the two demo tiles, four short rules with the

@@ -148,9 +148,9 @@ export function TutorialDock({ game }: { game: GameState }) {
 }
 
 /**
- * The win beat: confetti, the case line, and the door onward. The flow ends to
- * Home the way the ticket act does — O3 will put the suitcase tour and the
- * arrival behind this button instead.
+ * The win beat: confetti, the case line, and the door onward — into the tour
+ * (O3), where Casey opens himself and the case line just spoken is standing
+ * on screen as twelve discovered words and two empty compartments.
  */
 function TutorialWin() {
   const winBeat = TUTORIAL_BEATS[TUTORIAL_BEATS.length - 1]!
@@ -170,12 +170,12 @@ function TutorialWin() {
           onClick={() => {
             // finishRound has already recorded the words (GameScreen's
             // effect); what is left of the round would only offer Home a
-            // scriptless board to resume, so it goes with the flow.
+            // scriptless board to resume, so it goes before the flow moves on.
             useGame.getState().abandonGame()
-            useUi.getState().finishOnboarding()
+            useUi.getState().advanceOnboarding('tour')
           }}
         >
-          Let’s go!
+          Open my case
         </button>
       </div>
     </div>

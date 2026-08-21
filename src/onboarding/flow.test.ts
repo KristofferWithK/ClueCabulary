@@ -100,12 +100,29 @@ describe('the onboarding gate', () => {
     expect(s.dump()).toEqual({ [ONBOARD_KEY]: 'done' })
   })
 
-  it('knows exactly the steps that ship: train, ticket, and O2’s tutorial', () => {
+  it('knows exactly the steps that ship: the train through O3’s arrival', () => {
     expect(isOnboardStep('train')).toBe(true)
     expect(isOnboardStep('ticket')).toBe(true)
     expect(isOnboardStep('tutorial')).toBe(true)
+    expect(isOnboardStep('tour')).toBe(true)
+    expect(isOnboardStep('arrival')).toBe(true)
     expect(isOnboardStep('done')).toBe(false)
     expect(isOnboardStep(null)).toBe(false)
+  })
+
+  it('resumes a reload during the tour or at the arrival where it was', () => {
+    // Without these two in isOnboardStep the marker would read as unknown and
+    // the flow would restart at the train — a player who just WON the tutorial
+    // sent back to “Hej! I’m Casey”. Checked to fail: drop 'tour' from
+    // isOnboardStep and this pins the regression.
+    expect(decideOnboarding(storage({ [ONBOARD_KEY]: 'tour' }))).toEqual({
+      kind: 'resume',
+      step: 'tour',
+    })
+    expect(decideOnboarding(storage({ [ONBOARD_KEY]: 'arrival' }))).toEqual({
+      kind: 'resume',
+      step: 'arrival',
+    })
   })
 
   it('resumes a device that reloaded mid-tutorial at the tutorial', () => {

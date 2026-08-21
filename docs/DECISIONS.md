@@ -91,6 +91,35 @@ decided:
 (src/ui/hints.ts), and the `tutorial ?` ternary in GameScreen that was already
 there.
 
+### 2026-08-21 · The tour's edges: no Skip on the arrival, the map is a legal exit, and packs without a script get the tour (O3)
+Three calls the card left open, decided without waking you.
+
+- **The arrival act renders no Skip.** "Skip is always visible at every act"
+  is about never trapping a player in an unskippable ritual — and the
+  arrival's own primary button ("Get started") IS the exit, one tap, ending
+  the flow exactly as Skip would. A second button doing the same thing under
+  a different name is the confusing version. Every act that has anything left
+  to skip (train, ticket, tutorial, all four tour steps) keeps it.
+- **"See the map" on the onboarding arrival finishes the flow first, then
+  goes to the map** — the done flag written, zero onboarding chrome left. The
+  alternative (hiding the button during the intro) would make the intro's
+  arrival differ from the real one for no gain.
+- **A pack with no tutorial script now falls through to the TOUR rather than
+  straight Home.** O2 sent it Home because Home was the next act; the tour
+  and the arrival read everything off the active pack (the case's bands, the
+  route's first city), so a German player under H2 gets the case explained
+  and the arrival moment even before a German script exists. H2's checklist
+  still owes the round itself.
+
+Also worth a line: the scrim tap advances the tour (tap-through like every
+bubble before it), which is also what keeps the case's own controls — the
+header's Back above all — inert while the tour has the floor. SuitcaseScreen
+itself is untouched by O3; suitcase-drive ran unmodified and stayed green.
+**Reverse:** each is one small branch — the Skip is a button in `ArrivalAct`,
+the map exit is two lines beside it (src/ui/screens/OnboardingScreen.tsx),
+and the unscripted fall-through is `advance('tour')` back to `finish()` in
+`TutorialAct`.
+
 ### 2026-08-21 · A replayed tutorial is a real round: SRS counts, and it replaces any round in flight (O2)
 The card left open what a transient replay of the tutorial does to the SRS.
 Decided generous over strict, per the standing rule: **the round is real

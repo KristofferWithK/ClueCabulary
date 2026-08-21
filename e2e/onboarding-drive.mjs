@@ -1,13 +1,14 @@
-// The train in (O1) and the tutorial round (O2): a fresh device opens inside
-// the train, Casey speaks, the ticket confirms the language, and then a real
-// scripted round on the real beginner board teaches the game before the app
-// lands Home exactly once.
+// The train in (O1), the tutorial round (O2), and the tour + arrival (O3): a
+// fresh device opens inside the train, Casey speaks, the ticket confirms the
+// language, a real scripted round on the real beginner board teaches the
+// game, Casey opens himself for a spotlight tour of the real SuitcaseScreen,
+// and the existing Arrival at Sønderborg lands the app Home exactly once.
 //
 // What this drives, on the smallest phone we serve (360×640):
 //   - the gate: fresh runs, veterans (rules seen / words in the SRS map) go
 //     straight Home and are marked done silently, ?howto=0 suppresses without
 //     writing, a mid-flow marker resumes at its act
-//   - skip, always visible and working from EVERY act — the tutorial included
+//   - skip, always visible and working from EVERY act — tutorial and tour too
 //   - the ticket is a card, never a one-entry <select>, in the
 //     `name — endonym` format Settings' picker uses
 //   - the whole tutorial round, tap by tap, DRIVEN BY THE DOCK ITSELF: the
@@ -15,6 +16,9 @@
 //     edited script cannot silently outrun this test
 //   - a reload mid-round resumes the round with its reveals intact
 //   - the round finishes with the network cut — offline by construction
+//   - the tour is an OVERLAY on the live SuitcaseScreen, never a copy: every
+//     step's anchor is resolved on the real screen and the spotlight must sit
+//     on the band it names, or this fails — that is the no-drift guarantee
 //   - Settings' "Replay the intro" reruns the flow without touching the flag
 //   - no document scroll in any act
 //
@@ -186,10 +190,83 @@ check('the round plays to the win with the network cut', endLeg === 'win', endLe
 check('confetti falls', (await page.locator('.confetti').count()) === 1)
 const winLine = (await page.locator('.tutorial-bubble').innerText()).trim()
 check('and Casey says the case line', /green both ways/i.test(winLine), winLine.slice(0, 60))
+
+// ---- the tour (O3): Casey opens himself — the REAL SuitcaseScreen ----------
 await page.locator('.tutorial-continue').click()
+await page.waitForSelector('.tour-overlay')
+check('the win opens the tour, on the real SuitcaseScreen', (await page.locator('.suitcase-screen').count()) === 1)
+check('and writes the tour marker', (await marker()) === 'tour')
+// The cargo the tour points at: the tutorial DISCOVERED its twelve words and
+// collected none — structural (DECISIONS.md, the O2 entry) — so the loose
+// strip holds discovered tiles and the lid says its empty line.
+check(
+  'the tutorial words sit discovered in the loose strip',
+  (await page.locator('.case-loose .case-discovered').count()) >= 1,
+)
+check(
+  'and the lid is empty — the near-empty case is the point',
+  (await page.locator('.case-panel-lid .case-empty').count()) === 1,
+)
+check(
+  'the wrap-up button is asleep, with its reason on screen',
+  (await page.locator('.case-actions .btn-primary').isDisabled()) &&
+    /win a round/i.test(await page.locator('.case-hint').innerText()),
+)
+
+/** Where the tour's light is: the step, its anchor, and whether the spotlight
+ *  actually sits on the band the anchor names on the LIVE screen. */
+const tourState = () =>
+  page.evaluate(() => {
+    const o = document.querySelector('.tour-overlay')
+    if (!o) return null
+    const anchor = o.dataset.tourAnchor
+    const target = anchor ? document.querySelector(anchor) : null
+    const t = target?.getBoundingClientRect()
+    const s = document.querySelector('.tour-spot')?.getBoundingClientRect()
+    return {
+      step: Number(o.dataset.tourStep),
+      anchor,
+      resolves: !!target,
+      // The spot draws 4px proud of the band on every side.
+      onTheBand:
+        !!t && !!s && Math.abs(s.top - (t.top - 4)) < 2 && Math.abs(s.height - (t.height + 8)) < 4,
+    }
+  })
+
+const anchorsSeen = []
+for (let step = 0; step < 8; step++) {
+  await page.waitForTimeout(250) // let the spotlight's transition settle
+  const s = await tourState()
+  if (!s) break
+  anchorsSeen.push(s.anchor)
+  check(`tour step ${s.step} anchor ${s.anchor} resolves on the live screen`, s.resolves)
+  check(`and the spotlight sits on that band`, s.onTheBand)
+  await skipOnScreen(`tour step ${s.step}`)
+  await noScroll(`the tour, step ${s.step}`)
+  await page.locator('.tour-panel .onboard-next').click()
+}
+check(
+  'the tour walks the case top to bottom — strip, lid, tray, the button',
+  anchorsSeen.join(' ') === '.case-loose .case-panel-lid .case-panel-tray .case-actions',
+  anchorsSeen.join(' '),
+)
+
+// ---- the arrival: the existing Arrival at the first city --------------------
+await page.waitForSelector('.arrival-screen')
+check('the tour ends at the arrival', (await marker()) === 'arrival')
+const arrivalCity = (await page.locator('.arrival-city').innerText()).trim()
+check('and the city is the route’s first', arrivalCity === 'Sønderborg', arrivalCity)
+await noScroll('the arrival')
+
+// A reload here resumes at the arrival, not back at the train.
+await open()
+check('a reload at the arrival resumes there', (await page.locator('.arrival-screen').count()) === 1)
+
+await page.locator('.arrival-screen .btn-primary').click()
 await page.waitForTimeout(400)
-check('the tutorial lands Home', await atHome())
+check('Get started lands Home', await atHome())
 check('and the flow is marked done', (await marker()) === 'done')
+check('with zero coach marks on Home', (await page.locator('.tour-overlay').count()) === 0)
 // The tutorial's words counted: the case now holds discovered words.
 const discovered = await page.evaluate(() => {
   const raw = localStorage.getItem('cluecab-srs-v1')
@@ -277,6 +354,31 @@ await page.evaluate(() => {
 })
 await open()
 check('a tutorial marker with no round resumes by dealing it', await inTutorial())
+
+// A tour marker resumes with the case under the light — and skip works there
+// too, the standing rule, ending the whole intro rather than just the tour.
+await page.evaluate(() => {
+  localStorage.clear()
+  localStorage.setItem('cluecab-onboard-v1', 'tour')
+})
+await open()
+check(
+  'a tour marker resumes at the tour',
+  (await page.locator('.tour-overlay').count()) === 1 &&
+    (await page.locator('.suitcase-screen').count()) === 1,
+)
+await page.locator('.onboard-skip').click()
+await page.waitForTimeout(300)
+check('skip at the tour…', await atHome())
+check('…lands Home marked done as everywhere else', (await marker()) === 'done')
+
+// An arrival marker resumes at the arrival; its own button is the exit.
+await page.evaluate(() => {
+  localStorage.clear()
+  localStorage.setItem('cluecab-onboard-v1', 'arrival')
+})
+await open()
+check('an arrival marker resumes at the arrival', (await page.locator('.arrival-screen').count()) === 1)
 
 // ---- veterans are never ambushed --------------------------------------------
 // The rules overlay seen once is proof enough of an existing device.
