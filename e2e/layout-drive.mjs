@@ -1095,13 +1095,19 @@ await page.setViewportSize(PHONE)
           at[`${f}lo`] = at.n ? Math.min(at[`${f}lo`], v) : v
           at[`${f}hi`] = at.n ? Math.max(at[`${f}hi`], v) : v
         }
-        // The dock's own height, which is the mechanism: the board is what is
-        // left over once the dock has taken its reserve, so a dock that is the
-        // same height in every phase IS a board that does not move. Recorded
-        // beside the effect so a failure says which of the two broke.
-        const dock = document.querySelector('.game-screen .dock')
-        if (dock) {
-          const d = Math.round(dock.getBoundingClientRect().height * 100) / 100
+        // The SLOT's height, which is the mechanism: the board is what is left
+        // over once the slot has taken its reserve, so a slot that is the same
+        // height in every phase IS a board that does not move. Recorded beside
+        // the effect so a failure says which of the two broke.
+        //
+        // The slot, not the dock inside it. The dock used to be the reserve
+        // and is now content-sized on purpose — the composer wants 126px and
+        // the guess bar 154, and holding the difference as panel rather than
+        // as air is what "way too much grey" was about. Measuring the panel
+        // here would now report a drift that is the fix working.
+        const slot = document.querySelector('.game-screen .dock-slot')
+        if (slot) {
+          const d = Math.round(slot.getBoundingClientRect().height * 100) / 100
           at.docklo = at.n ? Math.min(at.docklo, d) : d
           at.dockhi = at.n ? Math.max(at.dockhi, d) : d
         }
@@ -1300,7 +1306,7 @@ await page.setViewportSize(PHONE)
   const dockLo = Math.min(...docks.map(([, lo]) => lo))
   const dockHi = Math.max(...docks.map(([, , hi]) => hi))
   check(
-    'and every dock it rendered reserved the same height',
+    'and every phase it rendered reserved the same slot height',
     dockLo === dockHi,
     dockLo === dockHi
       ? `${dockLo}px in all of them`
