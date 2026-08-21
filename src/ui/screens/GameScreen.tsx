@@ -13,6 +13,7 @@ import { RoundSummary } from '../components/RoundSummary'
 import { TranslateBox } from '../components/TranslateBox'
 import { TurnTokens } from '../components/TurnTokens'
 import { TutorialDock } from '../components/TutorialDock'
+import { HINT_KEYS, useFirstTimeHint } from '../hints'
 import { playWord } from '../speak'
 
 const PHASE_CAPTION: Record<GameState['phase'], string> = {
@@ -356,6 +357,11 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   const made = clue.guesses.length
   const left = clue.number - made
   const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
+  // The first guessing turn ever restates the rule the tutorial's staged miss
+  // taught, in the hint slot that already exists — the line a selection swaps
+  // away, so the dock's reserved height never grows (O4). Once ever, via
+  // cluecab-hint-guess; never in the tutorial, whose dock replaces this one.
+  const firstGuessEver = useFirstTimeHint(HINT_KEYS.guess)
 
   return (
     <div className="dock guess-bar">
@@ -382,7 +388,14 @@ function PlayerGuessBar({ game }: { game: GameState }) {
           </button>
         </div>
       ) : (
-        <p className="dim">Tap a word you think Casey means.</p>
+        <p className={firstGuessEver ? 'dim first-hint' : 'dim'}>
+          {firstGuessEver
+            ? // A guess is judged against the clue-giver's key — Casey clued,
+              // so his key is the one being read. Said forwards, the way
+              // game.test.ts pins it; the phase-specific consequence only.
+              "It is Casey's key that counts now — tap a word his clue points at."
+            : 'Tap a word you think Casey means.'}
+        </p>
       )}
       {/* Casey clues in Danish when asked to, and a clue you cannot read is
           not a clue. Prefilled from his, one tap. */}

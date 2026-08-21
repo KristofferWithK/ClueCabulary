@@ -319,6 +319,15 @@ lands one, and the app is Home — with zero coach marks waiting there. Skip is
 always on screen; Settings → **Replay the intro** brings the whole thing back
 any time.
 
+After the intro the teaching goes quiet rather than away. **?** opens a
+trimmed reference card — the two demo tiles, four short rules with the
+clue-giver's-key rule stated once and forwards, and its own Replay-the-intro
+button; it never opens itself. The first real clue turn and the first real
+guessing turn each say one extra sentence in the dock's existing hint slot,
+once ever. And Casey's Home bubble spends its first days on the critical tips
+in priority order — whose greens count, how a word is collected, what wrap-ups
+keep, how one is earned — before joining the daily rotation.
+
 That is worth saying plainly because it used to be false. For most of this
 project's life the first screen after install asked you to go and fetch a
 Gemini key, paste it in, and pick a model name off a list — three chores
@@ -455,7 +464,8 @@ and `OLLAMA_MODEL` to try another model. The key is read from the environment,
 never placed in a URL and never printed.
 
 Useful dev URLs: `?mock=1` forces the offline companion, `?seed=N` fixes the
-board, `?first=player` makes the player open the round instead of Casey,
+board, `?first=player` / `?first=ai` pins who opens the round (the engine's
+default is the player; only the tutorial deals Casey in first),
 `?howto=0` suppresses first-run chrome (the onboarding train, and historically
 the rules overlay — the overlay no longer opens itself), `?onboard=1` forces a
 transient run of the onboarding flow, `?grid=middle` picks the board *Spil

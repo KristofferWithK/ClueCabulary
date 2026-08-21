@@ -110,9 +110,10 @@ export default function App() {
     if (seed && /^\d+$/.test(seed)) {
       useUi.setState({ pendingSeed: Number(seed) })
     }
-    // ?first=player makes the player open the round. Casey opens by default,
-    // and a drive that is about the AI client rather than the turn order needs
-    // to get to the clue box without spending a guess first.
+    // ?first= pins who opens the round. The engine's default is the PLAYER
+    // (createGame's `firstGiver = 'player'`, src/engine/game.ts) — only the
+    // tutorial deals Casey in first — so drives spell out whichever side they
+    // need and a moved default cannot silently reorder their turns.
     const first = params.get('first')
     if (first === 'player' || first === 'ai') useUi.setState({ pendingFirstGiver: first })
     // ?grid= picks the board Play deals. The picker left Home for

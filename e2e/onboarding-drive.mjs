@@ -21,6 +21,15 @@
 //     on the band it names, or this fails — that is the no-drift guarantee
 //   - Settings' "Replay the intro" reruns the flow without touching the flag
 //   - no document scroll in any act
+//
+// And the aftercare around it (O4):
+//   - the rules overlay NEVER opens itself; ? is its only door, and behind it
+//     stands the trimmed reference card — four rules, the clue-giver's-key
+//     rule stated exactly once, and a Replay-the-intro door of its own
+//   - Casey's bubble opens the first sessions on the critical tips in
+//     priority order, and leafing walks onward through them
+//   - the two first-time dock lines each appear exactly once on a fresh
+//     profile, and the tutorial spends neither flag
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 
@@ -273,6 +282,26 @@ const games = await page.evaluate(() => {
   return s ? { played: s.games?.played ?? 0, banked: s.wrapUpsBanked ?? 0 } : null
 })
 check('but no game and no wrap-up were recorded', games && games.played === 0 && games.banked === 0, JSON.stringify(games))
+// The scripted round hands the player canned clues and a narrated guess, so
+// it must not spend the first-time dock lines — the TutorialDock stands in
+// for the phase docks that carry them, and the flags stay for the first REAL
+// round (their own section below).
+const hintFlags = await page.evaluate(() => ({
+  clue: localStorage.getItem('cluecab-hint-clue'),
+  guess: localStorage.getItem('cluecab-hint-guess'),
+}))
+check('the tutorial spends neither first-time hint flag', hintFlags.clue === null && hintFlags.guess === null, JSON.stringify(hintFlags))
+// The overlay never auto-opens: this Home is the first a fresh device sees,
+// the exact moment the old code opened the eight-paragraph rules on.
+check('and no rules overlay opened itself on first landing', (await page.locator('.howto').count()) === 0)
+// Casey's bubble opens the first sessions on the critical tips, in priority
+// order, and a tap leafs to the next — the daily rotation waits (O4).
+const bubble1 = (await page.locator('.cluey-bubble').innerText()).trim()
+check("the bubble opens on the key rule — Casey's greens count", /Casey's greens/.test(bubble1), bubble1.slice(0, 60))
+await page.locator('.cluey-bubble').click()
+await page.waitForTimeout(150)
+const bubble2 = (await page.locator('.cluey-bubble').innerText()).trim()
+check('and leafing goes onward in priority order', /one green each way/.test(bubble2), bubble2.slice(0, 60))
 await open()
 check('a reload goes straight Home', (await atHome()) && (await act()) === null)
 
@@ -397,6 +426,71 @@ await page.locator('.onboard-skip').click()
 await page.waitForTimeout(300)
 check('skipping the replay lands Home', await atHome())
 check('and the done flag never moved', (await marker()) === 'done')
+
+// ---- the reference card behind ? (O4): trimmed, and a door back to the train --
+await page.evaluate(() => {
+  localStorage.clear()
+  localStorage.setItem('cluecab-onboard-v1', 'done')
+})
+await open('?mock=1&howto=0')
+check('no overlay opens itself on a veteran Home either', (await page.locator('.howto').count()) === 0)
+await page.locator('.icon-btn[aria-label="How to play"]').click()
+await page.waitForSelector('.howto')
+const card = await page.evaluate(() => {
+  const el = document.querySelector('.howto')
+  return {
+    rules: el.querySelectorAll('ol li').length,
+    tiles: el.querySelectorAll('.demo-tile').length,
+    keyRuleStated: (el.textContent.match(/clue-giver/gi) ?? []).length,
+    replay: el.querySelectorAll('.howto-replay').length,
+  }
+})
+check('the card holds four short rules', card.rules === 4, `${card.rules} rules`)
+check('and the two demo tiles', card.tiles === 2, `${card.tiles} tiles`)
+// The rule this repo has written backwards six times: stated once, forwards,
+// never re-derived per phase.
+check("the clue-giver's-key rule is stated exactly once", card.keyRuleStated === 1, `${card.keyRuleStated} times`)
+check('and the card offers the way back to the intro', card.replay === 1)
+await page.locator('.howto-replay').click()
+await page.waitForTimeout(300)
+check('Replay the intro from the card runs the train', (await act()) === 'train')
+check('with the overlay gone from over it', (await page.locator('.howto').count()) === 0)
+await page.locator('.onboard-skip').click()
+await page.waitForTimeout(300)
+check('and the replay was transient — the done flag never moved', (await marker()) === 'done')
+
+// ---- the first-time dock lines: once each, and only in real play (O4) --------
+// A fresh profile under ?howto=0 — the flow suppressed, the flags unspent —
+// plays its first real round. Each line stands in an existing dock hint slot
+// (C1 reserved every dock's height, so neither moves the board), speaks once,
+// and its flag keeps it from ever speaking again.
+await page.evaluate(() => localStorage.clear())
+await open('?mock=1&howto=0&seed=5&grid=beginner&city=0')
+await page.locator('.home-play').click()
+await page.waitForSelector('.board-grid')
+check('the first clue turn carries its line, exactly once', (await page.locator('.first-hint').count()) === 1)
+const clueHint = (await page.locator('.first-hint').innerText()).replace(/\s+/g, ' ')
+check('…naming one word and the lookup beside it', /One Danish word/.test(clueHint) && /Dictionary/.test(clueHint), clueHint.slice(0, 70))
+check('…and its flag is down', (await page.evaluate(() => localStorage.getItem('cluecab-hint-clue'))) !== null)
+// Typing takes the slot back — the verdict lines and the hint never stack.
+await page.fill('.clue-input input', 'huskeliste')
+check('typing clears the line for the verdict slot', (await page.locator('.first-hint').count()) === 0)
+await page.click('.clue-input .btn-primary')
+await page.waitForFunction(
+  () => document.querySelector('.phase-caption')?.textContent === 'Your turn to guess',
+  undefined,
+  { timeout: 20000 },
+)
+check('the first guessing turn says whose key counts now', /Casey's key/.test(await page.locator('.guess-bar .dim').innerText()))
+check('…in the one existing hint slot', (await page.locator('.first-hint').count()) === 1)
+check('…and its flag is down too', (await page.evaluate(() => localStorage.getItem('cluecab-hint-guess'))) !== null)
+// Both flags spent: a remount of the same phases — the same round, reloaded —
+// shows the ordinary lines, which is "exactly once" made observable.
+await open('?mock=1&howto=0')
+await page.getByRole('button', { name: 'Continue game' }).click()
+await page.waitForSelector('.guess-bar')
+check('reloaded into the same phase, the line is gone', (await page.locator('.first-hint').count()) === 0)
+check('and the ordinary hint stands in the slot', /Tap a word you think Casey means/.test(await page.locator('.guess-bar .dim').innerText()))
 
 // ---- ?onboard=1 forces a transient run (dev/e2e switch) ----------------------
 await page.evaluate(() => localStorage.clear())

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useJourney } from '../../stores/journeyStore'
 import { useUi } from '../../stores/uiStore'
-import { clueyLines, dailyLineIndex } from '../cluey-tips'
+import { clueyLines, openingLineIndex } from '../cluey-tips'
 
 /**
  * The mascot is called **Casey** everywhere a player can read him, and `Cluey`
@@ -112,7 +112,9 @@ export function Cluey({ needsConnection = false }: { needsConnection?: boolean }
   const goTo = useUi((s) => s.goTo)
   const cityIndex = useJourney((s) => s.cityIndex)
   const lines = clueyLines(cityIndex)
-  const [index, setIndex] = useState(() => dailyLineIndex(lines.length))
+  // The first sessions open on the critical tips in priority order; after that
+  // window, the daily rotation exactly as before (openingLineIndex, O4).
+  const [index, setIndex] = useState(() => openingLineIndex(lines.length))
   const [mood, setMood] = useState<ClueyMood>('idle')
   const svgRef = useRef<HTMLDivElement>(null)
   const line = needsConnection ? CONNECT_LINE : lines[index % lines.length]!

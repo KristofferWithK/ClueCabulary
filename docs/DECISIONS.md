@@ -46,6 +46,51 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-21 · The tips intro window counts days, not app opens — and four tips made the critical list (O4)
+The card said "the first sessions leaf the critical tips in priority order
+before the daily rotation" and left both "session" and the list open. Decided:
+
+- **A session is a distinct day**, tracked in `cluecab-tips-intro` (its own
+  key, the HOWTO_KEY pattern — no settingsStore field, no migration). The
+  bubble's standing contract is "the same all day, new tomorrow"; a per-open
+  cursor would burn all four tips in one curious evening, and a per-open
+  definition of "session" would make the drive's own reloads eat them. The
+  cursor counts days it was *asked on* rather than subtracting `dayKey`s,
+  because `dayKey` is not day arithmetic across a month boundary and a skipped
+  day should not skip a tip.
+- **The list, in priority order:** whose greens count while you guess (the
+  rule this repo keeps writing backwards), collect = clue it AND guess it,
+  wrap-ups keep what breaks, a win earns one. Chosen as the four rules a new
+  player acts on in their first days; the tips about æøå and Danish counting
+  stay in the rotation — they are delights, not survival gear.
+- **Anything unreadable in the cursor falls back to the daily rotation** —
+  corrupt JSON, a throwing storage, a shape from another build. Ties toward
+  veteran, the onboarding gate's own rule: the cost of a wrong "veteran" is a
+  missed fronting, the cost of a wrong "fresh" is the same tip for weeks.
+
+**Reverse:** point Cluey.tsx back at `dailyLineIndex` and delete
+`openingLineIndex`/`CRITICAL_TIPS` from cluey-tips.ts; the stored cursor is
+orphaned data that hurts nothing.
+
+### 2026-08-21 · The first-time dock lines go quiet in private mode, and the tutorial cannot spend them (O4)
+Each of the two first-encounter lines (first `playerClueInput`, first
+`playerGuessing`) shows once ever, on a `cluecab-hint-*` flag. Two edges
+decided:
+
+- **Storage that throws means no hint at all**, not a hint forever: a device
+  that cannot record "seen" would otherwise be greeted every round by a line
+  designed to appear once. Quiet over nagging — pinned in hints.test.ts.
+- **The tutorial spends neither flag, structurally.** The TutorialDock stands
+  in for every phase dock, so the components carrying the lines never render
+  there — the first REAL round keeps both, which is the round that needs them:
+  the tutorial hands the player canned clues and a narrated guess, so its
+  rehearsal of these moments is not the encounter. onboarding-drive pins the
+  flags unspent after a full tutorial.
+
+**Reverse:** each is one branch — the catch in `shouldShowHint`
+(src/ui/hints.ts), and the `tutorial ?` ternary in GameScreen that was already
+there.
+
 ### 2026-08-21 · The tour's edges: no Skip on the arrival, the map is a legal exit, and packs without a script get the tour (O3)
 Three calls the card left open, decided without waking you.
 

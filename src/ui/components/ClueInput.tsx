@@ -6,6 +6,7 @@ import { checkClueLegality } from '../../engine/legality'
 import type { GameState } from '../../engine/types'
 import { TranslateBox } from './TranslateBox'
 import { ACTIVE } from '../../lang/active'
+import { HINT_KEYS, useFirstTimeHint } from '../hints'
 
 interface Props {
   game: GameState
@@ -20,6 +21,9 @@ export function ClueInput({ game, onSubmit }: Props) {
   const [cleared, setCleared] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
   const judgeTargetWord = useGame((s) => s.judgeTargetWord)
+  // The first clue ever asked of this device gets one extra sentence (O4).
+  // Gone the moment typing starts, so it never stands beside a verdict line.
+  const firstClueEver = useFirstTimeHint(HINT_KEYS.clue)
   // The re-deal ("a reroll button at the beginning, if I have no idea how to
   // connect the words") now lives in the game header as a symbol — see
   // GameScreen. It kept the same conditions and lost a line of this dock,
@@ -107,6 +111,19 @@ export function ClueInput({ game, onSubmit }: Props) {
             is the moment to look one up, not after abandoning the turn. */}
         <TranslateBox prefill={english ? { term: trimmed, label: `«${trimmed}»` } : undefined} />
       </div>
+      {/* The first-encounter line (O4), in the slot the verdict lines use: the
+          highest-friction act in the game arrives here with zero Danish, and
+          the tutorial deferred it on purpose (canned clues), so the first real
+          composer says what is being asked for and where the missing word
+          lives. Once ever — the cluecab-hint-clue flag — and it shares the
+          `!trimmed` moment, so it and a verdict can never stack in the dock's
+          reserved height. */}
+      {firstClueEver && !trimmed && (
+        <p className="first-hint dim">
+          One {ACTIVE.name} word Casey can chase. Missing it? The Dictionary beside your clue turns
+          English into {ACTIVE.name}.
+        </p>
+      )}
       {/* role=alert so a rejected clue is spoken; id so the field points at it. */}
       {verdict && !verdict.legal && !english && (
         <p className="clue-error" id="clue-error" role="alert">
