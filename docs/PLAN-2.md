@@ -1027,11 +1027,11 @@ to compare, and the number is free to be whatever plays best.
 
 **One thing decided elsewhere that lands in this card's code.**
 `docs/clue-engine.md` (PR #95) records the owner's decision that **ordinary
-journey boards become city-only** — `dealBoard` draws from `unlockedWords`
-today, this city and every earlier one. Its **Card 0 makes that change and
-lands first, alone**, by its own instruction. N1 touches the same deal. Read
-them together and let Card 0 go first; N1 changes the board's *shape*, Card 0
-changes the *pool*, and doing both in one PR would make either hard to judge.
+journey boards become city-only**. That is **done — E0 landed as PR #98**, so
+`dealBoard` no longer draws from `unlockedWords`. The ordering this paragraph
+argued for has already happened: E0 changed the *pool*, and N1 changes the
+board's *shape* on top of it. Read E0's diff before starting N1; they touch the
+same deal.
 
 **Shape.**
 - `config.ts`: `GRID_CONFIGS` and the `GridSize` union go. One exported
@@ -1611,11 +1611,27 @@ run first** — baking 900 sentences and then changing them is the bake paid for
 twice, plus a second ~14 MB commit. **S2 moves behind T3.** This is the kind of
 thing that is obvious afterwards and expensive to notice late.
 
-**Do not write these sentences without `docs/word-selection.md` open.** A
-parallel session proposed rewriting the same 900 sentences to a *scenery-word*
-coverage floor. The two targets mostly pull the same way — a subordinate clause
-is exactly where *fordi* and *hvis* live — but as edits they overwrite each
-other. Write to both budgets in one pass, and validate both.
+**T3 runs after WS1, and this card had the reason wrong.** The original text
+here said `word-selection.md` rewrites the same 900 sentences to a scenery-word
+floor, so the two would overwrite each other as edits. That is not what it
+does. Step 4 of its plan is explicit: it **removes 113 headwords and their
+example sentences leave with them**, coverage is re-measured, and the 113 new
+headwords arrive with **no sentences at all**.
+
+So this is a dependency, not a collision — and **it is now satisfied: WS1
+landed as PR #100**, 113 words out and 113 in. The hazard it describes can no
+longer happen, and the 787 sentences that stay are known. What is left of the
+ordering is the rest of it: **T2 → T3 → S2**, with S2 baking once, last.
+
+Kept rather than deleted because the reasoning is what makes the order make
+sense, and because a session reading only the old text would have gone looking
+for a conflict that never existed.
+
+The scenery floor is still real and still T3's to hit — `word-selection.md`
+step 4 sets it at no sentence word under eight appearances across the pool, and
+says where it falls short "that is H5's job". A subordinate clause is exactly
+where *fordi* and *hvis* live, so the grammar target and the scenery floor pull
+the same way rather than against each other. Validate both.
 
 **Accept:** a measured share per city, hit and pinned by a validator in
 `npm run verify`; the scenery-word floor from `word-selection.md` §2 hit in the
@@ -1984,7 +2000,7 @@ whoever works it next.
 | **The grammar** | `docs/grammar-da.md` — nine chapters, checked by `scripts/validate-grammar.mjs` in `npm run verify`. |
 | **Board 1** | `docs/PLAN.md`, and the sweep of what is still open over there is at the bottom of this file. |
 
-### The one thing that will bite you: two documents want the same 900 sentences
+### The sentence ordering: WS1 before T3 *(this section had it wrong)*
 
 > **Corrected by the orchestration pass, same night:** `word-selection.md` does
 > not rewrite sentences — it removes 113 headwords (sentences and all) and
