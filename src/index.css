@@ -1623,7 +1623,7 @@ select:focus {
  *   guess bar, bare                                  143.86
  *   ... + the stop button, or a card selected        153.86
  *   ... + a four-hit lookup answer                   241.45
- *   sudden death + a card selected                   ~200
+ *   sudden death, either row                         181.86
  *
  * The lookup answers still cannot be reserved for, and are still where the
  * reserve deliberately runs out: the list scrolls inside itself. What the size
@@ -1633,7 +1633,9 @@ select:focus {
  * with every control still inside the dock. It is also what the composer's
  * tallest state needs: the O4 first-clue line takes it to 191, so 200 leaves
  * 9px. 12rem clears the guess bar and leaves that line 3px, which is not
- * clearance.
+ * clearance. Sudden death gains from the same swap and is the one dock with
+ * room over: its prose is the give-way region and it now shows all 94px of
+ * itself rather than being cut.
  *
  * 60px came off, and it is 60px of board in every phase: on the default 3x5
  * board at 390x844 a card row goes 70.9 -> 82.9, and the composer's empty
