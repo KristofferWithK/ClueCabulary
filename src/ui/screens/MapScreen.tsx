@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { WORDS } from '../../data/words'
 import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
-import { MAP } from '../../journey/map'
+import { MAP, routePath } from '../../journey/map'
 import {
   WRAP_TO_TRAVEL,
   canTravel,
@@ -22,8 +22,18 @@ type Placement = { anchor: 'start' | 'end'; dx: number; dy: number }
 
 /** Labels lean away from the map edge; the Zealand pair is split vertically. */
 const PLACEMENT: Record<string, Placement> = {
-  roskilde: { anchor: 'end', dx: -26, dy: -14 },
-  kobenhavn: { anchor: 'start', dx: 26, dy: 26 },
+  roskilde: { anchor: 'end', dx: -26, dy: -18 },
+  // København leaned RIGHT while Bornholm held the frame open 375 units past
+  // it. With the Baltic cropped off, journey's end sits 55 units from the east
+  // edge and a 145-unit name ran clean off the map, so it leans left now.
+  //
+  // Which puts both Zealand names on the same side of two dots 65 units apart,
+  // so the vertical split is the only thing keeping them off each other. The
+  // number is set by Roskilde's DOT, not by its name: at dy 26 and again at 40
+  // København's own name ran straight through the circle 65 units to its west.
+  // 56 puts its baseline at 577, and a 30-unit label stands about 22 above its
+  // baseline — so the text starts 8 clear of the bottom of that dot (529 + 18).
+  kobenhavn: { anchor: 'end', dx: -26, dy: 56 },
   skagen: { anchor: 'start', dx: 26, dy: 4 },
   odense: { anchor: 'start', dx: 26, dy: 26 },
 }
@@ -44,14 +54,8 @@ export function MapScreen() {
   const [ridingFrom, setRidingFrom] = useState<number | null>(null)
 
   const points = CITIES.map((c) => MAP.project(c.lon, c.lat))
-  const travelledPath = points
-    .slice(0, journey.cityIndex + 1)
-    .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
-    .join(' ')
-  const aheadPath = points
-    .slice(journey.cityIndex)
-    .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
-    .join(' ')
+  const travelledPath = routePath(points.slice(0, journey.cityIndex + 1))
+  const aheadPath = routePath(points.slice(journey.cityIndex))
 
   const city = cityAt(selected)
   const counts = countCollection(wordsForCity(WORDS, selected), srs, journey.wrapped)
@@ -105,8 +109,8 @@ export function MapScreen() {
         <path className="map-land" d={MAP.path} />
         <path className="map-hatch" d={MAP.hatch} />
         <path className="map-sketch" d={MAP.sketch} />
-        <polyline className="map-route-ahead" points={aheadPath} />
-        <polyline className="map-route-done" points={travelledPath} />
+        <path className="map-route-ahead" d={aheadPath} />
+        <path className="map-route-done" d={travelledPath} />
 
         {CITIES.map((c, i) => {
           const p = points[i]!

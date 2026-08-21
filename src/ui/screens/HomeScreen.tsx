@@ -1,7 +1,7 @@
 import { DEFAULT_BASE_URL } from '../../ai/client'
 import { WORDS } from '../../data/words'
 import { CITIES, FINAL_CITY_INDEX, cityAt } from '../../journey/cities'
-import { MAP } from '../../journey/map'
+import { MAP, routePath } from '../../journey/map'
 import {
   WRAP_TO_TRAVEL,
   canTravel,
@@ -49,15 +49,12 @@ function dailyChallenge() {
 /** The route so far, drawn small enough to live above the fold. */
 function JourneyMap({ cityIndex }: { cityIndex: number }) {
   const points = CITIES.map((c) => MAP.project(c.lon, c.lat))
-  const done = points
-    .slice(0, cityIndex + 1)
-    .map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`)
-    .join(' ')
-  const ahead = points
-    .slice(cityIndex)
-    .map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`)
-    .join(' ')
+  const done = routePath(points.slice(0, cityIndex + 1))
+  const ahead = routePath(points.slice(cityIndex))
   const here = points[cityIndex]!
+  // Past this the widest city name cannot be centred and stay in frame; see
+  // the label comment below for the measurement.
+  const atEastEdge = here.x > MAP.width - 160
 
   return (
     <svg
@@ -69,8 +66,8 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
       <path className="map-land" d={MAP.path} />
       <path className="map-hatch" d={MAP.hatch} />
       <path className="map-sketch" d={MAP.sketch} />
-      <polyline className="map-route-ahead" points={ahead} />
-      <polyline className="map-route-done" points={done} />
+      <path className="map-route-ahead" d={ahead} />
+      <path className="map-route-done" d={done} />
       {points.map((p, i) => (
         <circle
           key={CITIES[i]!.id}
@@ -81,13 +78,20 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
         />
       ))}
       {/* Skagen sits at the top of the map, where a label above the dot falls
-          outside the viewBox — flip it below. The same for the east coast,
-          where a centred label would run off the right edge. */}
+          outside the viewBox — flip it below.
+
+          The east coast needs more than a clamped centre since the Bornholm
+          crop took the frame from 1000 to 680. København's dot is at x 625,
+          and the name is 237 units wide at 40px — so clamping its ANCHOR to
+          width-110 (570) still hung 118.5 units of name past a 680 edge, which
+          layout-drive reads as 2.8px over at 390 wide. Anchor to the edge
+          itself and let the name run inward instead. At width 1000 the clamp
+          never engaged here, which is why this only appeared with the crop. */}
       <text
         className="home-map-here"
-        x={Math.min(Math.max(here.x, 110), MAP.width - 110)}
+        x={atEastEdge ? MAP.width - 12 : Math.min(Math.max(here.x, 110), MAP.width - 110)}
         y={here.y < 90 ? here.y + 62 : here.y - 42}
-        textAnchor="middle"
+        textAnchor={atEastEdge ? 'end' : 'middle'}
       >
         {cityAt(cityIndex).name}
       </text>
