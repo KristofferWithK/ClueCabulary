@@ -391,13 +391,17 @@ node scripts/make-icons.mjs                   # regenerate the PWA icons
 
 Playwright drives run against the built app and each start their own preview
 server, so `npm run build` first — or use `npm run drives`, which builds for you
-and runs all sixteen. (`node scripts/run-drives.mjs --list` names them; four
+and runs all seventeen. (`node scripts/run-drives.mjs --list` names them; four
 more are opt-in and not in the default set, since they want a real key, a real
 Worker, or measure and print rather than assert — and a PASS from something
 that asserts nothing is worth less than no line.)
 
 ```bash
 node e2e/smoke-drive.mjs      # a round played end to end
+node e2e/onboarding-drive.mjs # the intro end to end: train, ticket, the
+                              # scripted round, the case tour, the arrival
+                              # — and the gate that keeps all of it away
+                              # from a phone that has already played
 node e2e/wrapup-drive.mjs     # the packing gate: type the Danish, then play
 node e2e/journey-drive.mjs    # a packed suitcase opens the road → travel → arrival
 node e2e/suitcase-drive.mjs   # the suitcase: four word states, paging, the wrap-up button

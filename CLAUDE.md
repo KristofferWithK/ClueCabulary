@@ -21,7 +21,7 @@ node scripts/validate-words.mjs --lang de    once a second dataset exists
 node scripts/make-audio.mjs --source words --dry-run   what a bake would cost
 ```
 
-## Six things that have each cost a session real time
+## Seven things that have each cost a session real time
 
 **1. `npx tsc --noEmit` checks nothing here.** The root `tsconfig.json` is
 `files: []` with project references, so that command exits 0 on a tree full of
@@ -71,7 +71,7 @@ Capacitor `appId com.kristofferwithk.cluecabulary`. This is the
 `klausVerifiedAt` precedent — a field named after an even older mascot — and
 the reason is that renaming a stored key wipes progress (`src/journey/rescue.ts`
 is the apology for the one time that happened) while renaming a class or a
-component buys a stale-selector hunt across nineteen drives for a label nobody
+component buys a stale-selector hunt across twenty-one drives for a label nobody
 sees. `vite.config.ts`'s `base`, `start_url` and `scope` are `/ClueCabulary/`
 for a different reason: that is the repo name, and the repo rename is held for
 the owner (D3). Move one without the other and the Pages deploy breaks.
@@ -99,6 +99,19 @@ Re-baking into filenames that already exist needs the service worker's
 keeps the old audio for a year. And durations are measured in a browser, never
 from byte size: DECISIONS.md records Chirp3 answering the same request 39%
 longer on a second draw.
+
+**7. A fresh profile opens in the TRAIN, not on Home.** Onboarding owns
+first-run since O1, and the gate (`src/onboarding/flow.ts`) opens only for a
+device with no onboarding key, no `cluecab-howto-v4` and an empty SRS map — so
+your own phone never sees it, and Settings → *Replay the intro* is how you look
+at it. What this costs a session is drives: `?howto=0` suppresses the intro,
+and every drive URL that wants to start on Home carries it — the exceptions
+are onboarding-drive and smoke-drive, which ride the intro on purpose. So a
+NEW drive written without that param opens in Casey's introduction and fails
+on a Home selector that is perfectly correct. `?onboard=1` forces a transient
+run for the opposite case, and neither switch writes anything. The intro
+REPLACES the screens rather than covering them (App.tsx), so while it is up
+there is no Home in the DOM to query.
 
 ## The rule that is easiest to get backwards
 
@@ -170,6 +183,13 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   collected needs a green EACH way — one under your clue, one by your guess),
   `wrapup.ts` (the wrap-up board draw), travel on a packed suitcase, and
   `rideCycle.ts` — the four passes the train ride says each sentence in.
+- `src/onboarding/` — the intro a fresh device opens into, and the first
+  place to look when a drive lands somewhere unexpected. `flow.ts` is the
+  GATE and the resume marker; `tutorial.ts` holds the scripted round's
+  fixed board, seed and script (pinned against the engine by
+  `tutorial.test.ts`); `tour.ts` is the spotlight walked over the REAL
+  suitcase screen, anchored by selector so it cannot drift from it. The
+  screens live in `src/ui/screens/OnboardingScreen.tsx`.
 - `src/ui/` — screens and components. Phone-first; 360×640 is the tight case,
   and **no screen may scroll the document** — layout-drive measures
   `scrollHeight <= innerHeight` on every screen and game phase. Settings
