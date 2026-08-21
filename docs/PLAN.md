@@ -22,6 +22,15 @@ model alias `cluey`).
 | Launch scope | **Free v1**, Danish only, **baked neural TTS launch-blocking**. German, semantic layer, IAP = fast-follows. |
 | App identity | `appId com.kristofferwithk.cluecabulary` **stays**. Display name becomes "900words". |
 
+**Onboarding decisions settled with Kristoffer (2026-08-21)** — the O cards:
+
+| Decision | Choice |
+|---|---|
+| Opening scene | **The app starts in the train.** Casey asks where we are going — what language we are learning — so the language pick is diegetic. One shipped pack collapses it to a confirm card, never a one-entry select. |
+| Tutorial board | **The real beginner 3×4 on the real engine.** 3×5 stays the board Play deals; onboarding writes no `gridSize`. |
+| Tutorial clues | **Danish, like the real game.** No English glosses — the tutorial points at the dictionary (the clue-prefilled lookup, ⓘ, Aa) instead. |
+| HowToPlay | Survives as a **very trimmed reference card** behind ?. Onboarding owns first-run; the overlay never auto-opens again. |
+
 ## How to work this board
 
 - Pick the **top-most card in Ready**. Move it to In progress (add the date),
@@ -39,9 +48,12 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-*(empty — H9's proof piece is in progress; the eight remaining stories are the work, and they want the owner's read on the first one before they are written)*
+- **O1** — The train: onboarding shell, the gate, and the ticket *(carded 2026-08-21)*
 
 ### Blocked
+- **O2** — The tutorial round: a guided beginner board, Casey on screen *(needs O1)*
+- **O3** — The suitcase tour and the arrival *(needs O2)*
+- **O4** — Onboarding aftercare: the reference card, first-time dock lines, tips order *(needs O2; parallel with O3)*
 - **D3** — Repo/Pages rename + ASC display name *(needs D1; the rename itself is held for the owner — see DECISIONS.md)*
 
 - **G2** — Store readiness + release *(paperwork half done 2026-08-20 on the session branch: privacy policy page in `public/`, listing copy + questionnaire in `docs/store/`. Screenshots and the submission remain, and the submission is held for the owner)*
@@ -110,6 +122,7 @@ model alias `cluey`).
 - **H4** — 900 Pass IAP (StoreKit, first 2 cities free)
 - **H6** — Voice-recognition wrap-up unlock (prototype first)
 - **H8** — City postcards: wins uncover a souvenir of the city, kept in the suitcase lid *(the v1 reward is R1; this is the content update that follows, and the reason to re-shoot the store listing)*
+- **O5 (uncarded)** — Voice the train-in welcome with H9's per-sentence bake pipeline. Owner-taste-gated like the eight ride stories: O1 ships the lines as silent bubbles first, and the bake is one flag once they read right.
 
 ---
 
@@ -461,6 +474,152 @@ pass.
 the ride plays, skips, replays a sentence and survives a reload mid-ride; no
 scroll at 360×640; a drive asserts the story is reachable from the map after
 travelling.
+
+### O1 — The train: onboarding shell, the gate, and the ticket
+**Size:** 1 session. **Deps:** none. **Owner's decisions 2026-08-21** (the
+table in Context).
+
+**The problem.** First-run is the HowToPlay overlay — eight paragraphs of
+rules a new player cannot yet attach to anything — and then a real 3×5 round
+whose first interactive act is the game's hardest: composing a Danish clue
+with zero Danish (`createGame` defaults `firstGiver` to the player). The
+game's own premise makes round one the steepest moment, and it currently
+gets the least support. Onboarding replaces the auto-open, not the game.
+
+**The shape.** A fresh device opens **inside the train** — pencil scene in
+the `cluey-hatch` hand, reusing/adapting `TrainRide.tsx`'s drawn train and
+ride CSS, Casey at the window. He speaks three or four tapped-through bubble
+lines: he is a suitcase, every word you learn rides in him; nine cities, a
+hundred words each. Then he asks **where we are going** — the ticket. With
+one pack shipped the answer is a single confirm card (Denmark — Danish, 900
+words), never a one-entry select (`hasLanguageChoice`'s own reasoning);
+built AS a picker (`name — endonym`, the format Settings'
+`LanguagePicker` uses) so H2's registry line turns it into a real choice
+with no new work. On a real choice, write the flow's step marker BEFORE
+`setActiveLanguage()` reloads (`src/lang/active.ts`), and resume from the
+marker on the way back up.
+
+- **The gate.** Onboarding runs when its own key is unset AND
+  `cluecab-howto-v4` is unset AND the SRS map is empty; any other device is
+  marked done silently — the owner's phone is never ambushed. `?howto=0`,
+  already in dozens of drive URLs, suppresses onboarding too (zero drive
+  churn); `?onboard=1` behind `devSwitchesAllowed()` forces it. The HowToPlay
+  auto-open effect in `App.tsx` goes; the overlay stays behind ? until O4
+  trims it.
+- **Skip is always visible at every act** — the study-phase precedent, H9's
+  standing rule. Skip marks done and lands Home. Settings gains **Replay the
+  intro** (a transient re-run; the done flag stays).
+- State: a small flow module plus its own localStorage step key — the
+  `HOWTO_KEY` pattern, NOT a settingsStore field, so there is no partialize
+  trap and no migration.
+- New `e2e/onboarding-drive.mjs` (run-drives discovers it by filename):
+  fresh profile at 360×640 walks train → ticket → Home, and grows with
+  O2/O3. The train scene registers in layout-drive's no-scroll sweep.
+
+**Accept:** verify green; a fresh profile gets the train and a device with
+stats or howto-seen goes straight Home; skip works from every act;
+`?howto=0` suppresses the flow; replay runs from Settings; no scroll at
+360×640.
+
+### O2 — The tutorial round: a guided beginner board, Casey on screen
+**Size:** 1–2 sessions. **Deps:** O1.
+
+**A real round on the real engine.** A scripted fake board could teach a
+rule the game does not have — and the clue-giver's-key rule has been written
+backwards in copy six times in this repo. The tutorial deals
+`GRID_CONFIGS.beginner` (3×4, the measured-gentlest board; **3×5 stays the
+board Play deals** — owner, 2026-08-21). Three cards fewer than the default
+board is what buys Casey his place on screen.
+
+- **Deal.** `newTutorialGame()` beside `newWrapUpGame` in `gameStore`;
+  `RoundMode` gains `'tutorial'`. Bypass the sampler with a FIXED 12-word
+  list from Sønderborg's first frequency ranks — validated through the
+  sampler's exported `conflicts()` in a test — plus a fixed seed, so the
+  keys are deterministic and a hand-written script is pinnable.
+  `firstGiver: 'ai'`: the player learns guessing (low friction) before
+  cluing (high friction). Adding the union value to the persisted store is
+  forward-safe — old saves only hold `'normal'`/`'wrapup'` — and the commit
+  says so per the migration rule.
+- **Companion.** `TutorialCompanion implements Companion` beside
+  `MockCompanion`, selected by mode at the single `companion()` seam in
+  `gameStore`. Fully scripted and offline by construction — the first
+  impression must never depend on the proxy. **Casey's clues are Danish**
+  (owner: both sides Danish, no glosses) and are dataset words OFF the
+  board, legality-checked — so "don't know it? look it up" is answered
+  instantly and offline by the shipped dictionary. The tutorial points at
+  the tools the real game runs on: the lookup prefilled with Casey's clue,
+  ⓘ, and Aa.
+- **UI.** A TutorialDock — `ClueyFace` + speech bubble + tap-to-advance —
+  swapping for the real guess-confirm when the player acts. The player's
+  clue turn offers **three canned clues** instead of free typing: the
+  game's highest-friction act is deferred to real play, and three visible
+  options teach what a good clue looks like.
+- **Beats, one concept each:** tap a card → hear it (baked clip; first
+  sound follows first tap, the standing rule) · your green frames · Casey's
+  Danish clue → the lookup · guess under his clue, with one scripted miss
+  on purpose so Casey can narrate the directional burn · your canned clue →
+  his guesses · tokens tick · win → confetti → "green both ways goes into
+  my case", which is O3's door.
+- **The script is pinned against the engine.** A unit test plays every beat
+  through `applyEvent` and asserts each outcome matches what Casey's
+  commentary claims — mutation-checked: flip a claim and the test must
+  fail. Re-read `game.test.ts` before writing the copy.
+- **SRS.** The tutorial's words COUNT — discovered and collected for real,
+  the cargo O3's tour points at, and the board enters the carry-over window
+  like any round (generous over strict). But the round records no game: no
+  wins tally, no wrap-up earn — R1's "first win is the unlock" stays the
+  first real round's moment. Reversal: one condition at the
+  `recordGame(outcome, mode)` call.
+
+**Accept:** verify green; onboarding-drive plays the whole scripted round
+tap by tap on a fresh profile; the script-vs-engine test fails under a
+flipped claim; Casey visible beside the board with no scroll at 360×640;
+the round completes with the network cut.
+
+### O3 — The suitcase tour and the arrival
+**Size:** 1 session. **Deps:** O2.
+
+After the tutorial win, Casey opens himself: `SuitcaseScreen` with a
+spotlight tour — three or four tap-through steps anchored to the existing
+`case-band`s, walking the case exactly the way E1 made it read (top to
+bottom, the order a word travels): the loose strip → the lid (collected) →
+the tray (wrapped) → the wrap-up button, and why it is disabled right now
+(win a real round to earn one). The tutorial's newly-collected words are
+the cargo the tour points at; the near-empty case is the point — we are
+going to fill this.
+
+- An overlay on the real screen, never a copy of it, so the tour can never
+  drift from the case it describes. Skip visible.
+- Then the existing `Arrival` (cityIndex 0, Sønderborg) → Home; done flag
+  written. **Zero coach marks on Home** — Casey's bubble is the standing
+  tips channel, and O4 orders it.
+
+**Accept:** verify green; onboarding-drive extends through tour → arrival →
+Home; `suitcase-drive` stays green untouched — the tour must not disturb
+the screen it decorates; no scroll at 360×640.
+
+### O4 — Onboarding aftercare: the reference card, first-time dock lines, tips order
+**Size:** 1 session. **Deps:** O2 (parallel with O3).
+
+- `HowToPlay` becomes a **very trimmed** reference card (owner,
+  2026-08-21): the two demo tiles, about four short rules — the
+  clue-giver's-key rule stated once and forward — and a **Replay the
+  intro** button (O1's replay). It never auto-opens; ? is its only door.
+  `HOWTO_KEY` stays as legacy fresh-device evidence, with a comment saying
+  why.
+- First-encounter lines in the EXISTING dock hint slots — no new chrome; C1
+  froze the board rect and the fold is measured. First-ever
+  `playerClueInput`: one Danish word plus the lookup below. First-ever
+  `playerGuessing`: it is Casey's key that counts now. One localStorage
+  flag each (`cluecab-hint-*`), shown once.
+- `cluey-tips.ts`: the first sessions leaf the critical tips in priority
+  order before joining the daily rotation.
+- Fix the stale `App.tsx` comment claiming Casey opens by default — the
+  engine default is the player (`game.ts`, `firstGiver = 'player'`).
+
+**Accept:** verify green; a fresh profile sees each first-time line exactly
+once, drive-checked; the trimmed overlay passes layout-drive's dialog
+checks; no code path auto-opens HowToPlay.
 
 ## Verification (every card)
 
