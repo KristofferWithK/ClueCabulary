@@ -25,9 +25,14 @@ export const danish: LanguagePack = {
   words: raw as WordEntry[],
   speech: {
     tag: 'da-DK',
-    // A touch slower for learners. Measured on the device voice, where the
-    // default ran «hvad hedder du» together into one word.
-    rate: 0.88,
+    // Ordinary pace. It was 0.88 while there was no way to ask for slow at
+    // all — measured on the device voice, where the default ran «hvad hedder
+    // du» together into one word — and the sheet's 🐢 is what that was really
+    // hedging for.
+    rate: 1,
+    // The rate the slow clips are baked at, so the device voice and the baked
+    // one answer 🐢 with the same pace.
+    slowRate: 0.6,
   },
   orthography: danishOrthography,
   morphology: danishMorphology,

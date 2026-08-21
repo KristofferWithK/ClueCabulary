@@ -89,11 +89,16 @@ export default defineConfig({
             urlPattern: /\/audio\/.*\.mp3$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'word-audio-v1',
+              // v2: the word clips were re-baked at 1.0 when the 0.6 set moved
+              // to audio/<lang>/slow, and the new ordinary clips have the same
+              // filenames as the slow ones they replaced. Without the bump an
+              // installed phone would keep the old slow audio for the year.
+              cacheName: 'word-audio-v2',
               expiration: {
-                // A little over the 900 that exist, so hearing every word in
-                // the dataset never evicts the first one heard.
-                maxEntries: 1000,
+                // A little over the 1831 that exist — 900 ordinary, 900 slow
+                // and 31 story sentences — so hearing every word both ways
+                // never evicts the first one heard.
+                maxEntries: 2000,
                 maxAgeSeconds: 60 * 60 * 24 * 365,
                 // Audio is the most disposable thing the app stores: losing it
                 // costs the device voice, losing the shell costs the app. If

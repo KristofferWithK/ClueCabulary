@@ -2332,6 +2332,11 @@ body:has(.kb-up) {
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Four things now: the headword, its part of speech, 🔊 and 🐢. «en
+     sygeplejerske» — the longest headword in the dataset with its article —
+     plus the badge and both buttons runs past 360px, so the row wraps rather
+     than squeezing the word nobody could then read. */
+  flex-wrap: wrap;
 }
 
 .speak-btn {

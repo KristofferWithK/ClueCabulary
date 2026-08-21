@@ -11,8 +11,9 @@
 # Bump BAKE_NONCE below to run it again.
 #
 # What it does NOT do is decide anything. The voice and the rate are
-# make-audio.mjs's defaults, chosen by ear from the audition; passing them here
-# would put the real values in two places and let them disagree.
+# make-audio.mjs's defaults — one rate per source, chosen by ear from the
+# audition; passing them here would put the real values in two places and let
+# them disagree.
 name: Bake word audio
 
 on:
@@ -36,8 +37,9 @@ concurrency:
   group: bake-audio-${{ github.ref }}
 
 env:
-  # Bump to re-run on a push. 4 = the travel stories join the words.
-  BAKE_NONCE: '4'
+  # Bump to re-run on a push. 5 = the words are re-baked at 1.0 and the 0.6 set
+  # they used to be moves to audio/da/slow as the dictionary's 🐢.
+  BAKE_NONCE: '5'
 
 jobs:
   bake:
@@ -61,15 +63,18 @@ jobs:
             exit 1
           fi
           before=$(find public/audio/"$LANG_CODE" -name '*.mp3' 2>/dev/null | wc -l)
-          # Both sources every run, and the manifest decides what that costs:
-          # a source whose text, voice and rate are unchanged reports "Nothing
-          # to do" and makes no request at all. So this reconciles all of the
-          # audio rather than making the caller remember which half moved.
+          # All three sources every run, and the manifest decides what that
+          # costs: a source whose text, voice and rate are unchanged reports
+          # "Nothing to do" and makes no request at all. So this reconciles all
+          # of the audio rather than making the caller remember which part
+          # moved — the run that introduced words-slow re-baked `words` at 1.0
+          # and spent nothing on the slow set, because those clips already
+          # existed and were simply moved into their own directory.
           #
           # The voice guard inside the script refuses a name Google does not
           # serve, so a bad default fails here rather than producing 900 wrong
           # clips that sound fine one at a time.
-          for src in words stories; do
+          for src in words words-slow stories; do
             echo "── $src"
             node scripts/make-audio.mjs --lang "$LANG_CODE" --source "$src" $FORCE
           done
@@ -80,11 +85,18 @@ jobs:
             echo '```'
             python3 -c "
           import json
-          m = json.load(open('public/audio/$LANG_CODE/manifest.json'))
-          print('provider', m.get('provider'))
-          print('voice   ', m.get('voice'))
-          print('rate    ', m.get('rate'))
-          print('clips   ', len(m.get('entries', {})))
+          for label, path in (
+              ('words     ', 'public/audio/$LANG_CODE/manifest.json'),
+              ('words-slow', 'public/audio/$LANG_CODE/slow/manifest.json'),
+              ('stories   ', 'public/audio/$LANG_CODE/story/manifest.json'),
+          ):
+              try:
+                  m = json.load(open(path))
+              except OSError:
+                  print(label, 'MISSING')
+                  continue
+              print(label, m.get('provider'), m.get('voice'), 'rate', m.get('rate'),
+                    len(m.get('entries', {})), 'clips')
           "
             echo '```'
             echo "$before clips before, $after after."

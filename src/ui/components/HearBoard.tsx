@@ -15,11 +15,17 @@ import { canPlayWords, playWord, stopWordAudio } from '../speak'
  * to it. So the tour is paced on a clock.
  *
  * 1200ms is long enough for the one-to-three-syllable headwords the nine
- * hundred are made of, said at `speakText`'s 0.88 rate, and it puts a full
- * 4×5 board at 24 seconds. If a baked clip ever runs past it the symptom is
- * benign and visible: the next word cuts the last one off, because `playWord`
- * silences whatever is playing before it starts. The fix, if it comes to that,
- * is an `onEnd` port in `speak.ts` and this constant deleted.
+ * hundred are made of and it puts a full 4×5 board at 24 seconds. **Its stated
+ * premise is stale and the number is being re-measured:** it was sized for
+ * `speakText`'s old 0.88 rate, and what the tour plays now is the 1.0 bake.
+ * Sized off the 0.6 clips this replaced it was far too short — most of them ran
+ * past it — so the direction of the correction is known even though the figure
+ * is not yet.
+ *
+ * If a baked clip runs past it the symptom is benign and visible: the next word
+ * cuts the last one off, because `playWord` silences whatever is playing before
+ * it starts. The fix, if it comes to that, is an `onEnd` port in `speak.ts` and
+ * this constant deleted.
  */
 const WORD_MS = 1200
 

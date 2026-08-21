@@ -91,7 +91,12 @@ export function TrainRide({
       // No clip in this build, or the browser refused: read it with the device
       // voice instead. Silent phones simply show the text, which is the same
       // bargain RoundSentences makes.
-      if (canSpeak()) speakText(sentences[index]!.da)
+      // The slow toggle has to reach this half too: a phone with no baked
+      // story reads the same sentences, and the button that says «slower» must
+      // not be inert on it.
+      if (canSpeak()) {
+        speakText(sentences[index]!.da, slowRef.current ? ACTIVE.speech.slowRate : ACTIVE.speech.rate)
+      }
       setPlaying(false)
     })
   }
