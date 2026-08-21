@@ -25,8 +25,11 @@ owner-gated, and the collisions worth knowing about.
 `docs/grammar-da.md` is its nine-chapter Danish course, one per leg, checked by
 `npm run validate:grammar`. Two documents from parallel sessions the same
 evening overlap it and are authoritative where they do:
-`docs/word-selection.md` (which words, which city) governs board 2's **T3**,
-and `docs/clue-engine.md` above governs its **H3**.
+`docs/word-selection.md` (which words, which city) is carded there as **WS1–WS2**,
+and `docs/clue-engine.md` above as **E0–E6**. PLAN-2's section **"The execution
+plan, reviewed"** (2026-08-21, orchestration pass) is the current order: four
+lanes rather than seven waves, a model tier per card (Sonnet / Opus / Fable —
+the `m` field in `CARDS`), and the repo audit of what is stale or in the way.
 
 The live board is `docs/dispatch/index.html`, republished to one artifact URL.
 **A card that lands updates PLAN-2.md and that file's `CARDS` array in the same

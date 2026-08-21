@@ -103,7 +103,7 @@ section { margin-top:clamp(26px,3.4vw,40px); display:flex; flex-direction:column
 /* ── the sheet ────────────────────────────────────────────── */
 .sheet { display:flex; flex-direction:column; }
 .sheet-head, .row {
-  display:grid; grid-template-columns:52px minmax(0,1fr) 90px 104px;
+  display:grid; grid-template-columns:52px minmax(0,1fr) 72px 76px 104px;
   gap:clamp(8px,1.4vw,16px); align-items:baseline;
   padding:8px 0 8px 11px; border-bottom:1px solid var(--rule-soft);
 }
@@ -131,6 +131,30 @@ section { margin-top:clamp(26px,3.4vw,40px); display:flex; flex-direction:column
 .p-held   { color:var(--mustard); border-color:var(--mustard); background:var(--mustard-fill); }
 .p-parked { color:var(--rust); border-color:var(--rust); background:var(--rust-fill); }
 
+/* ── which model ─────────────────────────────────────────── */
+.mdl { font-family:var(--mono); font-size:.63rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+       padding:2px 7px; border-radius:4px; display:inline-block; white-space:nowrap; border:1px solid transparent; }
+.m-fable  { color:var(--paper); background:var(--ink); }
+.m-opus   { color:var(--slate); background:var(--slate-fill); border-color:var(--slate); }
+.m-sonnet { color:var(--graphite); background:var(--paper-2); border-color:var(--rule); }
+.m-owner  { color:var(--mustard); background:var(--mustard-fill); border-color:var(--mustard); }
+.lane-tag { font-family:var(--mono); font-size:.62rem; color:var(--graphite); letter-spacing:.06em; text-transform:uppercase; margin-left:6px; }
+
+/* ── lanes ───────────────────────────────────────────────── */
+.lanes { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
+.lane { border:1px solid var(--rule); background:var(--card); padding:13px 15px; border-radius:9px 12px 8px 13px / 13px 8px 12px 9px; display:flex; flex-direction:column; gap:6px; }
+.lane h3 { display:flex; justify-content:space-between; align-items:baseline; }
+.lane .chain { font-family:var(--mono); font-size:.74rem; line-height:1.6; color:var(--ink); word-break:break-word; }
+.lane .chain b { color:var(--moss); }
+.lane p { font-size:.82rem; color:var(--graphite); }
+
+/* ── audit ───────────────────────────────────────────────── */
+.audit { display:flex; flex-direction:column; }
+.arow { display:grid; grid-template-columns:84px minmax(0,1fr) 72px; gap:14px; padding:8px 0; border-bottom:1px solid var(--rule-soft); align-items:baseline; font-size:.87rem; }
+.arow .sev { font-family:var(--mono); font-size:.63rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+.sev-blocks { color:var(--rust); } .sev-misleading { color:var(--mustard); } .sev-cosmetic { color:var(--graphite); } .sev-clean { color:var(--moss); }
+.arow .who { font-family:var(--mono); font-size:.72rem; color:var(--graphite); text-align:right; }
+
 /* ── log ──────────────────────────────────────────────────── */
 .log { display:flex; flex-direction:column; gap:12px; }
 .entry { display:grid; grid-template-columns:104px 1fr; gap:14px; padding-bottom:12px; border-bottom:1px solid var(--rule-soft); }
@@ -146,7 +170,7 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
 @media (max-width:700px) {
   .sheet-head { display:none; }
   .row { grid-template-columns:48px 1fr; row-gap:3px; }
-  .row .size, .row .stat { grid-column:2; }
+  .row .size, .row .stat, .row .who { grid-column:2; }
   .wave { grid-template-columns:110px 1fr 60px; }
 }
 </style>
@@ -159,7 +183,7 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
       <h1>900words Dispatch</h1>
       <p class="dim" style="margin-top:6px">Live status of the production board. Cards, measurements and reversals live in <code>docs/PLAN-2.md</code>; this is the view from the signal box.</p>
     </div>
-    <span class="updated" id="updated">updated 21 Aug 2026 · 19:10</span>
+    <span class="updated" id="updated">updated 21 Aug 2026 · 23:55</span>
   </div>
   <div class="overall">
     <div class="obar" id="obar"></div>
@@ -172,38 +196,88 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
   <div class="panels">
     <div class="panel go">
       <span class="panel-k">next up</span>
-      <h3 id="next-title">Wave 1 — any of six</h3>
-      <p id="next-body">Six cards with no dependencies between them and nothing in front of them. <strong>T1 first</strong> if any playtesting is coming, because without it you cannot reach city two on a phone.</p>
+      <h3 id="next-title">Three lanes, three sessions</h3>
+      <p id="next-body"><strong>E0</strong> (engine — half a session, must land before N1), <strong>WS1</strong> (content — it is upstream of T3, S2 and E6) and <strong>T1</strong> (UI — without it a phone cannot reach city two). Then K1 the moment E0 merges. <strong>E1 ‖ E2</strong> may start any time: city 1 is final.</p>
     </div>
     <div class="panel">
       <span class="panel-k">in progress</span>
       <h3 id="active-title">Nothing yet</h3>
-      <p id="active-body">Execution has not started. The board is fully unblocked as of the Wave&nbsp;0 clearance.</p>
+      <p id="active-body">Execution has not started. The orchestration pass (21 Aug, late) reconciled this page with PLAN-2, folded in the engine and the word selection, and ranked every card by model.</p>
     </div>
     <div class="panel hold">
       <span class="panel-k">waiting on Kristoffer</span>
-      <h3>One read, and one rename</h3>
-      <p><strong>A Danish speaker must read <code>docs/grammar-da.md</code></strong> before the chapters ship — a wrong rule is believed and repeated, and it is the one thing on this board a machine cannot check. <strong>D3</strong>, the repo rename, is the other, and it is not needed until wave 7.</p>
+      <h3>Four worktrees, one read, one rename</h3>
+      <p><strong>Four dirty worktrees</strong> under <code>.claude/worktrees/</code> sit on bases 18–30 PRs old and touch the files K1/K2/N1 rewrite — salvage or <code>git worktree remove</code>, your call per tree. <strong>A Danish speaker must read <code>docs/grammar-da.md</code></strong> before T3 writes 787 sentences to it. <strong>D3</strong> is not needed until wave 7. WS1 will hand you <strong>13 new words</strong> to verify.</p>
     </div>
   </div>
 </section>
 
 <section>
-  <div class="sec-head"><span class="eyebrow">By wave</span><span class="mono dim">≈26–29 sessions end to end</span></div>
+  <div class="sec-head"><span class="eyebrow">By wave</span><span class="mono dim">≈38–43 sessions · four lanes · wall-clock ≈ the UI lane (~18)</span></div>
   <div class="waves" id="waves"></div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">Four lanes</span><span class="mono dim">each a strict chain; edges between lanes listed</span></div>
+  <div class="lanes">
+    <div class="lane"><h3>UI <span class="mono dim">~18 sessions</span></h3>
+      <div class="chain">T1 D4 D5 X1 U1 S1 → <b>K1</b> → K2 → N1 → N2 → U3 → W1 → P1 → P2 P3 P4 → I1 → I2 → I3 → I4 → I5</div>
+      <p>Touches: N1 and E0 edit the same deal (E0 first). K2 and U3 both redraw AiTurnPanel. P2 needs S2’s clips.</p></div>
+    <div class="lane"><h3>Content <span class="mono dim">~8 + 2 bakes</span></h3>
+      <div class="chain"><b>WS1</b> → WS2 → T2 → T3 → S2 → S3 · L1 any time</div>
+      <p>The Danish read of grammar-da.md is this lane’s critical path — needed before T3, not before T2.</p></div>
+    <div class="lane"><h3>Engine <span class="mono dim">~10–12</span></h3>
+      <div class="chain"><b>E0</b> → E1 ‖ E2 → E3 → E4 → <em>decide</em> → E6 (after WS1) → E5</div>
+      <p>E4 ends in a written go/stop; a “stop” saves five sessions. E6 waits for the final ids.</p></div>
+    <div class="lane"><h3>Launch <span class="mono dim">~4 + submission</span></h3>
+      <div class="chain">M1 → H4 → D3 (owner) → <b>G2</b></div>
+      <p>G2 last of everything visual. App size is no constraint under 2 GB (today 11.4 MB of audio; S2 adds ~14).</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">Which model</span><span class="mono dim">Fable only where the work is both hard and unverifiable by the owner</span></div>
+  <div class="panels">
+    <div class="panel"><span class="panel-k"><span class="mdl m-fable">fable</span></span><h3>T3 · E3 · I2</h3><p>787 Danish sentences nobody on the project can proof-read; the engine’s search with the directional trap rule behind the prompt firewall; the tutorial’s exhaustively pinned commentary.</p></div>
+    <div class="panel"><span class="panel-k"><span class="mdl m-opus">opus</span></span><h3>Design calls, stores, drives, measurement</h3><p>T1 T2 WS1 K1 K2 N1 S2 S3 U3 L1 W1 P1 I1 I4 M1 H4 G2 — and orchestrating E1 E2 E4 E5 E6, whose judging agents are Opus <em>and</em> Fable by the owner’s decision.</p></div>
+    <div class="panel"><span class="panel-k"><span class="mdl m-sonnet">sonnet</span></span><h3>A spec exists and tests say when it is done</h3><p>D4 D5 X1 U1 S1 E0 WS2 N2 P2 P3 P4 I3 I5.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">In the way</span><span class="mono dim">the repo audit, 21 Aug · full list in PLAN-2</span></div>
+  <div class="audit">
+    <div class="arow"><span class="sev sev-blocks">blocks</span><span>Four dirty worktrees in <code>.claude/worktrees/</code> on <code>6bee696</code>/<code>8e101d7</code> with uncommitted edits to vite.config, run-drives, index.css, CLAUDE.md and six drives — the files K1/K2/N1 rewrite. Plus three orphan <code>agent-*</code> dirs.</span><span class="who">owner</span></div>
+    <div class="arow"><span class="sev sev-blocks">blocks</span><span>Service worker <code>maxEntries: 2000</code> against 1,893 clips today, 2,793 after S2 — word clips would evict as soon as sentences play. The comment also miscounts.</span><span class="who">S2</span></div>
+    <div class="arow"><span class="sev sev-blocks">blocks</span><span>PLAN-2 listed S2 as Ready against its own “not before T3”; board and page disagreed on five cards. Reconciled in this pass.</span><span class="who">done</span></div>
+    <div class="arow"><span class="sev sev-misleading">misleading</span><span>The handoff’s “collision” was misdescribed: word-selection removes 113 words (sentences and all) and adds 113 without any. T3 is <em>after</em> WS1, not beside it.</span><span class="who">done</span></div>
+    <div class="arow"><span class="sev sev-misleading">misleading</span><span><code>README.md:216</code> and <code>src/lang/types.ts:131</code> say nothing in the 900 is closed-class; 69 are.</span><span class="who">WS1</span></div>
+    <div class="arow"><span class="sev sev-misleading">misleading</span><span>“16 MB of audio” is 11.4 MB by bytes — NTFS rounding over 1,893 files. DECISIONS still says WORD_MS is unmeasured (it is 1500, measured). PLAN.md still says ranks 901–1000 are dropped.</span><span class="who">X1 · WS1</span></div>
+    <div class="arow"><span class="sev sev-misleading">misleading</span><span>X1’s <code>audition/</code> deletion must wait for S2’s en-US audition, which A/Bs against those clips. L1’s “read with H3 open” is stale — nothing is shared.</span><span class="who">X1 · L1</span></div>
+    <div class="arow"><span class="sev sev-cosmetic">cosmetic</span><span><code>docs/store/listing.md:42</code> “he”; <code>bake-audio.yml:67</code> “all three sources” (five, six after S2); drive literals W1/N2/S3 will invalidate (suitcase-drive:210/:234, journey-drive:148).</span><span class="who">D4 · S2 · W1 · S3</span></div>
+    <div class="arow"><span class="sev sev-clean">clean</span><span>Tutorial’s fixed board and its six off-board clue words all survive WS1 (city 1 untouched; none on the removal list). No drive hardcodes a word id. 0 orphan clips, 0 words without one. Drive counts, N1’s “27 URLs”, every documented script: exact.</span><span class="who">—</span></div>
+  </div>
 </section>
 
 <section>
   <div class="sec-head"><span class="eyebrow">Every card</span><span class="mono dim" id="shown"></span></div>
   <div class="filters" id="filters"></div>
   <div class="sheet" id="sheet">
-    <div class="sheet-head"><span>ref</span><span>card</span><span>size</span><span>status</span></div>
+    <div class="sheet-head"><span>ref</span><span>card</span><span>size</span><span>model</span><span>status</span></div>
   </div>
 </section>
 
 <section>
   <div class="sec-head"><span class="eyebrow">Update log</span><span class="mono dim">newest first</span></div>
   <div class="log">
+    <div class="entry">
+      <span class="when">21 Aug · 23:55</span>
+      <div>
+        <p><strong>The orchestration pass.</strong> The chessbot plan (<code>clue-engine.md</code>) is carded as <strong>E0–E6</strong> and the word selection as <strong>WS1–WS2</strong>; every card now carries the model that should run it (three on Fable: T3, E3, I2) and a lane. The seven waves turned out to be <strong>four lanes</strong> — UI, content, engine, launch — with almost no edges between them, so three sessions can start at once: <strong>E0, WS1, T1</strong>.</p>
+        <p style="margin-top:8px"><strong>The collision was the wrong collision.</strong> <code>word-selection.md</code> does not rewrite sentences; it removes 113 headwords with their sentences and adds 113 without any — so T3 runs <em>after</em> WS1, and the order is WS1 → T2 → T3 → S2. PLAN-2 had also listed S2 as Ready against its own card; fixed, with the five other board-vs-page disagreements.</p>
+        <p style="margin-top:8px"><strong>The audit found two real blockers</strong> — four dirty worktrees on stale bases touching exactly the files K1/K2/N1 rewrite (yours to salvage or remove), and a service-worker cap of 2,000 entries that S2’s 900 clips would overflow — plus a handful of misleading numbers, the loudest being that “16 MB of audio” is 11.4 MB by bytes. <strong>App size is no constraint under 2 GB</strong>, so nothing is sequenced on it any more. ≈38–43 sessions end to end; the wall-clock is the UI lane.</p>
+      </div>
+    </div>
     <div class="entry">
       <span class="when">21 Aug · 22:40</span>
       <div>
@@ -272,6 +346,7 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
 
 <p class="foot">
   This page is updated by hand at the end of each working session — the card data is one array at the bottom of the file, so a status change is a one-line edit and a republish to the same URL.<br>
+  Models: <b>fable</b> hardest and unverifiable · <b>opus</b> judgement, stores, drives, measurement · <b>sonnet</b> spec-and-tests work · <b>owner</b> not a model’s to take.<br>
   Statuses: <b>done</b> merged · <b>active</b> in progress · <b>ready</b> nothing in front of it · <b>blocked</b> waiting on another card · <b>held</b> waiting on Kristoffer · <b>parked</b> deliberately not now.
 </p>
 
@@ -281,58 +356,69 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
 /* The board, as data. Updating this page means editing this array — status,
    and `landed` when a PR merges. Everything above renders from it. */
 var CARDS = [
-  { w:1, id:'D4', t:'Casey is she',                          sub:'Five strings in src, fourteen README lines, the store drafts. Identifiers untouched.', size:'½', st:'ready' },
-  { w:1, id:'D5', t:'Sudden death becomes the last chance',  sub:'Copy only; the phase id and outcome reason are persisted and stay. Rewords the prompts.ts collision.', size:'½', st:'ready' },
-  { w:1, id:'X1', t:'The stale-copy sweep',                  sub:'Settings says “8 clues”; it is 7. Plus the D3 shrink to one constant.', size:'½', st:'ready' },
-  { w:1, id:'U1', t:'A tap speaks; ⓘ opens the dictionary',  sub:'Hearing a word becomes free; reading its meaning is what costs the lookup.', size:'½', st:'ready' },
-  { w:1, id:'S1', t:'Casey’s guesses are spoken',            sub:'Needs the audio element primed inside the Give-clue tap. One TestFlight check.', size:'½', st:'ready' },
-  { w:1, id:'T1', t:'The train travels; a dev switch to ride it', sub:'Do this first if any playtesting is coming — without it city two is unreachable on a phone.', size:'1', st:'ready' },
-  { w:1, id:'T2', t:'The ride teaches the grammar',           sub:'Decided — grammar replaces the story. Nine chapters written in docs/grammar-da.md and machine-checked against the dataset. Needs a Danish speaker to read it.', size:'1', st:'ready' },
+  /* m = which Claude model runs the card: fable | opus | sonnet | owner.
+     lane = ui | content | engine | launch (see PLAN-2, "Four lanes"). */
+  { w:1, id:'E0', t:'City-only journey boards',                sub:'clue-engine.md Card 0. Before N1, alone — they edit the same deal. Display pools stay “everything reached”.', size:'½', st:'ready', m:'sonnet', lane:'engine' },
+  { w:1, id:'WS1', t:'Apply the word selection',               sub:'113 out, 100 back from the pool, 13 new (owner verifies). Sentences for the new words to both budgets; chapters re-gated; quotas; validator; pins.', size:'1–2', st:'ready', m:'opus', lane:'content' },
+  { w:1, id:'T1', t:'The train travels; a dev switch to ride it', sub:'Do this first in the UI lane — without it city two is unreachable on a phone.', size:'1', st:'ready', m:'opus', lane:'ui' },
+  { w:1, id:'D4', t:'Casey is she',                          sub:'Five strings in src, fourteen README lines, the store drafts (listing.md:42). Identifiers untouched.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
+  { w:1, id:'D5', t:'Sudden death becomes the last chance',  sub:'Copy only; the phase id and outcome reason are persisted and stay. Rewords the prompts.ts collision.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
+  { w:1, id:'X1', t:'The stale-copy sweep',                  sub:'Settings says “8 clues”; it is 7. The D3 shrink to one constant. audition/ deletion waits for S2’s en-US audition.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
+  { w:1, id:'U1', t:'A tap speaks; ⓘ opens the dictionary',  sub:'Hearing a word becomes free; reading its meaning is what costs the lookup.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
+  { w:1, id:'S1', t:'Casey’s guesses are spoken',            sub:'Needs the audio element primed inside the Give-clue tap. One TestFlight check.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
+  { w:1, id:'T2', t:'The ride teaches the grammar',           sub:'Decided — the nine chapters are written and machine-checked. Build the frame; the Danish read gates shipping, not starting.', size:'1', st:'ready', m:'opus', lane:'content' },
+  { w:1, id:'WS2', t:'Bake the new headwords',                sub:'Nonce bump, push, the workflow commits back. Orphaned clips and manifest rows out in the same PR.', size:'½ + bake', st:'blocked', dep:'WS1', m:'sonnet', lane:'content' },
 
-  { w:2, id:'K1', t:'The composer never changes size',       sub:'One box, three rows, one height. The verdict and the translation share a line.', size:'1–2', st:'ready' },
-  { w:2, id:'K2', t:'Every dock one height; the legend goes', sub:'layout-drive re-pointed to measure the panel rectangle every frame.', size:'1', st:'blocked', dep:'K1' },
+  { w:2, id:'K1', t:'The composer never changes size',       sub:'One box, three rows, one height. The verdict and the translation share a line.', size:'1–2', st:'blocked', dep:'E0', m:'opus', lane:'ui' },
+  { w:2, id:'K2', t:'Every dock one height; the legend goes', sub:'layout-drive re-pointed to measure the panel rectangle every frame.', size:'1', st:'blocked', dep:'K1', m:'opus', lane:'ui' },
+  { w:2, id:'E1', t:'The judged matrix, city 1',             sub:'4,950 pairs, Opus and Fable judges, votes merged. merge-matrix + validate-matrix in verify. City 1 is final, so it may start now.', size:'1', st:'ready', m:'opus', lane:'engine' },
+  { w:2, id:'E2', t:'The book, city 1',                      sub:'~30 associations a word in both languages with a why; pair clues where M ≥ 1. Beside E1.', size:'1', st:'ready', m:'opus', lane:'engine' },
 
-  { w:3, id:'N1', t:'One board: 3×6, and the sizes go',      sub:'GridSize deleted — a persisted setting, a Settings control, a dev switch and 27 drive URLs.', size:'2', st:'blocked', dep:'K2' },
-  { w:3, id:'N2', t:'The wrap-up is the same board',         sub:'One config in the whole game.', size:'½', st:'blocked', dep:'N1' },
+  { w:3, id:'N1', t:'One board: 3×6, and the sizes go',      sub:'GridSize deleted — a persisted setting, a Settings control, a dev switch and 27 drive URLs. After E0.', size:'2', st:'blocked', dep:'K2 · E0', m:'opus', lane:'ui' },
+  { w:3, id:'N2', t:'The wrap-up is the same board',         sub:'One config in the whole game.', size:'½', st:'blocked', dep:'N1', m:'sonnet', lane:'ui' },
+  { w:3, id:'E3', t:'The evaluator, the search, the engine companion', sub:'Directional trap set, margin search, EngineCompanion behind the practice seam, lazily loaded. The hardest code on the board.', size:'2', st:'blocked', dep:'E1 · E2', m:'fable', lane:'engine' },
 
-  { w:4, id:'T3', t:'The next city’s sentences reinforce the chapter', sub:'800 sentences rewritten so each city drills the rule taught on the ride in. Measured as a share, not hoped for.', size:'writing', st:'blocked', dep:'T2' },
-  { w:4, id:'S2', t:'Bake the 900 example sentences',        sub:'Danish only — English is never spoken. Must not run before T3, or the bake is paid for twice.', size:'1 + bake', st:'blocked', dep:'T3' },
-  { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready' },
-  { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1' },
-  { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. Settle the source first.', size:'1–2', st:'ready' },
+  { w:4, id:'T3', t:'The next city’s sentences reinforce the chapter', sub:'787 sentences rewritten to the chapter AND the scenery floor, measured as a share. After WS1 — or they are written for words about to leave.', size:'writing', st:'blocked', dep:'T2 · WS1', m:'fable', lane:'content' },
+  { w:4, id:'S2', t:'Bake the 900 example sentences',        sub:'Danish only. Last of the three or the bake is paid for twice. Raise the SW maxEntries (2,000 → clips would evict).', size:'1 + bake', st:'blocked', dep:'T3', m:'opus', lane:'content' },
+  { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready', m:'opus', lane:'content' },
+  { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1', m:'opus', lane:'ui' },
+  { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. No longer shares anything with the engine.', size:'1–2', st:'ready', m:'opus', lane:'content' },
+  { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'Engine selfplay with the authoring halves kept apart, the opt-in probe, the clue ledger. Ends in a written go / stop.', size:'1–2', st:'blocked', dep:'E3', m:'opus', lane:'engine' },
 
-  { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from discovered words; only pre-collected words wrap.', size:'1–2', st:'ready' },
-  { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'blocked', dep:'W1 · K2' },
-  { w:5, id:'P2', t:'The sentence review',                   sub:'Danish → English → Danish, the highlight tracking the reading.', size:'1', st:'blocked', dep:'S2 · P1' },
-  { w:5, id:'P3', t:'Retire the live story call',            sub:'Deleted end to end. One fewer proxy request per round.', size:'½', st:'blocked', dep:'P1' },
-  { w:5, id:'P4', t:'The turn log behind a sheet',           sub:'Zero height on the summary; the ⚑ flags survive.', size:'½', st:'blocked', dep:'P1' },
+  { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from discovered words; only pre-collected words wrap.', size:'1–2', st:'ready', m:'opus', lane:'ui' },
+  { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'blocked', dep:'W1 · K2', m:'opus', lane:'ui' },
+  { w:5, id:'P2', t:'The sentence review',                   sub:'Danish → English → Danish, the highlight tracking the reading.', size:'1', st:'blocked', dep:'S2 · P1', m:'sonnet', lane:'ui' },
+  { w:5, id:'P3', t:'Retire the live story call',            sub:'Deleted end to end. One fewer proxy request per round.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
+  { w:5, id:'P4', t:'The turn log behind a sheet',           sub:'Zero height on the summary; the ⚑ flags survive.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
+  { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'~530 judging agents across two models; one PR per city. Needs the final ids (WS1) and E4’s yes.', size:'2–3', st:'blocked', dep:'WS1 · E4', m:'opus', lane:'engine' },
+  { w:5, id:'E5', t:'The hybrid',                            sub:'Evaluator as validator (turns H7 on), the candidates prompt, rank fusion, then the alias flip once the ledger says so.', size:'1–2', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
 
-  { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'blocked', dep:'D4 · W1' },
-  { w:6, id:'I2', t:'The practice round the player plays',   sub:'Reactive commentary instead of a linear script. The biggest card on the board.', size:'2', st:'blocked', dep:'I1 · K2 · U3' },
-  { w:6, id:'I3', t:'The post-match Casey',                  sub:'Tap her to open the case. No button — the tap is the lesson.', size:'½', st:'blocked', dep:'I2 · P1' },
-  { w:6, id:'I4', t:'The tour retold, and the map act',      sub:'The real map under a spotlight replaces the arrival.', size:'1', st:'blocked', dep:'I3 · W1' },
-  { w:6, id:'I5', t:'Docs catch up',                         sub:'README, DECISIONS with reversals, the tips.', size:'½', st:'blocked', dep:'I1–I4' },
+  { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'blocked', dep:'D4 · W1', m:'opus', lane:'ui' },
+  { w:6, id:'I2', t:'The practice round the player plays',   sub:'Reactive commentary instead of a linear script, pinned exhaustively. The biggest card on the board.', size:'2', st:'blocked', dep:'I1 · K2 · U3', m:'fable', lane:'ui' },
+  { w:6, id:'I3', t:'The post-match Casey',                  sub:'Tap her to open the case. No button — the tap is the lesson.', size:'½', st:'blocked', dep:'I2 · P1', m:'sonnet', lane:'ui' },
+  { w:6, id:'I4', t:'The tour retold, and the map act',      sub:'The real map under a spotlight replaces the arrival.', size:'1', st:'blocked', dep:'I3 · W1', m:'opus', lane:'ui' },
+  { w:6, id:'I5', t:'Docs catch up',                         sub:'README, DECISIONS with reversals, the tips.', size:'½', st:'blocked', dep:'I1–I4', m:'sonnet', lane:'ui' },
 
-  { w:7, id:'M1', t:'The 900 Pass — pricing',                sub:'Recommendation written 21 Aug: one city free, one Pass for every language. Awaiting a veto, not a decision.', size:'1 conv.', st:'ready' },
-  { w:7, id:'H4', t:'The 900 Pass',                          sub:'StoreKit, the free tier, restore purchases, the free-code channel.', size:'unsized', st:'blocked', dep:'M1' },
-  { w:7, id:'D3', t:'Rename the repo and Pages base',        sub:'Owner-only. Blocks G2’s screenshots and nothing else.', size:'½', st:'held' },
-  { w:7, id:'G2', t:'Screenshots and submission',            sub:'Last, always — everything visual changes in front of it.', size:'1–2', st:'blocked', dep:'all visual · D3' },
+  { w:7, id:'M1', t:'The 900 Pass — pricing',                sub:'Recommendation written 21 Aug: one city free, one Pass for every language. Awaiting a veto, not a decision.', size:'1 conv.', st:'ready', m:'opus', lane:'launch' },
+  { w:7, id:'H4', t:'The 900 Pass',                          sub:'StoreKit, the free tier, restore purchases, the free-code channel.', size:'unsized', st:'blocked', dep:'M1', m:'opus', lane:'launch' },
+  { w:7, id:'D3', t:'Rename the repo and Pages base',        sub:'Owner-only. Blocks G2’s screenshots and nothing else.', size:'½', st:'held', m:'owner', lane:'launch' },
+  { w:7, id:'G2', t:'Screenshots and submission',            sub:'Last, always — everything visual changes in front of it.', size:'1–2', st:'blocked', dep:'all visual · D3', m:'opus', lane:'launch' },
 
-  { w:8, id:'C4', t:'Judge the composer on device',          sub:'Closed 21 Aug — “it feels attached enough.” The ride ships as it is.', size:'—', st:'done' },
-  { w:8, id:'C5', t:'Native composer',                       sub:'Closed unbuilt — it existed only for a “still not attached” verdict.', size:'—', st:'done' },
-  { w:8, id:'H9', t:'Eight more train stories',              sub:'Yours to unlock, and S3 first.', size:'2–3', st:'parked' },
-  { w:8, id:'H2', t:'German content',                        sub:'The seam is live; no words.de.json exists.', size:'—', st:'parked' },
-  { w:8, id:'H3', t:'The clue engine → docs/clue-engine.md',  sub:'Owned by that document since PR #95. Un-parked by the owner, no embedding key needed, judged matrix rather than embeddings, and journey boards become city-only — its Card 0 touches the same pool N1 deals from.', size:'see doc', st:'held' },
-  { w:8, id:'H6', t:'Voice-recognition wrap-up',             sub:'Prototype first.', size:'—', st:'parked' },
-  { w:8, id:'H8', t:'City postcards',                        sub:'A content update that stacks with the wrap-up reward.', size:'—', st:'parked' }
+  { w:8, id:'C4', t:'Judge the composer on device',          sub:'Closed 21 Aug — “it feels attached enough.” The ride ships as it is.', size:'—', st:'done', m:'owner', lane:'ui' },
+  { w:8, id:'C5', t:'Native composer',                       sub:'Closed unbuilt — it existed only for a “still not attached” verdict.', size:'—', st:'done', m:'owner', lane:'ui' },
+  { w:8, id:'H9', t:'Eight more train stories',              sub:'Cancelled by T2; Sønderborg’s survives as an option beside chapter 1.', size:'—', st:'parked', m:'owner', lane:'content' },
+  { w:8, id:'H2', t:'German content',                        sub:'The seam is live; no words.de.json exists.', size:'—', st:'parked', m:'opus', lane:'content' },
+  { w:8, id:'H3', t:'The clue engine → E0–E6',               sub:'Owned by docs/clue-engine.md (PR #95) and carded as E0–E6 on this board by the orchestration pass.', size:'see E-cards', st:'done', m:'owner', lane:'engine' },
+  { w:8, id:'H6', t:'Voice-recognition wrap-up',             sub:'Prototype first.', size:'—', st:'parked', m:'opus', lane:'ui' },
+  { w:8, id:'H8', t:'City postcards',                        sub:'A content update that stacks with the wrap-up reward.', size:'—', st:'parked', m:'sonnet', lane:'content' }
 ];
 
 var WAVES = [
   { n:1, name:'Cheap wins',        note:'no dependencies' },
-  { n:2, name:'The composer',      note:'the spine' },
-  { n:3, name:'The board',         note:'after wave 2' },
-  { n:4, name:'Audio & dictionary',note:'runs alongside 2–3' },
-  { n:5, name:'Economy & post-game',note:'after 3 and 4' },
+  { n:2, name:'The composer',      note:'the spine · E1 ‖ E2 alongside' },
+  { n:3, name:'The board',         note:'after wave 2 · E3 alongside' },
+  { n:4, name:'Content & dictionary',note:'WS1 → T2 → T3 → S2 · E4 decides' },
+  { n:5, name:'Economy & post-game',note:'after 3 and 4 · E6, E5 on E4’s yes' },
   { n:6, name:'The intro',         note:'a strict chain' },
   { n:7, name:'The Pass, launch',  note:'screenshots last' },
   { n:8, name:'Parked / feedback', note:'not scheduled' }
@@ -378,22 +464,28 @@ var LABEL = { done:'done', active:'in progress', ready:'ready', blocked:'blocked
   var sheet = document.getElementById('sheet');
   var shown = document.getElementById('shown');
   var filter = 'all';
-  var FILTERS = [['all', 'everything'], ['ready', 'ready'], ['blocked', 'blocked'], ['held', 'held'], ['done', 'done'], ['parked', 'parked']];
+  var FILTERS = [['all', 'everything'], ['ready', 'ready'], ['blocked', 'blocked'], ['held', 'held'], ['done', 'done'], ['parked', 'parked'],
+                 ['m:fable', 'fable'], ['m:opus', 'opus'], ['m:sonnet', 'sonnet'], ['m:owner', 'owner']];
   var fbox = document.getElementById('filters');
   fbox.innerHTML = FILTERS.map(function (f) {
     return '<button class="f" data-f="' + f[0] + '" aria-pressed="' + (f[0] === 'all') + '">' + f[1] + '</button>';
   }).join('');
 
   function render() {
-    var rows = CARDS.filter(function (c) { return filter === 'all' ? true : c.st === filter; });
-    sheet.innerHTML = '<div class="sheet-head"><span>ref</span><span>card</span><span>size</span><span>status</span></div>' +
+    var rows = CARDS.filter(function (c) {
+      if (filter === 'all') return true;
+      if (filter.indexOf('m:') === 0) return c.m === filter.slice(2);
+      return c.st === filter;
+    });
+    sheet.innerHTML = '<div class="sheet-head"><span>ref</span><span>card</span><span>size</span><span>model</span><span>status</span></div>' +
       rows.map(function (c) {
         var st = c.st === 'blocked' ? 'blocked' : c.st;
         var pill = '<span class="pill p-' + st + '">' + (st === 'blocked' && c.dep ? c.dep : LABEL[st]) + '</span>';
         return '<div class="row st-' + st + '">' +
           '<span class="code">' + c.id + '</span>' +
-          '<span class="body-c"><span class="title">' + c.t + '</span> <span class="sub">— ' + c.sub + '</span></span>' +
+          '<span class="body-c"><span class="title">' + c.t + '</span><span class="lane-tag">' + c.lane + '</span> <span class="sub">— ' + c.sub + '</span></span>' +
           '<span class="size">' + c.size + '</span>' +
+          '<span class="who"><span class="mdl m-' + c.m + '">' + c.m + '</span></span>' +
           '<span class="stat">' + pill + '</span>' +
           '</div>';
       }).join('');
