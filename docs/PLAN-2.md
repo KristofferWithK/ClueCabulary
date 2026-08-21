@@ -539,7 +539,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
   `curriculumRank` re-dealt by `scripts/apply-word-selection.mjs`; the ledger
   rule is a hard error in `validate:words` with a mutation recorded.
 - **K2** — Every dock the same fixed height, the legend gone, the drive
-  measuring the panel — 2026-08-22 (PR #PRNUM). One `--dock-h` (9.375rem = 150px,
+  measuring the panel — 2026-08-22 (PR #105). One `--dock-h` (9.375rem = 150px,
   still the composer's own measurement); `--dock-slot-h` and `.dock-slot` are
   gone — the panel is the reserve again. The guess bar, Casey's panel, the
   last-chance bar, packing and the study dock are all three regions and one
