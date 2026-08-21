@@ -1,11 +1,23 @@
 import { useUi } from '../../stores/uiStore'
 import { useDialog } from '../useDialog'
 import { ACTIVE } from '../../lang/active'
-import { FINAL_CITY_INDEX, cityAt } from '../../journey/cities'
 
+/**
+ * The reference card behind ? — and nothing more (O4). Onboarding owns
+ * first-run now: the train teaches the game a beat at a time, so the eight
+ * paragraphs that used to stand here are trimmed to the four rules a mid-round
+ * player wants back at a glance, and the door to hearing the whole thing again.
+ * This overlay never opens itself; the ? buttons are its only doors.
+ *
+ * Closing it still writes HOWTO_KEY (uiStore.closeHowTo). The key outlives the
+ * long overlay it was built for because the onboarding gate reads it as proof
+ * a device predates the intro (src/onboarding/flow.ts) — see the comment on
+ * HOWTO_KEY itself.
+ */
 export function HowToPlay() {
   const open = useUi((s) => s.howToOpen)
   const close = useUi((s) => s.closeHowTo)
+  const startOnboarding = useUi((s) => s.startOnboarding)
   const dialogRef = useDialog(open, close)
   if (!open) return null
 
@@ -25,7 +37,7 @@ export function HowToPlay() {
           Find every green word with Casey, your AI partner — and learn {ACTIVE.name} on the way.
         </p>
 
-        {/* Two tiles, and now they are the entire vocabulary of the board: a
+        {/* Two tiles, and they are the entire vocabulary of the board: a
             target and a neutral are the only things a card can be. A third,
             black one used to stand here for a card that ended the round on the
             spot, which is why rule 1 says outright that there is no third kind
@@ -35,57 +47,46 @@ export function HowToPlay() {
           <span className="demo-tile demo-beige">vej</span>
         </div>
 
+        {/* Four short rules. The clue-giver's-key rule is stated ONCE, and
+            forwards — the wording game.test.ts pins ("a guess is judged
+            against the clue-giver's key"), never a per-phase paraphrase: this
+            rule has been written backwards in copy six times in this repo. */}
         <ol>
           <li>
-            The board is a grid of {ACTIVE.name} words. You and Casey each hold a secret key: on it some
-            words are <strong>green</strong> — your targets — and the rest are neutral. There is
-            no third kind of card, and the two keys differ.
+            You and Casey each hold a secret key: on it some words are <strong>green</strong> —
+            targets — and the rest are neutral. The two keys differ, and there is no third kind of
+            card.
           </li>
           <li>
-            Take turns: you give a one-word clue and Casey guesses, then he clues and you guess.
-            Every guess is judged against the <em>clue-giver's</em> key, so while you are guessing
-            it is <em>his</em> greens that count — and he never sees yours.
+            Take turns cluing and guessing: one {ACTIVE.name} word and a number. A guess is judged
+            against the <em>clue-giver's</em> key — whoever gave the clue, their greens are the
+            ones that count.
           </li>
           <li>
-            The number that comes with a clue is the allowance: name that many right and the turn
-            ends itself. A neutral ends it sooner, and you can stop early and keep what you have.
-            Every turn spends one shared clue token (the dots at the top), however it ends — which
-            is the whole cost of a wrong tap, and the reason the clock is what beats you.
+            Every turn spends one clue token, however it ends. Out of tokens is{' '}
+            <strong>sudden death</strong>: keep naming greens — either key counts there — and
+            anything else ends the round.
           </li>
           <li>
-            A neutral is spent only for the side that hit it. A word Casey burned while guessing
-            your clue can still be green on his own key, so it is crossed out for him and back in
-            play the moment he is the one cluing.
-          </li>
-          <li>
-            <strong>Sudden death</strong>: when the tokens run out the clues stop but the board
-            does not. Keep naming green words — either key counts now — and you can still win it.
-            Name anything else and the round is over.
-          </li>
-          <li>
-            Nothing connects? Before the first clue, <strong>↻</strong> in the header deals a
-            different board of the same size — nothing has been spent yet, and the words you turned
-            down do not come back on it. Any time, tap <strong>ⓘ</strong> on a word for the
-            dictionary or <strong>Aa</strong> to show every translation; each lookup tells the app
-            which words to bring back.
-          </li>
-          <li>
-            You are travelling {ACTIVE.route.country}, stop by stop to {cityAt(FINAL_CITY_INDEX).name}, with{' '}
-            <strong>Casey the suitcase</strong> carrying every word you learn. Each city holds{' '}
-            <strong>100 words</strong>. A word you meet is <em>discovered</em>; clue it once{' '}
-            <em>and</em> guess it once — a green earned each way — and it is{' '}
-            <strong>collected</strong> into the case.
-          </li>
-          <li>
-            Collected words still break on the road. <strong>Wrap-up rounds</strong> pack them
-            safely: a big board dealt from your collected words, every card starting in{' '}
-            <em>English</em>. Type the {ACTIVE.name} to pack a card before the clues begin — skip one and
-            it plays on, English-side up, but cannot be wrapped that round. Every packed word
-            found green is <strong>wrapped</strong> for good, win or lose. Wrap all hundred and
-            the road onward opens.
+            Clue a word once <em>and</em> guess it once — a green each way — and it is{' '}
+            <strong>collected</strong> into the case. Wrap-up rounds pack collected words for
+            good; wrap all hundred and the road onward opens.
           </li>
         </ol>
 
+        {/* The rest of the teaching lives in the intro, so the card only has
+            to offer the way back to it. A transient re-run — the done flag
+            stays (uiStore.startOnboarding); closing first so the overlay is
+            not still standing over the train. */}
+        <button
+          className="btn howto-replay"
+          onClick={() => {
+            close()
+            startOnboarding()
+          }}
+        >
+          Replay the intro
+        </button>
         <button className="btn btn-primary" onClick={close}>
           Play
         </button>
