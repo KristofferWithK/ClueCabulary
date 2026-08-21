@@ -46,6 +46,54 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-21 · A replayed tutorial is a real round: SRS counts, and it replaces any round in flight (O2)
+The card left open what a transient replay of the tutorial does to the SRS.
+Decided generous over strict, per the standing rule: **the round is real
+wherever it runs.** A replay (Settings, or `?onboard=1`) deals the same fixed
+board through the same store, `recordRound` runs at its end, and the words are
+credited again — the SRS counters are monotonic, so a replay can only add,
+never corrupt. What never happens in ANY tutorial round, first run or replay,
+is `recordGame`: no played/won tally, no wrap-up earned — R1's "first win is
+the unlock" stays the first real round's moment (that half is the card's own
+text, not tonight's call; it is pinned in gameStore.test.ts either way).
+
+Two consequences decided with it:
+- **Dealing the tutorial replaces a round in flight.** A veteran mid-round who
+  taps "Replay the intro" and reaches the tutorial act loses the old board —
+  the same cost a language switch accepts, for the same reason: the replay is
+  a deliberate act, and keeping two live rounds would mean a parallel store
+  for a five-minute scripted board.
+- **A tutorial round found OUTSIDE the intro is dropped on rehydrate**
+  (gameStore's `onRehydrateStorage`): one can outlive a transient run that was
+  closed mid-round, and resuming it from Home would put the scripted dock on a
+  screen with no script. Whatever `finishRound` already recorded stays.
+- One interaction with O1's "transient runs write nothing" is worth naming:
+  a genuinely fresh device that plays the FORCED (`?onboard=1`) tutorial to
+  the end now has twelve words in its SRS map, so the gate reads it as
+  veteran on the next plain load and marks it done silently — it does not get
+  the train again, where O1's entry said it would. That is the gate doing its
+  job, not a leak: a device with words in the case has, by the gate's own
+  definition, played. Skipping the forced run before the round starts still
+  leaves the device fresh, which is what the drives use.
+
+**Reverse:** each is one condition — the `mode !== 'tutorial'` guard at
+`recordGame` in finishRound, the deal in `newTutorialGame`, and the drop in
+`onRehydrateStorage` (src/stores/gameStore.ts).
+
+### 2026-08-21 · The tutorial discovers all twelve words and collects none — structural, and O3 should know (O2)
+Worth pinning because two card texts quietly disagree. Collection needs a
+green EACH way — once under your clue, once by your guess — and one round
+gives each word exactly one way (a revealed green cannot be guessed again).
+So the tutorial ends with all eight greens *discovered*, four bystanders
+*seen*, and **nothing collected** — which is why Casey's closing line teaches
+the both-ways rule as the road ahead ("the case fills as we play") rather
+than claiming cargo. O3's card says "the tutorial's newly-collected words are
+the cargo the tour points at": the cargo is real but it is *discovered*
+words, and the near-empty case is already the point that card wants to make.
+**Reverse:** nothing to reverse — it is arithmetic; if O3 wants collected
+cargo at tour time, the tour must follow the first real rounds, not the
+tutorial.
+
 ### 2026-08-21 · Onboarding replays and forces are TRANSIENT — nothing they do is written (O1)
 The card asked for Settings' **Replay the intro** to be "a transient re-run;
 the done flag stays" and left `?onboard=1`'s behaviour open. Both now run the

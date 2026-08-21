@@ -1155,6 +1155,15 @@ select:focus {
   }
 }
 
+/* The tutorial's Skip stands where Home's 42px arrow does, so it wears the
+   arrow's measurements rather than a full pill — the header note above is the
+   arithmetic it must not break at 360px. */
+.game-header .onboard-skip {
+  min-height: 42px;
+  padding: 8px 14px;
+  flex-shrink: 0;
+}
+
 /* A pip row can never again paint outside its column, whatever the board's
    token count turns out to be — the pips squash into ovals instead, which is
    ugly and contained rather than tidy and wrong. */
@@ -1482,7 +1491,13 @@ select:focus {
    thicker as well as coloured, so it does not depend on seeing the difference
    between greens. (A dashed black border said "forbidden on your key"; there
    is no such card any more.) */
-.mykey-green {
+/* Doubled selector on purpose: .card-guessable below also colours the border,
+   and on equal specificity the later rule won — so the frame vanished exactly
+   during guessing turns, which is when sudden death (and the tutorial's miss
+   beat) point at it. README's rule is unconditional: "Your own key is the
+   card's border." The aria label said "your target" the whole time; only the
+   paint went missing. */
+.word-card.mykey-green {
   border-color: var(--green-tile);
   border-width: 3px;
 }
@@ -1646,6 +1661,81 @@ select:focus {
 /* The AI panel has nothing that grows, so its spare room goes above and below
    the face rather than under it. */
 .dock.ai-panel {
+  justify-content: center;
+}
+
+/* ---- the tutorial dock (O2) ----
+   Casey beside the 3×4 board for the whole scripted round. Same reserved
+   height as every other phase dock, so the board above it is handed the same
+   leftover at every beat and never moves — the rule C1 bought for real play
+   holds through the tutorial by the same construction. */
+.dock.tutorial-dock {
+  height: var(--dock-h);
+}
+
+.dock.tutorial-dock > * {
+  flex: none;
+}
+
+/* The one region that takes the leftover and clips inside itself — the
+   dictionary's answer list is the thing that can outgrow the reserve here,
+   exactly as in the guess bar. */
+.dock.tutorial-dock > .tutorial-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tutorial-say {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tutorial-bubble {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.tutorial-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tutorial-clues {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tutorial-clue-option {
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--text);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.tutorial-clue-word {
+  font-weight: 700;
+}
+
+.tutorial-clue-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* The board is gone at the round's end, so the win beat may take the room
+   the round left behind instead of holding the reserve. */
+.dock.tutorial-dock.tutorial-win {
+  height: auto;
+  flex: 1;
   justify-content: center;
 }
 

@@ -12,6 +12,7 @@ import { PackingDock } from '../components/PackingDock'
 import { RoundSummary } from '../components/RoundSummary'
 import { TranslateBox } from '../components/TranslateBox'
 import { TurnTokens } from '../components/TurnTokens'
+import { TutorialDock } from '../components/TutorialDock'
 import { playWord } from '../speak'
 
 const PHASE_CAPTION: Record<GameState['phase'], string> = {
@@ -41,6 +42,9 @@ export function GameScreen() {
 
   // The wrap-up packing phase: cards English-side up until translated.
   const packing = mode === 'wrapup' && !packingDone
+  // The onboarding tutorial (O2): the same screen and the same engine, with
+  // Casey's scripted dock standing where the phase docks would.
+  const tutorial = mode === 'tutorial'
   // Skipped cards keep their English face for the WHOLE round — the visible
   // mark of "cannot wrap this time".
   const englishFace = mode === 'wrapup' ? (id: string) => !packed.includes(id) : undefined
@@ -114,9 +118,25 @@ export function GameScreen() {
         }}
       />
       <header className="game-header">
-        <button className="icon-btn" aria-label="Home" onClick={() => goTo('home')}>
-          ←
-        </button>
+        {tutorial ? (
+          // Skip is always visible — the study-phase precedent, the same
+          // standing rule the train acts keep. It ends the intro the way the
+          // ticket's skip does; the half-played round goes with it, its SRS
+          // already banked by finishRound if the round got that far.
+          <button
+            className="btn onboard-skip"
+            onClick={() => {
+              useGame.getState().abandonGame()
+              useUi.getState().finishOnboarding()
+            }}
+          >
+            Skip
+          </button>
+        ) : (
+          <button className="icon-btn" aria-label="Home" onClick={() => goTo('home')}>
+            ←
+          </button>
+        )}
         {/* Re-deal, as a symbol in the header rather than a worded button in
             the composer — where it cost a whole line of a block that has to
             fit above a keyboard. It exists only before the first clue, when
@@ -257,15 +277,25 @@ export function GameScreen() {
 
       {packing && <PackingDock game={game} />}
 
-      {!studying && !packing && game.phase === 'playerClueInput' && (
-        <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
+      {/* The tutorial's scripted dock stands in for every phase dock at once —
+          including the round's end, where it celebrates and doors to Home
+          instead of the summary. Everything above (board, tokens, ⓘ, Aa, the
+          dictionary) is the real thing; only the dock is Casey's. */}
+      {tutorial ? (
+        <TutorialDock game={game} />
+      ) : (
+        <>
+          {!studying && !packing && game.phase === 'playerClueInput' && (
+            <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
+          )}
+          {!studying && !packing && (game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
+            <AiTurnPanel game={game} />
+          )}
+          {!studying && !packing && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
+          {!studying && !packing && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
+          {game.phase === 'finished' && <RoundSummary game={game} />}
+        </>
       )}
-      {!studying && !packing && (game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
-        <AiTurnPanel game={game} />
-      )}
-      {!studying && !packing && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
-      {!studying && !packing && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
-      {game.phase === 'finished' && <RoundSummary game={game} />}
     </div>
   )
 }

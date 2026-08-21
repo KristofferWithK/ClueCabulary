@@ -14,8 +14,9 @@ import { ACTIVE } from '../../lang/active'
 
 const CONFETTI_COLORS = ['#6aaa64', '#c9b458', '#567b95', '#121212', '#e3735e']
 
-/** One-shot CSS confetti burst — deterministic layout, no dependencies. */
-function Confetti() {
+/** One-shot CSS confetti burst — deterministic layout, no dependencies.
+ *  Exported for the tutorial's win beat, which celebrates without the summary. */
+export function Confetti() {
   return (
     <div className="confetti" aria-hidden="true">
       {Array.from({ length: 28 }, (_, i) => (

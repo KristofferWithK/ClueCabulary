@@ -100,11 +100,22 @@ describe('the onboarding gate', () => {
     expect(s.dump()).toEqual({ [ONBOARD_KEY]: 'done' })
   })
 
-  it('knows exactly the steps O1 ships', () => {
+  it('knows exactly the steps that ship: train, ticket, and O2’s tutorial', () => {
     expect(isOnboardStep('train')).toBe(true)
     expect(isOnboardStep('ticket')).toBe(true)
+    expect(isOnboardStep('tutorial')).toBe(true)
     expect(isOnboardStep('done')).toBe(false)
     expect(isOnboardStep(null)).toBe(false)
+  })
+
+  it('resumes a device that reloaded mid-tutorial at the tutorial', () => {
+    // The language-choice reload and any mid-round reload both land here —
+    // the marker goes down BEFORE setActiveLanguage() reloads (see
+    // OnboardingScreen's choose), so this is the step the way back up reads.
+    expect(decideOnboarding(storage({ [ONBOARD_KEY]: 'tutorial' }))).toEqual({
+      kind: 'resume',
+      step: 'tutorial',
+    })
   })
 
   it('spells the howto key the way uiStore does', () => {

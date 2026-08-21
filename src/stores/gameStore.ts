@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { AiError } from '../ai/client'
 import { OllamaCompanion, planGuessExecution, type Companion } from '../ai/companion'
 import { MockCompanion } from '../ai/mock/mockCompanion'
+import { TutorialCompanion } from '../ai/tutorialCompanion'
 import { buildAiClueView, buildAiGuessView, buildStoryView } from '../ai/projections'
 import type { GuessResponse, StoryResponse, TranslationResponse } from '../ai/schemas'
 import { GRID_CONFIGS, WRAPUP_CONFIG, type GridConfig, type GridSize } from '../engine/config'
@@ -13,7 +14,8 @@ import type { GameState } from '../engine/types'
 import { selectBoardWords, selectDailyWords } from '../srs/sampler'
 import type { RoundWordResult } from '../srs/types'
 import { boardWordFor } from '../data/lookup'
-import { WORDS, isHeadword } from '../data/words'
+import { WORDS, isHeadword, wordById } from '../data/words'
+import { TUTORIAL_SEED, TUTORIAL_WORD_IDS } from '../onboarding/tutorial'
 import { ACTIVE } from '../lang/active'
 import { DEFAULT_LANGUAGE } from '../lang/index'
 import type { LanguageCode } from '../lang/types'
@@ -152,6 +154,13 @@ interface GameStore {
    */
   newWrapUpGame: (opts?: { seed?: number }) => void
   /**
+   * The onboarding tutorial round (O2): the real beginner board dealt from a
+   * fixed word list and a fixed seed so the scripted commentary is pinnable,
+   * with Casey giving the first clue — guessing is the low-friction act, so
+   * the player learns it before cluing.
+   */
+  newTutorialGame: () => void
+  /**
    * Grade one packing attempt. A hit flips the card; the first miss on a word
    * is recorded (SRS demotion at round end); retries are free — the gate
    * teaches, the round tests. Returns whether the answer packed the word.
@@ -204,7 +213,12 @@ interface GameStore {
   clearError: () => void
 }
 
-function companion(practiceFallback = false): Companion {
+function companion(practiceFallback = false, mode: RoundMode = 'normal'): Companion {
+  // The tutorial's Casey is scripted and offline by construction — the first
+  // impression must never depend on the proxy. Mode outranks everything else,
+  // including useMock: a drive running the tutorial under ?mock=1 must still
+  // get the script, not hash-scrambled guesses.
+  if (mode === 'tutorial') return new TutorialCompanion()
   const s = useSettings.getState()
   if (s.useMock || practiceFallback) return new MockCompanion()
   return new OllamaCompanion({ baseUrl: s.baseUrl, apiKey: s.apiKey, model: s.model })
@@ -554,6 +568,41 @@ export const useGame = create<GameStore>()(
         })
       },
 
+      newTutorialGame: () => {
+        // The fixed list is Sønderborg's first twelve frequency ranks and the
+        // seed was searched for the key layout the script narrates — see
+        // src/onboarding/tutorial.ts; tutorial.test.ts pins both to the engine.
+        const entries = TUTORIAL_WORD_IDS.map((id) => wordById(id)!)
+        const game = createGame({
+          config: GRID_CONFIGS.beginner,
+          words: entries.map((w) => ({
+            wordId: w.id,
+            da: w.da,
+            en: w.en,
+            pos: w.pos,
+            article: w.article,
+            gender: w.gender,
+            countable: w.countable,
+          })),
+          seed: TUTORIAL_SEED,
+          firstGiver: 'ai',
+        })
+        const prior = get().recentBoards
+        useUi.getState().resetTranslations()
+        set({
+          game,
+          // Unlike a wrap-up, this board ENTERS the carry-over window: its
+          // words are real first meetings, and the first real round carrying
+          // three of them forward is the same continuity any round gets.
+          recentBoards: [entries.map((w) => w.id), ...prior].slice(0, 2),
+          dailyKey: null,
+          // The tutorial IS the study phase — Casey introduces the board.
+          studying: false,
+          ...freshRound(),
+          mode: 'tutorial',
+        })
+      },
+
       submitPacking: (wordId, text) => {
         const { game, mode, packingDone, packed, packingMissed } = get()
         if (!game || mode !== 'wrapup' || packingDone) return false
@@ -747,7 +796,7 @@ export const useGame = create<GameStore>()(
         if (game && mode === 'wrapup' && !packingDone) {
           throw new AiError('invalid-response', 'The dictionary is closed until this is finished.')
         }
-        const result = await companion(practiceFallback).translate(term)
+        const result = await companion(practiceFallback, mode).translate(term)
         // Looking a board word up here costs exactly what tapping ⓘ costs.
         // Otherwise this field is a way to read the board for free.
         if (game) {
@@ -759,7 +808,7 @@ export const useGame = create<GameStore>()(
       },
 
       judgeTargetWord: async (term) => {
-        const asked = await companion(get().practiceFallback).translate(term)
+        const asked = await companion(get().practiceFallback, get().mode).translate(term)
         const norm = (x: string) => x.trim().toLowerCase()
         return norm(asked.da) === norm(term)
       },
@@ -776,7 +825,7 @@ export const useGame = create<GameStore>()(
             useSettings.getState().clueLanguage,
             flagsFor(useFeedback.getState().flags, ACTIVE.code),
           )
-          const res = await companion(get().practiceFallback).getGuesses(view)
+          const res = await companion(get().practiceFallback, get().mode).getGuesses(view)
           // Any event replaces the game object, so reference equality proves
           // this response still belongs to the current game and clue. A stale
           // response (user abandoned or started a new game mid-flight) is
@@ -848,7 +897,7 @@ export const useGame = create<GameStore>()(
             useSettings.getState().clueLanguage,
             flagsFor(useFeedback.getState().flags, ACTIVE.code),
           )
-          const res = await companion(get().practiceFallback).getClue(view)
+          const res = await companion(get().practiceFallback, get().mode).getClue(view)
           // Reference check: never apply a clue composed for a previous game.
           const current = get().game
           if (current !== game || current.phase !== 'aiClueInput') return
@@ -873,8 +922,14 @@ export const useGame = create<GameStore>()(
         // Wrap-up rounds are the packing ritual over words already collected;
         // the story is for rounds that MET words. The practice companion
         // cannot write one worth reading, so those rounds keep the example
-        // sentences — which is also what any failure below falls back to.
-        if (mode === 'wrapup' || onPracticeCompanion(practiceFallback) || wordIds.length === 0) {
+        // sentences — which is also what any failure below falls back to. The
+        // tutorial ends on its own scripted line and is offline anyway.
+        if (
+          mode === 'wrapup' ||
+          mode === 'tutorial' ||
+          onPracticeCompanion(practiceFallback) ||
+          wordIds.length === 0
+        ) {
           set({ storyStatus: 'off' })
           return
         }
@@ -974,7 +1029,12 @@ export const useGame = create<GameStore>()(
         // Straddled like newlyLearned above, and for the same reason: at the
         // cap the win earns nothing, and the summary must not say otherwise.
         const bankBefore = useSrs.getState().wrapUpsBanked
-        useSrs.getState().recordGame(game.outcome!, mode)
+        // The tutorial records no game: no play in the tally, no wins, no
+        // wrap-up earn — R1's "first win is the unlock" stays the first REAL
+        // round's moment. Its words still count in full: recordRound above ran
+        // like any round, so discovered/collected and the carry-over window
+        // are real (the card's "generous over strict").
+        if (mode !== 'tutorial') useSrs.getState().recordGame(game.outcome!, mode)
         const earnedWrapUp = useSrs.getState().wrapUpsBanked > bankBefore
         const { dailyKey } = get()
         if (dailyKey) {
@@ -1005,6 +1065,17 @@ export const useGame = create<GameStore>()(
       onRehydrateStorage: () => (state) => {
         if (state && state.gameLanguage !== ACTIVE.code) {
           useGame.setState(dropForeignGame(state, ACTIVE.code))
+          return
+        }
+        // A tutorial round only makes sense inside the intro. One can outlive
+        // it — a transient replay closed mid-round, or a skip that raced the
+        // persist — and resuming it from Home would put the scripted dock on a
+        // screen with no script. Dropped like a foreign-language round; the
+        // SRS keeps whatever the finished part already recorded. uiStore is
+        // initialised before this store (this module imports it), so the
+        // intro decision is already made when rehydration runs.
+        if (state && state.mode === 'tutorial' && !useUi.getState().onboarding) {
+          useGame.setState({ ...state, ...noRound })
         }
       },
       partialize: (s) => ({

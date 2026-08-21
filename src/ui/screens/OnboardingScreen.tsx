@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ACTIVE, setActiveLanguage } from '../../lang/active'
 import { availableLanguages } from '../../lang/index'
 import type { LanguagePack } from '../../lang/types'
-import { markOnboardDone } from '../../onboarding/flow'
+import { writeOnboardStep } from '../../onboarding/flow'
+import { TUTORIAL_LANGUAGE } from '../../onboarding/tutorial'
+import { useGame } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
 import { ClueyFace } from '../components/Cluey'
 import { PencilTrain } from '../components/TrainRide'
+import { GameScreen } from './GameScreen'
 
 /**
  * The app opens inside the train (O1). Casey at the window, three tapped
@@ -79,6 +82,8 @@ export function OnboardingScreen() {
     )
   }
 
+  if (onboarding.step === 'tutorial') return <TutorialAct />
+
   // The ticket. Tapping one is the confirmation — a card, not a control row —
   // and with one pack shipped it is the single card the owner settled on.
   const languages = availableLanguages()
@@ -87,13 +92,13 @@ export function OnboardingScreen() {
       // A real choice reloads the app (src/lang/active.ts): every index, the
       // route and the word list change at once. The flow's marker must be
       // down BEFORE that reload so the way back up resumes instead of
-      // starting over. O1's flow ends at the ticket, so the marker written
-      // is the done flag itself; O2 writes its tutorial step here instead.
-      if (onboarding.persist) markOnboardDone()
+      // starting over — at the tutorial act, now that O2 exists. (A pack the
+      // script is not written for falls through to Home inside TutorialAct.)
+      if (onboarding.persist) writeOnboardStep('tutorial')
       setActiveLanguage(pack.code)
       return
     }
-    finish()
+    advance('tutorial')
   }
 
   return (
@@ -128,4 +133,32 @@ export function OnboardingScreen() {
       <div className="onboard-controls">{skip}</div>
     </div>
   )
+}
+
+/**
+ * The tutorial act (O2): the REAL game screen playing a real round — a
+ * scripted fake board could teach a rule the game does not have, so the act
+ * renders GameScreen itself, which swaps its docks for the tutorial's while
+ * the round's mode says so. All this component owns is making sure the round
+ * exists: a resumed flow keeps the tutorial round it finds in the store, and
+ * anything else (including a round the replay is deliberately replacing — see
+ * DECISIONS.md) is re-dealt from the fixed list and seed.
+ */
+function TutorialAct() {
+  const mode = useGame((s) => s.mode)
+  const game = useGame((s) => s.game)
+  const finish = useUi((s) => s.finishOnboarding)
+  // The script is written for one language. Another pack lands Home the way
+  // the ticket act did before O2 — H2's checklist includes its own script.
+  const scripted = ACTIVE.code === TUTORIAL_LANGUAGE
+  useEffect(() => {
+    if (!scripted) {
+      finish()
+      return
+    }
+    const s = useGame.getState()
+    if (!s.game || s.mode !== 'tutorial') s.newTutorialGame()
+  }, [scripted, finish])
+  if (!scripted || !game || mode !== 'tutorial') return null
+  return <GameScreen />
 }
