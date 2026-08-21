@@ -713,6 +713,31 @@ for (const vp of [
   await page.waitForTimeout(150)
   await noScroll(`tutorial guess confirm @${vp.name}`)
 
+  // The tour and the arrival (O3), resumed straight from their markers so the
+  // sweep does not replay the whole scripted round at every size. The tour is
+  // all position:fixed, so no-scroll holds by construction — measured anyway,
+  // as every screen is — and Skip must stay on screen at every step while the
+  // spotlight panel swaps between the top and bottom halves.
+  await page.evaluate(() => localStorage.setItem('cluecab-onboard-v1', 'tour'))
+  await open('?mock=1')
+  await page.waitForSelector('.tour-overlay')
+  for (let step = 0; step < 4; step++) {
+    await page.waitForTimeout(150)
+    await noScroll(`suitcase tour step ${step} @${vp.name}`)
+    const tourSkip = await page.locator('.onboard-skip').boundingBox()
+    check(
+      `tour Skip stays on screen at step ${step} @${vp.name}`,
+      tourSkip && tourSkip.y >= 0 && tourSkip.y + tourSkip.height <= vp.height + 1,
+      tourSkip ? `bottom ${Math.round(tourSkip.y + tourSkip.height)} of ${vp.height}` : 'no skip',
+    )
+    await page.locator('.tour-panel .onboard-next').click()
+  }
+  await page.waitForSelector('.arrival-screen')
+  await noScroll(`onboarding arrival @${vp.name}`)
+  // The flow's marker must not leak into the sections below: most open with
+  // ?howto=0, but not all, and a stray 'arrival' would replace their screen.
+  await page.evaluate(() => localStorage.removeItem('cluecab-onboard-v1'))
+
   // The game, in the phase measured tallest (the opening clue dock), on the
   // widest board.
   await open('?mock=1&howto=0&seed=7&grid=standard&first=player')

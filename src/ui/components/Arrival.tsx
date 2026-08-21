@@ -8,9 +8,14 @@ import { ACTIVE } from '../../lang/active'
  */
 export function Arrival({
   cityIndex,
+  onContinue,
   onSeeMap,
 }: {
   cityIndex: number
+  /** Supplied when something other than goTo must end the moment — the intro
+   *  (O3) renders this while onboarding still owns the shell, so a bare
+   *  goTo('home') would change a screen nobody is looking at. */
+  onContinue?: () => void
   /** Supplied when the map is the thing rendering this, since goTo alone would
    *  leave its own arrival state up and re-render this very screen. */
   onSeeMap?: () => void
@@ -36,7 +41,10 @@ export function Arrival({
       <p className="arrival-unlock">
         {WORDS_PER_CITY} new words to discover — Casey is open and waiting for them.
       </p>
-      <button className="btn btn-primary btn-big" onClick={() => goTo('home')}>
+      <button
+        className="btn btn-primary btn-big"
+        onClick={() => (onContinue ? onContinue() : goTo('home'))}
+      >
         Get started
       </button>
       <button className="btn" onClick={() => (onSeeMap ? onSeeMap() : goTo('map'))}>

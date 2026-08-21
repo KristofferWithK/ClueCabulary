@@ -4962,3 +4962,68 @@ select:focus {
 .onboard-controls .onboard-skip:only-child {
   margin-left: auto;
 }
+
+/* ---------- the suitcase tour (O3) ----------
+
+   A spotlight over the REAL SuitcaseScreen. Everything here is fixed to the
+   viewport, so the overlay can never lengthen the document — the no-scroll
+   rule holds by construction — and the whole surface takes the tap, which is
+   what keeps the case's own controls inert while the tour has the floor.
+   Above the dictionary sheet's backdrop (20) and the rules dialog (30):
+   nothing on this screen may sit over the light. */
+
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+/* The window. Transparent itself — the band under it keeps the exact pixels
+   the screen drew — and the scrim is its shadow: one huge spread instead of
+   four scrim rectangles, so the cutout and the dim can never disagree. */
+.tour-spot {
+  position: fixed;
+  border: 2px solid var(--text);
+  border-radius: 12px;
+  box-shadow: 0 0 0 200vmax rgba(18, 18, 18, 0.45);
+  pointer-events: none;
+  transition: top 180ms ease, left 180ms ease, width 180ms ease, height 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot {
+    transition: none;
+  }
+}
+
+/* Casey and his line, in whichever half of the screen the band is not. */
+.tour-panel {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  max-width: 432px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--text);
+  border-radius: 14px;
+}
+
+.tour-panel-top {
+  top: calc(10px + env(safe-area-inset-top));
+}
+
+.tour-panel-bottom {
+  bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+/* The panel reuses .tutorial-say/.tutorial-bubble for Casey's row and
+   .onboard-controls for Next + Skip, so the tour speaks and is steered
+   exactly like the acts before it. Only the row's outer padding differs —
+   the panel brings its own. */
+.tour-panel .onboard-controls {
+  padding-bottom: 0;
+}

@@ -6,9 +6,12 @@ import { writeOnboardStep } from '../../onboarding/flow'
 import { TUTORIAL_LANGUAGE } from '../../onboarding/tutorial'
 import { useGame } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
+import { Arrival } from '../components/Arrival'
 import { ClueyFace } from '../components/Cluey'
 import { PencilTrain } from '../components/TrainRide'
+import { SuitcaseTour } from '../components/SuitcaseTour'
 import { GameScreen } from './GameScreen'
+import { SuitcaseScreen } from './SuitcaseScreen'
 
 /**
  * The app opens inside the train (O1). Casey at the window, three tapped
@@ -83,6 +86,8 @@ export function OnboardingScreen() {
   }
 
   if (onboarding.step === 'tutorial') return <TutorialAct />
+  if (onboarding.step === 'tour') return <TourAct />
+  if (onboarding.step === 'arrival') return <ArrivalAct />
 
   // The ticket. Tapping one is the confirmation — a card, not a control row —
   // and with one pack shipped it is the single card the owner settled on.
@@ -93,7 +98,8 @@ export function OnboardingScreen() {
       // route and the word list change at once. The flow's marker must be
       // down BEFORE that reload so the way back up resumes instead of
       // starting over — at the tutorial act, now that O2 exists. (A pack the
-      // script is not written for falls through to Home inside TutorialAct.)
+      // script is not written for falls through to the tour inside
+      // TutorialAct — the case and the arrival are language-agnostic.)
       if (onboarding.persist) writeOnboardStep('tutorial')
       setActiveLanguage(pack.code)
       return
@@ -147,18 +153,63 @@ export function OnboardingScreen() {
 function TutorialAct() {
   const mode = useGame((s) => s.mode)
   const game = useGame((s) => s.game)
-  const finish = useUi((s) => s.finishOnboarding)
-  // The script is written for one language. Another pack lands Home the way
-  // the ticket act did before O2 — H2's checklist includes its own script.
+  const advance = useUi((s) => s.advanceOnboarding)
+  // The script is written for one language. Another pack skips the round and
+  // goes straight to the tour — the case and the arrival read everything off
+  // the active pack, so those two acts need no script of their own. H2's
+  // checklist still owes the round itself.
   const scripted = ACTIVE.code === TUTORIAL_LANGUAGE
   useEffect(() => {
     if (!scripted) {
-      finish()
+      advance('tour')
       return
     }
     const s = useGame.getState()
     if (!s.game || s.mode !== 'tutorial') s.newTutorialGame()
-  }, [scripted, finish])
+  }, [scripted, advance])
   if (!scripted || !game || mode !== 'tutorial') return null
   return <GameScreen />
+}
+
+/**
+ * The tour act (O3): the REAL SuitcaseScreen with the spotlight overlay over
+ * it — an overlay on the screen it describes, never a copy of it, so the tour
+ * cannot drift from the case (the O2 lesson about scripted fakes, applied to
+ * a screen). The overlay eats every tap, which is what keeps the case's own
+ * controls — the header's Back above all — inert while it has the floor.
+ */
+function TourAct() {
+  const advance = useUi((s) => s.advanceOnboarding)
+  const finish = useUi((s) => s.finishOnboarding)
+  return (
+    <>
+      <SuitcaseScreen />
+      <SuitcaseTour onDone={() => advance('arrival')} onSkip={finish} />
+    </>
+  )
+}
+
+/**
+ * The arrival act (O3): the existing Arrival at the route's first city —
+ * cityIndex 0, Sønderborg on the shipped pack — exactly as travelling lands
+ * it, because this IS the moment the journey starts. Both of its buttons end
+ * the flow (writing the done flag on a persist run): "Get started" is the
+ * intro's own exit, so a separate Skip here would be a second copy of the
+ * primary button, and the act deliberately has none.
+ */
+function ArrivalAct() {
+  const finish = useUi((s) => s.finishOnboarding)
+  const goTo = useUi((s) => s.goTo)
+  return (
+    <Arrival
+      cityIndex={0}
+      onContinue={finish}
+      onSeeMap={() => {
+        // Finishing lands Home (the floor); the map is one hop from it, the
+        // same hop the button takes outside the intro.
+        finish()
+        goTo('map')
+      }}
+    />
+  )
 }
