@@ -1,0 +1,411 @@
+<title>900words Dispatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,600;12..96,75..100,800&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+/* Identity carried over from the plan deck — the app's own palette out of
+   src/index.css. This one is an instrument rather than a document: it is
+   scanned, filtered and checked, so the craft goes into state being legible
+   at a glance rather than into prose. */
+:root {
+  --paper:#faf9f5; --paper-2:#f2f0e9; --card:#ffffff;
+  --ink:#121212; --graphite:#63655e; --rule:#d7d5cb; --rule-soft:#e8e6dd;
+  --moss:#3a7a34; --moss-fill:#e6efe4;
+  --rust:#a51c30; --rust-fill:#f8ecee;
+  --slate:#4a6d87; --slate-fill:#e8eef2;
+  --mustard:#8a7420; --mustard-fill:#f5f0dc;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#14171a; --paper-2:#1b1f23; --card:#1e2328;
+    --ink:#eceae4; --graphite:#9aa0a3; --rule:#333a40; --rule-soft:#262c31;
+    --moss:#86c47e; --moss-fill:#1e2c1e;
+    --rust:#e88b99; --rust-fill:#2e1b20;
+    --slate:#93b8d2; --slate-fill:#18262f;
+    --mustard:#d8c374; --mustard-fill:#2b2617;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#14171a; --paper-2:#1b1f23; --card:#1e2328;
+  --ink:#eceae4; --graphite:#9aa0a3; --rule:#333a40; --rule-soft:#262c31;
+  --moss:#86c47e; --moss-fill:#1e2c1e;
+  --rust:#e88b99; --rust-fill:#2e1b20;
+  --slate:#93b8d2; --slate-fill:#18262f;
+  --mustard:#d8c374; --mustard-fill:#2b2617;
+}
+
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:1120px; margin:0 auto; padding:clamp(20px,4vw,44px) clamp(16px,4vw,40px) 80px; }
+
+h1,h2,h3 { font-family:var(--display); margin:0; text-wrap:balance; }
+h1 { font-size:clamp(1.9rem,4.4vw,3rem); font-weight:800; letter-spacing:-.028em; line-height:1; }
+h2 { font-size:clamp(1.05rem,2vw,1.32rem); font-weight:800; letter-spacing:-.012em; }
+h3 { font-size:.95rem; font-weight:600; }
+p { margin:0; max-width:72ch; }
+.dim { color:var(--graphite); }
+.mono { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+
+/* ── masthead ─────────────────────────────────────────────── */
+.mast { display:flex; flex-direction:column; gap:16px; border-bottom:2px solid var(--ink); padding-bottom:18px; }
+.mast-top { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+.updated { font-family:var(--mono); font-size:.72rem; color:var(--graphite); letter-spacing:.06em; text-transform:uppercase; }
+.overall { display:flex; flex-direction:column; gap:6px; }
+.obar { height:12px; border-radius:6px; background:var(--paper-2); overflow:hidden; display:flex; }
+.obar i { display:block; height:100%; }
+.obar i.done { background:var(--moss); }
+.obar i.active { background:var(--slate); }
+.olegend { display:flex; gap:16px; flex-wrap:wrap; font-family:var(--mono); font-size:.72rem; color:var(--graphite); }
+.olegend b { color:var(--ink); font-weight:700; }
+
+/* ── section furniture ────────────────────────────────────── */
+section { margin-top:clamp(26px,3.4vw,40px); display:flex; flex-direction:column; gap:14px; }
+.sec-head { display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap;
+            border-bottom:1px solid var(--rule); padding-bottom:8px; }
+.eyebrow { font-family:var(--mono); font-weight:700; font-size:.68rem; letter-spacing:.15em; text-transform:uppercase; color:var(--graphite); }
+
+.panels { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+.panel { border:1px solid var(--rule); background:var(--card); padding:15px 17px;
+         border-radius:12px 9px 13px 8px / 8px 13px 9px 12px; display:flex; flex-direction:column; gap:7px; }
+.panel p { font-size:.89rem; }
+.panel.go { border-color:var(--moss); }
+.panel.hold { border-color:var(--mustard); }
+.panel-k { font-family:var(--mono); font-size:.66rem; letter-spacing:.11em; text-transform:uppercase; color:var(--graphite); }
+
+/* ── waves ────────────────────────────────────────────────── */
+.waves { display:flex; flex-direction:column; gap:9px; }
+.wave { display:grid; grid-template-columns:132px 1fr 76px; gap:14px; align-items:center; }
+.wave-n { font-family:var(--display); font-weight:600; font-size:.88rem; }
+.wave-n small { display:block; font-family:var(--mono); font-weight:400; font-size:.68rem; color:var(--graphite); }
+.wbar { height:9px; border-radius:5px; background:var(--paper-2); overflow:hidden; display:flex; }
+.wbar i { display:block; height:100%; background:var(--moss); }
+.wcount { font-family:var(--mono); font-size:.72rem; color:var(--graphite); text-align:right; font-variant-numeric:tabular-nums; }
+
+/* ── filters ──────────────────────────────────────────────── */
+.filters { display:flex; gap:7px; flex-wrap:wrap; }
+.f {
+  font-family:var(--mono); font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  border:1px solid var(--rule); background:var(--card); color:var(--graphite);
+  border-radius:999px; padding:5px 12px; cursor:pointer;
+}
+.f:hover { border-color:var(--graphite); color:var(--ink); }
+.f[aria-pressed="true"] { background:var(--ink); border-color:var(--ink); color:var(--paper); }
+.f:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
+
+/* ── the sheet ────────────────────────────────────────────── */
+.sheet { display:flex; flex-direction:column; }
+.sheet-head, .row {
+  display:grid; grid-template-columns:52px minmax(0,1fr) 90px 104px;
+  gap:clamp(8px,1.4vw,16px); align-items:baseline;
+  padding:8px 0 8px 11px; border-bottom:1px solid var(--rule-soft);
+}
+.sheet-head { font-family:var(--mono); font-size:.63rem; letter-spacing:.11em; text-transform:uppercase;
+              color:var(--graphite); border-bottom:1px solid var(--rule); }
+.row { position:relative; }
+.row::before { content:""; position:absolute; left:0; top:6px; bottom:6px; width:3px; border-radius:2px; background:var(--rule); }
+.row.st-done::before   { background:var(--moss); }
+.row.st-active::before { background:var(--slate); }
+.row.st-ready::before  { background:var(--moss); opacity:.45; }
+.row.st-held::before   { background:var(--mustard); }
+.row.st-parked::before { background:var(--rust); }
+.row.st-done .title { text-decoration:line-through; text-decoration-color:var(--rule); }
+.code { font-family:var(--mono); font-weight:700; font-size:.82rem; }
+.body-c { font-size:.88rem; line-height:1.42; }
+.title { font-family:var(--display); font-weight:600; font-size:.92rem; }
+.body-c .sub { color:var(--graphite); }
+.size { font-family:var(--mono); font-size:.73rem; color:var(--graphite); font-variant-numeric:tabular-nums; }
+.pill { font-family:var(--mono); font-size:.63rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+        padding:2px 8px; border-radius:999px; border:1px solid; display:inline-block; white-space:nowrap; }
+.p-done   { color:var(--moss); border-color:var(--moss); background:var(--moss-fill); }
+.p-active { color:var(--slate); border-color:var(--slate); background:var(--slate-fill); }
+.p-ready  { color:var(--moss); border-color:var(--moss); background:transparent; }
+.p-blocked{ color:var(--graphite); border-color:var(--rule); background:transparent; }
+.p-held   { color:var(--mustard); border-color:var(--mustard); background:var(--mustard-fill); }
+.p-parked { color:var(--rust); border-color:var(--rust); background:var(--rust-fill); }
+
+/* ── log ──────────────────────────────────────────────────── */
+.log { display:flex; flex-direction:column; gap:12px; }
+.entry { display:grid; grid-template-columns:104px 1fr; gap:14px; padding-bottom:12px; border-bottom:1px solid var(--rule-soft); }
+.entry .when { font-family:var(--mono); font-size:.72rem; color:var(--graphite); }
+.entry p { font-size:.89rem; }
+.entry ul { margin:6px 0 0; padding-left:18px; font-size:.87rem; }
+.entry li { margin-bottom:3px; }
+
+code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padding:.06em .3em; border-radius:3px; }
+.foot { margin-top:34px; padding-top:16px; border-top:1px solid var(--rule);
+        font-family:var(--mono); font-size:.72rem; color:var(--graphite); line-height:1.6; }
+
+@media (max-width:700px) {
+  .sheet-head { display:none; }
+  .row { grid-template-columns:48px 1fr; row-gap:3px; }
+  .row .size, .row .stat { grid-column:2; }
+  .wave { grid-template-columns:110px 1fr 60px; }
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="mast-top">
+    <div>
+      <h1>900words Dispatch</h1>
+      <p class="dim" style="margin-top:6px">Live status of the production board. Cards, measurements and reversals live in <code>docs/PLAN-2.md</code>; this is the view from the signal box.</p>
+    </div>
+    <span class="updated" id="updated">updated 21 Aug 2026 · 19:10</span>
+  </div>
+  <div class="overall">
+    <div class="obar" id="obar"></div>
+    <div class="olegend" id="olegend"></div>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">Right now</span><span class="mono dim" id="nowstamp"></span></div>
+  <div class="panels">
+    <div class="panel go">
+      <span class="panel-k">next up</span>
+      <h3 id="next-title">Wave 1 — any of six</h3>
+      <p id="next-body">Six cards with no dependencies between them and nothing in front of them. <strong>T1 first</strong> if any playtesting is coming, because without it you cannot reach city two on a phone.</p>
+    </div>
+    <div class="panel">
+      <span class="panel-k">in progress</span>
+      <h3 id="active-title">Nothing yet</h3>
+      <p id="active-body">Execution has not started. The board is fully unblocked as of the Wave&nbsp;0 clearance.</p>
+    </div>
+    <div class="panel hold">
+      <span class="panel-k">waiting on Kristoffer</span>
+      <h3>One read, and one rename</h3>
+      <p><strong>A Danish speaker must read <code>docs/grammar-da.md</code></strong> before the chapters ship — a wrong rule is believed and repeated, and it is the one thing on this board a machine cannot check. <strong>D3</strong>, the repo rename, is the other, and it is not needed until wave 7.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">By wave</span><span class="mono dim">≈26–29 sessions end to end</span></div>
+  <div class="waves" id="waves"></div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">Every card</span><span class="mono dim" id="shown"></span></div>
+  <div class="filters" id="filters"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-head"><span>ref</span><span>card</span><span>size</span><span>status</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="eyebrow">Update log</span><span class="mono dim">newest first</span></div>
+  <div class="log">
+    <div class="entry">
+      <span class="when">21 Aug · 22:40</span>
+      <div>
+        <p><strong>Two parallel sessions merged to main while this board was being written</strong> — <strong>#94</strong> (<code>docs/word-selection.md</code>: which 900 words, and which city each belongs to) and <strong>#95</strong> (<code>docs/clue-engine.md</code>: the chessbot report and plan). Neither knew about this board and this board did not know about them.</p>
+        <p style="margin-top:8px"><strong>#95 supersedes H3 on three points</strong>, so the card here now defers to it: the owner un-parked H3, decided the book and matrix are written in-session rather than baked by a keyed model (<em>so no embedding key is needed</em> — this board's stated dependency), and made the judged matrix the backbone with embeddings only as a backstop. Its fourth decision, <strong>journey boards become city-only</strong>, touches the same deal <strong>N1</strong> changes; its Card 0 lands first and alone.</p>
+        <p style="margin-top:8px">W1's pace measurement survives that change — the simulation already drew from a city-only pool, and for the first city the two are identical anyway. PR #93 was rebased onto the new main, its superseded draft dropped, and the CLAUDE.md pointers reconciled so all three documents are named once.</p>
+      </div>
+    </div>
+    <div class="entry">
+      <span class="when">21 Aug · 22:05</span>
+      <div>
+        <p><strong>H3 was two summary lines, not a card — now expanded.</strong> The “chess bot” idea is real and its shape is a chess engine's: you cannot precompute clues per board (about 10<sup>37</sup> possible 18-card boards from 900 words), so you precompute an <em>evaluation</em> — 225 KB of word vectors — and search the clue candidates at runtime.</p>
+        <p style="margin-top:8px">Two findings came with it. The objective function <strong>already exists in prose</strong>: <code>prompts.ts</code> tells the model to score every non-target against its candidate clue and reject the clue if any of them fits better — H3 is that paragraph implemented. And it <strong>shares its wordlist and its licence question with L1</strong>, so the dictionary's source should not be chosen without the clue engine's needs on the table.</p>
+        <p style="margin-top:8px">Worth knowing what it replaces: today's offline companion clues <code>mok1</code>, <code>mok2</code>, <code>mok3</code> until one passes the legality check. Not bad clues — not clues.</p>
+      </div>
+    </div>
+    <div class="entry">
+      <span class="when">21 Aug · 21:20</span>
+      <div>
+        <p><strong>The grammar replaces the story, and the nine chapters are written.</strong> <code>docs/grammar-da.md</code> — en/et and the glued definite · plurals · present tense and V2 · questions and <em>ikke</em> · the past · adjective agreement · pronouns and the <em>sin/hans</em> trap · subordinate clauses · modals and register. The eight unwritten rides are cancelled; Sønderborg's survives as an option beside chapter 1.</p>
+        <p style="margin-top:8px"><strong>It is machine-checked.</strong> <code>scripts/validate-grammar.mjs</code> verifies every article claim against <code>words.da.json</code> and gates each chapter to the vocabulary the player actually has — both mutation-tested, both wired into <code>npm run verify</code>. What it cannot check is naturalness and the irregular edges, so a Danish speaker still has to read it.</p>
+        <p style="margin-top:8px"><strong>English is never spoken</strong> — on the ride or in the review. That drops half of S2's bake and ~13 MB. And <strong>T3</strong> opened: each city's example sentences drill the rule taught on the ride in, which means <strong>S2 now waits behind T3</strong> or the bake is paid for twice.</p>
+      </div>
+    </div>
+    <div class="entry">
+      <span class="when">21 Aug · 20:05</span>
+      <div>
+        <p><strong>C4 closed — “it feels attached enough.”</strong> The keyboard ride ships as it is, and <strong>C5 is closed unbuilt</strong>: the native composer existed only for the other verdict. The white box in the same report turned out not to be the legend — it is the dock's own <code>--surface</code> paint, so K1 now carries the decision of whether the composer is painted at all.</p>
+        <p style="margin-top:8px"><strong>The English voice is not good enough</strong> — “the danish aoede sounds nicer, the english sounds ai artificial.” Expected: Chirp3 voices are separate per-locale models sharing a name, and you can hear flaws in a language you know while a learner cannot hear them in one they are learning. S2 gains an en-US audition before the bake; S3 records the option of not speaking the translation at all.</p>
+        <p style="margin-top:8px"><strong>T2 opened, and it is the only card on this board with a deadline.</strong> The ride could teach Danish grammar in nine chapters, one per leg — the gap being that the game teaches 900 words and no rules at all. Eight of the nine stories are unwritten, so the spine costs one rewrite now or nine later.</p>
+      </div>
+    </div>
+    <div class="entry">
+      <span class="when">21 Aug · 19:10</span>
+      <div>
+        <p><strong>Wave 0 cleared — the board is fully unblocked.</strong> Four of the five owner-gated items dissolved on inspection or on measurement:</p>
+        <ul>
+          <li><strong>C4's ordering constraint was withdrawn.</strong> <code>cluecab-kbstill</code> is read live at <code>keyboardWillShow</code>, not latched at mount, so the ride can still be A/B'd against yesterday's behaviour after K1 lands. The verdict became feedback rather than a gate.</li>
+          <li><strong>The two Aoedes were measured rather than listened to.</strong> Median F0 over voiced frames: da-DK 203 Hz, en-US 182 Hz — but the same Danish Aoede moves 25 Hz between words and sentences, and the voice family spans 145–239 Hz. F0 cannot separate them, so the bake proceeds with en-US Aoede; the reversal is one flag.</li>
+          <li><strong>Reading Sønderborg never blocked this board</strong> — it gates H9's unwritten rides, and H9 is parked.</li>
+          <li><strong>M1 now carries a recommendation</strong> written to be vetoed rather than assumed, so H4 waits on nobody.</li>
+        </ul>
+        <p style="margin-top:8px">Also added: <strong>D5</strong> — sudden death becomes “the last chance” in copy only, with the <code>prompts.ts</code> collision caught (it already uses that phrase for the final clue).</p>
+      </div>
+    </div>
+    <div class="entry">
+      <span class="when">21 Aug · 18:30</span>
+      <div>
+        <p><strong>The economy settled, and the simulation overturned the guess.</strong> Whole cities played through the real sampler, deal and scheduler: collecting binds at every setting, and three wins a token finishes a city in 82 rounds against one-win's 101 — rationing makes each wrap-up fatter, so sixteen do what forty-three did. No collected-words floor; the tip advises instead of refusing.</p>
+      </div>
+    </div>
+    <div class="entry">
+      <span class="when">21 Aug · 17:40</span>
+      <div>
+        <p><strong>One board, everywhere.</strong> 3×6 at 8/3/8 for play and for the wrap-up — one config in the game. Measured: a sixth row is 33.2px today against a 44px floor, and 46.1px once K1 and K2 hand the height back, which fixes the order K1 → K2 → N1. Forbidden words settled as a no.</p>
+      </div>
+    </div>
+    <div class="entry">
+      <span class="when">21 Aug · 16:00</span>
+      <div>
+        <p><strong>Board 2 opened.</strong> A night of play notes checked against the tree and carded, with board 1's leftovers swept in and sequenced into seven waves.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<p class="foot">
+  This page is updated by hand at the end of each working session — the card data is one array at the bottom of the file, so a status change is a one-line edit and a republish to the same URL.<br>
+  Statuses: <b>done</b> merged · <b>active</b> in progress · <b>ready</b> nothing in front of it · <b>blocked</b> waiting on another card · <b>held</b> waiting on Kristoffer · <b>parked</b> deliberately not now.
+</p>
+
+</div>
+
+<script>
+/* The board, as data. Updating this page means editing this array — status,
+   and `landed` when a PR merges. Everything above renders from it. */
+var CARDS = [
+  { w:1, id:'D4', t:'Casey is she',                          sub:'Five strings in src, fourteen README lines, the store drafts. Identifiers untouched.', size:'½', st:'ready' },
+  { w:1, id:'D5', t:'Sudden death becomes the last chance',  sub:'Copy only; the phase id and outcome reason are persisted and stay. Rewords the prompts.ts collision.', size:'½', st:'ready' },
+  { w:1, id:'X1', t:'The stale-copy sweep',                  sub:'Settings says “8 clues”; it is 7. Plus the D3 shrink to one constant.', size:'½', st:'ready' },
+  { w:1, id:'U1', t:'A tap speaks; ⓘ opens the dictionary',  sub:'Hearing a word becomes free; reading its meaning is what costs the lookup.', size:'½', st:'ready' },
+  { w:1, id:'S1', t:'Casey’s guesses are spoken',            sub:'Needs the audio element primed inside the Give-clue tap. One TestFlight check.', size:'½', st:'ready' },
+  { w:1, id:'T1', t:'The train travels; a dev switch to ride it', sub:'Do this first if any playtesting is coming — without it city two is unreachable on a phone.', size:'1', st:'ready' },
+  { w:1, id:'T2', t:'The ride teaches the grammar',           sub:'Decided — grammar replaces the story. Nine chapters written in docs/grammar-da.md and machine-checked against the dataset. Needs a Danish speaker to read it.', size:'1', st:'ready' },
+
+  { w:2, id:'K1', t:'The composer never changes size',       sub:'One box, three rows, one height. The verdict and the translation share a line.', size:'1–2', st:'ready' },
+  { w:2, id:'K2', t:'Every dock one height; the legend goes', sub:'layout-drive re-pointed to measure the panel rectangle every frame.', size:'1', st:'blocked', dep:'K1' },
+
+  { w:3, id:'N1', t:'One board: 3×6, and the sizes go',      sub:'GridSize deleted — a persisted setting, a Settings control, a dev switch and 27 drive URLs.', size:'2', st:'blocked', dep:'K2' },
+  { w:3, id:'N2', t:'The wrap-up is the same board',         sub:'One config in the whole game.', size:'½', st:'blocked', dep:'N1' },
+
+  { w:4, id:'T3', t:'The next city’s sentences reinforce the chapter', sub:'800 sentences rewritten so each city drills the rule taught on the ride in. Measured as a share, not hoped for.', size:'writing', st:'blocked', dep:'T2' },
+  { w:4, id:'S2', t:'Bake the 900 example sentences',        sub:'Danish only — English is never spoken. Must not run before T3, or the bake is paid for twice.', size:'1 + bake', st:'blocked', dep:'T3' },
+  { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready' },
+  { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1' },
+  { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. Settle the source first.', size:'1–2', st:'ready' },
+
+  { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from discovered words; only pre-collected words wrap.', size:'1–2', st:'ready' },
+  { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'blocked', dep:'W1 · K2' },
+  { w:5, id:'P2', t:'The sentence review',                   sub:'Danish → English → Danish, the highlight tracking the reading.', size:'1', st:'blocked', dep:'S2 · P1' },
+  { w:5, id:'P3', t:'Retire the live story call',            sub:'Deleted end to end. One fewer proxy request per round.', size:'½', st:'blocked', dep:'P1' },
+  { w:5, id:'P4', t:'The turn log behind a sheet',           sub:'Zero height on the summary; the ⚑ flags survive.', size:'½', st:'blocked', dep:'P1' },
+
+  { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'blocked', dep:'D4 · W1' },
+  { w:6, id:'I2', t:'The practice round the player plays',   sub:'Reactive commentary instead of a linear script. The biggest card on the board.', size:'2', st:'blocked', dep:'I1 · K2 · U3' },
+  { w:6, id:'I3', t:'The post-match Casey',                  sub:'Tap her to open the case. No button — the tap is the lesson.', size:'½', st:'blocked', dep:'I2 · P1' },
+  { w:6, id:'I4', t:'The tour retold, and the map act',      sub:'The real map under a spotlight replaces the arrival.', size:'1', st:'blocked', dep:'I3 · W1' },
+  { w:6, id:'I5', t:'Docs catch up',                         sub:'README, DECISIONS with reversals, the tips.', size:'½', st:'blocked', dep:'I1–I4' },
+
+  { w:7, id:'M1', t:'The 900 Pass — pricing',                sub:'Recommendation written 21 Aug: one city free, one Pass for every language. Awaiting a veto, not a decision.', size:'1 conv.', st:'ready' },
+  { w:7, id:'H4', t:'The 900 Pass',                          sub:'StoreKit, the free tier, restore purchases, the free-code channel.', size:'unsized', st:'blocked', dep:'M1' },
+  { w:7, id:'D3', t:'Rename the repo and Pages base',        sub:'Owner-only. Blocks G2’s screenshots and nothing else.', size:'½', st:'held' },
+  { w:7, id:'G2', t:'Screenshots and submission',            sub:'Last, always — everything visual changes in front of it.', size:'1–2', st:'blocked', dep:'all visual · D3' },
+
+  { w:8, id:'C4', t:'Judge the composer on device',          sub:'Closed 21 Aug — “it feels attached enough.” The ride ships as it is.', size:'—', st:'done' },
+  { w:8, id:'C5', t:'Native composer',                       sub:'Closed unbuilt — it existed only for a “still not attached” verdict.', size:'—', st:'done' },
+  { w:8, id:'H9', t:'Eight more train stories',              sub:'Yours to unlock, and S3 first.', size:'2–3', st:'parked' },
+  { w:8, id:'H2', t:'German content',                        sub:'The seam is live; no words.de.json exists.', size:'—', st:'parked' },
+  { w:8, id:'H3', t:'The clue engine → docs/clue-engine.md',  sub:'Owned by that document since PR #95. Un-parked by the owner, no embedding key needed, judged matrix rather than embeddings, and journey boards become city-only — its Card 0 touches the same pool N1 deals from.', size:'see doc', st:'held' },
+  { w:8, id:'H6', t:'Voice-recognition wrap-up',             sub:'Prototype first.', size:'—', st:'parked' },
+  { w:8, id:'H8', t:'City postcards',                        sub:'A content update that stacks with the wrap-up reward.', size:'—', st:'parked' }
+];
+
+var WAVES = [
+  { n:1, name:'Cheap wins',        note:'no dependencies' },
+  { n:2, name:'The composer',      note:'the spine' },
+  { n:3, name:'The board',         note:'after wave 2' },
+  { n:4, name:'Audio & dictionary',note:'runs alongside 2–3' },
+  { n:5, name:'Economy & post-game',note:'after 3 and 4' },
+  { n:6, name:'The intro',         note:'a strict chain' },
+  { n:7, name:'The Pass, launch',  note:'screenshots last' },
+  { n:8, name:'Parked / feedback', note:'not scheduled' }
+];
+
+var LABEL = { done:'done', active:'in progress', ready:'ready', blocked:'blocked', held:'held', parked:'parked' };
+
+(function () {
+  var scheduled = CARDS.filter(function (c) { return c.w <= 7; });
+  var done = scheduled.filter(function (c) { return c.st === 'done'; }).length;
+  var active = scheduled.filter(function (c) { return c.st === 'active'; }).length;
+  // Cards settled outside the schedule — a verdict that closed one, or one
+  // closed because the verdict removed its reason to exist.
+  var closed = CARDS.filter(function (c) { return c.w > 7 && c.st === 'done'; }).length;
+
+  // overall bar
+  var obar = document.getElementById('obar');
+  var pd = (done / scheduled.length) * 100, pa = (active / scheduled.length) * 100;
+  obar.innerHTML = '<i class="done" style="width:' + pd + '%"></i><i class="active" style="width:' + pa + '%"></i>';
+  var counts = {};
+  scheduled.forEach(function (c) { counts[c.st] = (counts[c.st] || 0) + 1; });
+  document.getElementById('olegend').innerHTML =
+    '<span><b>' + done + '</b> of <b>' + scheduled.length + '</b> scheduled cards done</span>' +
+    (closed ? '<span><b>' + closed + '</b> closed without building</span>' : '') +
+    '<span><b>' + (counts.ready || 0) + '</b> ready to start</span>' +
+    '<span><b>' + (counts.blocked || 0) + '</b> waiting on another card</span>' +
+    '<span><b>' + (counts.held || 0) + '</b> waiting on you</span>';
+  document.getElementById('nowstamp').textContent = done + '/' + scheduled.length + ' complete';
+
+  // waves
+  document.getElementById('waves').innerHTML = WAVES.map(function (w) {
+    var cs = CARDS.filter(function (c) { return c.w === w.n; });
+    var d = cs.filter(function (c) { return c.st === 'done'; }).length;
+    var pct = cs.length ? (d / cs.length) * 100 : 0;
+    return '<div class="wave">' +
+      '<span class="wave-n">' + (w.n <= 7 ? 'Wave ' + w.n + ' · ' : '') + w.name + '<small>' + w.note + '</small></span>' +
+      '<span class="wbar"><i style="width:' + pct + '%"></i></span>' +
+      '<span class="wcount">' + d + '/' + cs.length + '</span>' +
+      '</div>';
+  }).join('');
+
+  // filters + sheet
+  var sheet = document.getElementById('sheet');
+  var shown = document.getElementById('shown');
+  var filter = 'all';
+  var FILTERS = [['all', 'everything'], ['ready', 'ready'], ['blocked', 'blocked'], ['held', 'held'], ['done', 'done'], ['parked', 'parked']];
+  var fbox = document.getElementById('filters');
+  fbox.innerHTML = FILTERS.map(function (f) {
+    return '<button class="f" data-f="' + f[0] + '" aria-pressed="' + (f[0] === 'all') + '">' + f[1] + '</button>';
+  }).join('');
+
+  function render() {
+    var rows = CARDS.filter(function (c) { return filter === 'all' ? true : c.st === filter; });
+    sheet.innerHTML = '<div class="sheet-head"><span>ref</span><span>card</span><span>size</span><span>status</span></div>' +
+      rows.map(function (c) {
+        var st = c.st === 'blocked' ? 'blocked' : c.st;
+        var pill = '<span class="pill p-' + st + '">' + (st === 'blocked' && c.dep ? c.dep : LABEL[st]) + '</span>';
+        return '<div class="row st-' + st + '">' +
+          '<span class="code">' + c.id + '</span>' +
+          '<span class="body-c"><span class="title">' + c.t + '</span> <span class="sub">— ' + c.sub + '</span></span>' +
+          '<span class="size">' + c.size + '</span>' +
+          '<span class="stat">' + pill + '</span>' +
+          '</div>';
+      }).join('');
+    shown.textContent = rows.length + ' of ' + CARDS.length;
+  }
+  fbox.addEventListener('click', function (e) {
+    var b = e.target.closest('.f');
+    if (!b) return;
+    filter = b.dataset.f;
+    [].forEach.call(fbox.children, function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    render();
+  });
+  render();
+})();
+</script>
