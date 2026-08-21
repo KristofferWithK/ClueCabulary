@@ -15,7 +15,7 @@ npm run typecheck     tsc -b
 npm test              vitest run
 npm run drives        build, then run all 16 browser drives
 npm run drives repeat layout      just those two
-npm run drives --list             names (19; three are opt-in, not run by default)
+npm run drives --list             names (20; four are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
 node scripts/validate-words.mjs --lang de    once a second dataset exists
 node scripts/make-audio.mjs --source words --dry-run   what a bake would cost
@@ -175,6 +175,14 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   `scrollHeight <= innerHeight` on every screen and game phase. Settings
   scrolls inside `.screen-scroll`; the shell never clips (clipping would make
   that assertion lie).
+  That rule does NOT catch a Home band that grew too tall: a flex column
+  overflows by painting OVER what is below rather than lengthening the
+  document, so `scrollHeight` stays honest while Casey's name sits on the
+  travel button. The check that catches it is layout-drive's "Casey clears the
+  travel button", and it is what sets the ceiling on `.home-map`'s height —
+  measured at 25vh and 30vh, both of which overlap at 360×640 with no-scroll
+  still passing. `e2e/home-space-probe.mjs` (opt-in) prints the budget that
+  height is chosen against, including how much of the map's card is empty.
 - `e2e/` — browser drives. Each opens the built app in Chromium and uses it.
 
 ## What a change is expected to come with

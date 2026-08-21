@@ -37,6 +37,14 @@ the clue budget would only tax the same ritual twice. Wrap all hundred words of
 a city — `WRAP_TO_TRAVEL` in `src/journey/progress.ts` — and the road onward
 opens.
 
+How far that is, is a **train**: ten wagons, one per ten of the city's hundred,
+ghosts for the road still to come and solid for what is packed, with the wagon
+being loaded fading in. Collected words ride as a fainter load under the
+wrapped ones, so the two counts that matter are one picture. It sits where the
+progress bar used to on Home, and again on the map screen, which has the room
+to say what it means: *You need 80 more wrapped-up words to take the train to
+Kolding.*
+
 ## How a round works
 
 1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words —
@@ -356,9 +364,10 @@ node scripts/make-icons.mjs                   # regenerate the PWA icons
 
 Playwright drives run against the built app and each start their own preview
 server, so `npm run build` first — or use `npm run drives`, which builds for you
-and runs all sixteen. (`node scripts/run-drives.mjs --list` names them; three
+and runs all sixteen. (`node scripts/run-drives.mjs --list` names them; four
 more are opt-in and not in the default set, since they want a real key, a real
-Worker, or produce a PNG to look at rather than a pass.)
+Worker, or measure and print rather than assert — and a PASS from something
+that asserts nothing is worth less than no line.)
 
 ```bash
 node e2e/smoke-drive.mjs      # a round played end to end
@@ -387,6 +396,9 @@ node e2e/proxy-drive.mjs      # the bundled CORS proxy, on the real Cloudflare
                               # runtime, fixing a CORS failure that is really
                               # there — including the key living on the worker
 node e2e/map-preview.mjs      # (opt-in) render the map to a PNG for inspection
+node e2e/home-space-probe.mjs # (opt-in) where Home's vertical budget goes, and
+                              # how much of the map's card is empty — the sheet
+                              # `.home-map`'s height is chosen against
 ```
 
 `proxy-drive` runs [`proxy/worker.js`](proxy/worker.js) unmodified on workerd

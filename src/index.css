@@ -197,8 +197,14 @@ select:focus {
 
 /* ---------- home ---------- */
 
+/* Home's own gap and block padding, tighter than the shared `.screen` values.
+   Five gaps and two paddings at 12px is ~30px of nothing between bands that
+   already have borders of their own to separate them; at 8px it is ~20px, and
+   the difference went to the map above. Scoped to Home because the screens
+   that scroll inside themselves want the shared breathing room. */
 .home-screen {
-  gap: 12px;
+  gap: 8px;
+  padding-block: 8px;
 }
 
 .home-hero {
@@ -349,34 +355,84 @@ select:focus {
   line-height: 1.4;
 }
 
-.collect-bar {
-  margin-top: 12px;
-  height: 10px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  overflow: hidden;
-  display: flex;
+/* ---------- the train to the next city ----------
+
+   Ten wagons for a city's hundred words, drawn in the ride train's pencil so
+   the thing that leaves at the end of the road is the thing counting down to
+   it. Two loads per wagon: `waiting` is wrapped+collected, `packed` is wrapped
+   alone and sits on top, which is the two-tone bar this replaced, kept.
+
+   The strokes are non-scaling for the reason the map comments give — the width
+   is in viewBox units and this is drawn at 100px on Home, where a scaled 2.2
+   would land under half a CSS pixel and the train would render as a smudge. */
+
+.train-progress {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-.collect-fill {
-  height: 100%;
-  transition: width 0.4s ease;
+.train-progress .cluey-hatch rect,
+.train-progress .cluey-hatch circle,
+.train-progress .cluey-hatch path {
+  fill: none;
+  stroke: rgba(18, 18, 18, 0.45);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
-.collect-learned {
-  background: var(--green-tile);
+.train-progress .train-rail {
+  stroke-dasharray: 5 4;
+  opacity: 0.5;
 }
 
-.collect-discovered {
-  background: var(--grey-tile);
+.train-progress .train-loco rect,
+.train-progress .train-loco path,
+.train-progress .train-loco circle {
+  stroke: rgba(18, 18, 18, 0.68);
+}
+
+/* A wagon still to earn is a ghost; one that is full takes the same ink as the
+   locomotive, so the train reads as growing as well as filling. */
+.train-progress .train-wagon rect,
+.train-progress .train-wagon circle {
+  stroke: rgba(18, 18, 18, 0.3);
+}
+
+.train-progress .train-wagon.is-full rect,
+.train-progress .train-wagon.is-full circle {
+  stroke: rgba(18, 18, 18, 0.68);
+}
+
+/* Element-qualified and four classes deep on purpose: the hatch rule above
+   paints `fill: none` on every rect in here and the wagon rule strokes them,
+   and a load that loses either of those is an invisible one. */
+.train-progress .train-wagon rect.train-load {
+  stroke: none;
+  transition: opacity 0.4s ease;
+}
+
+.train-progress .train-wagon rect.train-load-packed {
+  fill: var(--green-tile);
+}
+
+.train-progress .train-wagon rect.train-load-waiting {
+  fill: var(--grey-tile);
 }
 
 /* ---------- home map ---------- */
 
+/* The card hugs the drawing rather than framing the gap beside it.
+   Denmark's viewBox is 1000x812 and the map is capped by HEIGHT, so at
+   `width: 100%` the card was 326px holding a 166px drawing: 80px of bordered
+   emptiness down each side, measured at 360x640, and the single biggest piece
+   of white space on the screen. `fit-content` puts the border on the map. */
 .map-button {
   display: block;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
   padding: 0;
   border: 1px solid var(--line-soft);
   border-radius: var(--radius);
@@ -385,11 +441,19 @@ select:focus {
 }
 
 .home-map {
-  width: 100%;
-  height: auto;
-  /* Uncapped, Denmark's 1000x812 shape pushed the primary action below the
-     fold on 640-667px phones. preserveAspectRatio letterboxes the rest. */
-  max-height: 20vh;
+  width: auto;
+  max-width: 100%;
+  /* Height is what sizes this map — `width: auto` above then follows from the
+     1.23:1 viewBox, which is what lets the card hug it.
+
+     Uncapped, Denmark's shape pushed the primary action below the fold on
+     640-667px phones, which is why there is a cap at all. The number is
+     measured, not chosen: `e2e/home-space-probe.mjs` prints the drawn map
+     against `.cluey-band`'s dead space, and at 390x844 the band was carrying
+     137px of empty air around a Casey already at his own 34vh cap. This
+     spends it. Phones at or under 720px get their own value below — they have
+     23-37px of that air, not 137. */
+  height: 28vh;
   display: block;
 }
 
@@ -2760,6 +2824,13 @@ body:has(.kb-up) {
   margin-top: 12px;
 }
 
+/* Full width in the detail card — this screen has the room Home's one line
+   does not, so the train is drawn large and the sentence sits under it. */
+.map-train {
+  margin-top: 4px;
+  max-height: 46px;
+}
+
 .map-case-note {
   margin-top: 8px;
   text-align: center;
@@ -3153,8 +3224,15 @@ body:has(.kb-up) {
     display: none;
   }
 
+  /* 23-37px of dead air in Casey's band here, not the 137px at 390x844 — so
+     this grows by the reclaimed padding and gaps, and little more.
+     24, not 25: at 25vh the layout drive had Casey's name 5.3px OVER the
+     travel button at 360x640, and at 30vh it was 34.3px over here and 21.3px
+     over on the SE. Both were measured with `no-scroll: home` still passing at
+     640 — this overlap is the one the no-scroll rule cannot see, which is why
+     the ceiling is set by the clearance check and not by the document. */
   .home-map {
-    max-height: 21vh;
+    height: 24vh;
   }
 
   .city-card {
@@ -3839,38 +3917,30 @@ body:has(.kb-up) {
 /* The progress band: one line, and it cannot become two.
  *
  * Every child is nowrap, so there is no wrap opportunity anywhere in the row.
- * The bar is the only thing that flexes, and the city name is the only thing
- * allowed to shrink — so as the numbers grow (100 wrapped · 100 collected is
- * the widest they ever get) the bar gives way first and the name ellipsises
- * second. Nothing can push the row wider than the card, which is C1's rule for
- * the board applied to Home: the layout must not move because a number got
- * longer. */
+ * The train is the only thing that flexes and the only thing allowed to
+ * shrink, so as the numbers grow (100 wrapped · 100 collected is the widest
+ * they ever get) it is the train that gives way. Nothing can push the row
+ * wider than the card, which is C1's rule for the board applied to Home: the
+ * layout must not move because a number got longer.
+ *
+ * The city name used to sit at the head of this row and lost its place to the
+ * train — see the comment over the band in HomeScreen for the measurement. */
 .home-progress-band {
   flex-direction: row;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 6px 12px;
 }
 
-.home-progress-band .city-eyebrow {
-  flex: 0 1 auto;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-family: var(--serif);
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--text);
-}
-
-.home-progress-band .collect-bar {
+/* The train takes the bar's slot: the only child that flexes, and the first
+   thing to give when the numbers beside it get long.
+   17px is the count's own line box, and the cap has to stay at or under it:
+   this row's height comes straight out of the map's budget above, and at 20px
+   the train was making the row 3px taller than its text and spending them. */
+.home-progress-band .train-progress {
   flex: 1 1 auto;
   min-width: 34px;
-  margin-top: 0;
-  height: 7px;
+  max-height: 17px;
 }
 
 .home-progress-band .collect-count {
