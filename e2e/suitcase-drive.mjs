@@ -116,6 +116,37 @@ try {
   const unknownButtons = await page.locator('button.case-unknown').count()
   check('undiscovered slots are not buttons', unknownButtons === 0, `${unknownButtons}`)
 
+  // The label and the pager have to be the same claim. The ? used to be
+  // capped at one page-worth, so «Still out there — 70» sat over three pages
+  // of thirteen tiles and read as a list that had broken. Every undiscovered
+  // word is in the strip now, which is exactly what makes this arithmetic
+  // hold — drop any of them again and the count below stops matching.
+  //
+  // Sønderborg, 35 of its 100 words touched: 5 met and 65 never seen is 70
+  // still out there, eight to a page, so nine pages with the last one short.
+  const looseLabel = await page.locator('.case-loose .case-band-label').textContent()
+  const loosePages = await page.locator('.case-loose .case-page-count').textContent()
+  const looseTotal = Number(/(\d+)/.exec(looseLabel ?? '')?.[1])
+  const pageCount = Number(/\/(\d+)/.exec(loosePages ?? '')?.[1])
+  check('the table counts every word still out of the case', looseTotal === 70, `${looseLabel}`)
+  check(
+    'and pages through all of them, so the label matches the pager',
+    pageCount === Math.ceil(looseTotal / 8),
+    `${loosePages} for ${looseTotal}`,
+  )
+
+  // The last page is the proof: leaf to it and the ? are still there rather
+  // than having run out eight slots after the met words.
+  // Leafed from wherever the check above left it, so the › is asked for by
+  // its own disabled state rather than by a count that assumes page one.
+  const nextPage = page.locator('.case-loose button[aria-label$="next page"]')
+  while (await nextPage.isEnabled()) {
+    await nextPage.click()
+    await page.waitForTimeout(30)
+  }
+  const lastPage = await page.locator('.case-loose .case-unknown').count()
+  check('the last page of the table is still undiscovered words', lastPage > 0, `${lastPage}`)
+
   // 30 in the pool and two rounds banked: the button is live, wears its count,
   // and launches the packing phase — spending exactly one of the two.
   const cta = page.locator('.case-actions .btn-primary')
@@ -291,15 +322,33 @@ try {
   check('one banked win opens the button', await page.locator('.case-actions .btn-primary').isEnabled())
   check('and the hint is gone', (await page.locator('.case-hint').count()) === 0)
 
-  // ---- The table above the case does not page through the unmet. ---------
-  // Eight hundred undiscovered words paged eight at a time is a hundred
-  // pages of «?», so only one page-worth is ever listed — while the label
-  // still counts every one of them.
+  // ---- The table pages through the unmet, and the chips are the shortcut. --
+  // The worst case for it, and the price of the label meaning what it says:
+  // the last stop under "All" is eight hundred-odd undiscovered words, and
+  // they are all in the strip, eight to a page. This used to list one page of
+  // «?» and stop; what that bought was a label reading 860 over a strip with
+  // eight tiles in it and no pager at all, which looked broken rather than
+  // trimmed. So the count below is asserted against the pager, not a cap.
   await openCase('?mock=1&howto=0&city=8&collected=40')
-  const looseLabel = await page.locator('.case-loose .case-band-label').textContent()
-  check('the label counts every word still out there', /Still out there — 8\d\d/.test(looseLabel ?? ''), looseLabel ?? '')
-  const loosePages = await page.locator('.case-loose .case-page-count').count()
-  check('but it is not eight hundred words of paging', loosePages === 0, `${loosePages} pagers`)
+  const allLabel = await page.locator('.case-loose .case-band-label').textContent()
+  const allTotal = Number(/(\d+)/.exec(allLabel ?? '')?.[1])
+  check('the label counts every word still out there', allTotal > 800, allLabel ?? '')
+  const allPages = Number(
+    /\/(\d+)/.exec((await page.locator('.case-loose .case-page-count').textContent()) ?? '')?.[1],
+  )
+  check(
+    'and every one of them is reachable by leafing',
+    allPages === Math.ceil(allTotal / 8),
+    `${allPages} pages for ${allTotal}`,
+  )
+
+  // Which is a long leaf — so the chip has to be the short way round. One tap
+  // to the city you are standing in and the same strip is a hundred words.
+  await page.locator('.case-filter .chip', { hasText: 'København' }).click()
+  await page.waitForTimeout(200)
+  const cityLabel = await page.locator('.case-loose .case-band-label').textContent()
+  const cityTotal = Number(/(\d+)/.exec(cityLabel ?? '')?.[1])
+  check('a city chip cuts the strip to that stop alone', cityTotal === 60, cityLabel ?? '')
 
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nSUITCASE DRIVE OK')
   if (fail.length) process.exitCode = 1

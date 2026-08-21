@@ -272,15 +272,25 @@ export function SuitcaseScreen() {
   const shown =
     filter === ALL ? unlockedWords(WORDS, journey.cityIndex) : wordsForCity(WORDS, filter)
   /**
-   * The table above the case. Words MET but not collected are worth leafing
-   * through; undiscovered ones are not — there is nothing to see on a ? and
-   * eight hundred of them paged eight at a time is a hundred pages of it. So
-   * only one page-worth of ? is ever put in the list, as texture behind the
-   * met words, while the label counts every last one of them honestly.
+   * The table above the case: everything not in it yet. The words already MET
+   * lead, because those are the ones worth opening, and the undiscovered ?
+   * follow them.
+   *
+   * The ? used to be capped at one page-worth — texture behind the met words
+   * rather than a list, on the grounds that there is nothing to see on a ? and
+   * eight hundred of them paged eight at a time is a hundred pages of it. What
+   * that cap actually bought was a label that disagreed with its own pager:
+   * «Still out there — 80» sitting over three pages of twenty-three tiles,
+   * which reads as a list that broke rather than one that was trimmed on
+   * purpose. So the strip holds every one of them now and the label counts
+   * exactly what the ‹ › leaf through — one number, one meaning.
+   *
+   * It is a long leaf under "All" at a late city, and that is what the city
+   * chips are for: a filter cuts it back to the hundred words of one stop.
    */
   const met = shown.filter((w) => stateOf(w) === 'discovered')
   const unmet = shown.filter((w) => stateOf(w) === 'undiscovered')
-  const loose = [...met, ...unmet.slice(0, LOOSE_PAGE)]
+  const loose = [...met, ...unmet]
   const collected = shown.filter((w) => stateOf(w) === 'collected')
   const wrapped = shown.filter((w) => stateOf(w) === 'wrapped')
   const wrapGoal = filter === ALL ? (journey.cityIndex + 1) * WRAP_TO_TRAVEL : WRAP_TO_TRAVEL
@@ -401,7 +411,10 @@ export function SuitcaseScreen() {
       {/* Not in the case, which is the point of them — and above it, because
           these are the words the next round is for. */}
       <Pager
-        label={`Still out there — ${met.length + unmet.length}`}
+        // `loose.length`, not `met.length + unmet.length`: they are the same
+        // number now, and reading it off the list the pager pages through is
+        // what keeps them the same if anything is ever dropped from it again.
+        label={`Still out there — ${loose.length}`}
         words={loose}
         page={loosePage}
         perPage={LOOSE_PAGE}
