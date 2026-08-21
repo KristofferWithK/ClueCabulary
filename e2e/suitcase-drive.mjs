@@ -174,7 +174,15 @@ try {
     firstChips.join('|') === 'All|Sønderborg',
     firstChips.join('|'),
   )
-  check('with All chosen, so the case opens whole', await page.locator('.chip-on').first().evaluate((e) => e.textContent === 'All'))
+  // The case opens on the stop you are standing in, not on All. All is a tap
+  // away and shows the whole case; it is not where the screen starts, because
+  // the strip above the case pages through every word not yet in it and All
+  // at the last stop is a hundred-odd pages of that.
+  check(
+    'with the stop you are standing in chosen, not All',
+    (await page.locator('.chip-on').first().textContent()) === 'Sønderborg',
+  )
+  check('and that chip is the one wearing the you-are-here dot', (await page.locator('.chip-on.chip-home').count()) === 1)
 
   // Nine cities reached: every one is a chip, the one being stood in is
   // marked, and the row scrolls sideways rather than the document.
@@ -189,7 +197,15 @@ try {
     return { sw: el.scrollWidth, cw: el.clientWidth, doc: document.scrollingElement.scrollWidth, iw: window.innerWidth }
   })
   check('the chip row scrolls inside itself, not the page', row.sw > row.cw && row.doc <= row.iw + 1, JSON.stringify(row))
-  // The lid's goal follows the filter: All is every city reached.
+  // Nine stops in, the case still opens on the ninth rather than on All, so
+  // the tray counts against that stop's hundred.
+  const homeLabels = await page.locator('.case-band-label').allTextContents()
+  check('nine stops in it still opens on the stop, not on All', homeLabels.some((l) => /Wrapped — 20 of 100/.test(l)), homeLabels.join(' / '))
+  // The lid's goal follows the filter: All is every city reached. All is the
+  // first chip, asked for by position rather than by text — `hasText` is a
+  // substring match and a route is free to grow a city with "all" in it.
+  await page.locator('.case-filter .chip').first().click()
+  await page.waitForTimeout(150)
   const allLabels = await page.locator('.case-band-label').allTextContents()
   check('and All counts against every city reached', allLabels.some((l) => /Wrapped — 20 of 900/.test(l)), allLabels[0])
   await page.screenshot({ path: `${SHOT_DIR}/s3-nine-cities.png` })
@@ -261,11 +277,22 @@ try {
 
   // 2. A hint that names the city keeps naming it under a filter, because the
   // board it is talking about does not move when the view does.
+  //
+  // Driven from the SECOND stop, so the filter can be moved to a city that is
+  // not home. It used to move it at the first stop, where the only chips are
+  // All and the stop you are in — and now that the case opens on that stop
+  // rather than on All, clicking it there is clicking the chip already lit,
+  // which asserts nothing.
+  await openCase('?mock=1&howto=0&city=1&collected=10')
+  check(
+    'the case opens on the second stop once you have reached it',
+    (await page.locator('.chip-on').first().textContent()) === 'Ribe',
+  )
   await page.locator('.case-filter .chip', { hasText: 'Sønderborg' }).click()
   await page.waitForTimeout(150)
   check(
-    'the hint is about home even when the filter is not All',
-    /Collect 10 more in Sønderborg/.test((await page.locator('.case-hint').textContent()) ?? ''),
+    'the hint is about home even when the filter is another city',
+    /Collect 10 more in Ribe/.test((await page.locator('.case-hint').textContent()) ?? ''),
   )
 
   // 3. Words enough, no win: the button waits on the win and says only that.
@@ -322,33 +349,39 @@ try {
   check('one banked win opens the button', await page.locator('.case-actions .btn-primary').isEnabled())
   check('and the hint is gone', (await page.locator('.case-hint').count()) === 0)
 
-  // ---- The table pages through the unmet, and the chips are the shortcut. --
-  // The worst case for it, and the price of the label meaning what it says:
-  // the last stop under "All" is eight hundred-odd undiscovered words, and
-  // they are all in the strip, eight to a page. This used to list one page of
-  // «?» and stop; what that bought was a label reading 860 over a strip with
-  // eight tiles in it and no pager at all, which looked broken rather than
-  // trimmed. So the count below is asserted against the pager, not a cap.
+  // ---- The table pages through the unmet, at the size the default keeps it. -
+  // Every word not yet in the case is in the strip, eight to a page. It used
+  // to list one page of «?» and stop, which bought a label reading 860 over
+  // eight tiles and no pager at all — a list that looked broken rather than
+  // trimmed. So the counts below are asserted against the pager, not a cap.
+  //
+  // Which puts the whole weight on the default view being ONE stop: the last
+  // city is 60 words and 8 pages, and the same screen on All is 860 and 108.
+  // Both are checked, in that order, because the second is the thing the
+  // default exists to keep off the screen you open.
   await openCase('?mock=1&howto=0&city=8&collected=40')
-  const allLabel = await page.locator('.case-loose .case-band-label').textContent()
-  const allTotal = Number(/(\d+)/.exec(allLabel ?? '')?.[1])
-  check('the label counts every word still out there', allTotal > 800, allLabel ?? '')
-  const allPages = Number(
-    /\/(\d+)/.exec((await page.locator('.case-loose .case-page-count').textContent()) ?? '')?.[1],
-  )
+  const readStrip = async () => {
+    const label = await page.locator('.case-loose .case-band-label').textContent()
+    const pager = await page.locator('.case-loose .case-page-count').textContent()
+    return { total: Number(/(\d+)/.exec(label ?? '')?.[1]), pages: Number(/\/(\d+)/.exec(pager ?? '')?.[1]), label }
+  }
+  const atCity = await readStrip()
+  check('opened on the stop, the strip is that stop alone', atCity.total === 60, atCity.label ?? '')
   check(
-    'and every one of them is reachable by leafing',
-    allPages === Math.ceil(allTotal / 8),
-    `${allPages} pages for ${allTotal}`,
+    'and pages through all of it, so the label matches the pager',
+    atCity.pages === Math.ceil(atCity.total / 8),
+    `${atCity.pages} pages for ${atCity.total}`,
   )
 
-  // Which is a long leaf — so the chip has to be the short way round. One tap
-  // to the city you are standing in and the same strip is a hundred words.
-  await page.locator('.case-filter .chip', { hasText: 'København' }).click()
+  await page.locator('.case-filter .chip').first().click()
   await page.waitForTimeout(200)
-  const cityLabel = await page.locator('.case-loose .case-band-label').textContent()
-  const cityTotal = Number(/(\d+)/.exec(cityLabel ?? '')?.[1])
-  check('a city chip cuts the strip to that stop alone', cityTotal === 60, cityLabel ?? '')
+  const atAll = await readStrip()
+  check('All still counts every word still out there', atAll.total > 800, atAll.label ?? '')
+  check(
+    'and reaches every one of them too, at a hundred-odd pages',
+    atAll.pages === Math.ceil(atAll.total / 8) && atAll.pages > 100,
+    `${atAll.pages} pages for ${atAll.total}`,
+  )
 
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nSUITCASE DRIVE OK')
   if (fail.length) process.exitCode = 1

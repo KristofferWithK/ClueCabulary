@@ -23,8 +23,17 @@ import { ACTIVE } from '../../lang/active'
  * The screen used to page between cities in the header, which made nine
  * containers out of one — you left Ribe's suitcase to visit Aarhus's. A city
  * is a **filter** now, a chip over one continuous case, so the case never
- * changes; only how much of it you are looking at does. "All" is the default
- * for exactly that reason.
+ * changes; only how much of it you are looking at does.
+ *
+ * It OPENS on the city you are standing in. "All" was the default while it
+ * was the proof that the case is one thing, and it cost more than it proved:
+ * the strip above the case pages through every word not yet in it, so All at
+ * the last stop is eight hundred-odd words and a hundred-odd pages of them,
+ * against thirteen for the stop actually being played. The wrap-up button
+ * below has always been about the city you are in — a board is dealt from
+ * home whatever the chips say — so opening on that city is the view the rest
+ * of the screen was already talking about. All is one tap away and still
+ * shows the whole case; nothing about it moved except which chip starts lit.
  *
  * The screen reads TOP TO BOTTOM in the order a word travels: the strip of
  * loose words first, then the lid holding what is COLLECTED, then the tray
@@ -253,7 +262,11 @@ export function SuitcaseScreen() {
   const banked = useSrs((s) => s.wrapUpsBanked)
   const won = useSrs((s) => s.games.won)
   const journey = useJourney()
-  const [filter, setFilter] = useState<number>(ALL)
+  // Opens on the stop you are standing in — see the note at the top of the
+  // file. Safe as a plain initial value because the screen UNMOUNTS when you
+  // leave it (App.tsx renders one screen at a time), so travelling and coming
+  // back re-reads the new city rather than holding the old one.
+  const [filter, setFilter] = useState<number>(journey.cityIndex)
   const [loosePage, setLoosePage] = useState(0)
   const [collectedPage, setCollectedPage] = useState(0)
   const [wrappedPage, setWrappedPage] = useState(0)
@@ -285,8 +298,9 @@ export function SuitcaseScreen() {
    * purpose. So the strip holds every one of them now and the label counts
    * exactly what the ‹ › leaf through — one number, one meaning.
    *
-   * It is a long leaf under "All" at a late city, and that is what the city
-   * chips are for: a filter cuts it back to the hundred words of one stop.
+   * It is a long leaf under "All" at a late city — a hundred-odd pages — and
+   * that is why the screen opens on one stop instead: a city is a hundred
+   * words, thirteen pages, and the only hundred a board is dealt from.
    */
   const met = shown.filter((w) => stateOf(w) === 'discovered')
   const unmet = shown.filter((w) => stateOf(w) === 'undiscovered')
