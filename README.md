@@ -266,9 +266,11 @@ The train ride out of a city says each of its sentences **four times**: the
 Danish, its English translation, the Danish slowly, then the Danish again. The
 order is `src/journey/rideCycle.ts` and the last pass is the first clip
 replayed — ending on the ordinary reading, after the slow one has taken it
-apart, is the point of ending there. That makes the ride roughly four times as
-long as a single reading would, which is why it has always been skippable and
-why any single line can be tapped for just that sentence.
+apart, is the point of ending there. Sønderborg's ride is **8m13s** of audio
+where one reading was 2m53s — 2.85×, measured, and less than the four passes
+imply, because three of them are the 1.0 clips and the reading they replaced
+was a 0.6 one. It has always been skippable, and any single line can be tapped
+for just that sentence.
 
 The bake is `scripts/make-audio.mjs`, run by `.github/workflows/bake-audio.yml`
 because the TTS key is an Actions secret. Each source carries its own rate and
