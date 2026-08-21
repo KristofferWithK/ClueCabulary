@@ -11,8 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "validate:words": "node scripts/validate-words.mjs",
+    "validate:grammar": "node scripts/validate-grammar.mjs",
     "drives": "node scripts/run-drives.mjs",
-    "verify": "npm run typecheck && npm run test && npm run validate:words && npm run drives"
+    "verify": "npm run typecheck && npm run test && npm run validate:words && npm run validate:grammar && npm run drives"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.0",

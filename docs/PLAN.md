@@ -5,6 +5,11 @@ history). It is the working plan for reshaping ClueCabulary into **900words**
 and launching it on the App Store. Sessions pick up cards from it; the board
 sections below are the live status.
 
+**Board 2 is [`PLAN-2.md`](PLAN-2.md)** — the owner's play notes from
+2026-08-21 (composer, voice, Casey's guessing turn, the post-game, the
+wrap-up economy, the grid, a second pass at the intro), carded. The cards
+still open here (C5, D3, G2, H9, H5) are unaffected.
+
 ## Context
 
 The game already ships as a Capacitor iOS app (TestFlight pipeline working) and

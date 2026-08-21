@@ -13,6 +13,25 @@ owner decisions of 2026-08-21 — including that journey boards become
 **city-only** — and the staged plan another session picks up from. Nothing in
 it is built yet; read it before touching `src/ai/`, the board pool, or H3/H7.
 
+## Where the work is planned
+
+`docs/PLAN.md` is board 1 (the reshaping into 900words; O1–O4 shipped).
+**`docs/PLAN-2.md` is board 2 and the master plan** — the owner's play notes
+from 2026-08-21 carded, board 1's leftovers swept in, and everything sequenced
+into seven waves. It opens with a live-status link and closes with **"Read this
+before picking up a card"**, which is the handoff: where things are, what is
+owner-gated, and the collisions worth knowing about.
+
+`docs/grammar-da.md` is its nine-chapter Danish course, one per leg, checked by
+`npm run validate:grammar`. Two documents from parallel sessions the same
+evening overlap it and are authoritative where they do:
+`docs/word-selection.md` (which words, which city) governs board 2's **T3**,
+and `docs/clue-engine.md` above governs its **H3**.
+
+The live board is `docs/dispatch/index.html`, republished to one artifact URL.
+**A card that lands updates PLAN-2.md and that file's `CARDS` array in the same
+PR.**
+
 ## Commands
 
 ```
