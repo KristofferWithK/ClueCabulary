@@ -46,14 +46,19 @@ try {
   await page.goto(preview.base + '?mock=1&seed=5&grid=beginner')
 
   // A first visit opens inside the train now (O1) — ride it like a new
-  // player would: Casey's three lines, then the ticket, then Home. The rules
-  // overlay no longer opens itself; ? is its only door and onboarding-drive
-  // owns the flow's own checks.
+  // player would: Casey's three lines, then the ticket, and since O2 the
+  // ticket opens the tutorial round. Smoke SKIPS it: the scripted round is
+  // onboarding-drive's whole subject, and this drive is about the game the
+  // flow lands in. The rules overlay no longer opens itself; ? is its only
+  // door and onboarding-drive owns the flow's own checks.
   await page.waitForSelector('.onboard-screen[data-act="train"]', { timeout: 8000 })
   await page.screenshot({ path: `${SHOT_DIR}/00-train.png` })
   for (let i = 0; i < 3; i++) await page.locator('.onboard-next').click()
   await page.waitForSelector('.onboard-ticket')
   await page.locator('.onboard-ticket').click()
+  await page.waitForSelector('.tutorial-dock')
+  await page.screenshot({ path: `${SHOT_DIR}/00b-tutorial.png` })
+  await page.locator('.onboard-skip').click()
   await page.waitForSelector('h1:has-text("900words")')
   await page.screenshot({ path: `${SHOT_DIR}/01-home.png` })
 
