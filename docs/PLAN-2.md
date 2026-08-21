@@ -528,6 +528,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **E1** — The judged matrix, city 1 — 2026-08-22 (PR #103). All 4,950 within-city pairs judged twice (33 batches × 150, Opus and Fable, 66 agents); merged with `ceil(mean)`, ties to the higher vote. `src/data/matrix.da.json` is 2,500 B packed / 2.7 KB gzipped; `scripts/validate-matrix.mjs` is in `npm run verify`, mutation-checked. The brief, the merge rule and both floors are recorded in `docs/clue-engine.md` §6.
 - **D4 · D5** — Casey is she, and sudden death becomes the last chance — 2026-08-22 (PR #104). Copy only; the phase id and outcome reason stay persisted. Closed the `prompts.ts` collision (paceLine already used "last chance" for the final clue) and stopped smoke-drive keying its guess loop on the endgame's name.
 - **WS2** — Bake the new headwords — 2026-08-22 (PR #102). 226 clips baked, 227 orphans retired; `public/audio` back to 1,893, under the service worker cap. `scripts/validate-audio.mjs` cross-checks the manifests against the dataset in `npm run verify`, mutation-checked.
 - **T1** — The train is the way you travel, and a dev switch to ride it *(2026-08-21, PR #97)*

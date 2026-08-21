@@ -370,8 +370,8 @@ var CARDS = [
   { w:1, id:'WS2', t:'Bake the new headwords',                sub:'Nonce bump, push, the workflow commits back. Orphaned clips and manifest rows out in the same PR.', size:'½ + bake', st:'done', m:'sonnet', lane:'content' },
 
   { w:2, id:'K1', t:'The composer never changes size',       sub:'One box, three rows, one height. The verdict and the translation share a line.', size:'1–2', st:'done', m:'opus', lane:'ui' },
-  { w:2, id:'K2', t:'Every dock one height; the legend goes', sub:'layout-drive re-pointed to measure the panel rectangle every frame.', size:'1', st:'ready', m:'opus', lane:'ui' },
-  { w:2, id:'E1', t:'The judged matrix, city 1',             sub:'4,950 pairs, Opus and Fable judges, votes merged. merge-matrix + validate-matrix in verify. City 1 is final, so it may start now.', size:'1', st:'ready', m:'opus', lane:'engine' },
+  { w:2, id:'K2', t:'Every dock one height; the legend goes', sub:'layout-drive re-pointed to measure the panel rectangle every frame.', size:'1', st:'blocked', dep:'K1', m:'opus', lane:'ui' },
+  { w:2, id:'E1', t:'The judged matrix, city 1',             sub:'4,950 pairs, Opus and Fable judges, votes merged. merge-matrix + validate-matrix in verify. City 1 is final, so it may start now.', size:'1', st:'done', m:'opus', lane:'engine' },
   { w:2, id:'E2', t:'The book, city 1',                      sub:'~30 associations a word in both languages with a why; pair clues where M ≥ 1. Beside E1.', size:'1', st:'ready', m:'opus', lane:'engine' },
 
   { w:3, id:'N1', t:'One board: 3×6, and the sizes go',      sub:'GridSize deleted — a persisted setting, a Settings control, a dev switch and 27 drive URLs. After E0.', size:'2', st:'blocked', dep:'K2', m:'opus', lane:'ui' },
