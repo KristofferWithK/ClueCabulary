@@ -11,9 +11,13 @@ import type { StoryVariant } from '../ui/speak'
  * ordinary reading a second time, after the slow one has taken it apart, is
  * the point of ending there.
  *
- * The cost is length. Sønderborg's 31 sentences become 124 passes, so the ride
- * is roughly four times what it was — which is why Skip stays where it is and
- * why any line can be tapped to hear just that one.
+ * The cost is length, and it is smaller than the pass count suggests.
+ * Sønderborg's 31 sentences become 124 passes, but three of the four play the
+ * 1.0 clips where the single old pass played a 0.6 one: measured off the clips
+ * themselves, the ride went from 2m53s to 8m13s — 2.85×, not 4×. Speeding the
+ * Danish up paid back a good part of what repeating it cost. Still three times
+ * a sitting, which is why Skip stays where it is and why any line can be
+ * tapped to hear just that one.
  *
  * Type-only import of `StoryVariant`, so nothing under journey/ takes a
  * runtime dependency on the UI: this module is the shape of the cycle and

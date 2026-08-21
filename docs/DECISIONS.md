@@ -101,10 +101,14 @@ does not teach.
 The last pass is the FIRST clip replayed rather than a fourth bake. Ending on
 the ordinary reading, after the slow one, is the point of ending there.
 
-**What it costs.** Sønderborg's 31 sentences become 124 passes, so the ride runs
-roughly four times as long as it did. Skip is untouched and any single line can
-still be tapped to hear just that sentence's cycle, which is where the design
-already stood.
+**What it costs, measured rather than counted.** Sønderborg's 31 sentences
+become 124 passes, but the ride runs **2.85×** longer, not 4× — 2m53s to 8m13s,
+totalled from the clips' own `audio.duration`. Three of the four passes play the
+new 1.0 clips (3.44s a sentence) where the single old pass played a 0.6 one
+(5.58s), so making the Danish normal paid back a good part of what repeating it
+cost. The first figure written here was the pass count wearing a stopwatch's
+clothes; this is the stopwatch. Skip is untouched and any single line can still
+be tapped for just that sentence's cycle.
 
 **The stories are baked three ways**, the same pattern the words took: `story/`
 at 1.0, `story/slow/` the 0.6 clips moved sideways, and `story/en/` new — the
