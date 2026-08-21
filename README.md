@@ -214,8 +214,11 @@ The map keeps that button, and its train now boards as well. Under
    available during the translation challenge or a wrap-up packing phase. A clue may be
    any Danish word, so the lookup answers any word: the shipped nine hundred come
    back instantly and offline, and anything else is asked of Casey without
-   being asked twice. A hit that is already on the board says so, since it is
-   the right translation and an illegal clue.
+   being asked twice. The answer is ONE line — the best hit, its first gloss
+   and a 🔊, with the rest of the entry a tap away in the same sheet ⓘ opens —
+   because the composer is a fixed height and that line is all the room there
+   is. A hit that is already on the board says so, since it is the right
+   translation and an illegal clue.
 6. After each round the summary shows **what was said, and why** —
    every clue and every guess with the reasoning behind it, including what Casey
    deliberately steered away from and how sure he was of each guess. Tap ⚑ on
