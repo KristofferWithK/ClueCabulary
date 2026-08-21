@@ -493,12 +493,12 @@ pass to flip.
 - **X1** — The stale-copy sweep
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
-- **K2** — Every dock the same fixed height, the legend gone, the drive measuring the panel *(K1 landed)*
 - **E1** — The judged matrix, city 1 *(city 1 is final; may start now)*
 - **E2** — The book, city 1 *(beside E1)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
+- **N1** — One board: 3×6, and the sizes go *(K1 + K2 landed; a sixth row measures 46.43px, clear of the 44px floor)*
 
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
@@ -507,7 +507,6 @@ pass to flip.
 - **E4** — Measure the engine, and decide *(E3)*
 - **E6** — Matrix and book for cities 2–9 *(E4's decision)*
 - **E5** — The hybrid *(E4's decision)*
-- **N1** — One board: 3×6, and the sizes go *(K1 + K2: measured, a sixth row does not fit until they land)*
 - **N2** — The wrap-up round on 3×6 *(N1)*
 - **U3** — Casey thinks aloud before each guess *(K2; S1 for the spoken reveal)*
 - **P1** — The round summary as one fixed screen, in pencil, with Casey *(W1 for the token line; K2 for the style)*
@@ -539,6 +538,16 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 - **WS1** — Apply the word selection — 2026-08-21 (PR #100). 113 out, 113 in,
   `curriculumRank` re-dealt by `scripts/apply-word-selection.mjs`; the ledger
   rule is a hard error in `validate:words` with a mutation recorded.
+- **K2** — Every dock the same fixed height, the legend gone, the drive
+  measuring the panel — 2026-08-22 (PR #PRNUM). One `--dock-h` (9.375rem = 150px,
+  still the composer's own measurement); `--dock-slot-h` and `.dock-slot` are
+  gone — the panel is the reserve again. The guess bar, Casey's panel, the
+  last-chance bar, packing and the study dock are all three regions and one
+  variable line; the key legend is deleted. The board gains 79.26px at
+  360×640 (239.30 → 318.56) and its card row 13.31 (44 → 57.31), which makes
+  N1's sixth row 46.43px — above the 44px floor. layout-drive measures the
+  dock RECTANGLE every frame in every phase, across a wrap-up round from
+  packing to the clues, and across the tutorial.
 - **K1** — The composer never changes size — 2026-08-22 (PR #101). Three rows,
   one shared line (verdict left, the dictionary's one answer right), and a
   measured `--dock-h` of 9.375rem = 150px that holds in all seven states.

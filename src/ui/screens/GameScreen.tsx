@@ -10,7 +10,7 @@ import { useOpenDictionary } from '../components/DictionarySheet'
 import { HearBoard } from '../components/HearBoard'
 import { PackingDock } from '../components/PackingDock'
 import { RoundSummary } from '../components/RoundSummary'
-import { TranslateBox } from '../components/TranslateBox'
+import { useDictionary } from '../components/TranslateBox'
 import { TurnTokens } from '../components/TurnTokens'
 import { TutorialDock } from '../components/TutorialDock'
 import { HINT_KEYS, useFirstTimeHint } from '../hints'
@@ -252,23 +252,23 @@ export function GameScreen() {
         </div>
       )}
 
-      {showBoard && (
-        <p className="key-legend">
-          {/* One line, always: the legend sits between the board and the dock
-              on a screen that must FIT a 640px phone. It had a second swatch
-              for the dashed forbidden cards, which no longer exist. */}
-          <span className="legend-swatch legend-target" aria-hidden="true" /> your target
-          <span className="legend-sep">·</span>
-          <span aria-hidden="true">ⓘ</span> look up
-        </p>
-      )}
+      {/* The key legend stood here — a swatch reading "your target" and a ⓘ
+          reading "look up", one line between the board and the dock. K2 took
+          it out, and it is a deletion rather than a move: the border IS the
+          legend (README's rule, and the card's aria-label says "your target"
+          in words for anyone who cannot see it), and a ⓘ on a card explains
+          itself the moment it is tapped. What it cost was 17.3px plus the
+          column's 12px gap on a screen that must fit 640px, in every phase of
+          every round, for a sentence read once. The board has it now. */}
 
       {studying && (
         <div className="dock study-dock">
           <p className="dock-title">Study the board</p>
+          {/* Two lines, and the give-way region of this dock: it is prose and
+              may be cut, which is what lets the dock hold --dock-h with the
+              button pinned under it. */}
           <p className="study-hint">
-            Every translation is shown. Once you start they hide, and you can tap a single word to
-            look it up.
+            Every translation is shown. They hide when you start, and a tap looks one up.
           </p>
           <button className="btn btn-primary btn-big" onClick={() => useGame.getState().endStudy()}>
             Start the round
@@ -282,37 +282,30 @@ export function GameScreen() {
           including the round's end, where it celebrates and doors to Home
           instead of the summary. Everything above (board, tokens, ⓘ, Aa, the
           dictionary) is the real thing; only the dock is Casey's. */}
-      {/* The reserve is the SLOT, not the panel.
-          It used to be the panel: every dock was given the tallest dock's
-          height, so the clue composer — which wants 126px — was drawn as a
-          200px sheet of grey with its fields stranded at the top of it. The
-          board has to be locked, and the space genuinely has to be held; what
-          it does not have to be is painted. The slot holds it and stays
-          invisible, and the dock inside hugs its own content against the
-          bottom edge. So the field sits low, whatever phase it is, and a
-          lookup answer grows the panel UPWARDS into space that was already
-          spoken for rather than moving anything. */}
+      {/* The panel IS the reserve again (K2). There was a `.dock-slot` wrapper
+          here holding --dock-slot-h while the dock inside hugged its own
+          content, because the docks were different heights and the difference
+          had to be held as air rather than as grey. Every dock a round can be
+          in is now --dock-h exactly — study and packing included, which is why
+          they are not wrapped either — so the wrapper had nothing left to
+          reserve and went. The tutorial keeps a slot, because its dock changes
+          shape every beat and is deliberately taller (I2 moves the bubble). */}
       {tutorial ? (
-        <div className="dock-slot tutorial-slot">
+        <div className="tutorial-slot">
           <TutorialDock game={game} />
         </div>
       ) : (
         <>
-          {!studying && !packing && game.phase !== 'finished' && (
-            <div className="dock-slot">
-              {game.phase === 'playerClueInput' && (
-                <ClueInput
-                  game={game}
-                  onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)}
-                />
-              )}
-              {(game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
-                <AiTurnPanel game={game} />
-              )}
-              {game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
-              {game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
-            </div>
+          {game.phase === 'playerClueInput' && !studying && !packing && (
+            <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
           )}
+          {(game.phase === 'aiGuessing' || game.phase === 'aiClueInput') &&
+            !studying &&
+            !packing && <AiTurnPanel game={game} />}
+          {game.phase === 'playerGuessing' && !studying && !packing && (
+            <PlayerGuessBar game={game} />
+          )}
+          {game.phase === 'suddenDeath' && !studying && !packing && <SuddenDeathBar game={game} />}
           {game.phase === 'finished' && <RoundSummary game={game} />}
         </>
       )}
@@ -336,39 +329,40 @@ function SuddenDeathBar({ game }: { game: GameState }) {
   return (
     <div className="dock guess-bar sudden-death-bar">
       <p className="dock-title">Last chance — no clues left</p>
-      {/* The dock's give-way region: it is prose, so it may be cut, and it is
-          what absorbs whatever the row below it happens to be. */}
-      <p className="dim dock-flex">
-        Keep naming green words and you can still win this. Name anything else and the round is
-        over. Tap a word you are sure of.
-      </p>
+      {/* ONE line (K2), where three sentences used to stand. It is still the
+          dock's give-way region — prose, so it may be cut — but it no longer
+          has to give way for anything: the dock is --dock-h like every other
+          one, and the sentence that survived is the whole rule. */}
+      <p className="dim dock-flex">Name greens to win. Anything else ends it.</p>
       {/* One row, not two. Giving up and confirming a name are alternatives —
           you cancel a selection before you walk away from the round — so they
           share a row rather than each reserving one. The second row was 56px
           of the dock's reserve, and the dock's reserve is the board's size in
           every phase of the round. */}
-      {selected ? (
-        <div className="guess-confirm">
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              // Committing to a word is the moment you have most reason to
-              // hear it, and the button is already saying it in writing.
-              void playWord(selected.wordId, selected.da)
-              useGame.getState().playerGuess(selected.wordId)
-            }}
-          >
-            Name «{selected.da}»
+      <div className="dock-actions">
+        {selected ? (
+          <div className="guess-confirm">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                // Committing to a word is the moment you have most reason to
+                // hear it, and the button is already saying it in writing.
+                void playWord(selected.wordId, selected.da)
+                useGame.getState().playerGuess(selected.wordId)
+              }}
+            >
+              Name «{selected.da}»
+            </button>
+            <button className="btn" onClick={() => useGame.getState().selectWord(null)}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
+            Give up the round
           </button>
-          <button className="btn" onClick={() => useGame.getState().selectWord(null)}>
-            Cancel
-          </button>
-        </div>
-      ) : (
-        <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
-          Give up the round
-        </button>
-      )}
+        )}
+      </div>
     </div>
   )
 }
@@ -389,15 +383,29 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   // cluecab-hint-guess; never in the tutorial, whose dock replaces this one.
   const firstGuessEver = useFirstTimeHint(HINT_KEYS.guess)
 
+  // The dictionary, taken apart the way the composer takes it apart (K1's
+  // `useDictionary`): its field and its one answer sit side by side on the
+  // dock's last row instead of stacked in a box of their own. The box was two
+  // rows plus its own rule and padding; this is one.
+  const dictionary = useDictionary({ term: clue.text, nonce: lookUps })
+
   return (
     <div className="dock guess-bar">
-      {/* The clue is the button that looks it up. It was printed here AND
+      {/* Three rows, the same three the composer has and the same height (K2):
+          the title, ONE action row, and the dictionary. Nothing here may add a
+          fourth.
+
+          The clue is the button that looks it up. It was printed here AND
           offered again on the dictionary's own line ("Look up Casey's clue")
           one row below — two rows for one word, in the dock whose height is
           the board's height for the whole round. Tapping the word you cannot
-          read is also the more obvious gesture of the two. */}
+          read is also the more obvious gesture of the two.
+
+          "· 2 guesses left" rather than "— up to 2 more guesses": the title is
+          nowrap and ellipsized, so what it says has to fit a long Danish clue
+          beside it. */}
       <p className="dock-title">
-        Casey's clue:{' '}
+        Casey's clue{' '}
         <button
           className="clue-lookup"
           aria-label={`Look up «${clue.text}» in the dictionary`}
@@ -405,8 +413,7 @@ function PlayerGuessBar({ game }: { game: GameState }) {
         >
           «{clue.text}»
         </button>{' '}
-        ({clue.number}) — up to {left} more guess
-        {left === 1 ? '' : 'es'}
+        ({clue.number}) · {left} guess{left === 1 ? '' : 'es'} left
       </p>
       {/* A stake note stood here explaining what a forbidden tap cost and whose
           forbidden words were in play. Nothing on this screen is fatal any
@@ -417,42 +424,51 @@ function PlayerGuessBar({ game }: { game: GameState }) {
           its own underneath it. That row was 74px of the reserve at 360x640
           (66 of button, wrapped to two lines, and an 8px gap), and the reserve
           is the board's height in every phase of the round — including the
-          ones with no stop button in them at all. */}
-      {selected ? (
-        <div className="guess-confirm">
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              void playWord(selected.wordId, selected.da)
-              useGame.getState().playerGuess(selected.wordId)
-            }}
-          >
-            Guess «{selected.da}»
+          ones with no stop button in them at all.
+
+          The row is also this dock's give-way region, so the difference
+          between a 49px button and a one-line hint is spent HERE rather than
+          moving the dictionary under it. */}
+      <div className="dock-actions">
+        {selected ? (
+          <div className="guess-confirm">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                void playWord(selected.wordId, selected.da)
+                useGame.getState().playerGuess(selected.wordId)
+              }}
+            >
+              Guess «{selected.da}»
+            </button>
+            <button className="btn" onClick={() => useGame.getState().selectWord(null)}>
+              Cancel
+            </button>
+          </div>
+        ) : made > 0 ? (
+          // Only once a guess has been made, which is also the only moment the
+          // hint below has nothing left to teach — the player has just done the
+          // thing it describes.
+          <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
+            Stop — keep what we have
           </button>
-          <button className="btn" onClick={() => useGame.getState().selectWord(null)}>
-            Cancel
-          </button>
-        </div>
-      ) : made > 0 ? (
-        // Only once a guess has been made, which is also the only moment the
-        // hint below has nothing left to teach — the player has just done the
-        // thing it describes.
-        <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
-          Stop — keep what we have
-        </button>
-      ) : (
-        <p className={firstGuessEver ? 'dim first-hint' : 'dim'}>
-          {firstGuessEver
-            ? // A guess is judged against the clue-giver's key — Casey clued,
-              // so his key is the one being read. Said forwards, the way
-              // game.test.ts pins it; the phase-specific consequence only.
-              "It is Casey's key that counts now — tap a word her clue points at."
-            : 'Tap a word you think Casey means.'}
-        </p>
-      )}
+        ) : (
+          <p className={firstGuessEver ? 'dim first-hint' : 'dim'}>
+            {firstGuessEver
+              ? // A guess is judged against the clue-giver's key — Casey clued,
+                // so his key is the one being read. Said forwards, the way
+                // game.test.ts pins it; the phase-specific consequence only.
+                "It is Casey's key that counts now — tap a word her clue points at."
+              : 'Tap a word you think Casey means.'}
+          </p>
+        )}
+      </div>
       {/* Casey clues in Danish when asked to, and a clue you cannot read is
           not a clue. The title above is the tap that fills this. */}
-      <TranslateBox fill={{ term: clue.text, nonce: lookUps }} />
+      <div className="dock-dictionary">
+        {dictionary.field}
+        <div className="dict-line">{dictionary.line}</div>
+      </div>
     </div>
   )
 }

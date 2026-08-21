@@ -33,12 +33,19 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
  *
  * `proxy` is in the list anyway because it runs against a local stand-in; only
  * `live` is genuinely opt-in. Everything else here is not a drive at all —
- * `map-preview`, `ollama-probe`, `home-space-probe` and `composer-probe`
- * measure and print, and a PASS from something that asserts nothing is worth
- * less than no line.
+ * `map-preview`, `ollama-probe`, `home-space-probe`, `composer-probe` and
+ * `dock-probe` measure and print, and a PASS from something that asserts
+ * nothing is worth less than no line.
  */
 const NOT_DRIVES = new Set(['fake-ollama.mjs', 'preview-server.mjs', 'worker-runtime.mjs'])
-const OPT_IN = new Set(['live', 'map-preview', 'ollama-probe', 'home-space-probe', 'composer-probe'])
+const OPT_IN = new Set([
+  'live',
+  'map-preview',
+  'ollama-probe',
+  'home-space-probe',
+  'composer-probe',
+  'dock-probe',
+])
 
 const allDrives = readdirSync(resolve(ROOT, 'e2e'))
   .filter((f) => f.endsWith('.mjs') && !NOT_DRIVES.has(f) && !f.startsWith('_'))

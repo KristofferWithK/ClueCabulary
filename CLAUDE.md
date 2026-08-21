@@ -239,6 +239,22 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   `scrollHeight <= innerHeight` on every screen and game phase. Settings
   scrolls inside `.screen-scroll`; the shell never clips (clipping would make
   that assertion lie).
+  **Every dock in the game screen is one height, `--dock-h`, and there is only
+  one of it (K2).** The composer, the guess bar, Casey's panel, the last-chance
+  bar, the study dock and the wrap-up packing dock all declare
+  `height: var(--dock-h)` — 9.375rem, which is the composer's own measured
+  149.41px rounded up — so the flex board above them is handed the same
+  leftover in every phase. There is no `.dock-slot` any more and no
+  `--dock-slot-h`: the panel IS the reserve again, which is the whole of K2.
+  What that costs you is that **a dock may not grow a row.** Each has three
+  regions and exactly one that may vary, marked as the give-way region in
+  `index.css`; a fourth row does not lengthen the dock, it hangs over the board
+  and lengthens the *document*, which is what layout-drive's spill and
+  no-scroll checks are for. Re-measure with `e2e/dock-probe.mjs` (opt-in,
+  prints, asserts nothing) rather than reasoning about it — the study dock came
+  in 0.2px TALLER than the composer on the first draft and nothing on screen
+  said so. Measured at 360×640 after K2: board 318.56px, card row 57.31, dock
+  150 at y=478, document 640 of 640.
   That rule does NOT catch a Home band that grew too tall: a flex column
   overflows by painting OVER what is below rather than lengthening the
   document, so `scrollHeight` stays honest while Casey's name is drawn sliced
