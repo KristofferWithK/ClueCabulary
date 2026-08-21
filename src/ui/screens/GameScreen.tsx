@@ -21,7 +21,7 @@ const PHASE_CAPTION: Record<GameState['phase'], string> = {
   aiGuessing: 'Casey is guessing',
   aiClueInput: 'Casey prepares a clue',
   playerGuessing: 'Your turn to guess',
-  suddenDeath: 'Sudden death — no clues left',
+  suddenDeath: 'Last chance — no clues left',
   finished: 'Round over',
 }
 
@@ -335,7 +335,7 @@ function SuddenDeathBar({ game }: { game: GameState }) {
 
   return (
     <div className="dock guess-bar sudden-death-bar">
-      <p className="dock-title">All or nothing — no clues left</p>
+      <p className="dock-title">Last chance — no clues left</p>
       {/* The dock's give-way region: it is prose, so it may be cut, and it is
           what absorbs whatever the row below it happens to be. */}
       <p className="dim dock-flex">
@@ -446,7 +446,7 @@ function PlayerGuessBar({ game }: { game: GameState }) {
             ? // A guess is judged against the clue-giver's key — Casey clued,
               // so his key is the one being read. Said forwards, the way
               // game.test.ts pins it; the phase-specific consequence only.
-              "It is Casey's key that counts now — tap a word his clue points at."
+              "It is Casey's key that counts now — tap a word her clue points at."
             : 'Tap a word you think Casey means.'}
         </p>
       )}

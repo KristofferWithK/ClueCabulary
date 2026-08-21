@@ -1303,7 +1303,7 @@ await page.setViewportSize(PHONE)
     'Give Casey a clue',
     'Casey is guessing',
     'Your turn to guess',
-    'Sudden death — no clues left',
+    'Last chance — no clues left',
     'clue dock + lookup',
     'guess bar + lookup',
     'hear the board playing',

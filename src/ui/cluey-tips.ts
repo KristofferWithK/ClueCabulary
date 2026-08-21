@@ -29,7 +29,7 @@ import { unlockedWords } from '../journey/progress'
  * they take their place at the head of the ordinary rotation.
  */
 export const CRITICAL_TIPS: readonly string[] = [
-  "While you guess, it is Casey's greens that count — his key, not yours.",
+  "While you guess, it is Casey's greens that count — her key, not yours.",
   'Collect a word by cluing it AND guessing it — one green each way.',
   'Collected words still break on the road. Wrap them up to keep them.',
   'Win a normal round to earn a wrap-up round. You can bank up to three.',
@@ -39,7 +39,7 @@ const RULE_TIPS: readonly string[] = [
   'Tap me to open the case — every word you collect travels in here.',
   `In a wrap-up round the cards start in English. Type the ${ACTIVE.name} to pack them.`,
   'Skipping a card in a wrap-up is allowed — but it cannot be wrapped that round.',
-  'Out of clues is not out of game: sudden death lets you keep naming words.',
+  'Out of clues is not out of game: last chance lets you keep naming words.',
   `Look a word up mid-round from the clue box — English in, ${ACTIVE.name} out.`,
   'Wrap all hundred words of a city and the road onward opens.',
 ]

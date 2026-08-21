@@ -92,14 +92,14 @@ The map keeps that button, and its train now boards as well. Under
    the turn refusing to end once you had found everything the clue promised.)
    Stopping short is still yours to choose. Guesses are judged against the
    clue-giver's key. Casey is told how
-   many of his greens are left against how many clues remain, so he aims for
-   two or three words a clue rather than picking off one at a time — and on his
-   last clue, for everything he has left, since a green he never points at is
-   one you cannot find in sudden death.
+   many of her greens are left against how many clues remain, so she aims for
+   two or three words a clue rather than picking off one at a time — and on her
+   last clue, for everything she has left, since a green she never points at is
+   one you cannot find in last chance.
 3. Find every green word before the shared clue tokens run out and you both
    win. Beginner is five clues, middle six, standard seven.
    Running out is not the end: the clues stop but the board does not, and
-   **sudden death** lets you keep naming words with nothing left to go on. Name
+   **last chance** lets you keep naming words with nothing left to go on. Name
    a green and you are still alive; name anything else and the round is over.
    Walking away there is allowed, and is a loss — the difference between
    deciding you are beaten and being told.
@@ -108,17 +108,17 @@ The map keeps that button, and its train now boards as well. Under
    other rule hangs off that one, and it is the easiest thing here to read
    backwards. Under *your* clue, Casey's guesses are read off *your* key: a card
    you marked green scores, and one you did not costs the turn even if it is
-   green on his. Under *his* clue it is his key that is read. So a card can be
+   green on her. Under *her* clue it is her key that is read. So a card can be
    spent one way round and still be worth finding the other — a bystander reveal
    is directional, burning the card for the side that named it and leaving it
-   live for the side that did not. Sudden death is the one exception, because
+   live for the side that did not. Last chance is the one exception, because
    there is no clue-giver: a green on **either** key counts, and anything else
    ends it. `game.test.ts` pins the whole rule; two mutations of the engine were
    checked to fail it.
 
    Nothing on a board is fatal any more. Duet's assassin — which this game
    called a forbidden word — is gone, and so is the translate-every-unsolved-word
-   last chance that existed to soften it. Every key now holds greens and nothing
+   ending that existed to soften it. Every key now holds greens and nothing
    else. That removed the only ending that could arrive early, which makes the
    tokens the whole clock, so we re-measured what they are worth rather than
    assuming they survived the change.
@@ -140,16 +140,16 @@ The map keeps that button, and its train now boards as well. Under
    forecast: a biased coin is not Danish word association, and a real round sits
    somewhere inside. What the brackets are good for is the shape, and the shape
    says three things. A guesser that knows nothing spends every token on every
-   board — sudden death on 99.7% to 100% of seeds, and the tokens go with 5.1 of
+   board — last chance on 99.7% to 100% of seeds, and the tokens go with 5.1 of
    the 3×4's 8 greens and 8.8 of the 4×5's 12 still hidden — and wins at most
    1.6% of the time, so the floor did not rise when the hazards went, it moved
-   *later*: every loss now happens in sudden death, from a board barely touched.
+   *later*: every loss now happens in last chance, from a board barely touched.
    A perfect pair wins every seed with
    clues to spare, which is what a fair budget looks like. And in between, each
    board still has a real losing side, and still comes down to the wire often
    enough to be worth playing — at p=0.7 the clues run out on 30.8% of 3×4
    rounds, 38.8% of 3×5 and 42.0% of 4×5, and 54% to 64% of those are still won
-   from there. Sudden death is a second act, not a formality.
+   from there. Last chance is a second act, not a formality.
 
    **The 4×5 was re-tuned, and it was the only one.** It was the one board dealt
    three forbidden words a side — five distinct cards, three of them pure
@@ -189,11 +189,11 @@ The map keeps that button, and its train now boards as well. Under
    direction composing a clue actually needs. It is a field, not a drawer: it
    was a `<details>` and the lid cost a tap every turn, because the dock
    unmounts with the phase and a `<details>` keeps its open state on the element
-   rather than in React. Casey clues in Danish too, and one tap loads his clue
+   rather than in React. Casey clues in Danish too, and one tap loads her clue
    into the same box. **Both sides speak Danish**: type an
    English word into the clue box and it says so, with the lookup one tap away,
    because Casey is handed the clue as a bare string beside a Danish board and
-   an English word there is one he cannot place.
+   an English word there is one she cannot place.
 
    The nine hundred settle most of it offline and recognise far more Danish than
    they contain — æ/ø/å can only be Danish, an inflection of a headword is that
@@ -221,11 +221,11 @@ The map keeps that button, and its train now boards as well. Under
    translation and an illegal clue.
 6. After each round the summary shows **what was said, and why** —
    every clue and every guess with the reasoning behind it, including what Casey
-   deliberately steered away from and how sure he was of each guess. Tap ⚑ on
-   anything of his that was a bad call: flags are kept (newest 24) and quoted
-   back to him in later rounds, with his own sentence attached, so the
+   deliberately steered away from and how sure she was of each guess. Tap ⚑ on
+   anything of hers that was a bad call: flags are kept (newest 24) and quoted
+   back to her in later rounds, with her own sentence attached, so the
    correction has something to bite on. They carry a clue word, a board word and
-   his own reasoning — no key data — so they pass the AI firewall by
+   her own reasoning — no key data — so they pass the AI firewall by
    construction, which `src/ai/flags.test.ts` asserts directly.
 7. The summary also puts the round's green words back into Danish: each with
    its example sentence, and then — when Casey is connected — woven into a
@@ -255,7 +255,7 @@ weighted toward the three that went worst, and no word may carry twice running
 The same signal steers the deal itself. Every slot on a board asks the player
 for one of three things (`SlotTier` in `src/engine/keygen.ts`), and the words
 are handed out in that order: **recall** is green on Casey's key, so you have to
-retrieve the word from his clue, and the words you keep forgetting go here
+retrieve the word from her clue, and the words you keep forgetting go here
 first; **produce** is green only on yours, which needs enough command of a word
 to find an association for it; **filler** is on neither key and asks nothing, so
 the words you know best drift into it. There used to be a fourth — **hazard**,
@@ -320,17 +320,17 @@ everything, which is the trap that was fixed by putting the rate in the stamp.
 
 There isn't one. Open the deployed page on your phone, "Add to Home Screen",
 press play. No account, no API key, no model to choose. A first open starts
-inside the train — Casey introduces himself in three lines and punches your
+inside the train — Casey introduces herself in three lines and punches your
 ticket (the language pick, one confirm card while Danish is the only pack) —
 and then plays you through one real round: the gentlest board (3×4), dealt on
 the real engine from Sønderborg's first twelve words with a fixed seed, Casey
-scripted beside it. He clues first in Danish and points at the dictionary
+scripted beside it. She clues first in Danish and points at the dictionary
 rather than glossing; one miss is staged on purpose so the game's central rule
 — a guess is judged against the **clue-giver's** key — gets said at the moment
 it visibly happens, and the burned card is then won back under your own clue.
 The round is offline by construction, its words count toward the collection
 for real, and it records no game — the first won *real* round stays the moment
-that earns anything. The win opens Casey himself: a four-step spotlight walks
+that earns anything. The win opens Casey herself: a four-step spotlight walks
 the real suitcase screen top to bottom — the loose strip holding the twelve
 words just met, the empty lid (collected needs a green each way, and one round
 gives each word one), the tray, and the sleeping wrap-up button with both of
@@ -364,7 +364,7 @@ app release every installed PWA has to notice, and a model id retired upstream
 is fixed in one place instead of breaking every install at once.
 
 Nothing about this needs the network to be good, or to exist. Casey is the only
-part of the game that talks to a server: if he cannot be reached, the error
+part of the game that talks to a server: if she cannot be reached, the error
 banner offers **Play on without Casey** and the round finishes with a practice
 companion that runs entirely on the phone. The same offer appears if the
 proxy's [daily cap](proxy/README.md#the-daily-caps) is spent.
@@ -439,7 +439,7 @@ node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
                               # and the two rules that stop it reading the board
 node e2e/article-drive.mjs    # en/et on every card, across all nine cities, on
                               # a 360px phone — and costing the word no line
-node e2e/endgame-drive.mjs    # Casey opens; the 3x5 board; and sudden death
+node e2e/endgame-drive.mjs    # Casey opens; the 3x5 board; and last chance
                               # won, lost and walked away from
 node e2e/repeat-drive.mjs     # every board shares exactly three words with the
                               # one before it — across a reload and a v1 save

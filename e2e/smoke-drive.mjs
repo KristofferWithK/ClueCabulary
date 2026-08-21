@@ -439,7 +439,14 @@ try {
     if (cap === 'Give Casey a clue') {
       await page.fill('.clue-input input', `huskeliste${i}`)
       await page.click('.clue-input .btn-primary')
-    } else if (cap === 'Your turn to guess' || cap?.includes('Sudden')) {
+      // Anything that is not the clue turn is a turn where the player taps
+      // cards, so ask the board rather than the caption. This used to match
+      // cap.includes('Sudden'), which the last-chance rename (D5) silently
+      // broke: the loop stopped clicking, the round never reached a summary,
+      // and the drive failed ten seconds later on .summary-stats with nothing
+      // to say why. The card's own rule is that copy moves and identifiers do
+      // not — so a drive should key on neither, and just look for the card.
+    } else {
       const card = page.locator('.word-card.card-guessable').first()
       if (await card.isVisible().catch(() => false)) {
         await card.click()

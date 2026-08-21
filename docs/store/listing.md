@@ -28,7 +28,7 @@ the app is for.
 > most useful Danish words, together.
 >
 > Each round deals a small board of Danish words. You and Casey take turns
-> giving one-word clues; the other one guesses. His key and yours differ, so
+> giving one-word clues; the other one guesses. Her key and yours differ, so
 > every clue is a small act of trust, and every guess teaches you a word the
 > way you actually remember words: because something hung on it.
 >
@@ -39,7 +39,7 @@ the app is for.
 >
 > • The 900 most frequent useful words, curated with example sentences
 > • Every word spoken aloud in a neural Danish voice, offline once cached
-> • An AI companion who explains every clue and guess he makes — and takes
+> • An AI companion who explains every clue and guess she makes — and takes
 >   flags on the bad ones
 > • After each round, the words you won come back in sentences and in a tiny
 >   story that smuggles in the small words no flashcard can teach — hvis,

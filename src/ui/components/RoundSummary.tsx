@@ -53,7 +53,7 @@ const OUTCOME_COPY: Record<OutcomeKey, { title: string; sub: string }> = {
   // the clock hands you sudden death instead of ending the round.
   'lost:timeout': { title: 'Round given up', sub: 'The connection was there — next time.' },
   'lost:sudden-death': {
-    title: 'Sudden death',
+    title: 'Last chance',
     sub: 'One word too far. The clues were spent and that one was not green.',
   },
 }
@@ -356,7 +356,7 @@ export function RoundSummary({ game }: { game: GameState }) {
                     own turns only — flagging your own clue would be marking
                     your own homework. */}
                 <p className="dim log-hint">
-                  Tap ⚑ on anything of Casey's that was a bad call. He is shown the ones you flag.
+                  Tap ⚑ on anything of Casey's that was a bad call. She is shown the ones you flag.
                 </p>
                 <ol className="turn-log">
                   {game.clueHistory.map((c, i) => {

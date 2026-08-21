@@ -171,7 +171,7 @@ describe('OllamaCompanion.getClue', () => {
       (e: unknown) => e as AiError,
     )
     expect(err).toBeInstanceOf(AiError)
-    expect(err!.message).toBe('Casey could not settle on a clue for the words he is holding.')
+    expect(err!.message).toBe('Casey could not settle on a clue for the words she is holding.')
     expect(err!.message).not.toMatch(/GREEN|wordId|JSON|schema|invalid/i)
     // …but the diagnostic is not thrown away.
     expect(vi.mocked(console.warn).mock.calls[0]![0]).toContain('bil')

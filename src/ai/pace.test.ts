@@ -117,12 +117,12 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
     const { text, state } = cluePrompt('beginner', 3)
     expect(state.turnsLeft).toBeLessThanOrEqual(2)
     expect(text).toContain('THE CLOCK')
-    expect(text).toContain('last chance')
+    expect(text).toContain('the last clue you are likely to get')
   })
 
   /**
    * The last clue is the only information the player will ever get about the
-   * greens it does not mention. Running out of clues opens sudden death, where
+   * greens it does not mention. Running out of clues opens last chance, where
    * they name words with nothing new to go on — so a green Casey never pointed
    * at is one they cannot find, and a narrow last clue does not cost a word,
    * it costs the round.
@@ -130,9 +130,23 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
   it('tells him the last clue has to cover everything he has left', () => {
     const { text, view } = cluePrompt('beginner', 3)
     const mine = aiTargetableIds(view).length
-    expect(text).toContain('sudden death')
+    expect(text).toContain('goes to last chance')
     expect(text).toContain('Anything you do not point at now, they cannot find later')
     expect(text).toContain(`cover ALL ${mine}`)
+  })
+
+  /**
+   * D5 renamed sudden death to last chance in player-facing copy, and the
+   * escalation sentence here already said "this is your last chance" about the
+   * final clue itself — reusing the same phrase for the phase name would have
+   * Casey's own prompt say "your last chance... goes to last chance" for two
+   * different things, and a model happily repeats that back to the player.
+   * The urgency sentence was reworded ("the last clue you are likely to get")
+   * so "last chance" names only the phase.
+   */
+  it('does not reuse "last chance" for the final-clue urgency, only for the phase', () => {
+    const { text } = cluePrompt('beginner', 3)
+    expect(text).not.toContain('your last chance')
   })
 
   it('asks for two or three as the normal shape, not one', () => {

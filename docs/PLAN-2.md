@@ -488,8 +488,6 @@ pass to flip.
 ## Board
 
 ### Ready
-- **D4** — Casey is she *(settled; no dependencies)*
-- **D5** — Sudden death becomes the last chance *(settled; ships with D4)*
 - **U1** — A tap says the word; ⓘ opens the dictionary
 - **S1** — Casey's guesses are spoken
 - **X1** — The stale-copy sweep
@@ -530,6 +528,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **D4 · D5** — Casey is she, and sudden death becomes the last chance — 2026-08-22 (PR #104). Copy only; the phase id and outcome reason stay persisted. Closed the `prompts.ts` collision (paceLine already used "last chance" for the final clue) and stopped smoke-drive keying its guess loop on the endgame's name.
 - **WS2** — Bake the new headwords — 2026-08-22 (PR #102). 226 clips baked, 227 orphans retired; `public/audio` back to 1,893, under the service worker cap. `scripts/validate-audio.mjs` cross-checks the manifests against the dataset in `npm run verify`, mutation-checked.
 - **T1** — The train is the way you travel, and a dev switch to ride it *(2026-08-21, PR #97)*
 - **E0** — City-only journey boards, closed 2026-08-21 (PR #98) — ordinary
