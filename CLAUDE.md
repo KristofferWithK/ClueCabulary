@@ -7,6 +7,12 @@ design document — the rules, the measured numbers behind them, and why each on
 is what it is. This file is the shorter thing: what will waste your time if you
 do not know it.
 
+`docs/clue-engine.md` is the **chessbot report / plan** (keyword: *chessbot*): the
+report on making a cheap model clue and guess like a frontier one, the four
+owner decisions of 2026-08-21 — including that journey boards become
+**city-only** — and the staged plan another session picks up from. Nothing in
+it is built yet; read it before touching `src/ai/`, the board pool, or H3/H7.
+
 ## Commands
 
 ```
