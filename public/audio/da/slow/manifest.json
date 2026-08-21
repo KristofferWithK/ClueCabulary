@@ -6306,6 +6306,797 @@
       "stamp": "e612dfa4db7c979e",
       "bytes": 4800,
       "at": "2026-08-20T16:30:44.957Z"
+    },
+    "radio": {
+      "id": "da:radio",
+      "text": "radio",
+      "stamp": "969139ed32cd49d5",
+      "bytes": 5856,
+      "at": "2026-08-21T20:43:01.477Z"
+    },
+    "pas": {
+      "id": "da:pas",
+      "text": "pas",
+      "stamp": "674b8d0c64a743d6",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:01.865Z"
+    },
+    "faerge": {
+      "id": "da:færge",
+      "text": "færge",
+      "stamp": "cf6fe50a554e9414",
+      "bytes": 5568,
+      "at": "2026-08-21T20:43:02.255Z"
+    },
+    "ko": {
+      "id": "da:ko",
+      "text": "ko",
+      "stamp": "68a5fba435f2e2ea",
+      "bytes": 3744,
+      "at": "2026-08-21T20:43:02.624Z"
+    },
+    "gris": {
+      "id": "da:gris",
+      "text": "gris",
+      "stamp": "e200148327dea722",
+      "bytes": 6144,
+      "at": "2026-08-21T20:43:03.019Z"
+    },
+    "faar": {
+      "id": "da:får",
+      "text": "får",
+      "stamp": "7bd24c55bc752d83",
+      "bytes": 8256,
+      "at": "2026-08-21T20:43:03.450Z"
+    },
+    "blyant": {
+      "id": "da:blyant",
+      "text": "blyant",
+      "stamp": "b5901a6597bb2446",
+      "bytes": 8832,
+      "at": "2026-08-21T20:43:03.879Z"
+    },
+    "kok": {
+      "id": "da:kok",
+      "text": "kok",
+      "stamp": "3aaba2e67569403d",
+      "bytes": 3744,
+      "at": "2026-08-21T20:43:04.252Z"
+    },
+    "graes": {
+      "id": "da:græs",
+      "text": "græs",
+      "stamp": "6756ea3499aa717d",
+      "bytes": 4800,
+      "at": "2026-08-21T20:43:04.635Z"
+    },
+    "paere": {
+      "id": "da:pære",
+      "text": "pære",
+      "stamp": "f79c8b03c1accb4f",
+      "bytes": 4512,
+      "at": "2026-08-21T20:43:05.004Z"
+    },
+    "skaerm": {
+      "id": "da:skærm",
+      "text": "skærm",
+      "stamp": "4b63f90c1ad16745",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:05.428Z"
+    },
+    "koerekort": {
+      "id": "da:kørekort",
+      "text": "kørekort",
+      "stamp": "3bd15bb5be94cf00",
+      "bytes": 9312,
+      "at": "2026-08-21T20:43:05.857Z"
+    },
+    "tjener": {
+      "id": "da:tjener",
+      "text": "tjener",
+      "stamp": "c7761f5c69d17c1c",
+      "bytes": 8832,
+      "at": "2026-08-21T20:43:06.272Z"
+    },
+    "citron": {
+      "id": "da:citron",
+      "text": "citron",
+      "stamp": "a1de95d0449ff2d0",
+      "bytes": 6912,
+      "at": "2026-08-21T20:43:06.676Z"
+    },
+    "bjerg": {
+      "id": "da:bjerg",
+      "text": "bjerg",
+      "stamp": "38061fb1cacfeeec",
+      "bytes": 4224,
+      "at": "2026-08-21T20:43:07.044Z"
+    },
+    "sodavand": {
+      "id": "da:sodavand",
+      "text": "sodavand",
+      "stamp": "9b7f59ec5d8434ea",
+      "bytes": 7488,
+      "at": "2026-08-21T20:43:07.454Z"
+    },
+    "pen": {
+      "id": "da:pen",
+      "text": "pen",
+      "stamp": "5fdc2aca912f3491",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:07.837Z"
+    },
+    "jordbaer": {
+      "id": "da:jordbær",
+      "text": "jordbær",
+      "stamp": "721b3cfc8b045897",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:08.274Z"
+    },
+    "frisoer": {
+      "id": "da:frisør",
+      "text": "frisør",
+      "stamp": "4ffbb094921d8f7e",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:08.650Z"
+    },
+    "kamera": {
+      "id": "da:kamera",
+      "text": "kamera",
+      "stamp": "4e7722bc2faa76c3",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:09.052Z"
+    },
+    "pande": {
+      "id": "da:pande",
+      "text": "pande",
+      "stamp": "56f17c945d53493d",
+      "bytes": 8256,
+      "at": "2026-08-21T20:43:09.481Z"
+    },
+    "bagage": {
+      "id": "da:bagage",
+      "text": "bagage",
+      "stamp": "44ac3425fb3a2f77",
+      "bytes": 10944,
+      "at": "2026-08-21T20:43:09.933Z"
+    },
+    "flod": {
+      "id": "da:flod",
+      "text": "flod",
+      "stamp": "d96f4ce22c3dfb59",
+      "bytes": 5280,
+      "at": "2026-08-21T20:43:10.317Z"
+    },
+    "agurk": {
+      "id": "da:agurk",
+      "text": "agurk",
+      "stamp": "74723f42f7ad2cf9",
+      "bytes": 7680,
+      "at": "2026-08-21T20:43:10.734Z"
+    },
+    "mus": {
+      "id": "da:mus",
+      "text": "mus",
+      "stamp": "068e6558dc11baa4",
+      "bytes": 4224,
+      "at": "2026-08-21T20:43:11.119Z"
+    },
+    "torden": {
+      "id": "da:torden",
+      "text": "torden",
+      "stamp": "46b2b8c478d0663b",
+      "bytes": 7968,
+      "at": "2026-08-21T20:43:11.539Z"
+    },
+    "taa": {
+      "id": "da:tå",
+      "text": "tå",
+      "stamp": "21d8726d81feed68",
+      "bytes": 4800,
+      "at": "2026-08-21T20:43:11.916Z"
+    },
+    "landmand": {
+      "id": "da:landmand",
+      "text": "landmand",
+      "stamp": "2596902ccecd91f1",
+      "bytes": 9312,
+      "at": "2026-08-21T20:43:12.351Z"
+    },
+    "appelsin": {
+      "id": "da:appelsin",
+      "text": "appelsin",
+      "stamp": "48dd1789c6a27e6f",
+      "bytes": 9600,
+      "at": "2026-08-21T20:43:12.798Z"
+    },
+    "toilet": {
+      "id": "da:toilet",
+      "text": "toilet",
+      "stamp": "9af6dbd6b4059e1a",
+      "bytes": 9312,
+      "at": "2026-08-21T20:43:13.239Z"
+    },
+    "ordbog": {
+      "id": "da:ordbog",
+      "text": "ordbog",
+      "stamp": "f2f10436824a1018",
+      "bytes": 5568,
+      "at": "2026-08-21T20:43:13.627Z"
+    },
+    "plante": {
+      "id": "da:plante",
+      "text": "plante",
+      "stamp": "50abbba4b980d2c3",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:14.029Z"
+    },
+    "lastbil": {
+      "id": "da:lastbil",
+      "text": "lastbil",
+      "stamp": "e96ce9720b500a7c",
+      "bytes": 5856,
+      "at": "2026-08-21T20:43:14.432Z"
+    },
+    "batteri": {
+      "id": "da:batteri",
+      "text": "batteri",
+      "stamp": "feff1150903fa921",
+      "bytes": 8256,
+      "at": "2026-08-21T20:43:14.857Z"
+    },
+    "saks": {
+      "id": "da:saks",
+      "text": "saks",
+      "stamp": "41384c473ee25c33",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:15.237Z"
+    },
+    "graense": {
+      "id": "da:grænse",
+      "text": "grænse",
+      "stamp": "2f6701e98e7376b0",
+      "bytes": 5568,
+      "at": "2026-08-21T20:43:15.633Z"
+    },
+    "bukser": {
+      "id": "da:bukser",
+      "text": "bukser",
+      "stamp": "78fae4ebd36c3839",
+      "bytes": 8256,
+      "at": "2026-08-21T20:43:16.054Z"
+    },
+    "gulerod": {
+      "id": "da:gulerod",
+      "text": "gulerod",
+      "stamp": "d1a2d70c343cbb53",
+      "bytes": 6144,
+      "at": "2026-08-21T20:43:16.444Z"
+    },
+    "journalist": {
+      "id": "da:journalist",
+      "text": "journalist",
+      "stamp": "ce5c29a900474e4b",
+      "bytes": 9888,
+      "at": "2026-08-21T20:43:16.875Z"
+    },
+    "bad": {
+      "id": "da:bad",
+      "text": "bad",
+      "stamp": "3f8640eff3582a2f",
+      "bytes": 8256,
+      "at": "2026-08-21T20:43:17.305Z"
+    },
+    "kind": {
+      "id": "da:kind",
+      "text": "kind",
+      "stamp": "d32c603373f4729a",
+      "bytes": 4224,
+      "at": "2026-08-21T20:43:17.673Z"
+    },
+    "blad": {
+      "id": "da:blad",
+      "text": "blad",
+      "stamp": "2c0d9380162dc1d8",
+      "bytes": 4800,
+      "at": "2026-08-21T20:43:18.055Z"
+    },
+    "briller": {
+      "id": "da:briller",
+      "text": "briller",
+      "stamp": "ec2ae324dc294232",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:18.489Z"
+    },
+    "lyn": {
+      "id": "da:lyn",
+      "text": "lyn",
+      "stamp": "bdb00ca4a1b09e93",
+      "bytes": 9312,
+      "at": "2026-08-21T20:43:18.916Z"
+    },
+    "loeg": {
+      "id": "da:løg",
+      "text": "løg",
+      "stamp": "b93bea5d51f77842",
+      "bytes": 5568,
+      "at": "2026-08-21T20:43:19.311Z"
+    },
+    "lektie": {
+      "id": "da:lektie",
+      "text": "lektie",
+      "stamp": "f761a8506e22ef12",
+      "bytes": 6432,
+      "at": "2026-08-21T20:43:19.704Z"
+    },
+    "haandvaerker": {
+      "id": "da:håndværker",
+      "text": "håndværker",
+      "stamp": "3d921f55e08eeb07",
+      "bytes": 8544,
+      "at": "2026-08-21T20:43:20.126Z"
+    },
+    "bage": {
+      "id": "da:bage",
+      "text": "bage",
+      "stamp": "20a95e75debd8231",
+      "bytes": 5856,
+      "at": "2026-08-21T20:43:20.522Z"
+    },
+    "hjemmeside": {
+      "id": "da:hjemmeside",
+      "text": "hjemmeside",
+      "stamp": "18071f180f9203db",
+      "bytes": 6912,
+      "at": "2026-08-21T20:43:20.924Z"
+    },
+    "fryser": {
+      "id": "da:fryser",
+      "text": "fryser",
+      "stamp": "37b3ed4b1ef9e8ea",
+      "bytes": 13056,
+      "at": "2026-08-21T20:43:21.415Z"
+    },
+    "turist": {
+      "id": "da:turist",
+      "text": "turist",
+      "stamp": "6fff652ceb01e8ee",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:21.820Z"
+    },
+    "reparere": {
+      "id": "da:reparere",
+      "text": "reparere",
+      "stamp": "64a4d74cef89347c",
+      "bytes": 10944,
+      "at": "2026-08-21T20:43:22.274Z"
+    },
+    "pose": {
+      "id": "da:pose",
+      "text": "pose",
+      "stamp": "af6ae561b274b805",
+      "bytes": 6144,
+      "at": "2026-08-21T20:43:22.672Z"
+    },
+    "oedelaegge": {
+      "id": "da:ødelægge",
+      "text": "ødelægge",
+      "stamp": "0263800213e45c1f",
+      "bytes": 7968,
+      "at": "2026-08-21T20:43:23.087Z"
+    },
+    "kanal": {
+      "id": "da:kanal",
+      "text": "kanal",
+      "stamp": "e7f17688f2296eba",
+      "bytes": 9888,
+      "at": "2026-08-21T20:43:23.553Z"
+    },
+    "skinke": {
+      "id": "da:skinke",
+      "text": "skinke",
+      "stamp": "1335370ad32624e5",
+      "bytes": 11232,
+      "at": "2026-08-21T20:43:24.013Z"
+    },
+    "koge": {
+      "id": "da:koge",
+      "text": "koge",
+      "stamp": "8e0b5b6d309cc7a1",
+      "bytes": 8544,
+      "at": "2026-08-21T20:43:24.435Z"
+    },
+    "rydde": {
+      "id": "da:rydde",
+      "text": "rydde",
+      "stamp": "d8c16ad4e8d7812d",
+      "bytes": 5280,
+      "at": "2026-08-21T20:43:24.822Z"
+    },
+    "and": {
+      "id": "da:and",
+      "text": "and",
+      "stamp": "6b871ac4372eb735",
+      "bytes": 6432,
+      "at": "2026-08-21T20:43:25.249Z"
+    },
+    "moebel": {
+      "id": "da:møbel",
+      "text": "møbel",
+      "stamp": "c4225d097a615a2b",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:25.638Z"
+    },
+    "snakke": {
+      "id": "da:snakke",
+      "text": "snakke",
+      "stamp": "abad0b9f0121fc04",
+      "bytes": 9312,
+      "at": "2026-08-21T20:43:26.079Z"
+    },
+    "trykke": {
+      "id": "da:trykke",
+      "text": "trykke",
+      "stamp": "0fad8b1628c6c43d",
+      "bytes": 7200,
+      "at": "2026-08-21T20:43:26.488Z"
+    },
+    "sweater": {
+      "id": "da:sweater",
+      "text": "sweater",
+      "stamp": "650d1e1e2ab78e02",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:26.910Z"
+    },
+    "fylde": {
+      "id": "da:fylde",
+      "text": "fylde",
+      "stamp": "c721cc92b180fe87",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:27.282Z"
+    },
+    "skaere": {
+      "id": "da:skære",
+      "text": "skære",
+      "stamp": "a691d78c538df49e",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:27.748Z"
+    },
+    "laebe": {
+      "id": "da:læbe",
+      "text": "læbe",
+      "stamp": "40cc6d0e2e74e754",
+      "bytes": 7680,
+      "at": "2026-08-21T20:43:28.176Z"
+    },
+    "raabe": {
+      "id": "da:råbe",
+      "text": "råbe",
+      "stamp": "2c594f88a4ee5294",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:28.572Z"
+    },
+    "taarn": {
+      "id": "da:tårn",
+      "text": "tårn",
+      "stamp": "db98d6b4e960ee50",
+      "bytes": 5280,
+      "at": "2026-08-21T20:43:28.949Z"
+    },
+    "ryge": {
+      "id": "da:ryge",
+      "text": "ryge",
+      "stamp": "a3404eefaa531fc6",
+      "bytes": 5568,
+      "at": "2026-08-21T20:43:29.334Z"
+    },
+    "kvittering": {
+      "id": "da:kvittering",
+      "text": "kvittering",
+      "stamp": "4953de79f3b6ed29",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:29.738Z"
+    },
+    "toerre": {
+      "id": "da:tørre",
+      "text": "tørre",
+      "stamp": "25dcb42dc2c2a246",
+      "bytes": 5280,
+      "at": "2026-08-21T20:43:30.134Z"
+    },
+    "peber": {
+      "id": "da:peber",
+      "text": "peber",
+      "stamp": "f1386731fd19c9db",
+      "bytes": 8256,
+      "at": "2026-08-21T20:43:30.544Z"
+    },
+    "politibetjent": {
+      "id": "da:politibetjent",
+      "text": "politibetjent",
+      "stamp": "e36916339689526f",
+      "bytes": 9312,
+      "at": "2026-08-21T20:43:30.980Z"
+    },
+    "blande": {
+      "id": "da:blande",
+      "text": "blande",
+      "stamp": "646a04a9628c5421",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:31.478Z"
+    },
+    "hylde": {
+      "id": "da:hylde",
+      "text": "hylde",
+      "stamp": "009c1a4fc19da8ac",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:32.049Z"
+    },
+    "hoppe": {
+      "id": "da:hoppe",
+      "text": "hoppe",
+      "stamp": "76fa29c0d4ab7c7f",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:32.464Z"
+    },
+    "skygge": {
+      "id": "da:skygge",
+      "text": "skygge",
+      "stamp": "85c7010e08c1af66",
+      "bytes": 8256,
+      "at": "2026-08-21T20:43:32.891Z"
+    },
+    "rulle": {
+      "id": "da:rulle",
+      "text": "rulle",
+      "stamp": "3a3adbe498d2480c",
+      "bytes": 4032,
+      "at": "2026-08-21T20:43:33.250Z"
+    },
+    "bluse": {
+      "id": "da:bluse",
+      "text": "bluse",
+      "stamp": "c02284576018c0a8",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:33.688Z"
+    },
+    "taage": {
+      "id": "da:tåge",
+      "text": "tåge",
+      "stamp": "e428ec60a8ce71c6",
+      "bytes": 5280,
+      "at": "2026-08-21T20:43:34.820Z"
+    },
+    "bade": {
+      "id": "da:bade",
+      "text": "bade",
+      "stamp": "2474472c732c956a",
+      "bytes": 7680,
+      "at": "2026-08-21T20:43:35.231Z"
+    },
+    "binde": {
+      "id": "da:binde",
+      "text": "binde",
+      "stamp": "509104dba7c4caa8",
+      "bytes": 7968,
+      "at": "2026-08-21T20:43:35.640Z"
+    },
+    "kursus": {
+      "id": "da:kursus",
+      "text": "kursus",
+      "stamp": "e7f56559d089d953",
+      "bytes": 6432,
+      "at": "2026-08-21T20:43:36.047Z"
+    },
+    "stege": {
+      "id": "da:stege",
+      "text": "stege",
+      "stamp": "9c9fdfa2c17896a2",
+      "bytes": 5568,
+      "at": "2026-08-21T20:43:36.439Z"
+    },
+    "teater": {
+      "id": "da:teater",
+      "text": "teater",
+      "stamp": "32e6ead1b590a0cc",
+      "bytes": 6912,
+      "at": "2026-08-21T20:43:36.851Z"
+    },
+    "haelde": {
+      "id": "da:hælde",
+      "text": "hælde",
+      "stamp": "ba87b58aa3ad61d0",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:37.282Z"
+    },
+    "app": {
+      "id": "da:app",
+      "text": "app",
+      "stamp": "6ef71f328e280d3e",
+      "bytes": 5856,
+      "at": "2026-08-21T20:43:37.676Z"
+    },
+    "smoere": {
+      "id": "da:smøre",
+      "text": "smøre",
+      "stamp": "237097edb7f9a10a",
+      "bytes": 8832,
+      "at": "2026-08-21T20:43:38.111Z"
+    },
+    "kalender": {
+      "id": "da:kalender",
+      "text": "kalender",
+      "stamp": "fc1099e0c706ddc0",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:38.519Z"
+    },
+    "servere": {
+      "id": "da:servere",
+      "text": "servere",
+      "stamp": "b341f2588c6327fb",
+      "bytes": 10944,
+      "at": "2026-08-21T20:43:38.973Z"
+    },
+    "skilt": {
+      "id": "da:skilt",
+      "text": "skilt",
+      "stamp": "91c0750abcb54597",
+      "bytes": 9024,
+      "at": "2026-08-21T20:43:39.389Z"
+    },
+    "kurv": {
+      "id": "da:kurv",
+      "text": "kurv",
+      "stamp": "c1bdb77a5fa0d02e",
+      "bytes": 4512,
+      "at": "2026-08-21T20:43:39.764Z"
+    },
+    "diskutere": {
+      "id": "da:diskutere",
+      "text": "diskutere",
+      "stamp": "1ec8e0776dd784d4",
+      "bytes": 9888,
+      "at": "2026-08-21T20:43:40.205Z"
+    },
+    "slik": {
+      "id": "da:slik",
+      "text": "slik",
+      "stamp": "c5a0fcf408d77046",
+      "bytes": 5280,
+      "at": "2026-08-21T20:43:40.595Z"
+    },
+    "ryste": {
+      "id": "da:ryste",
+      "text": "ryste",
+      "stamp": "bbfcb9c7548373d3",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:40.993Z"
+    },
+    "hjerne": {
+      "id": "da:hjerne",
+      "text": "hjerne",
+      "stamp": "1e0c99afbed79595",
+      "bytes": 9600,
+      "at": "2026-08-21T20:43:41.425Z"
+    },
+    "hviske": {
+      "id": "da:hviske",
+      "text": "hviske",
+      "stamp": "6742b0be2837980d",
+      "bytes": 5280,
+      "at": "2026-08-21T20:43:41.798Z"
+    },
+    "aftale": {
+      "id": "da:aftale",
+      "text": "aftale",
+      "stamp": "96f40c66b56c2163",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:42.253Z"
+    },
+    "glide": {
+      "id": "da:glide",
+      "text": "glide",
+      "stamp": "b8cacfe57ad916bc",
+      "bytes": 7680,
+      "at": "2026-08-21T20:43:42.668Z"
+    },
+    "skuffe": {
+      "id": "da:skuffe",
+      "text": "skuffe",
+      "stamp": "50a34a63b82e8e56",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:43.090Z"
+    },
+    "klatre": {
+      "id": "da:klatre",
+      "text": "klatre",
+      "stamp": "5a8c840bcea8ad6b",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:43.497Z"
+    },
+    "udsigt": {
+      "id": "da:udsigt",
+      "text": "udsigt",
+      "stamp": "7b3ea789b2043eee",
+      "bytes": 6144,
+      "at": "2026-08-21T20:43:43.892Z"
+    },
+    "ring": {
+      "id": "da:ring",
+      "text": "ring",
+      "stamp": "c6dc20be8c2f687d",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:44.282Z"
+    },
+    "bekymre": {
+      "id": "da:bekymre",
+      "text": "bekymre",
+      "stamp": "167813dc9dbc030e",
+      "bytes": 6432,
+      "at": "2026-08-21T20:43:44.679Z"
+    },
+    "irritere": {
+      "id": "da:irritere",
+      "text": "irritere",
+      "stamp": "a1e05f0a380b1c6c",
+      "bytes": 11232,
+      "at": "2026-08-21T20:43:45.136Z"
+    },
+    "opskrift": {
+      "id": "da:opskrift",
+      "text": "opskrift",
+      "stamp": "6a84e4639ad69eca",
+      "bytes": 5568,
+      "at": "2026-08-21T20:43:45.530Z"
+    },
+    "kramme": {
+      "id": "da:kramme",
+      "text": "kramme",
+      "stamp": "c9aab7008f29f3a8",
+      "bytes": 5088,
+      "at": "2026-08-21T20:43:45.927Z"
+    },
+    "troeste": {
+      "id": "da:trøste",
+      "text": "trøste",
+      "stamp": "4e152cda0ccbfe32",
+      "bytes": 6432,
+      "at": "2026-08-21T20:43:46.330Z"
+    },
+    "ordne": {
+      "id": "da:ordne",
+      "text": "ordne",
+      "stamp": "7c7220ca8014f0f0",
+      "bytes": 5856,
+      "at": "2026-08-21T20:43:46.760Z"
+    },
+    "klippe": {
+      "id": "da:klippe",
+      "text": "klippe",
+      "stamp": "447b2b753e8a2a20",
+      "bytes": 4800,
+      "at": "2026-08-21T20:43:47.139Z"
+    },
+    "venskab": {
+      "id": "da:venskab",
+      "text": "venskab",
+      "stamp": "3909202389ee863a",
+      "bytes": 7488,
+      "at": "2026-08-21T20:43:47.581Z"
+    },
+    "skrige": {
+      "id": "da:skrige",
+      "text": "skrige",
+      "stamp": "7c6b5c2a9a27c374",
+      "bytes": 5856,
+      "at": "2026-08-21T20:43:47.969Z"
+    },
+    "aegteskab": {
+      "id": "da:ægteskab",
+      "text": "ægteskab",
+      "stamp": "86d9dd59d3cc7dc9",
+      "bytes": 6624,
+      "at": "2026-08-21T20:43:48.478Z"
     }
   },
   "provider": "google",
