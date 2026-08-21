@@ -2,17 +2,18 @@
 // hands to the app.
 //
 // A simulator will install and photograph an app but not play one, so
-// ios-sim.yml seeds a round into localStorage instead. That file used to be
-// produced by hand, and it rotted the way a hand-written save always rots:
-// gameStore reached version 6 while the seed still said 3, migrateGame drops
-// a round saved before v4 on purpose, and the check spent every run since
-// photographing the Home screen with nothing to lift. It stayed green
-// throughout — it photographs whatever is on screen and has no opinion about
-// what that is.
+// ios-sim.yml seeds a round into localStorage instead.
 //
-// So the save is now produced by playing the built app, through the same
-// preview server and dev switches the drives use, and whatever the stores
-// write is what gets committed. Re-run it whenever a store version bumps:
+// A generator for it already existed and was not the problem; not re-running
+// it was. gameStore reached version 6 while the committed seed still said 3,
+// migrateGame drops a round saved before v4 on purpose, and so the check
+// spent every run opening on Home with no board to freeze and no dock to
+// lift. It stayed green throughout — it photographs whatever is on screen and
+// has no opinion about what that is. A generator nobody runs is a stale file
+// with extra steps, which is why the version check below and the matching one
+// in the workflow matter more than this script does.
+//
+// Re-run it whenever a store version bumps:
 //
 //     npm run build && node scripts/make-sim-seed.mjs
 //

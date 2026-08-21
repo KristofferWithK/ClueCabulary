@@ -89,9 +89,11 @@ its round was saved at gameStore version 3, which `migrateGame` drops on
 purpose, so the app opened on Home with no board to freeze and no dock to
 lift. The workflow was green throughout — it photographs whatever is on
 screen and has no opinion about what that is. Both keys are now read from
-the stores at run time and a mismatch fails the step, and the round is
-produced by playing the built app (`scripts/make-sim-seed.mjs`) rather than
-written by hand. A third failure sat underneath: `fb-idb` cannot run on
+the stores at run time and a mismatch fails the step, and
+`scripts/make-sim-seed.mjs` — which already existed, and whose only fault
+was that nobody re-ran it after two version bumps — now prints the versions
+it captured. The check is the point, not the generator: a generator nobody
+runs is a stale file with extra steps. A third failure sat underneath: `fb-idb` cannot run on
 Homebrew's Python 3.14 (`asyncio.get_event_loop()` raises now instead of
 making a loop), so the tap that raises a real keyboard had never once
 executed; the tap leg pins Python 3.11.
