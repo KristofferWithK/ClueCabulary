@@ -392,7 +392,18 @@ export function useNativeKeyboard() {
         const h = grid ? Math.round(grid.getBoundingClientRect().height) : 0
         if (h) root.style.setProperty('--board-h', `${h}px`)
         root.classList.add('kb-up')
-        report({ kb: Math.round(info.keyboardHeight), inner: window.innerHeight, board: h })
+        // `said` is the fork's payload verbatim, before any fallback is
+        // applied, and it is in the readout for one reason: iOS's own keyboard
+        // duration is 250ms, which is also RIDE_MS — so `dur 250` on a film
+        // cannot tell a forwarded duration from the guess it replaced. `said`
+        // can: 0 means the payload arrived without one (upstream plugin, or a
+        // keyboard re-reporting mid-layout) and the fallback is what ran.
+        report({
+          kb: Math.round(info.keyboardHeight),
+          said: Math.round(info.durationMs ?? 0),
+          inner: window.innerHeight,
+          board: h,
+        })
 
         // The ride is the product now — the composer travels with the keyboard
         // unless someone has asked it not to. The opt-out exists because the

@@ -284,6 +284,23 @@ jobs:
         # carry: that armour meant a broken tap produced a green run and a
         # screenshot that looked plausible. This one goes red and still uploads
         # its film.
+        #
+        # What run 13 established, and what it did not. The tap works: the app
+        # receives a real keyboardWillShow with a real height (291 on an
+        # iPhone 16 Pro), and the readout shows the ride running against it —
+        # lift -291, ride 14ms, handover 614ms, drift 0. But NO KEYBOARD IS
+        # EVER DRAWN in the film. Every frame's bottom third stays between 218
+        # and 247 mean luminance, brightest of all right after the tap; a
+        # keyboard would darken it and fill it with key shapes. A headless
+        # simctl boot delivers the keyboard's geometry to the app without
+        # rendering the keyboard itself, and `defaults write
+        # com.apple.iphonesimulator ConnectHardwareKeyboard` cannot fix that
+        # from here because it configures Simulator.app, which is not running.
+        #
+        # So the film shows the app's half of the rise and the readout carries
+        # the numbers; the picture of a composer travelling beside a keyboard
+        # is a phone's job. Do not read a keyboard-less film as a failed tap
+        # again — check the readout for `kb`.
         if: inputs.tap
         continue-on-error: true
         run: |

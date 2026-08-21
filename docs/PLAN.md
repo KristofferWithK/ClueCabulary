@@ -319,10 +319,25 @@ mechanism; its flag is retired).
   Settings and the backup panel, whose inputs sit in no dock.
 - **Accept:** layout-drive's three-leg ride block green (by default the dock
   rides ahead of the document — the mutation-killer; kbstill and
-  reduced-motion never transform; identical rest pixel and board height);
-  ios-sim film: dock top ≤ 16 px above the keyboard top in every mid-rise
-  frame, readout `dur` plausible and `drift 0`; the owner plays a TestFlight
-  build and the composer simply feels attached.
+  reduced-motion never transform; identical rest pixel and board height); the
+  ios-sim readout on a real iOS keyboard; the owner plays a TestFlight build
+  and the composer simply feels attached.
+- **Measured on the simulator 2026-08-21** (runs 13 and 14, iPhone 16 Pro).
+  A real keyboard, raised by a real tap: `kb 291`, `lift -291` — the dock is
+  sent exactly the keyboard's own height — `ride 14` (the transform starts
+  14 ms after `keyboardWillShow`, not 450 ms later), `hand 614` (the plugin's
+  late resize lands there, and the ride covered every millisecond of it),
+  `drift 0`. The pretended keyboard: `lift -336`, `ride 5`, `hand 257`,
+  `drift 0`. Drift zero both ways is the number that matters — it says the
+  probe's guess at the destination and the layout's own answer were the same
+  pixel, so the handover is invisible.
+- **What the film cannot show, and why the acceptance changed.** The original
+  criterion was a ≤ 16 px gap in every mid-rise frame. It cannot be measured
+  here: a headless `simctl` boot hands the app the keyboard's geometry
+  without ever drawing the keyboard, so the film has the composer's half of
+  the rise and no keyboard beside it (every frame's bottom third stays
+  218–247 mean luminance, brightest right after the tap). The readout is the
+  measurement instead; the picture belongs to the phone.
 
 ### C5 — Native composer (specced; built only on a "still not attached" C4 verdict)
 **Size:** 2–3 sessions, 4–6 TestFlight builds. **Deps:** C4 judged on device.

@@ -81,6 +81,30 @@ NOT change:
   `fixName('cluecab-keyboard')`. `cap sync` derives the SPM manifest from
   these; rename any one of them and the app stops linking the plugin.
 
+**The check that was supposed to catch this had been photographing nothing
+for four runs.** ios-sim.yml seeds a starting position into localStorage,
+and both halves of that seed had rotted: it set `cluecab-howto-v3` while
+uiStore had moved to v4, so the rules overlay covered every screenshot; and
+its round was saved at gameStore version 3, which `migrateGame` drops on
+purpose, so the app opened on Home with no board to freeze and no dock to
+lift. The workflow was green throughout — it photographs whatever is on
+screen and has no opinion about what that is. Both keys are now read from
+the stores at run time and a mismatch fails the step, and the round is
+produced by playing the built app (`scripts/make-sim-seed.mjs`) rather than
+written by hand. A third failure sat underneath: `fb-idb` cannot run on
+Homebrew's Python 3.14 (`asyncio.get_event_loop()` raises now instead of
+making a loop), so the tap that raises a real keyboard had never once
+executed; the tap leg pins Python 3.11.
+
+With all three fixed, the simulator finally measured the thing: a real
+keyboard, a real tap, `lift -291` against a `kb 291`, the transform starting
+14 ms after the event, the plugin's resize landing at 614 ms, and `drift 0`
+at the handover. What it still cannot do is show a keyboard — a headless
+boot delivers the geometry without rendering it — so the ≤ 16 px frame
+criterion in the plan is unmeasurable here and the readout stands in for it.
+That limitation is written into the workflow beside the tap step so the next
+reader does not mistake a keyboard-less film for a failed tap.
+
 **Reversal:** put `@capacitor/keyboard` back in package.json, delete
 `ios-plugins/` and the `cluecab-keyboard` dep, run `npm install && npx cap
 sync ios` (CapApp-SPM/Package.swift regenerates), re-invert the
