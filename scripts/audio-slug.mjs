@@ -36,8 +36,10 @@ export function audioSlug(headword, lang = 'da') {
   for (const [from, to] of FOLDS[lang] ?? []) folded = folded.replace(from, to)
   // The fold above has to happen before this decomposition, which would
   // otherwise split å into a plus a ring and strip the ring — merging
-  // være/vare, bare/bære, tænke/tanke, svær/svar, blød/blod and påstå/pasta,
-  // all six of which are in the Danish 900.
+  // får/far, tåge/tage, tænke/tanke, svær/svar, båd/bad, blød/blod and
+  // påstå/pasta, all seven of which are in the Danish 900. (It used to be six:
+  // være/vare and bare/bære left with the word selection and får/far, tåge/tage
+  // and båd/bad arrived with it. speak.test.ts carries the current list.)
   return (
     folded
       .normalize('NFD')

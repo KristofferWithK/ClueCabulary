@@ -4,6 +4,15 @@
     "om", "og", "men", "både", "enten", "hverken", "samt", "skønt",
     "medmindre", "eftersom", "således"
   ],
+  "greetings and replies": [
+    "tak", "hej", "farvel", "goddag", "godmorgen", "godnat", "hallo",
+    "velkommen", "undskyld", "skål", "okay"
+  ],
+  "numerals": [
+    "en", "to", "tre", "fire", "fem", "seks", "syv", "otte", "ni", "ti",
+    "tyve", "tredive", "fyrre", "halvtreds", "hundrede", "tusind", "nul",
+    "første", "anden", "tredje"
+  ],
   "adverbs and particles": [
     "pludselig", "straks", "sjældent", "alligevel", "desuden", "derfor",
     "ellers", "temmelig", "omtrent", "netop", "især", "hellere", "heller",
@@ -12,7 +21,9 @@
     "virkelig", "faktisk", "måske", "nok", "vel", "dog", "altså", "snart",
     "længe", "tit", "sammen", "hjemme", "ude", "inde", "oppe", "nede",
     "frem", "tilbage", "videre", "væk", "hen", "lige", "først", "sidst",
-    "vist", "gerne", "ikke", "jo", "nu", "her", "der", "ja", "nej"
+    "vist", "gerne", "ikke", "jo", "nu", "her", "der", "ja", "nej",
+    "så", "op", "ud", "ind", "ned", "mere", "mest", "mindre", "mindst",
+    "nemlig", "egentlig", "cirka", "engang", "selvfølgelig"
   ],
   "interrogatives": [
     "hvornår", "hvorfor", "hvordan", "hvorhen", "hvilken", "hvilket",

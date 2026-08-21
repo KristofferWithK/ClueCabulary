@@ -1,0 +1,163 @@
+[
+ {
+  "da": "aftale",
+  "article": "en",
+  "en": [
+   "appointment",
+   "agreement"
+  ],
+  "pos": "noun",
+  "exampleDa": "Vi har en aftale hos lægen på mandag.",
+  "exampleEn": "We have an appointment at the doctor on Monday.",
+  "order": 1,
+  "slice": "noun-5"
+ },
+ {
+  "da": "teater",
+  "article": "et",
+  "en": [
+   "theatre",
+   "theater"
+  ],
+  "pos": "noun",
+  "exampleDa": "Teatret ligger ved siden af biografen.",
+  "exampleEn": "The theatre is next to the cinema.",
+  "order": 2,
+  "slice": "noun-5"
+ },
+ {
+  "da": "kanal",
+  "article": "en",
+  "en": [
+   "canal",
+   "channel"
+  ],
+  "pos": "noun",
+  "exampleDa": "Båden sejler langsomt gennem kanalen.",
+  "exampleEn": "The boat sails slowly through the canal.",
+  "order": 3,
+  "slice": "noun-5"
+ },
+ {
+  "da": "skygge",
+  "article": "en",
+  "en": [
+   "shadow",
+   "shade"
+  ],
+  "pos": "noun",
+  "exampleDa": "Vi sad i skyggen under det store træ.",
+  "exampleEn": "We sat in the shade under the big tree.",
+  "order": 4,
+  "slice": "noun-5"
+ },
+ {
+  "da": "tårn",
+  "article": "et",
+  "en": [
+   "tower"
+  ],
+  "pos": "noun",
+  "exampleDa": "Fra tårnet kan man se hele byen.",
+  "exampleEn": "From the tower you can see the whole city.",
+  "order": 5,
+  "slice": "noun-5"
+ },
+ {
+  "da": "kalender",
+  "article": "en",
+  "en": [
+   "calendar"
+  ],
+  "pos": "noun",
+  "exampleDa": "Hun skriver mødet ind i sin kalender.",
+  "exampleEn": "She writes the meeting in her calendar.",
+  "order": 6,
+  "slice": "noun-5"
+ },
+ {
+  "da": "lastbil",
+  "article": "en",
+  "en": [
+   "truck",
+   "lorry"
+  ],
+  "pos": "noun",
+  "exampleDa": "Lastbilen holder stille foran huset.",
+  "exampleEn": "The truck is standing still in front of the house.",
+  "order": 7,
+  "slice": "noun-5"
+ },
+ {
+  "da": "udsigt",
+  "article": "en",
+  "en": [
+   "view"
+  ],
+  "pos": "noun",
+  "exampleDa": "Fra hotellet er der en flot udsigt over havet.",
+  "exampleEn": "From the hotel there is a lovely view over the sea.",
+  "order": 8,
+  "slice": "noun-5"
+ },
+ {
+  "da": "opskrift",
+  "article": "en",
+  "en": [
+   "recipe"
+  ],
+  "pos": "noun",
+  "exampleDa": "Min mor følger altid opskriften nøje.",
+  "exampleEn": "My mother always follows the recipe closely.",
+  "order": 9,
+  "slice": "noun-5"
+ },
+ {
+  "da": "skilt",
+  "article": "et",
+  "en": [
+   "sign"
+  ],
+  "pos": "noun",
+  "exampleDa": "Der står et rødt skilt ved vejen.",
+  "exampleEn": "There is a red sign by the road.",
+  "order": 10,
+  "slice": "noun-5"
+ },
+ {
+  "da": "møbel",
+  "article": "et",
+  "en": [
+   "piece of furniture"
+  ],
+  "pos": "noun",
+  "exampleDa": "Møblerne i stuen er gamle og tunge.",
+  "exampleEn": "The furniture in the living room is old and heavy.",
+  "order": 11,
+  "slice": "noun-5"
+ },
+ {
+  "da": "kurv",
+  "article": "en",
+  "en": [
+   "basket"
+  ],
+  "pos": "noun",
+  "exampleDa": "Der ligger friske æbler i kurven.",
+  "exampleEn": "There are fresh apples in the basket.",
+  "order": 12,
+  "slice": "noun-5"
+ },
+ {
+  "da": "kvittering",
+  "article": "en",
+  "en": [
+   "receipt"
+  ],
+  "pos": "noun",
+  "exampleDa": "Husk at gemme kvitteringen, hvis du vil bytte.",
+  "exampleEn": "Remember to keep the receipt if you want to exchange it.",
+  "order": 13,
+  "slice": "noun-5"
+ }
+]

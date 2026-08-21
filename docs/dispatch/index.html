@@ -359,7 +359,7 @@ var CARDS = [
   /* m = which Claude model runs the card: fable | opus | sonnet | owner.
      lane = ui | content | engine | launch (see PLAN-2, "Four lanes"). */
   { w:1, id:'E0', t:'City-only journey boards',                sub:'clue-engine.md Card 0. Before N1, alone — they edit the same deal. Display pools stay “everything reached”.', size:'½', st:'done', m:'sonnet', lane:'engine' },
-  { w:1, id:'WS1', t:'Apply the word selection',               sub:'113 out, 100 back from the pool, 13 new (owner verifies). Sentences for the new words to both budgets; chapters re-gated; quotas; validator; pins.', size:'1–2', st:'ready', m:'opus', lane:'content' },
+  { w:1, id:'WS1', t:'Apply the word selection',               sub:'113 out, 100 back from the pool, 13 new (owner verifies). Sentences for the new words to both budgets; chapters re-gated; quotas; validator; pins.', size:'1–2', st:'done', m:'opus', lane:'content' },
   { w:1, id:'T1', t:'The train travels; a dev switch to ride it', sub:'Do this first in the UI lane — without it city two is unreachable on a phone.', size:'1', st:'done', m:'opus', lane:'ui' },
   { w:1, id:'D4', t:'Casey is she',                          sub:'Five strings in src, fourteen README lines, the store drafts (listing.md:42). Identifiers untouched.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
   { w:1, id:'D5', t:'Sudden death becomes the last chance',  sub:'Copy only; the phase id and outcome reason are persisted and stay. Rewords the prompts.ts collision.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
@@ -367,7 +367,7 @@ var CARDS = [
   { w:1, id:'U1', t:'A tap speaks; ⓘ opens the dictionary',  sub:'Hearing a word becomes free; reading its meaning is what costs the lookup.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
   { w:1, id:'S1', t:'Casey’s guesses are spoken',            sub:'Needs the audio element primed inside the Give-clue tap. One TestFlight check.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
   { w:1, id:'T2', t:'The ride teaches the grammar',           sub:'Decided — the nine chapters are written and machine-checked. Build the frame; the Danish read gates shipping, not starting.', size:'1', st:'ready', m:'opus', lane:'content' },
-  { w:1, id:'WS2', t:'Bake the new headwords',                sub:'Nonce bump, push, the workflow commits back. Orphaned clips and manifest rows out in the same PR.', size:'½ + bake', st:'blocked', dep:'WS1', m:'sonnet', lane:'content' },
+  { w:1, id:'WS2', t:'Bake the new headwords',                sub:'Nonce bump, push, the workflow commits back. Orphaned clips and manifest rows out in the same PR.', size:'½ + bake', st:'ready', m:'sonnet', lane:'content' },
 
   { w:2, id:'K1', t:'The composer never changes size',       sub:'One box, three rows, one height. The verdict and the translation share a line.', size:'1–2', st:'ready', m:'opus', lane:'ui' },
   { w:2, id:'K2', t:'Every dock one height; the legend goes', sub:'layout-drive re-pointed to measure the panel rectangle every frame.', size:'1', st:'blocked', dep:'K1', m:'opus', lane:'ui' },
@@ -378,7 +378,7 @@ var CARDS = [
   { w:3, id:'N2', t:'The wrap-up is the same board',         sub:'One config in the whole game.', size:'½', st:'blocked', dep:'N1', m:'sonnet', lane:'ui' },
   { w:3, id:'E3', t:'The evaluator, the search, the engine companion', sub:'Directional trap set, margin search, EngineCompanion behind the practice seam, lazily loaded. The hardest code on the board.', size:'2', st:'blocked', dep:'E1 · E2', m:'fable', lane:'engine' },
 
-  { w:4, id:'T3', t:'The next city’s sentences reinforce the chapter', sub:'787 sentences rewritten to the chapter AND the scenery floor, measured as a share. After WS1 — or they are written for words about to leave.', size:'writing', st:'blocked', dep:'T2 · WS1', m:'fable', lane:'content' },
+  { w:4, id:'T3', t:'The next city’s sentences reinforce the chapter', sub:'787 sentences rewritten to the chapter AND the scenery floor, measured as a share. After WS1 — or they are written for words about to leave.', size:'writing', st:'blocked', dep:'T2', m:'fable', lane:'content' },
   { w:4, id:'S2', t:'Bake the 900 example sentences',        sub:'Danish only. Last of the three or the bake is paid for twice. Raise the SW maxEntries (2,000 → clips would evict).', size:'1 + bake', st:'blocked', dep:'T3', m:'opus', lane:'content' },
   { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready', m:'opus', lane:'content' },
   { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1', m:'opus', lane:'ui' },
@@ -390,7 +390,7 @@ var CARDS = [
   { w:5, id:'P2', t:'The sentence review',                   sub:'Danish → English → Danish, the highlight tracking the reading.', size:'1', st:'blocked', dep:'S2 · P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P3', t:'Retire the live story call',            sub:'Deleted end to end. One fewer proxy request per round.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P4', t:'The turn log behind a sheet',           sub:'Zero height on the summary; the ⚑ flags survive.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
-  { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'~530 judging agents across two models; one PR per city. Needs the final ids (WS1) and E4’s yes.', size:'2–3', st:'blocked', dep:'WS1 · E4', m:'opus', lane:'engine' },
+  { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'~530 judging agents across two models; one PR per city. Needs the final ids (WS1) and E4’s yes.', size:'2–3', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
   { w:5, id:'E5', t:'The hybrid',                            sub:'Evaluator as validator (turns H7 on), the candidates prompt, rank fusion, then the alias flip once the ledger says so.', size:'1–2', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
 
   { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'blocked', dep:'D4 · W1', m:'opus', lane:'ui' },

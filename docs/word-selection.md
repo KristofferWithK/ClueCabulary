@@ -3,10 +3,29 @@
 Keywords: word selection, word distribution, curriculum, clueable, scenery,
 function words, city composition, dataset.
 
-Written 2026-08-21. Status: **decided, not yet applied.** The dataset in the
-tree still has the shape described under "What ships today"; the section
-"The change to make" is the job, sized for one session plus an audio bake.
-The reasoning and the research are at the end for whoever picks it up.
+Written 2026-08-21. Status: **applied** (WS1). The dataset in the tree now has
+the shape described under "The change to make"; "What ships today" is kept as
+the before-picture, because the table in it is what the numbers after are read
+against. `scripts/apply-word-selection.mjs` is the change, run once and
+re-runnable against the pre-selection file; `scripts/word-domains.da.mjs` is
+the domain map the interleave uses. The audio bake it asks for is WS2.
+
+Two things this document got wrong, corrected where they mattered:
+
+- **The headword rule is the other way round.** Under "The change to make" and
+  in the essay atop `scripts/measure-function-words.mjs`, both say an example
+  "may not contain its own headword". `validate-words` warns when an example
+  does NOT contain it, 885 of the 900 shipped examples do, and the fifteen
+  warnings are the exceptions. So the second argument for making *tak* and the
+  greetings sentence words — that as card words they would be taught nowhere —
+  does not hold. The first argument does, and is the whole case: no one-word
+  clue reaches *tak*.
+- **"Interleave them across cities 2–9" is not reachable at 250 ranks.** The
+  hundred pool words are the tail of the frequency order, so the earliest any
+  of them may sit is position 438 of the 800 — the fifth city. Measured, they
+  spread across cities 6 to 9. The clumps this rule exists for are broken up
+  (the six fruit land in three different cities, the six professions in three,
+  the four weather words in three); the range is not.
 
 ## The decision in one paragraph
 
