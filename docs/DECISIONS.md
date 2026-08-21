@@ -46,6 +46,41 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-21 · Onboarding replays and forces are TRANSIENT — nothing they do is written (O1)
+The card asked for Settings' **Replay the intro** to be "a transient re-run;
+the done flag stays" and left `?onboard=1`'s behaviour open. Both now run the
+same screens through the same state with `persist: false`: no step marker as
+they advance, no done flag when they end. The alternative — a replay that
+re-writes `done` — would be harmless today but would quietly turn the replay
+into a repair tool for a corrupted flag, and a drive using `?onboard=1` would
+dirty the profile it was pointed at. A forced run on a genuinely fresh device
+therefore also writes nothing, which means that device gets the train again on
+its next plain load — correct, since it never finished a real run.
+**Reverse:** flip `persist` in `startOnboarding` (src/stores/uiStore.ts).
+
+### 2026-08-21 · The onboarding gate breaks ties toward "veteran" (O1)
+The card defines fresh as: onboarding key unset AND `cluecab-howto-v4` unset
+AND the SRS map empty. The open edges were decided against ambush, per the
+owner's "the owner's phone is never ambushed" line: an SRS record that exists
+but cannot be parsed counts as NOT empty (a fresh device cannot be proven, so
+none is assumed); a storage that throws (private mode) counts as done
+outright; an unknown step marker from a newer build resumes at the train
+rather than restarting a finished flow. The cost of each wrong call is one
+replayable intro or one missing intro — and a missing intro is recoverable
+from Settings, while an ambush is not.
+**Reverse:** each is one branch in `decideOnboarding` (src/onboarding/flow.ts),
+pinned individually in flow.test.ts.
+
+### 2026-08-21 · The intro replaces the screens rather than covering Home (O1)
+A fresh device renders `OnboardingScreen` INSTEAD of HomeScreen — "the app
+starts in the train" taken literally — and the decision is made in the store's
+initializer, before the first paint, so there is no one-frame flash of a Home
+the player has never met. The overlay alternative (train drawn over a mounted
+Home) was rejected because Home mounts with side effects and Casey's band
+would sit under the scene it is supposed to be starring in.
+**Reverse:** render `<OnboardingScreen />` beside the screens in App.tsx
+instead of in the ternary, and drop `initialOnboarding` for an effect.
+
 ### 2026-08-21 · The keyboard plugin is forked, and the ride ships on
 
 Build 23 on your phone settled C3's open question the other way: the composer
@@ -116,6 +151,7 @@ passing — it predates the fork). Per device, no code: five taps on the build
 number → "Composer ride: off (waits for the document)" — that is
 `cluecab-kbstill`, and it reproduces the pre-fork behaviour exactly
 (layout-drive pins the rest pixel identical both ways).
+
 
 ### 2026-08-20 · H9's first ride exists, and the stemmer wrote three of its sentences
 Sønderborg's story is built and playable: 31 sentences, three chapters, every

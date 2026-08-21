@@ -6,12 +6,8 @@ import { useGame } from './stores/gameStore'
 import { rescueStrandedJourney, useJourney } from './stores/journeyStore'
 import { useSettings } from './stores/settingsStore'
 import { useSrs } from './stores/srsStore'
-import {
-  consumeSelfPop,
-  devSwitchesAllowed,
-  shouldShowHowTo,
-  useUi,
-} from './stores/uiStore'
+import { decideOnboarding, markOnboardDone } from './onboarding/flow'
+import { consumeSelfPop, devSwitchesAllowed, useUi } from './stores/uiStore'
 import { useNativeKeyboard } from './ui/nativeKeyboard'
 import { DictionarySheet } from './ui/components/DictionarySheet'
 import { HowToPlay } from './ui/components/HowToPlay'
@@ -20,6 +16,7 @@ import { GameScreen } from './ui/screens/GameScreen'
 
 import { HomeScreen } from './ui/screens/HomeScreen'
 import { MapScreen } from './ui/screens/MapScreen'
+import { OnboardingScreen } from './ui/screens/OnboardingScreen'
 import { SuitcaseScreen } from './ui/screens/SuitcaseScreen'
 import { SettingsScreen } from './ui/screens/SettingsScreen'
 
@@ -71,6 +68,7 @@ function PencilDefs() {
 
 export default function App() {
   const screen = useUi((s) => s.screen)
+  const onboarding = useUi((s) => s.onboarding)
   const [rescued, setRescued] = useState<{ cityIndex: number; banked: number } | null>(null)
 
   // Native shell only. On the mobile web this does nothing at all — see
@@ -84,14 +82,19 @@ export default function App() {
     if (r.outcome === 'rescued' && r.recovered) setRescued(r.recovered)
   }, [])
 
-  // The rules open themselves exactly once. Its own effect, because it must
-  // run for every player — it used to sit below the dev-switch guard in the
-  // effect beneath this one, which returns early on any deployed origin, so
-  // on the live site the rules never opened.
+  // The rules overlay used to open itself here, exactly once per device.
+  // Onboarding owns first-run now (O1): a fresh device opens inside the train
+  // — decided in uiStore's initialOnboarding(), before the first paint — and
+  // the overlay stays reachable behind ? only. What is left for an effect is
+  // the quiet half of the gate: a device that has clearly played (rules seen,
+  // or words in the SRS map) but has no onboarding marker yet gets one
+  // written, so the inference runs once rather than on every load. Its own
+  // effect for the reason the old one was: it must run for every player, and
+  // the dev-switch guard below returns early on any deployed origin.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('howto') === '0') return
-    if (shouldShowHowTo()) useUi.getState().openHowTo()
+    if (decideOnboarding().kind === 'veteran') markOnboardDone()
   }, [])
 
   // Dev/e2e switches: ?mock=1 selects the offline companion, ?seed=N fixes the board.
@@ -248,11 +251,19 @@ export default function App() {
           board. Rendered app-wide it was eating the first tap on Settings and
           the backup panel, whose inputs sit in no dock — kb-up engaged with
           nothing at z-index 5 to punch through the scrim at 4. */}
-      {screen === 'home' && <HomeScreen />}
-      {screen === 'game' && <GameScreen />}
-      {screen === 'settings' && <SettingsScreen />}
-      {screen === 'suitcase' && <SuitcaseScreen />}
-      {screen === 'map' && <MapScreen />}
+      {/* The intro REPLACES the screens rather than covering one: a fresh
+          device opens inside the train, not on a Home it has never seen. */}
+      {onboarding ? (
+        <OnboardingScreen />
+      ) : (
+        <>
+          {screen === 'home' && <HomeScreen />}
+          {screen === 'game' && <GameScreen />}
+          {screen === 'settings' && <SettingsScreen />}
+          {screen === 'suitcase' && <SuitcaseScreen />}
+          {screen === 'map' && <MapScreen />}
+        </>
+      )}
       {rescued && (
         <div className="update-banner" role="status">
           <span>

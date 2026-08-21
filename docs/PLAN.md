@@ -48,10 +48,9 @@ model alias `cluey`).
 ## Board
 
 ### Ready
-- **O1** — The train: onboarding shell, the gate, and the ticket *(carded 2026-08-21)*
+- **O2** — The tutorial round: a guided beginner board, Casey on screen *(O1 done — the shell, the gate and `advanceOnboarding` are in; O2 inserts its step after the ticket, where OnboardingScreen's `choose` says so)*
 
 ### Blocked
-- **O2** — The tutorial round: a guided beginner board, Casey on screen *(needs O1)*
 - **O3** — The suitcase tour and the arrival *(needs O2)*
 - **O4** — Onboarding aftercare: the reference card, first-time dock lines, tips order *(needs O2; parallel with O3)*
 - **C5** — Native composer *(needs C4 judged on the owner's phone; built only on a "still not attached" verdict — the spec is on the C4 card)*
@@ -66,6 +65,7 @@ model alias `cluey`).
 - **H5** — Sentence stories written to a coverage target — implemented 2026-08-20 and merged to `main` (squash `0a6b798`); the card stays open only for the eight cities still unwritten
 
 ### Done
+- **O1** — The train: onboarding shell, the gate, and the ticket — done 2026-08-21 ([PR #83](https://github.com/KristofferWithK/ClueCabulary/pull/83)). A fresh device opens inside the train; the ticket is a picker collapsed to one confirm card; the gate never ambushes an existing phone (`?howto=0` suppressed it for all seventeen drives); Settings gains "Replay the intro". Two decisions pinned in DECISIONS.md (transient replays; ties toward veteran).
 - **V1** — The voice is **da-DK-Chirp3-HD-Aoede at rate 0.6** — decided by the owner 2026-08-20 from a 35-voice audition and a five-point rate audition, both under `audition/`. `--rate` became a real flag (it was a literal in three adapters) and entered the manifest stamp, without which a speed change would have skipped all 900 words and reported success. Baked and committed by `bake-audio.yml`.
 - **H7** — Cascade tier: escalation rides the corrective retry — merged 2026-08-20 ([PR #76](https://github.com/KristofferWithK/ClueCabulary/pull/76), squash 2f2a0d8). Zero extra round trips; shipped alias table carries no cascade, byte-for-byte today's behaviour.
 - **H1** — Language-pack seam; Danish runs on it — merged 2026-08-20 ([PR #77](https://github.com/KristofferWithK/ClueCabulary/pull/77), squash 6bee696). H2 adds one registry line and the picker appears by itself.

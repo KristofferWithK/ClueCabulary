@@ -462,7 +462,10 @@ check('and the pips do not read out twice', header.pipsHidden)
 check('and says how many are left, not a rule that no longer exists', /left/.test(header.label) && !/last chance/i.test(header.label), header.label)
 
 // The rules overlay claims role=dialog aria-modal; it has to behave like one.
-await page.goto(BASE + '?mock=1', { waitUntil: 'networkidle' })
+// Opened through the ? button: the overlay never opens itself any more —
+// onboarding owns first-run (O1) and ? is the overlay's only door.
+await open('?mock=1&howto=0')
+await page.locator('.icon-btn[aria-label="How to play"]').click()
 await page.waitForSelector('.howto')
 const focusedInside = await page.evaluate(
   () => document.querySelector('.howto')?.contains(document.activeElement) ?? false,
@@ -656,6 +659,23 @@ for (const vp of [
   await page.locator('.icon-btn[aria-label="Settings"]').click()
   await page.waitForSelector('.settings-screen')
   await noScroll(`settings @${vp.name}`)
+
+  // The onboarding train (O1), forced by its dev switch so the sweep does not
+  // depend on this profile looking fresh — by this point in the drive it has
+  // stats, a howto flag, everything the gate reads as veteran. Skip must stay
+  // on screen at every act: the study-phase precedent, same as the ride above.
+  await open('?onboard=1&mock=1')
+  await page.waitForSelector('.onboard-screen[data-act="train"]')
+  await noScroll(`onboarding train @${vp.name}`)
+  const trainSkip = await page.locator('.onboard-skip').boundingBox()
+  check(
+    `onboarding Skip stays on screen @${vp.name}`,
+    trainSkip.y + trainSkip.height <= vp.height + 1,
+    `${Math.round(trainSkip.y + trainSkip.height)} vs ${vp.height}`,
+  )
+  for (let i = 0; i < 3; i++) await page.locator('.onboard-next').click()
+  await page.waitForSelector('.onboard-screen[data-act="ticket"]')
+  await noScroll(`onboarding ticket @${vp.name}`)
 
   // The game, in the phase measured tallest (the opening clue dock), on the
   // widest board.
