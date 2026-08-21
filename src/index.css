@@ -4629,6 +4629,16 @@ body:has(.kb-up) {
   background: rgba(46, 125, 50, 0.07);
 }
 
+/* Which of the two lines is being read right now. The sentence is highlighted
+   for all four passes; this says whether what you are hearing is the Danish or
+   its translation, which is the only way to tell the second pass from the
+   first without listening for the language. */
+.ride-da.is-speaking,
+.ride-en.is-speaking {
+  color: var(--green);
+  font-weight: 600;
+}
+
 .ride-controls {
   flex: none;
   display: flex;

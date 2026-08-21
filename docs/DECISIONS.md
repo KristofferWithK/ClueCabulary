@@ -88,6 +88,39 @@ is the waste worth avoiding, so Sønderborg is a sample to react to.
 disappears by its own fallback; delete `TrainRide.tsx` and the two lines in
 MapScreen to remove it entirely.
 
+### 2026-08-21 · The ride says every sentence four times
+
+Your shape, implemented as given: **Danish at its ordinary pace, the English
+translation, the Danish slowly, then the Danish again.** It lives in
+`src/journey/rideCycle.ts` as a four-entry list rather than as branches inside
+the player, so the order is one readable line and a unit test pins it — writing
+the slow pass before the translation is the mistake it exists to prevent, since
+hearing a sentence taken apart before you know what it means is the version that
+does not teach.
+
+The last pass is the FIRST clip replayed rather than a fourth bake. Ending on
+the ordinary reading, after the slow one, is the point of ending there.
+
+**What it costs.** Sønderborg's 31 sentences become 124 passes, so the ride runs
+roughly four times as long as it did. Skip is untouched and any single line can
+still be tapped to hear just that sentence's cycle, which is where the design
+already stood.
+
+**The stories are baked three ways**, the same pattern the words took: `story/`
+at 1.0, `story/slow/` the 0.6 clips moved sideways, and `story/en/` new — the
+English, read by `en-US-Chirp3-HD-Aoede` so one narrator carries both languages.
+If Google does not serve that exact name the bake's voice guard fails loudly and
+prints the names it does serve; a sibling Chirp3 name is then the fix.
+
+The device-voice fallback follows the pass it is standing in: `speakText` takes
+a BCP-47 tag now, and the English pass is read in English. Without that a phone
+with no clips would read «The sun rises over Sønderborg» in a Danish accent,
+which is worse than saying nothing.
+
+**Reverse:** drop the cycle to `[{ variant: 'normal', side: 'da' }]` in
+rideCycle.ts and the ride is exactly what it was; the extra clips can stay
+unused or be deleted with their directories.
+
 ### 2026-08-20 · 0.6 is the 🐢 now, not the only speed
 
 You asked for the ordinary tap to sound normal, with a slow replay available in

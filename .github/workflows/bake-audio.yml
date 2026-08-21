@@ -37,9 +37,10 @@ concurrency:
   group: bake-audio-${{ github.ref }}
 
 env:
-  # Bump to re-run on a push. 5 = the words are re-baked at 1.0 and the 0.6 set
-  # they used to be moves to audio/da/slow as the dictionary's 🐢.
-  BAKE_NONCE: '5'
+  # Bump to re-run on a push. 6 = the ride's sentences get the same treatment
+  # as the words — an ordinary reading, the 0.6 one moved to story/slow, and
+  # the English translation the cycle plays between them.
+  BAKE_NONCE: '6'
 
 jobs:
   bake:
@@ -74,7 +75,7 @@ jobs:
           # The voice guard inside the script refuses a name Google does not
           # serve, so a bad default fails here rather than producing 900 wrong
           # clips that sound fine one at a time.
-          for src in words words-slow stories; do
+          for src in words words-slow stories stories-slow stories-en; do
             echo "── $src"
             node scripts/make-audio.mjs --lang "$LANG_CODE" --source "$src" $FORCE
           done
@@ -89,6 +90,8 @@ jobs:
               ('words     ', 'public/audio/$LANG_CODE/manifest.json'),
               ('words-slow', 'public/audio/$LANG_CODE/slow/manifest.json'),
               ('stories   ', 'public/audio/$LANG_CODE/story/manifest.json'),
+              ('stories-sl', 'public/audio/$LANG_CODE/story/slow/manifest.json'),
+              ('stories-en', 'public/audio/$LANG_CODE/story/en/manifest.json'),
           ):
               try:
                   m = json.load(open(path))

@@ -64,6 +64,21 @@ if (canSpeak()) {
 }
 
 /**
+ * A voice for a tag that is not the active language's. Exact match first, then
+ * anything in the same language, the same order `refreshVoice` uses.
+ */
+function voiceFor(tag: string): SpeechSynthesisVoice | undefined {
+  if (!canSpeak()) return undefined
+  const voices = window.speechSynthesis.getVoices()
+  const want = tag.toLowerCase()
+  const prefix = `${want.split('-')[0]}-`
+  return (
+    voices.find((v) => v.lang.toLowerCase() === want) ??
+    voices.find((v) => v.lang.toLowerCase().startsWith(prefix))
+  )
+}
+
+/**
  * When speech was last cancelled from outside `speakText`.
  *
  * The WebKit quirk below keys off `synth.speaking || synth.pending`, which is
@@ -76,7 +91,11 @@ if (canSpeak()) {
 let cancelledAt = -Infinity
 const TEARDOWN_MS = 90
 
-export function speakText(text: string, rate: number = ACTIVE.speech.rate): void {
+export function speakText(
+  text: string,
+  rate: number = ACTIVE.speech.rate,
+  tag: string = ACTIVE.speech.tag,
+): void {
   if (!canSpeak()) return
   // The sound switch is checked here as well as in `playWord`, because this is
   // also the direct path for example sentences and looked-up words — the two
@@ -86,8 +105,13 @@ export function speakText(text: string, rate: number = ACTIVE.speech.rate): void
   const go = () => {
     if (!cachedVoice) refreshVoice()
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = ACTIVE.speech.tag
-    if (cachedVoice) utterance.voice = cachedVoice
+    utterance.lang = tag
+    // The cache holds the voice for the language being taught. Anything else —
+    // today only the ride's English translation — is looked up per utterance
+    // rather than cached: it is the no-clip path of one step of one screen,
+    // and a second cache to keep warm would cost more than it saves.
+    const voice = tag === ACTIVE.speech.tag ? cachedVoice : voiceFor(tag)
+    if (voice) utterance.voice = voice
     // The pack's normal rate unless the caller asked for its slow one. This is
     // the no-clip path, so it is the only place a rate is still spoken rather
     // than baked.
@@ -213,14 +237,35 @@ export type SpeechVariant = 'normal' | 'slow'
  * A sentence, unlike a word, is not addressed by a dataset id — there is
  * nothing to fold or to guard against Windows device names, because the name
  * is two numbers. It must agree with `storySlug` in journey/travelStory.ts and
- * with the `--source stories` branch of make-audio.mjs; a test asserts every
- * sentence in the shipped stories has a file at exactly this path, so the
- * three cannot drift apart quietly.
+ * with the story branch of make-audio.mjs; journey-drive asks the built app
+ * for these files, so the three cannot drift apart quietly.
+ *
+ * Three bakes of one sentence, because the ride says each one four times:
+ * `story/` is the Danish at its ordinary pace and is also the fourth pass,
+ * `story/en/` is the English translation between them, and `story/slow/` is
+ * the Danish at 0.6 — the clips that used to be the ride's only audio.
  */
-export function storyAudioUrl(cityIndex: number, sentenceIndex: number): string {
+export function storyAudioUrl(
+  cityIndex: number,
+  sentenceIndex: number,
+  variant: StoryVariant = 'normal',
+): string {
   const slug = `${cityIndex}-${String(sentenceIndex).padStart(3, '0')}`
-  return `${import.meta.env.BASE_URL}audio/${ACTIVE.code}/story/${slug}.mp3`
+  const dir = variant === 'normal' ? 'story' : `story/${variant}`
+  return `${import.meta.env.BASE_URL}audio/${ACTIVE.code}/${dir}/${slug}.mp3`
 }
+
+/** Which of a sentence's three clips: the Danish, its translation, the slow Danish. */
+export type StoryVariant = 'normal' | 'en' | 'slow'
+
+/**
+ * The tag the device voice reads a TRANSLATION in, when there is no baked clip
+ * for it. Must match the locale the `stories-en` source bakes with in
+ * make-audio.mjs, or the same sentence arrives in two accents depending on
+ * whether the build has audio. English is not a dataset language and has no
+ * pack, which is why this is a literal here rather than a field on one.
+ */
+export const TRANSLATION_TAG = 'en-US'
 
 /* ------------------------------------------------------------------ *
  * The player

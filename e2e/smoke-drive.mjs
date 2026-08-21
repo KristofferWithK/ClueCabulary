@@ -79,7 +79,7 @@ try {
   // The LAST card, deliberately: `speak.ts` memoises a played clip, so a word
   // played here would not be fetched again when the tour below reaches it, and
   // this check would silently steal an assertion from that one. The tour only
-  // gets a few words into board order in its 2.6s, so the end of the board is
+  // gets a few words into board order in its 3.4s, so the end of the board is
   // out of its way.
   const audioHits = []
   page.on('response', (r) => {
@@ -203,7 +203,7 @@ try {
   })
   if (!(await page.locator('.hear-board').count())) throw new Error('no hear-the-board button')
   await page.locator('.hear-board').click()
-  await sleep(2600)
+  await sleep(3400)
   // Compared in slug space, since one channel reports the word and the other
   // reports its filename, and «øje»/«oeje» are the same statement.
   const asSlug = (e) => (e.startsWith('clip:') ? e.slice(5) : audioSlug(e))
@@ -216,9 +216,10 @@ try {
   // each one, so the run is flattened before comparing.
   const raw = (await page.evaluate(() => window.__asked.slice())).map(asSlug)
   const heard = raw.filter((s, i) => i === 0 || s !== raw[i - 1])
-  // Board order, which is reading order. Two words in 2.6s at the 1200ms
-  // cadence; a third is allowed for slack rather than required.
-  if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 2.6s`)
+  // Board order, which is reading order. Three words in 3.4s at the 1500ms
+  // cadence — the pace HearBoard measured off the clips — and the third is
+  // allowed for slack rather than required, since the run is flattened above.
+  if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 3.4s`)
   const wanted = cards.slice(0, heard.length).map(audioSlug)
   if (heard.join('|') !== wanted.join('|')) {
     throw new Error(`hear-the-board went out of order: ${heard.join(', ')} vs ${wanted.join(', ')}`)

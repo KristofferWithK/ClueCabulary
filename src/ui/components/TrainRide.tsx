@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { cityAt } from '../../journey/cities'
+import { RIDE_CYCLE, nextPass } from '../../journey/rideCycle'
 import { storyForCity, storySentences } from '../../journey/travelStory'
 import { useSettings } from '../../stores/settingsStore'
 import { ACTIVE } from '../../lang/active'
-import { canSpeak, speakText, stopWordAudio, storyAudioUrl } from '../speak'
+import { TRANSLATION_TAG, canSpeak, speakText, stopWordAudio, storyAudioUrl } from '../speak'
 
 /**
  * The ride out of a city: its hundred words, read back as a story.
@@ -22,6 +23,8 @@ import { canSpeak, speakText, stopWordAudio, storyAudioUrl } from '../speak'
  * made to sit through eight sentences of Danish first — an unskippable ritual
  * is how a lovely idea becomes the thing people dread between rounds. The
  * study phase was cut once already for being homework, which is the precedent.
+ * That matters more now than it did: each sentence is said four times (see
+ * journey/rideCycle.ts), so the ride is four times the length it was.
  */
 export function TrainRide({
   cityIndex,
@@ -36,6 +39,8 @@ export function TrainRide({
   const sentences = useMemo(() => (story ? storySentences(story) : []), [story])
 
   const [at, setAt] = useState<number | null>(null)
+  /** Which pass of RIDE_CYCLE the current sentence is on. */
+  const [pass, setPass] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [slow, setSlow] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -65,51 +70,77 @@ export function TrainRide({
 
   if (!story) return null
 
-  const playFrom = (index: number) => {
+  /**
+   * One pass of one sentence, and then the next by itself.
+   *
+   * The cycle is in journey/rideCycle.ts and the reason it is four passes is
+   * there too. What is here is only how a pass is made audible: the baked clip
+   * for that pass, or the device voice reading the same line if the build has
+   * no clips — in the language that pass is IN, which is the one thing an
+   * English step must not get wrong.
+   */
+  const playPass = (index: number, step: number) => {
     if (index >= sentences.length) {
       setPlaying(false)
       setAt(null)
+      setPass(0)
       return
     }
     setAt(index)
+    setPass(step)
     setPlaying(true)
     if (!sound) return
 
+    const sentence = sentences[index]!
+    const cur = RIDE_CYCLE[step]!
     const a = (audioRef.current ??= new Audio())
     a.onended = null
     a.pause()
-    a.src = storyAudioUrl(cityIndex, index)
-    // The clips are already baked slow (0.6); this is a second, free step for
-    // a learner who wants it, and it stretches rather than re-times — which is
-    // why it is a small nudge and not another halving.
+    a.src = storyAudioUrl(cityIndex, index, cur.variant)
+    // The slow pass is its own bake at 0.6; this toggle is a second, free step
+    // on top of whichever pass is playing, and it stretches rather than
+    // re-times — which is why it is a small nudge and not another halving.
     a.playbackRate = slowRef.current ? 0.8 : 1
     // Without this the pitch rises with the rate and Aoede turns into a
     // chipmunk, which is worse than no toggle at all.
     ;(a as HTMLAudioElement & { preservesPitch?: boolean }).preservesPitch = true
-    a.onended = () => playFrom(index + 1)
+    a.onended = () => {
+      const next = nextPass(index, step)
+      playPass(next.sentence, next.step)
+    }
     a.play().catch(() => {
       // No clip in this build, or the browser refused: read it with the device
       // voice instead. Silent phones simply show the text, which is the same
-      // bargain RoundSentences makes.
-      // The slow toggle has to reach this half too: a phone with no baked
-      // story reads the same sentences, and the button that says «slower» must
-      // not be inert on it.
+      // bargain RoundSentences makes. The chain stops here either way —
+      // speakText cannot say when it has finished (see speak.ts) — so the
+      // player taps to continue, which is what happened before the cycle too.
       if (canSpeak()) {
-        speakText(sentences[index]!.da, slowRef.current ? ACTIVE.speech.slowRate : ACTIVE.speech.rate)
+        if (cur.side === 'en') speakText(sentence.en, ACTIVE.speech.rate, TRANSLATION_TAG)
+        else speakText(sentence.da, cur.variant === 'slow' ? ACTIVE.speech.slowRate : ACTIVE.speech.rate)
       }
       setPlaying(false)
     })
   }
 
+  /** Tapping a line, or pressing Listen: start that sentence from its first pass. */
+  const playFrom = (index: number) => playPass(index, 0)
+
   const stop = () => {
     const a = audioRef.current
-    if (a) a.pause()
+    if (a) {
+      // The handler would otherwise start the next pass a beat after the
+      // pause, which is a ride that will not stop.
+      a.onended = null
+      a.pause()
+    }
     if (canSpeak()) window.speechSynthesis.cancel()
     setPlaying(false)
   }
 
   const city = cityAt(cityIndex)
   let n = -1
+  const speakingSide = (index: number, side: 'da' | 'en') =>
+    playing && at === index && RIDE_CYCLE[pass]!.side === side
 
   return (
     <div className="screen ride-screen">
@@ -164,10 +195,18 @@ export function TrainRide({
                       onClick={() => playFrom(index)}
                       aria-label={`Play: ${s.da}`}
                     >
-                      <span className="ride-da" lang={ACTIVE.code}>
+                      {/* Which line is speaking, so the four passes read as
+                          one sentence being worked through rather than as a
+                          repeat nobody asked for. */}
+                      <span
+                        className={`ride-da${speakingSide(index, 'da') ? ' is-speaking' : ''}`}
+                        lang={ACTIVE.code}
+                      >
                         {s.da}
                       </span>
-                      <span className="ride-en">{s.en}</span>
+                      <span className={`ride-en${speakingSide(index, 'en') ? ' is-speaking' : ''}`}>
+                        {s.en}
+                      </span>
                     </button>
                   </li>
                 )
@@ -180,7 +219,10 @@ export function TrainRide({
       <div className="ride-controls">
         <button
           className="btn btn-primary ride-play"
-          onClick={() => (playing ? stop() : playFrom(at ?? 0))}
+          // Continue picks the cycle up where it stopped rather than restarting
+          // the sentence, so a pause in the middle of the translation does not
+          // cost the Danish again.
+          onClick={() => (playing ? stop() : playPass(at ?? 0, at === null ? 0 : pass))}
         >
           {playing ? 'Pause' : at === null ? 'Listen' : 'Continue'}
         </button>

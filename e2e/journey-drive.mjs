@@ -5,9 +5,14 @@
 // rather than by playing a wrap-up round, because the wrap-up mode lands in
 // the next change. The full loop — collect → wrap in play → travel — returns
 // with it.
+import { readdirSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { setTimeout as sleep } from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const PORT = 4177
 const preview = await startPreview(PORT)
 
@@ -72,16 +77,86 @@ try {
   if (!rideEyebrow?.includes('Sønderborg')) {
     throw new Error(`the ride should be leaving Sønderborg, got "${rideEyebrow}"`)
   }
-  // The clip the app will actually ask for must exist in this BUILD, not just
+  // The clips the app will actually ask for must exist in this BUILD, not just
   // in the repo — dist is what ships, and a missing public/ copy is invisible
   // to a unit test.
-  const clip = await page.evaluate(async () => {
-    const url = new URL('audio/da/story/0-000.mp3', document.baseURI).href
-    const res = await fetch(url, { method: 'HEAD' })
-    return { url, status: res.status, type: res.headers.get('content-type') }
+  //
+  // All THREE of them, because the ride says each sentence four times: the
+  // Danish, the English translation, the Danish slowly, the Danish again
+  // (journey/rideCycle.ts). One missing directory is a silent gap in the
+  // middle of every sentence rather than a ride that obviously fails.
+  //
+  // On the content type, not the status: `vite preview` answers an unknown
+  // path with index.html and a 200, so a status check passes with the clips
+  // deleted — the trap smoke-drive documents at length and this check used to
+  // sit in.
+  const clips = await page.evaluate(async () => {
+    const want = ['story/0-000.mp3', 'story/en/0-000.mp3', 'story/slow/0-000.mp3']
+    const out = []
+    for (const path of want) {
+      const url = new URL(`audio/da/${path}`, document.baseURI).href
+      const res = await fetch(url, { method: 'HEAD' })
+      out.push({ path, status: res.status, type: res.headers.get('content-type') ?? '' })
+    }
+    return out
   })
-  console.log('first story clip:', clip.status, clip.type)
-  if (clip.status !== 200) throw new Error(`story clip missing from the build: ${clip.url}`)
+  for (const c of clips) console.log(`story clip ${c.path}: ${c.status} ${c.type}`)
+  // Strict about the bakes this tree HAS, and honest about the ones it does
+  // not: the three sets are made by separate passes of one CI run, so a tree
+  // can sit between them for a few minutes — as this one did when the ride
+  // grew its cycle. Silence about a missing set would read as proof it was
+  // there, so the ones on disk are asserted and the rest are named out loud.
+  const onDisk = (...parts) => {
+    try {
+      return readdirSync(resolve(ROOT, 'dist', 'audio', 'da', ...parts)).filter((f) =>
+        f.endsWith('.mp3'),
+      ).length
+    } catch {
+      return 0
+    }
+  }
+  const have = { 'story/0-000.mp3': onDisk('story'), 'story/en/0-000.mp3': onDisk('story', 'en'), 'story/slow/0-000.mp3': onDisk('story', 'slow') }
+  const missing = clips.filter((c) => have[c.path] > 0 && (c.status !== 200 || !c.type.startsWith('audio/')))
+  if (missing.length) {
+    throw new Error(
+      `the ride's cycle has no clip for: ${missing.map((c) => c.path).join(', ')} — a 200 of ` +
+        `text/html here is the preview server's index.html, not audio. Those clips are in the ` +
+        `repo but not in the build.`,
+    )
+  }
+  const unbaked = clips.filter((c) => have[c.path] === 0)
+  if (unbaked.length) {
+    console.log(
+      `NOTE: no bake yet for ${unbaked.map((c) => c.path.replace('/0-000.mp3', '')).join(', ')} ` +
+        `— the ride falls back to the device voice for those passes. Run bake-audio.yml.`,
+    )
+  }
+
+  // And the cycle asks for them in that order. Asserted on the requests the
+  // page makes rather than on anything audible: headless Chromium has no audio
+  // device, so what can be measured is which file the ride reached for.
+  const asked = []
+  page.on('request', (r) => {
+    const m = r.url().match(/audio\/da\/(story[^?]*)\.mp3/)
+    if (m) asked.push(m[1])
+  })
+  await page.click('.ride-play')
+  await sleep(2500)
+  if (!asked.length) throw new Error('pressing Listen asked for no story audio at all')
+  if (asked[0] !== 'story/0-000') {
+    throw new Error(`the ride opened with ${asked[0]} rather than the Danish sentence`)
+  }
+  console.log('ride asked for:', asked.join(' → '))
+  // The whole cycle, but only once every set is baked: an unbaked pass 404s,
+  // play() rejects, and the chain stops at the fallback by design — so this
+  // assertion would be measuring the missing bake rather than the order.
+  if (!unbaked.length) {
+    const wantOrder = ['story/0-000', 'story/en/0-000', 'story/slow/0-000', 'story/0-000']
+    const got = asked.slice(0, 4)
+    if (got.join('|') !== wantOrder.join('|')) {
+      throw new Error(`the cycle went ${got.join(' → ')}, wanted ${wantOrder.join(' → ')}`)
+    }
+  }
   await page.screenshot({ path: `${SHOT_DIR}/j4-ride.png` })
 
   // Skippable, always — the card's own requirement.
