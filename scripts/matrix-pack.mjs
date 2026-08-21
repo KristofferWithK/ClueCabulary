@@ -14,6 +14,13 @@
 // through Vite rather than restated here. It reaches the Danish stemmer and
 // the shared edit distance, and a validator that reimplemented either would
 // pass happily on the day one of them changed.
+//
+// It has three arms and they do not mean the same thing. Same stem and edit
+// distance <= 1 are ORTHOGRAPHIC: hus/bus and hund/hånd look alike and mean
+// nothing to each other. A shared English gloss is SEMANTIC: two words that
+// print the same word on the card's English side are near-synonyms. The
+// matrix only has an opinion about the third, so `classifyConflicts` splits
+// them and the validator gates on the gloss arm alone.
 import { readFileSync } from 'node:fs'
 
 export const BITS = 2
@@ -43,10 +50,16 @@ export const toBase64 = (bytes) => Buffer.from(bytes).toString('base64')
 export const fromBase64 = (s) => new Uint8Array(Buffer.from(s, 'base64'))
 
 /**
- * The real `conflicts` from the sampler, applied to one city's words.
- * Returns [i, j] index pairs into `entries`.
+ * The sampler's conflicts for one city's words, split by which arm caught
+ * them.
+ *
+ * The gloss arm is recomputed here from the same `normalize` the sampler
+ * uses — one line, and the only way to know WHICH arm fired, since
+ * `conflicts()` returns a bare boolean. `drift` names any pair that shares a
+ * gloss and yet is not a conflict, which would mean the sampler's third arm
+ * has changed shape and this split no longer describes it.
  */
-export async function conflictPairs(entries) {
+export async function classifyConflicts(entries) {
   const { createServer } = await import('vite')
   const server = await createServer({
     configFile: false,
@@ -59,16 +72,28 @@ export async function conflictPairs(entries) {
   })
   try {
     const { conflicts } = await server.ssrLoadModule('/src/srs/sampler.ts')
+    const { normalize } = await server.ssrLoadModule('/src/engine/text.ts')
     if (typeof conflicts !== 'function') {
       throw new Error('src/srs/sampler.ts no longer exports conflicts()')
     }
-    const pairs = []
+    const gloss = []
+    const orthographic = []
+    const drift = []
     for (let i = 0; i < entries.length; i++) {
       for (let j = i + 1; j < entries.length; j++) {
-        if (conflicts(entries[i], entries[j])) pairs.push([i, j])
+        const aGlosses = new Set(entries[i].en.map(normalize))
+        const shared = entries[j].en.map(normalize).filter((g) => aGlosses.has(g))
+        const isConflict = conflicts(entries[i], entries[j])
+        if (shared.length > 0 && !isConflict) {
+          drift.push([i, j])
+          continue
+        }
+        if (!isConflict) continue
+        if (shared.length > 0) gloss.push([i, j, shared[0]])
+        else orthographic.push([i, j])
       }
     }
-    return pairs
+    return { gloss, orthographic, drift, total: gloss.length + orthographic.length }
   } finally {
     await server.close()
   }

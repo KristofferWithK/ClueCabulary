@@ -7,7 +7,7 @@
 // a Fable one, 150 pairs an agent (docs/clue-engine.md §6 "Stage 2"). The vote
 // files under src/data/generated/matrix-city<N>/ are the raw record; this
 // script is the only thing that turns them into the shipped matrix, so the
-// three judgement calls below live here and nowhere else.
+// judgement calls below live here and nowhere else.
 //
 // 1. MERGE RULE — `ceil((opus + fable) / 2)`: the mean, and a tie goes to the
 //    higher of the two. The costs are not symmetric. A cell scored too LOW is
@@ -29,37 +29,38 @@
 //    two-hop estimate in the evaluator walks through the matrix, and a
 //    diagonal of 0 would make a word its own worst path.
 //
-// 3. CONFLICT FLOOR — a pair the board sampler calls a conflict is raised to
-//    at least 2. The judges were told to ignore spelling and did: they scored
-//    hund/hånd, kat/nat and bog/tog as unrelated, which is correct about
-//    MEANING and wrong about play. A learner reading the clue «hund» with
-//    "hånd" on the board can absolutely reach for it, and that near-miss is
-//    precisely what `conflicts()` exists to name.
+// 3. NO FLOORS. An earlier draft of this script raised every `conflicts()`
+//    pair to 2 and every same-`concepts` pair to 1, on the argument that the
+//    judges had missed a trap. Both were wrong and both were removed; the
+//    reasoning is worth keeping so nobody adds them back.
 //
-// 4. CONCEPT FLOOR — a pair sharing a `concepts` tag is raised to at least 1.
-//    The tags are this repo's own statement that two words sit in the same
-//    everyday domain, and "same broad everyday domain" is word-for-word what
-//    the judging brief defines a 1 as. Where the judges said 0 anyway — 46
-//    pairs of the 421 that share a tag, mostly the two widest tags, `nature`
-//    (træ/hav, blomst/måne) and `place` (hav/butik, strand/gade) — the two
-//    statements disagree and the floor takes the union, for the same reason
-//    the merge rounds ties up.
+//    The conflict floor rested on a story that cannot happen. `conflicts()`
+//    reaches the board through `fitsBoard()`, which `drawWeighted()` applies
+//    to every single pick, and every board draw in sampler.ts goes through
+//    `drawWeighted` — so a conflicts pair is never dealt onto one board. There
+//    is no player who reads the clue «hund» with "hånd" in front of them. And
+//    the floor was not free: the matrix is a SEMANTIC table and the evaluator
+//    walks it two-hop, so M[hus][bus] = 2 tells the engine a house-flavoured
+//    clue reaches "bus". If "bus" is a trap that is over-caution and harmless;
+//    if "bus" is a TARGET the engine has just been told an unsound clue is a
+//    good one. Orthographic confusability is real, and the sampler is where it
+//    is already handled. It must not be restated as association.
 //
-//    Both floors are applied AFTER the honest judgement is recorded, and every
-//    cell either one moves is listed in the file's `meta.floored` with the
-//    value it had before. That list is the cross-check's real output: it is
-//    where to look when a concept tag or a clue looks wrong later, and it is
-//    why flooring does not simply erase the signal it is papering over.
+//    The concept floor was the same mistake in a gentler form: it made the
+//    cross-check pass by construction and threw away what it had found. The
+//    judges may simply be right that træ/hav and hav/butik are not associated
+//    — `nature` and `place` are very wide tags. So the judged value stands and
+//    validate-matrix.mjs REPORTS the zeros per tag instead of gating on them.
+//
+//    What ships is what the two models said, and nothing else.
 import { mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { cityPairs, cityWords, loadWords } from './matrix-pairs.mjs'
-import { conflictPairs, packMatrix, readJson, toBase64 } from './matrix-pack.mjs'
+import { packMatrix, readJson, toBase64 } from './matrix-pack.mjs'
 
 const MODELS = ['opus', 'fable']
 const DIAGONAL = 3
-const CONFLICT_FLOOR = 2
-const CONCEPT_FLOOR = 1
 
 const argv = process.argv.slice(2)
 const arg = (name, fallback) => {
@@ -148,23 +149,6 @@ for (const p of pairs) {
   merged[value]++
 }
 
-const floored = []
-const raise = (i, j, to, why) => {
-  const before = cells[i * n + j]
-  if (before >= to) return
-  floored.push({ a: entries[i].id, b: entries[j].id, was: before, to, why })
-  merged[before]--
-  merged[to]++
-  cells[i * n + j] = to
-  cells[j * n + i] = to
-}
-
-for (const [i, j] of await conflictPairs(entries)) raise(i, j, CONFLICT_FLOOR, 'conflicts')
-for (const p of pairs) {
-  const shared = (p.a.concepts ?? []).filter((c) => (p.b.concepts ?? []).includes(c))
-  if (shared.length > 0) raise(p.i, p.j, CONCEPT_FLOOR, `concepts:${shared.join('+')}`)
-}
-
 // --- write ----------------------------------------------------------------
 
 const bytes = packMatrix(cells, n)
@@ -181,12 +165,10 @@ const doc = {
     judges: MODELS,
     mergeRule: 'ceil(mean(opus, fable)) — the mean, ties to the higher vote',
     diagonal: DIAGONAL,
-    conflictFloor: CONFLICT_FLOOR,
-    conceptFloor: CONCEPT_FLOOR,
+    floors: 'none — the judged values ship unaltered; see merge-matrix.mjs',
     agreed: pairs.length - split,
     split,
     farApart: disagreements.length,
-    floored,
     generatedBy: 'scripts/merge-matrix.mjs',
   },
 }
@@ -203,8 +185,6 @@ for (const m of MODELS) {
 }
 console.log(`  merged 0:${merged[0]} 1:${merged[1]} 2:${merged[2]} 3:${merged[3]}`)
 console.log(`  agreed on ${pairs.length - split} pairs (${pct(pairs.length - split)}), split on ${split}, apart by >=2 on ${disagreements.length}`)
-const byWhy = (t) => floored.filter((f) => f.why.startsWith(t)).length
-console.log(`  conflict floor raised ${byWhy('conflicts')} cells to ${CONFLICT_FLOOR}, concept floor ${byWhy('concepts')} to ${CONCEPT_FLOOR}`)
 console.log(
   `  ${OUT}: ${bytes.length} B packed, ${json.length} B of JSON, ${gzipSync(Buffer.from(json)).length} B gzipped`,
 )
@@ -214,11 +194,5 @@ if (REPORT) {
     console.log(
       `  ${String(d.p.k).padStart(4)} ${d.p.a.da}/${d.p.b.da} (${d.p.a.en[0]}/${d.p.b.en[0]}) opus ${d.o} fable ${d.f} -> ${d.value}`,
     )
-  }
-  if (floored.length > 0) {
-    console.log('\nCells raised by a floor:')
-    for (const f of floored) {
-      console.log(`  ${f.a} / ${f.b} was ${f.was} -> ${f.to} (${f.why})`)
-    }
   }
 }
