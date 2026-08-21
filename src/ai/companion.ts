@@ -290,7 +290,7 @@ export class OllamaCompanion implements Companion {
         }
       },
       0.6,
-      'Casey could not settle on a clue for the words he is holding.',
+      'Casey could not settle on a clue for the words she is holding.',
     )
   }
 

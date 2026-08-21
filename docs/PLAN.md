@@ -23,7 +23,7 @@ model alias `cluey`).
 |---|---|
 | Forbidden words | **Removed everywhere**, wrap-up included. Redemption (translate-everything last chance) **retired** — typed recall lives on in wrap-up packing. |
 | Dataset | **9 cities × 100 = 900.** Drop frequency ranks 901–1000 and one route stop (default Viborg — confirm on pickup). **Superseded 2026-08-21 by `docs/word-selection.md` (WS1):** ranks 901–1000 are all back, and the 113 words that cannot be clued — the ledger, the greetings, the numerals — went instead. Still 9 × 100. |
-| Mascot | **Casey the suitcase.** User-facing copy only; code identifiers, CSS classes (`cluey-*`), storage keys unchanged (the `klausVerifiedAt` precedent). |
+| Mascot | **Casey the suitcase, she/her** (D4, 2026-08-22). User-facing copy only; code identifiers, CSS classes (`cluey-*`), storage keys unchanged (the `klausVerifiedAt` precedent). |
 | Launch scope | **Free v1**, Danish only, **baked neural TTS launch-blocking**. German, semantic layer, IAP = fast-follows. |
 | App identity | `appId com.kristofferwithk.cluecabulary` **stays**. Display name becomes "900words". |
 

@@ -64,7 +64,7 @@ export function HowToPlay() {
           </li>
           <li>
             Every turn spends one clue token, however it ends. Out of tokens is{' '}
-            <strong>sudden death</strong>: keep naming greens — either key counts there — and
+            <strong>last chance</strong>: keep naming greens — either key counts there — and
             anything else ends the round.
           </li>
           <li>

@@ -96,7 +96,7 @@ const AUTH_REFUSED =
  * finished. Same lesson as the 401 above: say the thing the player can do.
  */
 const DAILY_CAP_SPENT =
-  'Casey has done all his thinking for today — this phone’s daily limit on his server is used up, and it resets at midnight UTC. Play on without Casey to finish the round: the practice companion needs no connection at all.'
+  'Casey has done all her thinking for today — this phone’s daily limit on her server is used up, and it resets at midnight UTC. Play on without Casey to finish the round: the practice companion needs no connection at all.'
 
 /** The `code` the proxy puts in its own 429 body. See proxy/worker.js. */
 const DAILY_CAP_CODE = 'cluecabulary_daily_cap'
@@ -291,7 +291,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
       if (e instanceof DOMException && e.name === 'TimeoutError') {
         throw new AiError(
           'network',
-          `Casey took longer than ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds and the request was dropped. Retry, or play on without him.`,
+          `Casey took longer than ${Math.round(REQUEST_TIMEOUT_MS / 1000)} seconds and the request was dropped. Retry, or play on without her.`,
         )
       }
       // A rejected fetch is a TypeError either way: the browser does not tell
@@ -304,7 +304,7 @@ export const chatJson: ChatFn = async (settings, messages, opts) => {
         'cors',
         endpoint.hostname === 'ollama.com'
           ? 'ollama.com refused the browser request. It is reported to answer the CORS preflight with a redirect, which browsers will not follow — a key or model name cannot fix that. Deploy the small proxy and set it as the Base URL; Settings has the steps.'
-          : 'Could not reach Casey — the connection dropped, or the server refused the browser request (CORS). Retry, or play on without him; if it keeps happening, check the Base URL in Settings.',
+          : 'Could not reach Casey — the connection dropped, or the server refused the browser request (CORS). Retry, or play on without her; if it keeps happening, check the Base URL in Settings.',
       )
     }
   }
