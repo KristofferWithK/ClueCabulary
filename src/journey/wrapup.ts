@@ -33,8 +33,13 @@ import { isCollected, wordsForCity, type WrappedWords } from './progress'
  */
 export const WRAP_UP_UNLOCK = WRAPUP_CONFIG.totalWords
 
-/** Which kind of round was played. Wrap-ups earn nothing; see below. */
-export type RoundMode = 'normal' | 'wrapup'
+/**
+ * Which kind of round was played. Wrap-ups earn nothing; see below. The
+ * tutorial (O2's scripted first round) records no game at all — `finishRound`
+ * skips `recordGame` for it — but the type keeps `bankAfterRound` honest
+ * anyway: `mode !== 'normal'` earns nothing even if that call ever returns.
+ */
+export type RoundMode = 'normal' | 'wrapup' | 'tutorial'
 
 /**
  * How many earned wrap-up rounds the suitcase will hold.

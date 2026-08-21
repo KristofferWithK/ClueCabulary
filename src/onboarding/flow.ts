@@ -26,15 +26,16 @@ export const ONBOARD_KEY = 'cluecab-onboard-v1'
 
 /**
  * The acts, in order. O1 ships the train (Casey's welcome) and the ticket
- * (the language pick); O2 adds its tutorial step after the ticket, O3 the
- * tour. A step is written to the key as the flow advances so a reload — and
- * in particular the reload `setActiveLanguage` performs on a real language
- * choice — resumes where it left off rather than starting over.
+ * (the language pick); O2 adds the tutorial — a real scripted round on the
+ * real engine — after the ticket, and O3 will add the tour. A step is written
+ * to the key as the flow advances so a reload — and in particular the reload
+ * `setActiveLanguage` performs on a real language choice — resumes where it
+ * left off rather than starting over.
  */
-export type OnboardStep = 'train' | 'ticket'
+export type OnboardStep = 'train' | 'ticket' | 'tutorial'
 
 export const isOnboardStep = (v: unknown): v is OnboardStep =>
-  v === 'train' || v === 'ticket'
+  v === 'train' || v === 'ticket' || v === 'tutorial'
 
 export type OnboardDecision =
   /** Nothing anywhere says this device has played: run the flow. */

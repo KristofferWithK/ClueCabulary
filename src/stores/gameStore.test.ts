@@ -36,6 +36,7 @@ const { WORDS } = await import('../data/words')
 const { newStats } = await import('../srs/scheduler')
 const { wordsForCity } = await import('../journey/progress')
 const { WRAP_UP_BANK_CAP } = await import('../journey/wrapup')
+const { TUTORIAL_SEED, TUTORIAL_WORD_IDS } = await import('../onboarding/tutorial')
 
 describe('gameStore: finishing a round without Casey', () => {
   beforeEach(() => {
@@ -683,5 +684,70 @@ describe('gameStore: wins earn wrap-up rounds', () => {
     const raw = written.get('cluecab-srs-v1')
     expect(raw).toBeDefined()
     expect(JSON.parse(raw!).state.wrapUpsBanked).toBe(2)
+  })
+})
+
+/**
+ * The onboarding tutorial round (O2). Two halves that must not be confused:
+ * the WORDS count in full — recordRound runs like any round, so the board's
+ * words are discovered for real and the deal enters the carry-over window —
+ * but the GAME is never recorded: no played/won tally, no wrap-up earned.
+ * R1's "first win is the unlock" stays the first REAL round's moment.
+ *
+ * Mutation-checked: removing the `mode !== 'tutorial'` condition at the
+ * recordGame call in finishRound fails "records the words but never the game"
+ * (played ticks to 1 and a wrap-up appears in the bank).
+ */
+describe('gameStore: the tutorial round (O2)', () => {
+  const finishTutorialWon = () => {
+    const game = useGame.getState().game!
+    useGame.setState({
+      game: {
+        ...game,
+        phase: 'finished',
+        reveals: Object.fromEntries(game.words.map((w) => [w.wordId, { kind: 'green' }])),
+        outcome: { result: 'won', reason: 'all-greens' },
+      } as never,
+      roundRecorded: false,
+    })
+    useGame.getState().finishRound()
+  }
+
+  beforeEach(() => {
+    useSettings.setState({ useMock: true })
+    useSrs.getState().reset()
+    useGame.getState().abandonGame()
+    useGame.setState({ recentBoards: [] })
+  })
+
+  it('deals the fixed board, in tutorial mode, with Casey cluing first', () => {
+    useGame.getState().newTutorialGame()
+    const s = useGame.getState()
+    expect(s.mode).toBe('tutorial')
+    expect(s.game!.seed).toBe(TUTORIAL_SEED)
+    expect(s.game!.words.map((w) => w.wordId)).toEqual(TUTORIAL_WORD_IDS)
+    // Guessing is the low-friction act, so the player learns it first.
+    expect(s.game!.phase).toBe('aiClueInput')
+    // The tutorial IS the study phase.
+    expect(s.studying).toBe(false)
+    expect(s.dailyKey).toBeNull()
+  })
+
+  it('enters the carry-over window like any round — unlike a wrap-up', () => {
+    useGame.getState().newTutorialGame()
+    expect(useGame.getState().recentBoards[0]).toEqual(TUTORIAL_WORD_IDS)
+  })
+
+  it('records the words but never the game: no tally, no wrap-up earn', () => {
+    useGame.getState().newTutorialGame()
+    const before = useSrs.getState().games.played
+    finishTutorialWon()
+    // The words are real: every board word now has an SRS record.
+    for (const id of TUTORIAL_WORD_IDS) expect(useSrs.getState().stats[id], id).toBeDefined()
+    expect(useGame.getState().newlyDiscovered).toEqual(TUTORIAL_WORD_IDS)
+    // The game is not: nothing played, nothing won, nothing banked.
+    expect(useSrs.getState().games.played).toBe(before)
+    expect(useSrs.getState().wrapUpsBanked).toBe(0)
+    expect(useGame.getState().earnedWrapUp).toBe(false)
   })
 })

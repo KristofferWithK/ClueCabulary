@@ -302,8 +302,16 @@ There isn't one. Open the deployed page on your phone, "Add to Home Screen",
 press play. No account, no API key, no model to choose. A first open starts
 inside the train — Casey introduces himself in three lines and punches your
 ticket (the language pick, one confirm card while Danish is the only pack) —
-and Skip is always on screen; Settings → **Replay the intro** brings it back
-any time.
+and then plays you through one real round: the gentlest board (3×4), dealt on
+the real engine from Sønderborg's first twelve words with a fixed seed, Casey
+scripted beside it. He clues first in Danish and points at the dictionary
+rather than glossing; one miss is staged on purpose so the game's central rule
+— a guess is judged against the **clue-giver's** key — gets said at the moment
+it visibly happens, and the burned card is then won back under your own clue.
+The round is offline by construction, its words count toward the collection
+for real, and it records no game — the first won *real* round stays the moment
+that earns anything. Skip is always on screen; Settings → **Replay the intro**
+brings the whole thing back any time.
 
 That is worth saying plainly because it used to be false. For most of this
 project's life the first screen after install asked you to go and fetch a

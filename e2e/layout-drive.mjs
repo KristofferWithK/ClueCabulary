@@ -677,6 +677,42 @@ for (const vp of [
   await page.waitForSelector('.onboard-screen[data-act="ticket"]')
   await noScroll(`onboarding ticket @${vp.name}`)
 
+  // The tutorial round (O2): the ticket opens it. This run is transient
+  // (?onboard=1) but the round it deals is real and persisted — the game-state
+  // sections below already clear cluecab-game-v1 before dealing their own.
+  // Measured at its two fullest beats: the first bubble, and a guess beat with
+  // the prefilled dictionary and then the confirm row on a selection.
+  await page.locator('.onboard-ticket').click()
+  await page.waitForSelector('.tutorial-dock')
+  await noScroll(`tutorial first beat @${vp.name}`)
+  const tutSkip = await page.locator('.onboard-skip').boundingBox()
+  check(
+    `tutorial Skip stays on screen @${vp.name}`,
+    tutSkip && tutSkip.y >= 0 && tutSkip.y + tutSkip.height <= vp.height + 1,
+    tutSkip ? `bottom ${Math.round(tutSkip.y + tutSkip.height)} of ${vp.height}` : 'no skip',
+  )
+  const casey = await page.locator('.tutorial-dock .cluey-svg').boundingBox()
+  const board = await page.locator('.board-grid').boundingBox()
+  check(
+    `Casey sits on screen beside the 3×4 board @${vp.name}`,
+    casey && board && casey.y + casey.height <= vp.height + 1 && board.height > 100,
+    casey && board ? `casey bottom ${Math.round(casey.y + casey.height)}, board ${Math.round(board.height)}px` : 'missing',
+  )
+  for (let i = 0; i < 12; i++) {
+    const kind = await page.evaluate(() => document.querySelector('.tutorial-dock')?.dataset.beat)
+    if (kind === 'guess') break
+    if (kind === 'tapCard') await page.locator('.word-card').first().click()
+    else await page.locator('.tutorial-next').click()
+    await page.waitForTimeout(120)
+  }
+  await noScroll(`tutorial guess beat, dictionary open @${vp.name}`)
+  const tutTarget = await page.evaluate(
+    () => document.querySelector('.tutorial-dock')?.dataset.target,
+  )
+  await page.locator(`.word-card:has(.card-word:text-is("${tutTarget}"))`).click()
+  await page.waitForTimeout(150)
+  await noScroll(`tutorial guess confirm @${vp.name}`)
+
   // The game, in the phase measured tallest (the opening clue dock), on the
   // widest board.
   await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
