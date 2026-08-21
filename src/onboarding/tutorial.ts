@@ -21,8 +21,9 @@ import type { GameState } from '../engine/types'
  * and the test asserts the roles rather than trusting this comment.
  */
 
-/** The language this script is written for. Another pack skips the act (H2
- *  brings its own script; until then the flow simply ends at the ticket). */
+/** The language this script is written for. Another pack skips the round and
+ *  goes straight to the tour, which is language-agnostic (H2 brings its own
+ *  script for the round itself). */
 export const TUTORIAL_LANGUAGE = 'da'
 
 export const TUTORIAL_SEED = 42931
