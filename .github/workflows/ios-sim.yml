@@ -45,6 +45,10 @@ on:
 jobs:
   simulator:
     runs-on: macos-15
+    # contents: write is for the film branch below, nothing else — this job
+    # never touches an existing ref.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -261,6 +265,30 @@ jobs:
           pkill -INT -f 'simctl io' 2>/dev/null || true
           sleep 4
           ls -l keyboard.mp4 || echo 'no video was written'
+
+      - name: Push the film where a keyless session can fetch it
+        # The artifact below needs a browser login or a PAT to download, and
+        # the agent sessions that fire this workflow hold neither — they reach
+        # GitHub only as git. So the film also goes out as an orphan branch,
+        # sim-film/<run_number>, in a mini-repo of its own (no index games
+        # with the build tree). The reader deletes the branch after fetching;
+        # nothing triggers on sim-film/* pushes (deploy.yml is main-only).
+        if: always()
+        run: |
+          mkdir sim-film
+          cp keyboard.mp4 sim-film/ 2>/dev/null || true
+          cp keyboard.png sim-film/ 2>/dev/null || true
+          ls sim-film
+          cd sim-film
+          git init -q -b film
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -A
+          git commit -qm "sim film, run ${{ github.run_number }}"
+          git push -q -f \
+            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
+            "HEAD:refs/heads/sim-film/${{ github.run_number }}"
+          echo "pushed sim-film/${{ github.run_number }}"
 
       - uses: actions/upload-artifact@v4
         if: always()
