@@ -69,6 +69,9 @@
  *   node scripts/make-audio.mjs --voice da-DK-Wavenet-G
  *   node scripts/make-audio.mjs --only hus,koebe   just those, for a voice audition
  *   node scripts/make-audio.mjs --force            re-bake everything
+ *   node scripts/make-audio.mjs --source words-slow  the 0.6 set behind the 🐢
+ *   node scripts/make-audio.mjs --source stories      the travel-story sentences
+ *   node scripts/make-audio.mjs --source stories-en   the same, in English
  *   node scripts/make-audio.mjs --lang de          when H2 brings German
  *   node scripts/make-audio.mjs --provider stub    silent placeholders, no network
  *
@@ -127,6 +130,11 @@ const PROVIDERS = {
     voices: {
       da: ['da-DK-Chirp3-HD-Aoede', 'da-DK-Neural2-F', 'da-DK-Wavenet-F', 'da-DK-Wavenet-G'],
       de: ['de-DE-Chirp3-HD-Aoede', 'de-DE-Neural2-F'],
+      // Not a dataset language: this is the voice the ride's translation half
+      // is read in. Aoede again, so one narrator carries both languages. If
+      // Google does not serve this exact name the guard below prints the ones
+      // it does — it is the same Chirp3 family, so a sibling name is the fix.
+      en: ['en-US-Chirp3-HD-Aoede', 'en-US-Neural2-F'],
     },
     perMillion: 16,
     rps: 8, // documented 1000/min for these tiers; a comfortable eighth of it
@@ -185,6 +193,7 @@ const PROVIDERS = {
     voices: {
       da: ['da-DK-ChristelNeural', 'da-DK-JeppeNeural'],
       de: ['de-DE-KatjaNeural'],
+      en: ['en-US-JennyNeural'],
     },
     perMillion: 15,
     rps: 0.3, // the F0 tier's 20/minute. Pass --rps 10 on a paid S0 resource.
@@ -227,7 +236,7 @@ const PROVIDERS = {
   elevenlabs: {
     keyEnv: 'ELEVENLABS_API_KEY',
     host: 'https://api.elevenlabs.io',
-    voices: { da: [], de: [] },
+    voices: { da: [], de: [], en: [] },
     perMillion: 100,
     rps: 3,
     request(text, cfg) {
@@ -294,25 +303,52 @@ if (!provider) {
 const dryRun = has('dry-run')
 const force = has('force')
 /**
- * What gets baked: the nine hundred words, or the travel stories.
+ * What gets baked: the nine hundred words at their ordinary pace, the same
+ * nine hundred slowly, or the travel stories.
  *
- * One script rather than two, because everything around the text is the same
+ * One script rather than three, because everything around the text is the same
  * problem — the voice, the rate, the guard that refuses a voice Google does
  * not serve, the manifest that resumes an interrupted run, the retry on a 429.
  * A second script would have been a second copy of all of it, drifting.
+ *
+ * Each source carries its own rate and its own directory, and that is on
+ * purpose: bake-audio.yml passes neither, so there is exactly one place where
+ * "slow means 0.6" is written down for the bake to disagree with.
  */
+const SOURCES = {
+  words: { rate: 1, out: (l) => `public/audio/${l}` },
+  // The 🐢 in the dictionary sheet. Same words, same voice, a second file each
+  // — see wordAudioUrl in src/ui/speak.ts for why it is a bake and not a
+  // playbackRate.
+  'words-slow': { rate: 0.6, out: (l) => `public/audio/${l}/slow` },
+  // The ride plays each sentence four times: Danish, its translation, Danish
+  // slowly, Danish again. Three of those four are files baked here and the
+  // fourth is the first one replayed, so a sentence costs three clips.
+  stories: { rate: 1, out: (l) => `public/audio/${l}/story` },
+  'stories-slow': { rate: 0.6, out: (l) => `public/audio/${l}/story/slow` },
+  // The one source that is not in the language being taught: the English
+  // sentence, in the same narrator's voice, so the switch a learner hears is
+  // the language and not the reader.
+  'stories-en': {
+    rate: 1,
+    out: (l) => `public/audio/${l}/story/en`,
+    locale: 'en-US',
+    voiceKey: 'en',
+    /** Which side of the sentence to read. */
+    side: 'en',
+  },
+}
+const isStory = (src) => src.startsWith('stories')
 const source = flag('source', 'words')
-if (!['words', 'stories'].includes(source)) {
-  console.error(`Unknown --source "${source}". One of: words, stories`)
+if (!SOURCES[source]) {
+  console.error(`Unknown --source "${source}". One of: ${Object.keys(SOURCES).join(', ')}`)
   process.exit(2)
 }
-// Stories get their own directory, and therefore their own manifest: a
-// sentence and a word are different work with different resume state, and a
-// flat namespace would let a word called "0-001" collide with a sentence.
-const outDir = resolve(
-  ROOT,
-  flag('out', source === 'stories' ? `public/audio/${lang}/story` : `public/audio/${lang}`),
-)
+// Each source gets its own directory, and therefore its own manifest: a
+// sentence and a word are different work with different resume state, a flat
+// namespace would let a word called "0-001" collide with a sentence, and the
+// two word bakes share every filename by design.
+const outDir = resolve(ROOT, flag('out', SOURCES[source].out(lang)))
 const only = flag('only') ? new Set(flag('only').split(',').map((s) => s.trim())) : null
 const limit = Number(flag('limit', Infinity))
 const region = flag('region', 'northeurope')
@@ -320,25 +356,27 @@ const rps = Number(flag('rps', provider.rps))
 const retries = Number(flag('retries', 4))
 
 /**
- * How fast the voice speaks, as a multiplier of its normal pace.
+ * How fast the voice speaks, as a multiplier of its normal pace. The source
+ * decides it; `--rate` is an override for an audition.
  *
- * 0.6 by design, not by default: this is a vocabulary app, the clips are single
- * words a learner is trying to hear precisely, and the owner picked the number
- * by ear from a rate audition (1.0 / 0.9 / 0.7 / 0.6 / 0.5 of the same
- * sentence — audition/da-rate/, and the workflow that made them). Below about
- * 0.6 a neural voice stops sounding patient and starts sounding drawn out.
+ * 0.6 for the slow set and the stories, by design and not by default: the
+ * owner picked it by ear from a rate audition (1.0 / 0.9 / 0.7 / 0.6 / 0.5 of
+ * the same sentence — audition/da-rate/, and the workflow that made them), and
+ * below about 0.6 a neural voice stops sounding patient and starts sounding
+ * drawn out. It was every word's rate until the sheet grew a 🐢; the ordinary
+ * board tap is 1.0 now and 0.6 is what the button asks for.
  *
  * Each provider spells it differently — Google a multiplier, Azure a signed
  * percentage, ElevenLabs a speed — so the number is normalised here and each
  * adapter converts. It is part of the stamp below, so changing it re-bakes.
  */
-const rate = Number(flag('rate', 0.6))
+const rate = Number(flag('rate', SOURCES[source].rate))
 if (!Number.isFinite(rate) || rate < 0.25 || rate > 4) {
   console.error(`--rate must be between 0.25 and 4; got "${flag('rate')}".`)
   process.exit(2)
 }
 
-const voice = flag('voice', provider.voices[lang]?.[0])
+const voice = flag('voice', provider.voices[SOURCES[source].voiceKey ?? lang]?.[0])
 if (!voice) {
   console.error(
     `No default voice for --lang ${lang} on ${providerName}. Pass --voice.` +
@@ -374,7 +412,9 @@ const cfg = {
   // da is da-DK, not da-DA. Uppercasing the code happens to be right for German
   // and wrong for most others, so the pairs are stated rather than computed.
   // Must match `speech.tag` in the language's pack.
-  locale: flag('locale', LOCALES[lang]),
+  // The source can override it: stories-en is read in English inside a Danish
+  // route, so the locale follows the TEXT and not the dataset.
+  locale: flag('locale', SOURCES[source].locale ?? LOCALES[lang]),
   region,
   host: flag('endpoint', provider.host),
 }
@@ -397,7 +437,7 @@ const readJson = (path, what) => {
 const jobs = []
 const bySlug = new Map()
 
-if (source === 'words') {
+if (!isStory(source)) {
   const words = readJson(`src/data/words.${lang}.json`, 'dataset')
   for (const w of words) {
     const slug = slugForId(String(w.id))
@@ -421,12 +461,20 @@ if (source === 'words') {
   // side, and a test asserts every sentence has a clip on disk, so a drift
   // between these two lines fails the suite rather than the ride.
   const stories = readJson(`src/data/travel-stories.${lang}.json`, 'travel stories')
+  // 'da' for the two Danish bakes, 'en' for the translation half.
+  const side = SOURCES[source].side ?? 'da'
   for (const [key, story] of Object.entries(stories)) {
     const sentences = story.chapters.flatMap((c) => c.sentences)
     sentences.forEach((s, i) => {
       const slug = `${key}-${String(i).padStart(3, '0')}`
+      if (!s[side]) {
+        // A sentence with no English is a silent step in the middle of the
+        // cycle, which reads as a broken ride rather than as missing content.
+        console.error(`Sentence ${slug} has no "${side}" text to read.`)
+        process.exit(2)
+      }
       bySlug.set(slug, slug)
-      jobs.push({ id: `story:${key}:${i}`, slug, text: s.da })
+      jobs.push({ id: `story:${key}:${i}`, slug, text: s[side] })
     })
   }
   if (jobs.length === 0) {
@@ -491,7 +539,7 @@ console.log(
   `${providerName}${providerName === 'stub' ? '' : ` · ${cfg.voice} · rate ${cfg.rate}`} → ${outDir.replace(ROOT, '.')}`,
 )
 console.log(
-  `${jobs.length} ${source === 'stories' ? 'sentences' : 'words'} · ${skipped.length} already baked · ${todo.length} to make · ` +
+  `${jobs.length} ${isStory(source) ? 'sentences' : 'words'} · ${skipped.length} already baked · ${todo.length} to make · ` +
     // List price. Every provider here has a free monthly allowance far larger
     // than one bake, so the real bill is almost certainly zero — this is the
     // number to compare runs against, not the one to expect on a statement.

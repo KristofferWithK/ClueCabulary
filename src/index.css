@@ -2332,6 +2332,11 @@ body:has(.kb-up) {
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Four things now: the headword, its part of speech, 🔊 and 🐢. «en
+     sygeplejerske» — the longest headword in the dataset with its article —
+     plus the badge and both buttons runs past 360px, so the row wraps rather
+     than squeezing the word nobody could then read. */
+  flex-wrap: wrap;
 }
 
 .speak-btn {
@@ -4627,6 +4632,16 @@ body:has(.kb-up) {
 .ride-sentence.is-current .ride-line {
   border-left-color: var(--green);
   background: rgba(46, 125, 50, 0.07);
+}
+
+/* Which of the two lines is being read right now. The sentence is highlighted
+   for all four passes; this says whether what you are hearing is the Danish or
+   its translation, which is the only way to tell the second pass from the
+   first without listening for the language. */
+.ride-da.is-speaking,
+.ride-en.is-speaking {
+  color: var(--green);
+  font-weight: 600;
 }
 
 .ride-controls {

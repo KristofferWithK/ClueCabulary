@@ -88,6 +88,74 @@ is the waste worth avoiding, so Sønderborg is a sample to react to.
 disappears by its own fallback; delete `TrainRide.tsx` and the two lines in
 MapScreen to remove it entirely.
 
+### 2026-08-21 · The ride says every sentence four times
+
+Your shape, implemented as given: **Danish at its ordinary pace, the English
+translation, the Danish slowly, then the Danish again.** It lives in
+`src/journey/rideCycle.ts` as a four-entry list rather than as branches inside
+the player, so the order is one readable line and a unit test pins it — writing
+the slow pass before the translation is the mistake it exists to prevent, since
+hearing a sentence taken apart before you know what it means is the version that
+does not teach.
+
+The last pass is the FIRST clip replayed rather than a fourth bake. Ending on
+the ordinary reading, after the slow one, is the point of ending there.
+
+**What it costs.** Sønderborg's 31 sentences become 124 passes, so the ride runs
+roughly four times as long as it did. Skip is untouched and any single line can
+still be tapped to hear just that sentence's cycle, which is where the design
+already stood.
+
+**The stories are baked three ways**, the same pattern the words took: `story/`
+at 1.0, `story/slow/` the 0.6 clips moved sideways, and `story/en/` new — the
+English, read by `en-US-Chirp3-HD-Aoede` so one narrator carries both languages.
+If Google does not serve that exact name the bake's voice guard fails loudly and
+prints the names it does serve; a sibling Chirp3 name is then the fix.
+
+The device-voice fallback follows the pass it is standing in: `speakText` takes
+a BCP-47 tag now, and the English pass is read in English. Without that a phone
+with no clips would read «The sun rises over Sønderborg» in a Danish accent,
+which is worse than saying nothing.
+
+**Reverse:** drop the cycle to `[{ variant: 'normal', side: 'da' }]` in
+rideCycle.ts and the ride is exactly what it was; the extra clips can stay
+unused or be deleted with their directories.
+
+### 2026-08-20 · 0.6 is the 🐢 now, not the only speed
+
+You asked for the ordinary tap to sound normal, with a slow replay available in
+the dictionary sheet. So the rate you picked by ear is no longer what every
+board tap gets: **the words are baked twice.** `public/audio/da/` holds a fresh
+1.0 bake and is what every existing call site plays; `public/audio/da/slow/`
+holds the 0.6 clips that were there before, moved sideways rather than re-made,
+and is what the sheet's 🐢 asks for. Same voice, same words, two files.
+
+**Why two bakes and not `playbackRate 0.6`.** A stretched clip is a processed
+clip — the ride already does that to its story audio and it is a compromise
+made for files that could not be re-baked. These could: the slow set already
+existed and cost nothing to keep, so both speeds are real synthesis at the rate
+they claim. The cost is ~8 MB more in the repo and in the iOS bundle, which is
+the same bargain deploy.yml already took for committing audio at all.
+
+**What moved with it.** `--source` in make-audio.mjs is now `words` (1.0),
+`words-slow` (0.6) or `stories` (0.6), each with its own rate and directory, so
+the bake workflow still passes no numbers of its own. The pack's `speech` gained
+`slowRate` and its `rate` went 0.88 → 1: the 0.88 was hedging against a sentence
+the device voice ran together, and the 🐢 is that hedge now, on the sheet's
+example sentence too. The service worker's cache is `word-audio-v2`, because the
+new ordinary clips have the filenames the old slow ones had and CacheFirst would
+otherwise serve a year of the audio you asked to stop hearing.
+
+**Not yet measured:** `WORD_MS` in HearBoard, which paces the board tour. It was
+sized for the old 0.88 speech and it was much too short for the 0.6 clips; the
+figure for the 1.0 bake needs the clips to exist first, so it is still 1200 and
+the comment says so.
+
+**Reverse:** `git mv public/audio/da/slow/*.mp3 public/audio/da/` over the 1.0
+clips, set `speech.rate` back to 0.88 and drop the 🐢 buttons from
+`DictionarySheet.tsx`. The 1.0 clips are re-makeable at any time with
+`--source words`; the 0.6 ones are in git history either way.
+
 ### 2026-08-20 · The voice is Aoede at 0.6, and the rate was a literal in three places
 You listened and chose **da-DK-Chirp3-HD-Aoede**, then pushed the pace down —
 1.0, 0.9, 0.7, 0.5, 0.6 — and settled on **0.6**. Both are now

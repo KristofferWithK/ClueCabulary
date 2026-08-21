@@ -18,9 +18,10 @@ npm run drives repeat layout      just those two
 npm run drives --list             names (19; three are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
 node scripts/validate-words.mjs --lang de    once a second dataset exists
+node scripts/make-audio.mjs --source words --dry-run   what a bake would cost
 ```
 
-## Five things that have each cost a session real time
+## Six things that have each cost a session real time
 
 **1. `npx tsc --noEmit` checks nothing here.** The root `tsconfig.json` is
 `files: []` with project references, so that command exits 0 on a tree full of
@@ -77,6 +78,27 @@ the owner (D3). Move one without the other and the Pages deploy breaks.
 
 So: change a string a player reads, leave everything else. If you are renaming
 an identifier, you have misread this.
+
+**6. Audio is baked per SOURCE, and the app finds a variant by its directory.**
+There is no `playbackRate` in the word path and no rate in the app at all: a
+word's ordinary clip is `audio/da/hus.mp3` and its slow one is
+`audio/da/slow/hus.mp3`, both real synthesis, and the ride's sentences have a
+third — `story/en/` — for the translation it says between them. Three things
+follow that have each got in the way already.
+
+The key is an Actions secret, so **a bake cannot happen in a session**: edit
+`scripts/make-audio.mjs`, bump `BAKE_NONCE` in `.github/workflows/bake-audio.yml`
+and push, and the workflow bakes and commits the clips back to your branch
+(~9 minutes for the words, ~1 for the sentences). Between that push and that
+commit the tree genuinely has no clips for the new set — which is why
+smoke-drive and journey-drive count what is in `dist/` and say "no bake yet"
+rather than either failing or passing quietly.
+
+Re-baking into filenames that already exist needs the service worker's
+`cacheName` bumped in the same commit (`vite.config.ts`), or an installed phone
+keeps the old audio for a year. And durations are measured in a browser, never
+from byte size: DECISIONS.md records Chirp3 answering the same request 39%
+longer on a second draw.
 
 ## The rule that is easiest to get backwards
 
@@ -146,7 +168,8 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   assert byte-identity under key permutation.
 - `src/journey/` — the four word states (`wordState` in `progress.ts`:
   collected needs a green EACH way — one under your clue, one by your guess),
-  `wrapup.ts` (the wrap-up board draw), and travel on a packed suitcase.
+  `wrapup.ts` (the wrap-up board draw), travel on a packed suitcase, and
+  `rideCycle.ts` — the four passes the train ride says each sentence in.
 - `src/ui/` — screens and components. Phone-first; 360×640 is the tight case,
   and **no screen may scroll the document** — layout-drive measures
   `scrollHeight <= innerHeight` on every screen and game phase. Settings

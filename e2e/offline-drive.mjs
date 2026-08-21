@@ -116,7 +116,7 @@ try {
   // precache manifest to have picked up, so it is a guard for later rather than
   // a measurement now. Say so rather than let it read as proof.
   const sw = readFileSync(resolve(ROOT, 'dist', 'sw.js'), 'utf8')
-  const at = sw.indexOf('word-audio-v1')
+  const at = sw.indexOf('word-audio-v2')
   if (at < 0) fail('the worker has no runtime cache for /audio/')
   // The route must refuse a response that is not audio. Asserted on the route's
   // own text because the browser cannot show it: speak.ts ALSO deletes a
@@ -181,8 +181,8 @@ try {
     fail(`tapping «${withClip}» never fetched ${relative} (saw ${JSON.stringify(audioRequests)})`)
   }
   const afterHit = await cachedAudio()
-  if ((afterHit['word-audio-v1'] ?? []).length !== 1) {
-    fail(`expected 1 clip in word-audio-v1, got ${JSON.stringify(afterHit)}`)
+  if ((afterHit['word-audio-v2'] ?? []).length !== 1) {
+    fail(`expected 1 clip in word-audio-v2, got ${JSON.stringify(afterHit)}`)
   }
   const precached = Object.entries(afterHit)
     .filter(([name]) => name.includes('precache'))
@@ -215,7 +215,7 @@ try {
   rejections = await page.evaluate(() => window.__rejections)
   if (rejections.length) fail(`playing a cached word offline rejected: ${rejections.join('; ')}`)
   const offlineCache = await cachedAudio()
-  if ((offlineCache['word-audio-v1'] ?? []).length !== 1) {
+  if ((offlineCache['word-audio-v2'] ?? []).length !== 1) {
     fail(`the clip did not survive going offline: ${JSON.stringify(offlineCache)}`)
   }
   const reachedNetwork = audioRequests.filter((r) => r.status === 0 || r.status >= 400)

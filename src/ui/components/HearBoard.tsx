@@ -14,14 +14,25 @@ import { canPlayWords, playWord, stopWordAudio } from '../speak'
  * through `WordAudioPorts` is a rewrite of the player rather than an addition
  * to it. So the tour is paced on a clock.
  *
- * 1200ms is long enough for the one-to-three-syllable headwords the nine
- * hundred are made of, said at `speakText`'s 0.88 rate, and it puts a full
- * 4×5 board at 24 seconds. If a baked clip ever runs past it the symptom is
- * benign and visible: the next word cuts the last one off, because `playWord`
- * silences whatever is playing before it starts. The fix, if it comes to that,
- * is an `onEnd` port in `speak.ts` and this constant deleted.
+ * 1500ms, measured off the clips themselves rather than reasoned about. A
+ * 240-clip sample of the 1.0 bake, read with `audio.duration` in the browser
+ * that plays them: median 1.01s, p90 1.46, p95 1.54, longest 1.97. So 1500
+ * lets 95% of words finish and leaves the median half a second of silence
+ * afterwards, which is the gap that makes a list of words legible as words. A
+ * full 4×5 board takes 30 seconds.
+ *
+ * It was 1200 while the clips were baked at 0.6, and at that speed the same
+ * measurement says 80% of them ran past it — the tour was cutting off most of
+ * the board and had been since the clips landed. Byte size was not enough to
+ * catch that: DECISIONS.md records Chirp3 redrawing one request 39% longer, so
+ * durations here come from the browser.
+ *
+ * The 5% that still run past end the benign, visible way: the next word cuts
+ * the last one off, because `playWord` silences whatever is playing before it
+ * starts. The fix, if a fifth of a second ever matters more than the pace, is
+ * an `onEnd` port in `speak.ts` and this constant deleted.
  */
-const WORD_MS = 1200
+const WORD_MS = 1500
 
 /**
  * Play the board out loud, top to bottom.

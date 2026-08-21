@@ -245,6 +245,47 @@ or a wholesale replace. The file is your learning record and nothing else —
 there has been no API key anywhere in the app to worry about since settings
 v7 retired them.
 
+## Hearing it
+
+Every word is baked to an mp3 twice, in the same neural voice
+(`da-DK-Chirp3-HD-Aoede`, chosen by ear from a 35-voice audition): once at the
+ordinary reading speed, which is what every tap plays, and once at **0.6**,
+which is what the 🐢 in the dictionary sheet plays. Two files rather than one
+file slowed down at playback — a stretched clip is a processed clip, and both
+of these are real synthesis at the rate they claim. A phone with no clips in
+the build falls back to its own voice at the same two rates, so the buttons
+mean the same thing either way.
+
+The clips ship in the repository and are runtime-cached, never precached: 900
+words twice over is too much to make an install download before the app will
+open offline. `HearBoard`'s tour paces the board at **1500ms** a word, which is
+measured rather than chosen — 240 clips read with `audio.duration` in the
+browser that plays them give a median of 1.01s and a p95 of 1.54.
+
+The train ride out of a city says each of its sentences **four times**: the
+Danish, its English translation, the Danish slowly, then the Danish again. The
+order is `src/journey/rideCycle.ts` and the last pass is the first clip
+replayed — ending on the ordinary reading, after the slow one has taken it
+apart, is the point of ending there. That makes the ride roughly four times as
+long as a single reading would, which is why it has always been skippable and
+why any single line can be tapped for just that sentence.
+
+The bake is `scripts/make-audio.mjs`, run by `.github/workflows/bake-audio.yml`
+because the TTS key is an Actions secret. Each source carries its own rate and
+its own directory, so nothing else has to remember what "slow" means:
+
+| `--source` | rate | writes to |
+|---|---|---|
+| `words` | 1.0 | `public/audio/<lang>/` |
+| `words-slow` | 0.6 | `public/audio/<lang>/slow/` |
+| `stories` | 1.0 | `public/audio/<lang>/story/` |
+| `stories-slow` | 0.6 | `public/audio/<lang>/story/slow/` |
+| `stories-en` | 1.0, in `en-US` | `public/audio/<lang>/story/en/` |
+
+A manifest per directory records the provider, voice, rate and a per-clip stamp,
+so a run only pays for what actually changed — and a rate change alone re-bakes
+everything, which is the trap that was fixed by putting the rate in the stamp.
+
 ## Setup
 
 There isn't one. Open the deployed page on your phone, "Add to Home Screen",
@@ -306,6 +347,7 @@ npm run typecheck      # the typecheck alone — and note it is `tsc -b`, not
                        # `tsc --noEmit`, which silently checks NOTHING here:
                        # the root tsconfig is files:[] with project references
 npm run validate:words # dataset sanity checks
+node scripts/make-audio.mjs --source words --dry-run   # what a bake would cost
 node scripts/make-map.mjs # regenerate the Denmark outline
 node scripts/make-icons.mjs                   # regenerate the PWA icons
 ```

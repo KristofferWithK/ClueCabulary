@@ -47,15 +47,29 @@ export function DictionarySheet() {
           </h2>
           <span className="pos-badge">{entry.pos}</span>
           {/* The headword has a baked clip; the sentence below never will, so
-              the two buttons are gated on different questions. */}
+              the buttons are gated on different questions.
+
+              🐢 is a second BAKE, not the same clip slowed down — see
+              wordAudioUrl. It sits beside 🔊 rather than replacing it because
+              looking a word up is exactly when a learner wants to hear it
+              twice, and the second time slowly. */}
           {canPlayWords() && (
-            <button
-              className="speak-btn"
-              aria-label={`Pronounce ${entry.da}`}
-              onClick={() => void playWord(entry.id, entry.da)}
-            >
-              🔊
-            </button>
+            <>
+              <button
+                className="speak-btn"
+                aria-label={`Pronounce ${entry.da}`}
+                onClick={() => void playWord(entry.id, entry.da)}
+              >
+                🔊
+              </button>
+              <button
+                className="speak-btn"
+                aria-label={`Pronounce ${entry.da} slowly`}
+                onClick={() => void playWord(entry.id, entry.da, { slow: true })}
+              >
+                🐢
+              </button>
+            </>
           )}
         </div>
         <p className="sheet-glosses">{entry.en.join(', ')}</p>
@@ -63,13 +77,22 @@ export function DictionarySheet() {
           <p lang={ACTIVE.code}>
             {entry.exampleDa}
             {canSpeak() && (
-              <button
-                className="speak-btn speak-btn-inline"
-                aria-label="Pronounce example sentence"
-                onClick={() => speakText(entry.exampleDa)}
-              >
-                🔊
-              </button>
+              <>
+                <button
+                  className="speak-btn speak-btn-inline"
+                  aria-label="Pronounce example sentence"
+                  onClick={() => speakText(entry.exampleDa)}
+                >
+                  🔊
+                </button>
+                <button
+                  className="speak-btn speak-btn-inline"
+                  aria-label="Pronounce example sentence slowly"
+                  onClick={() => speakText(entry.exampleDa, ACTIVE.speech.slowRate)}
+                >
+                  🐢
+                </button>
+              </>
             )}
           </p>
           <p className="sheet-example-en">{entry.exampleEn}</p>

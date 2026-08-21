@@ -51,8 +51,9 @@ import type { City } from '../journey/route'
  *     100), and a map module in the shape of `src/lang/da/map.ts`: run
  *     `scripts/make-map.mjs` against German geodata, then package the consts
  *     it writes the way `src/lang/da/route.ts` does.
- *  7. `speech` — `de-DE`, and a rate measured on a German device rather than
- *     inherited from Danish's 0.88.
+ *  7. `speech` — `de-DE`, a `rate` (1 unless a German device gives a reason to
+ *     drop it) and a `slowRate` chosen by ear on that device rather than
+ *     inherited from Danish's 0.6.
  *  8. `prompts` — eight strings, each quoted into a fixed sentence in
  *     `src/ai/prompts.ts`. Read how each is used before writing it; they are
  *     clauses, not paragraphs. `seam.test.ts` asserts a prompt built for
@@ -196,11 +197,20 @@ export interface SpeechSpec {
   /** BCP-47 tag for the device's own speech engine: "da-DK". */
   readonly tag: string
   /**
-   * How much slower than default to read, for a learner. Measured per language
-   * because the engines differ: 0.88 is where the Danish voice stopped running
-   * words together.
+   * How fast to read, for a device with no baked clip. 1 — the ordinary pace —
+   * because the app now has a slow control instead of a slow default: Danish
+   * spent a while at 0.88 for the sentence «hvad hedder du», which the engine
+   * ran together, and hedging every word against that one is what `slowRate`
+   * replaces.
    */
   readonly rate: number
+  /**
+   * What the dictionary sheet's 🐢 asks for. 0.6 in Danish, chosen by ear from
+   * a rate audition (DECISIONS.md, «The voice is Aoede at 0.6») and the same
+   * figure the slow bake uses, so the two speeds sound alike whether a word
+   * has a clip or not.
+   */
+  readonly slowRate: number
 }
 
 /**

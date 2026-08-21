@@ -1,7 +1,33 @@
 // Manual-style smoke drive of the built app with the mock companion.
+import { readdirSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 import { audioSlug } from '../scripts/audio-slug.mjs'
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+/**
+ * How many clips of each bake this build actually carries.
+ *
+ * The type assertion below can only be made about a bake that exists, and the
+ * two are baked by separate CI runs — a tree can honestly be between them, as
+ * this one was for nine minutes when the words were re-baked at 1.0 and the
+ * 0.6 set moved to slow/. Counting first means the drive says "the ordinary
+ * bake is missing" instead of "the app is silent", and stays strict about
+ * whichever bake IS there.
+ */
+const clipCount = (...parts) => {
+  try {
+    return readdirSync(resolve(ROOT, 'dist', 'audio', ...parts)).filter((f) => f.endsWith('.mp3'))
+      .length
+  } catch {
+    return 0
+  }
+}
+const NORMAL_CLIPS = clipCount('da')
+const SLOW_CLIPS = clipCount('da', 'slow')
+console.log(`clips in dist: ${NORMAL_CLIPS} ordinary, ${SLOW_CLIPS} slow`)
 
 const PORT = 4173
 const preview = await startPreview(PORT)
@@ -53,7 +79,7 @@ try {
   // The LAST card, deliberately: `speak.ts` memoises a played clip, so a word
   // played here would not be fetched again when the tour below reaches it, and
   // this check would silently steal an assertion from that one. The tour only
-  // gets a few words into board order in its 2.6s, so the end of the board is
+  // gets a few words into board order in its 3.4s, so the end of the board is
   // out of its way.
   const audioHits = []
   page.on('response', (r) => {
@@ -77,17 +103,62 @@ try {
       })`,
     )
   }
-  if (!hit.type.startsWith('audio/')) {
+  if (NORMAL_CLIPS === 0) {
+    console.log(
+      `NOTE: no ordinary bake in dist (${SLOW_CLIPS} slow clips present), so the tap could only ` +
+        `be checked for asking. Run bake-audio.yml.`,
+    )
+  } else if (!hit.type.startsWith('audio/')) {
     throw new Error(
       `${wantSlug} came back ${hit.status} ${hit.type || '(no type)'} — that is the ` +
         `preview server's index.html fallback, not a clip. The build has no word audio.`,
     )
+  } else {
+    console.log(`tap spoke: ${tapWord} -> ${wantSlug} ${hit.status} ${hit.type}`)
   }
-  console.log(`tap spoke: ${tapWord} -> ${wantSlug} ${hit.status} ${hit.type}`)
+
   // The tap may have opened the dictionary (a card that is not guessable looks
   // up instead); put it away so the rest of the drive starts where it expects.
   const opened = page.locator('.sheet .btn')
   if (await opened.isVisible().catch(() => false)) await opened.click()
+
+  // ---- and 🐢 says the same word again, out of the other bake ---------------
+  // Two assertions in one gesture. That the button is wired at all, and that
+  // it reaches audio/da/slow/ rather than replaying what the tap above already
+  // put in memory — which is the failure the variant-keyed cache in speak.ts
+  // exists to prevent, and the one that would look exactly like a working
+  // button from the outside.
+  //
+  // The type check here is unconditional: the slow set is the audio this repo
+  // has shipped since the first bake, so an index.html answering for it is a
+  // broken build and not a state to be tolerant of.
+  await page.locator('.word-card-wrap').last().locator('.card-info').click()
+  await page.waitForSelector('.sheet')
+  const slowBtn = page.locator('.sheet-head .speak-btn[aria-label*="slowly"]')
+  if (!(await slowBtn.count())) throw new Error('the dictionary sheet has no slow button')
+  const before = audioHits.length
+  await slowBtn.click()
+  await sleep(600)
+  const slowWant = `/audio/da/slow/${wantSlug}`
+  const slowHit = audioHits.slice(before).find((h) => h.url.includes(slowWant))
+  if (!slowHit) {
+    throw new Error(
+      `🐢 on «${tapWord}» requested no slow clip (wanted ${slowWant}; saw ${
+        audioHits
+          .slice(before)
+          .map((h) => h.url)
+          .join(', ') || 'nothing'
+      })`,
+    )
+  }
+  if (SLOW_CLIPS > 0 && !slowHit.type.startsWith('audio/')) {
+    throw new Error(
+      `${slowWant} came back ${slowHit.status} ${slowHit.type || '(no type)'} — the slow bake is ` +
+        `on disk but the build is not serving it.`,
+    )
+  }
+  console.log(`🐢 spoke: ${tapWord} -> ${slowWant} ${slowHit.status} ${slowHit.type}`)
+  await page.click('.sheet .btn')
 
   // ---- hear the board -------------------------------------------------------
   // The opening study phase was removed for being homework before the game, and
@@ -132,7 +203,7 @@ try {
   })
   if (!(await page.locator('.hear-board').count())) throw new Error('no hear-the-board button')
   await page.locator('.hear-board').click()
-  await sleep(2600)
+  await sleep(3400)
   // Compared in slug space, since one channel reports the word and the other
   // reports its filename, and «øje»/«oeje» are the same statement.
   const asSlug = (e) => (e.startsWith('clip:') ? e.slice(5) : audioSlug(e))
@@ -145,9 +216,10 @@ try {
   // each one, so the run is flattened before comparing.
   const raw = (await page.evaluate(() => window.__asked.slice())).map(asSlug)
   const heard = raw.filter((s, i) => i === 0 || s !== raw[i - 1])
-  // Board order, which is reading order. Two words in 2.6s at the 1200ms
-  // cadence; a third is allowed for slack rather than required.
-  if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 2.6s`)
+  // Board order, which is reading order. Three words in 3.4s at the 1500ms
+  // cadence — the pace HearBoard measured off the clips — and the third is
+  // allowed for slack rather than required, since the run is flattened above.
+  if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 3.4s`)
   const wanted = cards.slice(0, heard.length).map(audioSlug)
   if (heard.join('|') !== wanted.join('|')) {
     throw new Error(`hear-the-board went out of order: ${heard.join(', ')} vs ${wanted.join(', ')}`)

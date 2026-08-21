@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS } from '../data/words'
+import { ACTIVE } from '../lang/active'
 import { type ClipLoad, type WordAudioPorts, audioSlug, createWordPlayer, wordAudioUrl } from './speak'
 
 /**
@@ -133,6 +134,8 @@ function harness(over: Partial<WordAudioPorts> = {}) {
     load: [] as string[],
     played: 0,
     spoke: [] as string[],
+    /** What rate each of those was spoken at. */
+    rates: [] as number[],
     stopped: 0,
     primed: 0,
     /** What happened, in order — the only way to ask "before the await?". */
@@ -154,7 +157,7 @@ function harness(over: Partial<WordAudioPorts> = {}) {
     },
     stop: () => void (calls.stopped++, calls.order.push('stop')),
     prime: () => void (calls.primed++, calls.order.push('prime')),
-    speak: (t) => void (calls.spoke.push(t), calls.order.push('speak')),
+    speak: (t, rate) => void (calls.spoke.push(t), calls.rates.push(rate), calls.order.push('speak')),
     wanted: () => true,
     headwordFor: (id) => id.replace(/^[a-z]{2}:/, ''),
     ...over,
@@ -331,5 +334,55 @@ describe('playWord', () => {
     await expect(h.player.playWord('da:hus')).resolves.toBeUndefined()
     // And a thrown load is treated as unreachable, so the word is still said.
     expect(h.calls.spoke).toEqual(['hus'])
+  })
+})
+
+/* ------------------------------------------------------------------ *
+ * The slow bake
+ * ------------------------------------------------------------------ */
+
+describe('the 🐢 in the dictionary sheet', () => {
+  it('reads its clip out of the slow directory, by the same slug rule', () => {
+    expect(wordAudioUrl('da:hus', 'slow')!.endsWith('audio/da/slow/hus.mp3')).toBe(true)
+    // The fold applies on both sides, or the slow half 404s for every word
+    // with a Danish letter in it.
+    expect(wordAudioUrl('da:købe', 'slow')!.endsWith('audio/da/slow/koebe.mp3')).toBe(true)
+    // And 'normal' is what a caller that says nothing gets.
+    expect(wordAudioUrl('da:hus')).toBe(wordAudioUrl('da:hus', 'normal'))
+  })
+
+  it('fetches its own file rather than replaying the one already in memory', async () => {
+    // The regression the variant-keyed memo exists for: keyed by id alone the
+    // first tap answers the second, 🐢 plays the ordinary clip, and the button
+    // looks dead while behaving perfectly.
+    const h = harness()
+    await h.player.playWord('da:hus')
+    await h.player.playWord('da:hus', 'hus', { slow: true })
+    expect(h.calls.load).toEqual([wordAudioUrl('da:hus'), wordAudioUrl('da:hus', 'slow')])
+    expect(h.calls.played).toBe(2)
+  })
+
+  it('and a word missing from one bake is not written off in the other', async () => {
+    // Same key, same trap: a 404 on the ordinary clip must not make the slow
+    // one unaskable for the rest of the session.
+    const h = harness()
+    h.answers({ kind: 'absent' })
+    await h.player.playWord('da:hus')
+    h.answers({ kind: 'clip', clip: CLIP })
+    await h.player.playWord('da:hus', 'hus', { slow: true })
+    expect(h.calls.load).toEqual([wordAudioUrl('da:hus'), wordAudioUrl('da:hus', 'slow')])
+    expect(h.calls.played).toBe(1)
+  })
+
+  it('asks the device voice for the pack\'s slow rate when there is no clip', async () => {
+    // A phone with no baked audio still has to answer 🐢 with something
+    // slower than 🔊, or the button is a lie on exactly the devices that
+    // depend on it most.
+    const h = harness()
+    h.answers({ kind: 'absent' })
+    await h.player.playWord('da:hus')
+    await h.player.playWord('da:hus', 'hus', { slow: true })
+    expect(h.calls.rates).toEqual([ACTIVE.speech.rate, ACTIVE.speech.slowRate])
+    expect(ACTIVE.speech.slowRate).toBeLessThan(ACTIVE.speech.rate)
   })
 })

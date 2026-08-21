@@ -13,9 +13,10 @@
  * nobody reads.)
  *
  * `playWord` is the fix for the 900 words we know in advance.
- * `scripts/make-audio.mjs` bakes each of them to
- * `public/audio/<lang>/<slug>.mp3` with a neural voice; this plays that file
- * and falls back to `speakText` whenever it cannot. **Until that script has
+ * `scripts/make-audio.mjs` bakes each of them twice with a neural voice — the
+ * ordinary reading to `public/audio/<lang>/<slug>.mp3` and a 0.6 one to
+ * `public/audio/<lang>/slow/<slug>.mp3` — and this plays whichever was asked
+ * for, falling back to `speakText` whenever it cannot. **Until that script has
  * been run against a real provider there are no clips in the tree, so every
  * call takes the fallback and the app behaves exactly as it did before.** That
  * is the intended resting state, not a broken one.
@@ -63,6 +64,21 @@ if (canSpeak()) {
 }
 
 /**
+ * A voice for a tag that is not the active language's. Exact match first, then
+ * anything in the same language, the same order `refreshVoice` uses.
+ */
+function voiceFor(tag: string): SpeechSynthesisVoice | undefined {
+  if (!canSpeak()) return undefined
+  const voices = window.speechSynthesis.getVoices()
+  const want = tag.toLowerCase()
+  const prefix = `${want.split('-')[0]}-`
+  return (
+    voices.find((v) => v.lang.toLowerCase() === want) ??
+    voices.find((v) => v.lang.toLowerCase().startsWith(prefix))
+  )
+}
+
+/**
  * When speech was last cancelled from outside `speakText`.
  *
  * The WebKit quirk below keys off `synth.speaking || synth.pending`, which is
@@ -75,7 +91,11 @@ if (canSpeak()) {
 let cancelledAt = -Infinity
 const TEARDOWN_MS = 90
 
-export function speakText(text: string): void {
+export function speakText(
+  text: string,
+  rate: number = ACTIVE.speech.rate,
+  tag: string = ACTIVE.speech.tag,
+): void {
   if (!canSpeak()) return
   // The sound switch is checked here as well as in `playWord`, because this is
   // also the direct path for example sentences and looked-up words — the two
@@ -85,9 +105,17 @@ export function speakText(text: string): void {
   const go = () => {
     if (!cachedVoice) refreshVoice()
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = ACTIVE.speech.tag
-    if (cachedVoice) utterance.voice = cachedVoice
-    utterance.rate = ACTIVE.speech.rate // a touch slower for learners
+    utterance.lang = tag
+    // The cache holds the voice for the language being taught. Anything else —
+    // today only the ride's English translation — is looked up per utterance
+    // rather than cached: it is the no-clip path of one step of one screen,
+    // and a second cache to keep warm would cost more than it saves.
+    const voice = tag === ACTIVE.speech.tag ? cachedVoice : voiceFor(tag)
+    if (voice) utterance.voice = voice
+    // The pack's normal rate unless the caller asked for its slow one. This is
+    // the no-clip path, so it is the only place a rate is still spoken rather
+    // than baked.
+    utterance.rate = rate
     synth.speak(utterance)
   }
   // WebKit quirk: an utterance queued synchronously after cancel() is often
@@ -171,22 +199,37 @@ const WORD_ID = /^([a-z]{2}):(.+)$/
  * like one. The language comes out of the id's own prefix, so a second language
  * needs no second code path — `de:Haus` reads its clips from `audio/de/`.
  *
+ * Each word is baked TWICE, and the variant picks between the two directories:
+ * `audio/da/hus.mp3` is the ordinary reading, `audio/da/slow/hus.mp3` the 0.6
+ * one behind the dictionary's 🐢. Two files rather than one file played at
+ * `playbackRate` 0.6, because a stretched clip is a processed clip and both of
+ * these are real synthesis at the rate they claim. The slow set is the audio
+ * that used to be the app's only audio (DECISIONS.md, «The voice is Aoede at
+ * 0.6»), moved sideways rather than re-made.
+ *
  * The FOLD comes out of the same prefix, via the registry. An id for a language
  * with no pack registered is not folded at all rather than folded by Danish's
  * rules: applying æ→ae to a German word would be a confidently wrong filename,
  * where no fold is an incomplete one that becomes right the moment the pack
  * lands.
  */
-export function wordAudioUrl(wordId: string): string | undefined {
+export function wordAudioUrl(wordId: string, variant: SpeechVariant = 'normal'): string | undefined {
   const parts = WORD_ID.exec(wordId)
   if (!parts) return undefined
   const pack = LANGUAGES[parts[1] as LanguageCode]
   const slug = audioSlug(parts[2], pack ? pack.orthography.fold : (s) => s)
   if (!slug) return undefined
+  const dir = variant === 'slow' ? `${parts[1]}/slow` : parts[1]
   // BASE_URL is '/ClueCabulary/' on Pages and './' in the native shell, and
   // ends with a slash either way.
-  return `${import.meta.env.BASE_URL}audio/${parts[1]}/${slug}.mp3`
+  return `${import.meta.env.BASE_URL}audio/${dir}/${slug}.mp3`
 }
+
+/**
+ * Which of the two bakes a word is being asked for. Not a setting — nothing
+ * persists it and nothing defaults to 'slow'; it is what one button passes.
+ */
+export type SpeechVariant = 'normal' | 'slow'
 
 /**
  * The URL of one travel-story sentence's baked clip.
@@ -194,14 +237,35 @@ export function wordAudioUrl(wordId: string): string | undefined {
  * A sentence, unlike a word, is not addressed by a dataset id — there is
  * nothing to fold or to guard against Windows device names, because the name
  * is two numbers. It must agree with `storySlug` in journey/travelStory.ts and
- * with the `--source stories` branch of make-audio.mjs; a test asserts every
- * sentence in the shipped stories has a file at exactly this path, so the
- * three cannot drift apart quietly.
+ * with the story branch of make-audio.mjs; journey-drive asks the built app
+ * for these files, so the three cannot drift apart quietly.
+ *
+ * Three bakes of one sentence, because the ride says each one four times:
+ * `story/` is the Danish at its ordinary pace and is also the fourth pass,
+ * `story/en/` is the English translation between them, and `story/slow/` is
+ * the Danish at 0.6 — the clips that used to be the ride's only audio.
  */
-export function storyAudioUrl(cityIndex: number, sentenceIndex: number): string {
+export function storyAudioUrl(
+  cityIndex: number,
+  sentenceIndex: number,
+  variant: StoryVariant = 'normal',
+): string {
   const slug = `${cityIndex}-${String(sentenceIndex).padStart(3, '0')}`
-  return `${import.meta.env.BASE_URL}audio/${ACTIVE.code}/story/${slug}.mp3`
+  const dir = variant === 'normal' ? 'story' : `story/${variant}`
+  return `${import.meta.env.BASE_URL}audio/${ACTIVE.code}/${dir}/${slug}.mp3`
 }
+
+/** Which of a sentence's three clips: the Danish, its translation, the slow Danish. */
+export type StoryVariant = 'normal' | 'en' | 'slow'
+
+/**
+ * The tag the device voice reads a TRANSLATION in, when there is no baked clip
+ * for it. Must match the locale the `stories-en` source bakes with in
+ * make-audio.mjs, or the same sentence arrives in two accents depending on
+ * whether the build has audio. English is not a dataset language and has no
+ * pack, which is why this is a literal here rather than a field on one.
+ */
+export const TRANSLATION_TAG = 'en-US'
 
 /* ------------------------------------------------------------------ *
  * The player
@@ -232,7 +296,8 @@ export interface WordAudioPorts {
    * await. See `unlock` below for why.
    */
   prime(): void
-  speak(text: string): void
+  /** The no-clip path. The rate is the caller's, not the port's. */
+  speak(text: string, rate: number): void
   /** Whether the player wants sound at all. */
   wanted(): boolean
   /** The headword behind an id, for the fallback and for nothing else. */
@@ -240,7 +305,8 @@ export interface WordAudioPorts {
 }
 
 /**
- * How many clips to hold in memory. They are ~10 KB each, so this is about a
+ * How many clips to hold in memory, counted across both bakes — a word tapped
+ * and then heard slowly holds two. They are ~10 KB each, so this is about a
  * third of a megabyte at worst — enough that re-tapping a word in a round is
  * instant (and, more importantly, plays *inside* the tap: see `prime`), and far
  * short of holding all 900. The service worker's cache is the real store; this
@@ -249,6 +315,13 @@ export interface WordAudioPorts {
 const MEMO_MAX = 40
 
 export function createWordPlayer(ports: WordAudioPorts) {
+  /**
+   * Both caches are keyed by variant AND id, never by id alone. Keyed by id,
+   * the first tap on «hus» would answer every later tap — so 🐢 would replay
+   * the ordinary clip and look like a dead button, and a word missing from one
+   * bake would fall silent in the other. `slow:da:hus` and `normal:da:hus` are
+   * two files and two separate questions.
+   */
   const memo = new Map<string, Blob>()
   const absent = new Set<string>()
   /**
@@ -260,7 +333,11 @@ export function createWordPlayer(ports: WordAudioPorts) {
    */
   let ticket = 0
 
-  async function attempt(wordId: string, text?: string): Promise<void> {
+  async function attempt(
+    wordId: string,
+    text: string | undefined,
+    variant: SpeechVariant,
+  ): Promise<void> {
     const mine = ++ticket
     const current = () => mine === ticket
     // Before the `wanted` check, so turning sound off silences what is already
@@ -270,21 +347,22 @@ export function createWordPlayer(ports: WordAudioPorts) {
     ports.prime()
 
     const fallback = text ?? ports.headwordFor(wordId)
-    const url = wordAudioUrl(wordId)
+    const url = wordAudioUrl(wordId, variant)
+    const key = `${variant}:${wordId}`
 
-    let clip = memo.get(wordId)
-    if (!clip && url && !absent.has(wordId)) {
+    let clip = memo.get(key)
+    if (!clip && url && !absent.has(key)) {
       const got = await ports.load(url).catch((): ClipLoad => ({ kind: 'unreachable' }))
       if (!current()) return
       if (got.kind === 'clip') {
         clip = got.clip
-        memo.set(wordId, clip)
+        memo.set(key, clip)
         // Map iterates in insertion order, so the first key is the oldest.
         if (memo.size > MEMO_MAX) memo.delete(memo.keys().next().value as string)
       } else if (got.kind === 'absent') {
         // A build with no baked audio is the whole of tonight's tree. Without
         // this the app would re-ask for the same missing file on every tap.
-        absent.add(wordId)
+        absent.add(key)
       }
       // 'unreachable' is deliberately not remembered: the clip may exist and
       // simply be out of reach, and a player who goes offline for a bus ride
@@ -304,7 +382,9 @@ export function createWordPlayer(ports: WordAudioPorts) {
     }
 
     if (!current()) return
-    if (fallback) ports.speak(fallback)
+    if (fallback) {
+      ports.speak(fallback, variant === 'slow' ? ACTIVE.speech.slowRate : ACTIVE.speech.rate)
+    }
   }
 
   return {
@@ -314,9 +394,9 @@ export function createWordPlayer(ports: WordAudioPorts) {
      * an ordinary tap — and the worst case this is protecting is a word that
      * does not play, which is the resting state anyway.
      */
-    async playWord(wordId: string, text?: string): Promise<void> {
+    async playWord(wordId: string, text?: string, opts?: { slow?: boolean }): Promise<void> {
       try {
-        await attempt(wordId, text)
+        await attempt(wordId, text, opts?.slow ? 'slow' : 'normal')
       } catch {
         // Nothing useful left to try: `attempt` has already fallen back once.
       }
@@ -453,8 +533,10 @@ const player = createWordPlayer(browserPorts)
  *
  * Never rejects. Pass `text` when the caller already has the headword — it
  * saves a dictionary lookup and lets a word outside the dataset still fall
- * back to speech.
+ * back to speech. `{ slow: true }` asks for the 0.6 bake instead of the
+ * ordinary one, and falls back to the device voice at the pack's slow rate;
+ * only the dictionary sheet passes it.
  */
-export function playWord(wordId: string, text?: string): Promise<void> {
-  return player.playWord(wordId, text)
+export function playWord(wordId: string, text?: string, opts?: { slow?: boolean }): Promise<void> {
+  return player.playWord(wordId, text, opts)
 }

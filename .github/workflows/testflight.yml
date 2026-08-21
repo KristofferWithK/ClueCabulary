@@ -121,6 +121,15 @@ jobs:
             echo "::error::only $n clips in $dir — the build would be silent"
             exit 1
           fi
+          # The slow bake behind the dictionary's 🐢 is a second directory, and
+          # a sync that dropped it would leave one button working and one dead
+          # — which is precisely the kind of half-silence this step exists for.
+          slow=$(ls "$dir"/slow/*.mp3 2>/dev/null | wc -l | tr -d ' ')
+          echo "$slow slow clips synced into the shell"
+          if [ "$slow" -lt 900 ]; then
+            echo "::error::only $slow clips in $dir/slow — the 🐢 would be silent"
+            exit 1
+          fi
           voice=$(node -e "process.stdout.write(require('./$dir/manifest.json').voice ?? '?')")
           rate=$(node -e "process.stdout.write(String(require('./$dir/manifest.json').rate ?? '?'))")
           echo "voice: $voice at rate $rate" >> "$GITHUB_STEP_SUMMARY"

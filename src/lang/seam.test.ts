@@ -64,7 +64,7 @@ const FAKE: LanguagePack = {
       curriculumRank: 2,
     },
   ] satisfies WordEntry[],
-  speech: { tag: 'zz-ZZ', rate: 1 },
+  speech: { tag: 'zz-ZZ', rate: 1, slowRate: 0.5 },
   orthography: {
     distinctive: /ç/,
     fold: (s) => s.replace(/ç/g, 'cx'),
@@ -387,9 +387,13 @@ describe('the Danish pack is complete', () => {
     for (const t of danish.copy.tips) expect(t.trim().length).toBeGreaterThan(0)
   })
 
-  it('speaks at a rate somebody chose', () => {
+  it('speaks at a rate somebody chose, and a slower one below it', () => {
     expect(danish.speech.rate).toBeGreaterThan(0)
     expect(danish.speech.rate).toBeLessThanOrEqual(1)
+    // The whole point of the 🐢: a slowRate at or above the ordinary rate is a
+    // button that changes nothing.
+    expect(danish.speech.slowRate).toBeGreaterThan(0)
+    expect(danish.speech.slowRate).toBeLessThan(danish.speech.rate)
   })
 })
 
