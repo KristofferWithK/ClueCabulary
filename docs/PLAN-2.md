@@ -493,7 +493,6 @@ pass to flip.
 - **X1** — The stale-copy sweep
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
-- **E1** — The judged matrix, city 1 *(city 1 is final; may start now)*
 - **E2** — The book, city 1 *(beside E1)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
