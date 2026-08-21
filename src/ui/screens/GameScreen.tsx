@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { currentClue } from '../../engine/game'
 import type { GameState } from '../../engine/types'
 import { onPracticeCompanion, useGame } from '../../stores/gameStore'
@@ -317,13 +317,17 @@ function SuddenDeathBar({ game }: { game: GameState }) {
   return (
     <div className="dock guess-bar sudden-death-bar">
       <p className="dock-title">All or nothing — no clues left</p>
-      {/* The dock's give-way region: selecting a card swaps a one-line hint for
-          a 44px confirm row below, and this absorbs the difference so the give-
-          up button stays where the thumb last saw it. */}
+      {/* The dock's give-way region: it is prose, so it may be cut, and it is
+          what absorbs whatever the row below it happens to be. */}
       <p className="dim dock-flex">
         Keep naming green words and you can still win this. Name anything else and the round is
-        over.
+        over. Tap a word you are sure of.
       </p>
+      {/* One row, not two. Giving up and confirming a name are alternatives —
+          you cancel a selection before you walk away from the round — so they
+          share a row rather than each reserving one. The second row was 56px
+          of the dock's reserve, and the dock's reserve is the board's size in
+          every phase of the round. */}
       {selected ? (
         <div className="guess-confirm">
           <button
@@ -342,11 +346,10 @@ function SuddenDeathBar({ game }: { game: GameState }) {
           </button>
         </div>
       ) : (
-        <p className="dim">Tap a word you are sure of.</p>
+        <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
+          Give up the round
+        </button>
       )}
-      <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
-        Give up the round
-      </button>
     </div>
   )
 }
@@ -357,6 +360,10 @@ function PlayerGuessBar({ game }: { game: GameState }) {
   const made = clue.guesses.length
   const left = clue.number - made
   const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
+  // Taps on the clue in the title, each one sending it to the dictionary
+  // below. A counter, so the same clue can be asked for again after the field
+  // has been typed over — see TranslateBox's `fill`.
+  const [lookUps, setLookUps] = useState(0)
   // The first guessing turn ever restates the rule the tutorial's staged miss
   // taught, in the hint slot that already exists — the line a selection swaps
   // away, so the dock's reserved height never grows (O4). Once ever, via
@@ -365,13 +372,33 @@ function PlayerGuessBar({ game }: { game: GameState }) {
 
   return (
     <div className="dock guess-bar">
+      {/* The clue is the button that looks it up. It was printed here AND
+          offered again on the dictionary's own line ("Look up Casey's clue")
+          one row below — two rows for one word, in the dock whose height is
+          the board's height for the whole round. Tapping the word you cannot
+          read is also the more obvious gesture of the two. */}
       <p className="dock-title">
-        Casey's clue: <strong>«{clue.text}»</strong> ({clue.number}) — up to {left} more guess
+        Casey's clue:{' '}
+        <button
+          className="clue-lookup"
+          aria-label={`Look up «${clue.text}» in the dictionary`}
+          onClick={() => setLookUps((n) => n + 1)}
+        >
+          «{clue.text}»
+        </button>{' '}
+        ({clue.number}) — up to {left} more guess
         {left === 1 ? '' : 'es'}
       </p>
       {/* A stake note stood here explaining what a forbidden tap cost and whose
           forbidden words were in play. Nothing on this screen is fatal any
           more: a wrong guess spends the turn, and that is the whole stake. */}
+      {/* One row for all three states. Stopping and confirming a guess are
+          alternatives — a selected card is cancelled before you stop — so the
+          stop button lives where the hint was rather than reserving a row of
+          its own underneath it. That row was 74px of the reserve at 360x640
+          (66 of button, wrapped to two lines, and an 8px gap), and the reserve
+          is the board's height in every phase of the round — including the
+          ones with no stop button in them at all. */}
       {selected ? (
         <div className="guess-confirm">
           <button
@@ -387,6 +414,13 @@ function PlayerGuessBar({ game }: { game: GameState }) {
             Cancel
           </button>
         </div>
+      ) : made > 0 ? (
+        // Only once a guess has been made, which is also the only moment the
+        // hint below has nothing left to teach — the player has just done the
+        // thing it describes.
+        <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
+          Stop — keep what we have
+        </button>
       ) : (
         <p className={firstGuessEver ? 'dim first-hint' : 'dim'}>
           {firstGuessEver
@@ -398,13 +432,8 @@ function PlayerGuessBar({ game }: { game: GameState }) {
         </p>
       )}
       {/* Casey clues in Danish when asked to, and a clue you cannot read is
-          not a clue. Prefilled from his, one tap. */}
-      <TranslateBox prefill={{ term: clue.text, label: "Casey's clue" }} />
-      {made > 0 && (
-        <button className="btn btn-ghost" onClick={() => useGame.getState().playerStop()}>
-          Stop guessing (keep what we have)
-        </button>
-      )}
+          not a clue. The title above is the tap that fills this. */}
+      <TranslateBox fill={{ term: clue.text, nonce: lookUps }} />
     </div>
   )
 }

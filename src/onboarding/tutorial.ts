@@ -177,7 +177,10 @@ export const TUTORIAL_BEATS: TutorialBeat[] = [
   },
   {
     kind: 'say',
-    text: 'Don’t know «dyr»? Tap “Look up Casey’s clue” below — ⓘ on a card and Aa up top work too. The dictionary is always open.',
+    // Names the gesture rather than quoting the button's exact words: the
+    // label is «dyr»'s own now, and a script that spells a label out is a
+    // script that goes stale the next time the label is shortened.
+    text: 'Don’t know «dyr»? Tap the lookup below — ⓘ on a card and Aa up top work too. The dictionary is always open.',
     lookup: true,
   },
   {

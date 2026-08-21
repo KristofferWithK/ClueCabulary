@@ -1161,6 +1161,9 @@ await page.setViewportSize(PHONE)
   let clueLookupHits = 0
   let guessLookupHits = 0
   let worst = null
+  // Set false the moment the stop button and the confirm row are seen on
+  // screen together; the check that reads it is beside the reserve's own.
+  let sharedRow = true
   // .round-summary, not .debrief — the round-end screen was renamed while this
   // was being written, and a loop that waits for a class nobody renders any
   // more just runs its full count. This file already carries one scar of that
@@ -1182,28 +1185,41 @@ await page.setViewportSize(PHONE)
     const guessable = page.locator('.word-card.card-guessable').first()
     if (await guessable.isVisible().catch(() => false)) {
       if (!guessLookupHits) guessLookupHits = (await longLookup('guess bar + lookup')) ?? 0
-      await guessable.click()
-      await page.waitForTimeout(200)
       // The fullest the dock ever is, and the state the reserve is sized
-      // against: a card selected (a 44px confirm row where a one-line hint
-      // was), the stop button once a guess has been made, and a four-hit
-      // lookup answer, all at once. Recorded so its rect joins the comparison.
-      const fullest =
-        !worst &&
-        (await page.locator('.guess-bar .btn-ghost').count()) > 0 &&
-        (await page.locator('.guess-bar .guess-confirm').count()) > 0 &&
-        (await page.locator('.guess-bar .translate-input').count()) > 0
-      if (fullest) {
-        await longLookup('guess bar, everything at once', async () => {
-          worst = await page.evaluate(() => {
+      // against. It used to be "the stop button AND a card selected AND a
+      // four-hit lookup, all at once"; those first two now share a row, so
+      // that combination is unreachable and a check asking for it waits for
+      // ever. Both halves of the swap are measured instead — the stop button
+      // with four answers up, then the confirm row with four answers up — and
+      // the fullest is whichever of them is taller.
+      const measure = async (label, when) => {
+        if (!when) return
+        await longLookup(label, async () => {
+          const r = await page.evaluate(() => {
             const dock = document.querySelector('.game-screen .dock')
             const bottom = dock.getBoundingClientRect().bottom
             // How far past the dock's own bottom edge anything inside it
             // reaches. The reserve is only honest if this is zero: a dock
             // whose content hangs out of it has not reserved anything.
-            const out = [...dock.querySelectorAll('*')].map((el) =>
-              Math.round((el.getBoundingClientRect().bottom - bottom) * 10) / 10,
-            )
+            //
+            // Anything inside a box that CLIPS its own overflow is skipped,
+            // and that is the point rather than a loophole: the answers list
+            // is designed to give way by scrolling, so its off-screen rows are
+            // painted nowhere and their rectangles say nothing about the dock.
+            // Without this the reading is luck — at the old 260px reserve the
+            // list happened to sit high enough that its fourth row's rect
+            // stopped short of the dock's edge, and at 200px the second row's
+            // 🔊 button reaches 9.4px past it while being drawn inside the
+            // list all the same. The clipping box itself is still measured,
+            // and so is every control that does not have one.
+            const out = [...dock.querySelectorAll('*')]
+              .filter((el) => {
+                for (let p = el.parentElement; p && p !== dock; p = p.parentElement) {
+                  if (getComputedStyle(p).overflowY !== 'visible') return false
+                }
+                return true
+              })
+              .map((el) => Math.round((el.getBoundingClientRect().bottom - bottom) * 10) / 10)
             return {
               sh: document.scrollingElement.scrollHeight,
               ih: window.innerHeight,
@@ -1211,8 +1227,35 @@ await page.setViewportSize(PHONE)
               hits: dock.querySelectorAll('.translate-hits li').length,
             }
           })
+          if (!worst || r.spill > worst.spill) worst = { ...r, label }
         })
       }
+      await measure(
+        'guess bar, stop button and four answers',
+        (await page.locator('.guess-bar .btn-ghost').count()) > 0 &&
+          (await page.locator('.guess-bar .translate-input').count()) > 0,
+      )
+      await guessable.click()
+      await page.waitForTimeout(200)
+      // The reserve's arithmetic rests on the stop button and the confirm row
+      // being ALTERNATIVES — one row between them, not two — so that claim is
+      // asserted rather than left implied by the total below, which would go
+      // on passing if the reserve were simply raised to cover both. Sampled
+      // HERE, with a card selected: at the top of the loop nothing is, so the
+      // confirm row does not exist and the reading is vacuous — which it was,
+      // and a mutation that put the stop button back in a row of its own
+      // sailed through it.
+      if (
+        (await page.locator('.guess-bar .guess-confirm').count()) > 0 &&
+        (await page.locator('.guess-bar .btn-ghost').count()) > 0
+      ) {
+        sharedRow = false
+      }
+      await measure(
+        'guess bar, a card selected and four answers',
+        (await page.locator('.guess-bar .guess-confirm').count()) > 0 &&
+          (await page.locator('.guess-bar .translate-input').count()) > 0,
+      )
       const confirm = page.locator('.guess-confirm .btn-primary')
       if (await confirm.isVisible().catch(() => false)) {
         await confirm.click()
@@ -1292,17 +1335,25 @@ await page.setViewportSize(PHONE)
       (y.drift || h.drift ? `\n     ${worstOf(y.drift ? 'y' : 'height')}` : ` (top ${y.lo}, height ${h.lo})`),
   )
 
-  // The fullest state the guess dock reaches — a card selected, the stop
-  // button showing and four lookup answers up, all at once. This is where the
-  // reserve is deliberately smaller than the content, and the answers list is
-  // what has to give. It must give way INSIDE itself: nothing may hang out of
-  // the dock, and the document must not lengthen.
+  // The fullest state the guess dock reaches — its swap row at its tallest,
+  // with four lookup answers up. This is where the reserve is deliberately
+  // smaller than the content, and the answers list is what has to give. It
+  // must give way INSIDE itself: nothing may hang out of the dock, and the
+  // document must not lengthen.
   check(
     'the fullest the guess dock gets stays inside its reserve',
     worst ? worst.spill <= 0.5 && worst.sh <= worst.ih + 1 && worst.hits >= 4 : false,
     worst
-      ? `${worst.hits} answers up, ${worst.spill}px past the dock, document ${worst.sh} vs ${worst.ih}`
-      : 'never reached a selected card with the stop button and a lookup',
+      ? `${worst.label}: ${worst.hits} answers up, ${worst.spill}px past the dock, document ${worst.sh} vs ${worst.ih}`
+      : 'never reached the guess bar with four answers up',
+  )
+  // And the swap really is a swap. Without this the reserve could be bought
+  // back the expensive way — two rows and a taller dock — and every check
+  // above would go on passing while the board quietly shrank again.
+  check(
+    'stopping and confirming a guess share one row, never two',
+    sharedRow,
+    'the stop button and the confirm row were on screen together',
   )
   await page.setViewportSize(PHONE)
 }
