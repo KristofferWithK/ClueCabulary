@@ -1589,38 +1589,65 @@ select:focus {
  * measuring, no JS, nothing to keep in sync with the phase machine.
  *
  * The size is measured, not estimated. Every dock was asked how tall it wants
- * to be (height:auto) in every state a round can put it in, at 360x640:
+ * to be (height:auto) in every state a round can put it in, at 360x640. It was
+ * 16.25rem = 260px for one release, sized off the four rows the guess bar had
+ * then; the second complaint was about that number — "the composer is way too
+ * big, can we reduce the grey space and increase the grid card sizes" — and it
+ * was fair. The clue dock wants 126px and was being handed 260, so a third of
+ * that phase's screen was empty panel, and the board paid for it.
+ *
+ * You cannot answer that by shrinking the composer: the reserve is the TALLEST
+ * dock, and every other dock's spare room is the price of the board not
+ * moving. The only thing that lowers it is making the tallest dock shorter, so
+ * three rows came out of the guess bar and one out of the composer:
+ *
+ *   - "Look up Casey's clue", a row inside the dictionary, printed the clue a
+ *     second time one row under the title that had just named it. The title's
+ *     copy is the button now (.clue-lookup), and the same trick took the same
+ *     row out of the composer's English verdict.  -21px
+ *   - "Stop guessing (keep what we have)" had a row of its own under the
+ *     confirm row, and wrapped to two lines in it — 66px and an 8px gap.
+ *     Stopping and confirming a guess are alternatives — you cancel a
+ *     selection before you walk away — so it shares the row the hint and the
+ *     confirm buttons already use, under a label that fits one line.  -74px
+ *   - "Give clue anyway" wrapped beside the stepper; "Give it anyway" does
+ *     not.  -18px, in the composer's tallest state.
+ *
+ * What each dock wants now, measured the same way:
  *
  *   Casey guessing                                   116.69
- *   clue dock, bare                                  129
- *   ... + a rejected clue                            155
- *   ... + a four-hit lookup answer                   210.59
- *   guess bar, bare                                  152.86
- *   ... + "Stop guessing"                            209.86   (+57)
- *   ... + a card selected, i.e. the confirm row      237.86   (+28)
- *   ... + a four-hit lookup answer                   324.5
- *   sudden death + a card selected                   226.86
+ *   clue dock, bare                                  126
+ *   ... + the first-clue-ever line (O4)              191
+ *   ... + an English clue, so a verdict + its button 180
+ *   ... + a four-hit lookup answer                   272.59
+ *   guess bar, bare                                  143.86
+ *   ... + the stop button, or a card selected        153.86
+ *   ... + a four-hit lookup answer                   241.45
+ *   sudden death + a card selected                   ~200
  *
- * The last of those cannot be reserved for — 324px would leave 115px of board
- * — so the guess bar's answers list is where the reserve deliberately runs
- * out, and it scrolls inside itself. What the size has to buy is that running
- * out never hides anything: 16.25rem = 260px is where the fullest state still
- * shows one whole answer line (the min-height on .translate-hits below) with
- * every control inside the dock and the document still 640px on a 640px
- * screen. 15rem passed those two but squeezed the answers to exactly zero
- * height — four answers in the DOM and none on screen — which is why it is not
- * the number here.
+ * The lookup answers still cannot be reserved for, and are still where the
+ * reserve deliberately runs out: the list scrolls inside itself. What the size
+ * has to buy is that running out never hides anything — 12.5rem = 200px hands
+ * the fullest guess state's answers list 32.1px, which is one whole answer
+ * line (the min-height on .translate-hits below, 20.9) and half of the next,
+ * with every control still inside the dock. It is also what the composer's
+ * tallest state needs: the O4 first-clue line takes it to 191, so 200 leaves
+ * 9px. 12rem clears the guess bar and leaves that line 3px, which is not
+ * clearance.
  *
- * The 20px of board that costs is only visible at 360x640, where the board is
- * then the size it ALREADY was during guessing before any of this; at 390x844
- * it is 383px and nothing is tight. Locked at the tightest phase's size is the
- * shape of the request: "the grid should stay locked. and the text can be cut."
+ * 60px came off, and it is 60px of board in every phase: on the default 3x5
+ * board at 390x844 a card row goes 70.9 -> 82.9, and the composer's empty
+ * panel goes 134px -> 74px.
  *
  * In rem, not px, so it tracks the text it has to hold when the phone's font
  * size is turned up.
+ *
+ * The tutorial keeps the old number, and that is deliberate rather than a
+ * leftover — see .dock.tutorial-dock below.
  */
 .game-screen {
-  --dock-h: 16.25rem;
+  --dock-h: 12.5rem;
+  --tutorial-dock-h: 16.25rem;
 }
 
 .dock.clue-input,
@@ -1665,12 +1692,24 @@ select:focus {
 }
 
 /* ---- the tutorial dock (O2) ----
-   Casey beside the 3×4 board for the whole scripted round. Same reserved
-   height as every other phase dock, so the board above it is handed the same
-   leftover at every beat and never moves — the rule C1 bought for real play
-   holds through the tutorial by the same construction. */
+   Casey beside the 3×4 board for the whole scripted round. One reserved height
+   for every beat, so the board above it is handed the same leftover at each
+   one and never moves — the rule C1 bought for real play holds through the
+   tutorial by the same construction.
+
+   It is its OWN height, and only since the round's reserve came down to
+   12.5rem. This dock has Casey's face, his bubble and a list of clues to
+   choose from in it, and its tallest beat wants 237.1px at 360x640 — the
+   round's docks were the constraint before and are not any more. Held at the
+   old 16.25rem it clips nothing; cut to 12.5rem it would silently take 37px
+   off a bubble mid-sentence, because .tutorial-body's give-way is
+   overflow:hidden and would say nothing about it. The cost is a smaller board
+   during the tutorial than during real play, and on the phones where that is
+   visible it is small: the 3×4 board's cards are capped by their own aspect
+   ratio at 390x844, so both numbers draw the same 91.2px card there and only
+   the gaps between them differ. */
 .dock.tutorial-dock {
-  height: var(--dock-h);
+  height: var(--tutorial-dock-h);
 }
 
 .dock.tutorial-dock > * {
@@ -1927,6 +1966,18 @@ select:focus {
   text-overflow: ellipsis;
 }
 
+/* Casey's clue, inside the title, as the thing you tap to look it up. It has
+   to read as tappable without becoming a control that costs the line any
+   height — the title is one line and the whole reserve is sized off rows like
+   this one — so it is the word in its own ink with an underline under it, and
+   nothing else. Inline, so the nowrap/ellipsis above still governs the line. */
+.clue-lookup {
+  font-weight: 700;
+  color: var(--green-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .dock-head {
   display: flex;
   align-items: center;
@@ -1979,8 +2030,32 @@ select:focus {
   gap: 10px;
 }
 
+/* The row gives the word room. A .btn is sized for a label that is the whole
+   point of the button; the label here is six letters of "Cancel" beside a
+   button carrying a board word that must not wrap — see .btn-primary below.
+   Both buttons step down together so the pair still reads as a pair. */
+.guess-confirm .btn {
+  font-size: 0.85rem;
+  padding-inline: 12px;
+}
+
+/* One line, whatever the word is. This button carries a board word inside it,
+   and at the .btn defaults the long ones wrapped: 100 of the 1800 labels the
+   900 words can produce, measured at 360px in this button with both verbs in
+   front of them ("Guess «x»" here, "Name «x»" in sudden death). A wrapped
+   label is 24px taller, and this row sits inside the reserve — so those 24px
+   would come off the BOARD in every phase of the round, for a button that is
+   on screen for one tap. That is what the step-down above buys: at 0.85rem
+   with 12px of side padding the button is 213px wide and the widest label of
+   the 1800, "Guess «vaskemaskine»", needs 200.6 of them. None overflows.
+   The ellipsis is the backstop for a future dataset with a longer word still
+   — it cuts the tail rather than the row. */
 .guess-confirm .btn-primary {
   flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .thinking {
@@ -3462,23 +3537,12 @@ select:focus {
   flex: none;
 }
 
-/* Sits above an input that is always there, so it names the field rather than
-   opening it. Small and dim on purpose: two text inputs share this dock and
-   the clue is the one being asked for. The prefill button shares this line so
-   the field itself keeps the full width. */
-.translate-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 20px;
-}
-
-.translate-label {
-  font-size: 0.85rem;
-  color: var(--text-dim);
-  font-weight: 600;
-}
+/* .translate-head and .translate-label were declared here — a label line above
+   the field, and the row the prefill button shared with it. Both are gone from
+   the markup: the placeholder names the field, and the word worth looking up
+   is tapped where it is already printed. Deleted rather than left standing,
+   because a dead rule for a dead row is how the next reader concludes the row
+   is still there. */
 
 .translate-input {
   width: 100%;

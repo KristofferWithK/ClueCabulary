@@ -23,10 +23,16 @@ import { ACTIVE } from '../../lang/active'
  * a tap: a request per keystroke would be someone else's bill.
  */
 /**
- * `prefill` puts a word one tap away: Casey's clue while you are guessing, or
- * the English word you just tried to clue with while you are cluing.
+ * `fill` is a word put into the field from OUTSIDE the box, by whatever named
+ * it: Casey's clue in the guess bar's title, the English word in the composer's
+ * verdict line. It replaces a `prefill` prop that rendered its own "Look up
+ * «x»" line INSIDE the box — a second printing of a word the line above had
+ * just named, and a row out of the dock's reserve, which is the board's height
+ * for the whole round (see --dock-h). A counter rather than the term itself:
+ * the same word has to be askable twice, after the field has been typed over
+ * in between.
  */
-export function TranslateBox({ prefill }: { prefill?: { term: string; label: string } }) {
+export function TranslateBox({ fill }: { fill?: { term: string; nonce: number } }) {
   const inputId = useId()
   const [term, setTerm] = useState('')
   const [asked, setAsked] = useState<TranslationResponse | null>(null)
@@ -51,6 +57,15 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
     setAsked(null)
     setError(null)
   }, [trimmed])
+
+  // An outside tap asking for a word. Nonce 0 is "never asked", so mounting
+  // does not spend a lookup on a word nobody tapped.
+  const nonce = fill?.nonce ?? 0
+  const wanted = fill?.term
+  useEffect(() => {
+    if (nonce > 0 && wanted) setTerm(wanted)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nonce])
 
   // A board word answered from the shipped dictionary costs the same lookup as
   // tapping ⓘ on it — the offline half must not be the cheap way to read the
@@ -112,27 +127,9 @@ export function TranslateBox({ prefill }: { prefill?: { term: string; label: str
     // itself again on every turn. The word you need is the reason you are stuck
     // mid-clue, so the box has to be somewhere your thumb already is, open.
     <div className="translate-box">
-      {/* The prefill button rides the label line rather than the input's. It
-          used to sit beside the field, which cost it 141px of a 312px row —
-          measured at 360px, the input came out 123px wide, about ten
-          characters. That was survivable while the field was behind a lid and
-          is not now that it is the thing you type into. */}
-      {/* No standing label — the placeholder names the field. The one-tap
-          lookup appears only when there is something to look up, so the line
-          it costs is a line that earns itself. */}
-      {prefill && (
-        <button
-          className="composer-link translate-prefill"
-          aria-label={`Look up ${prefill.term}`}
-          onClick={(e) => {
-            e.preventDefault()
-            setTerm(prefill.term)
-          }}
-        >
-          Look up {prefill.label}
-        </button>
-      )}
-
+      {/* No standing label and no lookup line — the placeholder names the
+          field, and the word worth looking up is tappable where it is already
+          printed. Both were rows, and every row here is a row of board. */}
       <input
         id={inputId}
         className="translate-input"

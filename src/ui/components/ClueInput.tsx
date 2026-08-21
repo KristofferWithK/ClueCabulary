@@ -20,6 +20,11 @@ export function ClueInput({ game, onSubmit }: Props) {
   // refuse it twice.
   const [cleared, setCleared] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
+  // Taps on the word in the verdict line, each one sending it to the
+  // dictionary beside the field — see TranslateBox's `fill`. The offer used to
+  // be a line of its own inside the dictionary ("Look up «nice»"), which said
+  // the word a second time one row under the line that had just named it.
+  const [lookUps, setLookUps] = useState(0)
   const judgeTargetWord = useGame((s) => s.judgeTargetWord)
   // The first clue ever asked of this device gets one extra sentence (O4).
   // Gone the moment typing starts, so it never stands beside a verdict line.
@@ -109,7 +114,7 @@ export function ClueInput({ game, onSubmit }: Props) {
         </label>
         {/* Clueing in Danish means needing a word you do not have yet — which
             is the moment to look one up, not after abandoning the turn. */}
-        <TranslateBox prefill={english ? { term: trimmed, label: `«${trimmed}»` } : undefined} />
+        <TranslateBox fill={{ term: trimmed, nonce: lookUps }} />
       </div>
       {/* The first-encounter line (O4), in the slot the verdict lines use: the
           highest-friction act in the game arrives here with zero Danish, and
@@ -132,8 +137,18 @@ export function ClueInput({ game, onSubmit }: Props) {
       )}
       {english && (
         <p className="clue-error" id="clue-error" role="alert">
-          «{trimmed}» looks English. Look it up beside the field for the {ACTIVE.name} — or give the clue
-          anyway and Casey will check.
+          {/* The word is the button that looks it up: the line already says it,
+              and a "Look up «x»" row inside the dictionary underneath was the
+              same word again a row lower, paid for out of the dock's reserve —
+              which is the board's height for the whole round. */}
+          <button
+            className="clue-lookup"
+            aria-label={`Look up «${trimmed}» in the dictionary`}
+            onClick={() => setLookUps((n) => n + 1)}
+          >
+            «{trimmed}»
+          </button>{' '}
+          looks English. Tap it for the {ACTIVE.name}, or give it anyway and Casey will check.
         </p>
       )}
       {/* How many words the clue points at, and the send: one line, the way a
@@ -156,7 +171,11 @@ export function ClueInput({ game, onSubmit }: Props) {
           </button>
         </div>
         <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
-          {asking ? 'Asking Casey…' : english ? 'Give clue anyway' : 'Give clue'}
+          {/* "Give clue anyway" wrapped to a second line beside the stepper at
+              360px, and a wrapped button is 18px of the dock's reserve — which
+              is 18px off the board, in every phase, for a state most turns
+              never reach. */}
+          {asking ? 'Asking Casey…' : english ? 'Give it anyway' : 'Give clue'}
         </button>
       </div>
     </div>

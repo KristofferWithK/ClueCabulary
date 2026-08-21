@@ -304,7 +304,10 @@ try {
   const warned = await page.evaluate(() => ({
     label: document.querySelector('.clue-input .btn-primary').textContent,
     error: document.querySelector('.clue-error')?.textContent ?? '',
-    lookup: [...document.querySelectorAll('.clue-input .composer-link')].map((b) => b.textContent),
+    // The one-tap lookup is the word itself, inside the verdict line, rather
+    // than a "Look up «x»" row of its own inside the dictionary — the row was
+    // the same word again one line lower, out of the dock's reserve.
+    lookup: [...document.querySelectorAll('.clue-input .clue-lookup')].map((b) => b.textContent),
   }))
   if (!/looks English/.test(warned.error)) throw new Error(`no English warning: ${warned.error}`)
   if (!/anyway/.test(warned.label)) throw new Error(`no override offered: ${warned.label}`)

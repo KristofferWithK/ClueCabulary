@@ -16,8 +16,8 @@ import { TranslateBox } from './TranslateBox'
 /**
  * Casey on screen for the tutorial round (O2): face, speech bubble,
  * tap-to-advance — swapping for the real guess-confirm at the moments the
- * player acts. The dock reserves the same height every other game dock does
- * (--dock-h), so the board above it never moves between beats.
+ * player acts. The dock reserves one height for every beat
+ * (--tutorial-dock-h), so the board above it never moves between them.
  *
  * The beats live in src/onboarding/tutorial.ts and are pinned against the
  * engine by tutorial.test.ts; this component only walks them. It never drives
@@ -27,6 +27,9 @@ import { TranslateBox } from './TranslateBox'
  */
 export function TutorialDock({ game }: { game: GameState }) {
   const [index, setIndex] = useState(() => tutorialResumeIndex(game))
+  // Taps on the lookup offer, each one sending Casey's clue to the dictionary
+  // below it — see TranslateBox's `fill`.
+  const [lookUps, setLookUps] = useState(0)
   const selectedWordId = useGame((s) => s.selectedWordId)
   const planForClueIndex = useGame((s) => s.planForClueIndex)
   const beat = TUTORIAL_BEATS[Math.min(index, TUTORIAL_BEATS.length - 1)]!
@@ -81,7 +84,23 @@ export function TutorialDock({ game }: { game: GameState }) {
       </div>
 
       <div className="tutorial-body">
-        {showLookup && <TranslateBox prefill={{ term: clue.text, label: 'Casey’s clue' }} />}
+        {showLookup && (
+          // Real play makes Casey's clue tappable where the guess bar's title
+          // prints it; here the clue is in Casey's bubble, which is scripted
+          // prose, so the offer is its own line. Same one line the dictionary
+          // used to carry inside itself, and this dock has the room for it —
+          // it keeps the taller reserve (see --tutorial-dock-h).
+          <>
+            <button
+              className="composer-link tutorial-lookup"
+              aria-label={`Look up «${clue.text}» in the dictionary`}
+              onClick={() => setLookUps((n) => n + 1)}
+            >
+              Look up «{clue.text}»
+            </button>
+            <TranslateBox fill={{ term: clue.text, nonce: lookUps }} />
+          </>
+        )}
         {beat.kind === 'guess' &&
           !showLookup &&
           selected &&
