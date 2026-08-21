@@ -22,6 +22,19 @@
   --serif: Georgia, 'Times New Roman', 'Songti SC', serif;
   font-family: -apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color-scheme: light;
+  /* "When I tap the text field it flashes grey for a split second."
+     iOS paints a translucent grey rectangle over whatever a finger lands on,
+     before anything else happens. This was suppressed on `button` and nowhere
+     else — and every tappable thing in the app IS a button (the word cards
+     included, see BoardGrid) except the text fields, so the flash was left to
+     exactly the two inputs the composer is made of. The property inherits, so
+     it belongs here rather than on a list of element types that will be
+     incomplete again the next time something tappable is added.
+     Nothing is lost with it gone: a field answers a tap by taking focus and
+     drawing the 2px ring below, which is feedback the grey box only ever
+     preceded. NOT a substitute for a control saying it was pressed — those
+     say so themselves (.card-guessable:active and friends). */
+  -webkit-tap-highlight-color: transparent;
 }
 
 * {
@@ -59,7 +72,8 @@ button {
   background: none;
   border: none;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+  /* The tap highlight used to be suppressed here, which is why only the text
+     fields still flashed. It is on :root now, where it inherits to both. */
   /* Suppress iOS double-tap zoom on rapid gameplay taps (stepper, cards). */
   touch-action: manipulation;
 }
@@ -1652,10 +1666,49 @@ select:focus {
   --tutorial-dock-h: 16.25rem;
 }
 
-.dock.clue-input,
-.dock.ai-panel,
-.dock.guess-bar {
+/* The slot IS the reserve, and it is the only thing here with a height.
+ *
+ * This was the panel's own height for two releases, and the second complaint
+ * was the cost of that: "it's still way too much grey — the text field should
+ * be so low that only one or two small text lines fit below it." Both halves
+ * were right. The composer wants 126px and the guess bar 154, so a single
+ * height for both means one of them is drawn as a sheet of grey with its
+ * fields stranded at the top — and no amount of trimming fixes it, because the
+ * gap between the tallest dock and the shortest one is the price of the board
+ * not moving, and it is paid in whichever phase is not the tallest.
+ *
+ * So the space is held here, where it costs nothing to look at, and the panel
+ * inside hugs its own content against the bottom edge. The board sees exactly
+ * the same leftover it saw before — the numbers above are unchanged, and
+ * layout-drive still measures every phase's slot as one rectangle — while the
+ * phase with room to spare spends it on air rather than on panel.
+ *
+ * Three things follow, and all three are the point rather than side effects:
+ * the clue field sits at the bottom of the screen where a thumb already is; a
+ * lookup answer grows the panel UPWARDS into space that was already spoken
+ * for, so nothing below it moves and nothing above it resizes; and the dock
+ * is still the last thing in the layout, so the native keyboard still lands
+ * against it with no arithmetic (see .kb-up below). */
+.dock-slot {
   height: var(--dock-h);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* The panel sits on the floor of the slot; the slack is above it. */
+  justify-content: flex-end;
+}
+
+.tutorial-slot {
+  height: var(--tutorial-dock-h);
+}
+
+/* Content-sized, up to the slot. The cap is what keeps the give-way rules
+   below meaningful: past it the panel stops growing and the one region marked
+   flexible gives way inside itself, exactly as it did when the height was
+   fixed. */
+.dock-slot > .dock {
+  max-height: 100%;
+  min-height: 0;
 }
 
 /* Inside a reserved dock, everything holds its natural height... */
@@ -1709,9 +1762,18 @@ select:focus {
    during the tutorial than during real play, and on the phones where that is
    visible it is small: the 3×4 board's cards are capped by their own aspect
    ratio at 390x844, so both numbers draw the same 91.2px card there and only
-   the gaps between them differ. */
+   the gaps between them differ.
+
+   And this is the one dock that still FILLS its slot rather than hugging its
+   content. The phase docks hug because each phase holds one shape for as long
+   as the player is in it; the tutorial changes shape every beat — 99.5px on
+   the tap-a-card beat, 238 on the one with the clue list — and a panel that
+   resized under Casey between beats would take his Next button up and down
+   the screen with it, mid-sentence, which is a moving tap target in the one
+   place a first-time player is being led by the hand. Stable is worth more
+   than tight here. */
 .dock.tutorial-dock {
-  height: var(--tutorial-dock-h);
+  height: 100%;
 }
 
 .dock.tutorial-dock > * {

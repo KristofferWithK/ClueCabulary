@@ -282,18 +282,37 @@ export function GameScreen() {
           including the round's end, where it celebrates and doors to Home
           instead of the summary. Everything above (board, tokens, ⓘ, Aa, the
           dictionary) is the real thing; only the dock is Casey's. */}
+      {/* The reserve is the SLOT, not the panel.
+          It used to be the panel: every dock was given the tallest dock's
+          height, so the clue composer — which wants 126px — was drawn as a
+          200px sheet of grey with its fields stranded at the top of it. The
+          board has to be locked, and the space genuinely has to be held; what
+          it does not have to be is painted. The slot holds it and stays
+          invisible, and the dock inside hugs its own content against the
+          bottom edge. So the field sits low, whatever phase it is, and a
+          lookup answer grows the panel UPWARDS into space that was already
+          spoken for rather than moving anything. */}
       {tutorial ? (
-        <TutorialDock game={game} />
+        <div className="dock-slot tutorial-slot">
+          <TutorialDock game={game} />
+        </div>
       ) : (
         <>
-          {!studying && !packing && game.phase === 'playerClueInput' && (
-            <ClueInput game={game} onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)} />
+          {!studying && !packing && game.phase !== 'finished' && (
+            <div className="dock-slot">
+              {game.phase === 'playerClueInput' && (
+                <ClueInput
+                  game={game}
+                  onSubmit={(t, n) => useGame.getState().submitPlayerClue(t, n)}
+                />
+              )}
+              {(game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
+                <AiTurnPanel game={game} />
+              )}
+              {game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
+              {game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
+            </div>
           )}
-          {!studying && !packing && (game.phase === 'aiGuessing' || game.phase === 'aiClueInput') && (
-            <AiTurnPanel game={game} />
-          )}
-          {!studying && !packing && game.phase === 'playerGuessing' && <PlayerGuessBar game={game} />}
-          {!studying && !packing && game.phase === 'suddenDeath' && <SuddenDeathBar game={game} />}
           {game.phase === 'finished' && <RoundSummary game={game} />}
         </>
       )}
