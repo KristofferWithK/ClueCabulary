@@ -108,7 +108,14 @@ const boardAt = async ({ city, learned, grid, translations }) => {
   await page.evaluate(() => {
     localStorage.removeItem('cluecab-game-v1')
     localStorage.removeItem('cluecab-srs-v1')
-    localStorage.removeItem('cluecab-journey-v1')
+    // journeyStore's key moved v1 -> v2 (src/journey/rescue.ts is the
+    // apology for the rename); this drive was still clearing the retired
+    // name, so cityIndex quietly rode the whole sweep through to city 8
+    // and stayed there for the check below. Harmless under the old
+    // cumulative `unlockedWords` pool, which still put common words within
+    // reach at any city — but real once ordinary boards went city-only
+    // (E0), since city 8's own hundred does not include them.
+    localStorage.removeItem('cluecab-journey-v2')
   })
   return { withArticle, without }
 }

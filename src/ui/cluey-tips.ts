@@ -66,6 +66,9 @@ function dayKey(): number {
 
 /** Deterministic pick that changes daily — drawn from words already unlocked. */
 export function wordOfTheDay(cityIndex: number) {
+  // A display pool, not a board pool: E0 kept "everything reached" here on
+  // purpose (docs/clue-engine.md §5) even though ordinary boards went
+  // city-only, since the word of the day is meant to range over all of it.
   const pool = unlockedWords(WORDS, cityIndex)
   return pool[(dayKey() * 2654435761) % pool.length]!
 }

@@ -46,6 +46,17 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-21 · Ordinary journey boards became city-only — `wordsForCity` replaces `unlockedWords` (E0)
+Owner decision, `docs/clue-engine.md` §3.4: an ordinary journey board (and free
+play) now deals only from the current city, not this city and every one
+before it — the consequence taken knowingly is that an earlier city's words
+are reviewed only by travelling back, since the wrap-up round already packed
+the current city only. The two display pools (word of the day, the suitcase's
+ALL filter) were deliberately left on `unlockedWords` — "everything reached"
+stays their meaning.
+**Reverse:** one call in `src/stores/gameStore.ts` — swap `wordsForCity` back
+to `unlockedWords`.
+
 ### 2026-08-21 · The tips intro window counts days, not app opens — and four tips made the critical list (O4)
 The card said "the first sessions leaf the critical tips in priority order
 before the daily rotation" and left both "session" and the list open. Decided:

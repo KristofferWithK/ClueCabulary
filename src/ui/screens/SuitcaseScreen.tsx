@@ -282,6 +282,9 @@ export function SuitcaseScreen() {
 
   // One case: All is everything the journey has reached, and a chip narrows
   // the view without moving the player anywhere.
+  // A display pool, not a board pool: E0 kept "everything reached" as ALL's
+  // meaning on purpose (docs/clue-engine.md §5), even though ordinary boards
+  // went city-only.
   const shown =
     filter === ALL ? unlockedWords(WORDS, journey.cityIndex) : wordsForCity(WORDS, filter)
   /**

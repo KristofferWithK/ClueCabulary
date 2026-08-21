@@ -12,10 +12,14 @@ you to build connections between words.
 far south, up Jutland to the tip at **Skagen**, then back across Funen and
 Zealand to **København** — made with **Casey**, the suitcase with eyes who is
 also the companion cluing and guessing beside you. Each city owns 100 words —
-the most frequent hundred first — and only words from the cities you have
-reached appear on your boards. Nine cities of a hundred is the whole dataset:
-900 words, and the route length and the word count are one number, checked
-against each other by `scripts/validate-words.mjs`.
+the most frequent hundred first — and an ordinary journey board is dealt from
+the **current city only**: a word from an earlier city stops appearing on a
+board once you travel on, and is reviewed only by travelling back to that
+city, since the wrap-up round also packs the current city only (the daily
+challenge is the exception — it draws globally, the same board for everyone).
+Nine cities of a
+hundred is the whole dataset: 900 words, and the route length and the word
+count are one number, checked against each other by `scripts/validate-words.mjs`.
 
 Every word is in one of four states, leafed through in **the suitcase** (tap
 Casey on Home): **undiscovered** until you meet it, **discovered** once you
