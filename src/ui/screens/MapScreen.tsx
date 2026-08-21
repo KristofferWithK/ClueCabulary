@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { WORDS } from '../../data/words'
 import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { MAP, routePath } from '../../journey/map'
@@ -11,7 +11,7 @@ import {
 } from '../../journey/progress'
 
 import { Arrival } from '../components/Arrival'
-import { TrainProgress, trainLabel } from '../components/TrainProgress'
+import { TrainProgress, boardLabel, trainLabel } from '../components/TrainProgress'
 import { TrainRide } from '../components/TrainRide'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
@@ -50,8 +50,21 @@ export function MapScreen() {
    * The city being LEFT while the ride plays — its words are the ones just
    * packed. Held separately from `arrivedIndex` because the ride comes first
    * and the arrival is what it hands over to.
+   *
+   * Seeded from `pendingRide` so Home's train can board straight into the ride
+   * (T1): the travelling itself already happened there, and this screen opens
+   * on the ride rather than showing a frame of map on the way to it. Read in
+   * the initialiser rather than an effect for exactly that reason — an effect
+   * runs after the first paint, and the frame it would let through is the map
+   * the tap was meant to skip.
    */
-  const [ridingFrom, setRidingFrom] = useState<number | null>(null)
+  const [ridingFrom, setRidingFrom] = useState<number | null>(() => useUi.getState().pendingRide)
+  // Cleared after mount, not during it: consuming the flag inside the
+  // initialiser would make StrictMode's second call read null and lose the
+  // ride. Nothing else reads it, so one frame's delay costs nothing.
+  useEffect(() => {
+    if (useUi.getState().pendingRide !== null) useUi.setState({ pendingRide: null })
+  }, [])
 
   const points = CITIES.map((c) => MAP.project(c.lon, c.lat))
   const travelledPath = routePath(points.slice(0, journey.cityIndex + 1))
@@ -69,6 +82,21 @@ export function MapScreen() {
   // the train out of wherever you happen to be standing.
   const onward = selected + 1 < CITIES.length ? cityAt(selected + 1) : null
   const caseNote = trainLabel(wordsToTravel(counts.wrapped), onward?.name ?? null)
+
+  /**
+   * Leave: the ride, then the arrival. One function because two things start
+   * it here — the button below, and (since T1) the train itself, which is the
+   * same door Home now offers.
+   */
+  const board = () => {
+    const leaving = journey.cityIndex
+    journey.travel(Date.now())
+    setSelected(leaving + 1)
+    setRidingFrom(leaving)
+  }
+  // Only the stop you are STANDING at can be left, so tapping ahead down the
+  // route shows a train that is a readout again.
+  const boardable = travelReady && nextCity !== null && selected === journey.cityIndex
 
   // The ride, then the arrival. TrainRide calls onDone by itself when the city
   // has no story written, so an unwritten city is a straight-through rather
@@ -186,13 +214,18 @@ export function MapScreen() {
               <p className="map-case-note">suitcase packed</p>
             ) : (
               <>
-                {/* No label: the sentence under it IS the label, and a
-                    screen reader should hear it once. */}
+                {/* No label while it is filling: the sentence under it IS the
+                    label, and a screen reader should hear it once. Once the
+                    road opens it is a button and needs a name of its own —
+                    what pressing it does, which the countdown never says. */}
                 <TrainProgress
                   className="map-train"
                   wrapped={counts.wrapped}
                   collected={counts.collected}
                   goal={WRAP_TO_TRAVEL}
+                  {...(boardable
+                    ? { onBoard: board, label: boardLabel(onward!.name) }
+                    : {})}
                 />
                 <p className="map-case-note">{caseNote}</p>
               </>
@@ -201,16 +234,14 @@ export function MapScreen() {
         )}
       </section>
 
+      {/* The map keeps its button. Home lost its own because it was a second
+          control for a train on the same screen that did not itself do
+          anything; here the button IS the travelling one, and the train beside
+          it has just joined it rather than replaced it. This screen also has
+          the vertical room Home does not — it is the reason the button was a
+          layout hazard there and is not one here. */}
       {travelReady && nextCity && (
-        <button
-          className="btn btn-primary btn-big"
-          onClick={() => {
-            const leaving = journey.cityIndex
-            journey.travel(Date.now())
-            setSelected(leaving + 1)
-            setRidingFrom(leaving)
-          }}
-        >
+        <button className="btn btn-primary btn-big" onClick={board}>
           Travel on → {nextCity.name}
         </button>
       )}

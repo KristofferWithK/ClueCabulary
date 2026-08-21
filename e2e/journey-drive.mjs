@@ -21,6 +21,13 @@ const BASE = preview.base
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
+  // So one browser can also load this same build from a name that is NOT
+  // localhost. `devSwitchesAllowed()` is a hostname test, and the dev travel
+  // switch at the bottom of this drive has to be checked absent as well as
+  // present — an unenforced guard looks exactly like an enforced one from
+  // 127.0.0.1, which is where every drive runs. vite.config.ts's
+  // `preview.allowedHosts` is the other half of this.
+  args: ['--host-resolver-rules=MAP deployed.test 127.0.0.1'],
 })
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
@@ -46,7 +53,14 @@ try {
   // player actually looks at.
   const start = await page.locator('.home-map-here').textContent()
   if (!start?.includes('Sønderborg')) throw new Error(`expected to start in Sønderborg, got ${start}`)
-  if (await page.locator('.btn-travel').count()) throw new Error('travel offered with nothing wrapped')
+  // The train is the door now (T1), so "is travel offered?" is asked of the
+  // train rather than of a button beside it: a filling train is a readout and
+  // must not be pressable. And Home has no separate travel button at all — the
+  // check below is what would catch one growing back.
+  if (await page.locator('.train-board').count())
+    throw new Error('the train was a control with nothing wrapped')
+  if (await page.locator('.home-screen .btn-travel').count())
+    throw new Error('Home grew a separate travel button again')
   await page.screenshot({ path: `${SHOT_DIR}/j1-home-start.png` })
 
   // One word short of a packed suitcase: the road stays shut.
@@ -55,22 +69,30 @@ try {
   const almost = await page.locator('.collect-count').textContent()
   console.log('progress at 99:', almost?.replace(/\s+/g, ' ').trim())
   if (!almost?.includes('99')) throw new Error('wrapped count did not reach 99')
-  if (await page.locator('.btn-travel').count())
+  if (await page.locator('.train-board').count())
     throw new Error('travel offered at 99 of 100 wrapped')
   await page.screenshot({ path: `${SHOT_DIR}/j2-almost.png` })
 
-  // The hundredth word wraps → the road north opens on Home.
+  // The hundredth word wraps → the train on Home becomes the door north.
   await page.goto(`${BASE}?mock=1&howto=0&city=0&wrapped=100`)
-  await page.waitForSelector('.btn-travel')
+  await page.waitForSelector('.train-board')
+  if (await page.locator('.home-screen .btn-travel').count())
+    throw new Error('Home offered a separate travel button beside the train')
+  // A real button with a real name — the readout it was a moment ago was an
+  // aria-hidden drawing, and half of this card is that it stops being one.
+  const boardName = await page.locator('.train-board').getAttribute('aria-label')
+  console.log('the train boards as:', boardName)
+  if (!boardName?.includes('Ribe')) throw new Error(`the train's name does not say where: ${boardName}`)
   await page.screenshot({ path: `${SHOT_DIR}/j3-travel-open.png` })
 
-  // Travel happens on the map, and now goes through the ride (H9) before the
-  // arrival: the city being LEFT reads its hundred words back as a story.
-  await page.click('.btn-travel')
-  await page.waitForSelector('.denmark-map')
-  await page.click('.map-screen .btn-primary')
-
+  // Tapping the train boards it: straight into the ride (H9), which reads the
+  // LEAVING city's hundred words back as a story before the arrival. Home used
+  // to send you to the map to press a second button of the same name; the map
+  // is passed through now and must not be what the tap lands on.
+  await page.click('.train-board')
   await page.waitForSelector('.ride-screen')
+  if (await page.locator('.denmark-map').count())
+    throw new Error('boarding the train stopped at the map instead of riding')
   const rideLines = await page.locator('.ride-sentence').count()
   console.log('ride sentences:', rideLines)
   if (rideLines < 10) throw new Error(`the ride showed ${rideLines} sentences`)
@@ -189,6 +211,55 @@ try {
   await page.click('.arrival-screen .btn:not(.btn-primary)')
   await page.waitForSelector('.denmark-map')
   await page.screenshot({ path: `${SHOT_DIR}/j5-map.png` })
+
+  // And the map's train is a door too, on the stop you are standing at. Ribe
+  // is not wrapped, so here it must still be a readout — the same "not
+  // pressable while it fills" rule Home is held to above.
+  if (await page.locator('.map-train.train-board').count())
+    throw new Error("the map's train was a control at an unwrapped city")
+
+  /**
+   * The dev travel switch: five taps on the build stamp, then a stop up the
+   * route without playing it.
+   *
+   * Both halves are checked, because the guard is the feature. It is gated on
+   * `devSwitchesAllowed()` — a hostname test — and every drive in this repo
+   * runs on 127.0.0.1, where that is always true. So the second half loads the
+   * SAME server through `deployed.test` (mapped at launch, above), which is
+   * what a deployed origin looks like to the app: the five taps still reveal
+   * the keyboard readout, and the travel switch is simply not there.
+   */
+  const revealDevSwitches = async () => {
+    await page.waitForSelector('.settings-screen')
+    const stamp = page.locator('.build-footer span').first()
+    for (let i = 0; i < 5; i++) await stamp.click()
+    // The readout's note proves the GESTURE landed, so an absent travel switch
+    // below cannot be five taps that went nowhere.
+    await page.waitForSelector('.build-note')
+  }
+
+  await page.goto(`${BASE}?mock=1&howto=0`)
+  await page.click('.icon-btn[aria-label="Settings"]')
+  await revealDevSwitches()
+  if (!(await page.locator('.dev-travel').count()))
+    throw new Error('the dev travel switch is missing where dev switches are allowed')
+  const before = (await journeyState()).cityIndex
+  await page.click('.dev-travel')
+  const after = (await journeyState()).cityIndex
+  console.log(`dev travel: stop ${before} → ${after}`)
+  if (after !== before + 1) throw new Error(`dev travel did not move the journey: ${before} → ${after}`)
+  // It moves the position and nothing else — the suitcase it was carrying is
+  // still packed with the hundred words the ride was made of.
+  if (Object.keys((await journeyState()).wrapped ?? {}).length !== 100)
+    throw new Error('dev travel touched the suitcase')
+  await page.screenshot({ path: `${SHOT_DIR}/j6-dev-travel.png` })
+
+  const deployed = `http://deployed.test:${preview.port}/ClueCabulary/`
+  await page.goto(`${deployed}?howto=0`)
+  await page.click('.icon-btn[aria-label="Settings"]')
+  await revealDevSwitches()
+  if (await page.locator('.dev-travel').count())
+    throw new Error('the dev travel switch is reachable on a deployed origin')
 
   console.log('JOURNEY DRIVE OK')
 } catch (e) {

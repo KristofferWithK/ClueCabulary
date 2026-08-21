@@ -61,8 +61,9 @@ try {
       ['travel', '?mock=1&howto=0&city=0&wrapped=100'],
     ]) {
       // A fresh context per run: `?wrapped=100` writes to the persisted
-      // journey store, so a reused page carries the travel button into the
-      // run that is supposed to be without it.
+      // journey store, so a reused page carries the open road — the train
+      // turned control, and the padding that costs the band — into the run
+      // that is supposed to be without it.
       const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } })
       const page = await ctx.newPage()
       await page.goto(`${BASE}${q}`)

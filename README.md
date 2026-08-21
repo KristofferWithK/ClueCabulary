@@ -45,6 +45,16 @@ progress bar used to on Home, and again on the map screen, which has the room
 to say what it means: *You need 80 more wrapped-up words to take the train to
 Kolding.*
 
+**And the train is how you travel.** Once every wagon is full it stops being a
+readout and becomes the control: it pulses softly, it is a real button named
+*Board the train to Ribe*, and tapping it goes straight into the ride out of
+the city — the story of its hundred words — and then the arrival at the next
+one. That is one tap, on the thing you spent a hundred words filling. It used
+to be two, on neither: Home grew a green *Travel on →* button whose only job
+was to open the map, where a second button of the same name did the travelling.
+The map keeps that button, and its train now boards as well. Under
+`prefers-reduced-motion` the pulse does not run.
+
 ## How a round works
 
 1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words —
@@ -476,6 +486,17 @@ transient run of the onboarding flow, `?grid=middle` picks the board *Spil
 videre* deals, and `?city=N&collected=K&almost=K&wrapped=W` jumps the journey
 to a given stop with K words collected (or one interaction short of it) and W
 already wrapped into the suitcase.
+
+All of those need a keyboard, and the device the game is actually played on has
+none. So the one that matters most for playtesting is also a switch you can
+tap: **five taps on the build stamp** in Settings reveals the keyboard readout
+and, beside it, **Travel to the next city** — a stop up the route, position
+only, suitcase untouched, no ride and no arrival. It is gated on
+`devSwitchesAllowed()` as well as the gesture, so it exists on the dev server,
+on a local preview, and in the native shell (which serves from `localhost`, and
+is where the playtesting happens) — and never on the deployed site.
+`journey-drive` checks both halves, loading the same preview server through a
+non-local hostname to prove the absent one.
 
 ### Architecture notes
 

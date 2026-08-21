@@ -435,6 +435,47 @@ select:focus {
   fill: var(--grey-tile);
 }
 
+/* The train as a DOOR (T1).
+
+   It is a button only where the road is open, and by then every wagon is full,
+   so this adds no colour of its own beyond the faint green ground the loads
+   are already painted in — the drawing says "packed", the ground says "press
+   me". Padding rather than a min-height: the drawing is capped by the row it
+   sits in (17px on Home) and a min-height would either stretch it or leave the
+   tap target hollow, whereas padding grows the target around it and costs the
+   row its own 12px and nothing more. */
+.train-board {
+  display: block;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(122, 168, 116, 0.16);
+  cursor: pointer;
+  animation: train-ready 2.4s ease-in-out infinite;
+}
+
+.train-board:active {
+  background: rgba(122, 168, 116, 0.3);
+}
+
+/* A soft pulse, not a blink: the ground breathes and the train holds still, so
+   nothing about the drawing itself moves. */
+@keyframes train-ready {
+  0%,
+  100% {
+    background-color: rgba(122, 168, 116, 0.12);
+  }
+  50% {
+    background-color: rgba(122, 168, 116, 0.34);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .train-board {
+    animation: none;
+  }
+}
+
 /* ---------- home map ---------- */
 
 /* The button hugs the drawing rather than framing the gap beside it.
@@ -758,12 +799,6 @@ select:focus {
   font-size: 0.78rem;
   font-weight: 400;
   color: var(--text-dim);
-}
-
-.btn-travel {
-  background: var(--green-tile);
-  border-color: var(--green-tile);
-  color: #fff;
 }
 
 .gate-hint {
@@ -3077,9 +3112,17 @@ select:focus {
 }
 
 /* Full width in the detail card — this screen has the room Home's one line
-   does not, so the train is drawn large and the sentence sits under it. */
+   does not, so the train is drawn large and the sentence sits under it.
+
+   `.map-train` names the SVG while the train is a readout and the BUTTON once
+   the road opens, so the cap is written for both: on the drawing itself either
+   way, never on a button whose padding would then have to fit inside it. */
 .map-train {
   margin-top: 4px;
+}
+
+.map-train.train-progress,
+.map-train .train-progress {
   max-height: 46px;
 }
 
@@ -4180,10 +4223,20 @@ select:focus {
    thing to give when the numbers beside it get long.
    17px is the count's own line box, and the cap has to stay at or under it:
    this row's height comes straight out of the map's budget above, and at 20px
-   the train was making the row 3px taller than its text and spending them. */
-.home-progress-band .train-progress {
+   the train was making the row 3px taller than its text and spending them.
+
+   Two selectors because the flexing child changes identity when the road opens
+   (T1): the svg while the train is a readout, the button wrapping it once it
+   is a control. The cap stays on the drawing in both cases — the button's own
+   padding sits outside it, which is the 12px the row grows by in that one
+   state. */
+.home-progress-band .train-progress,
+.home-progress-band .train-board {
   flex: 1 1 auto;
   min-width: 34px;
+}
+
+.home-progress-band .train-progress {
   max-height: 17px;
 }
 
@@ -4300,21 +4353,25 @@ select:focus {
   display: block;
 }
 
-/* Casey gives up the room the travel button needs.
+/* Casey used to give up the room the travel button needed, and there is no
+   travel button any more (T1).
 
-   Letting the flex column shrink him does NOT work, and it is worth saying why
-   because it is the obvious fix: the drawing is sized by WIDTH and keeps its
-   aspect ratio, so a shorter button just means the same drawing painting
-   outside it. Measured, that turned a 6.8px overlap into 25.6px.
+   Kept as a note because it is the measurement that made it worth removing.
+   The button cost 61px under him, the flex column OVERFLOWED rather than
+   lengthening — flex overflow paints over what is below, so no-scroll stayed
+   true while the word "Casey" was drawn sliced across the green — and the fix
+   was to shrink the DRAWING (34vh to 27vh) rather than the button, because a
+   shorter button just means the same drawing painting outside it: measured, a
+   6.8px overlap became 25.6px that way.
 
-   The size is the thing to change, so change the size — and only in the one
-   state that is short of room. 27vh rather than 34vh is 172.8px against 217.6
-   at a 640px screen, and the drawing is 5:4, so it gives back about 36px of
-   height for a button that costs 61px, the rest coming from the band's own
-   slack. */
-.home-screen:has(.btn-travel) .cluey-svg {
-  width: min(290px, 74vw, 27vh);
-}
+   The train is the control now and it grows the progress band by 12px of
+   button padding instead, in the same one state — measured at 360x640 with
+   e2e/home-space-probe.mjs: the band goes 31px to 43px, Casey holds 217.6px in
+   both states, and nothing scrolls at any of the five sizes it walks. So he
+   keeps his full size at every stop and the state that used to be short of
+   room is 49px better off than it was; layout-drive holds the line, at 32.6px
+   of clearance over the play row here ("Casey's band clears the train it
+   boards"). */
 
 .cluey-body {
   fill: var(--beige);

@@ -17,7 +17,7 @@ import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { Cluey } from '../components/Cluey'
 import { ACTIVE } from '../../lang/active'
-import { TrainProgress, trainLabel } from '../components/TrainProgress'
+import { TrainProgress, boardLabel, trainLabel } from '../components/TrainProgress'
 
 /**
  * Home in three bands, per the notebook sketch: the journey (map and
@@ -101,6 +101,7 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
 
 export function HomeScreen() {
   const goTo = useUi((s) => s.goTo)
+  const boardTrain = useUi((s) => s.boardTrain)
   const pendingSeed = useUi((s) => s.pendingSeed)
   const game = useGame((s) => s.game)
   const newGame = useGame((s) => s.newGame)
@@ -116,7 +117,29 @@ export function HomeScreen() {
   const nextCity = atRoadsEnd ? null : cityAt(journey.cityIndex + 1)
   const journeyDone = isJourneyComplete(WORDS, journey.wrapped, journey.cityIndex)
   const travelReady = canTravel(WORDS, journey.wrapped, journey.cityIndex) && !atRoadsEnd
-  const travelLabel = trainLabel(wordsToTravel(cityCounts.wrapped), nextCity?.name ?? null)
+  // Two sentences for one drawing: a countdown while it is filling, and the
+  // name of a door once it opens. See boardLabel in TrainProgress.
+  const travelLabel =
+    travelReady && nextCity
+      ? boardLabel(nextCity.name)
+      : trainLabel(wordsToTravel(cityCounts.wrapped), nextCity?.name ?? null)
+
+  /**
+   * The train IS the travel control (T1). Home's green "Travel on → ⟨city⟩"
+   * button used to sit under Casey and do nothing but `goTo('map')`, where a
+   * second button of the same name did the actual travelling: two taps, and
+   * neither of them the train that had just filled up.
+   *
+   * So this boards straight into the ride. The map is where the ride and the
+   * arrival are drawn — MapScreen owns TrainRide — but it is passed through,
+   * not visited: `boardTrain` hands it the city being left and it opens on the
+   * ride itself.
+   */
+  const board = () => {
+    const leaving = journey.cityIndex
+    journey.travel(Date.now())
+    boardTrain(leaving)
+  }
 
   const daily = dailyChallenge()
   const dailyOutcome = localStorage.getItem(`cluecab-daily:${daily.key}`)
@@ -182,13 +205,18 @@ export function HomeScreen() {
           The train replaced the two-tone bar and kept both its layers, so the
           number the text no longer prints is still shown. The whole sentence
           it stands for is its accessible name here and printed in full on the
-          map screen; this row has no width for it either. */}
+          map screen; this row has no width for it either.
+          Once the road opens the train becomes a button in place (T1) — the
+          row keeps its one line and grows only by the button's own padding,
+          which is a good deal cheaper than the 61px travel button that used to
+          appear under Casey for the same state. */}
       <section className="city-card home-progress-band">
         <TrainProgress
           wrapped={cityCounts.wrapped}
           collected={cityCounts.collected}
           goal={WRAP_TO_TRAVEL}
           label={travelLabel}
+          onBoard={travelReady ? board : undefined}
         />
         <p className="collect-count">
           <strong>{cityCounts.wrapped}</strong> wrapped ·{' '}
@@ -209,11 +237,9 @@ export function HomeScreen() {
           {cityAt(FINAL_CITY_INDEX).name}.
         </p>
       )}
-      {travelReady && (
-        <button className="btn btn-travel" onClick={() => goTo('map')}>
-          Travel on → {nextCity?.name}
-        </button>
-      )}
+      {/* No travel button here. The train above is the one, and this is where
+          the one it replaced used to stand — under Casey, in the pixels his
+          band overflowed onto. */}
 
       <div className="home-actions">
         <button

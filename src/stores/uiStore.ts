@@ -32,7 +32,20 @@ interface UiState {
   howToOpen: boolean
   /** The intro (the train in), when it is on screen. See App.tsx. */
   onboarding: OnboardingRun | null
+  /**
+   * The city being LEFT, when Home's train has just been boarded — the ride is
+   * MapScreen's to play (it owns TrainRide and the Arrival it hands over to),
+   * and this is how Home asks for it without the map appearing on the way.
+   * Read once, as MapScreen mounts, and cleared there.
+   */
+  pendingRide: number | null
   goTo: (screen: Screen) => void
+  /**
+   * Board the train from Home: the map is the route this takes, not a screen
+   * the player is made to visit. Call `journey.travel()` first — this only
+   * says which city the ride is leaving.
+   */
+  boardTrain: (leaving: number) => void
   openSheet: (wordId: string) => void
   closeSheet: () => void
   toggleTranslations: () => void
@@ -187,6 +200,7 @@ export const useUi = create<UiState>((set, get) => ({
   pendingFirstGiver: null,
   howToOpen: false,
   onboarding: initialOnboarding(),
+  pendingRide: null,
   goTo: (screen) => {
     const from = get().screen
     // Home is the floor. Hopping screen to screen used to push a second entry
@@ -194,7 +208,11 @@ export const useUi = create<UiState>((set, get) => ({
     // Back press went to unwinding them instead of leaving the app.
     if (screen === 'home') unwindToFloor()
     else if (from === 'home') pushHistory()
-    set({ screen, sheetWordId: null })
+    set({ screen, sheetWordId: null, pendingRide: null })
+  },
+  boardTrain: (leaving) => {
+    if (get().screen === 'home') pushHistory()
+    set({ screen: 'map', sheetWordId: null, pendingRide: leaving })
   },
   openSheet: (wordId) => {
     if (!get().sheetWordId) pushHistory()
