@@ -181,7 +181,11 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   and its top comment is the checklist for German (H2). `src/lang/index.ts`
   holds the registry AND the note on what is namespaced per language and what
   is deliberately not — read that before touching a store.
-- `src/data/` — the 900 words plus the systems over them: `dataset.ts`
+- `src/data/` — the 900 words plus the systems over them. **Which** 900 and
+  which city each belongs to is decided in `docs/word-selection.md` (keyword:
+  word selection) — decided 2026-08-21, NOT yet applied to the dataset; read
+  it before touching `curriculumRank`, `function-words.da.json` or the
+  batches. `dataset.ts`
   (`createDataset(pack)`, which builds the indexes and `classifyClue`),
   `words.ts` (the same thing bound to the active pack), `gender.ts` (prints
   whatever genders the pack declares). The Danish-specific parts —
