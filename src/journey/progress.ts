@@ -109,6 +109,16 @@ export function countCollection(
  */
 export const WRAP_TO_TRAVEL = WORDS_PER_CITY
 
+/**
+ * Words still to wrap before the road out of this city opens — the number the
+ * map screen prints and the train counts down. Here rather than in either
+ * screen because both ask it and a second copy of `WRAP_TO_TRAVEL - n` is a
+ * second place for it to drift.
+ */
+export function wordsToTravel(wrappedHere: number): number {
+  return Math.max(0, WRAP_TO_TRAVEL - wrappedHere)
+}
+
 export function countWrapped(words: readonly WordEntry[], wrapped: WrappedWords): number {
   let n = 0
   for (const w of words) if (w.id in wrapped) n++

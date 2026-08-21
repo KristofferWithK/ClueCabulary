@@ -78,19 +78,20 @@ ${pts
 </svg></figure>`
 }
 
-// The sizes Denmark is ACTUALLY drawn at. Both maps are capped by height
-// (.home-map max-height 20vh, .denmark-map 32vh) and the viewBox is 1.23:1
-// against a much wider box, so `preserveAspectRatio` letterboxes and the
-// drawing ends up far narrower than the element. Measuring the element instead
-// of the drawing is how the first version of this sheet flattered the map by
-// a factor of two.
+// The sizes Denmark is ACTUALLY drawn at. Both maps are sized by height
+// (.home-map 25vh at or under 720px tall and 28vh above it, .denmark-map
+// max-height 32vh) and the viewBox is 1.23:1, so the drawing's width follows
+// from its height and not from the element it sits in. Home's card now hugs
+// the drawing, so there the two agree; the map screen still letterboxes.
+// Measuring the element instead of the drawing is how the first version of
+// this sheet flattered the map by a factor of two.
 const drawnWidth = (vh, viewportHeight, elementWidth) =>
   Math.round(Math.min(elementWidth / W, ((vh / 100) * viewportHeight) / H) * W)
 
 const html = `<style>${STYLE}</style>
 <body style="margin:0;background:#fff;padding:16px;display:flex;gap:20px;align-items:flex-start">
-${panel(`Home · 360×640 · ${drawnWidth(20, 640, 328)}px`, drawnWidth(20, 640, 328), { labels: false })}
-${panel(`Home · 390×844 · ${drawnWidth(20, 844, 358)}px`, drawnWidth(20, 844, 358), { labels: false })}
+${panel(`Home · 360×640 · ${drawnWidth(25, 640, 328)}px`, drawnWidth(25, 640, 328), { labels: false })}
+${panel(`Home · 390×844 · ${drawnWidth(28, 844, 358)}px`, drawnWidth(28, 844, 358), { labels: false })}
 ${panel(`Map screen · 390×844 · ${drawnWidth(32, 844, 358)}px`, drawnWidth(32, 844, 358))}
 ${panel('detail · 700px', 700)}
 </body>`

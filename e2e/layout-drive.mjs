@@ -123,7 +123,13 @@ await page.setViewportSize(PHONE)
 // eyebrow, a bar and a four-part count that took THREE lines at 360px and left
 // Casey a thumbnail. The widest the two counts can ever get is four digits
 // between them — they are disjoint states, so the hundred splits one way or
-// the other — and city 0 is Sønderborg, the longest name on the route.
+// the other.
+//
+// The eyebrow has since gone to the map above and the bar has become the
+// train, which is now the row's only flexible child — so the second check
+// watches the train's width instead of the name's clipping. Squeezed under
+// its 34px floor it is not a train any more, and that is the same failure the
+// ellipsised name used to be.
 //
 // Counting lines by the tops of the range's client rects does not work here: a
 // 0.9rem <strong> beside 0.72rem text has a different top on the SAME line and
@@ -149,12 +155,14 @@ const progressLines = async () =>
       if (!centres.some((x) => Math.abs(x - c) < 5)) centres.push(c)
     }
     const row = document.querySelector('.home-progress-band')
-    const name = document.querySelector('.city-eyebrow')
+    // The train is the row's only flexible child now that the city name has
+    // gone to the map above, so it is the one that can be squeezed to nothing.
+    const train = document.querySelector('.train-progress')
     return {
       lines: centres.length,
-      text: `${name.textContent} — ${el.textContent.replace(/\s+/g, ' ').trim()}`,
+      text: `train ${train.getBoundingClientRect().width.toFixed(0)}px — ${el.textContent.replace(/\s+/g, ' ').trim()}`,
       overflows: row.scrollWidth > row.clientWidth + 1,
-      clipped: name.scrollWidth > name.clientWidth + 1,
+      clipped: train.getBoundingClientRect().width < 34,
       wide: document.scrollingElement.scrollWidth > window.innerWidth + 1,
     }
   })

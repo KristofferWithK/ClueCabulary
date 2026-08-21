@@ -15,7 +15,7 @@ npm run typecheck     tsc -b
 npm test              vitest run
 npm run drives        build, then run all 16 browser drives
 npm run drives repeat layout      just those two
-npm run drives --list             names (19; three are opt-in, not run by default)
+npm run drives --list             names (20; four are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
 node scripts/validate-words.mjs --lang de    once a second dataset exists
 ```

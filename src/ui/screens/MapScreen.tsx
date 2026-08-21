@@ -2,9 +2,16 @@ import { useState } from 'react'
 import { WORDS } from '../../data/words'
 import { CITIES, WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { MAP } from '../../journey/map'
-import { WRAP_TO_TRAVEL, canTravel, countCollection, wordsForCity } from '../../journey/progress'
+import {
+  WRAP_TO_TRAVEL,
+  canTravel,
+  countCollection,
+  wordsForCity,
+  wordsToTravel,
+} from '../../journey/progress'
 
 import { Arrival } from '../components/Arrival'
+import { TrainProgress, trainLabel } from '../components/TrainProgress'
 import { TrainRide } from '../components/TrainRide'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
@@ -53,6 +60,11 @@ export function MapScreen() {
     selected < journey.cityIndex ? 'visited' : selected === journey.cityIndex ? 'current' : 'ahead'
   const travelReady = canTravel(WORDS, journey.wrapped, journey.cityIndex)
   const nextCity = journey.cityIndex + 1 < CITIES.length ? cityAt(journey.cityIndex + 1) : null
+  // The stop AFTER the one being looked at — the map lets you tap ahead, and
+  // "the train to Ribe" has to mean the train out of the city on screen, not
+  // the train out of wherever you happen to be standing.
+  const onward = selected + 1 < CITIES.length ? cityAt(selected + 1) : null
+  const caseNote = trainLabel(wordsToTravel(counts.wrapped), onward?.name ?? null)
 
   // The ride, then the arrival. TrainRide calls onDone by itself when the city
   // has no story written, so an unwritten city is a straight-through rather
@@ -163,16 +175,24 @@ export function MapScreen() {
               )}
             </p>
             {/* The suitcase answers the question the map raises: how far to
-                the next city? This many words still to wrap. */}
-            <p className="map-case-note">
-              {state === 'visited'
-                ? 'suitcase packed'
-                : counts.wrapped >= WRAP_TO_TRAVEL
-                  ? 'The suitcase is packed — the road onward is open.'
-                  : `${WRAP_TO_TRAVEL - counts.wrapped} more ${
-                      WRAP_TO_TRAVEL - counts.wrapped === 1 ? 'word' : 'words'
-                    } to wrap before leaving ${city.name}.`}
-            </p>
+                the next city? Here the train says it in full — Home's one-line
+                band only has room for the train itself. A visited city has no
+                countdown left to run, so it keeps its one word. */}
+            {state === 'visited' ? (
+              <p className="map-case-note">suitcase packed</p>
+            ) : (
+              <>
+                {/* No label: the sentence under it IS the label, and a
+                    screen reader should hear it once. */}
+                <TrainProgress
+                  className="map-train"
+                  wrapped={counts.wrapped}
+                  collected={counts.collected}
+                  goal={WRAP_TO_TRAVEL}
+                />
+                <p className="map-case-note">{caseNote}</p>
+              </>
+            )}
           </>
         )}
       </section>
