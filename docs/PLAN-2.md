@@ -120,7 +120,11 @@ before wave 7. Neither blocks a card starting now.
 D4) · **X1** the stale-copy sweep · **U1** tap speaks, ⓘ opens
 · **S1** Casey's guesses are spoken · **T1** the train becomes the travel
 control, plus the dev switch that makes playtesting nine cities possible at
-all. Half a session each bar T1; no ordering between them. Nothing else waits
+all · **T2** the ride teaches the grammar (the chapters are written) · **E0**
+city-only boards (before N1, alone) · **WS1** apply the word selection, then
+**WS2** its bake. Half a session each bar T1, T2 and WS1; no ordering between
+them — *orchestration pass, 2026-08-21: E0, WS1 and T1 are the three to start
+in parallel; see "The execution plan, reviewed".* Nothing else waits
 on them except I1 (which wants D4's pronoun) and U3 (which wants S1) —
 but **do T1 first if you intend to playtest anything downstream**, because
 without it you cannot reach city two on a phone.
@@ -145,8 +149,10 @@ rather than adding one, and everything after it is simpler for it.
 the ride as one performance; **U3** Casey thinks aloud (needs K2 and S1, so it
 lands after wave 2 even though it is an audio card); **L1** the offline
 dictionary, which is independent of all of them and whose licence question
-should be settled early because it is the part that can block. S2 is
-push-gated: the bake runs in Actions and commits back, so start it early.
+should be settled early because it is the part that can block. ~~S2 is
+push-gated: the bake runs in Actions and commits back, so start it early.~~
+**Struck 2026-08-21:** S2 runs after WS1 → T2 → T3, last of the three, or the
+bake is paid for twice. Its card said so; this paragraph did not.
 
 ### Wave 5 — the economy and the post-game *(≈5 sessions, after waves 3 and 4)*
 
@@ -201,6 +207,183 @@ than about money arriving. Two honest options:
 The measurement that should inform the choice, from W1's harness: **a city is
 69–100 rounds, or six to ten hours of play.** Whichever option you take, the
 free tier is generous — which is the input M1 needs.
+
+## The execution plan, reviewed — 2026-08-21, orchestration pass
+
+Written by the session that will dispatch this board, after reading it with
+`docs/clue-engine.md` and `docs/word-selection.md` open and auditing the tree.
+It does four things: folds the chessbot and word-selection work in as cards,
+evaluates the order, lists what in the repo is stale or in the way, and ranks
+every card by which Claude model should run it. The live page carries the same
+information as a column and a filter.
+
+### Four lanes, not seven waves
+
+The waves are right as dependency chains but hide that there are **four lanes
+with almost no edges between them**, which is what lets several sessions run
+at once. Each lane is a strict chain inside itself; across lanes the only
+touch-points are listed.
+
+| Lane | Chain | Touches other lanes at |
+|---|---|---|
+| **UI** | wave-1 UI cards → K1 → K2 → N1 → N2 → U3 → W1 → P1 → P2/P3/P4 → I1 → I2 → I3 → I4 → I5 | N1 and E0 both edit the deal in `gameStore.ts` (E0 first, alone). K2 and U3 both redraw `AiTurnPanel`. P2 needs S2's clips. |
+| **Content** | WS1 → WS2 (bake) → T2 → T3 → S2 (bake) → S3 | T3 writes the sentences the engine's book will sit beside; E6 waits for WS1. |
+| **Engine** | E0 → E1 ‖ E2 → E3 → E4 → *decide* → E6 (after WS1) → E5 | E0 before N1. E6 keys on the post-WS1 ids. |
+| **Launch** | M1 → H4 → D3 (owner) → G2 | G2 last of everything visual. |
+
+**Start of play:** three sessions in parallel — **E0** (engine lane, half a
+session, must precede N1), **WS1** (content lane; it is upstream of the most
+things), and **T1** (UI lane, so a phone can reach city two). Then K1 as soon
+as E0 lands.
+
+### What the review changed in the order
+
+1. **The collision is misdescribed, and it is sharper than written.** The
+   handoff says `word-selection.md` "§2 rewrites the 900 sentences to a
+   scenery floor". It does not: its step 4 *re-measures* coverage and hands
+   any shortfall to H5/T3. The real collision is that WS1 **removes 113
+   headwords — their sentences leave with them — and adds 113 that have no
+   sentence at all.** So T3 is not "alongside" word selection, it is
+   **after** it: sentences written before WS1 are written for words about to
+   leave, and 113 new words need theirs written from scratch (WS1's job, to
+   both budgets). Order: WS1 → T2 → T3 → S2. Unchanged consequence: S2 bakes
+   once, last.
+2. **S2 was listed Ready on this board while its own card says "not before
+   T3".** Dispatch had it right. Fixed below; the "start it early" in the
+   wave-4 paragraph is struck.
+3. **E0 (city-only boards) goes into wave 1**, because N1 deals from the same
+   pool and `clue-engine.md` asks for it first and alone.
+4. **WS1 goes into wave 1**, ahead of T3/S2/E6 and the grammar's vocabulary
+   gate: renumbering `curriculumRank` moves words between cities, and
+   `validate-grammar.mjs` will fail loudly — WS1 owns re-gating the chapters
+   (move a word or reword the example), not T2.
+5. **The Danish read of `grammar-da.md` is now the content lane's real
+   critical path.** T3 writes 800 sentences to the chapters; if the reader
+   changes a rule afterwards, sentences and a bake follow it. It is not
+   needed to *start* anything, but it is needed before T3 is written to a
+   chapter. Ask for it now, not at wave 4.
+6. **L1 no longer shares a wordlist or a licence with the engine** (the
+   engine's clue vocabulary is the 900 ∪ the book). The L1 card's "read this
+   with H3 open" is stale; L1 is only a dictionary decision.
+7. **App size is not a constraint until 2 GB** (owner, 2026-08-21). Today's
+   audio is **11.4 MB by bytes** (the "16 MB" in Context item 7 is NTFS
+   cluster rounding over 1,893 small files); S2 adds ~14 MB, L1 ~1 MB, the
+   matrix ~100 KB, the book well under a megabyte. Nothing on this board
+   should be sequenced, trimmed or argued for on size — "saves 13 MB" is
+   true and irrelevant. The one size-shaped thing that *is* a bug is the
+   service worker's entry cap (audit, below).
+
+### The new cards, in brief
+
+Word selection (from `word-selection.md`, "The change to make"):
+
+- **WS1** — Apply the selection: 113 out, 100 back from the pool, 13 new
+  (with sentences written to T3's and the scenery budget), ledger classes,
+  `curriculumRank` renumbered under the quotas, the validator rules, the
+  grammar chapters re-gated, the migration check, the per-city selfplay
+  pins, and the false closed-class sentence in `README.md:216` and
+  `src/lang/types.ts:131` corrected. 1–2 sessions. The 13 new words are the
+  owner's to verify in the PR.
+- **WS2** — The bake for the 113 new headwords: `BAKE_NONCE` bump, push,
+  the workflow commits back. No `cacheName` bump (new filenames).
+
+The engine (from `clue-engine.md` §5–6; H3a/H3b as that document asked):
+
+- **E0** — City-only journey boards (`clue-engine.md` §5, Card 0). ½.
+- **E1** — The judged matrix, city 1: 4,950 pairs, Opus and Fable judges,
+  `merge-matrix.mjs`, `validate-matrix.mjs` in verify. 1.
+- **E2** — The book, city 1: ~30 associations a word, pair clues where
+  M ≥ 1, both languages, `merge-book.mjs`, `validate-book.mjs`. 1. Runs
+  beside E1.
+- **E3** — Evaluator + search + `EngineCompanion` behind the practice seam,
+  lazily loaded. 2.
+- **E4** — Measurement: engine selfplay with the authoring halves kept
+  apart, `engine-probe.mjs` (opt-in), the clue ledger. 1–2. **Ends in a
+  decision** — the table says whether E5/E6 are worth it.
+- **E6** — Matrix and book for cities 2–9. After WS1 and the E4 decision.
+  2–3 sessions of orchestration; ~530 judging agents across two models.
+- **E5** — The hybrid: evaluator as validator (turns H7 on), the candidates
+  prompt, rank fusion, the alias flip. 1–2.
+
+### Model ranking — who runs which card
+
+Three tiers. **Sonnet** for copy sweeps, deletions, small UI, pipeline
+plumbing with a spec to follow. **Opus** for anything that makes a design
+call, changes a persisted store, rewrites drives, or measures. **Fable** only
+where the work is both hard and unverifiable by the owner — Danish prose at
+scale that no one on the project can read, the engine's core search, and the
+exhaustive tutorial commentary. The page shows the same tier beside every
+card and filters by it.
+
+| Model | Cards | Why |
+|---|---|---|
+| **Fable** | T3 · E3 · I2 | T3 is 800 Danish sentences to two budgets that the owner cannot proof-read — the cost of a wrong one is a learner repeating it. E3 is the search/evaluator with the directional trap rule and the prompt firewall; a subtle error there is invisible until E4. I2 is the first thing every player meets and its commentary must be exhaustively pinned. |
+| **Opus** | T1 T2 WS1 K1 K2 N1 S2 S3 U3 L1 W1 P1 I1 I4 M1 H4 G2 · E1 E2 E4 E5 E6 (orchestrating; E1/E2/E6's judging agents are Opus **and** Fable by the owner's decision, votes merged) | Design calls, store migrations, drive rewrites, measurement, money-bearing bakes. |
+| **Sonnet** | D4 D5 X1 U1 S1 E0 WS2 N2 P2 P3 P4 I3 I5 | A spec exists, the change is bounded, the tests say when it is done. |
+| **Owner** | D3, the Danish read, the 13 new words, on-device verdicts | Not a model's to take. |
+
+### The audit — what is stale or in the way
+
+Severity: **blocks** / *misleading* / cosmetic. Each names the card that clears it.
+
+- **blocks — four dirty worktrees on stale bases.** `.claude/worktrees/`
+  holds four registered worktrees (`compassionate-khorana`, `keen-lalande`,
+  `modest-dhawan` on `6bee696` = #77; `fervent-wilbur` on `8e101d7` = #64,
+  ~30 PRs back) with uncommitted edits to `vite.config.ts`,
+  `scripts/run-drives.mjs`, `src/index.css`, `CLAUDE.md` and six drives —
+  the files K1/K2/N1 rewrite. Plus three orphan `agent-*` directories, one
+  with its own `node_modules`. **Owner's call per worktree: salvage or
+  `git worktree remove`.** Nothing in them looks like unmerged work (the
+  drive/preview-server changes resemble what later shipped), but deleting
+  is not a session's to do unasked.
+- **blocks — the service worker's `maxEntries: 2000`** (`vite.config.ts:101`)
+  against 1,893 clips today and 2,793 after S2: an installed phone would
+  evict word clips as soon as it hears sentences. The comment also
+  miscounts (it forgot `story/en` and `story/slow`). **S2 raises the cap**
+  and states the new number; no `cacheName` bump needed for that.
+- **blocks — board vs page disagreed on five cards** (S2 Ready/blocked, T2's
+  wave, C4/C5 Done, H3 held/parked). Reconciled in this pass; the rule
+  stands — both move in one PR.
+- *misleading* — "16 MB of audio" is 11.4 MB by bytes (above). Context
+  item 7 now points here.
+- *misleading* — `README.md:216` and `src/lang/types.ts:131` say nothing in
+  the 900 is a closed-class word; 69 are. **WS1.**
+- *misleading* — this board's Context was verified against `f684bc6`, three
+  PRs before #93/#94/#95. Items 1–7 still hold on inspection; the H3 and T3
+  consequences are in this section.
+- *misleading* — `DECISIONS.md:382` says `WORD_MS` is unmeasured and 1200; it
+  is 1500 and measured. **X1** (already carded).
+- *misleading* — `docs/PLAN.md:25/:88/:393` still frame ranks 901–1000 as
+  dropped; WS1 re-adds them. **WS1** adds a line to PLAN.md.
+- *misleading* — the L1 card's "read with H3 open". Struck by this section.
+- *misleading* — the `audition/` deletion in X1 must wait for **S2's en-US
+  audition**, which A/Bs against those Danish clips. X1 keeps the deletion
+  but after S2, not before.
+- cosmetic — `docs/store/listing.md:42` still says "he" (D4 lists the
+  directory, not the line). `bake-audio.yml:67` says "all three sources";
+  it loops five, six after S2. **D4 / S2.**
+- cosmetic — drives with literals the UI cards invalidate, so nobody is
+  surprised: `suitcase-drive.mjs:210` ("Wrapped — 20 of 900", W1/N2), `:234`
+  (the twenty-collected gate, W1), `journey-drive.mjs:148` (a 4.5 s
+  Sønderborg timing, S3), `offline-drive.mjs:6` ("~9 MB"). Each is on the
+  card that changes it.
+- **Verified not stale**, so nobody re-opens them: the tutorial's fixed
+  board and its six off-board clue words are all outside WS1's removal
+  list and city 1 is untouched, so `TUTORIAL_SEED` holds; no drive hardcodes
+  a word id; the 17/21 drive counts and N1's "27 URLs across ten drives" are
+  exact; every documented script exists; no unused dependency; every
+  "forbidden"/"redemption"/"Viborg"/"klaus" hit is a deliberate historical
+  comment or a persisted field that must not move; 0 orphan clips and 0
+  words without one in both word manifests. Thirty-eight merged remote
+  branches remain — owner-only cleanup, already on X1.
+
+### Roughly what it costs now
+
+Board 2 was 26–29 sessions. The engine adds about 10–12 (E0 ½ · E1 1 · E2 1
+· E3 2 · E4 1–2 · E6 2–3 · E5 1–2) and word selection 1½–2½, so **about 38
+to 43 sessions** end to end — but across four lanes, so the wall-clock is
+the longest lane (UI, ~18), not the sum. E4's decision can shorten the engine
+lane by five sessions if the city-1 numbers say the hybrid is not worth it.
 
 ## Context — what the notes turned up when checked against the tree
 
@@ -272,7 +455,9 @@ Facts the cards rest on, each verified on 2026-08-21 against `main`
    `exampleDa` (25,656 characters) and `exampleEn` (27,458), none missing —
    the exact shape the ride bakes per sentence. At Sønderborg's measured clip
    sizes that is roughly 14 MB for the Danish and 27 MB for both halves;
-   `public/audio/da` is 16 MB today.
+   `public/audio/da` is 16 MB today — *11.4 MB by bytes; the 16 is cluster
+   rounding over 1,893 files. Size is not a constraint under 2 GB; see "The
+   execution plan, reviewed".*
 
 ## Decisions to settle with Kristoffer
 
@@ -308,17 +493,26 @@ pass to flip.
 - **K1** — The composer never changes size
 - **U1** — A tap says the word; ⓘ opens the dictionary
 - **S1** — Casey's guesses are spoken
-- **S2** — Bake the 900 example sentences *(push-gated: the bake runs in Actions)*
 - **X1** — The stale-copy sweep
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T1** — The train is the way you travel, and a dev switch to ride it
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
-- **T3** — The next city's sentences reinforce the chapter *(T2; and S2 now waits behind it)*
+- **E0** — City-only journey boards *(`clue-engine.md` Card 0; before N1, alone)*
+- **WS1** — Apply the word selection *(`word-selection.md`; upstream of T3, S2, E6)*
+- **E1** — The judged matrix, city 1 *(city 1 is final; may start now)*
+- **E2** — The book, city 1 *(beside E1)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
 
 ### Blocked
+- **T3** — The next city's sentences reinforce the chapter *(T2 · WS1 — the sentences must be written for the words that stay)*
+- **S2** — Bake the 900 example sentences *(T3 — last of the three; push-gated, the bake runs in Actions)*
+- **WS2** — Bake the new headwords *(WS1)*
+- **E3** — The evaluator, the search and the engine companion *(E1 · E2)*
+- **E4** — Measure the engine, and decide *(E3)*
+- **E6** — Matrix and book for cities 2–9 *(WS1 · E4's decision)*
+- **E5** — The hybrid *(E4's decision)*
 - **K2** — Every dock the same fixed height, the legend gone, the drive measuring the panel *(K1)*
 - **N1** — One board: 3×6, and the sizes go *(K1 + K2: measured, a sixth row does not fit until they land)*
 - **N2** — The wrap-up round on 3×6 *(N1)*
@@ -334,14 +528,15 @@ pass to flip.
 - **I5** — Docs: README's Setup, DECISIONS, the tips *(I1–I4)*
 
 ### Parked (deliberately, with a reason)
-*(empty — H3 left this list on 2026-08-21: the owner un-parked it, and it is
-now owned by `docs/clue-engine.md`, merged as PR #95.)*
+*(empty — H3 left this list on 2026-08-21: the owner un-parked it, it is
+owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 
 ### In progress
 *(empty)*
 
 ### Done
-*(empty)*
+- **C4** — closed 2026-08-21, "it feels attached enough"; the ride ships as it is
+- **C5** — closed unbuilt with it
 
 ### Found along the way, not yet carded
 - Everything found in the sweep is carded as **X1** below.
@@ -990,7 +1185,9 @@ Keep `lookupLocal`'s three-index behaviour and its stemmer over the larger set;
 keep Casey as the last resort for what even that misses, which is now rare
 enough to be worth the call.
 
-**Read this card with H3 open.** The clue engine needs a Danish clue
+~~**Read this card with H3 open.**~~ *(Struck 2026-08-21: the engine's clue
+vocabulary is the 900 ∪ its own book — `clue-engine.md` §2 — so L1 shares
+nothing with it. The paragraph stays for the record.)* The clue engine needs a Danish clue
 vocabulary with frequency information so it can prefer a word a learner knows
 over an obscure near-synonym — and that is **the same file** this card bundles.
 Choosing a source for the dictionary alone risks one with no frequency data and
@@ -1013,7 +1210,8 @@ wherever the app credits things; Casey is still asked when the wordlist misses.
 
 ### H3 — The clue engine → **see `docs/clue-engine.md`**
 **Superseded 2026-08-21**, within hours of being written, by a parallel
-session's report that merged as **PR #95**. That document is authoritative;
+session's report that merged as **PR #95** — and carded as **E0–E6** below
+by the orchestration pass the same night. That document is authoritative;
 this entry exists so nobody works from the version below.
 
 **What it overturns here.** This card was written assuming H3 was parked
@@ -1057,6 +1255,166 @@ there was no engine to run it — which is the same observation
   `wordsForCity(WORDS, 0)`, which is city-only already, and for the first city
   the two pools are identical anyway. So 69–100 rounds holds. For later
   cities under the *current* cumulative pool it is a floor, not a forecast.
+
+### WS1 — Apply the word selection
+**Size:** 1–2 sessions. **Deps:** none. **Model:** Opus. **Source:**
+`docs/word-selection.md`, "The change to make" — that section is the spec;
+this card only says what the orchestration pass adds to it.
+
+- The 113 removals, the 100 from `src/data/generated/` ranks 901–1000, and
+  the 13 new words (generated the batch way, appended to a batch so
+  `validate-words` traces them; **the owner verifies the 13 in the PR**).
+- **Every new word ships with `exampleDa`/`exampleEn` written to both
+  budgets** — the scenery-word floor and the grammar chapter of the city it
+  lands in (`docs/grammar-da.md`'s closing table). T3 then has 787
+  sentences to rewrite, not 900, and none for words that are about to leave.
+- The ledger's `greetings and replies` (and `numerals`) classes; the fourteen
+  adverbs into `adverbs and particles`.
+- `curriculumRank` renumbered 1–900, city 1 untouched, then the POS quota and
+  the ≤15-per-domain rule with the 250-rank drift; opposites and
+  near-synonyms never deliberately paired.
+- **Re-gate the grammar chapters.** `validate-grammar.mjs` will fail on any
+  chapter that now uses a word from a later city. Move the word or reword
+  the example — this card owns it, and it is the one place a Danish
+  sentence gets written without the Danish read having happened; keep such
+  edits minimal and list them in the PR.
+- `validate-words.mjs`: fail on a ledger headword, on numeral/interjection
+  POS, on a broken quota; extend the gloss-collision check to whole cities.
+- `measure-function-words.mjs` re-run; the number in the PR. Short of eight
+  appearances is T3's problem, stated, not this card's.
+- `migrateJourney` clamps checked; per-city wrap count against the new
+  membership; `unlockedWords`/`wordsForCity` slices move for everything at
+  rank ≥ 101 — E0's tests and `pool.test.ts` re-run.
+- Per-city selfplay pins: no city below city 9's clue-hit floor.
+- Fix the false sentence in `README.md:216` and `src/lang/types.ts:131`; a
+  line in `docs/PLAN.md` where it still says ranks 901–1000 are dropped.
+- `audio/da/` and `audio/da/slow/` lose 113 headwords' worth of live clips
+  and gain 113 missing ones until WS2 — smoke-drive's "no bake yet" pattern
+  already tolerates that; say so in the PR.
+
+**Accept:** verify green; `validate:words` enforces the new rules and a
+mutation (a ledger word slipped back in) fails it; the quota table from
+`word-selection.md` re-printed for the new set; the grammar validator green
+with the edits listed; the 13 new words flagged for the owner.
+
+### WS2 — Bake the new headwords
+**Size:** ½ session + one Actions run. **Deps:** WS1. **Model:** Sonnet.
+
+`BAKE_NONCE` bump in `bake-audio.yml`, push; the workflow bakes `words` and
+`words-slow` for the missing slugs only (the manifest stamp already skips
+baked ones) and commits back. New filenames, so no `cacheName` bump. Delete
+the 113 orphaned clips and their manifest rows in the same PR — size is not
+the reason (2 GB is the ceiling); a manifest that lists words the dataset
+does not have is. Re-run the manifest-vs-dataset cross-check that found
+0/0 today and keep it as a test.
+
+**Accept:** both word manifests cover exactly the 900 ids; smoke-drive
+counts 900 ordinary and 900 slow clips in `dist/`.
+
+### E0 — City-only journey boards
+**Size:** ½ session. **Deps:** none — lands first and alone, before N1.
+**Model:** Sonnet. **Spec:** `docs/clue-engine.md` §5 (Card 0), verbatim.
+
+The two display pools (word of the day, the suitcase's ALL) stay
+"everything reached" unless the owner says otherwise — the recommendation
+in that document, taken as the default so the card does not wait. README's
+journey section states the rule; DECISIONS gets the entry with the
+reversal (`wordsForCity` → `unlockedWords`, one line).
+
+**Accept:** as §5 — `pool.test.ts`'s two tests rewritten and failing
+without the change; journey-drive and layout-drive green.
+
+### E1 — The judged matrix, city 1
+**Size:** 1 session of orchestration. **Deps:** E0 (for the city-only
+framing only). **Model:** Opus orchestrates; **judges are Opus and Fable
+subagents**, votes merged (owner's decision 2). **Spec:** `clue-engine.md`
+§6 "Stage 2".
+
+4,950 within-city pairs, ~150 per agent, both models, `M[a][b]` ∈ 0–3
+symmetrised by max. `scripts/merge-matrix.mjs` → `src/data/matrix.da.json`
+packed as a `Uint8Array`; `scripts/validate-matrix.mjs` in `npm run verify`
+(ids exist, symmetry, every `sampler.ts` `conflicts` pair ≥ 2, every
+same-`concepts` pair ≥ 1). State the measured size. Keyed by id, so WS1's
+renumbering cannot move anything here.
+
+**Accept:** validator green and mutation-checked (a conflicts pair forced to
+0 fails); the agent brief and merge rule recorded in `docs/clue-engine.md`.
+
+### E2 — The book, city 1
+**Size:** 1 session of orchestration, beside E1. **Deps:** E1's matrix for
+the pair section (author the per-word half first if E1 is still running).
+**Model:** Opus orchestrates; Opus and Fable authors. **Spec:** §6 "Stage 1".
+
+~25–35 associations a word in both languages with a `why`, strength and
+votes; pair clues for every within-city pair with M ≥ 1; the brief as
+written (learner-level, never a form/compound/translation of the word, æøå
+intact). `merge-book.mjs`, `validate-book.mjs` (legality of every entry
+against its own word via the `legality.ts` logic, orthography, counts,
+non-empty `why`) in verify.
+
+**Accept:** validator green and mutation-checked (an entry that is a
+compound of its headword fails); size stated.
+
+### E3 — The evaluator, the search and the engine companion
+**Size:** 2 sessions. **Deps:** E1, E2. **Model:** **Fable.** **Spec:** §6
+"Stage 3".
+
+`src/ai/local/evaluator.ts` (`sim`, `scoreClue` with the **directional trap
+set** — export `isOpenFor` from projections and pin the rule beside
+`game.test.ts`'s), `search.ts` (candidates from the book, subsets of
+`aiTargetableIds` sizes 1–4, max coverage subject to margin ≥ θ, θ stated
+with its measurement in `config.ts` style), `engineCompanion.ts`
+implementing `Companion` with a templated rationale and engine-ranked
+guesses respecting `planGuessExecution`'s stop. Seam at `gameStore.ts:216`
+for the practice/offline path; the data lazily imported and the chunk size
+stated; drives asserting `mok` clues found and re-pointed. The prompt
+firewall's byte-identity test extends to anything new.
+
+**Accept:** verify green; a unit test deals a city-1 board and shows the
+engine never clues a word that is illegal or a trap above θ; the practice
+round plays end to end offline in a drive with real clues.
+
+### E4 — Measure the engine, and decide
+**Size:** 1–2 sessions. **Deps:** E3. **Model:** Opus. **Spec:** §6
+"Stage 4".
+
+`engine-selfplay.test.ts` — engine-vs-engine, Opus-half clues vs Fable-half
+guesser and the reverse, city-1 boards, win rate / mean clues / sudden-death
+rate beside the mock floor and the shipped p-curve; bands pinned; the
+djb2-hash mutation fails them. `e2e/engine-probe.mjs` (opt-in, spends proxy
+calls) for the first honest "as well as the frontier model" number. The
+clue ledger (`{number, hits, arm}`) as a small persisted store shown in
+Settings diagnostics — `r` finally measured.
+
+**This card ends in a decision, written into `clue-engine.md` and
+DECISIONS:** go to E6/E5, or stop at the offline engine. The numbers decide;
+the card says which.
+
+### E6 — Matrix and book for cities 2–9
+**Size:** 2–3 sessions of orchestration. **Deps:** WS1 landed (the ids and
+cities are final), E4's decision. **Model:** Opus orchestrates; Opus and
+Fable judge/author. ~33 agents per model per city for the matrix, ~2 per
+city per model for the book — about 530 agents; budget it, and run the
+cities as separate PRs so a bad batch is one revert.
+
+**Accept:** both validators green for every city; per-city size stated.
+
+### E5 — The hybrid
+**Size:** 1–2 sessions. **Deps:** E4's decision (E6 not required — city 1
+suffices to ship the validator). **Model:** Opus. **Spec:** §6 "Stage 5".
+
+In order, each its own commit: the evaluator as validator inside
+`OllamaCompanion.getClue` with a concrete correction (this alone turns H7's
+escalation into a checked trigger); `buildClueCandidatesPrompt` (projection
+types only; `projections.test.ts` extended) and the merge with the engine's
+search; rank fusion on the guess side; then the `MODEL_ALIASES` flip to a
+cheap `cluey` with `escalate`, only once the ledger and the probe say the hit
+rate holds. `proxy/README.md` "Making it cheaper" rewritten to the measured
+`r`.
+
+**Accept:** verify green; ai-drive's fake server sees the correction text on
+a rejected clue; the ledger shows the arm per clue; README carries the
+numbers.
 
 ### M1 — The 900 Pass: a pricing session, not a card
 **Size:** one conversation, then H4. **Deps:** none. **Owner, 2026-08-21:**
@@ -1622,6 +1980,11 @@ whoever works it next.
 | **Board 1** | `docs/PLAN.md`, and the sweep of what is still open over there is at the bottom of this file. |
 
 ### The one thing that will bite you: two documents want the same 900 sentences
+
+> **Corrected by the orchestration pass, same night:** `word-selection.md` does
+> not rewrite sentences — it removes 113 headwords (sentences and all) and
+> adds 113 without any. So the order is **WS1 → T2 → T3 → S2**, not "both at
+> once". The paragraphs below stand as written for the record.
 
 `docs/word-selection.md` **was written by a different session on the same
 evening as this board**, neither knew about the other, and it **merged to main
