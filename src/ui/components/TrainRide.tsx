@@ -26,6 +26,31 @@ import { TRANSLATION_TAG, canSpeak, speakText, stopWordAudio, storyAudioUrl } fr
  * That matters more now than it did: each sentence is said four times (see
  * journey/rideCycle.ts), so the ride is four times the length it was.
  */
+/**
+ * The pencil train, in Casey's hatching. Drawn rather than imported:
+ * everything else here is hand-rolled SVG and an icon set would look
+ * borrowed. Shared with the onboarding scene (OnboardingScreen.tsx), which
+ * opens the app inside this same train — one drawing, so the intro and the
+ * ride are visibly the same place.
+ */
+export function PencilTrain({ className = 'ride-train' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 240 90" className={className} role="presentation">
+      <g className="cluey-hatch">
+        <rect x="18" y="22" width="150" height="46" rx="8" />
+        <rect x="34" y="32" width="34" height="22" rx="3" />
+        <rect x="82" y="32" width="34" height="22" rx="3" />
+        <rect x="130" y="32" width="26" height="22" rx="3" />
+        <circle cx="46" cy="74" r="9" />
+        <circle cx="140" cy="74" r="9" />
+        <path d="M168 30 h28 l10 22 v16 h-38 z" />
+        <circle cx="188" cy="74" r="9" />
+        <path d="M6 74 h228" className="ride-rail" />
+      </g>
+    </svg>
+  )
+}
+
 export function TrainRide({
   cityIndex,
   onDone,
@@ -145,22 +170,7 @@ export function TrainRide({
   return (
     <div className="screen ride-screen">
       <div className="ride-window" aria-hidden="true">
-        {/* The pencil train, in Casey's hatching. Drawn rather than imported:
-            everything else here is hand-rolled SVG and an icon set would look
-            borrowed. */}
-        <svg viewBox="0 0 240 90" className="ride-train" role="presentation">
-          <g className="cluey-hatch">
-            <rect x="18" y="22" width="150" height="46" rx="8" />
-            <rect x="34" y="32" width="34" height="22" rx="3" />
-            <rect x="82" y="32" width="34" height="22" rx="3" />
-            <rect x="130" y="32" width="26" height="22" rx="3" />
-            <circle cx="46" cy="74" r="9" />
-            <circle cx="140" cy="74" r="9" />
-            <path d="M168 30 h28 l10 22 v16 h-38 z" />
-            <circle cx="188" cy="74" r="9" />
-            <path d="M6 74 h228" className="ride-rail" />
-          </g>
-        </svg>
+        <PencilTrain />
       </div>
 
       <p className="ride-eyebrow">Leaving {city.name}</p>

@@ -13,9 +13,9 @@ do not know it.
 npm run verify        typecheck + unit tests + dataset validator + every drive
 npm run typecheck     tsc -b
 npm test              vitest run
-npm run drives        build, then run all 16 browser drives
+npm run drives        build, then run all 17 browser drives
 npm run drives repeat layout      just those two
-npm run drives --list             names (20; four are opt-in, not run by default)
+npm run drives --list             names (21; four are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
 node scripts/validate-words.mjs --lang de    once a second dataset exists
 node scripts/make-audio.mjs --source words --dry-run   what a bake would cost

@@ -4731,3 +4731,142 @@ body:has(.kb-up) {
   color: #fff;
   border-color: var(--green);
 }
+
+/* ------------------------------------------------------------------ *
+ * Onboarding (O1): the train in, and the ticket.
+ *
+ * The same pencil hand as the ride — the train is literally the same SVG
+ * (PencilTrain, shared with TrainRide) — with Casey's face at the first
+ * carriage window. Fixed parts top and bottom, a spacer that gives, so the
+ * no-scroll rule holds at 360×640 the way every screen must.
+ * ------------------------------------------------------------------ */
+.onboard-screen {
+  gap: 14px;
+}
+
+/* Width pinned to the drawing so Casey's percentages track the train's
+   geometry rather than the phone's: the first window is at x34 w34 of a
+   240-unit viewBox, which is what the left/width below restate. */
+.onboard-scene {
+  position: relative;
+  flex: none;
+  width: min(100%, 260px);
+  margin: 18px auto 0;
+}
+
+.onboard-scene .ride-train {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.onboard-casey {
+  position: absolute;
+  left: 14%;
+  top: 24%;
+  width: 15%;
+}
+
+.onboard-casey .cluey-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Casey's speech, in the bubble voice Home already uses. min-height reserves
+   the tallest line so tapping through them cannot move the buttons below. */
+.onboard-bubble {
+  align-self: center;
+  max-width: 320px;
+  min-height: calc(3 * 1.45em + 24px);
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--text);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.onboard-tickets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+/* The ticket: a card, not a select — one per shipped language, and one full
+   stop while Danish is alone. The dashes are the perforation. */
+.onboard-ticket {
+  width: min(100%, 300px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  text-align: left;
+  background: var(--surface);
+  border: 2px dashed rgba(18, 18, 18, 0.55);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.onboard-ticket:active {
+  background: var(--green-soft);
+}
+
+.ticket-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.ticket-dest {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.ticket-lang {
+  font-size: 0.95rem;
+}
+
+.ticket-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.onboard-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* The part that gives, so the controls sit at the bottom on every phone. */
+.onboard-spacer {
+  flex: 1;
+  min-height: 0;
+}
+
+.onboard-controls {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-bottom: 4px;
+}
+
+.onboard-controls .btn-primary {
+  flex: 1;
+}
+
+/* Skip alone on the ticket act still reads as a row, not a stranded pill. */
+.onboard-controls .onboard-skip:only-child {
+  margin-left: auto;
+}

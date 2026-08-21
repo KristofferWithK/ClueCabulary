@@ -291,6 +291,16 @@ export function SettingsScreen() {
           </label>
           <small>Nothing ever plays on its own — every sound follows a tap.</small>
         </div>
+
+        <div className="field">
+          {/* A transient re-run of the first-run flow (O1): the same train,
+              the same ticket, and the done flag is not touched — so this can
+              be tapped freely without re-arming the intro for every load. */}
+          <button className="btn replay-intro" onClick={() => useUi.getState().startOnboarding()}>
+            Replay the intro
+          </button>
+          <small>The train in, once more. Nothing about your progress changes.</small>
+        </div>
       </section>
 
       <section className="settings-section">

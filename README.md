@@ -299,7 +299,11 @@ everything, which is the trap that was fixed by putting the rate in the stamp.
 ## Setup
 
 There isn't one. Open the deployed page on your phone, "Add to Home Screen",
-press play. No account, no API key, no model to choose.
+press play. No account, no API key, no model to choose. A first open starts
+inside the train — Casey introduces himself in three lines and punches your
+ticket (the language pick, one confirm card while Danish is the only pack) —
+and Skip is always on screen; Settings → **Replay the intro** brings it back
+any time.
 
 That is worth saying plainly because it used to be false. For most of this
 project's life the first screen after install asked you to go and fetch a
@@ -438,7 +442,9 @@ never placed in a URL and never printed.
 
 Useful dev URLs: `?mock=1` forces the offline companion, `?seed=N` fixes the
 board, `?first=player` makes the player open the round instead of Casey,
-`?howto=0` skips the rules overlay, `?grid=middle` picks the board *Spil
+`?howto=0` suppresses first-run chrome (the onboarding train, and historically
+the rules overlay — the overlay no longer opens itself), `?onboard=1` forces a
+transient run of the onboarding flow, `?grid=middle` picks the board *Spil
 videre* deals, and `?city=N&collected=K&almost=K&wrapped=W` jumps the journey
 to a given stop with K words collected (or one interaction short of it) and W
 already wrapped into the suitcase.
