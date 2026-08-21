@@ -58,6 +58,18 @@ a merge, your local branch's commits are content-identical to `main` but not
 ancestors of it. Stack new work on top and the next PR lists an already-merged
 commit and shows its diff twice.
 
+Two consequences worth knowing before you go looking. `git merge-base
+--is-ancestor` will say NO for work that plainly shipped, and so will a search
+for the squash SHA — the web container clones SHALLOW (~68 commits), so old
+history is simply absent rather than missing. To ask whether a branch's work
+landed, look for the work itself in the tree, not for its commit. And **a
+session cannot delete a remote branch**: the agent proxy answers a delete
+refspec with `403`, and the GitHub MCP server has `create_branch` and no
+counterpart. So merged branches accumulate and only the owner can clear them
+(GitHub → Branches, or `git push origin --delete` from their own machine).
+`ios-sim.yml` force-pushes one `sim-film/latest` branch for exactly this
+reason; the numbered `sim-film/9…15` are litter from before that.
+
 ```
 git fetch origin main && git checkout -B <branch> origin/main
 ```
