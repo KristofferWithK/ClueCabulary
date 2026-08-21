@@ -1,7 +1,7 @@
 import { DEFAULT_BASE_URL } from '../../ai/client'
 import { WORDS } from '../../data/words'
 import { CITIES, FINAL_CITY_INDEX, cityAt } from '../../journey/cities'
-import { MAP } from '../../journey/map'
+import { MAP, routePath } from '../../journey/map'
 import {
   WRAP_TO_TRAVEL,
   canTravel,
@@ -49,14 +49,8 @@ function dailyChallenge() {
 /** The route so far, drawn small enough to live above the fold. */
 function JourneyMap({ cityIndex }: { cityIndex: number }) {
   const points = CITIES.map((c) => MAP.project(c.lon, c.lat))
-  const done = points
-    .slice(0, cityIndex + 1)
-    .map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`)
-    .join(' ')
-  const ahead = points
-    .slice(cityIndex)
-    .map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`)
-    .join(' ')
+  const done = routePath(points.slice(0, cityIndex + 1))
+  const ahead = routePath(points.slice(cityIndex))
   const here = points[cityIndex]!
 
   return (
@@ -69,8 +63,8 @@ function JourneyMap({ cityIndex }: { cityIndex: number }) {
       <path className="map-land" d={MAP.path} />
       <path className="map-hatch" d={MAP.hatch} />
       <path className="map-sketch" d={MAP.sketch} />
-      <polyline className="map-route-ahead" points={ahead} />
-      <polyline className="map-route-done" points={done} />
+      <path className="map-route-ahead" d={ahead} />
+      <path className="map-route-done" d={done} />
       {points.map((p, i) => (
         <circle
           key={CITIES[i]!.id}

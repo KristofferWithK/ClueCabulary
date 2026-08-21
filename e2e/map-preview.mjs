@@ -37,7 +37,20 @@ const CITIES = [
   ['København', 55.676, 12.568],
 ]
 const pts = CITIES.map(([n, lat, lon]) => ({ n, ...project(lon, lat) }))
-const line = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+
+// The route is bowed in the app (routePath in src/journey/map.ts), and this
+// sheet exists to show what ships — a straight polyline here would flatter the
+// one leg the bow was added for. Same formula, same constant, restated rather
+// than imported because this file reads the generated map as TEXT and has no
+// TypeScript to pull in. If BOW moves there, move it here.
+const BOW = 0.14
+const line = pts.reduce((d, b, i) => {
+  if (i === 0) return `M${b.x.toFixed(1)} ${b.y.toFixed(1)}`
+  const a = pts[i - 1]
+  const cx = (a.x + b.x) / 2 + (b.y - a.y) * BOW
+  const cy = (a.y + b.y) / 2 - (b.x - a.x) * BOW
+  return `${d}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`
+}, '')
 
 // Keep in step with .map-land / .map-sketch / .map-hatch in index.css —
 // widths included. They are `vector-effect: non-scaling-stroke` there and here:
@@ -54,6 +67,12 @@ const STYLE = `
   stroke-linecap: round;
 }`
 
+// The two Zealand stops now sit inside a name's width of the east edge, so
+// they lean left — and once both do, they need the vertical split too or they
+// print one on top of the other. Same numbers as PLACEMENT in MapScreen.tsx;
+// a sheet that let them collide would show a mess the app does not have.
+const LEAN = { Roskilde: -18, København: 56 }
+
 /** One drawing of Denmark at the given CSS width, labelled. */
 const panel = (label, width, { labels = true } = {}) => {
   const k = width / W
@@ -64,14 +83,16 @@ const panel = (label, width, { labels = true } = {}) => {
 <path class="map-land" d="${path}"/>
 <path class="map-hatch" d="${hatch}"/>
 <path class="map-sketch" d="${sketch}"/>
-<polyline points="${line}" fill="none" stroke="#121212" stroke-width="5"
-          stroke-dasharray="12 10" stroke-linecap="round"/>
+<path d="${line}" fill="none" stroke="#121212" stroke-width="5"
+      stroke-dasharray="12 10" stroke-linecap="round"/>
 ${pts
   .map(
     (p, i) =>
       `<circle cx="${p.x}" cy="${p.y}" r="${i === 0 ? 22 : 16}" fill="${i === 0 ? '#4e8449' : '#fff'}" stroke="#121212" stroke-width="5"/>` +
       (labels
-        ? `<text x="${p.x + 26}" y="${p.y + 9}" font-family="Georgia" font-size="26">${p.n}</text>`
+        ? LEAN[p.n] === undefined
+          ? `<text x="${p.x + 26}" y="${p.y + 9}" font-family="Georgia" font-size="26">${p.n}</text>`
+          : `<text x="${p.x - 26}" y="${p.y + LEAN[p.n]}" text-anchor="end" font-family="Georgia" font-size="26">${p.n}</text>`
         : ''),
   )
   .join('')}
@@ -79,10 +100,11 @@ ${pts
 }
 
 // The sizes Denmark is ACTUALLY drawn at. Both maps are sized by height
-// (.home-map 25vh at or under 720px tall and 28vh above it, .denmark-map
-// max-height 32vh) and the viewBox is 1.23:1, so the drawing's width follows
-// from its height and not from the element it sits in. Home's card now hugs
-// the drawing, so there the two agree; the map screen still letterboxes.
+// (.home-map 24vh at or under 720px tall and 30vh above it, .denmark-map
+// max-height 40vh) and the viewBox is 0.84:1 since the Bornholm crop, so the
+// drawing's width follows from its height and not from the element it sits in.
+// Home's button now hugs the drawing, so there the two agree; the map screen
+// still letterboxes.
 // Measuring the element instead of the drawing is how the first version of
 // this sheet flattered the map by a factor of two.
 const drawnWidth = (vh, viewportHeight, elementWidth) =>
@@ -90,9 +112,9 @@ const drawnWidth = (vh, viewportHeight, elementWidth) =>
 
 const html = `<style>${STYLE}</style>
 <body style="margin:0;background:#fff;padding:16px;display:flex;gap:20px;align-items:flex-start">
-${panel(`Home · 360×640 · ${drawnWidth(25, 640, 328)}px`, drawnWidth(25, 640, 328), { labels: false })}
-${panel(`Home · 390×844 · ${drawnWidth(28, 844, 358)}px`, drawnWidth(28, 844, 358), { labels: false })}
-${panel(`Map screen · 390×844 · ${drawnWidth(32, 844, 358)}px`, drawnWidth(32, 844, 358))}
+${panel(`Home · 360×640 · ${drawnWidth(24, 640, 328)}px`, drawnWidth(24, 640, 328), { labels: false })}
+${panel(`Home · 390×844 · ${drawnWidth(30, 844, 358)}px`, drawnWidth(30, 844, 358), { labels: false })}
+${panel(`Map screen · 390×844 · ${drawnWidth(40, 844, 358)}px`, drawnWidth(40, 844, 358))}
 ${panel('detail · 700px', 700)}
 </body>`
 

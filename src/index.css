@@ -437,28 +437,31 @@ select:focus {
 
 /* ---------- home map ---------- */
 
-/* The card hugs the drawing rather than framing the gap beside it.
-   Denmark's viewBox is 1000x812 and the map is capped by HEIGHT, so at
-   `width: 100%` the card was 326px holding a 166px drawing: 80px of bordered
+/* The button hugs the drawing rather than framing the gap beside it.
+   Denmark's viewBox is 680x812 and the map is capped by HEIGHT, so at
+   `width: 100%` the button was 326px holding a 129px drawing: 98px of
    emptiness down each side, measured at 360x640, and the single biggest piece
-   of white space on the screen. `fit-content` puts the border on the map. */
+   of white space on the screen. `fit-content` puts the tap target on the map.
+
+   No frame around it: the card it used to be was a 1px line and `var(--bg)`
+   on `var(--bg)`, so the border WAS the card. Denmark drawn straight onto the
+   page is the same drawing with one less rectangle in the way, and the land's
+   own `--surface` fill still separates it from the white behind it. */
 .map-button {
   display: block;
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
   padding: 0;
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--bg);
+  border: 0;
+  background: none;
 }
 
 .home-map {
   width: auto;
   max-width: 100%;
   /* Height is what sizes this map — `width: auto` above then follows from the
-     1.23:1 viewBox, which is what lets the card hug it.
+     0.84:1 viewBox, which is what lets the button hug it.
 
      Uncapped, Denmark's shape pushed the primary action below the fold on
      640-667px phones, which is why there is a cap at all. The number is
@@ -466,8 +469,17 @@ select:focus {
      against `.cluey-band`'s dead space, and at 390x844 the band was carrying
      137px of empty air around a Casey already at his own 34vh cap. This
      spends it. Phones at or under 720px get their own value below — they have
-     23-37px of that air, not 137. */
-  height: 28vh;
+     23-37px of that air, not 137.
+
+     28vh became 30 when the Baltic came off the east edge: cropping Bornholm
+     turns the viewBox portrait, so the drawing gave back a third of its WIDTH
+     and none of its height, and height is the only axis that makes it bigger.
+     30 rather than more is the tightest viewport this rule covers, not this
+     one — at 360x721, one pixel above the query below, the layout drive's
+     clearance reads 15.4px at 30vh, 8.2px at 32vh and MINUS 6px at 34vh, where
+     Casey's name paints over the travel button. (390x844 has 45.2px at 30vh
+     and would take 36.) */
+  height: 30vh;
   display: block;
 }
 
@@ -794,7 +806,16 @@ select:focus {
 .denmark-map {
   width: 100%;
   height: auto;
-  max-height: 32vh;
+  /* 40, not 32, since the crop: the map screen letterboxes by height, and with
+     Bornholm gone the drawing at 32vh used 210px of a 358px slot. 40vh is
+     where it stops being height-bound and starts being width-bound at 390 —
+     the land goes 210x252 to 263x314 and a taller cap buys nothing at all.
+     Nothing below it can be pushed off: `.screen` shrinks its flexible child,
+     so on a 640px phone (and on any phone once the travel button appears) this
+     map is already smaller than its cap and the number never binds. Measured
+     at 360x640, 375x667 and 390x844, with and without the button: the document
+     is exactly one screen tall in all six. */
+  max-height: 40vh;
   display: block;
 }
 
@@ -3461,7 +3482,10 @@ select:focus {
      travel button at 360x640, and at 30vh it was 34.3px over here and 21.3px
      over on the SE. Both were measured with `no-scroll: home` still passing at
      640 — this overlap is the one the no-scroll rule cannot see, which is why
-     the ceiling is set by the clearance check and not by the document. */
+     the ceiling is set by the clearance check and not by the document.
+     The crop did not move this one. It gave the drawing width back, and a
+     short phone has no height to spend it with: at 24vh the clearance here is
+     6.0px and on the SE 16.4px, which is the same wall it was already at. */
   .home-map {
     height: 24vh;
   }
