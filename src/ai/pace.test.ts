@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from '../engine/config'
+import { BOARD, TUTORIAL_CONFIG, type GridConfig } from '../engine/config'
 import { applyEvent as applyEventIn, createGame, isGuessable } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { aiTargetableIds, buildAiClueView } from './projections'
@@ -39,11 +39,11 @@ const words = (n: number): BoardWord[] =>
     pos: 'noun',
   }))
 
-/** The three boards that exist since N1 — one you play, two you enter. */
-const CONFIGS: Record<'board' | 'tutorial' | 'wrapup', GridConfig> = {
+/** The board you play and the tutorial mode you enter. The wrap-up ritual
+ *  deals BOARD itself since N2, so it is not a third shape here. */
+const CONFIGS: Record<'board' | 'tutorial', GridConfig> = {
   board: BOARD,
   tutorial: TUTORIAL_CONFIG,
-  wrapup: WRAPUP_CONFIG,
 }
 
 const cluePrompt = (grid: keyof typeof CONFIGS, spend = 0) => {
@@ -88,7 +88,7 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
    * hardcoded "2 or 3" did the first time beginner moved from four clues to
    * five.
    */
-  it.each(['board', 'tutorial', 'wrapup'] as const)('does the division correctly on %s', (grid) => {
+  it.each(['board', 'tutorial'] as const)('does the division correctly on %s', (grid) => {
     const { text, view } = cluePrompt(grid)
     const mine = aiTargetableIds(view).length
     // Half the shared pool is his, rounded up.
@@ -112,7 +112,7 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
     // The clause is conditional on purpose: on a board where 1 now still
     // leaves a normal clue later, saying "and then you will need N" would be
     // a scold with no arithmetic behind it.
-    for (const grid of ['board', 'tutorial', 'wrapup'] as const) {
+    for (const grid of ['board', 'tutorial'] as const) {
       const { text } = cluePrompt(grid)
       if (!text.includes('A clue of 1 now leaves')) continue
       expect(text).toMatch(/A clue of 1 now leaves \d+ for \d+ turns? — \d+ a clue/)

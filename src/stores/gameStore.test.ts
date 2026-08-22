@@ -28,6 +28,7 @@ Object.defineProperty(globalThis, 'window', {
 // here rather than being testable, which is how it went untested.
 Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: storage })
 
+const { BOARD } = await import('../engine/config')
 const { migrateGame, useGame } = await import('./gameStore')
 const { useJourney } = await import('./journeyStore')
 const { useSettings } = await import('./settingsStore')
@@ -429,7 +430,7 @@ describe('gameStore: wrap-up rounds', () => {
     useGame.getState().newWrapUpGame({ seed: 5 })
     const s = useGame.getState()
     expect(s.game).not.toBeNull()
-    expect(s.game!.words).toHaveLength(20)
+    expect(s.game!.words).toHaveLength(BOARD.totalWords)
     expect(s.mode).toBe('wrapup')
     expect(s.packingDone).toBe(false)
     expect(s.packed).toEqual([])

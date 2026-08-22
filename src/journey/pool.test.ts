@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS, curriculumRank } from '../data/words'
-import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from '../engine/config'
+import { BOARD, TUTORIAL_CONFIG, type GridConfig } from '../engine/config'
 import { mulberry32 } from '../engine/rng'
 import { levenshtein, normalize } from '../engine/text'
 import { danish } from '../lang/da'
@@ -17,10 +17,11 @@ const NOW = 1_700_000_000_000
 /** The sampler must fill a full board from the smallest possible pool. */
 describe('board sampling from a journey-restricted pool', () => {
   // Every config the app deals, not every board SIZE — there are none (N1).
+  // The wrap-up ritual deals BOARD itself since N2, so it is not a third
+  // config here — a 'wrapup' entry would just measure BOARD twice.
   const CONFIGS: Array<[string, GridConfig]> = [
     ['board', BOARD],
     ['tutorial', TUTORIAL_CONFIG],
-    ['wrapup', WRAPUP_CONFIG],
   ]
 
   it.each(CONFIGS)(

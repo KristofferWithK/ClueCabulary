@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   BOARD,
   TUTORIAL_CONFIG,
-  WRAPUP_CONFIG,
   distinctGreens,
   type GridConfig,
 } from '../engine/config'
@@ -54,15 +53,15 @@ function playerClue(state: GameState, turn: number): string {
 }
 
 /**
- * The three boards that exist. Not sizes: there is ONE board, and the other
- * two are modes you enter — the scripted tutorial and the wrap-up ritual.
- * N1 deleted the GridSize union and with it the ladder this file used to
- * defend an ordering across.
+ * The board that exists, plus the tutorial mode you enter. N1 deleted the
+ * GridSize union and with it the ladder this file used to defend an ordering
+ * across. N2 deletes the wrap-up's own config the same way: `newWrapUpGame`
+ * deals BOARD now, so there is no third shape here to play — a 'wrapup' grid
+ * would just be BOARD run twice.
  */
-type Grid = 'board' | 'tutorial' | 'wrapup'
+type Grid = 'board' | 'tutorial'
 
-const configFor = (grid: Grid): GridConfig =>
-  grid === 'wrapup' ? WRAPUP_CONFIG : grid === 'tutorial' ? TUTORIAL_CONFIG : BOARD
+const configFor = (grid: Grid): GridConfig => (grid === 'tutorial' ? TUTORIAL_CONFIG : BOARD)
 
 interface Played {
   state: GameState
@@ -197,12 +196,13 @@ async function playOneGame(
 }
 
 /**
- * All three boards ride the same harness. The wrap-up's packing phase and the
+ * Both configs ride the same harness. The wrap-up's packing phase and the
  * tutorial's script both live ABOVE the engine, so an engine round on either
- * config is just a round.
+ * config is just a round — and since N2 a wrap-up round's engine config IS
+ * BOARD, so 'board' already covers it.
  */
 describe('self-play: engine + mock companion never reach an illegal state', () => {
-  it.each(['board', 'tutorial', 'wrapup'] as const)(
+  it.each(['board', 'tutorial'] as const)(
     '50 full %s games all terminate',
     async (grid) => {
       const outcomes: Record<string, number> = {}
@@ -430,17 +430,24 @@ const skillSweep = (config: GridConfig, skill: number, games: number, cap = 3): 
 /**
  * The rows `config.ts`'s comment quotes, in the order it quotes them.
  *
- * Three of them ship; the rest are the neighbours 3x6 was chosen over and the
- * board it replaces. They are PRINTED, not asserted — "8/3/8 beats 8/2/8 by
- * five points" is an argument the comment makes and a number that moves with
- * the sample size, and a test that pinned it would be defending a sentence
- * rather than the game. What is asserted is below: the ceiling and the floor of
- * the board that ships.
+ * Two of them ship; the rest are the neighbours 3x6 was chosen over, the
+ * board it replaces, and (since N2) the wrap-up's own retired 4x5 — kept only
+ * as a fixed shape for the comparison, since `WRAPUP_CONFIG` no longer exists
+ * to import: `newWrapUpGame` deals BOARD now, so there is no separate wrap-up
+ * board left to measure as one of the boards that ship. They are PRINTED, not
+ * asserted — "8/3/8 beats 8/2/8 by five points" is an argument the comment
+ * makes and a number that moves with the sample size, and a test that pinned
+ * it would be defending a sentence rather than the game. What is asserted is
+ * below: the ceiling and the floor of the board that ships.
  */
 const ROWS: Array<{ label: string; config: GridConfig; ships: boolean }> = [
   { label: '3x6  8/3/8  THE BOARD', config: BOARD, ships: true },
   { label: '3x4  5/2/5  tutorial ', config: TUTORIAL_CONFIG, ships: true },
-  { label: '4x5 10/4/10 wrap-up  ', config: WRAPUP_CONFIG, ships: true },
+  {
+    label: '4x5 10/4/10 (retired)',
+    config: { rows: 5, cols: 4, totalWords: 20, greensPerSide: 10, greenOverlap: 4, turnTokens: 10, maxNewWordsPerBoard: 0 },
+    ships: false,
+  },
   {
     label: '3x5  7/3/6  (replaced)',
     config: { rows: 5, cols: 3, totalWords: 15, greensPerSide: 7, greenOverlap: 3, turnTokens: 6, maxNewWordsPerBoard: 5 },
@@ -544,9 +551,9 @@ describe('the boards across the whole range of guessing', () => {
       for (const r of table.filter((r) => r.ships)) {
         expect(r.by[1]!.winRate).toBe(100)
       }
-      // The wrap-up board is allowed to be the soft one — its difficulty is the
-      // packing gate above the engine — and the tutorial is a scripted round
-      // nobody can lose. The claim is about the board you actually play.
+      // The tutorial is a scripted round nobody can lose, so this claim is
+      // about the board you actually play — which, since N2, is also the
+      // board a wrap-up round deals. Its own softness is retired above.
       const board = table.find((r) => r.config === BOARD)!
       expect(board.by[0.6]!.winRate).toBeLessThan(85)
       expect(board.by[0.6]!.winRate).toBeGreaterThan(60)

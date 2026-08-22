@@ -1,5 +1,5 @@
 import type { WordEntry } from '../data/types'
-import { WRAPUP_CONFIG } from '../engine/config'
+import { BOARD } from '../engine/config'
 import type { KeyBias } from '../engine/keygen'
 import { shuffle, type Rng } from '../engine/rng'
 import type { Outcome } from '../engine/types'
@@ -8,30 +8,40 @@ import type { SrsMap } from '../srs/types'
 import { isCollected, wordsForCity, type WrappedWords } from './progress'
 
 /**
- * The wrap-up round: a 4×5 board dealt entirely from the current city's
- * collected words, every card starting English-side up. The player packs each
- * card by typing its Danish word; the round then plays like any other, and
- * every packed word that ends the round green is wrapped — safe in the
- * suitcase for good.
+ * The wrap-up round: `BOARD` dealt entirely from the current city's collected
+ * words, every card starting English-side up. The player packs each card by
+ * typing its Danish word; the round then plays like any other, and every
+ * packed word that ends the round green is wrapped — safe in the suitcase for
+ * good.
+ *
+ * Since N2 this deals the SAME board every other round does — there is no
+ * wrap-up-shaped config left to import. What is still specific to this deal:
+ * it draws only from `wrapUpPool` below (already-collected words, so nothing
+ * on it is ever a word the player has not met), and `maxNewWordsPerBoard` is
+ * consequently 0 for it — not because a config field says so, but because
+ * this function never reaches the sampler that field steers (`dealBoard` in
+ * gameStore.ts). Zero new words is a property of THIS deal, not of `BOARD`,
+ * which carries 6 for the ordinary round that does go through the sampler.
  *
  * Two separate things have to be true before one can be played, and they are
- * different in kind. The board must be DEALABLE — twenty collected words that
- * can sit on one board — which is arithmetic and cannot be waived. And one
- * must have been EARNED by winning a normal round, which is policy and is the
- * whole of the reward economy below.
+ * different in kind. The board must be DEALABLE — a full board's worth of
+ * collected words that can sit on one board — which is arithmetic and cannot
+ * be waived. And one must have been EARNED by winning a normal round, which is
+ * policy and is the whole of the reward economy below.
  */
 
 /**
  * A wrap-up board needs a full board's worth of collected words.
  *
- * This is an alias, not a second gate: it is `WRAPUP_CONFIG.totalWords` under
- * a name that says what the number means where the UI counts against it. It
- * keeps its keep for exactly that — «Collect 4 more» has to name something —
- * and for nothing else. Lowering it would not lower the gate, because
+ * This is an alias, not a second gate: it is `BOARD.totalWords` under a name
+ * that says what the number means where the UI counts against it. It keeps
+ * its keep for exactly that — «Collect 4 more» has to name something — and
+ * for nothing else. Lowering it would not lower the gate, because
  * `wrapUpUnlocked` answers by dealing an actual board; it would only make the
- * suitcase's hint lie about how many more words are needed.
+ * suitcase's hint lie about how many more words are needed. It follows BOARD
+ * down from 20 to 18 with N2, since a wrap-up board is BOARD now.
  */
-export const WRAP_UP_UNLOCK = WRAPUP_CONFIG.totalWords
+export const WRAP_UP_UNLOCK = BOARD.totalWords
 
 /**
  * Which kind of round was played. Wrap-ups earn nothing; see below. The
@@ -121,9 +131,9 @@ export function wrapUpWords(
 
   const board: WordEntry[] = []
   for (const group of [fresh(unwrapped), fresh(packed), stale(unwrapped), stale(packed)]) {
-    if (board.length >= WRAPUP_CONFIG.totalWords) break
+    if (board.length >= BOARD.totalWords) break
     for (const w of shuffle(group, rng)) {
-      if (board.length >= WRAPUP_CONFIG.totalWords) break
+      if (board.length >= BOARD.totalWords) break
       if (board.every((c) => !conflicts(w, c))) board.push(w)
     }
   }
@@ -132,9 +142,9 @@ export function wrapUpWords(
 
 /**
  * Whether the city can offer a wrap-up round at all: a full board must be
- * dealable, conflicts included — a pool of twenty that cannot seat twenty
- * words is not enough. Checked by dealing, with a fixed rng, because that is
- * the one honest answer to "can a board be dealt".
+ * dealable, conflicts included — a pool the same size as `BOARD.totalWords`
+ * that cannot seat that many words is not enough. Checked by dealing, with a
+ * fixed rng, because that is the one honest answer to "can a board be dealt".
  */
 export function wrapUpUnlocked(
   all: readonly WordEntry[],

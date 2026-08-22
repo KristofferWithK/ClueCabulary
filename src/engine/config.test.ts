@@ -3,7 +3,6 @@ import {
   BOARD,
   MAX_CLUE_NUMBER,
   TUTORIAL_CONFIG,
-  WRAPUP_CONFIG,
   assertConfigConsistent,
   distinctGreens,
   type GridConfig,
@@ -19,10 +18,11 @@ import { danish } from '../lang/da'
 const applyEvent = (s: Parameters<typeof applyEventIn>[0], e: Parameters<typeof applyEventIn>[1]) =>
   applyEventIn(s, e, danish)
 
+// There is no wrapup entry any more (N2): newWrapUpGame deals BOARD itself,
+// so a third row here would just be BOARD measured twice.
 const CONFIGS: Array<[string, GridConfig]> = [
   ['board', BOARD],
   ['tutorial', TUTORIAL_CONFIG],
-  ['wrapup', WRAPUP_CONFIG],
 ]
 
 describe('the shipped boards', () => {
@@ -65,9 +65,10 @@ describe('the shipped boards', () => {
     const load = (c: GridConfig) => +(distinctGreens(c) / c.turnTokens).toFixed(2)
     expect(load(BOARD)).toBe(1.63)
     expect(load(BOARD)).toBeLessThan(15 / 9)
-    // The two modes are both at the beginner ratio on purpose; see config.ts.
+    // The tutorial is at the beginner ratio on purpose; see config.ts. The
+    // wrap-up used to have its own (forgiving, 1.60) ratio here too — since N2
+    // it deals BOARD and carries BOARD's own load.
     expect(load(TUTORIAL_CONFIG)).toBe(1.6)
-    expect(load(WRAPUP_CONFIG)).toBe(1.6)
   })
 
   /**
@@ -84,16 +85,16 @@ describe('the shipped boards', () => {
   })
 
   /**
-   * The wrap-up board's shape, pinned the same way: five clue-givings a side,
-   * sixteen distinct greens over ten shared tokens. The packing phase is the
-   * round's added difficulty, so the clue economy is deliberately forgiving.
+   * The wrap-up round's shape is BOARD's own, since N2 — there is no separate
+   * wrap-up config left to pin a shape on. What is still worth asserting: a
+   * wrap-up board packs at most thirteen words (BOARD's distinct greens), down
+   * from the retired 4x5's sixteen, and nothing on it is ever new — not
+   * because a config field says 0, but because `wrapUpPool` (journey/wrapup.ts)
+   * draws only from already-collected words. `wrapup.test.ts` pins that filter
+   * directly; this just pins the number the packing dock counts against.
    */
-  it('give the wrap-up board the forgiving ratio on the big grid', () => {
-    expect(WRAPUP_CONFIG.turnTokens).toBe(10)
-    expect(distinctGreens(WRAPUP_CONFIG)).toBe(16)
-    expect(WRAPUP_CONFIG.totalWords - distinctGreens(WRAPUP_CONFIG)).toBe(4)
-    // Nothing on a wrap-up board is ever new — the pool is collected words.
-    expect(WRAPUP_CONFIG.maxNewWordsPerBoard).toBe(0)
+  it('caps a wrap-up round at BOARD distinct greens, thirteen rather than sixteen', () => {
+    expect(distinctGreens(BOARD)).toBe(13)
   })
 })
 

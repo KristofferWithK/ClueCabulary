@@ -193,14 +193,23 @@ translate-everything ending, it is stale — the removal is commit `a4517bf`
 
 ## Board numbers are measured, and there is a harness for it
 
-**There is ONE board: 3x6, eighteen words, eight greens a side, three shared,
-eight clue tokens (`BOARD` in `src/engine/config.ts`).** The three sizes, the
-`GridSize` union, the Settings picker, the persisted `gridSize` and the `?grid=`
-dev switch are all gone (N1). Two other configs exist and neither is a
-difficulty: `TUTORIAL_CONFIG` (3x4, the scripted first round) and
-`WRAPUP_CONFIG` (4x5, the packing ritual) — modes you enter, not sizes you pick.
-If you find a drive URL carrying `?grid=`, or a test walking
-`['beginner','middle','standard']`, it is stale.
+**There is ONE board config in the whole game: 3x6, eighteen words, eight
+greens a side, three shared, eight clue tokens (`BOARD` in
+`src/engine/config.ts`).** The three sizes, the `GridSize` union, the Settings
+picker, the persisted `gridSize` and the `?grid=` dev switch are all gone
+(N1). One other config exists and is not a difficulty: `TUTORIAL_CONFIG` (3x4,
+the scripted first round) — a mode you enter, not a size you pick. There used
+to be a second, `WRAPUP_CONFIG` (4x5, ten greens a side) under the packing
+ritual; N2 (2026-08-22) deletes it as a shape of its own — `newWrapUpGame`
+deals `BOARD` now, on the owner's call that a wrap-up round should carry the
+same number of greens as any other and lean on the packing gate and the closed
+dictionary for its difficulty. A wrap-up round now packs at most thirteen
+words a round (BOARD's distinct greens) rather than sixteen, and its own
+engine win rate drops from 84.8% to BOARD's 74.7% at p=0.6 — `finishRound`
+still wraps every packed-and-green card regardless of the round's outcome, so
+losing a harder wrap-up costs nothing it did not already risk. If you find a
+drive URL carrying `?grid=`, a test walking `['beginner','middle','standard']`,
+or an import of `WRAPUP_CONFIG`, it is stale.
 
 `src/engine/config.ts` states a number for every board choice and the
 measurement behind it. Those come from `src/ai/selfplay.test.ts`, which is two
@@ -223,8 +232,8 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
 ## Layout of the code
 
 - `src/engine/` — pure game rules, no React, no data. `config.ts` holds
-  `BOARD` plus `TUTORIAL_CONFIG` and `WRAPUP_CONFIG` and the tuning constants,
-  each with the measurement behind it. `packing.ts` grades the wrap-up round's typed
+  `BOARD` plus `TUTORIAL_CONFIG` and the tuning constants, each with the
+  measurement behind it. `packing.ts` grades the wrap-up round's typed
   answers, with the dataset injected rather than imported. Since the language
   seam it takes a **language pack** the same way: `checkClueLegality`,
   `matchesAnswer` and `applyEvent` all have one as a parameter, and nothing

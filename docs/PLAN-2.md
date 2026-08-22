@@ -496,7 +496,6 @@ pass to flip.
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
-- **N2** — The wrap-up round on 3×6 *(N1 landed — ready)*
 
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
@@ -524,6 +523,20 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **N2** — The wrap-up round is the same board — 2026-08-22 (PR #109).
+  `WRAPUP_CONFIG` (4×5, 10/4/10) deleted as a shape of its own; `newWrapUpGame`
+  deals `BOARD` (3×6, 8/3/8) itself, `wrapUpBias` layered on top.
+  `maxNewWordsPerBoard` stays 0 for the deal without a config field saying so —
+  `wrapUpWords` never reaches the sampler that field steers, and draws only
+  already-collected words. Two consequences: a wrap-up packs at most **13**
+  words a round (BOARD's distinct greens) rather than 16, and the engine round
+  is measurably harder — **74.7% at p=0.6** against the retired 4×5's 84.8% —
+  while the packing gate is untouched and still the round's real difficulty.
+  Losing costs nothing it did not already risk (`finishRound` banks every
+  packed-and-green card regardless of outcome) and the summary now says so on
+  a lost round. `WRAP_UP_UNLOCK` follows 20 → 18. Mutation-checked: swapping
+  `newWrapUpGame`'s dealt config for `TUTORIAL_CONFIG` fails 12 of 51
+  `gameStore.test.ts` tests on `createGame`'s own word-count guard.
 - **X1** — The stale-copy sweep — 2026-08-22 (PR #108). The Settings "8 clues"
   label was already gone (N1 deleted the whole board-size control, and
   `config.test.ts`'s "are one board of eighteen cards, three across" already

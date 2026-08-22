@@ -28,18 +28,23 @@ clue, once by your own guess — and **wrapped** once a wrap-up round has packed
 it safely.
 
 Collected words still break on the road; **wrap-up rounds** are how you pack
-them. A wrap-up board is 4×5, dealt entirely from the city's collected words,
+them. A wrap-up round deals the **same board** an ordinary round does — one
+board config in the whole game, since N2 — from the city's collected words,
 and every card starts English-side up: type the Danish to pack a card before
 the clues begin — the dictionary is closed, the first miss on a word is
 remembered — or start early and leave cards unpacked at your own risk, playing
 English-side up all round and ineligible to wrap. Every packed word that ends
-the round green is wrapped for good, win or lose. The board's clue economy is
-deliberately the forgiving one — 16 distinct greens over 10 shared tokens, the
-beginner ratio, and measured against the others it is the softest board in the
-game — because the packing gate is the difficulty and putting a second one in
-the clue budget would only tax the same ritual twice. Wrap all hundred words of
-a city — `WRAP_TO_TRAVEL` in `src/journey/progress.ts` — and the road onward
-opens.
+the round green is wrapped for good, **win or lose** — `finishRound` banks
+every card that was packed and found green regardless of the round's outcome,
+so losing a round never locks you out of the words you already earned. A
+wrap-up used to deal its own softer 4×5 board (16 distinct greens over 10
+forgiving tokens) so the packing gate alone carried the difficulty; sharing
+the ordinary board instead means a wrap-up packs at most **13** words a round
+rather than 16, and is measurably harder to win outright (74.7% at p=0.6
+against the retired board's 84.8%) — while the packing gate is untouched, and
+losing still costs nothing you had not already risked. Wrap all hundred words
+of a city — `WRAP_TO_TRAVEL` in `src/journey/progress.ts` — and the road
+onward opens.
 
 How far that is, is a **train**: ten wagons, one per ten of the city's hundred,
 ghosts for the road still to come and solid for what is packed, with the wagon
@@ -136,9 +141,10 @@ The map keeps that button, and its train now boards as well. Under
    | board | p=0 | 0.6 | 0.7 | 0.8 | perfect | clues a perfect pair spends |
    |---|---|---|---|---|---|---|
    | **3×6, 8 clues** | 0.3% | 74.7% | 90.0% | 98.2% | 100% | 5.00 |
-   | wrap-up 4×5, 10 clues | 1.2% | 84.8% | 95.2% | 99.2% | 100% | 6.00 |
 
-   One row where there were four, because there is one board. (The scripted
+   One row where there were four, because there is one board — and since N2
+   the wrap-up round deals this same row too, rather than the retired
+   `4×5, 10 clues` board that used to sit here at 84.8% at p=0.6. (The scripted
    tutorial round is dealt on a 3×4 of its own — 76.1% at p=0.6 — and is a
    thing you enter once, not a difficulty you keep.)
 

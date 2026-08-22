@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { WordEntry } from '../data/types'
 import { WORDS } from '../data/words'
-import { WRAPUP_CONFIG } from '../engine/config'
+import { BOARD } from '../engine/config'
 import { generateKeys } from '../engine/keygen'
 import { mulberry32 } from '../engine/rng'
 import { conflicts } from '../srs/sampler'
@@ -57,20 +57,22 @@ describe('drawing a wrap-up board', () => {
   it('every word on the board is collected — the invariant the mode stands on', () => {
     const srs = collectedStats(40)
     const board = wrapUpWords(WORDS, srs, {}, 0, mulberry32(7))
-    expect(board.length).toBe(WRAPUP_CONFIG.totalWords)
+    expect(board.length).toBe(BOARD.totalWords)
     const pool = new Set(wrapUpPool(WORDS, srs, {}, 0).map((w) => w.id))
     for (const w of board) expect(pool.has(w.id)).toBe(true)
   })
 
   it('unwrapped words come first; wrapped ones only pad', () => {
-    // 22 unwrapped + 18 wrapped: the board must seat every unwrapped word it
-    // can before a single wrapped one.
+    // 22 unwrapped + 18 wrapped, against BOARD's 18-word board: the board must
+    // seat every unwrapped word it can before a single wrapped one, and since
+    // 22 unwrapped exceeds the board size the whole board should be unwrapped
+    // bar the odd conflict exclusion.
     const srs = collectedStats(40)
     const wrapped = wrappedOf(city.slice(22, 40).map((w) => w.id))
     const board = wrapUpWords(WORDS, srs, wrapped, 0, mulberry32(7))
     const unwrappedOnBoard = board.filter((w) => !(w.id in wrapped)).length
     // Conflict exclusions may cost a seat or two, never more.
-    expect(unwrappedOnBoard).toBeGreaterThanOrEqual(20)
+    expect(unwrappedOnBoard).toBeGreaterThanOrEqual(BOARD.totalWords - 2)
   })
 
   it('near the end of a city, wrapped words fill the board', () => {
@@ -78,18 +80,19 @@ describe('drawing a wrap-up board', () => {
     const srs = collectedStats(40)
     const wrapped = wrappedOf(city.slice(5, 40).map((w) => w.id))
     const board = wrapUpWords(WORDS, srs, wrapped, 0, mulberry32(7))
-    expect(board.length).toBe(WRAPUP_CONFIG.totalWords)
+    expect(board.length).toBe(BOARD.totalWords)
     for (const w of city.slice(0, 5)) {
       expect(board.some((b) => b.id === w.id)).toBe(true)
     }
   })
 
   it('the avoid set goes to the back of the queue, never dropped', () => {
-    // Pool of exactly 20: the previous board IS the pool, and a short board
-    // would be a worse answer than a repeat — the old exam draw's lesson.
-    const srs = collectedOf(clean.slice(0, 20))
+    // A pool exactly BOARD.totalWords wide: the previous board IS the pool,
+    // and a short board would be a worse answer than a repeat — the old exam
+    // draw's lesson.
+    const srs = collectedOf(clean.slice(0, BOARD.totalWords))
     const first = wrapUpWords(WORDS, srs, {}, 0, mulberry32(7))
-    expect(first.length).toBe(WRAPUP_CONFIG.totalWords)
+    expect(first.length).toBe(BOARD.totalWords)
     const second = wrapUpWords(WORDS, srs, {}, 0, mulberry32(8), new Set(first.map((w) => w.id)))
     expect(second.length).toBe(first.length)
 
@@ -116,10 +119,11 @@ describe('unlocking wrap-up rounds', () => {
   })
 
   it('a pool that cannot SEAT a board does not open it, whatever it counts', () => {
-    // Twenty collected words two of which conflict: nineteen seats is not a
-    // board. This is why the check deals rather than counts.
-    const conflicted = city.find((w) => clean.slice(0, 19).some((c) => conflicts(w, c)))!
-    const srs = collectedOf([...clean.slice(0, 19), conflicted])
+    // BOARD.totalWords collected words, two of which conflict: one fewer seats
+    // than a board needs. This is why the check deals rather than counts.
+    const seatable = BOARD.totalWords - 1
+    const conflicted = city.find((w) => clean.slice(0, seatable).some((c) => conflicts(w, c)))!
+    const srs = collectedOf([...clean.slice(0, seatable), conflicted])
     expect(wrapUpUnlocked(WORDS, srs, {}, 0)).toBe(false)
   })
 })
@@ -137,7 +141,7 @@ describe('the wrap-up deal bias', () => {
       for (let seed = 1; seed <= 40; seed++) {
         const board = wrapUpWords(WORDS, srs, wrapped, 0, mulberry32(seed))
         const bias = useBias ? wrapUpBias(board, wrapped) : undefined
-        const keys = generateKeys(WRAPUP_CONFIG, board.map((w) => w.id), mulberry32(seed), bias)
+        const keys = generateKeys(BOARD, board.map((w) => w.id), mulberry32(seed), bias)
         for (const w of board) {
           const green = keys.playerKey[w.id] === 'green' || keys.aiKey[w.id] === 'green'
           if (!green) continue

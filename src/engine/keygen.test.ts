@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   BOARD,
   TUTORIAL_CONFIG,
-  WRAPUP_CONFIG,
   assertConfigConsistent,
   type GridConfig,
 } from './config'
@@ -20,13 +19,12 @@ function countRoles(key: Record<string, CardRole>) {
 
 /**
  * Every config the app can deal, not every board SIZE — there are no sizes
- * (N1). The two beside the board are modes you enter: the scripted tutorial
- * and the wrap-up ritual.
+ * (N1). Just the board and the tutorial mode you enter: the wrap-up ritual
+ * deals BOARD itself since N2, so it is not a config of its own any more.
  */
 const CONFIGS: Array<[string, GridConfig]> = [
   ['board', BOARD],
   ['tutorial', TUTORIAL_CONFIG],
-  ['wrapup', WRAPUP_CONFIG],
 ]
 
 describe.each(CONFIGS)('keygen %s', (_name, config: GridConfig) => {

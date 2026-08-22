@@ -6,7 +6,7 @@ import { MockCompanion } from '../ai/mock/mockCompanion'
 import { TutorialCompanion } from '../ai/tutorialCompanion'
 import { buildAiClueView, buildAiGuessView, buildStoryView } from '../ai/projections'
 import type { GuessResponse, StoryResponse, TranslationResponse } from '../ai/schemas'
-import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from '../engine/config'
+import { BOARD, TUTORIAL_CONFIG, type GridConfig } from '../engine/config'
 import { applyEvent as applyEventIn, createGame, currentClue } from '../engine/game'
 import { matchesAnswer } from '../engine/packing'
 import { mulberry32 } from '../engine/rng'
@@ -149,10 +149,11 @@ interface GameStore {
 
   newGame: (opts?: NewGameOptions) => void
   /**
-   * A wrap-up round: WRAPUP_CONFIG, every word collected, nothing carried
-   * over or remembered by the normal deal (recentBoards is untouched in both
-   * directions — a carry-over quota could force uncollected words onto this
-   * board, and remembering it would distort the next normal one).
+   * A wrap-up round: BOARD (the same shape a normal round deals, since N2),
+   * every word collected, nothing carried over or remembered by the normal
+   * deal (recentBoards is untouched in both directions — a carry-over quota
+   * could force uncollected words onto this board, and remembering it would
+   * distort the next normal one).
    */
   newWrapUpGame: (opts?: { seed?: number }) => void
   /**
@@ -533,7 +534,7 @@ export const useGame = create<GameStore>()(
         )
         // The CTA gates on wrapUpUnlocked; refusing here too keeps a stray
         // call from dealing a board the mode's invariant does not hold on.
-        if (entries.length < WRAPUP_CONFIG.totalWords) return
+        if (entries.length < BOARD.totalWords) return
         // And the round has to have been earned. Checked AFTER the deal is
         // known to be possible and in the same breath as spending, because the
         // one thing worse than a refused wrap-up is a token taken for a board
@@ -543,7 +544,7 @@ export const useGame = create<GameStore>()(
         // token bought the round, not the particular twenty words.)
         if (!useSrs.getState().spendWrapUp()) return
         const game = createGame({
-          config: WRAPUP_CONFIG,
+          config: BOARD,
           words: entries.map((w) => ({
             wordId: w.id,
             da: w.da,
@@ -659,9 +660,9 @@ export const useGame = create<GameStore>()(
             mulberry32(nextSeed(game.seed) ^ 0x9e3779b9),
             rejected,
           )
-          if (entries.length < WRAPUP_CONFIG.totalWords) return
+          if (entries.length < BOARD.totalWords) return
           const next = createGame({
-            config: WRAPUP_CONFIG,
+            config: BOARD,
             words: entries.map((w) => ({
               wordId: w.id,
               da: w.da,

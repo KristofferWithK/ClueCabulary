@@ -231,8 +231,9 @@ try {
   check('and the case never went anywhere', (await page.locator('.case-open .case-art').count()) === 2)
 
   // ---- The two gates, and saying which one is missing. -------------------
-  // A wrap-up needs a dealable board (twenty collected words, arithmetic) AND
-  // an earned round (a win, policy). Whichever is missing has to say so: a
+  // A wrap-up needs a dealable board (BOARD.totalWords collected words —
+  // eighteen, since N2 — arithmetic) AND an earned round (a win, policy).
+  // Whichever is missing has to say so: a
   // dark button with nothing under it is the failure this section exists to
   // catch, because wrap-ups are the only way words get packed for good.
 
@@ -261,7 +262,8 @@ try {
   check('and nothing in the case paints under the drawing', buried.length === 0, buried.join(', '))
 
   const hint = await page.locator('.case-hint').textContent()
-  check('and says how many more to collect', /Collect 10 more/.test(hint ?? ''), hint ?? '')
+  // 18 (BOARD.totalWords, since N2) minus the 10 collected here.
+  check('and says how many more to collect', /Collect 8 more/.test(hint ?? ''), hint ?? '')
   check('naming the city the board would be dealt from', /Sønderborg/.test(hint ?? ''), hint ?? '')
   check('and names the win as well, since both are missing', /[Ww]in a round/.test(hint ?? ''), hint ?? '')
   // Both sentences at once is the tallest this screen gets, and it is the one
@@ -292,7 +294,7 @@ try {
   await page.waitForTimeout(150)
   check(
     'the hint is about home even when the filter is another city',
-    /Collect 10 more in Ribe/.test((await page.locator('.case-hint').textContent()) ?? ''),
+    /Collect 8 more in Ribe/.test((await page.locator('.case-hint').textContent()) ?? ''),
   )
 
   // 3. Words enough, no win: the button waits on the win and says only that.
