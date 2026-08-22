@@ -524,7 +524,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
-- **X1** — The stale-copy sweep — 2026-08-22 (PR #TBD). The Settings "8 clues"
+- **X1** — The stale-copy sweep — 2026-08-22 (PR #108). The Settings "8 clues"
   label was already gone (N1 deleted the whole board-size control, and
   `config.test.ts`'s "are one board of eighteen cards, three across" already
   pins `BOARD`'s numbers directly — there is no picker left to write a new
