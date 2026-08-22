@@ -8,7 +8,7 @@ sections below are the live status.
 **Board 2 is [`PLAN-2.md`](PLAN-2.md)** — the owner's play notes from
 2026-08-21 (composer, voice, Casey's guessing turn, the post-game, the
 wrap-up economy, the grid, a second pass at the intro), carded. The cards
-still open here (C5, D3, G2, H9, H5) are unaffected.
+still open here (C5, D3, G2, H9) are unaffected.
 
 ## Context
 
@@ -64,10 +64,10 @@ model alias `cluey`).
 
 ### In progress
 - **C4** — The composer rides by default — implemented 2026-08-21: the keyboard plugin is vendored (`ios-plugins/cluecab-keyboard/`) so `keyboardWillShow` reports the real animation duration, the ride animates with it, and it ships **on** — `cluecab-kbstill` is the opt-out, for filming and rollback only. Verify green (16/16 drives); measured on the simulator against a real keyboard: `lift -291` for a `kb 291`, transform started 14 ms after the event, `said 250` (the fork's payload arriving), `drift 0` at the handover. **Remaining:** the owner plays a TestFlight build and says whether it feels attached.
-- **H9** — The train story — **Sønderborg's proof piece is built, playable and on `main`**: 31 sentences in three chapters covering 100/100 of the city's words (proved by `travelStory.test.ts` against the shipped stemmer), baked per sentence in Aoede at 0.6 (748 KB, $0.02), the ride wired between travel and arrival with play / tap-a-line / slower / skip, and covered by journey-drive and layout-drive at three phone sizes. **Waiting on the owner:** read and listen to Sønderborg before the other eight are written — the prose is the expensive part and eight of them written to the wrong taste is the waste worth avoiding.
-- **H5** — Sentence stories written to a coverage target — implemented 2026-08-20 and merged to `main` (squash `0a6b798`); the card stays open only for the eight cities still unwritten
+- **H9** — The train story — **Sønderborg's proof piece is built, playable and on `main`**: 31 sentences in three chapters covering 100/100 of the city's words (proved by `travelStory.test.ts` against the shipped stemmer), baked per sentence in Aoede at 0.6 (748 KB, $0.02), the ride wired between travel and arrival with play / tap-a-line / slower / skip, and covered by journey-drive and layout-drive at three phone sizes. **Waiting on the owner:** read and listen to Sønderborg before the other eight are written — the prose is the expensive part and eight of them written to the wrong taste is the waste worth avoiding. *(The eight unwritten cities are this card's remit, not H5's below — corrected 2026-08-22, X1.)*
 
 ### Done
+- **H5** — Sentence stories written to a coverage target — implemented and merged 2026-08-20 (squash `ca0a88a`, "Weave the round into a story that smuggles in the unteachable words"): the summary asks Casey for a tiny post-round story built from the round's green words, written TO a coverage target — `coverageStore` hands the prompt the three least-met function words, the companion refuses any reply that doesn't actually contain them (checked by stem, so «huset» counts for «hus»), and only a verified story is recorded and shown below the sentences in `RoundSentences.tsx`. **Shipped whole — nothing about it is per-city or waiting on prose.** *(Corrected 2026-08-22, X1: this entry used to say "the card stays open only for the eight cities still unwritten" and cite squash `0a6b798`, which is an unrelated layout-drive commit. The eight unwritten cities are H9's, not H5's — H5 has no per-city concept at all.)*
 - **O4** — Onboarding aftercare: the reference card, first-time dock lines, tips order — done 2026-08-21 ([PR #86](https://github.com/KristofferWithK/ClueCabulary/pull/86)). HowToPlay is a trimmed reference card behind ? — two demo tiles, four rules with the clue-giver's-key rule stated once and forwards, a Replay-the-intro button — and never opens itself. The first real clue turn and first real guessing turn each say one line in the existing dock hint slots, once ever (`cluecab-hint-*`; the tutorial spends neither flag, structurally). Casey's bubble opens the first sessions on four critical tips in priority order — one per distinct day (`cluecab-tips-intro`) — before the daily rotation; the stale "Casey opens by default" comment in App.tsx (and README's copy of it) now states the engine's real default. Two decisions pinned in DECISIONS.md (days not app-opens; hints go quiet in private mode). Mutation checks recorded in the commit; each first-time line drive-checked to appear exactly once.
 - **O3** — The suitcase tour and the arrival — done 2026-08-21 ([PR #85](https://github.com/KristofferWithK/ClueCabulary/pull/85)). After the tutorial win Casey opens himself: a four-step spotlight walks the REAL SuitcaseScreen top to bottom — loose strip, lid, tray, the sleeping wrap-up button with both of its gates named — as an overlay whose anchors are resolved on the live screen (onboarding-drive fails if one drifts, mutation-checked; SuitcaseScreen itself is untouched and suitcase-drive never noticed). The copy is written to the O2 truth: twelve words discovered, none collected, the near-empty case as the promise. Then the existing Arrival at Sønderborg lands Home; done flag written on persist runs only. Along the way: a pack with no tutorial script now falls through to the tour rather than straight Home — the case and the arrival are language-agnostic.
 - **O2** — The tutorial round: a guided beginner board, Casey on screen — done 2026-08-21 ([PR #84](https://github.com/KristofferWithK/ClueCabulary/pull/84)). The ticket now opens one scripted round on the real engine: the beginner 3×4 dealt from Sønderborg's first twelve ranks with a fixed seed, Casey cluing first in Danish, one staged miss teaching the clue-giver's-key rule forwards, offline by construction and completing with the network cut in the drive. The script is pinned against the engine (`tutorial.test.ts`, three mutation checks recorded in the commit). Tutorial words count in the SRS; the round records no game. Two decisions pinned in DECISIONS.md (replays are real play; the tutorial collects nothing — structural, named for O3). Found and fixed along the way: the player's green frame had been invisible during guessing turns — a CSS rule-order accident, README's "your key is the card's border" restored.
@@ -125,7 +125,7 @@ model alias `cluey`).
 - A test file under `src/` cannot name `process`: `tsc -b` rejects it while
   vitest runs it happily. `envVar` helper added; noted in CLAUDE.md.
 
-### Fast-follows (post-launch backlog, in order — H1/H7 done, H5 in progress above)
+### Fast-follows (post-launch backlog, in order — H1/H5/H7 done above)
 - **H2** — German content: 900 words, Germany route, German audio *(seam is live; content not started — the owner verifies natively)*
 - **H3** — Semantic local layer (build-time similarity tables → good offline companion; needs an embedding key)
 - **H4** — 900 Pass IAP (StoreKit, first 2 cities free)
@@ -483,7 +483,7 @@ mechanism; its flag is retired).
   structural cost control for free users.
 - **H4 900 Pass IAP**: StoreKit via Capacitor plugin; first 2 cities free;
   restore purchases; decide the PWA channel's gating then.
-- **H5 Sentence stories** — NOW MEASURED AND JUSTIFIED. F2 shipped v1 (the
+- **H5 Sentence stories** — **shipped; see Done above.** NOW MEASURED AND JUSTIFIED. F2 shipped v1 (the
   shipped example sentences) and measured what it can teach: 147 of a 209-word
   closed-class inventory appear at all, but 62 never do and 50 appear once, so
   54% is unreachable at five sentences a round, and the words the owner named

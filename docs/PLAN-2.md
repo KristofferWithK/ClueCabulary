@@ -490,7 +490,6 @@ pass to flip.
 ### Ready
 - **U1** — A tap says the word; ⓘ opens the dictionary
 - **S1** — Casey's guesses are spoken
-- **X1** — The stale-copy sweep
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
 - **E2** — The book, city 1 *(beside E1)*
@@ -525,6 +524,22 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **X1** — The stale-copy sweep — 2026-08-22 (PR #TBD). The Settings "8 clues"
+  label was already gone (N1 deleted the whole board-size control, and
+  `config.test.ts`'s "are one board of eighteen cards, three across" already
+  pins `BOARD`'s numbers directly — there is no picker left to write a new
+  test against). Fixed: DECISIONS' stale `WORD_MS` entry (it is 1500, measured
+  — median 1.01s, p95 1.54, 240 clips); PLAN.md's H5/H9 conflation (H5 shipped
+  whole and has no per-city concept; the eight unwritten cities are H9's,
+  and the entry's citation of squash `0a6b798` was wrong — the real one is
+  `ca0a88a`); D3 shrunk to one `PAGES_BASE_PATH` constant in `vite.config.ts`
+  feeding all four literals, value unchanged; the sudden-death finding
+  updated now that D5 (PR #104) has renamed it "the last chance"; CLAUDE.md's
+  drive count (17 default / 23 total / 6 opt-in, not 21/4) and its claim that
+  `docs/word-selection.md` is "NOT yet applied" (WS1 + WS2 landed and baked).
+  `audition/` deletion deliberately left alone — deferred until after S2,
+  which needs it for the en-US audition A/B — and recorded on this card.
+  Merged-branch cleanup left as an owner-only note, unchanged.
 - **N1** — One board: 3×6, and the sizes go — 2026-08-22 (PR #107). `GRID_CONFIGS`
   and the `GridSize` union deleted for one exported `BOARD` (3×6, 8 greens a side,
   3 shared, 8 tokens); the 3×4 becomes `TUTORIAL_CONFIG` beside `WRAPUP_CONFIG`.
@@ -967,7 +982,11 @@ that is wrong in the tree today.
   so a session picking up "H5" knows what is actually left.
 - **`audition/` is 2.2 MB of 35 voice samples** kept for a decision that has
   been taken. Delete once Kristoffer confirms he is done listening — the clips
-  are in git history and the workflow can remake them.
+  are in git history and the workflow can remake them. **Deferred by X1
+  (2026-08-22):** do NOT delete yet — S2 requires re-running this same
+  audition workflow over the en-US Chirp3 voices, A/B'd against these Danish
+  clips, before baking the 900 example sentences. Deleting `audition/` now
+  would remove the reference S2 needs. Re-open this bullet once S2 lands.
 - **Shrink D3 to one edit.** The Pages base is an inline literal in four
   places (`vite.config.ts`'s `base`, `start_url`, `scope` and
   `navigateFallback`) plus two comments. Extract it to one exported constant
@@ -984,8 +1003,11 @@ sudden death had been removed from the game. It has not — the engine enters it
 at `game.ts:101`, it fires on a quarter to two-fifths of rounds at ordinary
 skill, and it is one of only three endings the summary knows. If the person who
 designed the game thinks a whole phase is gone, that phase is not announcing
-itself. D5 renames it; whether it needs more than a name is a question for the
-next round played, not for a card written now.
+itself. *(Updated 2026-08-22, X1: D5 has since landed — PR #104 — and renamed
+it "the last chance" everywhere a player reads it; the engine's phase id and
+the persisted outcome reason are untouched, by design. Whether the phase needs
+more than a name is still a question for the next round played, not answered
+by the rename.)*
 
 Checked and found NOT stale, so nobody re-opens them: README's "the train to
 Kolding" is an illustrative sentence from the map screen and is right from

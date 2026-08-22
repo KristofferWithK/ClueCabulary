@@ -17,7 +17,7 @@ prepared but not executed. Each is a five-minute job in the morning.
 
 | Not done | Why | What is ready |
 |---|---|---|
-| **Renaming the GitHub repo** (part of D3) | It changes the live Pages URL and breaks every installed PWA and saved link, including yours. There is no benefit to doing it at 3am and a real cost if you wake to a dead bookmark. | ~~"behind a single constant"~~ *(corrected 2026-08-20: it is an inline literal — `base: CAP ? './' : '/ClueCabulary/'` in `vite.config.ts` — plus the README links and Pages URLs. Still a small job; there is no constant.)* |
+| **Renaming the GitHub repo** (part of D3) | It changes the live Pages URL and breaks every installed PWA and saved link, including yours. There is no benefit to doing it at 3am and a real cost if you wake to a dead bookmark. | ~~"behind a single constant"~~ *(corrected 2026-08-22, X1: it now IS — `PAGES_BASE_PATH` in `vite.config.ts` feeds `base`, `start_url`, `scope` and `navigateFallback`, so the rename is one line there — plus the README links and Pages URLs, which still need their own edit.)* |
 | **Submitting to the App Store** (G2) | Submitting an app on your behalf, unattended, is not mine to do. | ~~"prepared and in the repo"~~ *(corrected 2026-08-20: this row was written before the work and the work never happened that night. It exists NOW — `public/privacy.html`, `docs/store/` with listing copy, keywords, age rating and questionnaire answers, all drafts for your signature. Screenshots still to make.)* |
 | **Anything needing a paid key I do not have** | Baked TTS (F1) needed a TTS provider key; the semantic tables (H3) need an embedding run. | *(updated 2026-08-20: you added `TTS_API_KEY`, the bake ran, and the clips ship in the repo. H3's embedding run still has no key and — corrected — no pipeline either; only the TTS pipeline was ever written.)* |
 | **Shipping German as playable** (H2) | You are the native verifier; unverified German in a language-learning app is the one quality risk not worth taking. | The language seam (H1) is real and Danish runs on it. ~~"German content is generated as a draft"~~ *(corrected 2026-08-20: no German content exists — no `words.de.json`, no batches. The seam is ready for it; the generation has not started.)* |
@@ -390,10 +390,12 @@ example sentence too. The service worker's cache is `word-audio-v2`, because the
 new ordinary clips have the filenames the old slow ones had and CacheFirst would
 otherwise serve a year of the audio you asked to stop hearing.
 
-**Not yet measured:** `WORD_MS` in HearBoard, which paces the board tour. It was
-sized for the old 0.88 speech and it was much too short for the 0.6 clips; the
-figure for the 1.0 bake needs the clips to exist first, so it is still 1200 and
-the comment says so.
+**`WORD_MS` in HearBoard, corrected — this was measured after the 1.0 bake.**
+A 240-clip sample read with `audio.duration` in the browser that plays them
+gave a median of 1.01s, p90 1.46, p95 1.54, longest 1.97; `WORD_MS` is now
+**1500**, up from the 1200 above, which let 95% of words finish and left the
+median half a second of trailing silence. The comment in `HearBoard.tsx`
+carries the full reasoning and README states the same figure.
 
 **Reverse:** `git mv public/audio/da/slow/*.mp3 public/audio/da/` over the 1.0
 clips, set `speech.rate` back to 0.88 and drop the 🐢 buttons from

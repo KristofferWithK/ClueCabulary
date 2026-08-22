@@ -10,8 +10,10 @@ do not know it.
 `docs/clue-engine.md` is the **chessbot report / plan** (keyword: *chessbot*): the
 report on making a cheap model clue and guess like a frontier one, the four
 owner decisions of 2026-08-21 — including that journey boards become
-**city-only** — and the staged plan another session picks up from. Nothing in
-it is built yet; read it before touching `src/ai/`, the board pool, or H3/H7.
+**city-only** — and the staged plan another session picks up from, carded as
+**E0–E6**. Only **E0** is built (journey boards are city-only); the rest of the
+plan is not — read the document before touching `src/ai/`, the board pool, or
+the E-cards.
 
 ## Where the work is planned
 
@@ -43,7 +45,7 @@ npm run typecheck     tsc -b
 npm test              vitest run
 npm run drives        build, then run all 17 browser drives
 npm run drives repeat layout      just those two
-npm run drives --list             names (21; four are opt-in, not run by default)
+npm run drives --list             names (23; six are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
 node scripts/validate-words.mjs --lang de    once a second dataset exists
 node scripts/make-audio.mjs --source words --dry-run   what a bake would cost
@@ -121,10 +123,12 @@ Capacitor `appId com.kristofferwithk.cluecabulary`. This is the
 `klausVerifiedAt` precedent — a field named after an even older mascot — and
 the reason is that renaming a stored key wipes progress (`src/journey/rescue.ts`
 is the apology for the one time that happened) while renaming a class or a
-component buys a stale-selector hunt across twenty-one drives for a label nobody
-sees. `vite.config.ts`'s `base`, `start_url` and `scope` are `/ClueCabulary/`
-for a different reason: that is the repo name, and the repo rename is held for
-the owner (D3). Move one without the other and the Pages deploy breaks.
+component buys a stale-selector hunt across twenty-three drives for a label
+nobody sees. `vite.config.ts`'s `base`, `start_url`, `scope` and
+`navigateFallback` all read one exported `PAGES_BASE_PATH` constant (`/ClueCabulary/`,
+X1) for a different reason: that is the repo name, and the repo rename is held
+for the owner (D3). Move it without also renaming the repo and the Pages
+deploy breaks.
 
 So: change a string a player reads, leave everything else. If you are renaming
 an identifier, you have misread this.
@@ -231,10 +235,12 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   holds the registry AND the note on what is namespaced per language and what
   is deliberately not — read that before touching a store.
 - `src/data/` — the 900 words plus the systems over them. **Which** 900 and
-  which city each belongs to is decided in `docs/word-selection.md` (keyword:
-  word selection) — decided 2026-08-21, NOT yet applied to the dataset; read
-  it before touching `curriculumRank`, `function-words.da.json` or the
-  batches. `dataset.ts`
+  which city each belongs to was decided in `docs/word-selection.md` (keyword:
+  word selection) — decided 2026-08-21, and applied and baked since (WS1 PR
+  #100, WS2): the 113 words that cannot be clued are out, 113 replacements are
+  in. Read the document before touching `curriculumRank`,
+  `function-words.da.json` or the batches — it is still the record of *why*
+  the current dataset is shaped this way. `dataset.ts`
   (`createDataset(pack)`, which builds the indexes and `classifyClue`),
   `words.ts` (the same thing bound to the active pack), `gender.ts` (prints
   whatever genders the pack declares). The Danish-specific parts —
