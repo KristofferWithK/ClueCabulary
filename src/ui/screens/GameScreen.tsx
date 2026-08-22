@@ -223,12 +223,17 @@ export function GameScreen() {
       )}
 
       {onPracticeCompanion(practiceFallback) && !error && (
-        // Say it for as long as it is true: these clues and guesses are not
-        // Casey's, and the player should not judge the AI companion by them.
-        // Keyed on the companion actually in use, not on the fallback flag —
-        // the settings route reached the same object and said nothing.
+        // Say what is true: since E3 the practice companion is the local clue
+        // engine — real clues from the word book, guesses ranked by the judged
+        // matrix — not the hash-scrambled mock this line used to apologise
+        // for. It still is not Casey (no model, no reasoning), and how WELL it
+        // plays is E4's number to state, so the copy claims the mechanism and
+        // nothing more. Keyed on the companion actually in use, not on the
+        // fallback flag — the settings route reached the same object and said
+        // nothing. smoke-drive asserts this wording; change both together.
         <p className="practice-note">
-          Practice companion — random guesses, Casey is not playing. Settings turns it off.
+          Practice companion — Casey is offline, a little word book is playing for her. Settings
+          turns it off.
         </p>
       )}
 

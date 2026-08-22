@@ -5,10 +5,11 @@ H7, cascade, cheap model, book, matrix, city-only boards, practice
 companion, selfplay.
 
 Written 2026-08-21 by a planning session; the plan is carded as **E0–E6** in
-`docs/PLAN-2.md`. Status as of 2026-08-22: **E0, E1 and E2 are built** —
+`docs/PLAN-2.md`. Status as of 2026-08-22: **E0, E1, E2 and E3 are built** —
 journey boards are city-only, `src/data/matrix.da.json` holds city 1's 4,950
-judged pairs, and `src/data/book.da.json` holds its 3,490 associations and
-2,314 pair clues. E3 onward is not built. Four owner decisions were taken
+judged pairs, `src/data/book.da.json` holds its 3,490 associations and
+2,314 pair clues, and `src/ai/local/` is the engine itself, playing the
+practice seam. E4 onward is not built. Four owner decisions were taken
 (listed under "Decisions"). Each stage that has landed carries an "as built"
 subsection under §6 with the corrections it found; **those corrections
 override the paragraph they sit under**, which is left in place so the change
@@ -356,6 +357,58 @@ park/bank.
   round-screen apology ("random guesses, Casey is not playing") according to
   the Stage 4 number. Load the data lazily (dynamic import) so the main
   bundle is untouched; state the chunk size.
+
+#### Stage 3 as built — E3 (2026-08-22)
+
+Built as specified — `evaluator.ts`, `search.ts`, `engineCompanion.ts`, the
+seam, the lazy chunks — with five findings the spec could not have known.
+
+1. **θ measured at 0.5, the smallest step sim produces.** The sweep
+   (engine-vs-engine on real city-1 boards, both seats through the same
+   search, 400 seeded games a cell, `ENGINE_THETA_SWEEP=1` on
+   `src/ai/local/engine.test.ts`) gives 91.0 / **99.0** / 97.5 / 59.0 /
+   21.3 % for θ = 0 / 0.5 / 1.0 / 1.5 / 2.0. θ=0 lets a clue tie its own
+   trap and the sim-ranked guesser takes the trap half the time; above 0.5
+   the search trades coverage for safety the guesser never redeems. The
+   caveat is structural: self-play shares one evaluator between the seats,
+   so 99% is §2's honest-evaluator **upper bound**, not a claim about a
+   human — E4's human-facing measurement may move θ up. At 0.5 the
+   below-θ fallback never fired (0 of 2,337 clues); at 1.0 it fires on 49
+   of 2,630, so the "escalate below θ" trigger Stage 5 needs is real and
+   already plumbed (`CluePlan.belowTheta`).
+
+2. **sim has three paths, not two.** Direct book strength; the raw matrix
+   cell when the clue IS another city word (the cell judges exactly that
+   question, no attenuation); and the two-hop `min(s, M) − 0.5`, the chain
+   priced at its weaker link and a half-point under the equivalent judged
+   fact so an estimate can never outrank one.
+
+3. **The directional trap set is `engineTrapIds` and it is pinned twice
+   over.** `isOpenFor` is exported from `projections.ts` as asked;
+   `engine.test.ts` restates `game.test.ts`'s rule beside the pin, and both
+   mutations — the flipped side and the direction-blind version — were run
+   and fail it (recorded in the E3 commit).
+
+4. **Legality thins the play-time candidate list far less than the
+   authoring side suggested.** 306.3 candidates on a mean opening board,
+   11.1 illegal (3.6%), and only 1.3 of those via the gloss-containment arm
+   E2 warned about — a board is 18 words, not a whole city of glosses. The
+   E2 warning stands for authoring; at play time it is noise.
+
+5. **§8's open question is answered: the engine replaces `MockCompanion`
+   in the drives.** Twelve drives were run against it — every one that
+   plays or touches a round — and pass unchanged
+   (the engine is exactly as deterministic as the hash was); smoke-drive's
+   practice-note assertion was re-pointed at the new copy; endgame-drive's
+   `mok` is injected state, not the companion. The mock survives inside
+   `EngineCompanion` as the fallback for boards the book does not cover —
+   a daily board drawing outside the authored cities, a city E6 has not
+   reached — and for `translate`, which was never the engine's to answer.
+   The new `e2e/engine-drive.mjs` is the acceptance: a practice round end
+   to end with every non-preview request blocked, clues asserted real,
+   legal and rationaled, and the two data chunks observed arriving late
+   (`matrix.da` 2.19 KB gz, `book.da` 91.94 KB gz; the main bundle carries
+   +1.88 KB gz of engine code and none of the data).
 
 ### Stage 4: measurement
 

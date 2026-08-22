@@ -197,12 +197,12 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
     <div class="panel go">
       <span class="panel-k">next up</span>
       <h3 id="next-title">Wave 4 — content and audio</h3>
-      <p id="next-body">Waves 1–3 are done. Next is the content chain — <strong>T2</strong> (the grammar frame) → <strong>T3</strong> (787 sentences to the chapters) → <strong>S2</strong> (the bake, once, last) — plus <strong>W1</strong>, whose arithmetic N2 just changed, and <strong>L1</strong>, <strong>S3</strong>, <strong>U1</strong>, <strong>S1</strong>. In the engine lane <strong>E3</strong> opens as soon as E2 lands.</p>
+      <p id="next-body">Waves 1–3 are done and the engine lane has reached its measurement: <strong>E3</strong> landed — the practice seam now plays real clues from the book, offline — and <strong>E4</strong> is open to measure it and write the go / stop. Beside it the content chain — <strong>T2</strong> (the grammar frame) → <strong>T3</strong> (787 sentences to the chapters) → <strong>S2</strong> (the bake, once, last) — plus <strong>W1</strong>, whose arithmetic N2 just changed, and <strong>L1</strong>, <strong>S3</strong>, <strong>U1</strong>, <strong>S1</strong>.</p>
     </div>
     <div class="panel">
       <span class="panel-k">in progress</span>
-      <h3 id="active-title">E2 — the opening book</h3>
-      <p id="active-body">Twelve PRs merged. The game now has <strong>one board</strong> — 3×6 at 8/3/8 for play and for the wrap-up — a dataset with nothing unclueable on a card, audio cross-checked on every verify, and a board that validates itself. <strong>E2</strong> is authoring city 1's opening book, the last piece before the engine can generate a clue.</p>
+      <h3 id="active-title">Nothing in flight</h3>
+      <p id="active-body">Thirteen PRs merged. The game now has <strong>one board</strong> — 3×6 at 8/3/8 for play and for the wrap-up — a dataset with nothing unclueable on a card, and a practice companion that is a real <strong>clue engine</strong>: city 1's book and matrix behind a margin search at θ = 0.5, lazily loaded, deterministic, offline. E4 measures whether it clues like the frontier model it is meant to replace.</p>
     </div>
     <div class="panel hold">
       <span class="panel-k">waiting on Kristoffer</span>
@@ -376,14 +376,14 @@ var CARDS = [
 
   { w:3, id:'N1', t:'One board: 3×6, and the sizes go',      sub:'GridSize deleted — a persisted setting, a Settings control, a dev switch and 27 drive URLs. After E0.', size:'2', st:'done', m:'opus', lane:'ui' },
   { w:3, id:'N2', t:'The wrap-up is the same board',         sub:'One config in the whole game.', size:'½', st:'done', m:'sonnet', lane:'ui' },
-  { w:3, id:'E3', t:'The evaluator, the search, the engine companion', sub:'Directional trap set, margin search, EngineCompanion behind the practice seam, lazily loaded. The hardest code on the board.', size:'2', st:'ready', dep:'E1 · E2', m:'fable', lane:'engine' },
+  { w:3, id:'E3', t:'The evaluator, the search, the engine companion', sub:'Directional trap set (pinned, mutation-checked), margin search at θ = 0.5 (measured: 99% engine-vs-engine at 400 games), EngineCompanion behind the practice seam, book + matrix lazily chunked (94 KB gz).', size:'2', st:'done', dep:'E1 · E2', m:'fable', lane:'engine' },
 
   { w:4, id:'T3', t:'The next city’s sentences reinforce the chapter', sub:'787 sentences rewritten to the chapter AND the scenery floor, measured as a share. After WS1 — or they are written for words about to leave.', size:'writing', st:'blocked', dep:'T2', m:'fable', lane:'content' },
   { w:4, id:'S2', t:'Bake the 900 example sentences',        sub:'Danish only. Last of the three or the bake is paid for twice. Raise the SW maxEntries (2,000 → clips would evict).', size:'1 + bake', st:'blocked', dep:'T3', m:'opus', lane:'content' },
   { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready', m:'opus', lane:'content' },
   { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1', m:'opus', lane:'ui' },
   { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. No longer shares anything with the engine.', size:'1–2', st:'ready', m:'opus', lane:'content' },
-  { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'Engine selfplay with the authoring halves kept apart, the opt-in probe, the clue ledger. Ends in a written go / stop.', size:'1–2', st:'blocked', dep:'E3', m:'opus', lane:'engine' },
+  { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'Engine selfplay with the authoring halves kept apart, the opt-in probe, the clue ledger. Ends in a written go / stop.', size:'1–2', st:'ready', dep:'E3', m:'opus', lane:'engine' },
 
   { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from discovered words; only pre-collected words wrap.', size:'1–2', st:'ready', m:'opus', lane:'ui' },
   { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'blocked', dep:'W1 · K2', m:'opus', lane:'ui' },

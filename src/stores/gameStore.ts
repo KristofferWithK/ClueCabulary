@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AiError } from '../ai/client'
 import { OllamaCompanion, planGuessExecution, type Companion } from '../ai/companion'
-import { MockCompanion } from '../ai/mock/mockCompanion'
+import { EngineCompanion } from '../ai/local/engineCompanion'
 import { TutorialCompanion } from '../ai/tutorialCompanion'
 import { buildAiClueView, buildAiGuessView, buildStoryView } from '../ai/projections'
 import type { GuessResponse, StoryResponse, TranslationResponse } from '../ai/schemas'
@@ -223,7 +223,13 @@ function companion(practiceFallback = false, mode: RoundMode = 'normal'): Compan
   // get the script, not hash-scrambled guesses.
   if (mode === 'tutorial') return new TutorialCompanion()
   const s = useSettings.getState()
-  if (s.useMock || practiceFallback) return new MockCompanion()
+  // The practice seam is the local clue engine since E3: real clues from the
+  // opening book, guesses ranked by the judged matrix, offline and
+  // deterministic. The hash-scrambled MockCompanion survives inside it as the
+  // fallback for boards the book does not cover (and for translate, which was
+  // never the engine's to answer). The book and matrix load lazily on first
+  // use, so this import costs the main bundle nothing.
+  if (s.useMock || practiceFallback) return new EngineCompanion()
   return new OllamaCompanion({ baseUrl: s.baseUrl, apiKey: s.apiKey, model: s.model })
 }
 
