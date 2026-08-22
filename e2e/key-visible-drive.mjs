@@ -81,9 +81,11 @@ try {
     throw new Error('the key legend is back between the board and the dock')
   }
 
-  // The dictionary is still reachable by tapping a card outside your guessing
-  // turn.
-  await page.locator('.word-card').first().click()
+  // The dictionary is reachable through ⓘ only now — a plain card tap says
+  // the word and does not open the sheet (U1). key-visible-drive used to tap
+  // the card itself for this; that stopped being the dictionary's door the
+  // moment U1 landed, so it now goes through card-info like every other drive.
+  await page.locator('.word-card-wrap').first().locator('.card-info').click()
   await page.waitForSelector('.sheet', { timeout: 5000 })
   console.log('tap-to-look-up opened:', (await page.locator('.sheet h2').textContent())?.trim())
   await page.screenshot({ path: `${SHOT_DIR}/k1-key-visible.png` })

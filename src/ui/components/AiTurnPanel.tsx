@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { currentClue } from '../../engine/game'
 import type { GameState } from '../../engine/types'
 import { useGame } from '../../stores/gameStore'
+import { playWord } from '../speak'
 import { ClueyFace, type ClueyMood } from './Cluey'
 
 const GUESS_INTERVAL_MS = 1100
@@ -35,6 +36,18 @@ export function AiTurnPanel({ game }: { game: GameState }) {
     const t = setInterval(() => useGame.getState().stepAiGuess(), GUESS_INTERVAL_MS)
     return () => clearInterval(t)
   }, [game.phase, planReady, stepAiGuess])
+
+  // Casey's guesses are spoken (S1) — the sound setting already gates
+  // `playWord` at the source, so there is nothing to check here. This is the
+  // one sound in the app that does not follow directly from a tap: it follows
+  // FROM one, several beats later, off the `setInterval` above — which is why
+  // the composer primes the audio element on the Give-clue tap rather than
+  // relying on this call to do it (see `primeWordAudio` in speak.ts).
+  useEffect(() => {
+    if (!lastAiGuess) return
+    const word = game.words.find((w) => w.wordId === lastAiGuess.wordId)
+    if (word) void playWord(word.wordId, word.da)
+  }, [lastAiGuess, game.words])
 
   if (game.phase === 'aiClueInput' || aiBusy) {
     return (

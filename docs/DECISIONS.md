@@ -46,6 +46,48 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-22 · Amended: a sound follows a tap, or follows FROM one (U1, S1)
+The standing rule below this entry — "every sound in the app now follows a
+tap" — gets its first amendment. Two owner cards land together: **U1** ("The
+translation and definition of the word should only appear if you click on the
+i symbol and not just the word. The audio should still play though") and
+**S1** ("When Casey guesses and selects words they should also be spoken
+out").
+
+**U1** splits a tap that used to do two things into one thing each. Outside a
+guessing turn, tapping a card used to both say the word AND open the
+dictionary sheet — the same gesture was crediting `recordLookup`, so the SRS
+could not tell "wants to hear it again" from "needed the meaning". Now the
+card's own tap only ever plays `playWord`; ⓘ (`card-info`) is the only door to
+the sheet. Net effect: hearing a word is free, reading its meaning is what
+costs a lookup — the SRS signal gets cleaner, not noisier, from a smaller
+surface doing less.
+
+**S1** is the sound that does not follow a tap at all: Casey's guesses, said
+aloud as `lastAiGuess` changes in `AiTurnPanel`, arrive off a `setInterval`
+several beats after the player's last tap (`ClueInput`'s Give-clue button).
+The old rule ("every sound follows a tap") is amended rather than broken: **a
+sound follows a tap, or follows FROM one.** The ride's Listen button was
+already this shape — one tap starts a chain of four passes — S1 just adds a
+second instance of it. Card reveals on the player's own taps are unaffected;
+the guess-confirm button already spoke and still does.
+
+The one piece of care this needed: iOS grants an `<audio>` element's autoplay
+unlock inside a real gesture, once, for good (see `UNLOCK_WAV` in
+`speak.ts`), and Casey's guesses are the first sound in the app that is not
+directly inside one. `primeWordAudio()` (`speak.ts`) is called synchronously
+in the Give-clue `onClick`, ahead of the async `submit()` it also triggers, so
+the element is unlocked before the AI turn's first `playWord` call needs it.
+**This is not verified on a device** — `prime`'s own comment already said so
+before tonight, and giving it a second call site does not change that. The
+verification is a TestFlight build and an owner's ears, not a session's.
+
+**Reverse:** U1 — put `tapLooksUp` back in `BoardGrid.tsx` (the git history
+has it) and the card tap opens the dictionary again. S1 — delete the
+`useEffect` in `AiTurnPanel.tsx` that calls `playWord` on `lastAiGuess`, and
+the `primeWordAudio()` call in `ClueInput.tsx`'s Give-clue handler; `prime`
+still runs on the first ordinary tap either way.
+
 ### 2026-08-22 · The clue engine is worth continuing — E6 before E5, and E5 in halves (E4)
 E4 was the card that ends in a verdict, and the verdict is **go**. The full
 table, the caveats and the reversals live in `docs/clue-engine.md` under
