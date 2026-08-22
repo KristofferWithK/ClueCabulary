@@ -274,6 +274,17 @@ export function RoundSummary({ game }: { game: GameState }) {
                   {wrappedWords.length === 1 ? 'One word' : `${wrappedWords.length} words`} wrapped —{' '}
                   {cityWrapped} of {WORDS_PER_CITY} packed in {cityAt(cityIndex).name}.
                 </p>
+                {/* Said out loud rather than left to the code comment above:
+                    losing this round did not cost these — finishRound wraps
+                    every packed-and-green card regardless of the outcome, so
+                    a harder wrap-up round (N2) never turns into a door that
+                    locks. */}
+                {outcome.result !== 'won' && (
+                  <p className="collected-note">
+                    Losing the round didn't cost you these — a wrap-up banks everything you packed
+                    and found green, win or lose.
+                  </p>
+                )}
               </>
             ) : (
               <p className="collected-note">

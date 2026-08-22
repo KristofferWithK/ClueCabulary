@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from './config'
+import { BOARD, TUTORIAL_CONFIG, type GridConfig } from './config'
 import {
   IllegalClueError,
   IllegalEventError,
@@ -34,11 +34,11 @@ const makeWords = (n: number): BoardWord[] =>
 // directly, in 'who opens the round'.
 //
 // "Every board" here means every CONFIG the app can deal, not every size:
-// there are no sizes since N1. The board, plus the two modes you enter.
-const CONFIGS: Record<'board' | 'tutorial' | 'wrapup', GridConfig> = {
+// there are no sizes since N1. Just the board and the tutorial mode you enter
+// — the wrap-up deals BOARD itself since N2, so it is not a third shape.
+const CONFIGS: Record<'board' | 'tutorial', GridConfig> = {
   board: BOARD,
   tutorial: TUTORIAL_CONFIG,
-  wrapup: WRAPUP_CONFIG,
 }
 type Grid = keyof typeof CONFIGS
 
@@ -123,7 +123,7 @@ describe('full game flows', () => {
    */
   it('never ends a round on a guess that is merely wrong', () => {
     let checked = 0
-    for (const grid of ['board', 'tutorial', 'wrapup'] as Grid[]) {
+    for (const grid of ['board', 'tutorial'] as Grid[]) {
       for (let seed = 1; seed <= 25; seed++) {
         let s = newGame(grid, seed)
         while (s.phase === 'playerClueInput' || s.phase === 'aiClueInput') {
@@ -250,7 +250,7 @@ describe('full game flows', () => {
      */
     it('holds across every board, both openers and forty deals', () => {
       let checked = 0
-      for (const grid of ['board', 'tutorial', 'wrapup'] as const) {
+      for (const grid of ['board', 'tutorial'] as const) {
         for (const firstGiver of ['player', 'ai'] as const) {
           for (let seed = 1; seed <= 40; seed++) {
             let s = createGame({

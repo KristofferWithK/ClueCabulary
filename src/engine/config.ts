@@ -59,7 +59,7 @@ export interface GridConfig {
  *   board                  greens dead tok  g/tok   p=0.6   p=0.7   p=0.8  SD%@.7  clues@1
  *   3x6  8/3/8  THE BOARD     13    5   8   1.63    74.7    90.0    98.2    24.6     5.00
  *   3x4  5/2/5  tutorial       8    4   5   1.60    76.1    89.0    96.9    30.8     3.51
- *   4x5 10/4/10 wrap-up       16    4  10   1.60    84.8    95.2    99.2    12.7     6.00
+ *   4x5 10/4/10 (retired,N2)  16    4  10   1.60    84.8    95.2    99.2    12.7     6.00
  *   3x5  7/3/6  (replaced)    11    4   6   1.83    67.1    85.4    94.7    38.8     4.18
  *   3x6  8/2/8  (rejected)    14    4   8   1.75    69.8    87.8    97.2    30.4     5.56
  *   3x6  8/4/8  (rejected)    12    6   8   1.50    79.8    93.4    98.8    17.9     4.52
@@ -112,11 +112,43 @@ export interface GridConfig {
  *     A perfect round still spends 5.00, so seven tokens is two spare, which is
  *     not enough slack for a board with thirteen greens on it.
  *   8/3/9 — one token more. 84.9%, and the last chance all but disappears
- *     (11.8%). That is the wrap-up board's economy on the board you play every
- *     day, and the wrap-up round is supposed to be the soft one.
+ *     (11.8%). That used to be the wrap-up board's own economy; see below for
+ *     why it is not any more.
  *
  * Eight is the token count where the round still has a losing side without the
  * clock being the thing you play against.
+ *
+ * ---- and the wrap-up round deals this board too (N2) ------------------------
+ *
+ * There is now one board config in the whole game: `newWrapUpGame` deals
+ * `BOARD` — the same 8/3/8 above — rather than the retired `4x5 10/4/10` row
+ * in the table, which is kept only for the comparison. "wrap up boards should
+ * have the same amount of greens like normal rounds… what makes the wrap up
+ * rounds special is the initial translation and no looking up words on the
+ * board with the dictionary" (owner, 2026-08-21) — the packing gate and the
+ * closed dictionary were always meant to carry the round's difficulty, and the
+ * softer 4x5 was a second cushion under a round that did not need one.
+ *
+ * Two consequences follow from sharing the board rather than tuning a new one
+ * for it. A wrap-up now packs at most **13** words a round (BOARD's distinct
+ * greens) instead of 16 — fewer words banked per round, not fewer rounds
+ * earned. And the round's engine win rate drops from the 4x5's 84.8% at p=0.6
+ * to the ordinary board's **74.7%**: the wrap-up gets harder in exactly the
+ * way every other round is, while the packing gate — every card English-side
+ * up, dictionary shut, first miss remembered — is untouched and still the
+ * round's real difficulty. `finishRound` (gameStore.ts) wraps every card that
+ * was packed AND ended green regardless of the round's outcome, so losing a
+ * harder wrap-up costs nothing it did not already risk: the haul you packed is
+ * banked win or lose. Losing more OFTEN is the actual cost of this card, and it
+ * is the owner's call to take it.
+ *
+ * `maxNewWordsPerBoard` is not part of this sharing: it stays 0 for a wrap-up
+ * deal, but that was never a board property to begin with — `newWrapUpGame`
+ * deals from `wrapUpWords` (journey/wrapup.ts), which never goes through the
+ * sampler `dealBoard` reads `maxNewWordsPerBoard` from, and draws only from
+ * words already collected (`wrapUpPool`'s `isCollected` filter). Zero new
+ * words was always a fact about that deal, not a number carried on a config
+ * object, and it survives BOARD's 6 without either object needing to change.
  *
  * ---- and what is NOT here any more -----------------------------------------
  *
@@ -152,9 +184,10 @@ export const BOARD: GridConfig = {
  * list and a fixed seed (src/onboarding/tutorial.ts).
  *
  * It was `GRID_CONFIGS.beginner` — the gentlest of the three sizes — and it
- * survives the sizes going for the reason WRAPUP_CONFIG survived them: it is a
- * mode you enter, not a difficulty you keep. Nothing reads it from settings,
- * nothing offers it, and no player can pick it.
+ * survives the sizes going for the same reason the wrap-up ritual survives
+ * dealing `BOARD` now (N2): it is a mode you enter, not a difficulty you keep.
+ * Nothing reads it from settings, nothing offers it, and no player can pick
+ * it.
  *
  * Twelve cards is what the scripted round needs. Eight distinct greens over
  * five tokens, and the script narrates a specific board whose keys the seed was
@@ -173,40 +206,16 @@ export const TUTORIAL_CONFIG: GridConfig = {
 }
 
 /**
- * The wrap-up board: 4x5, every word already collected, dealt only by
- * newWrapUpGame.
- *
- * Ten greens a side and ten shared tokens is five clue-givings each — the
- * shape this board was asked for. Sixteen distinct greens over ten tokens is
- * 1.60 greens per clue, and that is deliberately the loosest budget in the
- * game: the packing phase (every card starts in English) is this round's added
- * difficulty, so the clue economy stays forgiving.
- *
- * The measurement that used to sit here — 6.4% of guesses on this board name a
- * forbidden word, against 8.0% on the 3x5 — was the argument for this board's
- * shape and no longer describes anything. There are no forbidden words on any
- * board now, so the only way to lose a wrap-up round is the clock, and this
- * board's difficulty is entirely the packing gate it was always meant to be.
- *
- * It is the softest board in the game and is left that way deliberately. The
- * selfplay harness plays the engine round and cannot see the packing gate
- * above it — every card face-down in English, dictionary closed, first miss
- * remembered — which is where this round's difficulty was always meant to
- * live, so a soft engine round here is the design working rather than a slack
- * budget. Nine tokens was measured and is what to reach for if the ritual ever
- * needs teeth; ten is what ships until the packing gate is measured on a
- * person rather than a hash.
+ * There used to be a WRAPUP_CONFIG here: 4x5, ten greens a side, ten shared
+ * tokens — a config of its own so the packing phase's added difficulty could
+ * sit under a forgiving clue economy. N2 (2026-08-22) deletes it as a distinct
+ * shape: `newWrapUpGame` now deals `BOARD` itself, on the owner's call that a
+ * wrap-up round should have the same number of greens as a normal one and
+ * lean on the packing gate and the closed dictionary for its difficulty,
+ * rather than on a second board tuned soft underneath them. See BOARD's own
+ * comment, "the wrap-up round deals this board too", for the numbers that
+ * decision costs and what it does not touch.
  */
-export const WRAPUP_CONFIG: GridConfig = {
-  rows: 5,
-  cols: 4,
-  totalWords: 20,
-  greensPerSide: 10,
-  greenOverlap: 4, // 16 distinct greens, 4 bystanders
-  turnTokens: 10,
-  // Every word on a wrap-up board is collected; nothing is ever new.
-  maxNewWordsPerBoard: 0,
-}
 
 /** The largest number the clue stepper offers; a clue of N allows N+1 guesses. */
 export const MAX_CLUE_NUMBER = 4

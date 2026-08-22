@@ -84,7 +84,7 @@ try {
   await page.waitForSelector('.suitcase-screen')
   await page.click('.case-actions .btn-primary')
   await page.waitForSelector('.packing-dock')
-  check('the board opens all English-side up', (await page.locator('.card-face-en').count()) === 20)
+  check('the board opens all English-side up', (await page.locator('.card-face-en').count()) === 18)
   check('the dictionary is gone while packing', (await page.locator('.card-info').count()) === 0)
   await page.screenshot({ path: `${SHOT_DIR}/w1-packing.png` })
 
@@ -98,7 +98,7 @@ try {
   await page.waitForTimeout(150)
   check(
     'the retry packs the card',
-    (await page.locator('.card-face-en').count()) === 19,
+    (await page.locator('.card-face-en').count()) === 17,
   )
   const missRecorded = await page.evaluate(
     () => JSON.parse(localStorage.getItem('cluecab-game-v1')).state.packingMissed,
@@ -106,7 +106,7 @@ try {
   check('the first miss is remembered', missRecorded.length === 1)
 
   await pack(words[1], words[1].da)
-  check('a second card packs clean', (await page.locator('.card-face-en').count()) === 18)
+  check('a second card packs clean', (await page.locator('.card-face-en').count()) === 16)
   const packedIds = [words[0].wordId, words[1].wordId]
 
   // Start early: the remaining cards stay English for the whole round. A link
@@ -116,7 +116,7 @@ try {
   await page.click('.packing-early')
   await page.waitForTimeout(400)
   check('the clues begin', (await page.locator('.packing-dock').count()) === 0)
-  check('skipped cards stay English-side up', (await page.locator('.card-face-en').count()) === 18)
+  check('skipped cards stay English-side up', (await page.locator('.card-face-en').count()) === 16)
   await page.screenshot({ path: `${SHOT_DIR}/w2-started-early.png` })
 
   await driveToEnd()
