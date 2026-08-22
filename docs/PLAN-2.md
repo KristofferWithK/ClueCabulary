@@ -520,7 +520,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
-- **U3** — Casey thinks aloud before each guess — 2026-08-22 (PR #PLACEHOLDER).
+- **U3** — Casey thinks aloud before each guess — 2026-08-22 (PR #116).
   `AiTurnPanel` is two beats per planned guess instead of one 1100ms interval,
   paced in the panel with the queue still in the store. **think** (2000ms):
   `aiGuessQueue[0].reasoning` in the bubble, clamped to two lines with the
