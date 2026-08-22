@@ -497,7 +497,7 @@ pass to flip.
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
-- **N1** — One board: 3×6, and the sizes go *(K1 + K2 landed; a sixth row measures 46.43px, clear of the 44px floor)*
+- **N2** — The wrap-up round on 3×6 *(N1 landed — ready)*
 
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
@@ -506,7 +506,6 @@ pass to flip.
 - **E4** — Measure the engine, and decide *(E3)*
 - **E6** — Matrix and book for cities 2–9 *(E4's decision)*
 - **E5** — The hybrid *(E4's decision)*
-- **N2** — The wrap-up round on 3×6 *(N1)*
 - **U3** — Casey thinks aloud before each guess *(K2; S1 for the spoken reveal)*
 - **P1** — The round summary as one fixed screen, in pencil, with Casey *(W1 for the token line; K2 for the style)*
 - **P2** — The sentence review *(S2, P1)*
@@ -526,6 +525,21 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **N1** — One board: 3×6, and the sizes go — 2026-08-22 (PR #107). `GRID_CONFIGS`
+  and the `GridSize` union deleted for one exported `BOARD` (3×6, 8 greens a side,
+  3 shared, 8 tokens); the 3×4 becomes `TUTORIAL_CONFIG` beside `WRAPUP_CONFIG`.
+  A sixth row measures **46.42px** at 360×640 against K2's predicted 46.43, clear
+  of the card's 44px floor by 2.42, and layout-drive now asserts that floor
+  directly at both viewports (mutation-checked: `--dock-h` +40px drops the row to
+  39.75 and it is the only check in the file that fails). Re-measured at 2000
+  games a cell: **74.7% at p=0.6 against the 3×5's 67.1%**, last chance on 24.6%
+  of rounds at p=0.7 against 38.8%, a perfect pair spending 5.00 of the 8.
+  `selfplay.test.ts`'s escalation and rejected-token tests go with the ladder.
+  Dropping `gridSize` needs **no migration** — persist merges `{...initial,
+  ...persisted}` and `z.object` strips unknown keys, so old saves and every
+  backup ever written still load; both pinned. The `@container (max-height:
+  46px)` threshold stays at 46: it queries the CONTENT box, so the 3×6 is a
+  27–30px query and nothing rides the boundary.
 - **E1** — The judged matrix, city 1 — 2026-08-22 (PR #103). All 4,950 within-city pairs judged twice (33 batches × 150, Opus and Fable, 66 agents); merged with `ceil(mean)`, ties to the higher vote, and **no floors** — what the judges said is what ships. `src/data/matrix.da.json` is 2,500 B packed / 2.1 KB gzipped; `scripts/validate-matrix.mjs` is in `npm run verify`, mutation-checked twice. The card's "every `conflicts` pair ≥ 2" rule was found wrong — those pairs can never share a board (`fitsBoard` runs on every draw) and 17 of 17 in city 1 are orthographic, not semantic — and is corrected in `docs/clue-engine.md` §6, which also carries the brief, the merge rule, and the concept-tag report the cross-check became.
 - **D4 · D5** — Casey is she, and sudden death becomes the last chance — 2026-08-22 (PR #104). Copy only; the phase id and outcome reason stay persisted. Closed the `prompts.ts` collision (paceLine already used "last chance" for the final clue) and stopped smoke-drive keying its guess loop on the endgame's name.
 - **WS2** — Bake the new headwords — 2026-08-22 (PR #102). 226 clips baked, 227 orphans retired; `public/audio` back to 1,893, under the service worker cap. `scripts/validate-audio.mjs` cross-checks the manifests against the dataset in `npm run verify`, mutation-checked.
