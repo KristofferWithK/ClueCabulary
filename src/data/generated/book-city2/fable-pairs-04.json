@@ -1,0 +1,382 @@
+{
+  "model": "fable", "city": 2, "kind": "pairs", "batch": 4,
+  "pairs": {
+    "da:elev|da:klasse": [
+      { "da": "skole", "en": "school", "why": "where learning happens daily", "s": 3 },
+      { "da": "lærer", "en": "teacher", "why": "who stands before them", "s": 3 },
+      { "da": "undervisning", "en": "lesson", "why": "what fills the room", "s": 2 }
+    ],
+    "da:elev|da:skrive": [
+      { "da": "lektier", "en": "homework", "why": "done with pen at the desk", "s": 2 },
+      { "da": "skole", "en": "school", "why": "where pens meet paper", "s": 2 }
+    ],
+    "da:elev|da:chef": [
+      { "da": "lærling", "en": "apprentice", "why": "learning under a master", "s": 2 },
+      { "da": "praktik", "en": "internship", "why": "learning on the job", "s": 1 }
+    ],
+    "da:give|da:glæde": [
+      { "da": "gave", "en": "present", "why": "it makes someone happy", "s": 2 },
+      { "da": "smil", "en": "smile", "why": "what a present brings", "s": 1 }
+    ],
+    "da:give|da:holde": [
+      { "da": "fest", "en": "party", "why": "what you can throw", "s": 2 },
+      { "da": "hånd", "en": "hand", "why": "offered or gripped", "s": 2 }
+    ],
+    "da:give|da:bruge": [
+      { "da": "penge", "en": "money", "why": "handed over or burned through", "s": 3 },
+      { "da": "tid", "en": "time", "why": "offered or burned through", "s": 2 }
+    ],
+    "da:give|da:kærlighed": [
+      { "da": "hjerte", "en": "heart", "why": "handed to your dearest", "s": 2 },
+      { "da": "kys", "en": "kiss", "why": "a tender thing to offer", "s": 2 },
+      { "da": "gave", "en": "present", "why": "a token of affection", "s": 2 }
+    ],
+    "da:give|da:lave": [
+      { "da": "gave", "en": "present", "why": "crafted and then handed over", "s": 2 },
+      { "da": "mad", "en": "food", "why": "cooked and served to guests", "s": 1 }
+    ],
+    "da:give|da:sætte": [
+      { "da": "navn", "en": "name", "why": "attached to a child or thing", "s": 2 },
+      { "da": "plads", "en": "space", "why": "made for someone to take", "s": 1 }
+    ],
+    "da:give|da:liv": [
+      { "da": "blod", "en": "blood", "why": "donated to save a stranger", "s": 2 },
+      { "da": "fødsel", "en": "birth", "why": "a mother bringing a child", "s": 2 }
+    ],
+    "da:give|da:tale": [
+      { "da": "svar", "en": "answer", "why": "offered when someone asks", "s": 1 },
+      { "da": "råd", "en": "advice", "why": "words handed to a friend", "s": 1 }
+    ],
+    "da:give|da:lade": [
+      { "da": "lov", "en": "permission", "why": "what you ask for first", "s": 2 },
+      { "da": "ja", "en": "yes", "why": "the answer that permits", "s": 1 }
+    ],
+    "da:give|da:fri": [
+      { "da": "ferie", "en": "vacation", "why": "days away from work granted", "s": 2 },
+      { "da": "chef", "en": "boss", "why": "who grants a day away", "s": 1 }
+    ],
+    "da:give|da:spørge": [
+      { "da": "svar", "en": "answer", "why": "what a question receives", "s": 3 },
+      { "da": "hjælp", "en": "help", "why": "requested and then received", "s": 2 }
+    ],
+    "da:give|da:vise": [
+      { "da": "eksempel", "en": "example", "why": "offered to explain how", "s": 2 },
+      { "da": "vej", "en": "way", "why": "pointed out or yielded", "s": 1 }
+    ],
+    "da:give|da:krone": [
+      { "da": "penge", "en": "money", "why": "handed over in coins", "s": 2 },
+      { "da": "betale", "en": "pay", "why": "coins over the counter", "s": 2 }
+    ],
+    "da:give|da:nøgle": [
+      { "da": "hotel", "en": "hotel", "why": "handed one at the desk", "s": 2 },
+      { "da": "nabo", "en": "neighbor", "why": "trusted with a spare", "s": 1 }
+    ],
+    "da:pris|da:billet": [
+      { "da": "betale", "en": "pay", "why": "done at the counter", "s": 2 },
+      { "da": "billig", "en": "cheap", "why": "costing little to ride", "s": 2 },
+      { "da": "penge", "en": "money", "why": "what the fare demands", "s": 2 }
+    ],
+    "da:pris|da:dyr": [
+      { "da": "zoo", "en": "zoo", "why": "an entrance fee to see beasts", "s": 2 },
+      { "da": "billet", "en": "ticket", "why": "bought to see the beasts", "s": 1 }
+    ],
+    "da:pris|da:hotel": [
+      { "da": "betale", "en": "pay", "why": "done at the front desk", "s": 2 },
+      { "da": "dyr", "en": "expensive", "why": "how a night can be", "s": 2 },
+      { "da": "nat", "en": "night", "why": "what you pay per", "s": 1 }
+    ],
+    "da:pris|da:høj": [
+      { "da": "dyr", "en": "expensive", "why": "when it costs a lot", "s": 2 }
+    ],
+    "da:pris|da:bruge": [
+      { "da": "penge", "en": "money", "why": "what things cost you", "s": 3 },
+      { "da": "købe", "en": "buy", "why": "checking the tag first", "s": 2 },
+      { "da": "betale", "en": "pay", "why": "handing over what it costs", "s": 2 }
+    ],
+    "da:pris|da:lejlighed": [
+      { "da": "leje", "en": "rent", "why": "the monthly cost of living there", "s": 2 },
+      { "da": "dyr", "en": "expensive", "why": "how city homes can be", "s": 1 }
+    ],
+    "da:pris|da:sætte": [
+      { "da": "værdi", "en": "value", "why": "what something is worth", "s": 1 }
+    ],
+    "da:pris|da:fri": [
+      { "da": "gratis", "en": "nothing", "why": "what it costs", "s": 1 }
+    ],
+    "da:pris|da:rejse": [
+      { "da": "billet", "en": "ticket", "why": "what the fare buys", "s": 2 },
+      { "da": "dyr", "en": "expensive", "why": "how flying can be", "s": 1 }
+    ],
+    "da:pris|da:spørge": [
+      { "da": "butik", "en": "shop", "why": "where you ask the cost", "s": 1 },
+      { "da": "sælger", "en": "seller", "why": "the one who quotes the cost", "s": 1 }
+    ],
+    "da:pris|da:krone": [
+      { "da": "penge", "en": "money", "why": "what the tag counts in", "s": 3 },
+      { "da": "betale", "en": "pay", "why": "coins over the counter", "s": 2 },
+      { "da": "butik", "en": "shop", "why": "tags in danish coins", "s": 2 }
+    ],
+    "da:pris|da:restaurant": [
+      { "da": "menu", "en": "menu", "why": "dishes listed with their costs", "s": 2 },
+      { "da": "regning", "en": "bill", "why": "what arrives after dinner", "s": 2 },
+      { "da": "dyr", "en": "expensive", "why": "how a fine dinner can be", "s": 2 }
+    ],
+    "da:finde|da:vide": [
+      { "da": "svar", "en": "answer", "why": "sought and then learned", "s": 2 },
+      { "da": "hemmelighed", "en": "secret", "why": "uncovered and then kept", "s": 1 }
+    ],
+    "da:finde|da:tro": [
+      { "da": "svar", "en": "answer", "why": "what you seek and trust", "s": 1 }
+    ],
+    "da:finde|da:holde": [
+      { "da": "skat", "en": "treasure", "why": "dug up and never let go", "s": 2 },
+      { "da": "mønt", "en": "coin", "why": "picked up and pocketed", "s": 1 }
+    ],
+    "da:finde|da:rigtig": [
+      { "da": "svar", "en": "answer", "why": "the true one you seek", "s": 2 },
+      { "da": "vej", "en": "way", "why": "the proper one to take", "s": 2 }
+    ],
+    "da:finde|da:lave": [
+      { "da": "mad", "en": "food", "why": "gathered and then cooked", "s": 2 },
+      { "da": "opskrift", "en": "recipe", "why": "looked up then followed", "s": 1 }
+    ],
+    "da:finde|da:sætte": [
+      { "da": "plads", "en": "seat", "why": "looked for then taken", "s": 1 }
+    ],
+    "da:finde|da:ligge": [
+      { "da": "gulv", "en": "floor", "why": "where lost things end up", "s": 2 },
+      { "da": "sofa", "en": "sofa", "why": "lost things hide beneath it", "s": 1 }
+    ],
+    "da:finde|da:spørge": [
+      { "da": "vej", "en": "way", "why": "requested from a stranger when lost", "s": 2 },
+      { "da": "hjælp", "en": "help", "why": "requested when searching", "s": 1 }
+    ],
+    "da:finde|da:vej": [
+      { "da": "kort", "en": "map", "why": "unfolded when you are lost", "s": 3 },
+      { "da": "gps", "en": "gps", "why": "it guides you there", "s": 2 }
+    ],
+    "da:finde|da:vise": [
+      { "da": "vej", "en": "way", "why": "pointed out or discovered", "s": 2 },
+      { "da": "kort", "en": "map", "why": "it lays everything out", "s": 2 }
+    ],
+    "da:finde|da:nøgle": [
+      { "da": "tabe", "en": "lose", "why": "what starts the searching", "s": 2 },
+      { "da": "lomme", "en": "pocket", "why": "patted when something is missing", "s": 1 }
+    ],
+    "da:billet|da:hotel": [
+      { "da": "ferie", "en": "vacation", "why": "booked with flights and rooms", "s": 2 },
+      { "da": "bestille", "en": "book", "why": "reserved before you go", "s": 2 }
+    ],
+    "da:billet|da:land": [
+      { "da": "fly", "en": "plane", "why": "it takes you abroad", "s": 2 },
+      { "da": "rejse", "en": "travel", "why": "booked to somewhere abroad", "s": 1 }
+    ],
+    "da:billet|da:sidde": [
+      { "da": "plads", "en": "seat", "why": "the number printed for you", "s": 3 },
+      { "da": "biograf", "en": "cinema", "why": "pay to take a seat", "s": 2 }
+    ],
+    "da:billet|da:international": [
+      { "da": "fly", "en": "plane", "why": "crossing borders with a fare", "s": 2 },
+      { "da": "lufthavn", "en": "airport", "why": "gates to other countries", "s": 2 }
+    ],
+    "da:billet|da:verden": [
+      { "da": "fly", "en": "plane", "why": "it crosses the globe", "s": 2 },
+      { "da": "rejse", "en": "travel", "why": "a fare to see it all", "s": 1 }
+    ],
+    "da:billet|da:rejse": [
+      { "da": "tog", "en": "train", "why": "you buy a fare and board", "s": 2 },
+      { "da": "fly", "en": "plane", "why": "it takes you far away", "s": 2 },
+      { "da": "ferie", "en": "vacation", "why": "booked and flown to", "s": 2 }
+    ],
+    "da:billet|da:klasse": [
+      { "da": "første", "en": "first", "why": "the fancy section on board", "s": 2 },
+      { "da": "tog", "en": "train", "why": "cars sorted into sections", "s": 1 }
+    ],
+    "da:billet|da:vej": [
+      { "da": "bus", "en": "bus", "why": "a fare along the route", "s": 2 },
+      { "da": "tur", "en": "trip", "why": "a fare for the route", "s": 1 }
+    ],
+    "da:billet|da:vise": [
+      { "da": "kontrol", "en": "check", "why": "presenting it on the train", "s": 1 }
+    ],
+    "da:billet|da:krone": [
+      { "da": "pris", "en": "price", "why": "what a fare costs", "s": 2 },
+      { "da": "betale", "en": "pay", "why": "coins for a fare", "s": 2 }
+    ],
+    "da:sidste|da:næste": [
+      { "da": "stop", "en": "stop", "why": "announced one after another", "s": 2 },
+      { "da": "bus", "en": "bus", "why": "missed one catch another", "s": 2 },
+      { "da": "tog", "en": "train", "why": "the one gone or coming", "s": 2 }
+    ],
+    "da:sidste|da:gang": [
+      { "da": "første", "en": "first", "why": "the other end of the count", "s": 2 },
+      { "da": "farvel", "en": "goodbye", "why": "said at the final meeting", "s": 1 }
+    ],
+    "da:sidste|da:ord": [
+      { "da": "farvel", "en": "goodbye", "why": "the final thing said", "s": 2 },
+      { "da": "slut", "en": "end", "why": "where the sentence stops", "s": 1 }
+    ],
+    "da:sidste|da:side": [
+      { "da": "bog", "en": "book", "why": "read through to the end", "s": 2 },
+      { "da": "slut", "en": "end", "why": "where the book stops", "s": 1 }
+    ],
+    "da:sidste|da:begynde": [
+      { "da": "første", "en": "first", "why": "where everything gets going", "s": 2 },
+      { "da": "slut", "en": "end", "why": "one end or the other", "s": 2 }
+    ],
+    "da:stå|da:høj": [
+      { "da": "op", "en": "up", "why": "the direction of rising", "s": 2 },
+      { "da": "tårn", "en": "tower", "why": "it rises above everything", "s": 2 }
+    ],
+    "da:stå|da:holde": [
+      { "da": "stille", "en": "still", "why": "not moving at all", "s": 2 },
+      { "da": "fast", "en": "firm", "why": "gripping and not budging", "s": 2 }
+    ],
+    "da:stå|da:alene": [
+      { "da": "vente", "en": "wait", "why": "by yourself at the stop", "s": 1 },
+      { "da": "ensom", "en": "lonely", "why": "upright with no one near", "s": 1 }
+    ],
+    "da:stå|da:sætte": [
+      { "da": "op", "en": "up", "why": "rising from the chair", "s": 2 },
+      { "da": "stol", "en": "chair", "why": "left or taken again", "s": 2 }
+    ],
+    "da:stå|da:ligge": [
+      { "da": "seng", "en": "bed", "why": "get up or stay down", "s": 2 },
+      { "da": "sove", "en": "sleep", "why": "done flat not upright", "s": 1 }
+    ],
+    "da:stå|da:sidde": [
+      { "da": "stol", "en": "chair", "why": "rise from it or take it", "s": 2 },
+      { "da": "plads", "en": "seat", "why": "offered on a full bus", "s": 2 },
+      { "da": "bus", "en": "bus", "why": "packed so some hang on", "s": 1 }
+    ],
+    "da:stå|da:morgenmad": [
+      { "da": "tidlig", "en": "early", "why": "up in time for the first meal", "s": 2 },
+      { "da": "seng", "en": "bed", "why": "left before the first meal", "s": 1 }
+    ],
+    "da:stå|da:rejse": [
+      { "da": "op", "en": "up", "why": "getting to your feet", "s": 2 },
+      { "da": "tog", "en": "train", "why": "riding without a seat", "s": 1 }
+    ],
+    "da:stå|da:stærk": [
+      { "da": "fast", "en": "firm", "why": "unmoved by any push", "s": 2 },
+      { "da": "ben", "en": "legs", "why": "what carries you upright", "s": 1 }
+    ],
+    "da:stå|da:åben": [
+      { "da": "dør", "en": "door", "why": "left ajar on its hinges", "s": 2 },
+      { "da": "vindue", "en": "window", "why": "left ajar for air", "s": 1 }
+    ],
+    "da:natur|da:blå": [
+      { "da": "himmel", "en": "sky", "why": "wide and colored so", "s": 2 },
+      { "da": "hav", "en": "sea", "why": "deep and colored so", "s": 2 }
+    ],
+    "da:natur|da:dyr": [
+      { "da": "vild", "en": "wild", "why": "untamed and outdoors", "s": 2 },
+      { "da": "skov", "en": "forest", "why": "where wild things roam", "s": 2 }
+    ],
+    "da:natur|da:vejr": [
+      { "da": "regn", "en": "rain", "why": "falling on the fields", "s": 2 },
+      { "da": "storm", "en": "storm", "why": "raging across the land", "s": 2 }
+    ],
+    "da:natur|da:høj": [
+      { "da": "bjerg", "en": "mountain", "why": "rising from the landscape", "s": 2 },
+      { "da": "træ", "en": "tree", "why": "grown far upward", "s": 2 }
+    ],
+    "da:natur|da:sø": [
+      { "da": "vand", "en": "water", "why": "still and out in the green", "s": 2 },
+      { "da": "skov", "en": "forest", "why": "trees around the still water", "s": 1 }
+    ],
+    "da:natur|da:land": [
+      { "da": "mark", "en": "field", "why": "green and out of town", "s": 2 },
+      { "da": "grøn", "en": "green", "why": "the color out there", "s": 2 }
+    ],
+    "da:natur|da:liv": [
+      { "da": "plante", "en": "plant", "why": "green and growing", "s": 2 },
+      { "da": "vokse", "en": "grow", "why": "what living green things do", "s": 1 }
+    ],
+    "da:natur|da:verden": [
+      { "da": "jord", "en": "earth", "why": "the green globe itself", "s": 2 },
+      { "da": "planet", "en": "planet", "why": "the blue green one", "s": 1 }
+    ],
+    "da:natur|da:fri": [
+      { "da": "luft", "en": "air", "why": "fresh and open out there", "s": 2 },
+      { "da": "udenfor", "en": "outside", "why": "no walls just open air", "s": 2 }
+    ],
+    "da:natur|da:rejse": [
+      { "da": "vandre", "en": "hike", "why": "walking far through the green", "s": 2 },
+      { "da": "ferie", "en": "vacation", "why": "spent out in the green", "s": 1 }
+    ],
+    "da:natur|da:vind": [
+      { "da": "storm", "en": "storm", "why": "it bends the trees", "s": 2 },
+      { "da": "blæse", "en": "blow", "why": "felt out in the open", "s": 2 }
+    ],
+    "da:natur|da:sund": [
+      { "da": "frisk", "en": "fresh", "why": "air that does you good", "s": 2 },
+      { "da": "luft", "en": "air", "why": "the fresh kind heals", "s": 2 }
+    ],
+    "da:natur|da:skov": [
+      { "da": "træ", "en": "tree", "why": "green and standing everywhere there", "s": 3 },
+      { "da": "grøn", "en": "green", "why": "the color of the wild", "s": 2 },
+      { "da": "vandre", "en": "hike", "why": "a walk among the trees", "s": 2 }
+    ],
+    "da:natur|da:leve": [
+      { "da": "dyr", "en": "animal", "why": "alive out in the wild", "s": 2 },
+      { "da": "plante", "en": "plant", "why": "green and growing things", "s": 1 }
+    ],
+    "da:blå|da:vejr": [
+      { "da": "himmel", "en": "sky", "why": "cloudless on a fine day", "s": 3 },
+      { "da": "sol", "en": "sun", "why": "shining from a clear sky", "s": 2 }
+    ],
+    "da:blå|da:sø": [
+      { "da": "vand", "en": "water", "why": "deep and colored so", "s": 2 },
+      { "da": "hav", "en": "sea", "why": "the bigger colored water", "s": 2 }
+    ],
+    "da:blå|da:klar": [
+      { "da": "himmel", "en": "sky", "why": "cloudless and colored so", "s": 2 },
+      { "da": "vand", "en": "water", "why": "see through and colored so", "s": 1 }
+    ],
+    "da:dyr|da:holde": [
+      { "da": "hund", "en": "dog", "why": "kept in the home", "s": 2 },
+      { "da": "kat", "en": "cat", "why": "kept and fed at home", "s": 2 }
+    ],
+    "da:dyr|da:sø": [
+      { "da": "and", "en": "duck", "why": "paddling on the water", "s": 2 },
+      { "da": "fisk", "en": "fish", "why": "swimming below the surface", "s": 2 }
+    ],
+    "da:dyr|da:land": [
+      { "da": "gård", "en": "farm", "why": "cows and fields far from town", "s": 2 },
+      { "da": "ko", "en": "cow", "why": "grazing far from town", "s": 2 }
+    ],
+    "da:dyr|da:liv": [
+      { "da": "natur", "en": "nature", "why": "full of living creatures", "s": 1 },
+      { "da": "hjerte", "en": "heart", "why": "beating in every creature", "s": 1 }
+    ],
+    "da:dyr|da:øre": [
+      { "da": "kanin", "en": "rabbit", "why": "famous for its long pair", "s": 2 },
+      { "da": "hund", "en": "dog", "why": "it hears everything first", "s": 1 }
+    ],
+    "da:dyr|da:verden": [
+      { "da": "zoo", "en": "zoo", "why": "creatures from every land", "s": 1 },
+      { "da": "natur", "en": "nature", "why": "wild things across the globe", "s": 1 }
+    ],
+    "da:dyr|da:familie": [
+      { "da": "hund", "en": "dog", "why": "a beloved household member", "s": 2 },
+      { "da": "kat", "en": "cat", "why": "curled up with the household", "s": 2 }
+    ],
+    "da:dyr|da:skov": [
+      { "da": "ræv", "en": "fox", "why": "slipping between the trees", "s": 2 },
+      { "da": "vild", "en": "wild", "why": "roaming among the trees", "s": 2 }
+    ],
+    "da:dyr|da:stærk": [
+      { "da": "bjørn", "en": "bear", "why": "big and mighty", "s": 2 },
+      { "da": "hest", "en": "horse", "why": "pulling with real muscle", "s": 2 }
+    ],
+    "da:dyr|da:leve": [
+      { "da": "natur", "en": "nature", "why": "creatures make their home there", "s": 1 },
+      { "da": "vild", "en": "wild", "why": "surviving out in the open", "s": 1 }
+    ],
+    "da:dyr|da:hurtigt": [
+      { "da": "hest", "en": "horse", "why": "galloping at full speed", "s": 2 },
+      { "da": "løbe", "en": "run", "why": "what the quick ones do", "s": 1 }
+    ]
+  }
+}

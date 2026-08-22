@@ -69,7 +69,7 @@ import {
   relatedPairs,
 } from './book-brief.mjs'
 import { checkEntryShape, entryLegality, withLegality } from './book-pack.mjs'
-import { readJson } from './matrix-pack.mjs'
+import { bookPath, readJson } from './matrix-pack.mjs'
 
 const argv = process.argv.slice(2)
 const arg = (name, fallback) => {
@@ -80,7 +80,7 @@ const CITY = Number(arg('city', '1'))
 const LANG = arg('lang', 'da')
 const REPORT = argv.includes('--report')
 const SRC_DIR = arg('src', `src/data/generated/book-city${CITY}`)
-const OUT = arg('out', `src/data/book.${LANG}.json`)
+const OUT = arg('out', bookPath(LANG, CITY))
 
 const words = loadWords(LANG)
 const entries = cityWords(words, CITY)
@@ -89,7 +89,7 @@ if (entries.length === 0) {
   process.exit(2)
 }
 const byId = new Map(entries.map((e) => [e.id, e]))
-const { at } = loadMatrix(LANG)
+const { at } = loadMatrix(LANG, CITY)
 const related = relatedPairs(entries, at)
 const relatedByKey = new Map(related.map((p) => [pairKey(p.a, p.b), p]))
 
@@ -141,6 +141,45 @@ if (problems.length > 0) {
   for (const p of problems.slice(0, 20)) console.error(`  ${p}`)
   if (problems.length > 20) console.error(`  ...and ${problems.length - 20} more`)
   process.exit(2)
+}
+
+// --- COVERAGE: the key set is re-derived here, never read off the files ----
+//
+// E2's second correction (docs/clue-engine.md §6 "Correction to the paragraph
+// above (E2)"): an authoring agent can come back SHORT and report success. Two
+// Fable pair batches of ~210 stopped at 107 and 109 entries, one of them with
+// a literal `@@CHUNK3@@` placeholder key, and both agents said they were done.
+// E6 hit the same ceiling from the other side — a 150-pair matrix batch that
+// reported "150 scores written" and held 147.
+//
+// So completeness is decided here, from `cityWords()` and `relatedPairs()`,
+// against the model's own files. A missing key is a hard stop, not a section
+// that quietly ships with one model's opinion in it: `PAIR_MIN` is 1, so a
+// half-authored pair section would otherwise pass every downstream check.
+{
+  const short = []
+  for (const model of MODELS) {
+    const missingWords = entries.filter((w) => !rawWords.get(model).has(w.id))
+    const missingPairs = related.filter((p) => !rawPairs.get(model).has(pairKey(p.a, p.b)))
+    if (missingWords.length > 0) {
+      short.push(
+        `${model} is missing ${missingWords.length} of ${entries.length} word sections, first ` +
+          missingWords.slice(0, 5).map((w) => `${w.da} (${w.id})`).join(', '),
+      )
+    }
+    if (missingPairs.length > 0) {
+      short.push(
+        `${model} is missing ${missingPairs.length} of ${related.length} pair sections, first ` +
+          missingPairs.slice(0, 5).map((p) => pairKey(p.a, p.b)).join(', '),
+      )
+    }
+  }
+  if (short.length > 0) {
+    console.error('the authored files do not cover the key set:')
+    for (const s of short) console.error(`  ${s}`)
+    console.error('  re-brief the gap with scripts/book-brief.mjs --from --to --tag and re-run')
+    process.exit(2)
+  }
 }
 
 // --- merge ----------------------------------------------------------------

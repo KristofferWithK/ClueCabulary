@@ -12,6 +12,8 @@ import type {
   StoryResponse,
   TranslationResponse,
 } from '../schemas'
+import { wordById } from '../../data/words'
+import { WORDS_PER_CITY } from '../../journey/cities'
 import { loadEvaluator, type Evaluator } from './evaluator'
 import { searchClue } from './search'
 
@@ -44,6 +46,35 @@ const confidence = (sim: number): number =>
 
 const daOf = (view: AiClueView | AiGuessView, id: string): string =>
   view.words.find((w) => w.id === id)?.da ?? id
+
+/**
+ * WHICH CITY'S DATA THIS BOARD NEEDS. Boards are city-only since E0, and the
+ * engine's data is one file per city since E6, so the two have to be matched
+ * up somewhere — here, from `curriculumRank`, which the dataset is already
+ * carrying in the main bundle. Nothing new is downloaded to answer it.
+ *
+ * The city NUMBER is 1-based, like the data files and `docs/word-selection.md`;
+ * the journey's `cityIndex` is 0-based (`cityBand` in `journey/progress.ts`).
+ * Ranks are 1-based too, hence the `- 1` — E3 lost time to exactly this
+ * off-by-one, and it is why the conversion lives in one function.
+ *
+ * The first known word decides: a board drawn from one city agrees with
+ * itself, and a board that somehow does not is one the search will simply find
+ * no candidates for.
+ */
+function cityOfBoard(view: AiClueView | AiGuessView): number | null {
+  for (const w of view.words) {
+    const rank = wordById(w.id)?.curriculumRank
+    if (rank !== undefined && rank >= 1) return Math.floor((rank - 1) / WORDS_PER_CITY) + 1
+  }
+  return null
+}
+
+/** The evaluator for this board's city, or null when E6 has not reached it. */
+const evaluatorFor = (view: AiClueView | AiGuessView): Promise<Evaluator | null> => {
+  const city = cityOfBoard(view)
+  return city === null ? Promise.resolve(null) : loadEvaluator(city)
+}
 
 /**
  * The templated rationale, doing the two jobs the prompt asks the model's to
@@ -84,9 +115,9 @@ export class EngineCompanion implements Companion {
   lastCall: CallReport | null = null
 
   async getClue(view: AiClueView): Promise<ClueResponse> {
-    const ev = await loadEvaluator()
-    const plan = searchClue(ev, view)
-    if (!plan) {
+    const ev = await evaluatorFor(view)
+    const plan = ev ? searchClue(ev, view) : null
+    if (!ev || !plan) {
       this.lastCall = { arm: 'mock', refused: false }
       return this.fallback.getClue(view)
     }
@@ -100,7 +131,8 @@ export class EngineCompanion implements Companion {
   }
 
   async getGuesses(view: AiGuessView): Promise<GuessResponse> {
-    const ev = await loadEvaluator()
+    const ev = await evaluatorFor(view)
+    if (!ev) return this.fallback.getGuesses(view)
     const clue = view.currentClue
     const ranked = aiGuessableIds(view)
       .map((id) => ({ id, sim: ev.sim(clue.text, id) }))

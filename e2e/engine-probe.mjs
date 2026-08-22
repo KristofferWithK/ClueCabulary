@@ -208,7 +208,7 @@ async function playConfig(seed, { clueBy, guessBy }, ev, model) {
 // --- run -------------------------------------------------------------------
 
 const started = Date.now()
-const ev = await loadEvaluator()
+const ev = await loadEvaluator(1)
 const model = await llm()
 
 const CONFIGS = [

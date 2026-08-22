@@ -100,7 +100,7 @@ describe('the trap set is directional, like every reveal', () => {
 
 describe('sim reads the book and the matrix on one scale', () => {
   it('a direct book entry scores at least its authored strength', async () => {
-    const ev = await loadEvaluator()
+    const ev = (await loadEvaluator(1))!
     const assoc = ev.assocFor('da:mor')
     expect(assoc.length).toBeGreaterThan(20) // E2 shipped 33–35 a word
     for (const e of assoc.slice(0, 5)) {
@@ -110,13 +110,13 @@ describe('sim reads the book and the matrix on one scale', () => {
   })
 
   it('a word the data has never heard of scores zero everywhere', async () => {
-    const ev = await loadEvaluator()
+    const ev = (await loadEvaluator(1))!
     expect(ev.sim('xylofonkoncert', 'da:mor')).toBe(0)
     expect(ev.sim('mor', 'da:ikke-et-ord')).toBe(0)
   })
 
   it('sim stays on the 0–3 scale in half steps', async () => {
-    const ev = await loadEvaluator()
+    const ev = (await loadEvaluator(1))!
     const probes = ['familie', 'dyr', 'hjem', 'drikke', 'farve', 'water', 'pet']
     for (const clue of probes) {
       for (const id of ev.ids.slice(0, 30)) {
@@ -171,7 +171,7 @@ async function playEngineGame(
   seed: number,
   opts: { theta?: number; lastClueTheta?: number; assertClues?: boolean } = {},
 ): Promise<EnginePlayed> {
-  const ev = await loadEvaluator()
+  const ev = (await loadEvaluator(1))!
   const companion = new EngineCompanion()
   let s = createGame({ config: BOARD, words: cityOneBoard(seed), seed })
   let clues = 0
@@ -273,7 +273,7 @@ describe('the engine on real city-1 boards', () => {
   }, 120_000)
 
   it('legality thins the candidate list, mostly on English glosses — measured', async () => {
-    const ev = await loadEvaluator()
+    const ev = (await loadEvaluator(1))!
     const boards = 50
     const totals: SearchStats = { candidates: 0, illegal: 0, illegalOnGloss: 0 }
     for (let seed = 1; seed <= boards; seed++) {

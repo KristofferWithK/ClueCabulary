@@ -39,7 +39,7 @@
 // key, not which batch a key arrived in.
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { cityPairs, cityWords, loadWords } from './matrix-pairs.mjs'
-import { fromBase64, readJson, unpackMatrix } from './matrix-pack.mjs'
+import { fromBase64, matrixPath, readJson, unpackMatrix } from './matrix-pack.mjs'
 
 export const MODELS = ['opus', 'fable']
 
@@ -72,9 +72,9 @@ export function pairKey(a, b) {
   return `${a.id}|${b.id}`
 }
 
-/** Read the packed matrix back as `(i, j) => score`. */
-export function loadMatrix(lang = 'da') {
-  const doc = readJson(`src/data/matrix.${lang}.json`)
+/** Read one city's packed matrix back as `(i, j) => score`. */
+export function loadMatrix(lang = 'da', city = 1) {
+  const doc = readJson(matrixPath(lang, city))
   const cells = unpackMatrix(fromBase64(doc.data), doc.n)
   return { doc, at: (i, j) => cells[i * doc.n + j] }
 }
@@ -337,7 +337,7 @@ function main() {
 
   if (kind === 'pairs') {
     const size = Number(arg('size', '213'))
-    const { at } = loadMatrix(lang)
+    const { at } = loadMatrix(lang, city)
     const related = relatedPairs(entries, at).map((p) => ({
       ...p,
       key: pairKey(p.a, p.b),

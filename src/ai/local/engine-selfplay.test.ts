@@ -19,6 +19,7 @@ import { wordsForCity } from '../../journey/progress'
 import { planGuessExecution } from '../companion'
 import { buildAiClueView, buildAiGuessView } from '../projections'
 import {
+  authoredCities,
   buildEvaluator,
   loadEvaluator,
   type BookEntry,
@@ -110,14 +111,35 @@ type Model = (typeof MODELS)[number]
 const baseName = (path: string): string => path.slice(path.lastIndexOf('/') + 1)
 const modelOf = (path: string): Model => baseName(path).split('-')[0] as Model
 
-const MATRIX_VOTES = import.meta.glob<MatrixVote>(
-  '../../data/generated/matrix-city1/*.json',
-  { eager: true, import: 'default' },
-)
-const BOOK_VOTES = import.meta.glob<BookVote>('../../data/generated/book-city1/*.json', {
-  eager: true,
-  import: 'default',
-})
+/**
+ * The raw votes, PER CITY. E6 authors one city per PR and E4 asked for the
+ * cross-model reading to be re-taken on the first new one, so the halves are
+ * keyed by city rather than hard-wired to city 1. `import.meta.glob` needs a
+ * literal pattern, so a new city adds two lines here and nothing else.
+ */
+const VOTES: Record<number, { matrix: Record<string, MatrixVote>; book: Record<string, BookVote> }> =
+  {
+    1: {
+      matrix: import.meta.glob<MatrixVote>('../../data/generated/matrix-city1/*.json', {
+        eager: true,
+        import: 'default',
+      }),
+      book: import.meta.glob<BookVote>('../../data/generated/book-city1/*.json', {
+        eager: true,
+        import: 'default',
+      }),
+    },
+    2: {
+      matrix: import.meta.glob<MatrixVote>('../../data/generated/matrix-city2/*.json', {
+        eager: true,
+        import: 'default',
+      }),
+      book: import.meta.glob<BookVote>('../../data/generated/book-city2/*.json', {
+        eager: true,
+        import: 'default',
+      }),
+    },
+  }
 
 /** Two bits a cell, row-major over the full square — matrix-pack.mjs's format. */
 function packCells(cells: Uint8Array, n: number): string {
@@ -134,10 +156,10 @@ function packCells(cells: Uint8Array, n: number): string {
  * is what `cityPairs()` defines and what every vote file is keyed by; `ids`
  * comes from the shipped matrix because that IS the canonical order.
  */
-function halfMatrix(model: Model, ids: readonly string[]): MatrixFile {
+function halfMatrix(model: Model, ids: readonly string[], city: number): MatrixFile {
   const n = ids.length
   const scores = new Map<number, number>()
-  for (const [path, vote] of Object.entries(MATRIX_VOTES)) {
+  for (const [path, vote] of Object.entries(VOTES[city]!.matrix)) {
     if (modelOf(path) !== model) continue
     for (const [k, v] of Object.entries(vote.scores ?? {})) scores.set(Number(k), v)
   }
@@ -153,14 +175,18 @@ function halfMatrix(model: Model, ids: readonly string[]): MatrixFile {
     }
   }
   expect(scores.size).toBe(k) // every pair judged, or the half is not a half
-  return { lang: 'da', city: 1, n, bits: 2, ids: [...ids], data: packCells(cells, n) }
+  return { lang: 'da', city, n, bits: 2, ids: [...ids], data: packCells(cells, n) }
 }
 
 const ASSOC_CAP = 35
 const PAIR_CAP = 6
 
 /** One model's book, from its own files alone. Union is not needed: it is one voice. */
-function halfBook(model: Model, ids: readonly string[]): { book: BookFile; malformed: number } {
+function halfBook(
+  model: Model,
+  ids: readonly string[],
+  city: number,
+): { book: BookFile; malformed: number } {
   let malformed = 0
   const shaped = (e: BookEntry): boolean => {
     const ok =
@@ -187,7 +213,7 @@ function halfBook(model: Model, ids: readonly string[]): { book: BookFile; malfo
 
   const rawWords = new Map<string, BookEntry[]>()
   const rawPairs = new Map<string, BookEntry[]>()
-  for (const [path, doc] of Object.entries(BOOK_VOTES)) {
+  for (const [path, doc] of Object.entries(VOTES[city]!.book)) {
     if (modelOf(path) !== model) continue
     for (const [id, list] of Object.entries(doc.words ?? {})) {
       rawWords.set(id, [...(rawWords.get(id) ?? []), ...list])
@@ -201,19 +227,20 @@ function halfBook(model: Model, ids: readonly string[]): { book: BookFile; malfo
   for (const id of ids) words[id] = { assoc: dedupe(rawWords.get(id) ?? [], ASSOC_CAP) }
   const pairs: BookFile['pairs'] = {}
   for (const [key, list] of rawPairs) pairs[key] = dedupe(list, PAIR_CAP)
-  return { book: { lang: 'da', city: 1, words, pairs }, malformed }
+  return { book: { lang: 'da', city, words, pairs }, malformed }
 }
 
-let halves: Record<Model, Evaluator> | null = null
-async function loadHalves(): Promise<Record<Model, Evaluator>> {
-  if (halves) return halves
-  const shipped = await loadEvaluator()
+const halvesCache = new Map<number, Record<Model, Evaluator>>()
+async function loadHalves(city = 1): Promise<Record<Model, Evaluator>> {
+  const hit = halvesCache.get(city)
+  if (hit) return hit
+  const shipped = (await loadEvaluator(city))!
   const built = {} as Record<Model, Evaluator>
   for (const m of MODELS) {
-    const { book } = halfBook(m, shipped.ids)
-    built[m] = buildEvaluator(halfMatrix(m, shipped.ids), book)
+    const { book } = halfBook(m, shipped.ids, city)
+    built[m] = buildEvaluator(halfMatrix(m, shipped.ids, city), book)
   }
-  halves = built
+  halvesCache.set(city, built)
   return built
 }
 
@@ -260,9 +287,14 @@ function hashEvaluator(real: Evaluator, salt: string): Evaluator {
 // The harness
 // ---------------------------------------------------------------------------
 
-/** A real city-1 board: eighteen of the city's hundred, seeded uniform. */
-function cityOneBoard(seed: number): BoardWord[] {
-  const pool = wordsForCity(WORDS, 0)
+/**
+ * A real board: eighteen of one city's hundred, seeded uniform.
+ *
+ * `city` is 1-BASED here, like the data files; `wordsForCity` is 0-based
+ * (CLAUDE.md's own note, and the trap E3 hit) — hence the `- 1`.
+ */
+function cityBoard(seed: number, city = 1): BoardWord[] {
+  const pool = wordsForCity(WORDS, city - 1)
   const rng = mulberry32(seed)
   const picked = [...pool]
   for (let i = picked.length - 1; i > 0; i--) {
@@ -325,6 +357,8 @@ interface Row {
   /** Override the search's bars. Only the theta sweep below sets these. */
   theta?: number
   lastClueTheta?: number
+  /** Which city's boards this row is played on. 1-based; city 1 by default. */
+  city?: number
 }
 
 interface Played {
@@ -341,7 +375,7 @@ interface Played {
 }
 
 async function playGame(seed: number, row: Row): Promise<Played> {
-  let s = createGame({ config: BOARD, words: cityOneBoard(seed), seed })
+  let s = createGame({ config: BOARD, words: cityBoard(seed, row.city ?? 1), seed })
   const rng = mulberry32(seed ^ 0x9e37)
   let clues = 0
   let asked = 0
@@ -533,7 +567,7 @@ describe('the engine measured against the floor and the p-curve', () => {
   it(
     'reads the same boards three ways, and the engine is not the harness',
     async () => {
-      const shipped = await loadEvaluator()
+      const shipped = (await loadEvaluator(1))!
       const { opus, fable } = await loadHalves()
       const hashA = hashEvaluator(shipped, 'a')
       const hashB = hashEvaluator(shipped, 'b')
@@ -683,7 +717,7 @@ describe('the engine measured against the floor and the p-curve', () => {
 
 describe('the authoring halves are really halves', () => {
   it('each model judged every pair and wrote every word, and they differ', async () => {
-    const shipped = await loadEvaluator()
+    const shipped = (await loadEvaluator(1))!
     const { opus, fable } = await loadHalves()
 
     for (const half of [opus, fable]) {
@@ -711,6 +745,77 @@ describe('the authoring halves are really halves', () => {
       )
     }
   }, 120_000)
+})
+
+// ---------------------------------------------------------------------------
+// EVERY AUTHORED CITY, ON THE ONE ROW THAT IS EVIDENCE.
+//
+// E4's verdict names the number that would REVERSE E6: "if the first new
+// city's cross-model hits/number comes in below ~0.45 - near the p = 0.5
+// region rather than 0.6-0.7 - that would say the city-1 result was about
+// city 1's hand-curated hundred rather than about the method". So the check is
+// re-taken per city rather than asserted once for city 1 and inherited.
+//
+// It is the cross-model row and nothing else: a clue-giver reading one model's
+// half, examined by a guesser reading the other's. Engine-vs-engine is a
+// shared code (the mutation above), and the merged book the app ships is what
+// both halves fed into, so neither can answer this question about a NEW city.
+//
+// The floor is re-run per city too. Without it, a city whose words happen to
+// be easier to guess at random would read as a working book.
+// ---------------------------------------------------------------------------
+
+/** The bar E4 set for a new city, on hits per word asked. */
+const NEW_CITY_FLOOR = 0.45
+
+describe('the method generalises to every city E6 has authored', () => {
+  it.each(authoredCities.map((city) => [city] as const))(
+    'city %i reads its own boards well clear of the floor',
+    async (city) => {
+      const { opus, fable } = await loadHalves(city)
+      const floor = await measure(
+        { label: 'floor', clueEv: null, guesser: { kind: 'coin', p: 0 }, city },
+        GAMES,
+      )
+      const opusFable = await measure(
+        { label: 'o/f', clueEv: opus, guesser: { kind: 'engine', ev: fable }, city },
+        GAMES,
+      )
+      const fableOpus = await measure(
+        { label: 'f/o', clueEv: fable, guesser: { kind: 'engine', ev: opus }, city },
+        GAMES,
+      )
+
+      if (envVar('ENGINE_SELFPLAY_REPORT')) {
+        const line = (label: string, x: Summary) =>
+          `${label.padEnd(22)} ${x.hitsPerNumber.toFixed(3).padStart(11)} ${x.clearedInTokens
+            .toFixed(1)
+            .padStart(9)} ${x.winRate.toFixed(1).padStart(6)} ${x.coveragePerClue
+            .toFixed(2)
+            .padStart(9)}`
+        console.log(
+          `\ncity ${city}, ${GAMES} seeded boards a row\n` +
+            'row                    hits/number   cleared%   win%   cov/clue\n' +
+            [
+              line('mock floor  p=0', floor),
+              line('Opus clues / Fable', opusFable),
+              line('Fable clues / Opus', fableOpus),
+            ].join('\n'),
+        )
+      }
+
+      // The floor is the floor on this city's words too.
+      expect(floor.hitsPerNumber).toBeLessThan(0.3)
+
+      // And the book beats it by a wide margin, in both directions, above the
+      // bar E4 named. Banded, not pinned to a digit: GAMES moves every figure.
+      for (const cross of [opusFable, fableOpus]) {
+        expect(cross.hitsPerNumber).toBeGreaterThan(NEW_CITY_FLOOR)
+        expect(cross.hitsPerNumber).toBeGreaterThan(floor.hitsPerNumber * 2)
+      }
+    },
+    600_000,
+  )
 })
 
 // ---------------------------------------------------------------------------

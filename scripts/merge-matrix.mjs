@@ -57,7 +57,7 @@ import { mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { cityPairs, cityWords, loadWords } from './matrix-pairs.mjs'
-import { packMatrix, readJson, toBase64 } from './matrix-pack.mjs'
+import { matrixPath, packMatrix, readJson, toBase64 } from './matrix-pack.mjs'
 
 const MODELS = ['opus', 'fable']
 const DIAGONAL = 3
@@ -71,7 +71,7 @@ const CITY = Number(arg('city', '1'))
 const LANG = arg('lang', 'da')
 const REPORT = argv.includes('--report')
 const VOTE_DIR = arg('votes', `src/data/generated/matrix-city${CITY}`)
-const OUT = arg('out', `src/data/matrix.${LANG}.json`)
+const OUT = arg('out', matrixPath(LANG, CITY))
 
 const entries = cityWords(loadWords(LANG), CITY)
 if (entries.length === 0) {
