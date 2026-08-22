@@ -330,6 +330,20 @@ something has already gone wrong.
   `.word-card`'s `@container (max-height: 46px)` queries the card's CONTENT
   box, not its height: a 46.42px card is a 27-30px query, which is why that
   threshold is nowhere near the boundary it looks like it is on.
+  **The round summary is a fixed screen with no scroller at all (P1), and the
+  tallest ending it has leaves about 30px spare.** `.summary-scroll` is gone;
+  every band is bounded and each size in it — Casey at 54px, the log lid at 34,
+  the column gap at 7, the sentence rows — was chosen against a measured band
+  budget rather than to taste. The first draft asked 778px on a 640px phone.
+  Measured at 360×640, where the column is 546px: an ordinary win asks 479.3,
+  a wrap-up ending 515.4, a lost last chance 267.8. So a NEW band on that
+  screen is not free — measure it, and measure the WRAP-UP ending, which is the
+  one that binds (a third line in the outcome box, two tiles with names, a
+  paragraph about the token and five sentences). The transcript opens as a
+  panel OVER the column rather than in it, which is why `.log-section` is
+  deliberately not a `.summary-section` — a positioned ancestor would trap the
+  panel in a 34px strip — and why a drive shuts it with `.log-close` rather
+  than by clicking the lid again.
   That rule does NOT catch a Home band that grew too tall: a flex column
   overflows by painting OVER what is below rather than lengthening the
   document, so `scrollHeight` stays honest while Casey's name is drawn sliced

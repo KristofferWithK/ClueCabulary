@@ -315,23 +315,28 @@ check(
   !(info.y + info.height > word.y && info.x < word.x + word.width),
 )
 
-// Turning a word green is the loop's whole reward and used to happen silently.
-// Play a mock round to the end with every word one handling short of green.
+// ---- the end screen, as ONE FIXED SCREEN (P1) --------------------------------
+//
+// This section was VACUOUS. It played a mock round with a twelve-turn loop and
+// wrapped every assertion in `if (summarised)`, so a seed that did not reach an
+// ending printed one SKIP line and checked nothing — which is how the screen
+// with the app's only unbounded content came to have no measurement at all
+// (found by B1). It is driven to a WIN deterministically now, the way
+// endgame-drive does it: force the last chance, then name every remaining
+// green. No branch, no skip, and the round that gets measured is a full one.
+//
+// `almost=100` leaves every word on the board one handling short of green.
+// Real turns first — a word is collected only when it has been green EACH way,
+// so a round that skipped straight to the ending would fill neither tile — and
+// then the ending is forced rather than hoped for.
+await open('?mock=1&howto=0&seed=5&city=0&almost=100')
+await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
 await open('?mock=1&howto=0&seed=5&city=0&almost=100')
 await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const study = page.locator('.study-dock .btn-primary')
 if (await study.isVisible().catch(() => false)) await study.click()
-await page.fill('.clue-input input', 'huskeliste')
-await page.click('.clue-input .btn-primary')
-await page.waitForFunction(
-  () => !document.querySelector('.phase-caption')?.textContent?.includes('Casey is guessing'),
-  undefined,
-  { timeout: 20000 },
-)
-// Drive to the end however the round went: guess on until the board is clear
-// or the clues run out into sudden death.
-for (let i = 0; i < 12 && (await page.locator('.round-summary').count()) === 0; i++) {
+for (let i = 0; i < 6 && (await page.locator('.round-summary').count()) === 0; i++) {
   const guessable = page.locator('.word-card.card-guessable').first()
   if (await guessable.isVisible().catch(() => false)) {
     await guessable.click()
@@ -340,87 +345,185 @@ for (let i = 0; i < 12 && (await page.locator('.round-summary').count()) === 0; 
   } else {
     // '#clue-word', not '.clue-input input': the dock holds a second input (the
     // lookup box), so that locator matches two and fails strict mode INSIDE the
-    // .catch below, silently. This loop had been spinning its twelve turns
-    // without ever giving a second clue, and the end-screen checks under it
-    // were skipped on every run — the same bug wrapup-drive already carries a
-    // comment about.
+    // .catch, silently.
     const clue = page.locator('#clue-word')
     if (await clue.isVisible().catch(() => false)) {
-      await clue.fill('igen')
+      await clue.fill(`huskeliste${i}`)
       await page.click('.clue-input .btn-primary')
     }
   }
-  // There was a second exit here, for the last-chance form. It was written
-  // against `.redemption-form`, a class that never existed, so it was dead for
-  // its whole life; the form it was looking for is now gone too.
   await page.waitForTimeout(900)
 }
-const summarised = (await page.locator('.round-summary').count()) > 0
-if (summarised) {
-  const shown = await page.locator('.collected-section').count()
-  // The key dot is gone: your own key is the card's border now.
-const greens = await page.locator('.word-card.mykey-green').count()
-  check('a round that greens words says so', shown === 1, `${shown} sections, ${greens} key marks`)
+if ((await page.locator('.round-summary').count()) === 0) {
+  // Force the last chance and name every remaining green: a WIN, whatever the
+  // mock companion did with the six turns above. This is what makes the
+  // section unconditional — it used to be wrapped in `if (summarised)`.
+  await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
+    raw.state.game.phase = 'suddenDeath'
+    raw.state.game.turnsLeft = 0
+    localStorage.setItem('cluecab-game-v1', JSON.stringify(raw))
+  })
+  await page.reload()
+  await page.getByRole('button', { name: 'Continue game' }).click()
+  await page.waitForSelector('.sudden-death-bar', { timeout: 15000 })
+  const sdBoard = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.game,
+  )
+  // Green on EITHER key counts in the last chance — there is no clue-giver.
+  const toName = sdBoard.words
+    .filter(
+      (w) =>
+        (sdBoard.playerKey[w.wordId] === 'green' || sdBoard.aiKey[w.wordId] === 'green') &&
+        sdBoard.reveals[w.wordId].kind !== 'green',
+    )
+    .map((w) => w.da)
+  for (const da of toName) {
+    if ((await page.locator('.sudden-death-bar').count()) === 0) break
+    await page.locator(`.word-card:has(.card-word:text-is("${da}"))`).click()
+    await page.locator('.guess-confirm .btn-primary').click()
+  }
+}
+await page.waitForSelector('.round-summary', { timeout: 15000 })
+check('the round reaches a summary', (await page.locator('.round-summary').count()) === 1)
 
-  // ---- the end screen, on the tight phone, with the lid both ways ----------
-  // The summary is the one screen with no upper bound on its height: the turn
-  // log grows with the round, and opening it is the player adding content to a
-  // screen that is already full. It scrolls inside .summary-scroll rather than
-  // moving the document — the same bargain Settings makes — so the DOCUMENT
-  // must sit still with the lid on AND off. Measured at 360x640, where it
-  // would give first.
-  const fits = async (what) => {
-    const r = await page.evaluate(() => ({
+// What is being measured, said out loud before it is measured. A no-scroll
+// reading on a summary that happened to render no sentences, or no collected
+// tile, would be measuring a shorter screen than the one a player gets and
+// passing for the wrong reason — which is the shape of the bug this whole
+// section had.
+const summaryParts = await page.evaluate(() => ({
+  sentences: document.querySelectorAll('.round-sentence').length,
+  discovered: document.querySelector('.stat-discovered .stat-n')?.textContent?.trim() ?? '',
+  collected: document.querySelector('.stat-collected .stat-n')?.textContent?.trim() ?? '',
+  names: document.querySelectorAll('.stat-collected .stat-words .speak-word').length,
+  earned: document.querySelector('.earned-section')?.textContent?.trim() ?? '',
+  retired: document.querySelectorAll('.summary-scroll, .stat-city, .stat-total, .collected-section')
+    .length,
+}))
+check(
+  'the summary being measured carries five sentences',
+  summaryParts.sentences === 5,
+  `${summaryParts.sentences} rows`,
+)
+check(
+  'and both tiles, with the collected one naming its words',
+  /^\d+$/.test(summaryParts.discovered) &&
+    Number(summaryParts.collected) > 0 &&
+    summaryParts.names > 0,
+  `${summaryParts.discovered} new / ${summaryParts.collected} collected / ${summaryParts.names} names`,
+)
+check('and the token line', /wrap-up round/i.test(summaryParts.earned), summaryParts.earned)
+// The four things P1 retired. Named rather than implied, so a revert that put
+// the scroller back would fail here rather than only in the measurement.
+check(
+  'and nothing P1 retired: no scroller, no city or journey tile, no collected list',
+  summaryParts.retired === 0,
+  `${summaryParts.retired} still there`,
+)
+check('Casey is on it, wearing the outcome', (await page.locator('.outcome-banner .cluey-svg.mood-happy').count()) === 1)
+check('and the celebration emoji is gone', !/🎉/.test(await page.locator('.outcome-banner').innerText()))
+
+// The measurement itself, at both phone sizes. Two readings, because a fixed
+// screen can fail either way: the DOCUMENT must not scroll, and nothing INSIDE
+// the summary may be a scroller of its own — P1's whole claim is that neither
+// happens, and .summary-scroll used to make the second one true by design.
+const fits = async (what, width, height) => {
+  await page.setViewportSize({ width, height })
+  await page.waitForTimeout(300)
+  const r = await page.evaluate(() => {
+    const inner = [...document.querySelectorAll('.round-summary, .round-summary *')]
+      .filter((el) => {
+        const oy = getComputedStyle(el).overflowY
+        return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1
+      })
+      .map((el) => `${el.className}(${el.scrollHeight}>${el.clientHeight})`)
+    // What the screen ASKS for, band by band, against what the column has.
+    // Not the column's own height — the actions are pushed to the bottom with
+    // margin-top:auto, so that would measure the phone rather than the screen.
+    // This is the number the band budget is spent against and the one a later
+    // card should re-measure rather than reason about.
+    const s = document.querySelector('.round-summary')
+    const bands = [...s.children].filter((el) => !el.classList.contains('confetti'))
+    const gap = parseFloat(getComputedStyle(s).rowGap) || 0
+    const content =
+      bands.reduce((a, el) => a + el.getBoundingClientRect().height, 0) +
+      gap * Math.max(0, bands.length - 1)
+    return {
       sh: document.scrollingElement.scrollHeight,
       ih: window.innerHeight,
-    }))
-    check(`no-scroll: ${what} @360x640`, r.sh <= r.ih + 1, `${r.sh} vs ${r.ih}`)
-  }
-  await page.setViewportSize({ width: 360, height: 640 })
-  await page.waitForTimeout(300)
-  check('the summary opens with its log shut', (await page.locator('.turn-log').count()) === 0)
-  // Non-vacuity for the two measurements below. The sentences are the tallest
-  // thing on this screen after the transcript — five of them are ~250px on a
-  // 640px phone — so a no-scroll reading taken on a summary that happened to
-  // render none of them would be measuring the old screen and passing for the
-  // wrong reason.
-  const sentenceRows = await page.locator('.round-sentence').count()
-  check('the summary being measured has its sentences on it', sentenceRows > 0, `${sentenceRows} rows`)
-  await fits('round summary, log shut')
-  await page.locator('.log-toggle').click()
-  await page.waitForTimeout(300)
-  check('and one tap opens the log', (await page.locator('.turn-log').count()) === 1)
-  await fits('round summary, log open')
-  // The containing block itself, not only its consequence. Every guess in the
-  // log carries a .visually-hidden span and .visually-hidden is
-  // position:absolute, so without a positioned scroller they resolve against
-  // .app-shell and park 1px boxes at whatever y the log reaches — measured at
-  // 1027 on a 640px phone, document 1028 vs 640, while the scroller itself was
-  // correctly clipping at 420. Asserted on offsetParent because the overflow it
-  // causes only appears once the transcript is long enough, and the length of a
-  // transcript is a property of the round, not of the layout.
-  const hiddenHome = await page.evaluate(() => {
-    const span = document.querySelector('.turn-log .visually-hidden')
-    return span ? (span.offsetParent?.className ?? '(none — it reached the document)') : '(no span)'
+      content: +content.toFixed(1),
+      avail: +s.getBoundingClientRect().height.toFixed(1),
+      inner,
+    }
   })
   check(
-    "the log's hidden labels resolve inside the scroller, not against the shell",
-    /summary-scroll/.test(hiddenHome),
-    hiddenHome,
+    `no-scroll: ${what} @${width}x${height}`,
+    r.sh <= r.ih + 1,
+    `${r.sh} vs ${r.ih}, summary asks ${r.content}px of ${r.avail}px`,
   )
-  // Play again sits OUTSIDE the scroller for exactly this reason: a long
-  // transcript must not push the way out of the round off the phone.
-  const playAgain = await page.locator('.summary-actions .btn-primary').boundingBox()
   check(
-    'and Play again is still on the phone underneath it',
-    playAgain.y + playAgain.height <= 640.5,
-    `bottom ${(playAgain.y + playAgain.height).toFixed(0)} of 640`,
+    `nothing scrolls inside it: ${what} @${width}x${height}`,
+    r.inner.length === 0,
+    r.inner.join(', ') || 'no inner scroller',
   )
-  await page.setViewportSize(PHONE)
-  await page.waitForTimeout(200)
-} else {
-  console.log('SKIP round did not reach a summary on this seed')
+  return r
 }
+check('the summary opens with its log shut', (await page.locator('.turn-log').count()) === 0)
+const tight = await fits('round summary, log shut', 360, 640)
+const tall = await fits('round summary, log shut', 390, 844)
+console.log(
+  `summary asks ${tight.content}px of ${tight.avail}px at 360x640, ` +
+    `${tall.content}px of ${tall.avail}px at 390x844`,
+)
+
+// The transcript is the one thing here with no bound on its height, so it opens
+// as a PANEL over the summary rather than as a section under it. The document
+// must sit still with the lid off, exactly as with the lid on.
+await page.setViewportSize({ width: 360, height: 640 })
+await page.waitForTimeout(250)
+await page.locator('.log-toggle').click()
+await page.waitForTimeout(300)
+check('and one tap opens the log', (await page.locator('.turn-log').count()) === 1)
+const withLog = await page.evaluate(() => ({
+  sh: document.scrollingElement.scrollHeight,
+  ih: window.innerHeight,
+}))
+check(
+  'no-scroll: round summary, log open @360x640',
+  withLog.sh <= withLog.ih + 1,
+  `${withLog.sh} vs ${withLog.ih}`,
+)
+// The containing block itself, not only its consequence. Every guess in the
+// log carries a .visually-hidden span and .visually-hidden is
+// position:absolute, so without a positioned ancestor they resolve against
+// .app-shell and park 1px boxes at whatever y the log reaches — measured at
+// 1027 on a 640px phone, document 1028 vs 640, while the panel itself was
+// correctly clipping at 420. Asserted on offsetParent because the overflow it
+// causes only appears once the transcript is long enough, and the length of a
+// transcript is a property of the round, not of the layout.
+const hiddenHome = await page.evaluate(() => {
+  const span = document.querySelector('.turn-log .visually-hidden')
+  return span ? (span.offsetParent?.className ?? '(none — it reached the document)') : '(no span)'
+})
+check(
+  "the log's hidden labels resolve inside the panel, not against the shell",
+  /log-body/.test(hiddenHome),
+  hiddenHome,
+)
+await page.locator('.log-close').click()
+await page.waitForTimeout(250)
+check('and the panel has its own way back', (await page.locator('.turn-log').count()) === 0)
+// Play again is the way out of the round, and on a fixed screen it is the last
+// thing that would be pushed off.
+const playAgain = await page.locator('.summary-actions .btn-primary').boundingBox()
+check(
+  'and Play again is still on the phone',
+  playAgain.y + playAgain.height <= 640.5,
+  `bottom ${(playAgain.y + playAgain.height).toFixed(0)} of 640`,
+)
+await page.setViewportSize(PHONE)
+await page.waitForTimeout(200)
 
 // Casey's whole turn used to happen in silence: no live region existed
 // anywhere in the game loop.

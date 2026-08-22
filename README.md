@@ -280,9 +280,17 @@ The map keeps that button, and its train now boards as well. Under
    a whole round, of a wrap-up round from packing through the clues, and of the
    tutorial — the board's rectangle beside it, so a failure says which of the
    two broke.
-6. After each round the summary shows **what was said, and why** —
-   every clue and every guess with the reasoning behind it, including what Casey
-   deliberately steered away from and how sure she was of each guess. Tap ⚑ on
+6. The summary is **one fixed screen** and nothing on it scrolls, inner or
+   outer: Casey wearing the outcome, two tiles (what was new, what was
+   collected — with the words named in the tile that counts them), one line
+   about the wrap-up token, and the round's greens in a sentence each. The
+   city and the journey are not on it; Home and the suitcase draw both bigger,
+   and the phone is 640px. Under the actions, a text-sized lid opens
+   **what was said, and why** — every clue and every guess with the reasoning
+   behind it, including what Casey deliberately steered away from and how sure
+   she was of each guess. It opens as a panel OVER the summary and scrolls
+   inside itself, because the transcript grows with the round and is the one
+   thing here with no bound on its height. Tap ⚑ on
    anything of hers that was a bad call: flags are kept (newest 24) and quoted
    back to her in later rounds, with her own sentence attached, so the
    correction has something to bite on. They carry a clue word, a board word and

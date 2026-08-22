@@ -225,27 +225,51 @@ try {
     JSON.stringify({ b: bankedAfterWin.wrapUpsBanked, w: bankedAfterWin.winsTowardWrapUp }),
   )
 
-  // ---- the summary counts the round, and the collection it left behind ------
-  // Four tiles, and every number has to be a number: the two on the left are
-  // diffs finishRound took across the SRS, the two on the right are
-  // countCollection over this city and over the whole dataset. A tile that
-  // rendered "undefined/100" or "NaN" would look like a stat and mean nothing,
-  // so the shapes are asserted rather than the presence of the block.
+  // ---- the summary counts the round, and nothing else (P1) ------------------
+  // TWO tiles, and every number has to be a number: both are diffs finishRound
+  // took across the SRS. There were four until P1 — these plus "in Sønderborg"
+  // and "of every word" — and those two are the collection rather than the
+  // round; Home and the suitcase draw them bigger. A tile that rendered
+  // "undefined" would still look like a stat, so the shapes are asserted
+  // rather than the presence of the block.
   const stats = await page.evaluate(() => {
     const read = (sel) => document.querySelector(`${sel} .stat-n`)?.textContent?.trim() ?? ''
     return {
       discovered: read('.stat-discovered'),
       collected: read('.stat-collected'),
-      city: read('.stat-city'),
-      total: read('.stat-total'),
-      label: document.querySelector('.stat-city .stat-label')?.textContent?.trim() ?? '',
+      names: document.querySelectorAll('.stat-collected .stat-words .speak-word').length,
+      retired: document.querySelectorAll(
+        '.summary-scroll, .stat-city, .stat-total, .collected-section',
+      ).length,
+      banner: document.querySelector('.outcome-banner')?.innerText ?? '',
+      face: document.querySelectorAll('.outcome-banner .cluey-svg.mood-happy').length,
     }
   })
   check('the summary counts what was discovered', /^\d+$/.test(stats.discovered), stats.discovered)
-  check('and what was collected', /^\d+$/.test(stats.collected), stats.collected)
-  check('and where the city stands', /^\d+\/100$/.test(stats.city), stats.city)
-  check('naming the city, since the number means nothing alone', /\w/.test(stats.label), stats.label)
-  check('and the whole journey', /^\d+\/\d{3,4}$/.test(stats.total), stats.total)
+  // The collected tile hides itself at zero rather than drawing a 0 beside a
+  // full tile — and this round is exactly that case: it was won entirely from
+  // the last chance, and a word is collected only when it has been green EACH
+  // way. So the tile is the count OR nothing, never "undefined".
+  check(
+    'and what was collected, or nothing when a round collected nothing',
+    stats.collected === '' || /^\d+$/.test(stats.collected),
+    `"${stats.collected}"`,
+  )
+  // The "Collected for Casey" list folded into the tile that counts it (P1),
+  // so the names have to still be there — and still be speak buttons.
+  check(
+    'naming the words in the tile that counts them',
+    Number(stats.collected) === 0 || stats.names > 0,
+    `${stats.names} names for ${stats.collected} collected`,
+  )
+  check(
+    'and nothing P1 retired is left: no scroller, no city or journey tile, no list',
+    stats.retired === 0,
+    `${stats.retired} still there`,
+  )
+  // Casey carries the tone now, which is why the emoji went.
+  check('Casey is on the summary, wearing the outcome', stats.face === 1, `${stats.face} faces`)
+  check('and the celebration emoji is gone', !/🎉/.test(stats.banner), stats.banner.split('\n')[0])
   // This round greened words on a board of never-before-seen ones, so a zero
   // here would mean the diff was taken on the wrong side of recordRound.
   check(
@@ -305,6 +329,9 @@ try {
 
   // The transcript is behind a lid, shut. It is the longest thing on the screen
   // and the least urgent — the numbers above are what the round is judged on.
+  // Since P1 it opens as a PANEL over the summary rather than a section under
+  // it, which is why it shuts on its own control: the lid it was opened from is
+  // underneath the panel.
   check('the turn log is collapsed to start with', (await page.locator('.turn-log').count()) === 0)
   await page.locator('.log-toggle').click()
   await page.waitForTimeout(200)
@@ -313,7 +340,7 @@ try {
     'with the lid reporting its own state',
     (await page.locator('.log-toggle').getAttribute('aria-expanded')) === 'true',
   )
-  await page.locator('.log-toggle').click()
+  await page.locator('.log-close').click()
   await page.waitForTimeout(200)
   check('and shuts again', (await page.locator('.turn-log').count()) === 0)
 
@@ -353,6 +380,58 @@ try {
   // the player sees of what ended the round.
   const culprit = (await page.locator('.outcome-culprit').textContent()) ?? ''
   check('and the summary names the card that ended it', culprit.includes(dud.da), culprit.trim())
+  check(
+    'with Casey wearing the loss',
+    (await page.locator('.outcome-banner .cluey-svg.mood-oops').count()) === 1,
+  )
+
+  // The last-chance ending is the TALLEST summary: the outcome box carries a
+  // third line naming the card that ended it. P1 made this screen fixed — no
+  // scroller, inner or outer — so it is measured at both phone sizes here, the
+  // way layout-drive measures the ordinary win and wrapup-drive the wrap-up.
+  for (const [w, h] of [
+    [360, 640],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width: w, height: h })
+    await page.waitForTimeout(300)
+    const r = await page.evaluate(() => {
+      const inner = [...document.querySelectorAll('.round-summary, .round-summary *')]
+        .filter((el) => {
+          const oy = getComputedStyle(el).overflowY
+          return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1
+        })
+        .map((el) => `${el.className}(${el.scrollHeight}>${el.clientHeight})`)
+      // What the screen asks for band by band, against the column it has —
+      // not the column's height, which is the phone's business rather than
+      // the screen's (the actions are pushed down with margin-top:auto).
+      const s = document.querySelector('.round-summary')
+      const bands = [...s.children].filter((el) => !el.classList.contains('confetti'))
+      const gap = parseFloat(getComputedStyle(s).rowGap) || 0
+      const content =
+        bands.reduce((a, el) => a + el.getBoundingClientRect().height, 0) +
+        gap * Math.max(0, bands.length - 1)
+      return {
+        sh: document.scrollingElement.scrollHeight,
+        ih: window.innerHeight,
+        content: +content.toFixed(1),
+        avail: +s.getBoundingClientRect().height.toFixed(1),
+        inner,
+      }
+    })
+    check(
+      `no-scroll: last-chance summary @${w}x${h}`,
+      r.sh <= r.ih + 1,
+      `${r.sh} of ${r.ih}, summary asks ${r.content}px of ${r.avail}px`,
+    )
+    check(
+      `nothing scrolls inside it @${w}x${h}`,
+      r.inner.length === 0,
+      r.inner.join(', ') || 'no inner scroller',
+    )
+  }
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.waitForTimeout(200)
 
   // ---- sudden death: walking away --------------------------------------------
   await start()

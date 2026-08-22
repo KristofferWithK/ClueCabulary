@@ -234,7 +234,12 @@ export function GameScreen() {
         </div>
       )}
 
-      {onPracticeCompanion(practiceFallback) && !error && (
+      {/* Not on the end screen (P1). The only thing this sentence exists to
+          tell someone is that Casey is not answering and where the switch is,
+          and once the round is finished there is nothing left for her to
+          answer — while the 53px it costs is 53px off a summary that has to
+          fit a 640px phone with no scroller. */}
+      {onPracticeCompanion(practiceFallback) && !error && game.phase !== 'finished' && (
         // Say what is true: since E3 the practice companion is the local clue
         // engine — real clues from the word book, guesses ranked by the judged
         // matrix — not the hash-scrambled mock this line used to apologise

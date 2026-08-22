@@ -142,6 +142,93 @@ try {
   check('the round reaches a summary', (await page.locator('.round-summary').count()) === 1)
   await page.screenshot({ path: `${SHOT_DIR}/w3-summary.png` })
 
+  // ---- what a wrap-up summary says (P1) --------------------------------------
+  // The two tiles count the thing this round is for: what went into the
+  // suitcase for good, and what stayed collected for the next token. Two cards
+  // were packed here and the rest skipped, so both halves have a number.
+  const wrapTiles = await page.evaluate(() => ({
+    wrapped: document.querySelector('.stat-wrapped .stat-n')?.textContent?.trim() ?? '',
+    label: document.querySelector('.stat-wrapped .stat-label')?.textContent?.trim() ?? '',
+    stayed: document.querySelector('.stat-stayed .stat-n')?.textContent?.trim() ?? '',
+    retired: document.querySelectorAll(
+      '.summary-scroll, .stat-city, .stat-total, .collected-section',
+    ).length,
+    text: document.querySelector('.round-summary')?.innerText ?? '',
+  }))
+  check(
+    'the wrap-up summary counts what wrapped for good',
+    /^\d+$/.test(wrapTiles.wrapped) && /wrapped for good/.test(wrapTiles.label),
+    `${wrapTiles.wrapped} — ${wrapTiles.label}`,
+  )
+  check(
+    'and what stayed collected for the next token',
+    /^\d+$/.test(wrapTiles.stayed) && Number(wrapTiles.stayed) > 0,
+    wrapTiles.stayed,
+  )
+  check(
+    'and nothing P1 retired is left on it',
+    wrapTiles.retired === 0,
+    `${wrapTiles.retired} still there`,
+  )
+  // W1's sentence, kept by P1: a harder wrap-up round (N2 put it on the 3x6
+  // board, so it packs at most thirteen) must not read as a door that locks.
+  // Only owed by a LOST round — a win has nothing to reassure anyone about.
+  const lostWrapUp = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-game-v1')).state.game.outcome?.result === 'lost',
+  )
+  if (lostWrapUp) {
+    check(
+      'a lost wrap-up still says it banked everything it packed',
+      /win or lose/.test(wrapTiles.text),
+      wrapTiles.text.replace(/\s+/g, ' ').slice(0, 120),
+    )
+  }
+  // One fixed screen at both phone sizes — no document scroll, and nothing
+  // inside the summary is a scroller of its own.
+  for (const [w, h] of [
+    [360, 640],
+    [390, 844],
+  ]) {
+    await page.setViewportSize({ width: w, height: h })
+    await page.waitForTimeout(300)
+    const r = await page.evaluate(() => {
+      const inner = [...document.querySelectorAll('.round-summary, .round-summary *')]
+        .filter((el) => {
+          const oy = getComputedStyle(el).overflowY
+          return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1
+        })
+        .map((el) => `${el.className}(${el.scrollHeight}>${el.clientHeight})`)
+      // What the screen asks for band by band, against the column it has —
+      // not the column's height, which is the phone's business rather than
+      // the screen's (the actions are pushed down with margin-top:auto).
+      const s = document.querySelector('.round-summary')
+      const bands = [...s.children].filter((el) => !el.classList.contains('confetti'))
+      const gap = parseFloat(getComputedStyle(s).rowGap) || 0
+      const content =
+        bands.reduce((a, el) => a + el.getBoundingClientRect().height, 0) +
+        gap * Math.max(0, bands.length - 1)
+      return {
+        sh: document.scrollingElement.scrollHeight,
+        ih: window.innerHeight,
+        content: +content.toFixed(1),
+        avail: +s.getBoundingClientRect().height.toFixed(1),
+        inner,
+      }
+    })
+    check(
+      `no-scroll: wrap-up summary @${w}x${h}`,
+      r.sh <= r.ih + 1,
+      `${r.sh} of ${r.ih}, summary asks ${r.content}px of ${r.avail}px`,
+    )
+    check(
+      `nothing scrolls inside it @${w}x${h}`,
+      r.inner.length === 0,
+      r.inner.join(', ') || 'no inner scroller',
+    )
+  }
+  await page.setViewportSize({ width: 360, height: 640 })
+  await page.waitForTimeout(200)
+
   const reveals = await gameReveals()
   const skippedGreens = words
     .filter((w) => !packedIds.includes(w.wordId))

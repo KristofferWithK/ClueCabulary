@@ -2616,64 +2616,81 @@ select:focus {
 
 /* ---------- round summary ---------- */
 
-/* The end screen owns the rest of the phone: a column whose middle band
-   scrolls inside itself, with the two actions pinned under it. The one thing
-   here with no bound on its height is the expanded turn log, and the no-scroll
-   rule is measured on the DOCUMENT — so this is the same bargain Settings
-   makes with .screen-scroll. */
+/* The end screen owns the rest of the phone, and since P1 it is ONE FIXED
+   SCREEN: no scroller, inner or outer. Every band in this column is bounded —
+   the outcome box, two tiles, one line about the token, the sentences, the
+   lid — and the one thing that never could be bounded, the expanded
+   transcript, opens as a panel OVER the column instead of lengthening it.
+   (.summary-scroll used to be here, and P4 turns that panel into a sheet.)
+
+   position: relative is load-bearing twice. It is what the panel resolves
+   against, and it is what the log's .visually-hidden spans resolve against:
+   .visually-hidden is position:absolute, and with nothing positioned between
+   them and .app-shell they park 1px boxes at whatever y the transcript
+   reaches. One measured at y=1027 on a 640px phone and handed the DOCUMENT a
+   1028px scrollHeight that no visible element had asked for. */
 .round-summary {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.summary-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  /* Load-bearing, and measured. The turn log gives every guess a
-     .visually-hidden span, and .visually-hidden is position:absolute — with no
-     positioned ancestor here they resolve against .app-shell and park 1px
-     boxes wherever the log happens to reach. An expanded log put one at y=1027
-     on a 640px phone and handed the DOCUMENT a scrollbar that no visible
-     element asked for: measured 1028 vs 640, while this scroller was correctly
-     clipping at 420. Exactly the trap .screen-scroll carries the same line
-     for, and layout-drive checks the containing block itself rather than only
-     the overflow — the overflow only shows up once the log is long enough. */
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  /* Keep the last section clear of the actions below it. */
-  padding-bottom: 4px;
+  /* Measured rather than chosen: the gaps alone were 24px more than the tight
+     phone had at the old 12px (see the band budget in the P1 commit). */
+  gap: 7px;
 }
 
+/* Casey to the left of what the round came to, rather than a centred headline
+   with a mascot bolted on top: the face IS the tone, so it sits in the
+   sentence's own line of reading. */
 .outcome-banner {
-  border-radius: var(--radius);
-  padding: 24px;
-  text-align: center;
+  border-radius: 16px 10px 14px 11px / 11px 14px 10px 16px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+/* cluey-mini's 44px is a dock size; this is the one place on the screen with a
+   face on it, so it is sized up to carry the band — as far up as the 640px
+   phone's band budget allows. */
+.summary-cluey {
+  width: 54px;
+}
+
+.outcome-said {
+  min-width: 0;
 }
 
 .outcome-banner h2 {
-  font-size: 1.9rem;
+  font-size: 1.5rem;
 }
 
 .outcome-banner p {
-  margin-top: 8px;
-  line-height: 1.45;
+  margin-top: 3px;
+  line-height: 1.35;
+  font-size: 0.86rem;
 }
 
 /* The card that ended the round. The board unmounts when the round finishes,
-   so without this the player is told a rule and shown nothing that happened. */
+   so without this the player is told a rule and shown nothing that happened.
+   It is also the third line in the tallest ending there is — a lost last
+   chance in a wrap-up round — so it is set a size down from the sentence above
+   it, which is where its weight comes from anyway. */
 .outcome-culprit {
   font-weight: 600;
+  font-size: 0.82rem;
+  margin-top: 2px;
 }
 
+/* The two grounds. The drawn edge comes from the pencil pass at the bottom of
+   this file, so what is left here is the fill and the colour of the hand. */
 .outcome-won {
   background: var(--green-soft);
-  border: 1px solid var(--green);
+}
+
+.outcome-won::before {
+  border-color: var(--green-tile);
 }
 
 .outcome-won h2 {
@@ -2682,7 +2699,6 @@ select:focus {
 
 .outcome-lost {
   background: var(--surface);
-  border: 1px solid var(--line);
 }
 
 .outcome-lost p,
@@ -2691,8 +2707,7 @@ select:focus {
 }
 
 .summary-section {
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius);
+  border-radius: 14px 9px 12px 10px / 10px 12px 9px 14px;
   padding: 16px;
 }
 
@@ -2705,26 +2720,29 @@ select:focus {
   line-height: 1.55;
 }
 
-/* Four tiles, two by two. Not four across: at 360px that is 82px a tile, and
-   "collected this round" does not fit in 82px at any size worth reading. */
+/* TWO tiles since P1, side by side. There were four — these two plus the city
+   and the journey — and the two that went are the collection rather than the
+   round; Home and the suitcase draw both of them bigger. The second tile
+   hides itself when there is nothing in it, and the first then simply takes
+   its own half rather than stretching to fill the row. */
 .summary-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+  align-items: start;
 }
 
 .stat {
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius);
-  padding: 10px 12px;
+  border-radius: 12px 8px 11px 9px / 9px 11px 8px 12px;
+  padding: 7px 10px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
 .stat-n {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   line-height: 1.1;
 }
@@ -2735,17 +2753,44 @@ select:focus {
   line-height: 1.25;
 }
 
-/* The two counters the round earned read as the reward; the two totals beside
-   them are context, and are drawn quieter on purpose. */
+/* The names the tile is counting, folded in from the list that used to sit
+   below the fold. Bounded on purpose, and the bound is load-bearing: a wrap-up
+   round can wrap thirteen words, and thirteen names unclamped is a paragraph
+   inside a tile on a screen with no scroller. Two lines is what the 640px
+   budget has for it. */
+.stat-words {
+  margin-top: 3px;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  font-weight: 600;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* What the round earned reads as the reward. */
 .stat-discovered,
-.stat-collected {
+.stat-collected,
+.stat-wrapped {
   background: var(--green-soft);
+}
+
+.stat-discovered::before,
+.stat-collected::before,
+.stat-wrapped::before {
   border-color: var(--green-tile);
 }
 
-.stat-city .stat-n,
-.stat-total .stat-n {
-  font-size: 1.2rem;
+/* The token line: one sentence, no box. It is the whole of the economy, and a
+   heading over a paragraph made it look like a section of the screen rather
+   than a note at the bottom of a result. */
+.summary-earned {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+  padding: 0 2px;
 }
 
 .result-answer {
@@ -2778,43 +2823,70 @@ select:focus {
 
 /* The lid on the transcript. A button rather than a <details> summary: the
    open state lives in React (see RoundSummary), so the row has to be a real
-   control with its own aria-expanded. Full width and 44px tall — it is the
-   whole section header, and it is tapped with a thumb. */
+   control with its own aria-expanded.
+
+   Text-sized and under the actions since P1 — it was a boxed section header at
+   1.05rem, which drew the transcript as one of the round's results rather than
+   as the footnote it is, and cost the fixed screen a band it could not spare.
+   Full width so the target is still a thumb's worth of row. */
+.log-section {
+  display: flex;
+  justify-content: center;
+}
+
 .log-toggle {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 7px;
   width: 100%;
-  min-height: 44px;
-  /* Pulled back out of the section's padding so the target reaches the edges
-     without the row looking inset. */
-  margin: -16px;
-  padding: 16px;
-  text-align: left;
-  font-size: 1.05rem;
+  min-height: 34px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
   font-weight: 600;
+  color: var(--text-dim);
 }
 
 .log-toggle-mark {
-  color: var(--text-dim);
-  font-size: 0.8rem;
-}
-
-.log-toggle-label {
-  flex: 1;
+  font-size: 0.7rem;
 }
 
 .log-toggle-count {
-  font-size: 0.8rem;
   font-weight: 400;
-  color: var(--text-dim);
+  opacity: 0.8;
 }
 
-/* Empty while collapsed — the log is unmounted, not hidden — so it must add
-   no height of its own. The margin only exists once there is content. */
+/* Empty while collapsed — the log is unmounted, not hidden — so it adds no
+   height of its own and nothing on the fixed screen moves.
+
+   Open, it is a PANEL over the summary rather than a section inside it. That
+   is what lets .summary-scroll go: the transcript is the only thing here with
+   no bound on its height, and a fixed screen cannot hold it in flow. It scrolls
+   inside itself, the document does not move, and the summary underneath is
+   untouched. P4 replaces this with a real sheet in DictionarySheet's idiom;
+   the markup it lifts is already the markup below. */
 .log-body:not(:empty) {
-  margin-top: 16px;
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px;
 }
+
+/* The panel covers the lid that opened it, so it carries its own way back. */
+.log-close {
+  margin-bottom: 10px;
+  padding: 10px 16px;
+  min-height: 44px;
+}
+
+/* The panel resolves against .round-summary, which is why .log-section is a
+   plain row and NOT a .summary-section: the pencil pass puts position:relative
+   on every boxed thing, and a positioned ancestor here would trap the panel
+   inside a 34px strip. */
 
 /* The turn log: what was said, and why. Replaces .clue-log, whose one-line
    Â«mad âœ“  hus Â·Â» strip said what happened and never why. */
@@ -2893,9 +2965,13 @@ select:focus {
 }
 
 
+/* Pushed to the bottom of the fixed column, so the round's result reads from
+   the top and the way out is always in the same place — whatever a particular
+   ending happens to be tall enough to say. */
 .summary-actions {
   display: flex;
   gap: 12px;
+  margin-top: auto;
 }
 
 .summary-actions .btn-primary {
@@ -3100,7 +3176,17 @@ select:focus {
   font-size: 1.15rem;
 }
 
-/* ---------- confetti ---------- */
+/* ---------- confetti, in pencil ----------
+
+   Small hand-torn scraps rather than the coloured rectangles this used to be.
+   Those were the last thing in the app the pencil pass had not reached: five
+   colours belonging to nothing else on screen, falling over a board drawn in
+   graphite. Each scrap is now one <path> through #pencil-edge, outlined in the
+   .cluey-hatch weight and filled from the card palette (--green, --line, the
+   beige) — the same hand as everything under it.
+
+   The FALL is untouched: same twenty-eight pieces, same deterministic
+   left/delay/duration, same one-shot keyframes, same reduced-motion rule. */
 
 .confetti {
   position: fixed;
@@ -3112,12 +3198,24 @@ select:focus {
 
 .confetti-piece {
   position: absolute;
-  top: -12px;
-  width: 8px;
-  height: 12px;
-  border-radius: 2px;
+  top: -14px;
+  width: 13px;
+  height: 13px;
+  /* #pencil-edge displaces outward by design, so the scrap must not be clipped
+     by its own viewport box. */
+  overflow: visible;
   opacity: 0.9;
+  filter: url(#pencil-edge);
   animation: confetti-fall linear forwards;
+}
+
+/* Tinted per piece through `color`, so one rule draws all twenty-eight. The
+   outline is the hatch's graphite at the hatch's weight. */
+.confetti-scrap {
+  fill: currentColor;
+  stroke: rgba(18, 18, 18, 0.34);
+  stroke-width: 1.1;
+  stroke-linejoin: round;
 }
 
 @keyframes confetti-fall {
@@ -3240,76 +3338,53 @@ select:focus {
   }
 }
 
-/* ---------- collection: newly-green words, shown after a round ---------- */
+/* The block that lived here — .collected-section and its list — went with P1.
+   The words a round collected are named inside the tile that counts them now
+   (.stat-words), which is the same information without a section of its own
+   below the fold. */
 
-.collected-section {
-  background: var(--green-soft);
-  border-radius: var(--radius);
-  padding: 14px;
-}
+/* ---------- the round's words, used in a sentence ----------
 
-.collected-words {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
-}
+   The tallest band on the summary and the one the fixed screen is tuned
+   against: five rows, each a Danish line over its English. Every size here is
+   the result of the 360x640 band budget rather than a preference — see the
+   measurements in the P1 commit. P2 replaces the list with a one-at-a-time
+   review in the same rectangle. */
 
-.collected-word {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 0.95rem;
-}
-
-.collected-mark {
-  color: var(--green-deep);
-  font-size: 0.7rem;
-}
-
-.collected-word [lang] {
-  font-weight: 700;
-}
-
-.collected-en {
+/* The heading is a label, not a title: the five lines under it are obviously
+   sentences, and a 1.05rem heading with 10px under it was 27px of the budget
+   saying so twice. */
+.sentences-section h3 {
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--text-dim);
-  font-size: 0.85rem;
+  margin-bottom: 5px;
 }
-
-.collected-note {
-  margin-top: 10px;
-  font-size: 0.8rem;
-  color: var(--text-dim);
-}
-
-/* ---------- the round's words, used in a sentence ---------- */
 
 .round-sentences {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 5px;
 }
 
 .round-sentence {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 /* A sentence is the one speak target that wraps to a second line, and the
    dotted underline is what says it is a control. `inline` rather than the
    button default so the underline follows the text around the wrap instead of
    ruling a line under the whole block; `text-align: left` because the global
-   button reset centres, which on a two-line sentence looks like a pull quote.
-   Nothing here sets a height — the section sits inside .summary-scroll, which
-   is what keeps five of these off the document's scrollbar. */
+   button reset centres, which on a two-line sentence looks like a pull quote. */
 .speak-sentence {
   display: inline;
   text-align: left;
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: 0.85rem;
+  line-height: 1.28;
 }
 
 .round-sentence [lang] {
@@ -3317,9 +3392,9 @@ select:focus {
 }
 
 .sentence-en {
-  font-size: 0.83rem;
+  font-size: 0.72rem;
   color: var(--text-dim);
-  line-height: 1.4;
+  line-height: 1.2;
 }
 
 /* ---------- the round, as a story (H5) ---------- */
@@ -5020,7 +5095,13 @@ select:focus {
 .error-banner,
 .connect-cluey,
 .practice-note,
-.setup-nudge {
+.setup-nudge,
+/* The round summary's boxes (P1). There are four of them at most — an outcome
+   band, two tiles and the lid — so they can afford the filter the board
+   cannot, and the owner's note was that they should read like the cards. */
+.outcome-banner,
+.stat,
+.summary-section {
   border-color: transparent;
   position: relative;
 }
@@ -5036,7 +5117,10 @@ select:focus {
 .error-banner::before,
 .connect-cluey::before,
 .practice-note::before,
-.setup-nudge::before {
+.setup-nudge::before,
+.outcome-banner::before,
+.stat::before,
+.summary-section::before {
   content: '';
   position: absolute;
   /* Inset by a hair: the displacement pushes the stroke outward, and a border

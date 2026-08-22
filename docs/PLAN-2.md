@@ -498,17 +498,17 @@ pass to flip.
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
-- **P1** — The round summary as one fixed screen, in pencil, with Casey *(W1 and K2 both landed — ready)*
 - **I1** — The station, the ticket, the train *(D4 and W1 both landed — ready)*
+- **U3** — Casey thinks aloud before each guess *(K2 and S1 both landed — ready)*
+- **P3** — Retire the live story call *(P1 landed — ready, and it is the card that removes the last unbounded thing left on the fixed summary)*
+- **P4** — The turn log and its flags behind a sheet *(P1 landed — ready; the panel P1 opens over the summary is the sheet's rough draft)*
 
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
 - **S2** — Bake the 900 example sentences *(T3 — last of the three; push-gated, the bake runs in Actions)*
-- **P2** — The sentence review *(S2, P1)*
-- **P3** — Retire the live story call *(P1 — the section it removes is redrawn there)*
-- **P4** — The turn log and its flags behind a sheet *(P1)*
+- **P2** — The sentence review *(S2 — P1 landed, so the slot it sits in is drawn and measured)*
 - **I2** — The practice round: the player plays, Casey reacts *(I1, K2, U3)*
-- **I3** — The post-match Casey and the door to the case *(I2, P1)*
+- **I3** — The post-match Casey and the door to the case *(I2 — P1 landed)*
 - **I4** — The tour retold, and the map act *(I3, W1)*
 - **I5** — Docs: README's Setup, DECISIONS, the tips *(I1–I4)*
 
@@ -520,6 +520,61 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **P1** — The round summary as one fixed screen, in pencil, with Casey —
+  2026-08-22 (PR #PR1). One screen with **no scroller, inner or outer**:
+  `.summary-scroll` is gone and every band on it is bounded. `OUTCOME_COPY`
+  lost the 🎉 and gained Casey — `ClueyFace` with the outcome's mood, in the
+  outcome band. `RoundStats` is two tiles rather than four (the city and the
+  journey went; Home and the suitcase draw both bigger), the "Collected for
+  Casey" section folded into the collected tile as tappable names, and the
+  earned block became W1's one line.
+  **Wrap-up rounds get their own pair** — "7 wrapped for good — …" and "3
+  stayed" — and W1's "win or lose" sentence is kept, folded into the
+  nothing-wrapped case so a wrap-up can never spend two paragraphs it does not
+  have. **The confetti is redrawn in pencil**: four torn `<path>` scraps
+  through `#pencil-edge`, outlined in the `.cluey-hatch` weight and tinted from
+  `--green` / `--line` / the beige, over the *unchanged* fall — same 28 pieces,
+  same deterministic left/delay/duration, same `prefers-reduced-motion` rule.
+  `Confetti` is still exported for the tutorial (I3).
+  **Two things the card did not anticipate, both measured.** The screen did not
+  fit: the first full draft asked **778px on a 640px phone**, and the band
+  budget is what every size in it is now chosen against rather than by eye —
+  the sentences band (322px, the tallest thing here) lost its box and its
+  1.05rem heading and its rows came down from 42.6px, the log lid went from a
+  54px boxed section header to a 34px text row under the actions, the column
+  gap from 12 to 7, Casey from 64 to 54. And the **practice note** — "Casey is
+  offline…" — was rendering on the end screen: 53.4px of a sentence about a
+  round that is over, on the one screen with nothing to spare. It is hidden
+  once `game.phase === 'finished'`.
+  **Measured, at 360×640 and 390×844, and printed by the drives that measure
+  it.** The column the summary gets is 546px on the tight phone and 750px on
+  the tall one. An ordinary win asks **479.3px**, a wrap-up ending (the tallest
+  — a lost last chance, two tiles with names, a paragraph about the token and
+  five sentences) asks **515.4px**, and a lost last chance in an ordinary round
+  asks **267.8px** (it greens little, so it has no sentences). Document
+  `scrollHeight` is 640/640 and 844/844 in all three, with no inner scroller in
+  any of them.
+  The transcript is the one thing left with no bound on its height, so it
+  **opens as a panel over the summary** and scrolls inside itself, with its own
+  way back. That is P4's sheet in the smallest form that keeps the document
+  still, and P4 lifts the markup verbatim.
+  **layout-drive's end-screen section was vacuous** (B1 found it; every check
+  sat under `if (summarised)`, and the round only sometimes ended). It drives to
+  a win deterministically now — real turns, then the last chance forced and
+  every remaining green named — and pins the measured screen: five sentences,
+  both tiles, the token line, no document scroll AND no inner scroller at
+  360×640 and 390×844. **Mutation checked, twice, and recorded in the commit**:
+  `.round-sentences { gap: 40px }` makes the screen ask 619.3px of 546 and the
+  no-scroll assertion fails 701 vs 640; `.sentences-section { max-height:
+  150px; overflow-y: auto }` puts an inner scroller back and the second
+  assertion fails on it while the document stays still. Both pass again on
+  revert. endgame-drive measures the last-chance ending and wrapup-drive the
+  wrap-up ending, both at both sizes.
+  **P3 and P4 are promoted Ready** (both depend on P1 alone). P2 stays blocked
+  on S2. P3 matters more than it did: `RoundStory` is now the only unbounded
+  thing that can still appear in the fixed column, and it only appears with a
+  live companion (`?mock=1` sets `storyStatus: 'off'`), which is why the drives
+  never see it.
 - **U3** — Casey thinks aloud before each guess — 2026-08-22 (PR #116).
   `AiTurnPanel` is two beats per planned guess instead of one 1100ms interval,
   paced in the panel with the queue still in the store. **think** (2000ms):
@@ -1964,6 +2019,40 @@ One more win for a wrap-up round                                    ← W1's one
 **Accept:** verify green; endgame-drive and smoke-drive assert the new
 structure; no scroll at 360×640 and 390×844 in a normal, a wrap-up and a
 sudden-death ending.
+
+**AS BUILT, 2026-08-22 (PR #PR1) — this overrides the sketch above where they
+differ.** The card was written before W1, N2, K2 and D4/D5 landed, and it did
+not know the screen would not fit.
+
+- **The token line is W1's, not the card's.** There is no "One more win for a
+  wrap-up round" literal: the line interpolates `winsToNextWrapUp` and reads
+  "2 more wins for a wrap-up round" / "Wrap-up round unlocked …" / "Wrap-up
+  round earned — N banked" / "The bank is full — …", the four states W1
+  shipped. Only after a win, and only in a normal round.
+- **A wrap-up packs at most 13** (N2), so the wrap-up pair reads "7 wrapped for
+  good — …" and "3 stayed". W1's "a wrap-up banks everything you packed and
+  found green, win or lose" is KEPT, and folded into the nothing-wrapped case
+  as well — both can be true at once and the fixed screen cannot afford two
+  paragraphs.
+- **The screen did not fit, and that is the card's real content.** The first
+  full draft asked 778px on a 640px phone. Every size on the screen is now
+  chosen against a measured band budget: the sentences band lost its box and
+  its heading, the log lid became a 34px text row under the actions, the
+  column gap went 12 → 7, Casey 64 → 54. Two things had to give that the card
+  did not name — the practice note ("Casey is offline…", 53.4px) is hidden once
+  the round is finished, and the transcript opens as a PANEL over the summary
+  rather than as a section in it, which is P4's sheet in its smallest form.
+  Measured, column 546px at 360×640: ordinary win 479.3, wrap-up 515.4, lost
+  last chance 267.8.
+- **The last chance, not sudden death, in the copy** (D5) — the phase id and
+  the outcome reason are untouched.
+- **layout-drive's end-screen section is re-pinned for real.** It was vacuous
+  (B1): every assertion sat under `if (summarised)` and the round only
+  sometimes ended. It drives to a win deterministically now and asserts the
+  measured screen, with the mutation check recorded in the commit.
+- **The one unbounded thing left is `RoundStory`**, which P3 deletes. It never
+  appears under `?mock=1` (`requestStory` sets `storyStatus: 'off'` on the
+  practice companion), which is why no drive sees it.
 
 ### P2 — The sentence review
 **Size:** 1 session. **Deps:** S2 (the clips), P1 (the slot it sits in).
