@@ -34,7 +34,29 @@ import {
  * log verbatim, and what was learned is a count the SRS can answer — so the
  * round now ends without a network call at all.
  */
+/**
+ * Who answered the last call, and whether their first answer stood.
+ *
+ * The clue ledger (`src/stores/ledgerStore.ts`) reads this off the companion
+ * immediately after `getClue` resolves. `refused` is the number
+ * `proxy/README.md` calls `r` and records as never measured: a refusal is the
+ * app's own validator rejecting the first reply, which is exactly the event
+ * that makes `askValidated` retry — and the retry is what asks the proxy for
+ * the better model. Nothing here is a fact about the model's opinion of
+ * itself; every trigger is something this app checked (`proxy/worker.js`).
+ */
+export interface CallReport {
+  /** The model alias asked for, or `engine` / `mock` for the offline arms. */
+  arm: string
+  refused: boolean
+}
+
 export interface Companion {
+  /**
+   * Set by the companions that know: read it right after an await, never
+   * later. Absent on the scripted tutorial, which is not a measurement.
+   */
+  readonly lastCall?: CallReport | null
   getClue(view: AiClueView): Promise<ClueResponse>
   getGuesses(view: AiGuessView): Promise<GuessResponse>
   /** One word, either direction. Takes no view: it must not see the board. */
@@ -149,6 +171,12 @@ async function askValidated<T>(
    * what happened to their game; the diagnostic goes to the console.
    */
   giveUpMessage: string,
+  /**
+   * How many corrective attempts it took, called once on success. This is the
+   * only place in the app that knows, and until the clue ledger nothing was
+   * writing it down — see `CallReport`.
+   */
+  onAttempts?: (attempts: number) => void,
 ): Promise<T> {
   // The rejected replies stay in the conversation. A model that is told only
   // "that was invalid" cannot see which of its own answers was meant, and the
@@ -205,7 +233,10 @@ async function askValidated<T>(
       continue
     }
     const parsed = parse(raw)
-    if (parsed.ok) return parsed.value
+    if (parsed.ok) {
+      onAttempts?.(attempt)
+      return parsed.value
+    }
     problem = parsed.problem
     conversation.push({ role: 'assistant', content: JSON.stringify(raw) }, correctionTurn(problem))
   }
@@ -215,6 +246,9 @@ async function askValidated<T>(
 }
 
 export class OllamaCompanion implements Companion {
+  /** See `CallReport`. Written by `getClue`; read by the clue ledger. */
+  lastCall: CallReport | null = null
+
   constructor(
     private settings: AiSettings,
     private chat: ChatFn = chatJson,
@@ -291,6 +325,12 @@ export class OllamaCompanion implements Companion {
       },
       0.6,
       'Casey could not settle on a clue for the words she is holding.',
+      // The ledger's `r`. Only the clue call reports: it is the one the whole
+      // round turns on, and counting four kinds of call in one rate would
+      // measure nothing in particular.
+      (attempts) => {
+        this.lastCall = { arm: this.settings.model || 'default', refused: attempts > 0 }
+      },
     )
   }
 

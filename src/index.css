@@ -5503,3 +5503,48 @@ select:focus {
 .tour-panel .onboard-controls {
   padding-bottom: 0;
 }
+
+/* The clue ledger in Settings (E4). A diagnostic table, deliberately plain —
+   it exists so the owner can read a hit rate and a refusal rate off real play,
+   not as anything a player is meant to look at twice. Sits inside
+   .screen-scroll like the rest of Settings, and scrolls sideways on its own if
+   a future arm name is long, so it can never lengthen the document. */
+.clue-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.clue-ledger table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+  min-width: 100%;
+}
+
+.clue-ledger th,
+.clue-ledger td {
+  text-align: right;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+}
+
+.clue-ledger th:first-child,
+.clue-ledger td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.clue-ledger th {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.clue-ledger small,
+.ledger-empty {
+  color: var(--text-dim);
+  line-height: 1.4;
+  font-size: 0.85rem;
+}

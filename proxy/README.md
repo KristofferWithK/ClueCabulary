@@ -252,8 +252,16 @@ the decision is made in the app and not here.
 Against the 25,000-request ceiling above, the worst day this proxy can have goes
 from about $50 to about $11.
 
-`r` is the one number in all of this that has never been measured — it needs a
-real cheap model answering real boards. Step 5 measures it. Everything else here
+`r` was for a long time the one number in all of this that had never been
+measured. **It now has somewhere to land.** E4 (2026-08-22) shipped the clue
+ledger — `src/stores/ledgerStore.ts`, shown in Settings under "Casey's clues" —
+which counts, per arm, the clues whose FIRST reply the app's own validator
+refused. That is exactly `r`: reaching a retry is the refusal, and the retry is
+what asks this worker for the better model. `askValidated` always knew it and
+nothing was writing it down; it reports its attempt count through `CallReport`
+now. The ledger still needs a real cheap model answering real boards to fill in,
+so `r` has a meter and not yet a value — and `docs/clue-engine.md`'s E4 verdict
+holds the alias flip below until it does. Everything else here
 is measured or is your own price list: the biggest prompt a round sends is 8,208
 bytes (about 2,050 input tokens), checked by `e2e/proxy-drive.mjs`, and an
 ordinary round is 7 to 12 calls.

@@ -238,11 +238,20 @@ export function GameScreen() {
         // Say what is true: since E3 the practice companion is the local clue
         // engine — real clues from the word book, guesses ranked by the judged
         // matrix — not the hash-scrambled mock this line used to apologise
-        // for. It still is not Casey (no model, no reasoning), and how WELL it
-        // plays is E4's number to state, so the copy claims the mechanism and
-        // nothing more. Keyed on the companion actually in use, not on the
-        // fallback flag — the settings route reached the same object and said
-        // nothing. smoke-drive asserts this wording; change both together.
+        // for. It still is not Casey (no model, no reasoning). Keyed on the
+        // companion actually in use, not on the fallback flag — the settings
+        // route reached the same object and said nothing. smoke-drive asserts
+        // this wording; change both together.
+        //
+        // E4 HAS THE NUMBER NOW AND THE COPY DELIBERATELY DOES NOT CARRY IT.
+        // The engine reads an independently-authored clue between a p = 0.6 and
+        // a p = 0.7 partner on city-1 boards — decent, and worth nothing to a
+        // player as a figure. Two reasons not to warm the line up on the
+        // strength of it: the only thing this sentence exists to tell someone
+        // mid-round is that Casey is not answering and where the switch is;
+        // and the engine has data for city 1 ALONE, so past it `searchClue`
+        // returns null and the mock answers under the same banner. A warmer
+        // sentence would be false for eight cities in nine until E6 lands.
         <p className="practice-note">
           Practice companion — Casey is offline, a little word book is playing for her. Settings
           turns it off.

@@ -183,7 +183,7 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
       <h1>900words Dispatch</h1>
       <p class="dim" style="margin-top:6px">Live status of the production board. Cards, measurements and reversals live in <code>docs/PLAN-2.md</code>; this is the view from the signal box.</p>
     </div>
-    <span class="updated" id="updated">updated 22 Aug 2026 · 18:10</span>
+    <span class="updated" id="updated">updated 22 Aug 2026 · 19:05</span>
   </div>
   <div class="overall">
     <div class="obar" id="obar"></div>
@@ -201,8 +201,8 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
     </div>
     <div class="panel">
       <span class="panel-k">in progress</span>
-      <h3 id="active-title">E4 — the verdict</h3>
-      <p id="active-body">Fifteen PRs merged. <strong>E4</strong> is running: it measures the engine against the mock floor and the shipped p-curve, keeps the Opus and Fable authoring halves apart so the exam does not share the product's judgement, and ends in a written <em>go</em> or <em>stop</em> on E5/E6. A stop saves five sessions and the plan budgets for it.</p>
+      <h3 id="active-title">E4 landed — the verdict is GO</h3>
+      <p id="active-body">Fifteen PRs merged, <strong>E4</strong> in review. Keeping the Opus and Fable authoring halves apart turned out to matter more than anyone expected: a clue-giver reading one model's book is read by a guesser holding the other's at <strong>0.62–0.70</strong> greens per word asked, against a floor of 0.23 — but <em>engine-vs-engine self-play is now retired as evidence entirely</em>, because a shared djb2 hash scores 100% on it. A shared arbitrary function is a private code between the seats. θ had been chosen on that row, so it was re-swept cross-model and stays at 0.5, judged on boards cleared rather than hit rate. Next: <strong>E6</strong> (cities 2–9, one PR each), then <strong>E5</strong>'s first half only — the alias flip waits for the new clue ledger to give <code>r</code> a value.</p>
     </div>
     <div class="panel hold">
       <span class="panel-k">waiting on Kristoffer</span>
@@ -383,15 +383,15 @@ var CARDS = [
   { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready', m:'opus', lane:'content' },
   { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1', m:'opus', lane:'ui' },
   { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. No longer shares anything with the engine.', size:'1–2', st:'ready', m:'opus', lane:'content' },
-  { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'Engine selfplay with the authoring halves kept apart, the opt-in probe, the clue ledger. Ends in a written go / stop.', size:'1–2', st:'ready', dep:'E3', m:'opus', lane:'engine' },
+  { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'VERDICT: GO. Cross-model 0.62–0.70 greens per word asked against a 0.23 floor. Engine-vs-engine retired as evidence — a shared djb2 hash scores 100% on it — so θ was re-swept cross-model and stays 0.5, on boards-cleared rather than hit rate. Probe built (opt-in, unpaid); the clue ledger gives r somewhere to land.', size:'1–2', st:'done', dep:'E3', m:'opus', lane:'engine' },
 
   { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from the city; only pre-collected words wrap. Pacing re-measured: a city is 56–86 rounds.', size:'1–2', st:'done', m:'opus', lane:'ui' },
   { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'ready', m:'opus', lane:'ui' },
   { w:5, id:'P2', t:'The sentence review',                   sub:'Danish → English → Danish, the highlight tracking the reading.', size:'1', st:'blocked', dep:'S2 · P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P3', t:'Retire the live story call',            sub:'Deleted end to end. One fewer proxy request per round.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P4', t:'The turn log behind a sheet',           sub:'Zero height on the summary; the ⚑ flags survive.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
-  { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'~530 judging agents across two models; one PR per city. Needs the final ids (WS1) and E4’s yes.', size:'2–3', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
-  { w:5, id:'E5', t:'The hybrid',                            sub:'Evaluator as validator (turns H7 on), the candidates prompt, rank fusion, then the alias flip once the ledger says so.', size:'1–2', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
+  { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'E4 said go. ~530 judging agents across two models; one PR per city, and re-measure the first city cross-model before authoring the rest. Keep the per-model split. One data file per city (E2’s size note).', size:'2–3', st:'ready', dep:'E4', m:'opus', lane:'engine' },
+  { w:5, id:'E5', t:'The hybrid',                            sub:'E4 said go for the FIRST half only: the evaluator as a validator inside OllamaCompanion.getClue, which turns H7 on with a checked trigger. The candidates prompt, rank fusion and the alias flip wait until the clue ledger has given r a value.', size:'1–2', st:'ready', dep:'E4', m:'opus', lane:'engine' },
 
   { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'ready', m:'opus', lane:'ui' },
   { w:6, id:'I2', t:'The practice round the player plays',   sub:'Reactive commentary instead of a linear script, pinned exhaustively. The biggest card on the board.', size:'2', st:'blocked', dep:'I1 · K2 · U3', m:'fable', lane:'ui' },

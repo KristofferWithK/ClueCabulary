@@ -16,7 +16,7 @@ import { isOpenFor, type AiClueView } from '../projections'
  */
 
 /** One opening-book association, as `src/data/book.da.json` ships it. */
-interface BookEntry {
+export interface BookEntry {
   da: string
   en: string
   why: string
@@ -24,14 +24,14 @@ interface BookEntry {
   v: number
 }
 
-interface BookFile {
+export interface BookFile {
   lang: string
   city: number
   words: Record<string, { assoc: BookEntry[] }>
   pairs: Record<string, BookEntry[]>
 }
 
-interface MatrixFile {
+export interface MatrixFile {
   lang: string
   city: number
   n: number
@@ -118,7 +118,14 @@ export function engineTrapIds(view: AiClueView): string[] {
 
 const pairKey = (a: string, b: string): string => `${a}|${b}`
 
-function buildEvaluator(matrix: MatrixFile, book: BookFile): Evaluator {
+/**
+ * Build an evaluator over one matrix and one book. Exported because E4's
+ * measurement builds THREE of them: the shipped pair, and one per authoring
+ * model, so a clue-giver reading Opus's judgement can be examined by a guesser
+ * reading Fable's (`engine-selfplay.test.ts`). Nothing in the app calls it —
+ * `loadEvaluator()` below is the app's door.
+ */
+export function buildEvaluator(matrix: MatrixFile, book: BookFile): Evaluator {
   const { fold } = ACTIVE.orthography
   const n = matrix.n
   const index = new Map<string, number>()

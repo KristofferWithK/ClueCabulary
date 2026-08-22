@@ -46,6 +46,60 @@ Applied throughout the night unless a card says otherwise.
 
 *(appended as they are taken; each with its reversal)*
 
+### 2026-08-22 · The clue engine is worth continuing — E6 before E5, and E5 in halves (E4)
+E4 was the card that ends in a verdict, and the verdict is **go**. The full
+table, the caveats and the reversals live in `docs/clue-engine.md` under
+"Stage 4 as built" and "The verdict (E4, 2026-08-22)"; this is the pin.
+
+**What was measured.** 200 seeded city-1 boards, the same deals down every row.
+The offline engine's association data was rebuilt as two independent halves —
+Opus's votes alone and Fable's votes alone, from the committed per-model vote
+files — so a clue-giver reading one model's judgement is examined by a guesser
+reading the other's. Cross-model **0.623 and 0.701 greens per word asked**,
+against a nonsense-clue floor of **0.234** and coins of 0.586 (p = 0.6) and
+0.678 (p = 0.7). The offline engine reads an independently-authored clue a
+little better than a p = 0.6 partner and a little worse than p = 0.7.
+
+**And one thing that had to be retired.** Engine-vs-engine self-play is not
+evidence. Replace `sim` with a djb2 hash and give both seats the SAME hash and
+the row scores **100%** — better than every honest row — because a shared
+arbitrary function is a private code the search encodes into and the guesser
+decodes. Give the seats different salts and it falls to **0.5%**, the floor.
+E3's 99.0% therefore measured agreement, not association. No pin in this repo
+may rest on that row again.
+
+**θ was chosen on that row, so it was re-chosen.** The whole sweep was re-run
+cross-model. **θ stays at 0.5** — board cleared inside the tokens 51.5% and
+59.5%, against 28.0/36.5 at θ = 0 and 42.0/41.0 at θ = 1.0 — but the objective
+had to change with the instrument: hits/number rises *monotonically* with θ, to
+0.966 at θ = 2.0, a bar at which **no board is ever finished**. A clue engine
+tuned on hit rate alone picks the setting that never wins. Two of E3's three
+stated reasons turned out wrong (θ = 0 loses 23 points cross-model, not eight;
+and above 0.5 the guesser *does* redeem some of the coverage it loses, just not
+enough). The 0.5-vs-1.0 comparison flips at the suite's 40-game default, so it
+was settled at 400 games a cell and the committed pin defends only what survives
+every sample size. `LAST_CLUE_THETA`'s sweep cannot distinguish its three
+candidate bars at all, so it is set equal to θ for want of evidence rather than
+by choice, and its comment now says so.
+
+**Decided.** (a) **E6 — cities 2–9: go.** The data works, and eight of nine
+cities have none of it, so every player past city 1 gets `mok`. One city per PR.
+(b) **E5's first half — the evaluator as a validator inside
+`OllamaCompanion.getClue`: go.** It is the piece the cross-model result
+supports directly, and it turns H7's escalation into a checked trigger.
+(c) **E5's second half — the candidates prompt, rank fusion and the
+`MODEL_ALIASES` flip to a cheap `cluey`: not yet.** It turns on `r`, and `r`
+still has no value. The clue ledger that will give it one ships in this PR,
+empty.
+
+**Reverse:** four named triggers, in `clue-engine.md`'s verdict section. The
+short forms: a new city measuring under ~0.45 cross-model stops E6; a probe run
+showing the model's clues almost always clearing θ stops E5's first half; a
+ledger showing the engine within ~0.05 of the remote model turns E5's second
+half into its opposite (make the engine the default and keep the model for the
+story and the translation); a ledger `r` above ~0.5 says the problem is the
+prompt, not the tier, and E5 should not be built on it.
+
 ### 2026-08-21 · Ordinary journey boards became city-only — `wordsForCity` replaces `unlockedWords` (E0)
 Owner decision, `docs/clue-engine.md` §3.4: an ordinary journey board (and free
 play) now deals only from the current city, not this city and every one

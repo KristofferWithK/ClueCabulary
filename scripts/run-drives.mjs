@@ -32,14 +32,19 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
  *   proxy   needs a deployed Cloudflare Worker
  *
  * `proxy` is in the list anyway because it runs against a local stand-in; only
- * `live` is genuinely opt-in. Everything else here is not a drive at all —
- * `map-preview`, `ollama-probe`, `home-space-probe`, `composer-probe` and
- * `dock-probe` measure and print, and a PASS from something that asserts
- * nothing is worth less than no line.
+ * `live` and `engine-probe` are genuinely opt-in. Everything else here is not
+ * a drive at all — `map-preview`, `ollama-probe`, `home-space-probe`,
+ * `composer-probe` and `dock-probe` measure and print, and a PASS from
+ * something that asserts nothing is worth less than no line.
+ *
+ * `engine-probe` is BOTH: it prints rather than asserts, AND it pays for every
+ * round, which is why it refuses to start without a key instead of falling
+ * back to something free and calling the result a measurement (E4).
  */
 const NOT_DRIVES = new Set(['fake-ollama.mjs', 'preview-server.mjs', 'worker-runtime.mjs'])
 const OPT_IN = new Set([
   'live',
+  'engine-probe',
   'map-preview',
   'ollama-probe',
   'home-space-probe',

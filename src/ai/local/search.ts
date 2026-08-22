@@ -16,33 +16,89 @@ import { engineTrapIds, type Evaluator } from './evaluator'
  * θ — the margin a clue must clear: min sim over its targets minus max sim
  * over the traps, on the evaluator's 0–3 scale.
  *
- * MEASURED, not chosen, the way every number in `src/engine/config.ts` is.
- * Engine-vs-engine on real city-1 boards (both seats cluing and guessing
- * through this search and `sim`; 400 seeded games a cell; reproducible with
+ * MEASURED, not chosen, the way every number in `src/engine/config.ts` is —
+ * and re-measured by E4 on a different instrument, because the one that first
+ * chose it does not work. Read the retired numbers below before the live ones;
+ * they are kept for the same reason E1 kept the `conflicts ≥ 2` rule it
+ * deleted (docs/clue-engine.md §6), which is that a wrong measurement nobody
+ * wrote down gets made again.
  *
- *   ENGINE_THETA_SWEEP=1 ENGINE_GAMES=400 npx vitest run src/ai/local/engine.test.ts
- *
- * ):
+ * ── THE RETIRED SWEEP (E3). DO NOT RESTORE IT AS EVIDENCE. ────────────────
  *
  *   θ                  0.0    0.5    1.0    1.5    2.0
  *   win %             91.0   99.0   97.5   59.0   21.3
- *   coverage/clue     3.04   2.38   1.97   1.57   1.44
- *   clues below θ      0      0     49/2630  16/3148  164/3198
  *
- * 0.5 is the peak, and each neighbour loses for a legible reason. At 0 a
- * clue may TIE its strongest trap, and the guesser — ranking by the same sim
- * — takes the trap half the time; strictly outranking every trap is worth
- * eight points of win rate. Above 0.5 the search pays coverage for safety
- * the guesser never redeems (2.38 → 1.97 words a clue at 1.0), and by 1.5
- * the board runs out of clues with greens still on it. 0.5 is also the
- * smallest step sim produces, so this is the lowest bar that still means
- * "every target beats every trap outright".
+ * Engine-vs-engine: both seats cluing and guessing through this search and the
+ * SAME `sim`. E4 showed that measures nothing about clue quality. Replace
+ * `sim` with a djb2 hash, give both seats the same hash, and the row scores
+ * **100%** — better than every honest row in E4's table — because the search
+ * picks whatever the shared function ranks high on its targets and low on its
+ * traps and the guesser reads it straight back off that same function. A
+ * shared arbitrary function is a private code between the seats. Salt the two
+ * seats differently and the same engine falls to the floor. So the sweep above
+ * ranked θ on how well the search encodes into a code the guesser already
+ * shares, not on whether the clue is any good.
  *
- * A caveat E4 must weigh before trusting the absolute numbers: self-play
- * shares one evaluator between the seats, so the guesser is confusable in
- * exactly the ways the clue-giver already priced in — 99% is the upper
- * bound §6 Stage 4 names, not a claim about a human partner, and a
- * human-facing measurement may want θ higher.
+ * ── THE LIVE MEASUREMENT (E4): CROSS-MODEL. ───────────────────────────────
+ *
+ * The book and the matrix were authored twice, and the votes are committed per
+ * model, so `src/ai/local/engine-selfplay.test.ts` rebuilds an Opus-only and a
+ * Fable-only evaluator and lets one clue while the other guesses. Neither seat
+ * shares the other's judgement. Reproduce with
+ *
+ *   ENGINE_THETA_CROSS=1 ENGINE_SELFPLAY_GAMES=200 \
+ *     npx vitest run --reporter=verbose src/ai/local/engine-selfplay.test.ts
+ *
+ * (the `--reporter=verbose` is load-bearing: vitest 4 swallows a passing
+ * test's console output). 200 seeded city-1 boards a cell, **board cleared
+ * inside the tokens %**, with hits/number beside it:
+ *
+ *   θ                    0.0     0.5     1.0     1.5     2.0
+ *   Opus→Fable clear    28.0    51.5    42.0    11.0     0.0
+ *              hits    0.408   0.623   0.731   0.912   0.966
+ *   Fable→Opus clear    36.5    59.5    41.0     9.5     0.5
+ *              hits    0.444   0.701   0.786   0.866   0.855
+ *   coverage/clue       3.3     2.4     2.0     1.5     1.2
+ *
+ * θ = 0.5 stands — but for a different reason than the retired sweep gave, and
+ * the objective had to change with the instrument.
+ *
+ * 1. **READ THE BOARDS CLEARED, NOT THE HIT RATE.** hits/number rises
+ *    monotonically with θ, all the way to 0.966 at θ = 2.0 — a bar that high
+ *    gives clues so safe they are nearly always read correctly and so narrow
+ *    that **no board is ever finished**. Optimising a clue engine on hit rate
+ *    alone picks the setting that never wins. Win rate is no good either: both
+ *    seats being the engine means the engine also plays sudden death, a phase
+ *    it never plays in the app. What is left, and what is right, is how often
+ *    the board is cleared while the tokens last.
+ * 2. **θ = 0 is worse than E3 thought, not better.** It lets a clue TIE its
+ *    strongest trap, and a guesser who does NOT share the clue-giver's priors
+ *    is far likelier to take the trap than one who does: the void sweep put
+ *    θ = 0 eight points behind, the cross-model one puts it 23 points behind.
+ * 3. **Above 0.5 the guesser DOES redeem some of the lost coverage** — E3 said
+ *    it never does, and cross-model that is wrong: hits/number climbs from
+ *    0.623 to 0.731 between 0.5 and 1.0. It simply does not redeem enough. The
+ *    clue drops from 2.4 words to 2.0 and the board stops getting finished.
+ * 4. The grid is EXHAUSTIVE, not a sample: `sim` returns multiples of 0.5, so
+ *    every margin is one too and a bar of 0.75 admits exactly what 1.0 admits.
+ *
+ * **The one comparison that needed a bigger sample**, and the reason this
+ * comment quotes two of them: at 200 games θ = 0.5 beats θ = 1.0 by 9.5 and
+ * 18.5 points, but at the suite's 40-game default one direction FLIPS (55.0
+ * against 57.5). That is CLAUDE.md's trap — fixed seeds are reproducible, not
+ * independent of n. Settled at **400 games a cell**, both directions agreeing:
+ *
+ *   θ                  0.5     1.0
+ *   Opus→Fable clear  48.5    39.8      hits 0.607 / 0.721
+ *   Fable→Opus clear  53.8    38.5      hits 0.680 / 0.776
+ *
+ * So `engine-selfplay.test.ts` pins only what survives every sample size —
+ * 0.5 over 0 and over 1.5, in both directions — and leaves 0.5-over-1.0 to
+ * this record rather than pretending to re-decide it in twenty seconds.
+ *
+ * What would move θ: a probe or a ledger measuring a HUMAN reading these
+ * clues. Every number above is still one model reading another model, and a
+ * person is confusable in ways neither of them is.
  */
 export const THETA = 0.5
 
@@ -52,12 +108,26 @@ export const THETA = 0.5
  * the tokens run out the round goes to sudden death, so a green not pointed
  * at now is a green the player can never find.
  *
- * Measured equal to θ today, which makes the branch a no-op — the sweep
- * played last-clue bars of 0 and 0.5 at θ=0.5 to identical results (99.0%,
- * 400 games; the last clue rarely arrives at that win rate), and 0 is not
- * worth having anyway: it lets a final clue tie its own trap. The branch
- * stays because it is the honest mirror of what the prompt tells the model,
- * and it bites the day a human-facing measurement moves θ up.
+ * Measured equal to θ, so the branch is a no-op at the shipped bar — and the
+ * measurement it used to quote rested on the same retired engine-vs-engine
+ * sweep as θ did, so E4 re-ran it cross-model too. 400 seeded city-1 boards a
+ * cell at θ = 0.5, board cleared inside the tokens % / hits per number:
+ *
+ *   last-clue bar        0.0            0.5            1.0
+ *   Opus→Fable        47.8 / 0.579   48.5 / 0.607   47.0 / 0.621
+ *   Fable→Opus        53.5 / 0.659   53.8 / 0.680   52.0 / 0.688
+ *
+ * Read that honestly: the whole spread is under two points and 0.5 wins both
+ * directions by less than one. **The sweep cannot tell these three bars
+ * apart**, which is the true statement, rather than "0.5 is the peak" — the
+ * last clue simply does not arrive often enough on a board being cleared half
+ * the time for its own bar to matter. So the number is set equal to θ because
+ * there is no evidence to set it anywhere else, not because it was chosen.
+ *
+ * The branch stays for the two reasons that are not about this table: it is
+ * the honest mirror of what `prompts.ts` already tells the model, and it bites
+ * the day a human-facing measurement moves θ up — at which point this cell
+ * needs re-running before the two constants are allowed to drift apart.
  */
 export const LAST_CLUE_THETA = 0.5
 
@@ -73,9 +143,15 @@ export interface CluePlan {
   /**
    * True only when NO legal candidate on the whole board cleared the bar and
    * the search fell back to the best margin it could find — the engine's
-   * honest last resort, never its preference. Measured at 0 of 2,337 clues
-   * across 400 engine-vs-engine city-1 games at θ=0.5, so the acceptance
-   * test asserts it stays false on those boards.
+   * honest last resort, never its preference. It never fires at the shipped
+   * bar: 0 clues across 400 engine-vs-engine city-1 games (E3), and 0 again
+   * across E4's cross-model sweep in BOTH directions at 400 games a cell —
+   * which is the version that still counts, since the seats there do not share
+   * an evaluator. It starts firing the moment θ does: 52 and 36 clues at
+   * θ = 1.0 (400 games a cell), 186 and 138 at θ = 2.0 (200). So the
+   * acceptance test asserts it stays
+   * false, and the "escalate below θ" trigger Stage 5 needs is real rather
+   * than theoretical.
    */
   belowTheta: boolean
 }

@@ -5,11 +5,18 @@ H7, cascade, cheap model, book, matrix, city-only boards, practice
 companion, selfplay.
 
 Written 2026-08-21 by a planning session; the plan is carded as **E0–E6** in
-`docs/PLAN-2.md`. Status as of 2026-08-22: **E0, E1, E2 and E3 are built** —
+`docs/PLAN-2.md`. **THE DECISION E4 WAS BUILT TO TAKE IS TAKEN — see "The
+verdict (E4, 2026-08-22)" below §6: GO, E6 before E5, and E5 in halves.** Read
+it and "Stage 4 as built" before E5 or E6, because the first thing E4 measured
+is that engine-vs-engine self-play cannot tell knowledge from a shared code and
+so is not evidence about anything.
+
+Status as of 2026-08-22: **E0, E1, E2, E3 and E4 are built** —
 journey boards are city-only, `src/data/matrix.da.json` holds city 1's 4,950
 judged pairs, `src/data/book.da.json` holds its 3,490 associations and
 2,314 pair clues, and `src/ai/local/` is the engine itself, playing the
-practice seam. E4 onward is not built. Four owner decisions were taken
+practice seam, and E4 has measured it and re-measured θ under the cross-model
+split. E5 and E6 are not built. Four owner decisions were taken
 (listed under "Decisions"). Each stage that has landed carries an "as built"
 subsection under §6 with the corrections it found; **those corrections
 override the paragraph they sit under**, which is left in place so the change
@@ -429,6 +436,237 @@ seam, the lazy chunks — with five findings the spec could not have known.
    persisted store, shown in Settings diagnostics. With the alias table's
    blind A/B (`wrangler.toml:70–76`) this measures cheap vs flagship vs
    engine on real play — it is how `r` finally gets a value.
+
+#### Stage 4 as built — E4 (2026-08-22)
+
+Built as specified, and the first thing it measured was that **one of the three
+rows the spec asked for cannot be read as a result at all.**
+
+**1. THE SHARED-EVALUATOR ROW IS A CODE, NOT A SCORE.** The mutation this card
+was asked to run — `sim` replaced by djb2 over (clue, wordId), everything else
+in the engine untouched — does not fail the pins. It scores **100%**, above
+every honest row in the table, in 4.68 clues a game. The reason is structural
+and it retires the 99.0% figure as evidence: the search picks whatever the
+shared function happens to rank high on its targets and low on its traps, and a
+guesser reading the SAME function reads it straight back. A shared arbitrary
+function is a private code between the seats, and self-play over one measures
+agreement rather than association. Salt the two seats differently and the same
+engine collapses to **0.5%**, at the floor. So the mutation is run twice in
+`engine-selfplay.test.ts` — one shared hash (the finding) and two independent
+ones (the check) — and **no pin in this repo may rest on engine-vs-engine
+again**. θ = 0.5 was chosen on that row, so **E4 re-ran the whole θ sweep
+cross-model** rather than leaving the shipped bar resting on a retired
+instrument; see "θ, re-measured" below. `engine.test.ts`'s sweep is kept
+runnable and relabelled as the retired instrument, because the comparison
+between the two is itself the finding.
+
+**2. The honest number is the cross-model row**, and it is the reason the votes
+were kept per model. `src/data/generated/matrix-city1/<model>-NN.json` and
+`book-city1/<model>-*.json` split cleanly by authoring model, so
+`engine-selfplay.test.ts` rebuilds an Opus-only and a Fable-only evaluator from
+the committed votes — no duplicated data in the tree, and nothing read from the
+merged artifact except its `ids`, which is an ordering rather than a judgement.
+A clue-giver reading one model's judgement is then examined by a guesser reading
+the other's. Both halves are complete (4,950 pairs each, 100 headwords each) and
+they genuinely differ: **1,947 associations one proposed and the other did not,
+against 1,901 both reached for.**
+
+**The table. 200 seeded city-1 boards, the same eighteen-card deals down every
+row**, 3×6 8/3/8:
+
+| row | win % | last-chance % | clues | hits/number | greens left at SD |
+|---|---|---|---|---|---|
+| mock floor (nonsense clues, p = 0) | 0.5 | 100.0 | 8.00 | 0.234 | 7.41 |
+| p-curve p = 0.6 | 73.5 | 51.5 | 7.47 | 0.586 | 2.46 |
+| p-curve p = 0.7 | 90.5 | 24.5 | 7.03 | 0.678 | 2.20 |
+| p-curve p = 0.8 | 98.0 | 5.5 | 6.38 | 0.786 | 1.55 |
+| engine ↔ engine (UPPER BOUND — see 1) | 99.0 | 1.0 | 5.86 | 0.934 | 1.00 |
+| **Opus clues / Fable guesses** | **53.5** | 48.5 | 7.62 | **0.623** | 2.24 |
+| **Fable clues / Opus guesses** | **61.5** | 40.5 | 7.49 | **0.701** | 1.80 |
+| MUTATION — djb2, one shared hash | 100.0 | 0.0 | 4.68 | 1.000 | 0.00 |
+| MUTATION — djb2, two independent | 0.5 | 99.5 | 8.00 | 0.187 | 7.38 |
+
+Reproduce with
+
+```
+ENGINE_SELFPLAY_GAMES=200 ENGINE_SELFPLAY_REPORT=1 \
+  npx vitest run --reporter=verbose src/ai/local/engine-selfplay.test.ts
+```
+
+— and note the `--reporter=verbose`: vitest 4's default reporter swallows a
+PASSING test's console output, so without it the table prints only when
+something has already gone wrong. The committed default is 40 games (about 20 s
+of `npm test`); every pin was checked at 40 and at 200.
+
+**3. READ hits/number, NOT win rate.** The engine's win rate is depressed by
+something that is a harness artifact rather than a product fact. Both seats are
+the engine, so the engine also plays SUDDEN DEATH — where there is no
+clue-giver and it therefore ranks the open cards against the last clue it heard,
+whose targets are by then already found. It is a placeholder policy and it loses
+almost every last chance: the p = 0.6 coin converts 25 points of win rate out of
+sudden death, the engine converts 2. **In the app the engine never plays sudden
+death at all** — `playerGuess`/`playerStop` own that phase and nothing asks
+Casey. The comparator that is not distorted is "cleared inside the tokens",
+i.e. 100 − last-chance %: **51.5% and 59.5%, against the p = 0.6 coin's 48.5%
+and the p = 0.7 coin's 75.5%.** Together with hits/number of 0.62–0.70 against
+the coins' 0.586 and 0.678, the offline engine reads an independently-authored
+clue **a little better than a p = 0.6 partner and a little worse than p = 0.7**
+— against a floor of 0.19–0.23. That is the number this card was built to
+produce.
+
+**4. Fable's clues read better than Opus's.** 0.701 against 0.623 hits/number,
+in the direction nobody predicted: the more generous judge (E1: Opus, 775
+non-zero cells to Fable's 713; E2: 3,126 raw associations to Fable's 2,623) is
+the one whose clues an independent reader follows LESS well. One city and one
+run is not enough to act on, but E6 should keep the per-model split rather than
+merging blind, and should re-measure this on the first new city.
+
+**5. θ, re-measured — it stays at 0.5, and the reasoning behind it changes.**
+The bar the shipped engine gives every clue under was chosen on the row point 1
+just retired, so it was re-swept on the cross-model split. `ENGINE_THETA_CROSS=1`
+on `engine-selfplay.test.ts`; 200 seeded city-1 boards a cell, **board cleared
+inside the tokens %** with hits/number beside it:
+
+| θ | 0.0 | 0.5 | 1.0 | 1.5 | 2.0 |
+|---|---|---|---|---|---|
+| Opus→Fable, cleared | 28.0 | **51.5** | 42.0 | 11.0 | 0.0 |
+| Opus→Fable, hits/number | 0.408 | 0.623 | 0.731 | 0.912 | 0.966 |
+| Fable→Opus, cleared | 36.5 | **59.5** | 41.0 | 9.5 | 0.5 |
+| Fable→Opus, hits/number | 0.444 | 0.701 | 0.786 | 0.866 | 0.855 |
+| coverage/clue | 3.3 | 2.4 | 2.0 | 1.5 | 1.2 |
+
+Three things in that table are worth more than the answer.
+
+- **The objective had to change with the instrument.** hits/number rises
+  *monotonically* with θ, to 0.966 at θ = 2.0 — a bar so high the clues are
+  nearly always read correctly and **no board is ever finished**. A clue engine
+  tuned on hit rate alone picks the setting that never wins. Win rate is no good
+  either (point 3). What is left, and what is right, is how often the board is
+  cleared while the tokens last.
+- **Two of E3's three reasons were wrong.** E3 said θ = 0 loses eight points
+  because the guesser "takes the trap half the time"; cross-model it loses
+  **23**, because a guesser who does not share the clue-giver's priors is far
+  likelier to take a trap the clue merely ties. And E3 said that above 0.5 the
+  search "pays coverage for safety the guesser never redeems" — cross-model the
+  guesser *does* redeem some of it (0.623 → 0.731 from θ 0.5 to 1.0). It simply
+  does not redeem enough: the clue narrows from 2.4 words to 2.0 and the board
+  stops getting finished.
+- **The grid is exhaustive, not a sample.** `sim` returns multiples of 0.5, so
+  every margin is one too, and a bar of 0.75 admits exactly what 1.0 admits.
+
+**And one comparison needed a bigger sample than the sweep could afford.** At
+200 games θ = 0.5 beats θ = 1.0 by 9.5 and 18.5 points — but at the suite's
+40-game default one direction **flips** (55.0 against 57.5). That is CLAUDE.md's
+trap exactly: fixed seeds are reproducible, not independent of *n*. Settled at
+**400 games a cell**, both directions agreeing — Opus→Fable 48.5 v 39.8,
+Fable→Opus 53.8 v 38.5. So the committed pin defends only what survives every
+sample size (0.5 over 0 and over 1.5, both directions) and leaves 0.5-over-1.0
+to the record in `search.ts`.
+
+**`LAST_CLUE_THETA` got the same treatment and a more honest answer.** At
+θ = 0.5, 400 games a cell, last-clue bars of 0 / 0.5 / 1.0 clear 47.8 / 48.5 /
+47.0 and 53.5 / 53.8 / 52.0. The whole spread is under two points and 0.5 wins
+by less than one: **the sweep cannot tell the three bars apart.** The constant is
+therefore set equal to θ because there is no evidence to set it anywhere else —
+not because it was chosen — and the comment now says so instead of claiming a
+peak. The branch stays because it mirrors what `prompts.ts` tells the model, and
+it needs re-running before the two constants are ever allowed to drift apart.
+
+**What would move θ:** a probe or a ledger measuring a *human* reading these
+clues. Every figure above is still one model reading another model's book, and a
+person is confusable in ways neither of them is.
+
+**6. The probe is built, opt-in, and has not been run for money.**
+`e2e/engine-probe.mjs` plays engine-clues/model-guesses, model-clues/
+engine-guesses and a free engine/engine reference row, printing hits/number for
+each with the call count and the wall time. It is **not** a browser drive: the
+configuration it needs — the engine cluing while a model guesses — is one the
+app deliberately does not have, so there is no screen to drive. It loads the
+app's own modules through Vite's SSR loader instead, which means it measures the
+same `searchClue`, the same `sim`, the same prompts and the same `chatJson` a
+phone runs. It **refuses to start without `OLLAMA_API_KEY`** rather than falling
+back to something free and calling the result a measurement.
+
+This session had no key (and the deployed proxy is origin-locked), so it was run
+only against `e2e/fake-ollama.mjs` — 15 calls, 0.5 s, **nothing paid**. That run
+proves the plumbing and measures no model whatever; its one useful figure is the
+free reference row, **0.929 hits/number engine ↔ engine on seed 1**, which
+reproduces the offline table's 0.934 and is the check that the probe's harness
+and the test's agree. The first real "as well as a frontier model" number costs
+about 16 calls a round and is the single measurement that would most change what
+follows.
+
+**7. The clue ledger ships, and `r` now has somewhere to land.**
+`src/stores/ledgerStore.ts` is a counter per arm — `{clues, asked, hits,
+refused}` — written by `gameStore` when a turn under Casey's clue ends, and
+shown in Settings under "Casey's clues". `arm` is the model alias, or `engine`,
+or `mock` when even the engine had no board to work from (the two offline arms
+are told apart deliberately: a board the book does not cover is exactly the case
+worth seeing separately). `refused` is `r`: `askValidated` already knew the
+answer every time it retried — a retry IS a refusal, and it is the retry that
+asks the proxy for the better model — and nothing was writing it down. It now
+reports its attempt count through `CallReport`.
+
+The store holds four integers and a name and **no clue text and no word id**,
+pinned by a test, because the owner declined a ledger schema designed as future
+training data (§3). It is transient across a reload mid-turn (`gameStore` has a
+`partialize` and `pendingClueArm` is not in it): one lost row is nothing against
+a rate, and a row with the wrong arm attached is a lie.
+
+## The verdict (E4, 2026-08-22): GO — but E6 before E5, and E5 in halves
+
+**E6 — matrix and book for cities 2–9: GO.** The association data measurably
+works. Two independently authored halves, neither sharing the other's opinion
+and neither sharing the merged book the app ships, read each other at 0.62–0.70
+hits per word asked against a floor of 0.19–0.23, and the djb2 mutation that
+removes the association and keeps everything else falls to that floor. Eight of
+the nine cities have none of that data today, and boards are city-only since E0,
+so every player past city 1 gets `mok` from the fallback: E6 is not polish, it
+is the difference between the practice companion existing and not existing for
+8/9 of the game. Carry E2's size finding into it — one file per city, imported
+by city, or nine cities is ~940 KB gzipped in one asset.
+
+**E5's FIRST HALF — the evaluator as a validator inside
+`OllamaCompanion.getClue`: GO.** This is the half the measurement supports
+directly. A validator is only worth having if its verdict is not an echo of the
+thing it judges, and that is exactly the property the cross-model rows
+demonstrate and the shared-hash mutation shows engine-vs-engine cannot. It ships
+alone, it is the lowest-risk piece, and it turns H7's escalation into a checked
+trigger.
+
+**E5's SECOND HALF — the candidates prompt, rank fusion, and the
+`MODEL_ALIASES` flip to a cheap `cluey`: NOT YET.** Nothing measured today
+supports it. The whole saving turns on `r`, `r` still has no value, and the
+ledger that will give it one shipped in this PR empty. Do it when the ledger has
+a few hundred clues in it, not before.
+
+**What would reverse each of these, stated now so it cannot be argued
+afterwards:**
+
+- **Reverse E6** if the first new city's cross-model hits/number comes in below
+  ~0.45 — near the p = 0.5 region rather than 0.6–0.7. That would say the city-1
+  result was about city 1's hand-curated hundred rather than about the method,
+  and the remaining seven cities are not worth ~80 agent runs each. E6 runs one
+  city per PR for exactly this reason: measure the first, then decide about the
+  rest.
+- **Reverse E5's first half** if the probe (with a real key, ~3 rounds, ~48
+  calls) shows the model's own clues clearing θ almost always. A validator that
+  never fires is a retry path that costs a round trip and buys nothing.
+- **Reverse E5's second half into something better** if the ledger shows the
+  ENGINE's hits/number within ~0.05 of the remote model's over ~200 clues. That
+  would not mean "flip the alias to a cheap model"; it would mean the remote
+  model is not buying anything on these boards, and the right move is the
+  opposite one — make the engine the default clue-giver and keep the model for
+  the story and the translation, which were never the engine's to answer.
+- **Stop at the offline engine entirely** if the ledger's `r` comes back above
+  ~0.5. `proxy/README.md`'s own arithmetic says the cascade still saves money up
+  to r = 0.96, but an app whose validator refuses the model's first answer half
+  the time does not have a cheap-model problem, it has a prompt problem, and E5
+  would be building on it.
+
+**The one measurement that would settle the most:** the probe with a real key.
+Everything above is offline evidence that the engine plays like a decent
+partner; nothing yet says how it compares to the thing it would replace.
 
 ### Stage 5: the hybrid (`src/ai/hybridCompanion.ts`)
 
