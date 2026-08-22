@@ -490,12 +490,13 @@ pass to flip.
 ### Ready
 - **U1** — A tap says the word; ⓘ opens the dictionary
 - **S1** — Casey's guesses are spoken
-- **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
 - **E4** — Measure the engine, and decide *(E3 landed — ready)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
+- **P1** — The round summary as one fixed screen, in pencil, with Casey *(W1 and K2 both landed — ready)*
+- **I1** — The station, the ticket, the train *(D4 and W1 both landed — ready)*
 
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
@@ -503,11 +504,9 @@ pass to flip.
 - **E6** — Matrix and book for cities 2–9 *(E4's decision)*
 - **E5** — The hybrid *(E4's decision)*
 - **U3** — Casey thinks aloud before each guess *(K2; S1 for the spoken reveal)*
-- **P1** — The round summary as one fixed screen, in pencil, with Casey *(W1 for the token line; K2 for the style)*
 - **P2** — The sentence review *(S2, P1)*
 - **P3** — Retire the live story call *(P1 — the section it removes is redrawn there)*
 - **P4** — The turn log and its flags behind a sheet *(P1)*
-- **I1** — The station, the ticket, the train *(D4; W1 for the copy)*
 - **I2** — The practice round: the player plays, Casey reacts *(I1, K2, U3)*
 - **I3** — The post-match Casey and the door to the case *(I2, P1)*
 - **I4** — The tour retold, and the map act *(I3, W1)*
@@ -521,6 +520,10 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **W1** — One gate: a wrap-up is earned by three wins, never by a word count — 2026-08-22 (PR #112). The structural gate is gone: `wrapUpWords` TOPS THE BOARD UP (collected words first, then the city's discovered, then its undiscovered) and returns `{ words, wrappable }`, so the rule becomes **only a word collected before the deal can be wrapped**. Top-up cards play and count toward the win, start Danish-side up, wear a quiet dotted mark, and go nowhere. `wrapUpUnlocked` is the FLOOR now — one word to pack — and the suitcase advises rather than refusing: «10 collected in Sønderborg — this board can pack at most 10. A wrap-up packs up to 13.» `WINS_PER_WRAP_UP = 3`, cap still 3, `bankAfterRound` takes and returns `{ banked, wins }`.
+  **The structural half** is `generateKeys`'s new `greenPool` — a RULE where `bias` is only a lean. `weightedOrder` is a weighted shuffle, so the pool is applied AFTER the draw as a stable partition; `TIER_ORDER` fills every green slot before the first filler, so the greens are pool members for as long as the pool lasts. Mutation-checked by making keygen ignore it with the bias left in: **123 of 200 seeds wrong at thirteen collected, 60 at twelve, 5 at eight** — and every single-seed store test still passes under that mutation, which is why it is pinned over two hundred seeds instead.
+  **Two persisted changes, one bump.** `srsStore` 3 → 4 for `winsTowardWrapUp`; the bump is not point 3's trap (no save carries the field) but the POLICY it carries is the point — the counter seeds at 0 and the BANK IS KEPT, so tokens earned under the one-win rule are not taken back (R1's precedent; `won % 3` was rejected and is pinned against). `gameStore`'s `wrappable` needs **no** bump — the `earnedWrapUp` precedent — because its initial value is `undefined` and `undefined` MEANS "every word", which is exactly the rule a wrap-up dealt before this build was played under.
+  **The pacing table is re-measured** on N2's board under one gate (`src/journey/pacing.test.ts`: whole cities through the real sampler, deal, engine and scheduler; median of 12 runs a cell; `WRAPUP_PACING=1`). Both findings hold — collecting binds everywhere (wrapping lands 1–4 rounds after it, never before) and three wins a token is FASTER than one, 59 rounds against 83 at p=0.6. Two things the card did not anticipate: **a city is 56–86 rounds** rather than 69–103, because a topped-up wrap-up board plays eighteen CITY words and so advances collecting like any other round (the number M1 turns on); and **the idle-token window is gone** — 4–8 rounds a city before, 0 at the shipped price — so the bank cap now bites only in a city's second half. The suitcase hint standing in BOTH states costs the drawn case 38px at 360×640 (330 → 292 of 640), which is why the two-sentence form is kept for a thin pool only and suitcase-drive now measures the case share under the longest hint as well as the no-scroll rule.
 - **E3** — The evaluator, the search and the engine companion — 2026-08-22 (PR #111). `src/ai/local/` gains the three modules §6 Stage 3 asked for. `evaluator.ts` — `loadEvaluator()` builds `sim(clue, word)` over the book and the matrix on one 0–3 scale (direct book strength; the raw matrix cell when the clue IS a city word; `min(s, M) − 0.5` for a two-hop, so a judged fact always outranks an estimate), and `engineTrapIds` states the **directional trap set**: a trap is any card the PLAYER could still name under Casey's clue — `isOpenFor(reveal, 'ai')`, now exported from `projections.ts` — so a card revealed neutral under the player's own clue is still a trap, pinned in `engine.test.ts` beside a restatement of `game.test.ts`'s rule and mutation-checked to fail both the flipped side and the direction-blind version. `search.ts` — candidates from pair clues ∪ per-target assoc ∪ off-board city words, every one through the real `checkClueLegality`, max coverage subject to margin ≥ **θ = 0.5**, measured by an engine-vs-engine sweep on real city-1 boards (400 games a cell: 91.0 / **99.0** / 97.5 / 59.0 / 21.3 % at θ 0–2; 0.5 is the smallest step sim produces, and at it the below-θ fallback fired 0 times in 2,337 clues). The 99% is the shared-evaluator upper bound §6 Stage 4 names — E4's number, not a claim about a human. Legality thins the candidate list far less at play time than it did at authoring: 11.1 of 306.3 candidates a board (3.6%), only 1.3 via the gloss-containment arm E2 warned about. `engineCompanion.ts` implements `Companion` behind the practice seam (`gameStore.ts` — `useMock || practiceFallback`), with the book's `why` read aloud in a templated rationale that names the riskiest neutral, guesses ranked by sim with confidences honouring `planGuessExecution`'s 0.35 stop, and `MockCompanion` kept underneath as the fallback for boards the book does not cover (and for translate/story). The data loads lazily: `matrix.da` 2.19 KB gz + `book.da` 91.94 KB gz as their own chunks, main bundle +1.88 KB gz of engine code only. The round-screen apology no longer says "random guesses" — it says a word book is playing for Casey, mechanism not quality, until E4 has numbers. New `e2e/engine-drive.mjs`: a practice round end to end with every non-preview request blocked, real clues («båd», «familie») asserted non-`mok`, still-legal, rationaled, and the two data chunks observed arriving late.
 - **E2** — The book, city 1 — 2026-08-22 (PR #110). 3,490 associations over city 1's 100 headwords (33-35 a word) and 2,314 pair clues over the 849 within-city pairs E1's matrix scores M >= 1, each written twice — Opus and Fable subagents, 8 batches of 25 words and 4 of ~213 pairs a model — and merged by `scripts/merge-book.mjs` as a **union** on the normalised Danish side, `v` recording the 1,898 entries both models reached for and the cap of 35 spending its places on those first; `s` is `ceil(mean)` where both authored a clue, the same function `merge-matrix.mjs` uses, so the direct and the two-hop paths in `sim()` share one rounding rule. `src/data/book.da.json` is 865,877 B raw / **104,664 B gzipped** — 50x the matrix, which is the number E6 has to plan around. `scripts/validate-book.mjs` is in `npm run verify`, mutation-checked three ways, and its real check is that every entry is a LEGAL clue for its own word in BOTH languages through the real `checkClueLegality` (E1's Vite-loading precedent) — an illegal entry is a dead entry, not a weak one. Two corrections to §6 are written into `docs/clue-engine.md`: the `why` floor is **2 words, not 3** (56 entries were dropped on the count alone and every one was «its opposite» / «its young» / «its colour», from both models, on the strongest links in the book), and the pair gate is the matrix's `M >= 1` and never a shared `concepts` tag, as E1 asked.
 - **N2** — The wrap-up round is the same board — 2026-08-22 (PR #109).
@@ -1800,6 +1803,37 @@ mid-count; a deal with 8, 12, 16 and 25 collected words (greens from the
 collected pool first, filler never wrappable, only pre-collected words
 wrapped at the end); the suitcase hint in all three states; wrapup-drive and
 suitcase-drive updated; the tour's copy re-checked by onboarding-drive.
+
+**AS BUILT, 2026-08-22 (PR #112) — this overrides everything above it.** The
+card was written before N2 and every number in it moved.
+
+- **Sizes.** A wrap-up board is `BOARD.totalWords` = **18**, not 20, and packs
+  at most **13** words, not 16 (`MAX_WRAPPED_PER_ROUND`, derived from
+  `distinctGreens(BOARD)` so the suitcase cannot say a stale number out loud).
+  `WRAPUP_CONFIG` no longer exists; nothing references it. `WRAP_UP_UNLOCK` is
+  gone too, replaced by `WRAP_UP_FLOOR = 1`.
+- **The green-ordering test's threshold** is 13, not 16: "with ≥ 13 collected on
+  the board no filler is green; with fewer, filler fills exactly the remaining
+  green slots", pinned over 200 seeds because a bias gets it right on a single
+  seed by luck (measured: keygen ignoring `greenPool` still passes every
+  single-seed store test, and fails 123 of 200 seeds at the boundary).
+- **The pacing table above is superseded.** Re-measured on N2's board under one
+  gate; the shape holds and the levels do not. Collecting still binds (1–4
+  rounds rather than 3–13), three is still faster than one (59 rounds against
+  83 at p=0.6 rather than 82 against 101), and a city is **56–86 rounds** rather
+  than 69–103. The reason for that last one was not predicted here: a
+  topped-up wrap-up board plays eighteen CITY words instead of eighteen
+  already-collected ones, so a wrap-up now advances collecting like any other
+  round rather than standing still. **M1's pricing turns on that number.** The
+  idle-token column also collapses to 0 at the shipped price, because the gate
+  that created it is the one this card removed. The table lives in
+  `WRAP_UP_BANK_CAP`'s comment and the harness is `src/journey/pacing.test.ts`.
+- **One thing the card did not budget for.** The hint stands under a LIVE
+  button now, not only a dark one, and that costs the drawn suitcase 38px at
+  360×640 (330 → 292 of 640, against suitcase-drive's 45% floor). So the
+  owner's two-sentence form is kept for a pool thinner than a board can green,
+  and the deep-pool case reads "40 collected in Sønderborg — this board packs
+  the full 13" rather than saying thirteen twice.
 
 ### P1 — The round summary as one fixed screen, in pencil, with Casey
 **Size:** 1–2 sessions. **Deps:** W1 (the token line), K2 (the pencil style is
