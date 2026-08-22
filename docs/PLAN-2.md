@@ -522,7 +522,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 
 ### Done
 - **U1 · S1** — A tap says the word, ⓘ opens the dictionary; and Casey's guesses
-  are spoken — 2026-08-22 (PR #TBD). Shipped together: half-session
+  are spoken — 2026-08-22 (PR #114). Shipped together: half-session
   audio/tap cards that touch adjacent code (`BoardGrid.tsx`, `AiTurnPanel.tsx`,
   `speak.ts`).
   **U1**: `tapLooksUp` is gone from `BoardGrid.tsx`. Outside a guessing turn a
