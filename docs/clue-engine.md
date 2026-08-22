@@ -11,12 +11,15 @@ it and "Stage 4 as built" before E5 or E6, because the first thing E4 measured
 is that engine-vs-engine self-play cannot tell knowledge from a shared code and
 so is not evidence about anything.
 
-Status as of 2026-08-22: **E0, E1, E2, E3 and E4 are built** —
-journey boards are city-only, `src/data/matrix.da.json` holds city 1's 4,950
-judged pairs, `src/data/book.da.json` holds its 3,490 associations and
-2,314 pair clues, and `src/ai/local/` is the engine itself, playing the
-practice seam, and E4 has measured it and re-measured θ under the cross-model
-split. E5 and E6 are not built. Four owner decisions were taken
+Status as of 2026-08-22: **E0, E1, E2, E3 and E4 are built, and E6 has run
+its first city** — journey boards are city-only; the data is one file per city
+(`src/data/matrix.da.<city>.json`, `book.da.<city>.json`) and cities 1 and 2
+are authored, 9,900 judged pairs and 6,990 associations between them;
+`src/ai/local/` is the engine itself, playing the practice seam;
+E4 has measured it and re-measured θ under the cross-model split; and city 2
+was measured on the same instrument before cities 3-9 were committed to
+(see "Stage 2 and Stage 1 as built - city 2"). E5 is not built and cities 3-9
+are not authored. Four owner decisions were taken
 (listed under "Decisions"). Each stage that has landed carries an "as built"
 subsection under §6 with the corrections it found; **those corrections
 override the paragraph they sit under**, which is left in place so the change
@@ -337,6 +340,168 @@ board that happened to hold `aften`.
 The 9 pairs that yielded only one honest clue, all of them wide: æble/salt,
 arm/tand, finger/hår, hår/hjerte, nat/uge, uge/kirke, stor/ung, park/butik,
 park/bank.
+
+#### Stage 2 and Stage 1 as built — city 2 (E6, 2026-08-22)
+
+The first city E6 ran, and the pilot the card exists to be: everything below
+came out of the SAME scripts and the same two briefs city 1 used, changed only
+by `--city 2`. What is worth reading here is where city 2 differs from city 1,
+because that difference is the evidence about whether the method generalises.
+
+**The matrix.** 4,950 pairs judged twice, 150 an agent, 33 batches a model, 66
+agents — `src/data/generated/matrix-city2/`, committed. Merged by
+`ceil(mean)`, ties high, diagonal 3, **no floors**, exactly E1's rule so that
+`sim()`'s roundings stay one function across cities.
+
+| | city 1 | city 2 |
+|---|---|---|
+| agreed outright | 4,646 (93.9%) | **4,512 (91.2%)** |
+| split | 304 | **438** |
+| split by ≥ 2 | 0 | **3** |
+| Opus non-zero cells | 775 | **700** |
+| Fable non-zero cells | 713 | **458** |
+| merged non-zero | 849 (17.2%) | **744 (15.0%)** |
+| merged 0 / 1 / 2 / 3 | 4,101 / 587 / 210 / 52 | **4,206 / 556 / 151 / 37** |
+| gzipped | 2.1 KB | **2.1 KB** |
+
+Two things in that table. The judges agree LESS on city 2 and disagree WIDELY
+for the first time — three pairs two apart (`pris`/`sætte`, `høj`/`stærk`,
+`holde`/`åben`), where city 1 had none — which is what makes `ceil(mean)` a
+real rule rather than a spelling of `max`: on those three it ships the 1 that
+neither model wrote. And Fable is much the sparser judge here: 458 non-zero
+against Opus's 700, a gap of 35% where city 1's was 8%. City 2 is the
+abstract band — `år`, `få`, `komme`, `god`, `sige`, `hedde`, `møde` — and a
+sparse judge on abstract words is a judge that will not commit, not a judge
+that is being careful.
+
+**The concepts cross-check reports nothing for city 2, and that is a finding
+about the dataset.** Not one of city 2's hundred words carries a `concepts`
+tag; the tags were authored for the first hundred and never extended. E1's
+correction therefore holds twice over — the pair gate is the matrix's `M ≥ 1`
+and could not be a tag even if somebody wanted it to be. `validate-matrix.mjs`
+prints "0 of 100 words carry a tag" rather than failing, and the vacuity guard
+that would catch the tags failing to LOAD moved up to the whole dataset, where
+it belongs.
+
+**The book.** 100 headwords × 2 models at 25 words an agent (8 agents), plus
+the 744 `M ≥ 1` pairs × 2 models at 93 pairs an agent (16 agents) — 24
+authoring agents, `src/data/generated/book-city2/`, committed. Same union
+merge, same `s = ceil(mean)`, `why` and English from the higher-`s` model,
+ties to Opus.
+
+| | city 1 | city 2 |
+|---|---|---|
+| associations | 3,490 (33–35 a word) | **3,500 (35 a word, every word capped)** |
+| both models proposed | 1,898 (54.4%) | **1,745 (49.9%)** |
+| raw entries kept, Opus / Fable | — | **4,626 / 4,166** |
+| trimmed over the cap of 35 | 351 | **549** |
+| pair clues | 2,314 over 849 pairs | **2,144 over 744 pairs** |
+| pairs with only one clue | 9 | **7** |
+| dropped illegal / malformed | 31 / 2 | **34 / 0** |
+| raw JSON | 865,877 B | **838,705 B** |
+| **gzipped** | **104,664 B** | **110,043 B** |
+
+The illegal entries are the same rule E2 named and nothing new: the
+containment arm firing on the ENGLISH gloss. *hedde* "be named/be called"
+accounts for fourteen of the thirty-four on its own — «name» and «call» are
+the two words any author would reach for and both are contained in its gloss —
+then «room» for *stue* "living room", «par» for *kæreste* "partner", «suppe»
+for *aftensmad* "supper". None is
+predictable from the brief, and E3 measured that at play time it costs 3.6% of
+a board's candidates, so the finding stays an authoring finding.
+
+**THE SILENT TRUNCATION RECURRED, AND IT IS NOT SPECIFIC TO THE BOOK.** One
+Fable matrix batch reported "Batch 13: 150 scores written — 0:141 1:6 2:2 3:1"
+and had written 147. It is the same output ceiling E2 found in two ~210-pair
+book batches, now on a 150-INTEGER batch, from a different model call, in a
+different script. It was caught automatically — `merge-matrix.mjs` re-derives
+the pair index from `cityPairs()` and exits 2 naming the first missing pair —
+and that is the only reason it was caught at all, because the agent's own
+report was wrong. `merge-book.mjs` did NOT have the equivalent guard (E2's
+correction described one that was never written); it does now, re-deriving
+both key sets from `cityWords()` and `relatedPairs()` and refusing to merge a
+model that is short. Both guards are mutation-checked in the E6 commit.
+**Never trust an agent's own count. The merge step is the check.**
+
+**One file per city, and the chunk sizes.** E2's size note is applied here:
+`src/data/matrix.da.1.json`, `book.da.1.json`, `matrix.da.2.json`,
+`book.da.2.json`, and `loadEvaluator(city)` dynamic-imports exactly one pair.
+Measured in `dist/` after `vite build`:
+
+```
+matrix.da.1  4.66 kB  gzip  2.19 kB      book.da.1  433.60 kB  gzip  91.94 kB
+matrix.da.2  4.71 kB  gzip  2.20 kB      book.da.2  417.68 kB  gzip  94.86 kB
+```
+
+`book.da.1` is byte-identical to E3's measurement, which is the check that
+nothing moved into the main bundle when the shard map was added. Nine cities
+at this rate is ~850 KB gzipped of book, arriving one city at a time and never
+more than ~97 KB at once. `EngineCompanion` picks the city from the board's
+own `curriculumRank` — the dataset is already in the main bundle, so answering
+"which city" downloads nothing — and a city E6 has not reached returns a null
+evaluator and falls through to the mock, which is what it did before.
+
+**THE MEASUREMENT E4 ASKED FOR, AND IT IS THE POINT OF THE PILOT.** E4's
+reversal clause: "reverse E6 if the first new city's cross-model hits/number
+comes in below ~0.45". `engine-selfplay.test.ts` now runs that row for every
+authored city (`it.each(authoredCities)`), on the same instrument — one
+model's half cluing, the other model's half guessing, neither sharing the
+merged book the app ships. 200 seeded boards a row:
+
+| | hits/number | cleared inside the tokens | cov/clue |
+|---|---|---|---|
+| city 1, Opus clues / Fable guesses | 0.623 | 51.5% | 2.51 |
+| city 1, Fable clues / Opus guesses | 0.701 | 59.5% | 2.34 |
+| **city 2, Opus clues / Fable guesses** | **0.479** | **18.5%** | 2.75 |
+| **city 2, Fable clues / Opus guesses** | **0.596** | **42.0%** | 2.54 |
+| floor (nonsense clues, p = 0), either city | 0.234 | 0.0% | — |
+
+**City 2 clears E4's bar and it clears it narrowly.** The method generalises —
+both directions are two to two-and-a-half times the floor and the pin holds at
+40 games (0.488 / 0.580) and at 200 — but the drop from city 1 is real and it
+is much larger on "cleared inside the tokens" than on hits/number: 51.5 → 18.5
+in the weaker direction. Read the two columns together and the story is one
+thing: on city 2 the search has to reach FURTHER for coverage (2.75 words a
+clue against 2.51) because the strong cells are scarcer, and a clue stretched
+over three abstract words is read correctly less often, so the tokens run out
+with greens still up. This is the same shape E1 and E2 both found from their
+own side — concrete nouns have a tight shared neighbourhood, abstract words a
+diffuse one — arriving for the third time, now as a play result.
+
+**Which words were hard.** Every word hit the cap of 35, so nothing came in
+thin; what varied is how much the two authors agreed. Lowest overlap:
+`godt` "well", `sætte` "put", `hedde` "be called", `følge` "follow" (11 of 35
+entries proposed by both), then `give`, `begynde` (12), `dansk`, `finde` (14).
+Highest: `familie` (23), `te` "tea" (23), `vej` "road" (22), `krone`,
+`aftensmad`, `skrive` (21 each). The seven pairs that yielded only one honest
+clue are abstract-on-abstract without exception: brød/aftensmad, vide/hedde,
+tro/desværre, kæreste/følge, hedde/ord, hedde/spørge, verden/kort.
+
+That is E1's and E2's finding for the third time, and city 2 is where it stops
+being an anecdote: **city 1 is 84 nouns, 8 verbs, 8 adjectives; city 2 is 45
+nouns, 30 verbs, 21 adjectives and 4 adverbs.** The book gets thinner and the
+judges agree less exactly where the part of speech stops naming a thing. That
+is a fact about `curriculumRank`, not about the method — and cities 3–9 are
+further down the same slope.
+
+**Cost, measured, because it decides the other seven.** 66 judging agents + 1
+repair + 24 authoring agents = **91 agent runs** for one city, roughly **7.5M
+subagent tokens**, in about **38 minutes** of agent wall clock (65 minutes for
+the whole card including the refactor, the validators and the measurement), at
+a concurrency of 16–17 — the practical ceiling is 20 and 17 ran clean four
+times over.
+
+The two halves are not the same price. The matrix is cheap and fast: 66 agents,
+~4.8M tokens, four waves, **6 minutes** — a judging agent writes 150 integers.
+The book is the expensive half: 24 agents, ~2.7M tokens, **32 minutes**,
+because an authoring agent writes 750–800 entries and the slowest single agent
+took 25 minutes on its own. Nine cities at this rate is ~730 agent runs and
+~60M tokens, which is the number E6's card budgeted (~530) and under-counted.
+
+One more cost worth recording: the run exhausted one model's credits partway
+through the last wave. Five agents reported an API error — and all five had
+already written complete files. The merge's key-set check is what established
+that, rather than the reports.
 
 ### Stage 3: evaluator + local engine (`src/ai/local/`)
 

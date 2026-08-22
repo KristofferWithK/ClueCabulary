@@ -11,10 +11,11 @@ do not know it.
 report on making a cheap model clue and guess like a frontier one, the four
 owner decisions of 2026-08-21 — including that journey boards become
 **city-only** — and the staged plan another session picks up from, carded as
-**E0–E6**. **E0–E4 are built**: journey boards are city-only,
-`src/data/matrix.da.json` is city 1's judged association matrix,
-`src/data/book.da.json` is its opening book, `src/ai/local/` is the engine, and
-E4 measured it. **E4's verdict is in that document and is the answer to "is the
+**E0–E6**. **E0–E4 are built and E6 has run its first city**: journey boards are
+city-only; the engine's data is **one file per city** — `matrix.da.<city>.json`
+and `book.da.<city>.json` under `src/data/`, cities 1 and 2 authored, loaded a
+city at a time by `loadEvaluator(city)` because a city's book is ~105 KB
+gzipped; `src/ai/local/` is the engine; and E4 measured it. **E4's verdict is in that document and is the answer to "is the
 engine worth continuing" — GO, E6 before E5, and E5 in halves.** Read the
 document before touching `src/ai/`, the board pool, or the E-cards — and note
 that each landed stage has an "as built" subsection under §6 which **overrides

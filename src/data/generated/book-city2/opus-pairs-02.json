@@ -1,0 +1,385 @@
+{
+  "model": "opus", "city": 2, "kind": "pairs", "batch": 2,
+  "pairs": {
+    "da:god|da:sikker": [
+      { "da": "valg", "en": "choice", "why": "a solid pick either way", "s": 2 },
+      { "da": "kvalitet", "en": "quality", "why": "what you can trust in it", "s": 1 }
+    ],
+    "da:god|da:stærk": [
+      { "da": "spiller", "en": "player", "why": "how a footballer is praised", "s": 2 },
+      { "da": "kaffe", "en": "coffee", "why": "how a cup is praised", "s": 1 }
+    ],
+    "da:hjem|da:job": [
+      { "da": "hverdag", "en": "everyday", "why": "where the day is spent", "s": 2 },
+      { "da": "morgen", "en": "morning", "why": "you leave one for the other", "s": 2 }
+    ],
+    "da:hjem|da:godt": [
+      { "da": "hygge", "en": "cosiness", "why": "feeling fine indoors", "s": 2 },
+      { "da": "dejlig", "en": "lovely", "why": "how it feels to be there", "s": 2 }
+    ],
+    "da:hjem|da:gå": [
+      { "da": "fod", "en": "foot", "why": "how you get back there", "s": 2 },
+      { "da": "dør", "en": "door", "why": "you step through it", "s": 2 }
+    ],
+    "da:hjem|da:tage": [
+      { "da": "bus", "en": "bus", "why": "you catch one back", "s": 2 },
+      { "da": "taxa", "en": "taxi", "why": "you grab one late at night", "s": 2 }
+    ],
+    "da:hjem|da:hotel": [
+      { "da": "seng", "en": "bed", "why": "where you sleep either place", "s": 3 },
+      { "da": "værelse", "en": "room", "why": "you sleep in one", "s": 2 }
+    ],
+    "da:hjem|da:alene": [
+      { "da": "stille", "en": "quiet", "why": "nobody else is there", "s": 2 },
+      { "da": "aften", "en": "evening", "why": "an evening in by yourself", "s": 1 }
+    ],
+    "da:hjem|da:lejlighed": [
+      { "da": "bo", "en": "reside", "why": "where you live", "s": 3 },
+      { "da": "flytte", "en": "move", "why": "you move into it", "s": 2 },
+      { "da": "adresse", "en": "address", "why": "where it stands", "s": 2 }
+    ],
+    "da:hjem|da:kontor": [
+      { "da": "skrivebord", "en": "desk", "why": "where you sit and work", "s": 2 },
+      { "da": "arbejde", "en": "work", "why": "done in both places now", "s": 2 }
+    ],
+    "da:hjem|da:land": [
+      { "da": "savne", "en": "miss", "why": "what you long for abroad", "s": 2 },
+      { "da": "hus", "en": "house", "why": "one standing in the countryside", "s": 1 }
+    ],
+    "da:hjem|da:fri": [
+      { "da": "ferie", "en": "holiday", "why": "days off spent there", "s": 2 },
+      { "da": "weekend", "en": "weekend", "why": "two days indoors and idle", "s": 2 }
+    ],
+    "da:hjem|da:rejse": [
+      { "da": "kuffert", "en": "suitcase", "why": "packed on the way out", "s": 2 },
+      { "da": "tilbage", "en": "back", "why": "the return at the end", "s": 2 }
+    ],
+    "da:hjem|da:følge": [
+      { "da": "sammen", "en": "together", "why": "walked to the door with you", "s": 2 },
+      { "da": "aften", "en": "evening", "why": "seeing someone back at night", "s": 1 }
+    ],
+    "da:hjem|da:vej": [
+      { "da": "adresse", "en": "address", "why": "street name and house number", "s": 3 },
+      { "da": "nummer", "en": "number", "why": "on the sign and on the door", "s": 2 }
+    ],
+    "da:hjem|da:familie": [
+      { "da": "sammen", "en": "together", "why": "everyone under one roof", "s": 2 },
+      { "da": "mor", "en": "mother", "why": "who runs the house", "s": 2 }
+    ],
+    "da:hjem|da:sikker": [
+      { "da": "tryg", "en": "secure", "why": "nothing can happen there", "s": 2 },
+      { "da": "lås", "en": "lock", "why": "what keeps it sound", "s": 2 }
+    ],
+    "da:hjem|da:føle": [
+      { "da": "hygge", "en": "cosiness", "why": "the warm feeling indoors", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "where it belongs", "s": 2 }
+    ],
+    "da:hjem|da:stue": [
+      { "da": "sofa", "en": "sofa", "why": "you sink into it indoors", "s": 3 },
+      { "da": "fjernsyn", "en": "television", "why": "watched from the couch", "s": 2 }
+    ],
+    "da:hjem|da:aftensmad": [
+      { "da": "køkken", "en": "kitchen", "why": "cooked and eaten there", "s": 3 },
+      { "da": "bord", "en": "table", "why": "everyone sits down at it", "s": 2 }
+    ],
+    "da:hjem|da:leve": [
+      { "da": "bo", "en": "reside", "why": "where you spend your days", "s": 2 },
+      { "da": "hverdag", "en": "everyday", "why": "the daily round indoors", "s": 1 }
+    ],
+    "da:hjem|da:skab": [
+      { "da": "tøj", "en": "clothes", "why": "hung up indoors", "s": 2 },
+      { "da": "køkken", "en": "kitchen", "why": "the doors above the sink", "s": 2 }
+    ],
+    "da:hjem|da:restaurant": [
+      { "da": "spise", "en": "eat", "why": "in or out for dinner", "s": 2 },
+      { "da": "mad", "en": "food", "why": "served either place", "s": 2 }
+    ],
+    "da:hjem|da:nøgle": [
+      { "da": "dør", "en": "door", "why": "you unlock it to get in", "s": 3 },
+      { "da": "lås", "en": "lock", "why": "what it turns", "s": 2 }
+    ],
+    "da:sige|da:se": [
+      { "da": "vidne", "en": "witness", "why": "watches it then tells it", "s": 2 },
+      { "da": "nyheder", "en": "news", "why": "watched and told", "s": 1 }
+    ],
+    "da:sige|da:vide": [
+      { "da": "svar", "en": "answer", "why": "what you know and give", "s": 2 },
+      { "da": "sandhed", "en": "truth", "why": "known and told out loud", "s": 2 }
+    ],
+    "da:sige|da:tro": [
+      { "da": "mening", "en": "opinion", "why": "what you hold and state", "s": 2 },
+      { "da": "løfte", "en": "promise", "why": "spoken and taken on faith", "s": 2 }
+    ],
+    "da:sige|da:høj": [
+      { "da": "råbe", "en": "shout", "why": "words at full volume", "s": 2 },
+      { "da": "stemme", "en": "voice", "why": "it carries across the room", "s": 2 }
+    ],
+    "da:sige|da:hedde": [
+      { "da": "navn", "en": "name", "why": "what you give when asked", "s": 3 },
+      { "da": "hej", "en": "hello", "why": "the first thing at a meeting", "s": 2 }
+    ],
+    "da:sige|da:øre": [
+      { "da": "hviske", "en": "whisper", "why": "spoken right up close", "s": 3 },
+      { "da": "lyd", "en": "sound", "why": "made by one, caught by the other", "s": 2 }
+    ],
+    "da:sige|da:tale": [
+      { "da": "mund", "en": "mouth", "why": "what it does all day", "s": 3 },
+      { "da": "stemme", "en": "voice", "why": "how the words come out", "s": 3 },
+      { "da": "sprog", "en": "language", "why": "what you use to do it", "s": 2 }
+    ],
+    "da:sige|da:ord": [
+      { "da": "sprog", "en": "language", "why": "made of them and spoken", "s": 3 },
+      { "da": "mund", "en": "mouth", "why": "they come out of it", "s": 2 },
+      { "da": "sætning", "en": "sentence", "why": "a handful of them in a row", "s": 2 }
+    ],
+    "da:sige|da:høre": [
+      { "da": "samtale", "en": "conversation", "why": "one speaks, one listens", "s": 3 },
+      { "da": "radio", "en": "radio", "why": "it talks and you listen", "s": 2 },
+      { "da": "lyd", "en": "sound", "why": "made at one end, caught at the other", "s": 2 }
+    ],
+    "da:sige|da:spørge": [
+      { "da": "svar", "en": "answer", "why": "what follows the question", "s": 2 },
+      { "da": "hvorfor", "en": "why", "why": "the first word of a question", "s": 2 }
+    ],
+    "da:sige|da:vise": [
+      { "da": "forklare", "en": "explain", "why": "make it plain to someone", "s": 3 },
+      { "da": "lærer", "en": "teacher", "why": "tells it and demonstrates it", "s": 2 }
+    ],
+    "da:sige|da:skrive": [
+      { "da": "besked", "en": "message", "why": "left for someone in words", "s": 3 },
+      { "da": "brev", "en": "letter", "why": "words you send off", "s": 2 }
+    ],
+    "da:sige|da:betyde": [
+      { "da": "ordbog", "en": "dictionary", "why": "it tells you the sense", "s": 2 },
+      { "da": "forklare", "en": "explain", "why": "put the sense into words", "s": 2 }
+    ],
+    "da:job|da:læge": [
+      { "da": "hospital", "en": "hospital", "why": "where one goes to work", "s": 2 },
+      { "da": "arbejdsplads", "en": "workplace", "why": "where the day is spent", "s": 2 }
+    ],
+    "da:job|da:elev": [
+      { "da": "praktik", "en": "internship", "why": "a learner at a workplace", "s": 3 },
+      { "da": "lære", "en": "learn", "why": "training towards a trade", "s": 2 }
+    ],
+    "da:job|da:frokost": [
+      { "da": "kantine", "en": "canteen", "why": "the midday meal at work", "s": 3 },
+      { "da": "pause", "en": "break", "why": "half an hour in the middle", "s": 3 }
+    ],
+    "da:job|da:lave": [
+      { "da": "opgave", "en": "task", "why": "what you get done", "s": 3 },
+      { "da": "travl", "en": "busy", "why": "plenty on your plate", "s": 2 }
+    ],
+    "da:job|da:kontor": [
+      { "da": "skrivebord", "en": "desk", "why": "where the work sits", "s": 3 },
+      { "da": "computer", "en": "computer", "why": "what you sit at all day", "s": 2 }
+    ],
+    "da:job|da:liv": [
+      { "da": "hverdag", "en": "everyday", "why": "how the days are filled", "s": 2 },
+      { "da": "voksen", "en": "adult", "why": "grown-up business", "s": 1 }
+    ],
+    "da:job|da:international": [
+      { "da": "firma", "en": "company", "why": "it hires and it has branches abroad", "s": 2 },
+      { "da": "udland", "en": "abroad", "why": "posted over the border", "s": 2 }
+    ],
+    "da:job|da:fri": [
+      { "da": "ferie", "en": "holiday", "why": "time away from it", "s": 3 },
+      { "da": "weekend", "en": "weekend", "why": "the two days you are not there", "s": 2 }
+    ],
+    "da:job|da:rejse": [
+      { "da": "udland", "en": "abroad", "why": "sent over the border for it", "s": 2 },
+      { "da": "møde", "en": "meeting", "why": "you travel to one", "s": 2 }
+    ],
+    "da:job|da:begynde": [
+      { "da": "ny", "en": "new", "why": "a fresh one on monday", "s": 3 },
+      { "da": "første", "en": "first", "why": "the first day of it", "s": 3 }
+    ],
+    "da:job|da:familie": [
+      { "da": "hverdag", "en": "everyday", "why": "the two halves of the day", "s": 2 },
+      { "da": "penge", "en": "money", "why": "earned and shared out", "s": 2 }
+    ],
+    "da:job|da:skrive": [
+      { "da": "ansøgning", "en": "application", "why": "written to get one", "s": 3 },
+      { "da": "computer", "en": "computer", "why": "the keyboard at the desk", "s": 2 }
+    ],
+    "da:job|da:chef": [
+      { "da": "firma", "en": "company", "why": "who employs you", "s": 3 },
+      { "da": "ansat", "en": "employee", "why": "the other side of the desk", "s": 2 }
+    ],
+    "da:job|da:krone": [
+      { "da": "løn", "en": "wage", "why": "paid for the hours", "s": 3 },
+      { "da": "penge", "en": "money", "why": "what it brings in", "s": 3 }
+    ],
+    "da:job|da:restaurant": [
+      { "da": "tjener", "en": "waiter", "why": "works the tables", "s": 3 },
+      { "da": "kok", "en": "cook", "why": "the kitchen trade", "s": 3 }
+    ],
+    "da:job|da:møde": [
+      { "da": "kontor", "en": "office", "why": "held there during the day", "s": 3 },
+      { "da": "kalender", "en": "calendar", "why": "the working day booked up", "s": 2 }
+    ],
+    "da:godt|da:gå": [
+      { "da": "fremad", "en": "forward", "why": "things moving along nicely", "s": 2 },
+      { "da": "held", "en": "luck", "why": "when it turns out fine", "s": 2 }
+    ],
+    "da:godt|da:se": [
+      { "da": "flot", "en": "handsome", "why": "pleasing to look at", "s": 2 },
+      { "da": "spejl", "en": "mirror", "why": "check how you look", "s": 2 }
+    ],
+    "da:godt|da:vide": [
+      { "da": "klog", "en": "clever", "why": "well informed", "s": 2 },
+      { "da": "råd", "en": "advice", "why": "worth hearing and worth taking", "s": 2 }
+    ],
+    "da:godt|da:vejr": [
+      { "da": "sol", "en": "sun", "why": "a fine day outside", "s": 2 },
+      { "da": "sommer", "en": "summer", "why": "the season it is nice", "s": 2 }
+    ],
+    "da:godt|da:glæde": [
+      { "da": "smil", "en": "smile", "why": "it shows on the face", "s": 2 },
+      { "da": "lykkelig", "en": "happy", "why": "things are fine and it feels it", "s": 2 }
+    ],
+    "da:godt|da:rigtig": [
+      { "da": "svar", "en": "answer", "why": "the one the teacher wanted", "s": 2 },
+      { "da": "sand", "en": "true", "why": "just as it should be", "s": 2 }
+    ],
+    "da:godt|da:vigtig": [
+      { "da": "værd", "en": "worth", "why": "it counts for something", "s": 2 },
+      { "da": "huske", "en": "remember", "why": "worth keeping in mind", "s": 2 }
+    ],
+    "da:godt|da:fin": [
+      { "da": "pæn", "en": "neat", "why": "nothing wrong with it", "s": 3 },
+      { "da": "dejlig", "en": "lovely", "why": "how you praise a thing", "s": 3 }
+    ],
+    "da:godt|da:liv": [
+      { "da": "lykke", "en": "happiness", "why": "how you want it to turn out", "s": 2 },
+      { "da": "hverdag", "en": "everyday", "why": "the days rolling along nicely", "s": 2 }
+    ],
+    "da:godt|da:desværre": [
+      { "da": "held", "en": "luck", "why": "it can fall either way", "s": 2 },
+      { "da": "nyhed", "en": "news", "why": "some is welcome, some is not", "s": 2 }
+    ],
+    "da:godt|da:sund": [
+      { "da": "motion", "en": "exercise", "why": "it does the body good", "s": 2 },
+      { "da": "frugt", "en": "fruit", "why": "eating it does you good", "s": 2 }
+    ],
+    "da:godt|da:føle": [
+      { "da": "hygge", "en": "cosiness", "why": "a warm easy feeling", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "where the warmth sits", "s": 2 }
+    ],
+    "da:godt|da:hurtigt": [
+      { "da": "vinde", "en": "win", "why": "fast and faultless", "s": 2 },
+      { "da": "løbe", "en": "run", "why": "praise for a sprinter", "s": 2 }
+    ],
+    "da:gå|da:se": [
+      { "da": "museum", "en": "museum", "why": "wander around and look", "s": 2 },
+      { "da": "by", "en": "town", "why": "a stroll past the shop windows", "s": 2 }
+    ],
+    "da:gå|da:krop": [
+      { "da": "ben", "en": "leg", "why": "what carries you along", "s": 3 },
+      { "da": "fod", "en": "foot", "why": "you move on them", "s": 3 },
+      { "da": "motion", "en": "exercise", "why": "moving the whole of you", "s": 2 }
+    ],
+    "da:gå|da:tage": [
+      { "da": "bus", "en": "bus", "why": "catch one or use your feet", "s": 2 },
+      { "da": "tur", "en": "trip", "why": "you head off on one", "s": 2 }
+    ],
+    "da:gå|da:læge": [
+      { "da": "tid", "en": "appointment", "why": "booked before you turn up", "s": 2 },
+      { "da": "syg", "en": "ill", "why": "off to be looked at", "s": 2 }
+    ],
+    "da:gå|da:lang": [
+      { "da": "tur", "en": "hike", "why": "hours on your feet", "s": 3 },
+      { "da": "kilometer", "en": "kilometre", "why": "how far you get", "s": 2 }
+    ],
+    "da:gå|da:elev": [
+      { "da": "skole", "en": "school", "why": "you attend it every day", "s": 3 },
+      { "da": "klasse", "en": "class", "why": "which year you are in", "s": 2 }
+    ],
+    "da:gå|da:stå": [
+      { "da": "ben", "en": "leg", "why": "both need a pair", "s": 3 },
+      { "da": "kø", "en": "queue", "why": "wait still, shuffle forward", "s": 2 }
+    ],
+    "da:gå|da:natur": [
+      { "da": "sti", "en": "path", "why": "a trail through the trees", "s": 3 },
+      { "da": "tur", "en": "hike", "why": "an outing in the open", "s": 3 }
+    ],
+    "da:gå|da:alene": [
+      { "da": "tur", "en": "stroll", "why": "out on your own", "s": 2 },
+      { "da": "stille", "en": "quiet", "why": "nobody along for it", "s": 1 }
+    ],
+    "da:gå|da:ligge": [
+      { "da": "seng", "en": "bed", "why": "you head for it and stretch out", "s": 2 },
+      { "da": "hvile", "en": "rest", "why": "stop moving and lie down", "s": 2 }
+    ],
+    "da:gå|da:sidde": [
+      { "da": "ben", "en": "leg", "why": "used or folded up", "s": 2 },
+      { "da": "bus", "en": "bus", "why": "take a seat or use your feet", "s": 2 }
+    ],
+    "da:gå|da:klar": [
+      { "da": "start", "en": "start", "why": "set, then off", "s": 2 },
+      { "da": "sko", "en": "shoes", "why": "on your feet by the door", "s": 2 }
+    ],
+    "da:gå|da:gang": [
+      { "da": "skridt", "en": "step", "why": "one at a time", "s": 2 },
+      { "da": "tur", "en": "outing", "why": "one of them each day", "s": 1 }
+    ],
+    "da:gå|da:rejse": [
+      { "da": "tur", "en": "outing", "why": "you set off on one", "s": 3 },
+      { "da": "fod", "en": "foot", "why": "the oldest way to get there", "s": 2 }
+    ],
+    "da:gå|da:følge": [
+      { "da": "sammen", "en": "together", "why": "side by side down the street", "s": 2 },
+      { "da": "efter", "en": "behind", "why": "one in front, one behind", "s": 2 }
+    ],
+    "da:gå|da:begynde": [
+      { "da": "skridt", "en": "step", "why": "the first one taken", "s": 2 },
+      { "da": "første", "en": "first", "why": "how a baby opens the year", "s": 2 }
+    ],
+    "da:gå|da:vej": [
+      { "da": "fortov", "en": "pavement", "why": "the strip beside the street", "s": 3 },
+      { "da": "sti", "en": "path", "why": "a narrow one on foot", "s": 3 },
+      { "da": "fod", "en": "foot", "why": "how you cover it", "s": 3 }
+    ],
+    "da:gå|da:sund": [
+      { "da": "motion", "en": "exercise", "why": "the easiest kind there is", "s": 3 },
+      { "da": "frisk", "en": "fresh", "why": "air and legs", "s": 2 }
+    ],
+    "da:gå|da:skov": [
+      { "da": "sti", "en": "path", "why": "a trail among the trees", "s": 3 },
+      { "da": "tur", "en": "hike", "why": "an outing under the branches", "s": 3 }
+    ],
+    "da:gå|da:hurtigt": [
+      { "da": "løbe", "en": "run", "why": "the same thing but faster", "s": 3 },
+      { "da": "skynde", "en": "hurry", "why": "moving without waiting", "s": 3 }
+    ],
+    "da:brød|da:te": [
+      { "da": "morgenmad", "en": "breakfast", "why": "both on the first table", "s": 3 },
+      { "da": "bord", "en": "table", "why": "laid with both", "s": 2 }
+    ],
+    "da:brød|da:frokost": [
+      { "da": "pålæg", "en": "topping", "why": "what goes on a slice at midday", "s": 3 },
+      { "da": "smør", "en": "butter", "why": "spread at the middle of the day", "s": 2 },
+      { "da": "ost", "en": "cheese", "why": "laid on top of a slice", "s": 2 }
+    ],
+    "da:brød|da:lave": [
+      { "da": "bage", "en": "bake", "why": "how it is made", "s": 3 },
+      { "da": "ovn", "en": "oven", "why": "where it is made", "s": 3 },
+      { "da": "mel", "en": "flour", "why": "what you make it from", "s": 2 }
+    ],
+    "da:brød|da:morgenmad": [
+      { "da": "smør", "en": "butter", "why": "spread on the first meal", "s": 3 },
+      { "da": "marmelade", "en": "jam", "why": "spread at the start of the day", "s": 3 }
+    ],
+    "da:brød|da:sund": [
+      { "da": "korn", "en": "grain", "why": "the whole kind does you good", "s": 2 },
+      { "da": "rug", "en": "rye", "why": "the dark wholesome loaf", "s": 2 }
+    ],
+    "da:brød|da:aftensmad": [
+      { "da": "bord", "en": "table", "why": "put out at the evening meal", "s": 2 },
+      { "da": "suppe", "en": "soup", "why": "served with a slice beside it", "s": 2 }
+    ],
+    "da:brød|da:skab": [
+      { "da": "køkken", "en": "kitchen", "why": "both live in there", "s": 2 },
+      { "da": "hylde", "en": "shelf", "why": "kept on one", "s": 2 }
+    ]
+  }
+}

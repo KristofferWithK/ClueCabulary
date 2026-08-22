@@ -1,0 +1,376 @@
+{
+  "model": "opus", "city": 2, "kind": "pairs", "batch": 1,
+  "pairs": {
+    "da:år|da:ny": [
+      { "da": "januar", "en": "january", "why": "the month a fresh one opens", "s": 2 },
+      { "da": "kalender", "en": "calendar", "why": "you hang up a fresh one", "s": 2 }
+    ],
+    "da:år|da:hel": [
+      { "da": "rund", "en": "round", "why": "all the way round again", "s": 2 },
+      { "da": "tolv", "en": "twelve", "why": "how many months make one", "s": 1 }
+    ],
+    "da:år|da:lang": [
+      { "da": "tid", "en": "time", "why": "a great deal of it", "s": 3 }
+    ],
+    "da:år|da:elev": [
+      { "da": "skole", "en": "school", "why": "where the terms are counted", "s": 3 },
+      { "da": "klasse", "en": "grade", "why": "which one you sit in", "s": 2 }
+    ],
+    "da:år|da:sidste": [
+      { "da": "december", "en": "december", "why": "the month that closes it", "s": 2 },
+      { "da": "slut", "en": "end", "why": "when the twelve months finish", "s": 2 }
+    ],
+    "da:år|da:vejr": [
+      { "da": "sommer", "en": "summer", "why": "the warm stretch of it", "s": 2 },
+      { "da": "sæson", "en": "season", "why": "spring, summer, autumn, winter", "s": 2 }
+    ],
+    "da:år|da:liv": [
+      { "da": "alder", "en": "age", "why": "how many you have behind you", "s": 3 },
+      { "da": "gammel", "en": "old", "why": "many of them already spent", "s": 2 }
+    ],
+    "da:år|da:næste": [
+      { "da": "fremtid", "en": "future", "why": "what is still ahead", "s": 2 }
+    ],
+    "da:år|da:gang": [
+      { "da": "fødselsdag", "en": "birthday", "why": "once every twelve months", "s": 2 }
+    ],
+    "da:år|da:klasse": [
+      { "da": "skole", "en": "school", "why": "where both are counted", "s": 3 },
+      { "da": "elev", "en": "pupil", "why": "who moves up one each summer", "s": 2 }
+    ],
+    "da:år|da:kort": [
+      { "da": "tid", "en": "time", "why": "how much of it passes", "s": 2 },
+      { "da": "måned", "en": "month", "why": "a small slice of twelve", "s": 1 }
+    ],
+    "da:år|da:begynde": [
+      { "da": "januar", "en": "january", "why": "the month it opens with", "s": 2 },
+      { "da": "første", "en": "first", "why": "the day it opens on", "s": 2 }
+    ],
+    "da:år|da:leve": [
+      { "da": "alder", "en": "age", "why": "how many you have lived", "s": 2 },
+      { "da": "gammel", "en": "old", "why": "many of them behind you", "s": 2 }
+    ],
+    "da:få|da:job": [
+      { "da": "arbejde", "en": "work", "why": "what one of them gives you", "s": 2 },
+      { "da": "løn", "en": "pay", "why": "what lands in your account", "s": 2 }
+    ],
+    "da:få|da:tage": [
+      { "da": "hånd", "en": "hand", "why": "what you use for both", "s": 2 },
+      { "da": "gave", "en": "gift", "why": "handed over and accepted", "s": 2 }
+    ],
+    "da:få|da:give": [
+      { "da": "hånd", "en": "hand", "why": "what passes between two people", "s": 3 },
+      { "da": "bytte", "en": "swap", "why": "one hands over, one accepts", "s": 2 }
+    ],
+    "da:få|da:finde": [
+      { "da": "søge", "en": "search", "why": "what comes before both", "s": 2 },
+      { "da": "svar", "en": "answer", "why": "you look for one, then have it", "s": 2 }
+    ],
+    "da:få|da:vide": [
+      { "da": "besked", "en": "message", "why": "what tells you", "s": 2 },
+      { "da": "svar", "en": "answer", "why": "what makes it clear", "s": 2 }
+    ],
+    "da:få|da:holde": [
+      { "da": "hånd", "en": "hand", "why": "what does both", "s": 2 },
+      { "da": "gave", "en": "gift", "why": "handed to you and kept", "s": 2 }
+    ],
+    "da:få|da:bruge": [
+      { "da": "penge", "en": "money", "why": "it comes in and goes out", "s": 3 },
+      { "da": "løn", "en": "pay", "why": "paid out and spent again", "s": 2 }
+    ],
+    "da:få|da:morgenmad": [
+      { "da": "hotel", "en": "hotel", "why": "there it is included", "s": 2 },
+      { "da": "seng", "en": "bed", "why": "served there as a treat", "s": 1 }
+    ],
+    "da:få|da:lade": [
+      { "da": "lov", "en": "permission", "why": "being allowed something", "s": 3 },
+      { "da": "må", "en": "may", "why": "the word that asks and grants", "s": 2 }
+    ],
+    "da:få|da:fri": [
+      { "da": "ferie", "en": "holiday", "why": "days away from work", "s": 2 },
+      { "da": "weekend", "en": "weekend", "why": "when nobody has to work", "s": 2 }
+    ],
+    "da:få|da:aftensmad": [
+      { "da": "restaurant", "en": "restaurant", "why": "where it is served to you", "s": 2 },
+      { "da": "gæst", "en": "guest", "why": "fed at someone else's table", "s": 1 }
+    ],
+    "da:få|da:krone": [
+      { "da": "penge", "en": "money", "why": "what lands in your hand", "s": 2 },
+      { "da": "løn", "en": "pay", "why": "counted out in coins", "s": 2 }
+    ],
+    "da:dansk|da:menneske": [
+      { "da": "folk", "en": "people", "why": "the ones who live there", "s": 2 },
+      { "da": "sprog", "en": "language", "why": "only we speak one", "s": 2 }
+    ],
+    "da:dansk|da:brød": [
+      { "da": "smør", "en": "butter", "why": "spread thickly on it here", "s": 2 },
+      { "da": "bager", "en": "baker", "why": "on every street corner", "s": 1 }
+    ],
+    "da:dansk|da:elev": [
+      { "da": "skole", "en": "school", "why": "where the lessons happen", "s": 3 },
+      { "da": "lærer", "en": "teacher", "why": "who stands at the front", "s": 2 },
+      { "da": "fag", "en": "subject", "why": "one on the timetable", "s": 2 }
+    ],
+    "da:dansk|da:land": [
+      { "da": "sprog", "en": "language", "why": "what a country speaks", "s": 3 },
+      { "da": "flag", "en": "flag", "why": "the red one a country flies", "s": 2 }
+    ],
+    "da:dansk|da:international": [
+      { "da": "sprog", "en": "language", "why": "one at home, many abroad", "s": 2 },
+      { "da": "verden", "en": "world", "why": "beyond one small country", "s": 1 }
+    ],
+    "da:dansk|da:verden": [
+      { "da": "sprog", "en": "language", "why": "one of thousands spoken", "s": 2 },
+      { "da": "land", "en": "country", "why": "one among many", "s": 2 }
+    ],
+    "da:dansk|da:tale": [
+      { "da": "sprog", "en": "language", "why": "what comes out of your mouth", "s": 3 },
+      { "da": "mund", "en": "mouth", "why": "where the sounds come from", "s": 2 }
+    ],
+    "da:dansk|da:ord": [
+      { "da": "sprog", "en": "language", "why": "made up of them", "s": 3 },
+      { "da": "lære", "en": "learn", "why": "what you study a list of", "s": 2 }
+    ],
+    "da:dansk|da:klasse": [
+      { "da": "skole", "en": "school", "why": "a subject and a room there", "s": 3 },
+      { "da": "lærer", "en": "teacher", "why": "who teaches the room", "s": 2 }
+    ],
+    "da:dansk|da:skrive": [
+      { "da": "ord", "en": "word", "why": "what ends up on the page", "s": 2 },
+      { "da": "brev", "en": "letter", "why": "put down on paper", "s": 1 }
+    ],
+    "da:dansk|da:betyde": [
+      { "da": "ordbog", "en": "dictionary", "why": "it tells you the sense", "s": 2 },
+      { "da": "oversætte", "en": "translate", "why": "what it says in your language", "s": 2 }
+    ],
+    "da:dansk|da:krone": [
+      { "da": "penge", "en": "money", "why": "what you pay with there", "s": 3 },
+      { "da": "mønt", "en": "coin", "why": "the metal one in your pocket", "s": 2 }
+    ],
+    "da:dansk|da:svær": [
+      { "da": "sprog", "en": "language", "why": "a famously tricky one", "s": 2 },
+      { "da": "udtale", "en": "pronunciation", "why": "the hardest part of it", "s": 2 }
+    ],
+    "da:menneske|da:god": [
+      { "da": "venlig", "en": "kind", "why": "what a decent one is", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "a warm one has a big one", "s": 2 }
+    ],
+    "da:menneske|da:krop": [
+      { "da": "hoved", "en": "head", "why": "the top of one", "s": 2 },
+      { "da": "hud", "en": "skin", "why": "what covers it", "s": 2 }
+    ],
+    "da:menneske|da:læge": [
+      { "da": "syg", "en": "sick", "why": "one of them treats the other", "s": 2 },
+      { "da": "hospital", "en": "hospital", "why": "where the two meet", "s": 2 }
+    ],
+    "da:menneske|da:elev": [
+      { "da": "barn", "en": "child", "why": "a small one at school", "s": 2 },
+      { "da": "ung", "en": "young", "why": "one not yet grown", "s": 2 }
+    ],
+    "da:menneske|da:natur": [
+      { "da": "jord", "en": "earth", "why": "what we all live on", "s": 2 },
+      { "da": "dyr", "en": "animal", "why": "we share the woods with them", "s": 2 }
+    ],
+    "da:menneske|da:dyr": [
+      { "da": "levende", "en": "living", "why": "both of them breathe", "s": 2 },
+      { "da": "jord", "en": "earth", "why": "both walk on it", "s": 2 }
+    ],
+    "da:menneske|da:alene": [
+      { "da": "ensom", "en": "lonely", "why": "one with nobody around", "s": 2 },
+      { "da": "selv", "en": "self", "why": "just you and nobody else", "s": 1 }
+    ],
+    "da:menneske|da:kæreste": [
+      { "da": "elske", "en": "love", "why": "the one you feel it for", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "who yours belongs to", "s": 1 }
+    ],
+    "da:menneske|da:liv": [
+      { "da": "hjerte", "en": "heart", "why": "it beats while it lasts", "s": 2 },
+      { "da": "fødsel", "en": "birth", "why": "when both of them start", "s": 2 }
+    ],
+    "da:menneske|da:øre": [
+      { "da": "hoved", "en": "head", "why": "one sits on each side", "s": 2 },
+      { "da": "krop", "en": "body", "why": "a small part of one", "s": 2 }
+    ],
+    "da:menneske|da:verden": [
+      { "da": "jord", "en": "earth", "why": "where everyone lives", "s": 3 },
+      { "da": "alle", "en": "everyone", "why": "every single one of us", "s": 2 }
+    ],
+    "da:menneske|da:tale": [
+      { "da": "sprog", "en": "language", "why": "only we use one", "s": 2 },
+      { "da": "mund", "en": "mouth", "why": "what the words leave", "s": 2 }
+    ],
+    "da:menneske|da:familie": [
+      { "da": "mor", "en": "mother", "why": "one of them at its centre", "s": 2 },
+      { "da": "barn", "en": "child", "why": "born into one", "s": 2 }
+    ],
+    "da:menneske|da:chef": [
+      { "da": "arbejde", "en": "work", "why": "where one leads the others", "s": 2 },
+      { "da": "kontor", "en": "office", "why": "who sits in the corner one", "s": 1 }
+    ],
+    "da:menneske|da:leve": [
+      { "da": "jord", "en": "earth", "why": "where we all do it", "s": 2 },
+      { "da": "hjem", "en": "home", "why": "where you do it daily", "s": 2 }
+    ],
+    "da:komme|da:hjem": [
+      { "da": "tilbage", "en": "back", "why": "returning to your own door", "s": 2 },
+      { "da": "dør", "en": "door", "why": "what you step through", "s": 2 }
+    ],
+    "da:komme|da:gå": [
+      { "da": "dør", "en": "door", "why": "in through it and out", "s": 3 },
+      { "da": "fod", "en": "foot", "why": "how you arrive and leave", "s": 2 }
+    ],
+    "da:komme|da:tage": [
+      { "da": "bus", "en": "bus", "why": "you board it and it pulls up", "s": 2 },
+      { "da": "rejse", "en": "journey", "why": "setting off and arriving", "s": 2 }
+    ],
+    "da:komme|da:næste": [
+      { "da": "snart", "en": "soon", "why": "it will be here shortly", "s": 2 },
+      { "da": "efter", "en": "after", "why": "the one that follows", "s": 2 }
+    ],
+    "da:komme|da:rejse": [
+      { "da": "lufthavn", "en": "airport", "why": "departures and arrivals", "s": 2 },
+      { "da": "tog", "en": "train", "why": "it carries you and pulls in", "s": 2 }
+    ],
+    "da:komme|da:desværre": [
+      { "da": "undskyld", "en": "sorry", "why": "what you say when you cannot", "s": 2 },
+      { "da": "nej", "en": "no", "why": "turning an invitation down", "s": 1 }
+    ],
+    "da:komme|da:følge": [
+      { "da": "efter", "en": "after", "why": "one behind the other", "s": 2 },
+      { "da": "med", "en": "along", "why": "tagging on with someone", "s": 2 }
+    ],
+    "da:komme|da:begynde": [
+      { "da": "først", "en": "first", "why": "right at the opening", "s": 2 },
+      { "da": "møde", "en": "meeting", "why": "you arrive and it opens", "s": 2 }
+    ],
+    "da:komme|da:vej": [
+      { "da": "gade", "en": "street", "why": "what you arrive along", "s": 2 },
+      { "da": "bil", "en": "car", "why": "it drives up outside", "s": 2 }
+    ],
+    "da:komme|da:hurtigt": [
+      { "da": "løbe", "en": "run", "why": "arriving at speed", "s": 2 },
+      { "da": "straks", "en": "immediately", "why": "without any delay at all", "s": 2 }
+    ],
+    "da:komme|da:møde": [
+      { "da": "aftale", "en": "appointment", "why": "what you turn up for", "s": 2 },
+      { "da": "kontor", "en": "office", "why": "where it is held", "s": 1 }
+    ],
+    "da:spørgsmål|da:god": [
+      { "da": "klog", "en": "clever", "why": "what a sharp one shows", "s": 1 },
+      { "da": "svar", "en": "answer", "why": "what a strong one earns", "s": 1 }
+    ],
+    "da:spørgsmål|da:sige": [
+      { "da": "svar", "en": "answer", "why": "what you give back", "s": 2 },
+      { "da": "mund", "en": "mouth", "why": "both come out of it", "s": 2 }
+    ],
+    "da:spørgsmål|da:godt": [
+      { "da": "forstå", "en": "understand", "why": "when you follow it fully", "s": 2 },
+      { "da": "svar", "en": "answer", "why": "one given clearly", "s": 1 }
+    ],
+    "da:spørgsmål|da:elev": [
+      { "da": "hånd", "en": "hand", "why": "raised at the back to ask", "s": 2 },
+      { "da": "lærer", "en": "teacher", "why": "who asks and who answers", "s": 2 },
+      { "da": "prøve", "en": "test", "why": "a page of them to answer", "s": 2 }
+    ],
+    "da:spørgsmål|da:vide": [
+      { "da": "svar", "en": "answer", "why": "what settles it", "s": 2 },
+      { "da": "hvorfor", "en": "why", "why": "the word you ask with", "s": 2 }
+    ],
+    "da:spørgsmål|da:rigtig": [
+      { "da": "svar", "en": "answer", "why": "the one that is not wrong", "s": 2 },
+      { "da": "prøve", "en": "test", "why": "where they are ticked or crossed", "s": 2 }
+    ],
+    "da:spørgsmål|da:vigtig": [
+      { "da": "stor", "en": "big", "why": "one that carries weight", "s": 2 },
+      { "da": "alvorlig", "en": "serious", "why": "not to be brushed aside", "s": 1 }
+    ],
+    "da:spørgsmål|da:hedde": [
+      { "da": "hvad", "en": "what", "why": "the word that opens it", "s": 3 },
+      { "da": "hilse", "en": "greeting", "why": "what you ask when you meet", "s": 2 }
+    ],
+    "da:spørgsmål|da:tale": [
+      { "da": "mund", "en": "mouth", "why": "both leave it out loud", "s": 2 },
+      { "da": "ord", "en": "word", "why": "several strung together", "s": 2 }
+    ],
+    "da:spørgsmål|da:næste": [
+      { "da": "nummer", "en": "number", "why": "counted one after another", "s": 2 },
+      { "da": "liste", "en": "list", "why": "one after another down it", "s": 1 }
+    ],
+    "da:spørgsmål|da:ord": [
+      { "da": "sætning", "en": "sentence", "why": "several strung together", "s": 2 },
+      { "da": "mund", "en": "mouth", "why": "both come out of it", "s": 2 }
+    ],
+    "da:spørgsmål|da:høre": [
+      { "da": "svar", "en": "answer", "why": "what you listen for", "s": 2 },
+      { "da": "lytte", "en": "listen", "why": "what you do to catch one", "s": 2 }
+    ],
+    "da:spørgsmål|da:spørge": [
+      { "da": "svar", "en": "answer", "why": "what comes straight back", "s": 3 },
+      { "da": "hvorfor", "en": "why", "why": "the word that starts one", "s": 3 }
+    ],
+    "da:spørgsmål|da:klasse": [
+      { "da": "lærer", "en": "teacher", "why": "who asks the whole room", "s": 2 },
+      { "da": "hånd", "en": "hand", "why": "raised at the back", "s": 2 }
+    ],
+    "da:spørgsmål|da:sikker": [
+      { "da": "svar", "en": "answer", "why": "asked when you are not", "s": 2 },
+      { "da": "tvivl", "en": "doubt", "why": "what makes you ask", "s": 2 }
+    ],
+    "da:spørgsmål|da:betyde": [
+      { "da": "hvad", "en": "what", "why": "the word that asks it", "s": 3 },
+      { "da": "ordbog", "en": "dictionary", "why": "where you look the sense up", "s": 2 }
+    ],
+    "da:spørgsmål|da:svær": [
+      { "da": "prøve", "en": "test", "why": "full of hard ones", "s": 2 },
+      { "da": "eksamen", "en": "exam", "why": "the nastiest ones turn up there", "s": 2 }
+    ],
+    "da:spørgsmål|da:åben": [
+      { "da": "svar", "en": "answer", "why": "one still waiting for it", "s": 2 },
+      { "da": "mund", "en": "mouth", "why": "you part it to ask", "s": 2 }
+    ],
+    "da:god|da:godt": [
+      { "da": "fin", "en": "fine", "why": "a mild way of praising", "s": 3 },
+      { "da": "dejlig", "en": "lovely", "why": "how a dane praises something", "s": 2 }
+    ],
+    "da:god|da:ny": [
+      { "da": "start", "en": "start", "why": "a fresh beginning that goes well", "s": 2 },
+      { "da": "frisk", "en": "fresh", "why": "straight out of the box", "s": 2 }
+    ],
+    "da:god|da:pris": [
+      { "da": "billig", "en": "cheap", "why": "what makes one worth taking", "s": 2 },
+      { "da": "tilbud", "en": "offer", "why": "when the number drops", "s": 2 }
+    ],
+    "da:god|da:vejr": [
+      { "da": "sol", "en": "sun", "why": "what makes the day fine", "s": 3 },
+      { "da": "sommer", "en": "summer", "why": "when it is at its best", "s": 2 }
+    ],
+    "da:god|da:glæde": [
+      { "da": "smil", "en": "smile", "why": "what it puts on your face", "s": 2 },
+      { "da": "gave", "en": "gift", "why": "it lifts the one who gets it", "s": 1 }
+    ],
+    "da:god|da:rigtig": [
+      { "da": "svar", "en": "answer", "why": "the one you hoped for", "s": 2 },
+      { "da": "valg", "en": "choice", "why": "one you would make again", "s": 2 }
+    ],
+    "da:god|da:vigtig": [
+      { "da": "råd", "en": "advice", "why": "worth listening to", "s": 2 },
+      { "da": "grund", "en": "reason", "why": "one worth acting on", "s": 2 }
+    ],
+    "da:god|da:fin": [
+      { "da": "dejlig", "en": "lovely", "why": "how you praise something", "s": 3 },
+      { "da": "flot", "en": "great", "why": "what you say when pleased", "s": 2 }
+    ],
+    "da:god|da:rejse": [
+      { "da": "ferie", "en": "holiday", "why": "a fortnight away that goes well", "s": 2 },
+      { "da": "oplevelse", "en": "experience", "why": "what a fine one gives you", "s": 1 }
+    ],
+    "da:god|da:desværre": [
+      { "da": "nyhed", "en": "news", "why": "it arrives either way", "s": 2 },
+      { "da": "held", "en": "luck", "why": "with it or without it", "s": 1 }
+    ],
+    "da:god|da:sund": [
+      { "da": "grøntsag", "en": "vegetable", "why": "what does your body a favour", "s": 2 },
+      { "da": "motion", "en": "exercise", "why": "it does you a favour", "s": 2 }
+    ]
+  }
+}

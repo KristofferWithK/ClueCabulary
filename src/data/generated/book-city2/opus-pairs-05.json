@@ -1,0 +1,376 @@
+{
+  "model": "opus", "city": 2, "kind": "pairs", "batch": 5,
+  "pairs": {
+    "da:vide|da:tro": [
+      { "da": "sandhed", "en": "truth", "why": "what both are aimed at", "s": 2 },
+      { "da": "mening", "en": "opinion", "why": "what you hold in your head", "s": 2 }
+    ],
+    "da:vide|da:rigtig": [
+      { "da": "sandt", "en": "true", "why": "matching how things are", "s": 2 },
+      { "da": "svar", "en": "answer", "why": "the one that is not wrong", "s": 2 }
+    ],
+    "da:vide|da:klar": [
+      { "da": "forstå", "en": "understand", "why": "when it finally makes sense", "s": 2 },
+      { "da": "tydelig", "en": "obvious", "why": "no doubt about it", "s": 2 }
+    ],
+    "da:vide|da:hedde": [
+      { "da": "navn", "en": "name", "why": "what someone is called", "s": 2 },
+      { "da": "hvem", "en": "who", "why": "the question about a person", "s": 1 }
+    ],
+    "da:vide|da:høre": [
+      { "da": "nyhed", "en": "news", "why": "what reaches you and stays", "s": 2 },
+      { "da": "besked", "en": "message", "why": "what tells you something", "s": 2 }
+    ],
+    "da:vide|da:spørge": [
+      { "da": "svar", "en": "answer", "why": "what a question gets you", "s": 3 },
+      { "da": "lærer", "en": "teacher", "why": "who you ask in class", "s": 2 }
+    ],
+    "da:vide|da:vej": [
+      { "da": "kort", "en": "map", "why": "what shows you the route", "s": 2 },
+      { "da": "retning", "en": "direction", "why": "which way to go", "s": 2 }
+    ],
+    "da:vide|da:vise": [
+      { "da": "lære", "en": "teach", "why": "making someone understand", "s": 2 },
+      { "da": "forklare", "en": "explain", "why": "walking someone through it", "s": 2 }
+    ],
+    "da:vide|da:sikker": [
+      { "da": "tvivl", "en": "doubt", "why": "the opposite of both", "s": 2 },
+      { "da": "sandhed", "en": "truth", "why": "what you can rely on", "s": 2 }
+    ],
+    "da:vide|da:føle": [
+      { "da": "mærke", "en": "sense", "why": "how something reaches you", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "where you are certain without proof", "s": 1 }
+    ],
+    "da:vide|da:betyde": [
+      { "da": "ord", "en": "word", "why": "what you look up", "s": 2 },
+      { "da": "ordbog", "en": "dictionary", "why": "where the sense is written down", "s": 2 }
+    ],
+    "da:vejr|da:sø": [
+      { "da": "regn", "en": "rain", "why": "what falls and fills it", "s": 2 },
+      { "da": "sommer", "en": "summer", "why": "warm days by the water", "s": 2 }
+    ],
+    "da:vejr|da:fin": [
+      { "da": "sol", "en": "sun", "why": "what makes a lovely day", "s": 2 },
+      { "da": "sommer", "en": "summer", "why": "warm and pleasant outside", "s": 2 }
+    ],
+    "da:vejr|da:land": [
+      { "da": "bonde", "en": "farmer", "why": "who works with rain and soil", "s": 2 },
+      { "da": "regn", "en": "rain", "why": "what the fields need", "s": 1 }
+    ],
+    "da:vejr|da:klar": [
+      { "da": "himmel", "en": "sky", "why": "blue with no clouds", "s": 2 },
+      { "da": "sol", "en": "sunshine", "why": "a bright cloudless day", "s": 2 }
+    ],
+    "da:vejr|da:tale": [
+      { "da": "snak", "en": "chat", "why": "the safest thing to discuss", "s": 2 },
+      { "da": "emne", "en": "topic", "why": "what strangers fall back on", "s": 1 }
+    ],
+    "da:vejr|da:rejse": [
+      { "da": "ferie", "en": "holiday", "why": "sun somewhere else", "s": 2 },
+      { "da": "sommer", "en": "summer", "why": "when you go away", "s": 2 }
+    ],
+    "da:vejr|da:vind": [
+      { "da": "storm", "en": "storm", "why": "a rough day outside", "s": 3 },
+      { "da": "regn", "en": "rain", "why": "what blows in with it", "s": 2 }
+    ],
+    "da:vejr|da:skov": [
+      { "da": "natur", "en": "nature", "why": "outdoors in all of it", "s": 2 },
+      { "da": "efterår", "en": "autumn", "why": "wet leaves and grey days", "s": 2 }
+    ],
+    "da:vejr|da:stærk": [
+      { "da": "storm", "en": "storm", "why": "wind at full force", "s": 2 },
+      { "da": "vind", "en": "wind", "why": "when it blows hard", "s": 2 }
+    ],
+    "da:tro|da:rigtig": [
+      { "da": "sandt", "en": "true", "why": "how you take it to be", "s": 2 },
+      { "da": "mening", "en": "opinion", "why": "what you hold and defend", "s": 1 }
+    ],
+    "da:tro|da:kærlighed": [
+      { "da": "hjerte", "en": "heart", "why": "where both of them live", "s": 2 },
+      { "da": "håb", "en": "hope", "why": "held without any proof", "s": 2 }
+    ],
+    "da:tro|da:desværre": [
+      { "da": "håb", "en": "hope", "why": "held on to, then let down", "s": 1 }
+    ],
+    "da:tro|da:spørge": [
+      { "da": "mening", "en": "opinion", "why": "you ask for one, you hold one", "s": 2 },
+      { "da": "svar", "en": "answer", "why": "asked for, then accepted", "s": 1 }
+    ],
+    "da:tro|da:sikker": [
+      { "da": "tvivl", "en": "doubt", "why": "what shakes both of them", "s": 2 },
+      { "da": "løfte", "en": "promise", "why": "you trust it will hold", "s": 2 }
+    ],
+    "da:tro|da:føle": [
+      { "da": "hjerte", "en": "heart", "why": "where both of them happen", "s": 2 },
+      { "da": "mave", "en": "gut", "why": "the sense you cannot explain", "s": 2 }
+    ],
+    "da:tro|da:betyde": [
+      { "da": "tegn", "en": "sign", "why": "what it stands for", "s": 1 },
+      { "da": "ord", "en": "word", "why": "how you take what was said", "s": 1 }
+    ],
+    "da:hotel|da:høj": [
+      { "da": "etage", "en": "floor", "why": "how many there are above you", "s": 2 },
+      { "da": "elevator", "en": "elevator", "why": "how you reach the top", "s": 2 }
+    ],
+    "da:hotel|da:frokost": [
+      { "da": "restaurant", "en": "restaurant", "why": "where the meal is served", "s": 2 },
+      { "da": "buffet", "en": "buffet", "why": "food laid out for guests", "s": 2 }
+    ],
+    "da:hotel|da:lejlighed": [
+      { "da": "værelse", "en": "room", "why": "what you sleep in", "s": 2 },
+      { "da": "bo", "en": "stay", "why": "where you sleep for a while", "s": 2 }
+    ],
+    "da:hotel|da:fin": [
+      { "da": "luksus", "en": "luxury", "why": "stars on the door", "s": 2 },
+      { "da": "dyr", "en": "expensive", "why": "what a smart place costs", "s": 1 }
+    ],
+    "da:hotel|da:kontor": [
+      { "da": "reception", "en": "reception", "why": "the desk you report to", "s": 2 },
+      { "da": "bygning", "en": "building", "why": "a big one in town", "s": 2 }
+    ],
+    "da:hotel|da:ligge": [
+      { "da": "seng", "en": "bed", "why": "what you stretch out on", "s": 3 },
+      { "da": "sove", "en": "sleep", "why": "flat on your back overnight", "s": 2 }
+    ],
+    "da:hotel|da:international": [
+      { "da": "turist", "en": "tourist", "why": "visitors from other countries", "s": 2 },
+      { "da": "lufthavn", "en": "airport", "why": "where foreign visitors arrive", "s": 1 }
+    ],
+    "da:hotel|da:morgenmad": [
+      { "da": "buffet", "en": "buffet", "why": "laid out in the dining hall", "s": 3 },
+      { "da": "kaffe", "en": "coffee", "why": "the first thing served", "s": 2 }
+    ],
+    "da:hotel|da:fri": [
+      { "da": "ferie", "en": "holiday", "why": "days away with nothing planned", "s": 2 },
+      { "da": "weekend", "en": "weekend", "why": "two nights off somewhere else", "s": 2 }
+    ],
+    "da:hotel|da:rejse": [
+      { "da": "kuffert", "en": "suitcase", "why": "packed and then unpacked", "s": 3 },
+      { "da": "ferie", "en": "holiday", "why": "away from home for a week", "s": 3 }
+    ],
+    "da:hotel|da:stue": [
+      { "da": "sofa", "en": "sofa", "why": "where you sit in the evening", "s": 2 },
+      { "da": "fjernsyn", "en": "television", "why": "on the wall where you relax", "s": 1 }
+    ],
+    "da:hotel|da:chef": [
+      { "da": "personale", "en": "staff", "why": "who runs the place", "s": 2 },
+      { "da": "arbejde", "en": "work", "why": "where people are employed", "s": 1 }
+    ],
+    "da:hotel|da:aftensmad": [
+      { "da": "restaurant", "en": "restaurant", "why": "where the evening meal is served", "s": 3 },
+      { "da": "menu", "en": "menu", "why": "what you choose from", "s": 2 }
+    ],
+    "da:hotel|da:skab": [
+      { "da": "tøj", "en": "clothes", "why": "hung up when you arrive", "s": 2 },
+      { "da": "kuffert", "en": "suitcase", "why": "emptied into it", "s": 2 }
+    ],
+    "da:hotel|da:restaurant": [
+      { "da": "mad", "en": "food", "why": "why you go in", "s": 3 },
+      { "da": "gæst", "en": "guest", "why": "who is served there", "s": 3 }
+    ],
+    "da:hotel|da:nøgle": [
+      { "da": "dør", "en": "door", "why": "what it opens", "s": 3 },
+      { "da": "reception", "en": "reception", "why": "where you collect it", "s": 3 }
+    ],
+    "da:hotel|da:møde": [
+      { "da": "konference", "en": "conference", "why": "a room booked for business", "s": 2 },
+      { "da": "sal", "en": "hall", "why": "the big room booked for it", "s": 1 }
+    ],
+    "da:høj|da:lejlighed": [
+      { "da": "etage", "en": "floor", "why": "which one you live on", "s": 2 },
+      { "da": "elevator", "en": "elevator", "why": "how you get up there", "s": 2 }
+    ],
+    "da:høj|da:øre": [
+      { "da": "lyd", "en": "sound", "why": "loud enough to hurt", "s": 2 },
+      { "da": "musik", "en": "music", "why": "turned right up", "s": 2 }
+    ],
+    "da:høj|da:tale": [
+      { "da": "råbe", "en": "shout", "why": "speaking as loudly as you can", "s": 3 },
+      { "da": "stemme", "en": "voice", "why": "how loud yours is", "s": 3 }
+    ],
+    "da:høj|da:høre": [
+      { "da": "lyd", "en": "sound", "why": "loud enough to reach you", "s": 3 },
+      { "da": "råbe", "en": "shout", "why": "so they catch it far off", "s": 2 }
+    ],
+    "da:høj|da:kort": [
+      { "da": "meter", "en": "meter", "why": "how you measure a person", "s": 3 },
+      { "da": "måle", "en": "measure", "why": "finding out how far up", "s": 3 }
+    ],
+    "da:høj|da:skov": [
+      { "da": "træ", "en": "tree", "why": "many of them reaching up", "s": 2 },
+      { "da": "klatre", "en": "climb", "why": "up among the branches", "s": 1 }
+    ],
+    "da:høj|da:stærk": [
+      { "da": "kæmpe", "en": "giant", "why": "huge in every way", "s": 2 },
+      { "da": "mand", "en": "man", "why": "big and powerful", "s": 2 }
+    ],
+    "da:glæde|da:kæreste": [
+      { "da": "smil", "en": "smile", "why": "what the sight of them brings", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "what beats faster", "s": 1 }
+    ],
+    "da:glæde|da:kærlighed": [
+      { "da": "hjerte", "en": "heart", "why": "what fills it up", "s": 2 },
+      { "da": "smil", "en": "smile", "why": "what it puts on your face", "s": 1 }
+    ],
+    "da:glæde|da:fin": [
+      { "da": "dejlig", "en": "lovely", "why": "how a good day is", "s": 2 },
+      { "da": "fest", "en": "party", "why": "a splendid occasion", "s": 1 }
+    ],
+    "da:glæde|da:liv": [
+      { "da": "fødselsdag", "en": "birthday", "why": "a year celebrated", "s": 2 },
+      { "da": "fest", "en": "party", "why": "celebrating being here", "s": 2 }
+    ],
+    "da:glæde|da:desværre": [
+      { "da": "nyhed", "en": "news", "why": "good or bad to hear", "s": 2 },
+      { "da": "besked", "en": "message", "why": "the happy kind or the other", "s": 1 }
+    ],
+    "da:glæde|da:familie": [
+      { "da": "fødselsdag", "en": "birthday", "why": "everyone gathered and pleased", "s": 2 },
+      { "da": "sammen", "en": "together", "why": "why the day is good", "s": 2 }
+    ],
+    "da:glæde|da:føle": [
+      { "da": "hjerte", "en": "heart", "why": "where the warm rush sits", "s": 2 },
+      { "da": "smil", "en": "smile", "why": "the inside showing on your face", "s": 2 }
+    ],
+    "da:holde|da:kæreste": [
+      { "da": "hånd", "en": "hand", "why": "walking with one in yours", "s": 2 },
+      { "da": "kram", "en": "hug", "why": "arms around someone", "s": 2 }
+    ],
+    "da:holde|da:bruge": [
+      { "da": "gemme", "en": "save", "why": "put away rather than spent", "s": 2 },
+      { "da": "penge", "en": "money", "why": "some spent, the rest saved", "s": 1 }
+    ],
+    "da:holde|da:kærlighed": [
+      { "da": "kram", "en": "hug", "why": "arms around someone you care for", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "kept close", "s": 1 }
+    ],
+    "da:holde|da:lave": [
+      { "da": "hånd", "en": "hand", "why": "what grips and what works", "s": 2 },
+      { "da": "arbejde", "en": "work", "why": "what you get done", "s": 1 }
+    ],
+    "da:holde|da:sætte": [
+      { "da": "hånd", "en": "hand", "why": "what moves and grips it", "s": 2 },
+      { "da": "hylde", "en": "shelf", "why": "where things go and stay", "s": 2 }
+    ],
+    "da:holde|da:ligge": [
+      { "da": "stille", "en": "still", "why": "not moving at all", "s": 2 },
+      { "da": "ro", "en": "calm", "why": "staying put and quiet", "s": 1 }
+    ],
+    "da:holde|da:sidde": [
+      { "da": "stille", "en": "still", "why": "quiet in your seat", "s": 2 },
+      { "da": "plads", "en": "seat", "why": "saving one for someone", "s": 2 }
+    ],
+    "da:holde|da:tale": [
+      { "da": "mund", "en": "mouth", "why": "shut it or use it", "s": 2 },
+      { "da": "stille", "en": "quiet", "why": "staying so instead of speaking", "s": 1 }
+    ],
+    "da:holde|da:lade": [
+      { "da": "fred", "en": "peace", "why": "leaving someone undisturbed", "s": 2 },
+      { "da": "stop", "en": "stop", "why": "what both tell you to do", "s": 1 }
+    ],
+    "da:holde|da:ord": [
+      { "da": "løfte", "en": "promise", "why": "what you give and then keep", "s": 2 },
+      { "da": "sige", "en": "say", "why": "what you said you would do", "s": 1 }
+    ],
+    "da:holde|da:fri": [
+      { "da": "ferie", "en": "holiday", "why": "days when nobody works", "s": 2 },
+      { "da": "weekend", "en": "weekend", "why": "two days away from the job", "s": 2 }
+    ],
+    "da:holde|da:følge": [
+      { "da": "regel", "en": "rule", "why": "what you obey and stick to", "s": 2 },
+      { "da": "sammen", "en": "together", "why": "staying with someone as they go", "s": 2 }
+    ],
+    "da:holde|da:begynde": [
+      { "da": "stop", "en": "stop", "why": "the other end of it", "s": 2 },
+      { "da": "slut", "en": "end", "why": "where a thing finishes", "s": 1 }
+    ],
+    "da:holde|da:føle": [
+      { "da": "hånd", "en": "hand", "why": "you grip and you sense with it", "s": 2 },
+      { "da": "kram", "en": "hug", "why": "warm arms around you", "s": 2 }
+    ],
+    "da:holde|da:stærk": [
+      { "da": "arm", "en": "arm", "why": "what carries the weight", "s": 2 },
+      { "da": "tung", "en": "heavy", "why": "takes power to carry", "s": 2 }
+    ],
+    "da:holde|da:skab": [
+      { "da": "gemme", "en": "store", "why": "put away and kept there", "s": 2 },
+      { "da": "hylde", "en": "shelf", "why": "where things are stored", "s": 2 }
+    ],
+    "da:holde|da:åben": [
+      { "da": "dør", "en": "door", "why": "propped so it stays that way", "s": 2 },
+      { "da": "butik", "en": "shop", "why": "the hours you can go in", "s": 2 }
+    ],
+    "da:holde|da:nøgle": [
+      { "da": "lomme", "en": "pocket", "why": "where you keep it", "s": 2 },
+      { "da": "hånd", "en": "hand", "why": "what you carry it in", "s": 1 }
+    ],
+    "da:holde|da:møde": [
+      { "da": "aftale", "en": "appointment", "why": "a time set and kept", "s": 2 },
+      { "da": "bord", "en": "table", "why": "everyone gathered around it", "s": 1 }
+    ],
+    "da:alene|da:kæreste": [
+      { "da": "single", "en": "single", "why": "with someone or without", "s": 2 },
+      { "da": "savne", "en": "miss", "why": "wanting them there", "s": 2 }
+    ],
+    "da:alene|da:kærlighed": [
+      { "da": "savne", "en": "miss", "why": "nobody there to hold", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "full or empty", "s": 1 }
+    ],
+    "da:alene|da:lejlighed": [
+      { "da": "bo", "en": "live", "why": "one person in one place", "s": 2 },
+      { "da": "værelse", "en": "room", "why": "a small place of your own", "s": 1 }
+    ],
+    "da:alene|da:sidde": [
+      { "da": "stille", "en": "quiet", "why": "nobody around, nothing said", "s": 2 },
+      { "da": "stol", "en": "chair", "why": "one seat with none beside it", "s": 1 }
+    ],
+    "da:alene|da:liv": [
+      { "da": "ensom", "en": "lonely", "why": "how the years can be", "s": 2 },
+      { "da": "single", "en": "single", "why": "one person, no partner", "s": 1 }
+    ],
+    "da:alene|da:verden": [
+      { "da": "rejse", "en": "travel", "why": "going far by yourself", "s": 2 },
+      { "da": "stor", "en": "big", "why": "one small person in it", "s": 1 }
+    ],
+    "da:alene|da:lade": [
+      { "da": "fred", "en": "peace", "why": "left to yourself", "s": 2 },
+      { "da": "gå", "en": "leave", "why": "letting someone be", "s": 1 }
+    ],
+    "da:alene|da:fri": [
+      { "da": "ingen", "en": "nobody", "why": "nobody there and nobody stopping you", "s": 2 },
+      { "da": "selv", "en": "yourself", "why": "on your own terms", "s": 1 }
+    ],
+    "da:alene|da:rejse": [
+      { "da": "billet", "en": "ticket", "why": "one seat booked", "s": 1 },
+      { "da": "eventyr", "en": "adventure", "why": "setting off on your own", "s": 1 }
+    ],
+    "da:alene|da:følge": [
+      { "da": "sammen", "en": "together", "why": "the opposite of by yourself", "s": 2 },
+      { "da": "selskab", "en": "company", "why": "someone walking with you", "s": 1 }
+    ],
+    "da:alene|da:familie": [
+      { "da": "sammen", "en": "together", "why": "with them or on your own", "s": 2 },
+      { "da": "hjem", "en": "home", "why": "full of people or empty", "s": 1 }
+    ],
+    "da:alene|da:føle": [
+      { "da": "ensom", "en": "lonely", "why": "by yourself and low", "s": 2 },
+      { "da": "savne", "en": "miss", "why": "the ache of nobody there", "s": 2 }
+    ],
+    "da:alene|da:leve": [
+      { "da": "single", "en": "single", "why": "one person in the house", "s": 2 },
+      { "da": "hjem", "en": "home", "why": "how the days pass there", "s": 1 }
+    ],
+    "da:kæreste|da:kærlighed": [
+      { "da": "hjerte", "en": "heart", "why": "the sign of it", "s": 3 },
+      { "da": "kys", "en": "kiss", "why": "what the two of them do", "s": 3 }
+    ],
+    "da:kæreste|da:lejlighed": [
+      { "da": "bo", "en": "live", "why": "sharing a place", "s": 2 },
+      { "da": "sammen", "en": "together", "why": "moving in as a pair", "s": 2 }
+    ],
+    "da:kæreste|da:liv": [
+      { "da": "bryllup", "en": "wedding", "why": "two people joining for good", "s": 2 },
+      { "da": "sammen", "en": "together", "why": "sharing your years", "s": 1 }
+    ]
+  }
+}

@@ -1507,6 +1507,25 @@ cities as separate PRs so a bad batch is one revert.
 
 **Accept:** both validators green for every city; per-city size stated.
 
+**City 2 (Ribe) is done — PR #115, 2026-08-22.** The pilot, and the evidence
+for the other seven. 4,950 pairs judged twice and merged with E1's rule
+(91.2% outright agreement against city 1's 93.9%; 744 non-zero cells against
+849), 3,500 associations and 2,144 pair clues over the 744 `M >= 1` pairs.
+**The data is now one file per city** (`matrix.da.<city>.json`,
+`book.da.<city>.json`, city 1 renamed into the scheme) and `loadEvaluator(city)`
+imports one pair: measured chunks `book.da.1` 91.94 KB gz, `book.da.2` 94.86 KB
+gz, matrices 2.2 KB each, main bundle unchanged. Both validators now iterate
+whatever cities exist and are mutation-checked. **Cost: 91 agent runs, ~7.5M
+subagent tokens, ~38 minutes of agent wall clock at a concurrency of 17** —
+the matrix half is 66 agents in 6 minutes, the book half 24 agents in 32.
+**The measurement: cross-model hits/number 0.479 and 0.596** (city 1: 0.623 /
+0.701), above E4's 0.45 reversal bar but not by much, and "cleared inside the
+tokens" falls 51.5% -> 18.5% in the weaker direction. City 2 is 45 nouns / 30
+verbs / 21 adjectives where city 1 was 84 / 8 / 8, and the book thins exactly
+where the part of speech stops naming a thing. **The recommendation for cities
+3-9 is in the PR and in `docs/clue-engine.md`: run them, but re-measure each
+one and stop the moment a city comes in under 0.45.** Seven cities left.
+
 ### E5 — The hybrid
 **Size:** 1–2 sessions. **Deps:** E4's decision (E6 not required — city 1
 suffices to ship the validator). **Model:** Opus. **Spec:** §6 "Stage 5".

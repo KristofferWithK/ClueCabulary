@@ -7,15 +7,16 @@ import { isOpenFor, type AiClueView } from '../projections'
  * `sim(clue, word)` read off the opening book and the judged association
  * matrix, and `scoreClue` — the margin the search maximises.
  *
- * DATA IS LOADED LAZILY. The book is 104.7 KB gzipped (E2 measured it) and the
- * practice seam must not put it in the main bundle, so both files come in
- * through dynamic import the first time `loadEvaluator()` is awaited, and Vite
- * splits them into their own chunks. When E6 authors cities 2–9 this import
- * becomes keyed by city (one file per city — E2's size note), which is why the
- * loader is a function and not a top-level await.
+ * DATA IS LOADED LAZILY, AND SHARDED BY CITY. A city's book is ~105 KB
+ * gzipped and its matrix ~2 KB, so the practice seam must not put either in
+ * the main bundle and nine cities must not arrive as one asset (E2's size
+ * note, carried into E6's brief by E4). `loadEvaluator(city)` dynamic-imports
+ * exactly one city's pair of files and Vite splits each pair into its own
+ * chunks — see `SHARDS` at the bottom of this file, which is the whole of what
+ * shipping a new city costs the app.
  */
 
-/** One opening-book association, as `src/data/book.da.json` ships it. */
+/** One opening-book association, as `src/data/book.da.<city>.json` ships it. */
 export interface BookEntry {
   da: string
   en: string
@@ -275,20 +276,55 @@ export function buildEvaluator(matrix: MatrixFile, book: BookFile): Evaluator {
   }
 }
 
-let loaded: Promise<Evaluator> | null = null
+/**
+ * ONE CHUNK PER CITY, and the map is written out rather than globbed because
+ * Vite splits on a static specifier: each entry below is its own pair of
+ * chunks, and a board only ever pulls the city it is dealt from.
+ *
+ * E2 measured the reason. City 1's book is 104.7 KB gzipped and city 2's is
+ * 107.5 KB; nine at that rate is ~940 KB, which is fine arriving one city at a
+ * time and is not fine as one asset. E6 adds a line here per city it authors —
+ * that, and nothing else, is what shipping a new city costs the app.
+ */
+const SHARDS: Record<number, () => Promise<[MatrixFile, BookFile]>> = {
+  1: async () => {
+    const [m, b] = await Promise.all([
+      import('../../data/matrix.da.1.json'),
+      import('../../data/book.da.1.json'),
+    ])
+    return [m.default as unknown as MatrixFile, b.default as unknown as BookFile]
+  },
+  2: async () => {
+    const [m, b] = await Promise.all([
+      import('../../data/matrix.da.2.json'),
+      import('../../data/book.da.2.json'),
+    ])
+    return [m.default as unknown as MatrixFile, b.default as unknown as BookFile]
+  },
+}
+
+/** The cities E6 has authored, ascending. */
+export const authoredCities: readonly number[] = Object.keys(SHARDS)
+  .map(Number)
+  .sort((a, b) => a - b)
+
+const loaded = new Map<number, Promise<Evaluator | null>>()
 
 /**
- * The evaluator over city 1's shipped data, built once per session. The
- * dynamic imports are the lazy seam — see the module comment.
+ * The evaluator over one city's shipped data, built once per city per session.
+ * The dynamic imports are the lazy seam — see the module comment.
+ *
+ * NULL rather than a throw for a city E6 has not reached: the caller's answer
+ * to "no data" is the mock, not an error, and an unauthored city is an
+ * ordinary state of the game until all nine are authored.
  */
-export function loadEvaluator(): Promise<Evaluator> {
-  if (!loaded) {
-    loaded = Promise.all([
-      import('../../data/matrix.da.json'),
-      import('../../data/book.da.json'),
-    ]).then(([m, b]) =>
-      buildEvaluator(m.default as unknown as MatrixFile, b.default as unknown as BookFile),
-    )
-  }
-  return loaded
+export function loadEvaluator(city = 1): Promise<Evaluator | null> {
+  const hit = loaded.get(city)
+  if (hit) return hit
+  const shard = SHARDS[city]
+  const p: Promise<Evaluator | null> = shard
+    ? shard().then(([m, b]) => buildEvaluator(m, b))
+    : Promise.resolve(null)
+  loaded.set(city, p)
+  return p
 }

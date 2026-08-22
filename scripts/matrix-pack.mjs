@@ -21,7 +21,45 @@
 // print the same word on the card's English side are near-synonyms. The
 // matrix only has an opinion about the third, so `classifyConflicts` splits
 // them and the validator gates on the gloss arm alone.
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+
+/**
+ * ONE FILE PER CITY, and this is where that is spelled.
+ *
+ * E2 measured city 1's book at 104.7 KB gzipped against the matrix's 2.1 KB,
+ * and E4 carried the arithmetic into E6's brief: nine cities in one eager
+ * asset is ~940 KB. So the shipped data is sharded by city —
+ * `src/data/matrix.da.2.json`, `src/data/book.da.2.json` — and the evaluator's
+ * dynamic import is keyed by city, which is what `loadEvaluator(city)` in
+ * `src/ai/local/evaluator.ts` does with them. City 1's two files were renamed
+ * into the scheme rather than kept as a special case: a validator that
+ * iterates "whatever cities exist" cannot have a hard-coded first city in it.
+ */
+export const matrixPath = (lang, city) => `src/data/matrix.${lang}.${city}.json`
+export const bookPath = (lang, city) => `src/data/book.${lang}.${city}.json`
+
+/**
+ * The cities that have shipped data, ascending. Derived from the tree rather
+ * than from a list, so E6's next city needs no edit here — and so the
+ * validators check every city there is instead of the one somebody remembered
+ * to name.
+ *
+ * The union of BOTH kinds of shard on purpose. A city is only shipped when it
+ * has a matrix and a book: take the matrix files alone and a book landing
+ * without its matrix is silently skipped by both validators, which is exactly
+ * the shape of failure they exist to prevent. With the union, each validator
+ * fails on the file it cannot read and names the missing half.
+ */
+export function authoredCities(lang, dir = 'src/data') {
+  if (!existsSync(dir)) return []
+  const re = new RegExp(`^(?:matrix|book)\\.${lang}\\.(\\d+)\\.json$`)
+  const found = new Set()
+  for (const f of readdirSync(dir)) {
+    const m = re.exec(f)
+    if (m) found.add(Number(m[1]))
+  }
+  return [...found].sort((a, b) => a - b)
+}
 
 export const BITS = 2
 export const MAX_SCORE = 3
