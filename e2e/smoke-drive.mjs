@@ -479,22 +479,37 @@ try {
   }
   await page.waitForSelector('.summary-stats', { timeout: 10000 })
 
-  // What the round actually did, in the four tiles that replaced Casey's
-  // paragraph about it. Read as text and checked as shapes: a tile saying
-  // "undefined/100" still looks like a stat.
+  // What the round actually did, in the two tiles that replaced Casey's
+  // paragraph about it. There were four until P1; the city and the journey
+  // went, because both are the collection rather than the round and both are
+  // drawn bigger one tap away. Read as text and checked as shapes: a tile
+  // saying "undefined" still looks like a stat.
   const tiles = await page.evaluate(() => {
     const read = (sel) => document.querySelector(`${sel} .stat-n`)?.textContent?.trim() ?? ''
     return {
       discovered: read('.stat-discovered'),
       collected: read('.stat-collected'),
-      city: read('.stat-city'),
-      total: read('.stat-total'),
+      names: document.querySelectorAll('.stat-collected .stat-words .speak-word').length,
+      face: document.querySelectorAll('.outcome-banner .cluey-svg').length,
+      banner: document.querySelector('.outcome-banner')?.innerText ?? '',
+      retired: document.querySelectorAll(
+        '.summary-scroll, .stat-city, .stat-total, .collected-section',
+      ).length,
     }
   })
   if (!/^\d+$/.test(tiles.discovered)) throw new Error(`discovered tile: "${tiles.discovered}"`)
-  if (!/^\d+$/.test(tiles.collected)) throw new Error(`collected tile: "${tiles.collected}"`)
-  if (!/^\d+\/100$/.test(tiles.city)) throw new Error(`city tile: "${tiles.city}"`)
-  if (!/^\d+\/\d{3,4}$/.test(tiles.total)) throw new Error(`total tile: "${tiles.total}"`)
+  // The collected tile hides itself at zero, so it is the count OR nothing.
+  if (tiles.collected !== '' && !/^\d+$/.test(tiles.collected)) {
+    throw new Error(`collected tile: "${tiles.collected}"`)
+  }
+  // The list that used to sit below the fold is folded into the tile that
+  // counts it, and the names are still speak buttons (U1).
+  if (Number(tiles.collected) > 0 && tiles.names === 0) {
+    throw new Error(`${tiles.collected} collected and no names in the tile`)
+  }
+  if (tiles.retired > 0) throw new Error(`${tiles.retired} things P1 retired are still on the screen`)
+  if (tiles.face !== 1) throw new Error(`${tiles.face} Caseys on the summary`)
+  if (/🎉/.test(tiles.banner)) throw new Error('the celebration emoji is back on the summary')
   // This profile has never finished a round before, so every word on this board
   // was met for the first time. A zero here is the signature of the discovered
   // diff being taken AFTER recordRound, where it is uniformly empty.
@@ -502,7 +517,7 @@ try {
     throw new Error('a board of first-ever words counted as 0 discovered')
   }
   console.log(
-    `stats: ${tiles.discovered} new, ${tiles.collected} collected, ${tiles.city} in the city, ${tiles.total} in all`,
+    `stats: ${tiles.discovered} new, ${tiles.collected || 0} collected (${tiles.names} named)`,
   )
 
   // The transcript starts shut. Everything below it is about what is inside,

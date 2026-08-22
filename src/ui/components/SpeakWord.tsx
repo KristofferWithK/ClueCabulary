@@ -22,8 +22,8 @@ export function SpeakWord({ wordId, da }: { wordId: string; da: string }) {
   if (!sound || !canPlayWords()) return <span lang={ACTIVE.code}>{da}</span>
   return (
     <button type="button" className="speak-word" onClick={() => void playWord(wordId, da)}>
-      {/* The lang stays on the text, not the button: `.collected-word [lang]`
-          and the browser's own pronunciation both key off it. */}
+      {/* The lang stays on the text, not the button: the stylesheet and the
+          browser's own pronunciation both key off it. */}
       <span lang={ACTIVE.code}>{da}</span>
     </button>
   )

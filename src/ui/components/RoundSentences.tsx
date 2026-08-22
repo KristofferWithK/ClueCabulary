@@ -7,10 +7,10 @@ import { canSpeak, speakText } from '../speak'
 import { ACTIVE } from '../../lang/active'
 
 /**
- * Five is what fits without turning the summary into a reading exercise. The
- * section lives inside `.summary-scroll`, so a sixth would cost nothing in
- * layout — it costs attention, on a screen whose job is to say what the round
- * did and get out of the way.
+ * Five is what fits without turning the summary into a reading exercise — and
+ * since P1 that is literal rather than a matter of taste: the summary is one
+ * fixed screen with no scroller, and these five are the tallest thing on it.
+ * A sixth would push the actions off a 640px phone.
  */
 export const MAX_SENTENCES = 5
 
@@ -118,7 +118,10 @@ export function RoundSentences({ game }: { game: GameState }) {
 
   return (
     <>
-      <section className="summary-section sentences-section">
+      {/* No box of its own since P1: on a fixed screen a border and 32px of
+          padding around five short lines is 32px the phone does not have, and
+          the tiles above already carry the drawn edges. */}
+      <section className="sentences-section">
         <h3>In a sentence</h3>
         <ul className="round-sentences">
           {rows.map((w) => (
