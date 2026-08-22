@@ -1,0 +1,856 @@
+{
+  "model": "opus", "city": 1, "kind": "pairs", "batch": 2,
+  "pairs": {
+    "da:mælk|da:smør": [
+      { "da": "mejeri", "en": "dairy", "why": "where both are made", "s": 3 },
+      { "da": "køleskab", "en": "fridge", "why": "where both are kept cold", "s": 3 }
+    ],
+    "da:mælk|da:salt": [
+      { "da": "hvid", "en": "white", "why": "the colour of both", "s": 2 },
+      { "da": "køkken", "en": "kitchen", "why": "kept on the same shelf", "s": 2 }
+    ],
+    "da:mælk|da:sukker": [
+      { "da": "kaffe", "en": "coffee", "why": "what you stir into coffee", "s": 3 },
+      { "da": "te", "en": "tea", "why": "what a cup of tea takes", "s": 2 }
+    ],
+    "da:mælk|da:kartoffel": [
+      { "da": "mos", "en": "mash", "why": "mashed together in one dish", "s": 2 },
+      { "da": "hvid", "en": "white", "why": "the colour of both", "s": 2 }
+    ],
+    "da:mælk|da:grøntsag": [
+      { "da": "gård", "en": "farm", "why": "what a farm produces", "s": 2 },
+      { "da": "sund", "en": "healthy", "why": "good for you daily", "s": 2 }
+    ],
+    "da:mælk|da:sne": [
+      { "da": "hvid", "en": "white", "why": "the colour of both", "s": 3 },
+      { "da": "kold", "en": "cold", "why": "how both feel", "s": 2 }
+    ],
+    "da:mælk|da:butik": [
+      { "da": "indkøb", "en": "groceries", "why": "what you carry home", "s": 2 },
+      { "da": "supermarked", "en": "supermarket", "why": "where you pick it up", "s": 2 }
+    ],
+    "da:mælk|da:købe": [
+      { "da": "butik", "en": "shop", "why": "where you get it", "s": 2 },
+      { "da": "supermarked", "en": "supermarket", "why": "where the money is spent", "s": 2 }
+    ],
+    "da:vand|da:kaffe": [
+      { "da": "drikke", "en": "drink", "why": "what you do with both", "s": 3 },
+      { "da": "kop", "en": "cup", "why": "what it is poured into", "s": 2 }
+    ],
+    "da:vand|da:køkken": [
+      { "da": "hane", "en": "tap", "why": "what runs over the sink", "s": 2 },
+      { "da": "vask", "en": "sink", "why": "where it comes out", "s": 2 }
+    ],
+    "da:vand|da:fisk": [
+      { "da": "hav", "en": "sea", "why": "where fish live", "s": 3 },
+      { "da": "svømme", "en": "swim", "why": "what happens in it", "s": 2 }
+    ],
+    "da:vand|da:spise": [
+      { "da": "måltid", "en": "meal", "why": "what a meal includes", "s": 2 },
+      { "da": "mund", "en": "mouth", "why": "both pass the mouth", "s": 2 }
+    ],
+    "da:vand|da:drikke": [
+      { "da": "tørst", "en": "thirsty", "why": "what thirst asks for", "s": 3 },
+      { "da": "glas", "en": "glass", "why": "what you empty", "s": 3 }
+    ],
+    "da:vand|da:øl": [
+      { "da": "glas", "en": "glass", "why": "poured into the same glass", "s": 3 },
+      { "da": "drikke", "en": "drink", "why": "what you do with both", "s": 3 }
+    ],
+    "da:vand|da:sol": [
+      { "da": "strand", "en": "beach", "why": "both are at the beach", "s": 3 },
+      { "da": "sommer", "en": "summer", "why": "what summer is made of", "s": 2 }
+    ],
+    "da:vand|da:træ": [
+      { "da": "vokse", "en": "grow", "why": "what makes it grow", "s": 2 },
+      { "da": "have", "en": "garden", "why": "both stand in the garden", "s": 2 }
+    ],
+    "da:vand|da:blomst": [
+      { "da": "vase", "en": "vase", "why": "what a vase holds", "s": 2 },
+      { "da": "have", "en": "garden", "why": "what the garden needs", "s": 2 }
+    ],
+    "da:vand|da:salt": [
+      { "da": "hav", "en": "sea", "why": "what the sea is", "s": 3 },
+      { "da": "tåre", "en": "tear", "why": "what a tear is made of", "s": 2 }
+    ],
+    "da:vand|da:sukker": [
+      { "da": "kaffe", "en": "coffee", "why": "what both go into", "s": 2 },
+      { "da": "te", "en": "tea", "why": "what a cup of tea takes", "s": 2 }
+    ],
+    "da:vand|da:himmel": [
+      { "da": "regn", "en": "rain", "why": "what falls from above", "s": 2 },
+      { "da": "blå", "en": "blue", "why": "the colour of both", "s": 2 }
+    ],
+    "da:vand|da:regn": [
+      { "da": "dråbe", "en": "drop", "why": "what falls on you", "s": 3 },
+      { "da": "våd", "en": "wet", "why": "how it leaves you", "s": 3 }
+    ],
+    "da:vand|da:sne": [
+      { "da": "kold", "en": "cold", "why": "how both feel", "s": 3 },
+      { "da": "is", "en": "ice", "why": "the frozen form", "s": 3 }
+    ],
+    "da:vand|da:hav": [
+      { "da": "salt", "en": "salty", "why": "how the sea tastes", "s": 3 },
+      { "da": "bølge", "en": "wave", "why": "what rolls in", "s": 3 }
+    ],
+    "da:vand|da:strand": [
+      { "da": "hav", "en": "sea", "why": "what meets the sand", "s": 3 },
+      { "da": "bade", "en": "bathe", "why": "what you go there for", "s": 2 }
+    ],
+    "da:vand|da:løbe": [
+      { "da": "flod", "en": "river", "why": "a river runs", "s": 2 },
+      { "da": "tørst", "en": "thirsty", "why": "running makes you thirsty", "s": 2 }
+    ],
+    "da:kaffe|da:køkken": [
+      { "da": "kande", "en": "pot", "why": "brewed in a pot there", "s": 2 },
+      { "da": "morgen", "en": "morning", "why": "where the morning starts", "s": 2 }
+    ],
+    "da:kaffe|da:sort": [
+      { "da": "mørk", "en": "dark", "why": "how it looks in the cup", "s": 3 },
+      { "da": "nat", "en": "night", "why": "the colour of night", "s": 2 }
+    ],
+    "da:kaffe|da:ost": [
+      { "da": "morgenmad", "en": "breakfast", "why": "both on the breakfast table", "s": 2 },
+      { "da": "stærk", "en": "strong", "why": "both come strong", "s": 2 }
+    ],
+    "da:kaffe|da:æg": [
+      { "da": "morgenmad", "en": "breakfast", "why": "both on the breakfast table", "s": 3 },
+      { "da": "morgen", "en": "morning", "why": "how the morning starts", "s": 2 }
+    ],
+    "da:kaffe|da:spise": [
+      { "da": "morgenmad", "en": "breakfast", "why": "the first meal of the day", "s": 2 },
+      { "da": "pause", "en": "break", "why": "what a break is for", "s": 2 }
+    ],
+    "da:kaffe|da:drikke": [
+      { "da": "kop", "en": "cup", "why": "what you empty a cup of", "s": 3 },
+      { "da": "varm", "en": "hot", "why": "served hot", "s": 2 }
+    ],
+    "da:kaffe|da:øl": [
+      { "da": "drikke", "en": "drink", "why": "what you do with both", "s": 3 },
+      { "da": "bar", "en": "bar", "why": "ordered at the bar", "s": 2 }
+    ],
+    "da:kaffe|da:ven": [
+      { "da": "snak", "en": "chat", "why": "what you meet for", "s": 2 },
+      { "da": "besøg", "en": "visit", "why": "what a visitor is offered", "s": 2 }
+    ],
+    "da:kaffe|da:kage": [
+      { "da": "eftermiddag", "en": "afternoon", "why": "served together in the afternoon", "s": 2 },
+      { "da": "hygge", "en": "cosy", "why": "part of a cosy hour", "s": 2 }
+    ],
+    "da:kaffe|da:sukker": [
+      { "da": "ske", "en": "spoon", "why": "stirred with a spoon", "s": 2 },
+      { "da": "sød", "en": "sweet", "why": "how it is sweetened", "s": 2 }
+    ],
+    "da:kaffe|da:købe": [
+      { "da": "bestille", "en": "order", "why": "what you order out", "s": 2 },
+      { "da": "penge", "en": "money", "why": "what you hand over", "s": 1 }
+    ],
+    "da:kaffe|da:arbejde": [
+      { "da": "pause", "en": "break", "why": "a break from the desk", "s": 3 },
+      { "da": "kontor", "en": "office", "why": "what the office runs on", "s": 2 }
+    ],
+    "da:kaffe|da:sove": [
+      { "da": "træt", "en": "tired", "why": "what tiredness calls for", "s": 3 },
+      { "da": "nat", "en": "night", "why": "what keeps you up", "s": 2 }
+    ],
+    "da:øje|da:hånd": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "venstre", "en": "left", "why": "you have a left one", "s": 2 }
+    ],
+    "da:øje|da:vindue": [
+      { "da": "kigge", "en": "look", "why": "what you look through", "s": 2 },
+      { "da": "glas", "en": "glass", "why": "clear like glass", "s": 2 }
+    ],
+    "da:øje|da:mund": [
+      { "da": "ansigt", "en": "face", "why": "parts of the face", "s": 3 },
+      { "da": "hoved", "en": "head", "why": "both sit on the head", "s": 2 }
+    ],
+    "da:øje|da:hoved": [
+      { "da": "ansigt", "en": "face", "why": "the face and what it holds", "s": 3 },
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 }
+    ],
+    "da:øje|da:hvid": [
+      { "da": "farve", "en": "colour", "why": "the colour an eye has", "s": 2 }
+    ],
+    "da:øje|da:ben": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "to", "en": "two", "why": "you have two of each", "s": 2 }
+    ],
+    "da:øje|da:fod": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "to", "en": "two", "why": "you have two of each", "s": 2 }
+    ],
+    "da:øje|da:arm": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "to", "en": "two", "why": "you have two of each", "s": 2 }
+    ],
+    "da:øje|da:finger": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "hånd", "en": "hand", "why": "guided by the hand", "s": 1 }
+    ],
+    "da:øje|da:næse": [
+      { "da": "ansigt", "en": "face", "why": "parts of the face", "s": 3 },
+      { "da": "briller", "en": "glasses", "why": "what glasses rest on", "s": 2 }
+    ],
+    "da:øje|da:tand": [
+      { "da": "ansigt", "en": "face", "why": "what a face shows", "s": 2 },
+      { "da": "hoved", "en": "head", "why": "both sit in the head", "s": 2 }
+    ],
+    "da:øje|da:hår": [
+      { "da": "hoved", "en": "head", "why": "both belong to the head", "s": 3 },
+      { "da": "farve", "en": "colour", "why": "described by its colour", "s": 2 }
+    ],
+    "da:øje|da:hjerte": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "organ", "en": "organ", "why": "organs inside you", "s": 2 }
+    ],
+    "da:øje|da:sove": [
+      { "da": "lukke", "en": "close", "why": "closed for the night", "s": 3 },
+      { "da": "nat", "en": "night", "why": "what the night brings", "s": 2 }
+    ],
+    "da:øje|da:læse": [
+      { "da": "briller", "en": "glasses", "why": "what glasses help with", "s": 2 },
+      { "da": "bog", "en": "book", "why": "a page in a book", "s": 2 }
+    ],
+    "da:hånd|da:dør": [
+      { "da": "åbne", "en": "open", "why": "what opens it", "s": 3 },
+      { "da": "banke", "en": "knock", "why": "how you knock", "s": 2 }
+    ],
+    "da:hånd|da:mund": [
+      { "da": "spise", "en": "eat", "why": "food travels from one to the other", "s": 2 },
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 }
+    ],
+    "da:hånd|da:hoved": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "vaske", "en": "wash", "why": "what soap is for", "s": 1 }
+    ],
+    "da:hånd|da:fugl": [
+      { "da": "fodre", "en": "feed", "why": "feeding birds by hand", "s": 2 },
+      { "da": "fange", "en": "catch", "why": "one in the hand", "s": 1 }
+    ],
+    "da:hånd|da:ben": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "to", "en": "two", "why": "you have two of each", "s": 2 }
+    ],
+    "da:hånd|da:fod": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "to", "en": "two", "why": "you have two of each", "s": 2 }
+    ],
+    "da:hånd|da:arm": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "ærme", "en": "sleeve", "why": "what a sleeve covers", "s": 2 }
+    ],
+    "da:hånd|da:finger": [
+      { "da": "ring", "en": "ring", "why": "where a ring sits", "s": 3 },
+      { "da": "gribe", "en": "grip", "why": "what grips things", "s": 2 }
+    ],
+    "da:hånd|da:næse": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 },
+      { "da": "nyse", "en": "sneeze", "why": "what you cover when sneezing", "s": 2 }
+    ],
+    "da:hånd|da:tand": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 },
+      { "da": "børste", "en": "brush", "why": "what brushing needs", "s": 1 }
+    ],
+    "da:hånd|da:hår": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 },
+      { "da": "vaske", "en": "wash", "why": "what soap is for", "s": 2 }
+    ],
+    "da:hånd|da:hjerte": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "puls", "en": "pulse", "why": "felt at the wrist", "s": 2 }
+    ],
+    "da:hånd|da:ven": [
+      { "da": "hilse", "en": "greet", "why": "how you greet someone", "s": 3 },
+      { "da": "kram", "en": "hug", "why": "how you welcome them", "s": 2 }
+    ],
+    "da:hånd|da:hospital": [
+      { "da": "læge", "en": "doctor", "why": "who looks at a break", "s": 2 },
+      { "da": "skade", "en": "injury", "why": "where an injury is treated", "s": 2 }
+    ],
+    "da:hånd|da:arbejde": [
+      { "da": "værktøj", "en": "tool", "why": "what a tool is held in", "s": 2 },
+      { "da": "hjælp", "en": "help", "why": "lending someone yours", "s": 2 }
+    ],
+    "da:dør|da:vindue": [
+      { "da": "hus", "en": "house", "why": "openings in a house", "s": 3 },
+      { "da": "åbne", "en": "open", "why": "what you open for air", "s": 3 }
+    ],
+    "da:dør|da:stol": [
+      { "da": "træ", "en": "wood", "why": "both made of wood", "s": 2 },
+      { "da": "værelse", "en": "room", "why": "what a room has", "s": 2 }
+    ],
+    "da:dør|da:køkken": [
+      { "da": "hus", "en": "house", "why": "parts of a house", "s": 2 },
+      { "da": "skab", "en": "cupboard", "why": "cupboards there have them", "s": 2 }
+    ],
+    "da:dør|da:træ": [
+      { "da": "hus", "en": "house", "why": "a house is built from it", "s": 2 },
+      { "da": "brun", "en": "brown", "why": "the colour of both", "s": 1 }
+    ],
+    "da:dør|da:bil": [
+      { "da": "nøgle", "en": "key", "why": "what a key opens", "s": 3 },
+      { "da": "åbne", "en": "open", "why": "you open it to enter", "s": 3 }
+    ],
+    "da:dør|da:lampe": [
+      { "da": "værelse", "en": "room", "why": "what every room has", "s": 2 },
+      { "da": "hus", "en": "house", "why": "found in a house", "s": 2 }
+    ],
+    "da:dør|da:værelse": [
+      { "da": "hus", "en": "house", "why": "what a house is divided into", "s": 3 },
+      { "da": "nøgle", "en": "key", "why": "what a key lets you into", "s": 2 }
+    ],
+    "da:dør|da:gade": [
+      { "da": "hus", "en": "house", "why": "the house faces it", "s": 2 },
+      { "da": "ud", "en": "out", "why": "the way outside", "s": 2 }
+    ],
+    "da:vindue|da:stol": [
+      { "da": "værelse", "en": "room", "why": "what a room has", "s": 2 },
+      { "da": "hus", "en": "house", "why": "found in a house", "s": 2 }
+    ],
+    "da:vindue|da:køkken": [
+      { "da": "hus", "en": "house", "why": "parts of a house", "s": 2 },
+      { "da": "værelse", "en": "room", "why": "a room and its opening", "s": 2 }
+    ],
+    "da:vindue|da:sol": [
+      { "da": "lys", "en": "light", "why": "light comes through it", "s": 3 },
+      { "da": "varme", "en": "warmth", "why": "what warms the room", "s": 2 }
+    ],
+    "da:vindue|da:blomst": [
+      { "da": "lys", "en": "light", "why": "light a plant needs", "s": 2 },
+      { "da": "potte", "en": "pot", "why": "a pot on the sill", "s": 1 }
+    ],
+    "da:vindue|da:bil": [
+      { "da": "glas", "en": "glass", "why": "glass you see through", "s": 3 },
+      { "da": "vaske", "en": "wash", "why": "what gets washed clean", "s": 2 }
+    ],
+    "da:vindue|da:lampe": [
+      { "da": "lys", "en": "light", "why": "where light comes from", "s": 3 },
+      { "da": "værelse", "en": "room", "why": "what lights a room", "s": 2 }
+    ],
+    "da:vindue|da:værelse": [
+      { "da": "hus", "en": "house", "why": "parts of a house", "s": 3 },
+      { "da": "lys", "en": "light", "why": "what lights the space", "s": 2 }
+    ],
+    "da:vindue|da:himmel": [
+      { "da": "kigge", "en": "look", "why": "what you look out at", "s": 2 },
+      { "da": "udsigt", "en": "view", "why": "the view from inside", "s": 2 }
+    ],
+    "da:vindue|da:regn": [
+      { "da": "dråbe", "en": "drop", "why": "drops running down it", "s": 2 },
+      { "da": "grå", "en": "grey", "why": "a grey day seen inside", "s": 2 }
+    ],
+    "da:vindue|da:sne": [
+      { "da": "vinter", "en": "winter", "why": "winter seen from inside", "s": 2 },
+      { "da": "kold", "en": "cold", "why": "cold coming through", "s": 2 }
+    ],
+    "da:vindue|da:gade": [
+      { "da": "kigge", "en": "look", "why": "what you watch outside", "s": 2 },
+      { "da": "hus", "en": "house", "why": "the house front", "s": 2 }
+    ],
+    "da:vindue|da:kirke": [
+      { "da": "glas", "en": "glass", "why": "coloured glass inside", "s": 2 },
+      { "da": "bygning", "en": "building", "why": "a building and its openings", "s": 2 }
+    ],
+    "da:vindue|da:butik": [
+      { "da": "kigge", "en": "look", "why": "looking at the display", "s": 2 },
+      { "da": "glas", "en": "glass", "why": "the glass front", "s": 2 }
+    ],
+    "da:stol|da:køkken": [
+      { "da": "bord", "en": "table", "why": "the table you sit at", "s": 3 },
+      { "da": "møbel", "en": "furniture", "why": "furniture in the home", "s": 2 }
+    ],
+    "da:stol|da:spise": [
+      { "da": "bord", "en": "table", "why": "the table you sit at", "s": 3 },
+      { "da": "sidde", "en": "sit", "why": "how a meal is taken", "s": 2 }
+    ],
+    "da:stol|da:træ": [
+      { "da": "møbel", "en": "furniture", "why": "furniture made of wood", "s": 2 },
+      { "da": "hård", "en": "hard", "why": "how both feel", "s": 1 }
+    ],
+    "da:stol|da:skole": [
+      { "da": "klasse", "en": "classroom", "why": "rows of them in class", "s": 2 },
+      { "da": "bord", "en": "desk", "why": "a desk and its seat", "s": 2 }
+    ],
+    "da:stol|da:ben": [
+      { "da": "fire", "en": "four", "why": "it stands on four", "s": 3 },
+      { "da": "stå", "en": "stand", "why": "what holds it up", "s": 2 }
+    ],
+    "da:stol|da:arm": [
+      { "da": "hvile", "en": "rest", "why": "where you rest them", "s": 2 },
+      { "da": "læne", "en": "lean", "why": "what you lean on", "s": 2 }
+    ],
+    "da:stol|da:lampe": [
+      { "da": "møbel", "en": "furniture", "why": "furniture in the home", "s": 2 },
+      { "da": "hjem", "en": "home", "why": "what furnishes a home", "s": 2 }
+    ],
+    "da:stol|da:værelse": [
+      { "da": "møbel", "en": "furniture", "why": "what furnishes a room", "s": 2 },
+      { "da": "hus", "en": "house", "why": "found in a house", "s": 2 }
+    ],
+    "da:køkken|da:ost": [
+      { "da": "køleskab", "en": "fridge", "why": "the fridge that stands there", "s": 2 },
+      { "da": "kniv", "en": "knife", "why": "what cuts it", "s": 1 }
+    ],
+    "da:køkken|da:æg": [
+      { "da": "stege", "en": "fry", "why": "fried on the stove", "s": 3 },
+      { "da": "pande", "en": "pan", "why": "the pan it is cooked in", "s": 3 }
+    ],
+    "da:køkken|da:kød": [
+      { "da": "stege", "en": "fry", "why": "fried on the stove", "s": 3 },
+      { "da": "pande", "en": "pan", "why": "the pan it is cooked in", "s": 2 }
+    ],
+    "da:køkken|da:fisk": [
+      { "da": "stege", "en": "fry", "why": "fried on the stove", "s": 2 },
+      { "da": "pande", "en": "pan", "why": "the pan it is cooked in", "s": 2 }
+    ],
+    "da:køkken|da:spise": [
+      { "da": "mad", "en": "food", "why": "food made and eaten", "s": 3 },
+      { "da": "middag", "en": "dinner", "why": "where dinner comes from", "s": 2 }
+    ],
+    "da:køkken|da:drikke": [
+      { "da": "glas", "en": "glass", "why": "a glass from the cupboard", "s": 2 },
+      { "da": "hane", "en": "tap", "why": "the tap over the sink", "s": 2 }
+    ],
+    "da:køkken|da:kage": [
+      { "da": "bage", "en": "bake", "why": "baked at home", "s": 3 },
+      { "da": "ovn", "en": "oven", "why": "the oven it comes from", "s": 3 }
+    ],
+    "da:køkken|da:smør": [
+      { "da": "pande", "en": "pan", "why": "melted in the pan", "s": 2 },
+      { "da": "køleskab", "en": "fridge", "why": "the fridge that stands there", "s": 2 }
+    ],
+    "da:køkken|da:salt": [
+      { "da": "gryde", "en": "pot", "why": "a pinch in the pot", "s": 2 },
+      { "da": "mad", "en": "food", "why": "what seasons the food", "s": 2 }
+    ],
+    "da:køkken|da:sukker": [
+      { "da": "bage", "en": "bake", "why": "what baking needs", "s": 3 },
+      { "da": "skab", "en": "cupboard", "why": "kept in the cupboard", "s": 2 }
+    ],
+    "da:køkken|da:kartoffel": [
+      { "da": "koge", "en": "boil", "why": "boiled on the stove", "s": 3 },
+      { "da": "gryde", "en": "pot", "why": "the pot it boils in", "s": 3 }
+    ],
+    "da:køkken|da:grøntsag": [
+      { "da": "skære", "en": "chop", "why": "chopped on the board", "s": 2 },
+      { "da": "koge", "en": "boil", "why": "boiled on the stove", "s": 2 }
+    ],
+    "da:køkken|da:lampe": [
+      { "da": "lys", "en": "light", "why": "light over the table", "s": 2 },
+      { "da": "loft", "en": "ceiling", "why": "what hangs from the ceiling", "s": 2 }
+    ],
+    "da:køkken|da:værelse": [
+      { "da": "hus", "en": "house", "why": "what a house contains", "s": 3 },
+      { "da": "hjem", "en": "home", "why": "the rooms of a home", "s": 2 }
+    ],
+    "da:mund|da:hoved": [
+      { "da": "ansigt", "en": "face", "why": "the face and what it holds", "s": 3 },
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 }
+    ],
+    "da:mund|da:rød": [
+      { "da": "læbe", "en": "lip", "why": "red lips around it", "s": 3 },
+      { "da": "kys", "en": "kiss", "why": "lipstick left behind", "s": 2 }
+    ],
+    "da:mund|da:ost": [
+      { "da": "smage", "en": "taste", "why": "where taste happens", "s": 2 },
+      { "da": "tygge", "en": "chew", "why": "what you chew it with", "s": 2 }
+    ],
+    "da:mund|da:æg": [
+      { "da": "spise", "en": "eat", "why": "what eating uses", "s": 2 },
+      { "da": "smage", "en": "taste", "why": "where taste happens", "s": 2 }
+    ],
+    "da:mund|da:kød": [
+      { "da": "tygge", "en": "chew", "why": "what chews it", "s": 3 },
+      { "da": "bid", "en": "bite", "why": "taking a bite", "s": 2 }
+    ],
+    "da:mund|da:fisk": [
+      { "da": "spise", "en": "eat", "why": "what eating uses", "s": 2 },
+      { "da": "tygge", "en": "chew", "why": "what chews it", "s": 2 }
+    ],
+    "da:mund|da:spise": [
+      { "da": "tygge", "en": "chew", "why": "what chewing needs", "s": 3 },
+      { "da": "mad", "en": "food", "why": "where food goes in", "s": 2 }
+    ],
+    "da:mund|da:drikke": [
+      { "da": "tørst", "en": "thirsty", "why": "a dry one means thirst", "s": 2 },
+      { "da": "glas", "en": "glass", "why": "the glass at your lips", "s": 2 }
+    ],
+    "da:mund|da:øl": [
+      { "da": "drikke", "en": "drink", "why": "what you drink it with", "s": 2 },
+      { "da": "tørst", "en": "thirsty", "why": "a dry one means thirst", "s": 1 }
+    ],
+    "da:mund|da:ben": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "hund", "en": "dog", "why": "a dog carries one", "s": 2 }
+    ],
+    "da:mund|da:fod": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "menneske", "en": "person", "why": "parts of a person", "s": 2 }
+    ],
+    "da:mund|da:arm": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "menneske", "en": "person", "why": "parts of a person", "s": 2 }
+    ],
+    "da:mund|da:finger": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "stille", "en": "quiet", "why": "a finger to the lips", "s": 2 }
+    ],
+    "da:mund|da:næse": [
+      { "da": "ansigt", "en": "face", "why": "parts of the face", "s": 3 },
+      { "da": "hoved", "en": "head", "why": "both sit on the head", "s": 2 }
+    ],
+    "da:mund|da:tand": [
+      { "da": "tygge", "en": "chew", "why": "what chewing needs", "s": 3 },
+      { "da": "smil", "en": "smile", "why": "what a smile shows", "s": 3 }
+    ],
+    "da:mund|da:hår": [
+      { "da": "hoved", "en": "head", "why": "both belong to the head", "s": 2 },
+      { "da": "ansigt", "en": "face", "why": "framing the face", "s": 2 }
+    ],
+    "da:mund|da:hjerte": [
+      { "da": "kys", "en": "kiss", "why": "a kiss and what it means", "s": 2 },
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 }
+    ],
+    "da:mund|da:glad": [
+      { "da": "smil", "en": "smile", "why": "what happiness looks like", "s": 3 },
+      { "da": "grine", "en": "laugh", "why": "laughing out loud", "s": 3 }
+    ],
+    "da:mund|da:elske": [
+      { "da": "kys", "en": "kiss", "why": "how you show it", "s": 3 },
+      { "da": "hjerte", "en": "heart", "why": "what the heart says", "s": 2 }
+    ],
+    "da:mund|da:kage": [
+      { "da": "spise", "en": "eat", "why": "what eating uses", "s": 2 },
+      { "da": "bid", "en": "bite", "why": "taking a bite", "s": 2 }
+    ],
+    "da:mund|da:smør": [
+      { "da": "spise", "en": "eat", "why": "what buttered bread meets", "s": 2 },
+      { "da": "smage", "en": "taste", "why": "where taste happens", "s": 1 }
+    ],
+    "da:mund|da:salt": [
+      { "da": "smage", "en": "taste", "why": "where taste happens", "s": 3 },
+      { "da": "tunge", "en": "tongue", "why": "what the tongue notices", "s": 2 }
+    ],
+    "da:mund|da:sukker": [
+      { "da": "sød", "en": "sweet", "why": "the sweetness you taste", "s": 3 },
+      { "da": "smage", "en": "taste", "why": "where taste happens", "s": 2 }
+    ],
+    "da:mund|da:kartoffel": [
+      { "da": "spise", "en": "eat", "why": "what eating uses", "s": 2 },
+      { "da": "tygge", "en": "chew", "why": "what chews it", "s": 2 }
+    ],
+    "da:mund|da:grøntsag": [
+      { "da": "spise", "en": "eat", "why": "what eating uses", "s": 2 },
+      { "da": "tygge", "en": "chew", "why": "what chews it", "s": 2 }
+    ],
+    "da:hoved|da:ben": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "knogle", "en": "bone", "why": "bone under the skin", "s": 2 }
+    ],
+    "da:hoved|da:fod": [
+      { "da": "krop", "en": "body", "why": "top and bottom of you", "s": 3 },
+      { "da": "menneske", "en": "person", "why": "parts of a person", "s": 2 }
+    ],
+    "da:hoved|da:arm": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "menneske", "en": "person", "why": "parts of a person", "s": 2 }
+    ],
+    "da:hoved|da:finger": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "menneske", "en": "person", "why": "parts of a person", "s": 2 }
+    ],
+    "da:hoved|da:næse": [
+      { "da": "ansigt", "en": "face", "why": "the face and what sticks out", "s": 3 },
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 2 }
+    ],
+    "da:hoved|da:tand": [
+      { "da": "ansigt", "en": "face", "why": "what a face holds", "s": 2 },
+      { "da": "ondt", "en": "ache", "why": "the ache each gives", "s": 2 }
+    ],
+    "da:hoved|da:hår": [
+      { "da": "kam", "en": "comb", "why": "what a comb goes through", "s": 2 },
+      { "da": "hat", "en": "hat", "why": "what a hat covers", "s": 2 }
+    ],
+    "da:hoved|da:hjerte": [
+      { "da": "krop", "en": "body", "why": "parts of the body", "s": 3 },
+      { "da": "organ", "en": "organ", "why": "organs inside you", "s": 2 }
+    ],
+    "da:hoved|da:hospital": [
+      { "da": "læge", "en": "doctor", "why": "who examines you", "s": 2 },
+      { "da": "skade", "en": "injury", "why": "where an injury is treated", "s": 2 }
+    ],
+    "da:hoved|da:sove": [
+      { "da": "pude", "en": "pillow", "why": "what rests on a pillow", "s": 3 },
+      { "da": "seng", "en": "bed", "why": "where you lie down", "s": 2 }
+    ],
+    "da:mand|da:kvinde": [
+      { "da": "voksen", "en": "adult", "why": "grown people", "s": 3 },
+      { "da": "par", "en": "couple", "why": "the two in a couple", "s": 2 }
+    ],
+    "da:mand|da:pige": [
+      { "da": "menneske", "en": "person", "why": "people of different ages", "s": 2 },
+      { "da": "køn", "en": "gender", "why": "the two genders named", "s": 2 }
+    ],
+    "da:mand|da:dreng": [
+      { "da": "han", "en": "he", "why": "both are called he", "s": 3 },
+      { "da": "far", "en": "father", "why": "father and his boy", "s": 2 }
+    ],
+    "da:mand|da:bror": [
+      { "da": "han", "en": "he", "why": "both are called he", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:mand|da:søster": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 },
+      { "da": "voksen", "en": "adult", "why": "grown members of a family", "s": 1 }
+    ],
+    "da:mand|da:gammel": [
+      { "da": "bedstefar", "en": "grandfather", "why": "an elderly one of them", "s": 2 },
+      { "da": "grå", "en": "grey", "why": "grey at the temples", "s": 1 }
+    ],
+    "da:mand|da:ung": [
+      { "da": "fyr", "en": "guy", "why": "a young guy", "s": 2 },
+      { "da": "dreng", "en": "boy", "why": "before he grows up", "s": 2 }
+    ],
+    "da:mand|da:elske": [
+      { "da": "hjerte", "en": "heart", "why": "what the heart holds", "s": 2 },
+      { "da": "kys", "en": "kiss", "why": "how it is shown", "s": 2 }
+    ],
+    "da:mand|da:ven": [
+      { "da": "kammerat", "en": "buddy", "why": "a mate you meet", "s": 2 },
+      { "da": "øl", "en": "beer", "why": "a beer between mates", "s": 1 }
+    ],
+    "da:mand|da:søn": [
+      { "da": "far", "en": "father", "why": "father and his child", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:mand|da:datter": [
+      { "da": "far", "en": "father", "why": "father and his child", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:kvinde|da:pige": [
+      { "da": "hun", "en": "she", "why": "both are called she", "s": 3 },
+      { "da": "kjole", "en": "dress", "why": "who wears a dress", "s": 2 }
+    ],
+    "da:kvinde|da:dreng": [
+      { "da": "mor", "en": "mother", "why": "a mother and her child", "s": 2 },
+      { "da": "menneske", "en": "person", "why": "people of different ages", "s": 2 }
+    ],
+    "da:kvinde|da:bror": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 },
+      { "da": "mor", "en": "mother", "why": "a mother and her child", "s": 1 }
+    ],
+    "da:kvinde|da:søster": [
+      { "da": "hun", "en": "she", "why": "both are called she", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:kvinde|da:blomst": [
+      { "da": "gave", "en": "gift", "why": "flowers given as a gift", "s": 2 },
+      { "da": "smuk", "en": "beautiful", "why": "what beauty is said of", "s": 2 }
+    ],
+    "da:kvinde|da:hår": [
+      { "da": "lang", "en": "long", "why": "worn long", "s": 2 },
+      { "da": "frisør", "en": "hairdresser", "why": "who cuts it", "s": 2 }
+    ],
+    "da:kvinde|da:gammel": [
+      { "da": "bedstemor", "en": "grandmother", "why": "an elderly one of them", "s": 2 },
+      { "da": "grå", "en": "grey", "why": "grey hair with age", "s": 1 }
+    ],
+    "da:kvinde|da:ung": [
+      { "da": "pige", "en": "girl", "why": "before she grows up", "s": 2 },
+      { "da": "datter", "en": "daughter", "why": "somebody's grown daughter", "s": 2 }
+    ],
+    "da:kvinde|da:elske": [
+      { "da": "hjerte", "en": "heart", "why": "what the heart holds", "s": 2 },
+      { "da": "kys", "en": "kiss", "why": "how it is shown", "s": 2 }
+    ],
+    "da:kvinde|da:ven": [
+      { "da": "kammerat", "en": "buddy", "why": "a mate you meet", "s": 2 },
+      { "da": "besøg", "en": "visit", "why": "who comes to visit", "s": 1 }
+    ],
+    "da:kvinde|da:søn": [
+      { "da": "mor", "en": "mother", "why": "a mother and her child", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:kvinde|da:datter": [
+      { "da": "mor", "en": "mother", "why": "a mother and her child", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:kvinde|da:lærer": [
+      { "da": "voksen", "en": "adult", "why": "a grown-up in charge", "s": 2 },
+      { "da": "skole", "en": "school", "why": "who stands in the classroom", "s": 1 }
+    ],
+    "da:pige|da:dreng": [
+      { "da": "barn", "en": "child", "why": "two kinds of child", "s": 3 },
+      { "da": "skole", "en": "school", "why": "who sits in class", "s": 2 }
+    ],
+    "da:pige|da:bror": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 },
+      { "da": "søskende", "en": "siblings", "why": "children of one family", "s": 2 }
+    ],
+    "da:pige|da:søster": [
+      { "da": "hun", "en": "she", "why": "both are called she", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:pige|da:blomst": [
+      { "da": "smuk", "en": "pretty", "why": "what pretty is said of", "s": 2 },
+      { "da": "gave", "en": "gift", "why": "flowers given as a gift", "s": 1 }
+    ],
+    "da:pige|da:hest": [
+      { "da": "ride", "en": "ride", "why": "riding lessons after school", "s": 3 },
+      { "da": "stald", "en": "stable", "why": "who mucks out the stable", "s": 2 }
+    ],
+    "da:pige|da:skole": [
+      { "da": "elev", "en": "pupil", "why": "who sits in class", "s": 3 },
+      { "da": "klasse", "en": "class", "why": "the class she belongs to", "s": 2 }
+    ],
+    "da:pige|da:hår": [
+      { "da": "lang", "en": "long", "why": "worn long", "s": 2 },
+      { "da": "fletning", "en": "braid", "why": "braided for school", "s": 2 }
+    ],
+    "da:pige|da:lille": [
+      { "da": "barn", "en": "child", "why": "a small child", "s": 2 },
+      { "da": "baby", "en": "baby", "why": "the smallest of all", "s": 2 }
+    ],
+    "da:pige|da:ung": [
+      { "da": "barn", "en": "child", "why": "young enough to be one", "s": 2 },
+      { "da": "teenager", "en": "teenager", "why": "the age she is", "s": 2 }
+    ],
+    "da:pige|da:elske": [
+      { "da": "hjerte", "en": "heart", "why": "what the heart holds", "s": 2 },
+      { "da": "kys", "en": "kiss", "why": "how it is shown", "s": 2 }
+    ],
+    "da:pige|da:ven": [
+      { "da": "leg", "en": "play", "why": "playing together", "s": 2 },
+      { "da": "kammerat", "en": "buddy", "why": "who she plays with", "s": 2 }
+    ],
+    "da:pige|da:søn": [
+      { "da": "barn", "en": "child", "why": "somebody's child", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 }
+    ],
+    "da:pige|da:datter": [
+      { "da": "barn", "en": "child", "why": "somebody's child", "s": 3 },
+      { "da": "forældre", "en": "parents", "why": "who she belongs to", "s": 2 }
+    ],
+    "da:pige|da:lærer": [
+      { "da": "skole", "en": "school", "why": "who is in the school", "s": 3 },
+      { "da": "klasse", "en": "class", "why": "who is in the class", "s": 2 }
+    ],
+    "da:dreng|da:bror": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 },
+      { "da": "han", "en": "he", "why": "both are called he", "s": 2 }
+    ],
+    "da:dreng|da:søster": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 2 },
+      { "da": "søskende", "en": "siblings", "why": "children of one family", "s": 2 }
+    ],
+    "da:dreng|da:skole": [
+      { "da": "elev", "en": "pupil", "why": "who sits in class", "s": 3 },
+      { "da": "klasse", "en": "class", "why": "the class he belongs to", "s": 2 }
+    ],
+    "da:dreng|da:lille": [
+      { "da": "barn", "en": "child", "why": "a small child", "s": 2 },
+      { "da": "baby", "en": "baby", "why": "the smallest of all", "s": 2 }
+    ],
+    "da:dreng|da:ung": [
+      { "da": "barn", "en": "child", "why": "young enough to be one", "s": 2 },
+      { "da": "teenager", "en": "teenager", "why": "the age he is", "s": 2 }
+    ],
+    "da:dreng|da:ven": [
+      { "da": "kammerat", "en": "buddy", "why": "who he plays with", "s": 2 },
+      { "da": "leg", "en": "play", "why": "playing together", "s": 2 }
+    ],
+    "da:dreng|da:søn": [
+      { "da": "barn", "en": "child", "why": "somebody's child", "s": 3 },
+      { "da": "far", "en": "father", "why": "a father and his child", "s": 2 }
+    ],
+    "da:dreng|da:datter": [
+      { "da": "barn", "en": "child", "why": "somebody's child", "s": 3 },
+      { "da": "forældre", "en": "parents", "why": "who they belong to", "s": 2 }
+    ],
+    "da:dreng|da:lærer": [
+      { "da": "skole", "en": "school", "why": "who is in the school", "s": 3 },
+      { "da": "klasse", "en": "class", "why": "who is in the class", "s": 2 }
+    ],
+    "da:bror|da:søster": [
+      { "da": "søskende", "en": "siblings", "why": "children of one family", "s": 3 },
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 3 }
+    ],
+    "da:bror|da:stor": [
+      { "da": "ældre", "en": "older", "why": "the older one of two", "s": 2 },
+      { "da": "familie", "en": "family", "why": "the older one at home", "s": 1 }
+    ],
+    "da:bror|da:lille": [
+      { "da": "yngre", "en": "younger", "why": "the younger one of two", "s": 2 },
+      { "da": "familie", "en": "family", "why": "the youngest at home", "s": 1 }
+    ],
+    "da:bror|da:ven": [
+      { "da": "kammerat", "en": "buddy", "why": "who you grow up with", "s": 2 },
+      { "da": "tæt", "en": "close", "why": "someone close to you", "s": 1 }
+    ],
+    "da:bror|da:søn": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 3 },
+      { "da": "dreng", "en": "boy", "why": "the boy of the house", "s": 2 }
+    ],
+    "da:bror|da:datter": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 3 },
+      { "da": "forældre", "en": "parents", "why": "children of the same parents", "s": 2 }
+    ],
+    "da:søster|da:skole": [
+      { "da": "barn", "en": "child", "why": "a child of school age", "s": 2 },
+      { "da": "pige", "en": "girl", "why": "the girl in the class", "s": 1 }
+    ],
+    "da:søster|da:stor": [
+      { "da": "ældre", "en": "older", "why": "the older one of two", "s": 2 },
+      { "da": "familie", "en": "family", "why": "the older one at home", "s": 1 }
+    ],
+    "da:søster|da:lille": [
+      { "da": "yngre", "en": "younger", "why": "the younger one of two", "s": 2 },
+      { "da": "familie", "en": "family", "why": "the youngest at home", "s": 1 }
+    ],
+    "da:søster|da:elske": [
+      { "da": "kram", "en": "hug", "why": "a hug at the door", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "who you hold dear", "s": 2 }
+    ],
+    "da:søster|da:ven": [
+      { "da": "tæt", "en": "close", "why": "someone close to you", "s": 2 },
+      { "da": "kram", "en": "hug", "why": "a hug at the door", "s": 2 }
+    ],
+    "da:søster|da:søn": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 3 },
+      { "da": "forældre", "en": "parents", "why": "children of the same parents", "s": 2 }
+    ],
+    "da:søster|da:datter": [
+      { "da": "familie", "en": "family", "why": "who lives in the home", "s": 3 },
+      { "da": "pige", "en": "girl", "why": "the girl of the house", "s": 3 }
+    ],
+    "da:rød|da:hvid": [
+      { "da": "farve", "en": "colour", "why": "two colours", "s": 3 },
+      { "da": "flag", "en": "flag", "why": "the colours of the flag", "s": 3 }
+    ],
+    "da:rød|da:sort": [
+      { "da": "farve", "en": "colour", "why": "two colours", "s": 3 },
+      { "da": "maling", "en": "paint", "why": "paint in the tin", "s": 2 }
+    ],
+    "da:rød|da:kød": [
+      { "da": "blod", "en": "blood", "why": "raw and bloody", "s": 2 },
+      { "da": "bøf", "en": "steak", "why": "a steak on the plate", "s": 2 }
+    ],
+    "da:rød|da:sol": [
+      { "da": "varm", "en": "hot", "why": "heat you can see", "s": 2 },
+      { "da": "aften", "en": "evening", "why": "the sky as it sets", "s": 2 }
+    ],
+    "da:rød|da:blomst": [
+      { "da": "rose", "en": "rose", "why": "a rose in the garden", "s": 3 },
+      { "da": "vase", "en": "vase", "why": "what stands in a vase", "s": 1 }
+    ],
+    "da:rød|da:bil": [
+      { "da": "farve", "en": "colour", "why": "the colour it is painted", "s": 2 },
+      { "da": "hurtig", "en": "fast", "why": "the fast one on the road", "s": 1 }
+    ],
+    "da:rød|da:næse": [
+      { "da": "klovn", "en": "clown", "why": "a clown wears one", "s": 2 },
+      { "da": "kold", "en": "cold", "why": "cold weather turns it so", "s": 2 }
+    ]
+  }
+}
