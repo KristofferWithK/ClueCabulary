@@ -1183,6 +1183,13 @@ await page.setViewportSize(PHONE)
   // the ride section above already registered.
   await page.evaluate(() => {
     window.__board = {}
+    // U3 paces Casey's turn in two beats — the reasoning, then the guess it
+    // explains — inside the ONE phase the sampler above knows as "Casey is
+    // guessing". Both beats are the same two regions and must therefore be the
+    // same rectangle, but a phase-keyed reading cannot say which of them broke
+    // if they are not, so they are also accumulated under their own names off
+    // the panel's `data-beat`.
+    window.__caseyBeats = {}
     const tick = () => {
       const grid = document.querySelector('.board-grid')
       const cap = document.querySelector('.phase-caption')
@@ -1220,6 +1227,17 @@ await page.setViewportSize(PHONE)
             at[`dock${f}hi`] = at.dockn ? Math.max(at[`dock${f}hi`], v) : v
           }
           at.dockn = (at.dockn ?? 0) + 1
+        }
+        at.n++
+      }
+      const casey = document.querySelector('.game-screen .dock.ai-panel[data-beat]')
+      if (casey) {
+        const r = casey.getBoundingClientRect()
+        const at = (window.__caseyBeats[casey.dataset.beat] ??= { n: 0 })
+        for (const f of ['x', 'y', 'width', 'height']) {
+          const v = Math.round(r[f] * 100) / 100
+          at[`${f}lo`] = at.n ? Math.min(at[`${f}lo`], v) : v
+          at[`${f}hi`] = at.n ? Math.max(at[`${f}hi`], v) : v
         }
         at.n++
       }
@@ -1422,6 +1440,14 @@ await page.setViewportSize(PHONE)
         continue
       }
     }
+    // U3 made Casey's turn two beats per guess instead of one interval, which
+    // is about four seconds longer per turn. This loop has 26 iterations to
+    // reach a summary in and would spend a dozen of them watching. A tap on
+    // her panel skips to the next beat — the same gesture the tutorial's
+    // "Watch Casey guess" button is — so the loop pays one iteration per beat
+    // and both beats are still painted for the sampler above.
+    const casey = page.locator('.game-screen .dock.ai-panel[data-hurry]')
+    if (await casey.isVisible().catch(() => false)) await casey.click().catch(() => {})
     await page.waitForTimeout(550)
   }
 
@@ -1481,6 +1507,40 @@ await page.setViewportSize(PHONE)
     'and the lookups really put an answer on screen',
     clueLookupHits >= 1 && guessLookupHits >= 1,
     `clue dock ${clueLookupHits}, guess bar ${guessLookupHits}`,
+  )
+
+  // ---- U3: the two beats of Casey's turn are one rectangle ------------------
+  // The check above compares PHASES, and both beats live inside one phase, so
+  // it already catches a panel that changes height between them — but only as
+  // drift inside "Casey is guessing", which does not say which beat did it.
+  // This says it. Both beats are required to have rendered: a reading taken
+  // over one of them is a statement about one of them.
+  const caseyBeats = await page.evaluate(() => window.__caseyBeats)
+  const beatNames = Object.keys(caseyBeats).sort()
+  const beatSpan = (f) => {
+    const lo = Math.min(...beatNames.map((k) => caseyBeats[k][`${f}lo`]))
+    const hi = Math.max(...beatNames.map((k) => caseyBeats[k][`${f}hi`]))
+    return { lo, hi, drift: Math.round((hi - lo) * 100) / 100 }
+  }
+  const beatFields = ['x', 'y', 'width', 'height']
+  const bothBeats = beatNames.length === 2 && beatNames.join(',') === 'reveal,think'
+  check(
+    "Casey's panel is K2's rectangle in the think beat and in the reveal beat",
+    bothBeats && beatFields.every((f) => beatSpan(f).drift === 0),
+    !bothBeats
+      ? `beats seen: ${beatNames.join(', ') || 'none'}`
+      : beatFields.every((f) => beatSpan(f).drift === 0)
+        ? `${beatNames
+            .map((k) => `${k} x${caseyBeats[k].n}`)
+            .join(' + ')} frames at ${beatSpan('width').lo}x${beatSpan('height').lo} from ` +
+          `(${beatSpan('x').lo}, ${beatSpan('y').lo})`
+        : beatNames
+            .map(
+              (k) =>
+                `${k} y${caseyBeats[k].ylo}..${caseyBeats[k].yhi} ` +
+                `h${caseyBeats[k].heightlo}..${caseyBeats[k].heighthi}`,
+            )
+            .join(' | '),
   )
 
   // The measurement. Every frame of every phase, one rectangle.

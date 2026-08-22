@@ -1945,11 +1945,26 @@ select:focus {
 /* ---- Casey's turn: a face, a two-line bubble, one line (K2/U3) ----
 
    The bubble is clamped to two lines rather than ellipsized to one because of
-   what goes in it next: U3 puts the model's own reasoning for each guess
-   there. Until then it holds the clue Casey is guessing against, which used to
-   be a .dock-title row of its own. */
+   what goes in it: U3 put the model's own reasoning for each guess there, and
+   a sentence that says why THIS word and not another does not fit on one.
+
+   The two beats U3 paces the turn in — think, then reveal — are the SAME two
+   regions and therefore the same rectangle. That is not a hope: the bubble is
+   clamped rather than sized by its text, and the line under it is one line in
+   both beats, so neither can grow a row. layout-drive measures the panel in
+   each beat by name and compares them, which is where a third row would be
+   caught (it would hang over the board and lengthen the document rather than
+   lengthen the dock — see the give-way note above).
+
+   Tapping the panel hurries to the next beat, so it takes the pointer. No
+   :hover style: this is a phone, and the affordance is that the whole dock is
+   one target rather than a control inside it. */
 .dock.ai-panel {
   justify-content: center;
+}
+
+.dock.ai-panel[data-hurry] {
+  cursor: pointer;
 }
 
 .ai-say {
@@ -2449,10 +2464,11 @@ select:focus {
   }
 }
 
-/* One line too, and this one changes every 1100ms as Casey works down his
-   queue: "I'm quite sure about soveværelse — got one!" against "Casey is
-   choosing a word…" is a line's difference, arriving and leaving three times
-   a turn. */
+/* One line too, and this one changes twice per guess as Casey works down her
+   queue (U3): "«soveværelse» — got one!" on the reveal beat against "Casey is
+   choosing a word…" on the think beat before it, arriving and leaving three
+   times a turn. The confidence phrase that used to open it is gone — the
+   bubble above says why she picked the word, before she picks it. */
 .ai-guess-line {
   font-size: 1.02rem;
   line-height: 1.45;

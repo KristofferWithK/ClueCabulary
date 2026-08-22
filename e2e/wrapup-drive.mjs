@@ -74,6 +74,12 @@ async function driveToEnd() {
     // A forbidden word used to be able to interrupt this with the last chance,
     // which this loop failed on purpose — what a wrap-up round wraps does not
     // depend on how the round ends. Nothing interrupts it now.
+    //
+    // Casey's turn is two beats per guess since U3 — the reasoning, then the
+    // guess it explains — so a tap on her panel hurries it to the next beat
+    // and this loop's thirty iterations still cover a whole round.
+    const casey = page.locator('.dock.ai-panel[data-hurry]')
+    if (await casey.isVisible().catch(() => false)) await casey.click().catch(() => {})
     await page.waitForTimeout(700)
   }
 }

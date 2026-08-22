@@ -467,6 +467,14 @@ try {
     // This loop used to have to answer the last chance here — a forbidden word
     // could interrupt it with a twenty-word translation form. Nothing
     // interrupts a round any more; it plays to a summary or to sudden death.
+    //
+    // It does have to hurry Casey, though (U3): her turn is two beats per
+    // guess now — the reasoning, then the guess it explains — and thirty
+    // iterations of 700ms is not enough round to reach a summary if a
+    // multi-turn round watches every one of them out. A tap on her panel skips
+    // to the next beat, which is the gesture a player has too.
+    const casey = page.locator('.dock.ai-panel[data-hurry]')
+    if (await casey.isVisible().catch(() => false)) await casey.click().catch(() => {})
     await sleep(700)
   }
   await page.waitForSelector('.summary-stats', { timeout: 10000 })

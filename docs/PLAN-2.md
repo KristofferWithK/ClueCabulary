@@ -500,7 +500,6 @@ pass to flip.
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
 - **P1** — The round summary as one fixed screen, in pencil, with Casey *(W1 and K2 both landed — ready)*
 - **I1** — The station, the ticket, the train *(D4 and W1 both landed — ready)*
-- **U3** — Casey thinks aloud before each guess *(K2 and S1 both landed — ready)*
 
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
@@ -521,6 +520,40 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **U3** — Casey thinks aloud before each guess — 2026-08-22 (PR #PLACEHOLDER).
+  `AiTurnPanel` is two beats per planned guess instead of one 1100ms interval,
+  paced in the panel with the queue still in the store. **think** (2000ms):
+  `aiGuessQueue[0].reasoning` in the bubble, clamped to two lines with the
+  whole sentence as its `title`, her face thinking. **reveal** (1100ms):
+  `stepAiGuess()` — the card flips, S1 speaks the word, the face goes
+  happy/oops and the line reads «hund» — got one! / — neutral. Then the next.
+  A tap anywhere on the panel skips to the next beat (`data-hurry`), so a
+  three-guess turn costs nine seconds only if the player lets it.
+  The clock is `src/ui/aiBeats.ts` — a pure `beatPlan(beat, queued)` with its
+  own test, because vitest here is node-only and a `.tsx` cannot be tested.
+  **One thing the card did not anticipate: the LAST guess of a turn had no
+  reveal beat at all.** The phase turns over inside `stepAiGuess`, so the panel
+  swapped to "Casey is thinking…" in the same commit that flipped the card —
+  and a clue of one therefore showed no reaction ever. `lastAiGuess` cannot
+  carry it (`runAiClue` nulls it immediately), so the panel latches the reveal
+  and holds it for its own 1100ms across the phase change. That hole predates
+  this card; the two beats are what made it visible.
+  The confidence phrases ("I'm quite sure about…") are gone — the reasoning
+  says it better and says it first. Both companions read sensibly: the model's
+  own sentence, or E3's templated one, which names the word either way.
+  **Drives.** ai-drive samples the panel at 40ms and matches the bubble before
+  each reveal to the guess that follows; it also pins one clip per guess (S1,
+  not double-spoken) and, under `emulateMedia({reducedMotion:'reduce'})`, both
+  beats with `.cluey-figure`'s animation at `none` — non-vacuous, since the
+  same read on the ordinary path returns `cluey-sway/cluey-hop`. layout-drive
+  accumulates the panel's rectangle per `data-beat`: **328×150 at (16, 478)**,
+  1262 think frames + 417 reveal frames, identical to K2's dock. smoke,
+  wrapup, engine, layout and ai hurry Casey with the tap where a loop's
+  iteration budget would otherwise be spent watching; endgame never plays an
+  AI guessing turn and needed nothing.
+  MUTATION: `.dock.ai-panel[data-beat="reveal"] { height: calc(var(--dock-h) +
+  20px) }` fails the new per-beat check (reveal y458 h170 against think y478
+  h150) and both of K2's own. Reverted.
 - **U1 · S1** — A tap says the word, ⓘ opens the dictionary; and Casey's guesses
   are spoken — 2026-08-22 (PR #114). Shipped together: half-session
   audio/tap cards that touch adjacent code (`BoardGrid.tsx`, `AiTurnPanel.tsx`,
