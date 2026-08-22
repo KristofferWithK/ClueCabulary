@@ -20,6 +20,15 @@ interface Props {
    * skipped: the English face is the visible mark of "cannot wrap this time".
    */
   englishFace?: (wordId: string) => boolean
+  /**
+   * Wrap-up rounds: which cards were NOT collected when the board was dealt
+   * (W1's top-up). They play like any other card and count toward the win, but
+   * nothing can pack them and `finishRound` cannot wrap them, so they carry a
+   * quiet mark rather than a loud one — the player is not being refused
+   * anything, and a card that shouts would make a topped-up board read as a
+   * board full of mistakes.
+   */
+  notWrappable?: (wordId: string) => boolean
   /** Packing phase: unpacked cards are tappable to select for packing. */
   packingSelectable?: boolean
 }
@@ -57,6 +66,7 @@ export function BoardGrid({
   onInfoTap,
   dictionaryLocked,
   englishFace,
+  notWrappable,
   packingSelectable,
 }: Props) {
   return (
@@ -79,6 +89,7 @@ export function BoardGrid({
         // see it to give clues.
         const showKey = reveal.kind === 'hidden' || reveal.kind === 'bystander'
         const faceDown = englishFace?.(w.wordId) ?? false
+        const noWrap = notWrappable?.(w.wordId) ?? false
         const packable = (packingSelectable ?? false) && faceDown
         // Outside your guessing turn a tap has nothing else to do, so let the
         // whole card open the dictionary rather than hiding that behind ⓘ.
@@ -103,14 +114,15 @@ export function BoardGrid({
                 selectedWordId === w.wordId ? 'card-selected' : '',
                 showKey ? `mykey-${myRole}` : '',
                 faceDown ? 'card-face-en' : '',
+                noWrap ? 'card-no-wrap' : '',
               ].join(' ')}
               disabled={!guessable && !tapLooksUp && !packable}
               aria-label={
                 faceDown
                   ? `${w.en[0]}${packable ? `, not yet packed. Tap to type the ${ACTIVE.name}` : ', unpacked'}${stateText(reveal)}`
                   : `${genderLabel(w) ? `${genderLabel(w)} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
-                      tapLooksUp ? '. Tap to look up' : ''
-                    }`
+                      noWrap ? ', not yours to wrap yet' : ''
+                    }${tapLooksUp ? '. Tap to look up' : ''}`
               }
               aria-pressed={selectedWordId === w.wordId}
               onClick={() => {

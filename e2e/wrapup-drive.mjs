@@ -1,7 +1,12 @@
-// The wrap-up round, end to end on a 360x640 phone: a board dealt from
-// collected words with every card English-side up, the packing phase (miss,
+// The wrap-up round, end to end on a 360x640 phone: a board dealt from the
+// city with its collected cards English-side up, the packing phase (miss,
 // retry, skip), the dictionary lock, and the ledger — packed words found
 // green are wrapped; skipped ones are not, greens or no greens.
+//
+// Since W1 there is a third case and it gets its own run at the bottom: a
+// board TOPPED UP from words that are not collected. Those cards play like any
+// other, start Danish-side up, cannot be packed, and cannot be wrapped however
+// green they end.
 import { chromium } from 'playwright'
 import { startPreview } from './preview-server.mjs'
 
@@ -84,7 +89,15 @@ try {
   await page.waitForSelector('.suitcase-screen')
   await page.click('.case-actions .btn-primary')
   await page.waitForSelector('.packing-dock')
+  // Forty collected against an eighteen-card board: nothing is topped up here,
+  // so every card is wrappable and every card starts English-side up.
   check('the board opens all English-side up', (await page.locator('.card-face-en').count()) === 18)
+  check('and nothing on it is marked unwrappable', (await page.locator('.card-no-wrap').count()) === 0)
+  check(
+    'the dock counts against the whole board',
+    /0 of 18/.test((await page.locator('.packing-dock .dock-title').textContent()) ?? ''),
+    (await page.locator('.packing-dock .dock-title').textContent()) ?? '',
+  )
   check('the dictionary is gone while packing', (await page.locator('.card-info').count()) === 0)
   await page.screenshot({ path: `${SHOT_DIR}/w1-packing.png` })
 
@@ -171,6 +184,93 @@ try {
     'every green on a fully-packed board wrapped',
     greens2.every((w) => w.wordId in ledger2),
     `${Object.keys(ledger2).length} in the ledger`,
+  )
+
+  // ---- W1's thin pool: a board topped up from words that cannot wrap. ----
+  // Eight collected words on an eighteen-card board. Before W1 this could not
+  // be dealt at all. Now ten cards are top-up: Danish-side up, quietly marked,
+  // unpackable, and unwrappable however green they end.
+  await page.evaluate(() => localStorage.clear())
+  await page.goto(`${BASE}?mock=1&howto=0&city=0&collected=8&seed=17&wraps=1`)
+  await page.waitForSelector('.city-card')
+  await page.click('.cluey-button')
+  await page.waitForSelector('.suitcase-screen')
+  const thinHint = await page.locator('.case-hint').textContent()
+  check(
+    'the suitcase advises rather than refusing',
+    /8 collected/.test(thinHint ?? '') && /at most 8/.test(thinHint ?? ''),
+    thinHint ?? '',
+  )
+  check('and the button is live on eight words', await page.locator('.case-actions .btn-primary').isEnabled())
+  await page.click('.case-actions .btn-primary')
+  await page.waitForSelector('.packing-dock')
+
+  const wrappable = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-game-v1')).state.wrappable,
+  )
+  const words3 = await gameWords()
+  check('the board is full', words3.length === 18, `${words3.length}`)
+  check('with eight wrappable cards on it', wrappable.length === 8, `${wrappable.length}`)
+  check(
+    'only those eight open English-side up',
+    (await page.locator('.card-face-en').count()) === 8,
+    `${await page.locator('.card-face-en').count()}`,
+  )
+  check(
+    'and the other ten wear the quiet mark',
+    (await page.locator('.card-no-wrap').count()) === 10,
+    `${await page.locator('.card-no-wrap').count()}`,
+  )
+  check(
+    'the dock counts the eight it can pack, not the eighteen on the board',
+    /0 of 8/.test((await page.locator('.packing-dock .dock-title').textContent()) ?? ''),
+    (await page.locator('.packing-dock .dock-title').textContent()) ?? '',
+  )
+  await page.screenshot({ path: `${SHOT_DIR}/w5-topped-up.png` })
+
+  // Every green on this board is a wrappable card: the deal puts the collected
+  // words on the keys first, structurally. Eight collected against thirteen
+  // distinct greens means all eight are green and five fillers make up the
+  // rest — so no wrappable card is left off the key.
+  const keys = await page.evaluate(() => {
+    const g = JSON.parse(localStorage.getItem('cluecab-game-v1')).state.game
+    return { playerKey: g.playerKey, aiKey: g.aiKey }
+  })
+  const greenIds = words3
+    .map((w) => w.wordId)
+    .filter((id) => keys.playerKey[id] === 'green' || keys.aiKey[id] === 'green')
+  check('thirteen distinct greens, as on any board', greenIds.length === 13, `${greenIds.length}`)
+  check(
+    'and every wrappable card is one of them',
+    wrappable.every((id) => greenIds.includes(id)),
+    `${greenIds.filter((id) => wrappable.includes(id)).length} of ${wrappable.length}`,
+  )
+
+  // Packing every wrappable card opens the round, though ten cards on the
+  // board were never English to begin with.
+  for (const id of wrappable) {
+    const w = words3.find((x) => x.wordId === id)
+    await pack(w, w.da)
+  }
+  check('packing the wrappable cards starts the round', (await page.locator('.packing-dock').count()) === 0)
+  check('and no card is left English-side up', (await page.locator('.card-face-en').count()) === 0)
+
+  await driveToEnd()
+  const reveals3 = await gameReveals()
+  const ledger3 = await wrappedLedger()
+  const fillerGreens = words3
+    .filter((w) => !wrappable.includes(w.wordId) && reveals3[w.wordId]?.kind === 'green')
+    .map((w) => w.wordId)
+  check('the round greened some top-up cards', fillerGreens.length > 0, `${fillerGreens.length}`)
+  check(
+    'and not one of them wrapped',
+    fillerGreens.every((id) => !(id in ledger3)),
+    JSON.stringify(Object.keys(ledger3)),
+  )
+  check(
+    'only collected words are in the ledger',
+    Object.keys(ledger3).every((id) => wrappable.includes(id)),
+    JSON.stringify(Object.keys(ledger3)),
   )
 
   console.log(fail.length ? `\nFAILED: ${fail.join(', ')}` : '\nWRAPUP DRIVE OK')

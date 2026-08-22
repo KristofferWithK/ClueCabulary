@@ -200,14 +200,30 @@ try {
   // The reward the win leaves behind. A real win in a real round, so this is
   // the one place the whole earn path runs end to end — recordGame, the bank,
   // and the line the player actually reads — rather than a store call.
+  //
+  // Since W1 a token costs THREE won rounds, and this is the first, so what
+  // the summary owes is the counter rather than a token: the section stands,
+  // says how many wins are left, and the bank is still empty. That the third
+  // win pays out is srsStore.test.ts's; that the section renders at all is
+  // this drive's, because it is the only place the real path runs.
   check(
-    'winning earns a wrap-up round, announced on the summary',
+    'a win says where it leaves the counter, on the summary',
     (await page.locator('.earned-section').count()) === 1,
   )
-  const bankedAfterWin = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('cluecab-srs-v1') ?? '{}').state?.wrapUpsBanked ?? 0,
+  const earnedText = await page.locator('.earned-section').innerText()
+  check(
+    'and names the price rather than promising a round',
+    /2 more wins for a wrap-up round/i.test(earnedText),
+    earnedText,
   )
-  check('and banks it', bankedAfterWin >= 1, `${bankedAfterWin}`)
+  const bankedAfterWin = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('cluecab-srs-v1') ?? '{}').state ?? {},
+  )
+  check(
+    'the first win banks nothing and counts one',
+    bankedAfterWin.wrapUpsBanked === 0 && bankedAfterWin.winsTowardWrapUp === 1,
+    JSON.stringify({ b: bankedAfterWin.wrapUpsBanked, w: bankedAfterWin.winsTowardWrapUp }),
+  )
 
   // ---- the summary counts the round, and the collection it left behind ------
   // Four tiles, and every number has to be a number: the two on the left are

@@ -85,6 +85,24 @@ interface GameStore {
   mode: RoundMode
   /** Word ids translated to Danish during packing — face-up, wrappable. */
   packed: string[]
+  /**
+   * Which of this board's cards may be packed and wrapped at all: the words
+   * that were COLLECTED when the board was dealt (W1). A wrap-up board is
+   * topped up from the rest of the city when the collected pool is thin, and
+   * those top-up cards are ordinary playable cards that go nowhere — they
+   * start Danish-side up, take no packing, and `finishRound` cannot wrap them.
+   *
+   * A new persisted field and NOT a version bump, which is the `earnedWrapUp`
+   * precedent rather than the trap in CLAUDE.md's point 3. That trap is about
+   * CHANGING a default every save already carries. Here no save carries this
+   * one, zustand merges `{...initial, ...persisted}`, and the initial value is
+   * `undefined` — deliberately, because `undefined` has to MEAN something:
+   * "every word on the board", which is exactly the rule a wrap-up dealt
+   * before this build was played under. A `[]` initial would have rehydrated
+   * an in-flight wrap-up as a board with nothing to pack. Read it through
+   * `wrappableIds` below, never directly.
+   */
+  wrappable?: string[]
   /** Words whose FIRST packing attempt missed (an SRS demotion each). */
   packingMissed: string[]
   /** Set when every card is packed, or the player starts early regardless. */
@@ -354,11 +372,12 @@ const freshRound = () => ({
   error: null,
   selectedWordId: null,
   aiBusy: false,
-  // A normal round has nothing to pack; newWrapUpGame overrides all four.
+  // A normal round has nothing to pack; newWrapUpGame overrides all five.
   mode: 'normal' as const,
   packed: [] as string[],
   packingMissed: [] as string[],
   packingDone: true,
+  wrappable: undefined as string[] | undefined,
 })
 
 /**
@@ -426,10 +445,27 @@ const noRound = {
   packed: [],
   packingMissed: [],
   packingDone: true,
+  wrappable: undefined,
   newlyLearned: [],
   newlyDiscovered: [],
   earnedWrapUp: false,
   practiceFallback: false,
+}
+
+/**
+ * Which cards of the board in hand may be packed and wrapped.
+ *
+ * The one reader of `wrappable`, so the `undefined` → "every word" rule lives
+ * in exactly one place. See the field for why that is the right reading of an
+ * absent value rather than a defensive fallback.
+ */
+export function wrappableIds(
+  game: Pick<GameState, 'words'> | null,
+  wrappable: readonly string[] | undefined,
+): string[] {
+  if (!game) return []
+  if (!wrappable) return game.words.map((w) => w.wordId)
+  return game.words.filter((w) => wrappable.includes(w.wordId)).map((w) => w.wordId)
 }
 
 /**
@@ -492,6 +528,7 @@ export const useGame = create<GameStore>()(
       packed: [],
       packingMissed: [],
       packingDone: true,
+      wrappable: undefined,
       newlyLearned: [],
       newlyDiscovered: [],
       earnedWrapUp: false,
@@ -531,16 +568,23 @@ export const useGame = create<GameStore>()(
       newWrapUpGame: (opts) => {
         const journey = useJourney.getState()
         const seed = opts?.seed ?? useUi.getState().pendingSeed ?? Date.now() % 0xffffffff
-        const entries = wrapUpWords(
+        const deal = wrapUpWords(
           WORDS,
           useSrs.getState().stats,
           journey.wrapped,
           journey.cityIndex,
           mulberry32(seed ^ 0x9e3779b9),
         )
+        const entries = deal.words
         // The CTA gates on wrapUpUnlocked; refusing here too keeps a stray
         // call from dealing a board the mode's invariant does not hold on.
+        // Since W1 the board tops up from the whole city, so a short board
+        // means a city too small to seat eighteen — belt to the gate's brace.
         if (entries.length < BOARD.totalWords) return
+        // And there has to be something to pack, which is the floor the
+        // suitcase gates on. A wrap-up with nothing wrappable is an ordinary
+        // round with the dictionary shut.
+        if (deal.wrappable.length === 0) return
         // And the round has to have been earned. Checked AFTER the deal is
         // known to be possible and in the same breath as spending, because the
         // one thing worse than a refused wrap-up is a token taken for a board
@@ -561,7 +605,12 @@ export const useGame = create<GameStore>()(
             countable: w.countable,
           })),
           seed,
-          bias: wrapUpBias(entries, journey.wrapped),
+          bias: wrapUpBias(entries, journey.wrapped, new Set(deal.wrappable)),
+          // The structural half of W1: the collected words take the greens
+          // before any top-up card does. A lean would not do — a green spent
+          // on a card that cannot be wrapped is a green this round cannot
+          // bank. See generateKeys.
+          greenPool: new Set(deal.wrappable),
         })
         useUi.getState().resetTranslations()
         set({
@@ -575,6 +624,7 @@ export const useGame = create<GameStore>()(
           ...freshRound(),
           mode: 'wrapup',
           packingDone: false,
+          wrappable: deal.wrappable,
         })
       },
 
@@ -614,16 +664,21 @@ export const useGame = create<GameStore>()(
       },
 
       submitPacking: (wordId, text) => {
-        const { game, mode, packingDone, packed, packingMissed } = get()
+        const { game, mode, packingDone, packed, packingMissed, wrappable } = get()
         if (!game || mode !== 'wrapup' || packingDone) return false
         const word = game.words.find((w) => w.wordId === wordId)
         if (!word || packed.includes(wordId)) return false
+        // A top-up card has nothing to pack — it is already Danish-side up and
+        // cannot be wrapped, so a stray call on one must not enter `packed`
+        // and make `finishRound` wrap it.
+        const packable = wrappableIds(game, wrappable)
+        if (!packable.includes(wordId)) return false
         if (matchesAnswer(text, word.da, ACTIVE, isHeadword)) {
           const nextPacked = [...packed, wordId]
           set({
             packed: nextPacked,
             // The last card packed opens the round by itself.
-            packingDone: nextPacked.length === game.words.length,
+            packingDone: nextPacked.length === packable.length,
           })
           buzz('green')
           return true
@@ -658,7 +713,7 @@ export const useGame = create<GameStore>()(
           if (packed.length > 0 || packingMissed.length > 0) return
           const journey = useJourney.getState()
           const rejected = new Set(game.words.map((w) => w.wordId))
-          const entries = wrapUpWords(
+          const deal = wrapUpWords(
             WORDS,
             useSrs.getState().stats,
             journey.wrapped,
@@ -666,7 +721,8 @@ export const useGame = create<GameStore>()(
             mulberry32(nextSeed(game.seed) ^ 0x9e3779b9),
             rejected,
           )
-          if (entries.length < BOARD.totalWords) return
+          const entries = deal.words
+          if (entries.length < BOARD.totalWords || deal.wrappable.length === 0) return
           const next = createGame({
             config: BOARD,
             words: entries.map((w) => ({
@@ -679,10 +735,17 @@ export const useGame = create<GameStore>()(
               countable: w.countable,
             })),
             seed: nextSeed(game.seed),
-            bias: wrapUpBias(entries, journey.wrapped),
+            bias: wrapUpBias(entries, journey.wrapped, new Set(deal.wrappable)),
+            greenPool: new Set(deal.wrappable),
           })
           useUi.getState().resetTranslations()
-          set({ game: next, ...freshRound(), mode: 'wrapup', packingDone: false })
+          set({
+            game: next,
+            ...freshRound(),
+            mode: 'wrapup',
+            packingDone: false,
+            wrappable: deal.wrappable,
+          })
           return
         }
 
@@ -962,7 +1025,7 @@ export const useGame = create<GameStore>()(
       },
 
       finishRound: () => {
-        const { game, lookedUp, roundRecorded, mode, packed, packingMissed } = get()
+        const { game, lookedUp, roundRecorded, mode, packed, packingMissed, wrappable } = get()
         if (!game || game.phase !== 'finished' || roundRecorded) return
         // A guess record's result is judged against the CLUE-GIVER's key
         // (engine/game.ts), so a green under a clue `by: 'player'` is Casey
@@ -1002,9 +1065,22 @@ export const useGame = create<GameStore>()(
         // skipped) and ended the round green goes into the suitcase for good.
         // The outcome beyond the reveals is irrelevant — what you packed stays
         // packed, win or lose.
+        //
+        // Since W1 the board may also hold TOP-UP cards — words of the city
+        // that were not collected when it was dealt. They play like any other
+        // card and go nowhere, so the wrappable list is a third conjunct here.
+        // In practice `packed` cannot hold one (submitPacking refuses), but
+        // this is the line the ledger is written from and it states the rule
+        // rather than relying on a guard two functions away.
         if (mode === 'wrapup') {
+          const packable = wrappableIds(game, wrappable)
           const toWrap = game.words
-            .filter((w) => packed.includes(w.wordId) && game.reveals[w.wordId]!.kind === 'green')
+            .filter(
+              (w) =>
+                packable.includes(w.wordId) &&
+                packed.includes(w.wordId) &&
+                game.reveals[w.wordId]!.kind === 'green',
+            )
             .map((w) => w.wordId)
           if (toWrap.length > 0) useJourney.getState().wrapWords(toWrap, finishedAt)
         }
@@ -1100,6 +1176,7 @@ export const useGame = create<GameStore>()(
         packed: s.packed,
         packingMissed: s.packingMissed,
         packingDone: s.packingDone,
+        wrappable: s.wrappable,
         newlyLearned: s.newlyLearned,
         newlyDiscovered: s.newlyDiscovered,
         earnedWrapUp: s.earnedWrapUp,

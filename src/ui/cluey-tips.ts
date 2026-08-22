@@ -32,7 +32,7 @@ export const CRITICAL_TIPS: readonly string[] = [
   "While you guess, it is Casey's greens that count — her key, not yours.",
   'Collect a word by cluing it AND guessing it — one green each way.',
   'Collected words still break on the road. Wrap them up to keep them.',
-  'Win a normal round to earn a wrap-up round. You can bank up to three.',
+  'Three won rounds earn a wrap-up round. Bank up to three, and spend one when you have plenty collected — it packs up to thirteen.',
 ]
 
 const RULE_TIPS: readonly string[] = [

@@ -86,12 +86,27 @@ function weightedOrder(wordIds: readonly string[], need: KeyBias['need'], rng: R
  * needs to practise are steered toward the AI's greens, so the player has to
  * recall them; words they know best drift to the back of the order and land in
  * whatever is left, which is now bystanders.
+ *
+ * `greenPool` is a RULE where `bias` is only a lean, and W1 needed exactly
+ * that distinction. A wrap-up board is topped up with words that cannot be
+ * wrapped, and a green slot spent on one of those is a green the round cannot
+ * bank — so "collected words take the greens" has to hold on every seed, not
+ * on most of them. `weightedOrder` is a weighted shuffle: give the collected
+ * words a huge `need` and they usually lead, which is a probability. So the
+ * pool is applied AFTER the order is drawn, as a stable partition — pool
+ * members keep their drawn order among themselves and simply all come first,
+ * and since `TIER_ORDER` fills every green slot (`recall`, then `produce`)
+ * before the first `filler`, the greens are pool members for as long as the
+ * pool lasts. Nothing else about the deal changes: with a pool at least as
+ * large as the board's distinct greens no non-member is green, and with a
+ * smaller one non-members fill exactly the green slots left over.
  */
 export function generateKeys(
   config: GridConfig,
   wordIds: readonly string[],
   rng: Rng,
   bias?: KeyBias,
+  greenPool?: ReadonlySet<string>,
 ): KeyPair {
   assertConfigConsistent(config)
   if (wordIds.length !== config.totalWords) {
@@ -99,7 +114,10 @@ export function generateKeys(
   }
 
   const slots = buildSlots(config)
-  const ordered = bias ? weightedOrder(wordIds, bias.need, rng) : shuffle(wordIds, rng)
+  const drawn = bias ? weightedOrder(wordIds, bias.need, rng) : shuffle(wordIds, rng)
+  const ordered = greenPool
+    ? [...drawn.filter((id) => greenPool.has(id)), ...drawn.filter((id) => !greenPool.has(id))]
+    : drawn
 
   const playerKey: Record<string, CardRole> = {}
   const aiKey: Record<string, CardRole> = {}

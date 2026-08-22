@@ -39,6 +39,16 @@ interface SrsState {
    * with them, and here they do so by construction.
    */
   wrapUpsBanked: number
+  /**
+   * Won normal rounds since the last token was earned — three buy one (W1).
+   *
+   * Beside the bank rather than derived from `games.won`, because it has to
+   * survive spending: the bank goes down and this must not, and `won % 3`
+   * cannot express "three more wins from HERE" once the cap has held the
+   * counter at zero. Same `set` as the bank and the tally, for the reason
+   * above.
+   */
+  winsTowardWrapUp: number
   recordRound: (results: RoundWordResult[], now: number) => void
   /** `mode` is what keeps a wrap-up win from earning another wrap-up. */
   recordGame: (outcome: Outcome, mode?: RoundMode) => void
@@ -66,15 +76,32 @@ interface SrsState {
  * arrives at zero and meets the unlock as the tutorial beat it is meant to be,
  * which is the same place a fresh install starts.
  *
+ * v3 -> v4: a token costs three won rounds instead of one (W1), so the store
+ * gains `winsTowardWrapUp` and every save written before this build lacks it.
+ * The bump exists because of the trap CLAUDE.md's point 3 records: `persist`
+ * merges `{...initial, ...persisted}`, and a NEW field with a new default is
+ * exactly the case a default change is not — a save that lacks it would take
+ * the initial 0 anyway. What actually needs saying is the OTHER half, and it
+ * is a policy decision rather than a mechanical one: the counter seeds at 0
+ * and **the bank is kept untouched**. A player mid-journey holding two tokens
+ * earned under the old one-win rule keeps both; the new price applies from the
+ * next win onward. Generous over strict — R1's precedent, and the same
+ * reasoning as v2 -> v3 above: nothing already earned is taken back. Seeding
+ * the counter from `games.won % 3` was the alternative and was rejected: that
+ * number counts wins already paid out under the old rule, so it would hand
+ * over up to two thirds of a fourth token for wins that had already bought
+ * three.
+ *
  * Exported so it can be tested directly: under vitest there is no
  * localStorage, persist quietly becomes a passthrough, and a test reaching
  * through the middleware would be testing nothing.
  */
 export function migrateSrs(persisted: unknown, from: number): unknown {
-  if (from >= 3) return persisted
+  if (from >= 4) return persisted
   let p = (persisted ?? {}) as {
     stats?: Record<string, Omit<WordStats, 'greenByClue' | 'greenByGuess'>>
     games?: Partial<GamesTally>
+    wrapUpsBanked?: number
   }
   if (from < 2) {
     const seeded = Object.fromEntries(
@@ -89,7 +116,10 @@ export function migrateSrs(persisted: unknown, from: number): unknown {
     )
     p = { ...p, stats: seeded }
   }
-  return { ...p, wrapUpsBanked: Math.min(p.games?.won ?? 0, WRAP_UP_BANK_CAP) }
+  if (from < 3) {
+    p = { ...p, wrapUpsBanked: Math.min(p.games?.won ?? 0, WRAP_UP_BANK_CAP) }
+  }
+  return { ...p, winsTowardWrapUp: 0 }
 }
 
 export const useSrs = create<SrsState>()(
@@ -98,26 +128,36 @@ export const useSrs = create<SrsState>()(
       stats: {},
       games: EMPTY_TALLY,
       wrapUpsBanked: 0,
+      winsTowardWrapUp: 0,
       recordRound: (results, now) =>
         set((s) => ({ stats: applyRoundResults(s.stats, results, now) })),
       recordGame: (outcome, mode = 'normal') =>
-        set((s) => ({
-          games: {
-            played: s.games.played + 1,
-            won: s.games.won + (outcome.result === 'won' ? 1 : 0),
-            redeemed: s.games.redeemed,
-            lost: s.games.lost + (outcome.result === 'lost' ? 1 : 0),
-          },
+        set((s) => {
           // Same set as the tally it is earned by — see wrapUpsBanked above.
-          wrapUpsBanked: bankAfterRound(s.wrapUpsBanked, outcome.result, mode),
-        })),
+          const bank = bankAfterRound(
+            { banked: s.wrapUpsBanked, wins: s.winsTowardWrapUp },
+            outcome.result,
+            mode,
+          )
+          return {
+            games: {
+              played: s.games.played + 1,
+              won: s.games.won + (outcome.result === 'won' ? 1 : 0),
+              redeemed: s.games.redeemed,
+              lost: s.games.lost + (outcome.result === 'lost' ? 1 : 0),
+            },
+            wrapUpsBanked: bank.banked,
+            winsTowardWrapUp: bank.wins,
+          }
+        }),
       spendWrapUp: () => {
         if (get().wrapUpsBanked <= 0) return false
         set((s) => ({ wrapUpsBanked: s.wrapUpsBanked - 1 }))
         return true
       },
-      reset: () => set({ stats: {}, games: EMPTY_TALLY, wrapUpsBanked: 0 }),
+      reset: () =>
+        set({ stats: {}, games: EMPTY_TALLY, wrapUpsBanked: 0, winsTowardWrapUp: 0 }),
     }),
-    { name: 'cluecab-srs-v1', version: 3, migrate: migrateSrs },
+    { name: 'cluecab-srs-v1', version: 4, migrate: migrateSrs },
   ),
 )

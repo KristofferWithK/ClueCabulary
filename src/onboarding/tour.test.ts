@@ -30,12 +30,15 @@ describe('the suitcase tour', () => {
     expect(lid.text).toMatch(/by your guess/i)
   })
 
-  it('explains the sleeping wrap-up button by both of its gates', () => {
-    // Two conditions, different in kind (SuitcaseScreen's own comment): a win
-    // to earn a round, twenty collected words to deal its board. A tour that
-    // named only one would leave the other looking like a bug.
+  it('explains the sleeping wrap-up button by its ONE gate, and by no other', () => {
+    // W1 left exactly one condition: three won rounds. The line used to name a
+    // second — "collect twenty words to fill its board" — and that gate is
+    // gone, so naming it here would send a new player off collecting toward a
+    // number that no longer does anything. It must state the price and it must
+    // say the word count is not one.
     const btn = TOUR_STEPS.find((s) => s.anchor === '.case-actions')!
-    expect(btn.text).toMatch(/win a real round/i)
-    expect(btn.text).toMatch(/twenty words/i)
+    expect(btn.text).toMatch(/three won rounds/i)
+    expect(btn.text).toMatch(/no word count/i)
+    expect(btn.text).not.toMatch(/twenty/i)
   })
 })

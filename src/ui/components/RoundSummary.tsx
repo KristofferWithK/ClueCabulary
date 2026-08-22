@@ -3,7 +3,12 @@ import { WORDS } from '../../data/words'
 import type { GameState, Outcome } from '../../engine/types'
 import { WORDS_PER_CITY, cityAt } from '../../journey/cities'
 import { countCollection, wordsForCity } from '../../journey/progress'
-import { useGame } from '../../stores/gameStore'
+import {
+  WINS_PER_WRAP_UP,
+  WRAP_UP_BANK_CAP,
+  winsToNextWrapUp,
+} from '../../journey/wrapup'
+import { useGame, wrappableIds } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
 import { clueFlagId, guessFlagId, useFeedback } from '../../stores/feedbackStore'
@@ -168,18 +173,26 @@ export function RoundSummary({ game }: { game: GameState }) {
   const newlyDiscovered = useGame((s) => s.newlyDiscovered)
   const mode = useGame((s) => s.mode)
   const packed = useGame((s) => s.packed)
+  const wrappable = useGame((s) => s.wrappable)
   const earnedWrapUp = useGame((s) => s.earnedWrapUp)
   const banked = useSrs((s) => s.wrapUpsBanked)
+  const winsToward = useSrs((s) => s.winsTowardWrapUp)
   const gamesWon = useSrs((s) => s.games.won)
   const goTo = useUi((s) => s.goTo)
   const cityIndex = useJourney((s) => s.cityIndex)
   const wrapped = useJourney((s) => s.wrapped)
   const srs = useSrs((s) => s.stats)
-  // What a wrap-up round wrapped: packed AND found green, mirror of finishRound.
+  // What a wrap-up round wrapped: wrappable AND packed AND found green, the
+  // exact mirror of finishRound — including W1's third conjunct, so the list
+  // cannot claim a top-up card the ledger did not take.
+  const packable = wrappableIds(game, wrappable)
   const wrappedWords =
     mode === 'wrapup'
       ? game.words.filter(
-          (w) => packed.includes(w.wordId) && game.reveals[w.wordId]?.kind === 'green',
+          (w) =>
+            packable.includes(w.wordId) &&
+            packed.includes(w.wordId) &&
+            game.reveals[w.wordId]?.kind === 'green',
         )
       : []
   const cityWrapped = countCollection(wordsForCity(WORDS, cityIndex), srs, wrapped).wrapped
@@ -240,14 +253,37 @@ export function RoundSummary({ game }: { game: GameState }) {
             that hit the cap says nothing here rather than promising a token it
             did not get. The first one is written as an unlock because that is
             what it is — this is where a player finds out that wins buy the
-            round that packs words for good. */}
-        {earnedWrapUp && (
+            round that packs words for good.
+            Since W1 a token costs THREE won rounds, so a win that did not earn
+            one has something to say too: how many more. That line is the whole
+            of the economy stated where a player will actually meet it, and it
+            is shown only after a win — a loss costs nothing and does not
+            advance the counter, and nagging about the price on the way out of
+            a lost round would be a scold for nothing. At the cap there is no
+            counter to report, only the reason wins are not counting.
+            (P1 shrinks this section to one line; the sentences are already
+            written to survive that.) */}
+        {mode === 'normal' && (earnedWrapUp || outcome.result === 'won') && (
           <section className="summary-section earned-section">
-            <h3>{gamesWon === 1 ? 'Wrap-up round unlocked' : 'Wrap-up round earned'}</h3>
+            <h3>
+              {earnedWrapUp
+                ? gamesWon === WINS_PER_WRAP_UP
+                  ? 'Wrap-up round unlocked'
+                  : 'Wrap-up round earned'
+                : banked >= WRAP_UP_BANK_CAP
+                  ? 'The bank is full'
+                  : `${winsToNextWrapUp({ banked, wins: winsToward })} more ${
+                      winsToNextWrapUp({ banked, wins: winsToward }) === 1 ? 'win' : 'wins'
+                    } for a wrap-up round`}
+            </h3>
             <p className="collected-note">
-              {gamesWon === 1
-                ? 'Winning earns a wrap-up round — the one round that packs collected words into the suitcase for good. Open the suitcase to spend it.'
-                : `${banked} banked. Spend one in the suitcase to pack collected words for good.`}
+              {earnedWrapUp
+                ? gamesWon === WINS_PER_WRAP_UP
+                  ? `${WINS_PER_WRAP_UP} won rounds earn a wrap-up round — the one round that packs collected words into the suitcase for good. Open the suitcase to spend it.`
+                  : `${banked} banked. Spend one in the suitcase to pack collected words for good.`
+                : banked >= WRAP_UP_BANK_CAP
+                  ? `${WRAP_UP_BANK_CAP} wrap-up rounds banked, which is all the suitcase holds. Spend one and wins start counting again.`
+                  : `${WINS_PER_WRAP_UP} won rounds earn one, and the more collected words you have when you spend it, the more it packs.`}
             </p>
           </section>
         )}

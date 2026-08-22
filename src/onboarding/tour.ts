@@ -50,6 +50,6 @@ export const TOUR_STEPS: TourStep[] = [
   {
     anchor: '.case-actions',
     text:
-      'This button deals a wrap-up round. It sleeps for now — win a real round to earn one, and collect twenty words to fill its board. Let’s go fill me up!',
+      'This button deals a wrap-up round. It sleeps for now — three won rounds earn one. There is no word count to reach: it packs whatever you have collected, up to thirteen, so it is worth saving one until the lid is full. Let’s go fill me up!',
   },
 ]

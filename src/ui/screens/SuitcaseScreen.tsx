@@ -9,7 +9,12 @@ import {
   wordState,
   wordsForCity,
 } from '../../journey/progress'
-import { WRAP_UP_UNLOCK, wrapUpUnlocked } from '../../journey/wrapup'
+import {
+  MAX_WRAPPED_PER_ROUND,
+  WINS_PER_WRAP_UP,
+  winsToNextWrapUp,
+  wrapUpUnlocked,
+} from '../../journey/wrapup'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import { useSrs } from '../../stores/srsStore'
@@ -260,6 +265,7 @@ export function SuitcaseScreen() {
   const openSheet = useUi((s) => s.openSheet)
   const srs = useSrs((s) => s.stats)
   const banked = useSrs((s) => s.wrapUpsBanked)
+  const winsToward = useSrs((s) => s.winsTowardWrapUp)
   const won = useSrs((s) => s.games.won)
   const journey = useJourney()
   // Opens on the stop you are standing in — see the note at the top of the
@@ -313,46 +319,62 @@ export function SuitcaseScreen() {
   const wrapGoal = filter === ALL ? (journey.cityIndex + 1) * WRAP_TO_TRAVEL : WRAP_TO_TRAVEL
 
   /**
-   * Two conditions, and they are different in kind — so the hint below names
-   * whichever is missing rather than leaving a dead button to explain itself.
+   * ONE gate (W1), and it is the earned one.
    *
-   * `boardReady` is arithmetic: a wrap-up board is twenty collected words and
-   * cannot be dealt without them. `banked` is the reward economy: a wrap-up
-   * round is earned by winning a normal one. Whichever is slower binds, and
-   * early in a city that is the collecting — a measured median of 11 to 13
-   * rounds even with every round won, against a first win that is very likely
-   * the first or second. So this hint mostly asks for words at the start of a
-   * city and mostly asks for a win afterwards. See WRAP_UP_BANK_CAP.
+   * There were two, and the second was a refusal: a wrap-up board had to be a
+   * whole board's worth of COLLECTED words, so a player with nine of them was
+   * told to go and collect nine more. The board tops up from the rest of the
+   * city now, so that refusal has nothing left to protect — the only thing a
+   * thin pool costs is how much a token packs, which is the player's call and
+   * not the screen's. What is left below the button is therefore two states,
+   * and only the first of them is a NO:
+   *
+   *  - no token → what to do about it, in wins.
+   *  - a token → the button is live, and beside it the honest arithmetic of
+   *    spending it here and now: what this board would pack, against what a
+   *    wrap-up can pack at its fullest. That sentence is the whole of the
+   *    owner's "economical to wait" guidance, and it advises rather than nags
+   *    because every word of it is a statement about the board as it stands.
+   *
+   * It is measured advice, not a hunch: rationing tokens finishes a city
+   * FASTER than spending them the moment they arrive (WRAP_UP_BANK_CAP's
+   * table), because a token spent on a thin pool wastes green slots.
    *
    * Every number here is read off the city the player is IN, never off the
    * filter. A filter is a view; a wrap-up round always deals from home, and a
-   * hint that counted the chip's words would ask for words that no board
-   * would ever be dealt from. That is why the hint names the city out loud.
+   * hint that counted the chip's words would talk about words no board would
+   * ever be dealt from. That is why the hint names the city out loud.
    */
   const home = cityAt(journey.cityIndex)
   const homePool = wordsForCity(WORDS, journey.cityIndex).filter((w) =>
     isCollected(srs[w.id], w.id in journey.wrapped),
   ).length
-  const boardReady = wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
-  const wrapUpReady = boardReady && banked > 0
-  // How many more words the city owes a board. This counts the POOL, while
-  // boardReady above answers by dealing — so a pool of exactly twenty that
-  // cannot seat twenty (two words that clash on one board) lands here at zero
-  // with the button still dark, and the hint has to say something true rather
-  // than «Collect 0 more».
-  const shortBy = Math.max(0, WRAP_UP_UNLOCK - homePool)
-  const blockers = [
-    !boardReady &&
-      (shortBy > 0
-        ? `Collect ${shortBy} more in ${home.name} to open wrap-up rounds.`
-        : `A couple of ${home.name}'s words clash on one board — collect one or two more to open wrap-up rounds.`),
-    // The first win is the unlock, so it is worded as the next thing to do
-    // rather than as a counter at zero.
-    banked === 0 &&
-      (won === 0
-        ? 'Win a round to earn your first wrap-up round.'
-        : 'Win a round to earn another wrap-up round.'),
-  ].filter((s): s is string => typeof s === 'string')
+  // The floor, and the only thing left that can refuse a deal: a wrap-up with
+  // nothing to pack would be an ordinary round with the dictionary shut.
+  const somethingToPack = wrapUpUnlocked(WORDS, srs, journey.wrapped, journey.cityIndex)
+  const wrapUpReady = somethingToPack && banked > 0
+  // What a board dealt right now would actually pack: the collected pool, or
+  // the board's distinct greens if the pool is bigger than a board can green.
+  const wouldPack = Math.min(homePool, MAX_WRAPPED_PER_ROUND)
+  const winsToNext = winsToNextWrapUp({ banked, wins: winsToward })
+  const hint = !somethingToPack
+    ? `Collect a word in ${home.name} first — one green each way — and a wrap-up round will have something to pack.`
+    : banked === 0
+      ? // The counter, not a bare "win a round": three wins buy one, and a
+        // player who cannot see the price cannot plan around it. The first
+        // token is still worded as the unlock it is.
+        won === 0
+        ? `Win ${WINS_PER_WRAP_UP} rounds to earn your first wrap-up round.`
+        : `Win ${winsToNext} more ${winsToNext === 1 ? 'round' : 'rounds'} to earn a wrap-up.`
+      : // Two sentences only while there is something to advise. Once the pool
+        // is deeper than a board can green, "at most 13" and "up to 13" are
+        // the same number said twice — and this line stands under a LIVE
+        // button, so every line of it is a line off the case above (the drive
+        // measures the case at 45% of the screen). Thin pool: the owner's
+        // sentence in full, because that is the state it is for.
+        homePool >= MAX_WRAPPED_PER_ROUND
+        ? `${homePool} collected in ${home.name} — this board packs the full ${MAX_WRAPPED_PER_ROUND}.`
+        : `${homePool} collected in ${home.name} — this board can pack at most ${wouldPack}. A wrap-up packs up to ${MAX_WRAPPED_PER_ROUND}.`
 
   /**
    * A tile is a slot with the word button in it, never a bare button: the
@@ -506,7 +528,9 @@ export function SuitcaseScreen() {
             </span>
           )}
         </button>
-        {!wrapUpReady && <p className="case-hint">{blockers.join(' ')}</p>}
+        {/* The hint stands in BOTH states — it is advice once the button is
+            live, not just an explanation of why it is dark. */}
+        <p className="case-hint">{hint}</p>
       </div>
     </div>
   )

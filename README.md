@@ -29,11 +29,15 @@ it safely.
 
 Collected words still break on the road; **wrap-up rounds** are how you pack
 them. A wrap-up round deals the **same board** an ordinary round does — one
-board config in the whole game, since N2 — from the city's collected words,
-and every card starts English-side up: type the Danish to pack a card before
-the clues begin — the dictionary is closed, the first miss on a word is
-remembered — or start early and leave cards unpacked at your own risk, playing
-English-side up all round and ineligible to wrap. Every packed word that ends
+board config in the whole game, since N2 — from the current city, filled with
+its **collected** words first and topped up from the rest of the city when
+there are not eighteen of them. Each collected card starts English-side up:
+type the Danish to pack it before the clues begin — the dictionary is closed,
+the first miss on a word is remembered — or start early and leave cards
+unpacked at your own risk, playing English-side up all round and ineligible to
+wrap. The top-up cards start Danish-side up and wear a quiet mark: they play
+and they count toward the win, they simply cannot be wrapped, because **only a
+word collected before the deal can be wrapped**. Every packed word that ends
 the round green is wrapped for good, **win or lose** — `finishRound` banks
 every card that was packed and found green regardless of the round's outcome,
 so losing a round never locks you out of the words you already earned. A
@@ -45,6 +49,26 @@ against the retired board's 84.8%) — while the packing gate is untouched, and
 losing still costs nothing you had not already risked. Wrap all hundred words
 of a city — `WRAP_TO_TRAVEL` in `src/journey/progress.ts` — and the road
 onward opens.
+
+**There is one gate on a wrap-up, and it is earned: three won normal rounds
+buy one**, up to three banked (`src/journey/wrapup.ts`). A wrap-up win earns
+nothing — otherwise one win chains into an unbroken run of them — and losing
+costs nothing, which is what keeps the economy from ever locking a player out.
+There used to be a second gate, a whole board's worth of collected words before
+one could be dealt at all, and W1 removed it: the board tops up, so a thin pool
+costs you how much a token packs rather than the right to spend it. The
+suitcase says the arithmetic instead of refusing — *"9 collected in Sønderborg
+— this board can pack at most 9. A wrap-up packs up to 13."* That advice is
+measured rather than folklore: playing whole cities through the real sampler,
+deal, engine and scheduler, rationing tokens finishes a city **faster** than
+spending them on arrival (59 rounds against 83 at p=0.6), because a token spent
+on a thin pool wastes green slots. The same run says a city is **56–86 rounds**
+— it was 69–103 under the two-gate rule, and the difference is W1 itself: a
+topped-up wrap-up board plays eighteen city words instead of eighteen
+already-collected ones, so a wrap-up now advances collecting like any other
+round rather than standing still. The whole table, and the honest limits of a
+simulation whose guesser is a hash, is the comment on `WRAP_UP_BANK_CAP`; the
+harness is `src/journey/pacing.test.ts` (`WRAPUP_PACING=1`).
 
 How far that is, is a **train**: ten wagons, one per ten of the city's hundred,
 ghosts for the road still to come and solid for what is packed, with the wagon
@@ -370,8 +394,8 @@ for real, and it records no game — the first won *real* round stays the moment
 that earns anything. The win opens Casey herself: a four-step spotlight walks
 the real suitcase screen top to bottom — the loose strip holding the twelve
 words just met, the empty lid (collected needs a green each way, and one round
-gives each word one), the tray, and the sleeping wrap-up button with both of
-its conditions named. Then the arrival at Sønderborg, exactly as travelling
+gives each word one), the tray, and the sleeping wrap-up button with its one
+condition named — three won rounds. Then the arrival at Sønderborg, exactly as travelling
 lands one, and the app is Home — with zero coach marks waiting there. Skip is
 always on screen; Settings → **Replay the intro** brings the whole thing back
 any time.

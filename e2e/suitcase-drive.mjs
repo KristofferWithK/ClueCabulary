@@ -230,17 +230,19 @@ try {
   )
   check('and the case never went anywhere', (await page.locator('.case-open .case-art').count()) === 2)
 
-  // ---- The two gates, and saying which one is missing. -------------------
-  // A wrap-up needs a dealable board (BOARD.totalWords collected words —
-  // eighteen, since N2 — arithmetic) AND an earned round (a win, policy).
-  // Whichever is missing has to say so: a
-  // dark button with nothing under it is the failure this section exists to
-  // catch, because wrap-ups are the only way words get packed for good.
+  // ---- ONE gate, and the honest count beside it (W1). -------------------
+  // A wrap-up needs ONE thing: a round earned by winning three. The second
+  // gate — a whole board's worth of collected words — is gone, and with it the
+  // refusal it produced. What stands under the button now is advice in both
+  // states: what to do if there is no token, and what a token spent right here
+  // would actually pack if there is. A dark button with nothing under it is
+  // still the failure this section exists to catch.
 
-  // 1. Neither: below a boardful, and nothing won yet.
-  await openCase('?mock=1&howto=0&city=0&collected=10')
+  // 1. No token, and nothing collected either: the floor is the only refusal
+  //    left, and it asks for one word rather than eighteen.
+  await openCase('?mock=1&howto=0&city=0&collected=0')
   check(
-    'below a boardful it waits',
+    'with nothing collected the button waits',
     !(await page.locator('.case-actions .btn-primary').isEnabled()),
   )
   // Nothing wrapped yet, so the tray is empty and has to say so. That line was
@@ -261,66 +263,44 @@ try {
   )
   check('and nothing in the case paints under the drawing', buried.length === 0, buried.join(', '))
 
-  const hint = await page.locator('.case-hint').textContent()
-  // 18 (BOARD.totalWords, since N2) minus the 10 collected here.
-  check('and says how many more to collect', /Collect 8 more/.test(hint ?? ''), hint ?? '')
-  check('naming the city the board would be dealt from', /Sønderborg/.test(hint ?? ''), hint ?? '')
-  check('and names the win as well, since both are missing', /[Ww]in a round/.test(hint ?? ''), hint ?? '')
-  // Both sentences at once is the tallest this screen gets, and it is the one
-  // state layout-drive does not reach: it measures the suitcase at
-  // ?collected=30, where the words gate is already open and the hint is one
-  // line. No screen may scroll the document, so measure it here.
-  const box = await page.evaluate(() => ({
-    sh: document.scrollingElement.scrollHeight,
-    ih: window.innerHeight,
-  }))
-  check('and two lines of hint still do not scroll the page', box.sh <= box.ih + 1, `${box.sh} vs ${box.ih}`)
-  await page.screenshot({ path: `${SHOT_DIR}/s4-both-gates-shut.png` })
-
-  // 2. A hint that names the city keeps naming it under a filter, because the
-  // board it is talking about does not move when the view does.
-  //
-  // Driven from the SECOND stop, so the filter can be moved to a city that is
-  // not home. It used to move it at the first stop, where the only chips are
-  // All and the stop you are in — and now that the case opens on that stop
-  // rather than on All, clicking it there is clicking the chip already lit,
-  // which asserts nothing.
-  await openCase('?mock=1&howto=0&city=1&collected=10')
+  const floorHint = await page.locator('.case-hint').textContent()
+  check('and the hint asks for one word, not a boardful', /Collect a word/.test(floorHint ?? ''), floorHint ?? '')
+  check('naming the city the board would be dealt from', /Sønderborg/.test(floorHint ?? ''), floorHint ?? '')
   check(
-    'the case opens on the second stop once you have reached it',
-    (await page.locator('.chip-on').first().textContent()) === 'Ribe',
+    'and never for a word count — that gate is gone',
+    !/Collect \d+ more/.test(floorHint ?? ''),
+    floorHint ?? '',
   )
-  await page.locator('.case-filter .chip', { hasText: 'Sønderborg' }).click()
-  await page.waitForTimeout(150)
-  check(
-    'the hint is about home even when the filter is another city',
-    /Collect 8 more in Ribe/.test((await page.locator('.case-hint').textContent()) ?? ''),
-  )
+  await page.screenshot({ path: `${SHOT_DIR}/s4-floor.png` })
 
-  // 3. Words enough, no win: the button waits on the win and says only that.
-  await openCase('?mock=1&howto=0&city=0&collected=40')
+  // 2. Ten collected, no token: the old rule refused this outright («Collect 8
+  //    more»). Now the only thing missing is the win, and the hint says how
+  //    many — three, since W1 priced a token at three wins.
+  await openCase('?mock=1&howto=0&city=0&collected=10')
   check(
-    'a boardful of words is not enough on its own',
+    'ten collected words are not enough on their own — the round is still earned',
     !(await page.locator('.case-actions .btn-primary').isEnabled()),
   )
   const winHint = await page.locator('.case-hint').textContent()
   check(
-    'and the hint asks for the first win, not for more words',
-    /first wrap-up/.test(winHint ?? '') && !/Collect \d+ more/.test(winHint ?? ''),
+    'and the hint asks for the wins, not for more words',
+    /Win 3 rounds/.test(winHint ?? '') && !/Collect \d+ more/.test(winHint ?? ''),
     winHint ?? '',
   )
   check('no count on a button with nothing banked', !/\d/.test(
     (await page.locator('.case-actions .btn-primary').textContent()) ?? '',
   ))
+  // One line of hint, one line of button: the tallest this screen gets is the
+  // state below, where the hint carries three numbers. No screen may scroll
+  // the document, so measure it there rather than here.
   await page.screenshot({ path: `${SHOT_DIR}/s5-win-gate.png` })
 
-  // 4. Won before, but the bank is spent: the same gate, worded as «another»
-  // rather than «your first». This is the fourth of the hint's four states
-  // and the only one that was never driven — the wording is the whole of it,
-  // so a copy edit that collapsed the two would have gone unnoticed.
+  // 3. Having won before but spent the bank, the wording counts down from
+  //    wherever the counter stands rather than restarting at three.
   await page.evaluate(() => {
     const raw = JSON.parse(localStorage.getItem('cluecab-srs-v1'))
     raw.state.wrapUpsBanked = 0
+    raw.state.winsTowardWrapUp = 2
     raw.state.games = { played: 4, won: 2, redeemed: 0, lost: 2 }
     localStorage.setItem('cluecab-srs-v1', JSON.stringify(raw))
   })
@@ -330,26 +310,92 @@ try {
   await page.waitForSelector('.suitcase-screen')
   const againHint = await page.locator('.case-hint').textContent()
   check(
-    'having won before, the hint asks for another rather than a first',
-    /earn another wrap-up round/.test(againHint ?? '') && !/first/.test(againHint ?? ''),
+    'two wins in, the hint asks for the one that is left',
+    /Win 1 more round/.test(againHint ?? ''),
     againHint ?? '',
   )
 
-  // 5. A win banks one, and both gates are open. The round is won by hand
-  // through the store — driving the mock companion to an actual win is
-  // wrapup-drive's job, and what is under test here is the gate, not the game.
+  // 4. A token, and a pool too thin to fill a board. This is the state W1
+  //    exists for: the button is LIVE, and the hint is arithmetic rather than
+  //    a refusal — what this board would pack, against what a wrap-up can.
   await page.evaluate(() => {
     const raw = JSON.parse(localStorage.getItem('cluecab-srs-v1'))
     raw.state.wrapUpsBanked = 1
-    raw.state.games = { played: 1, won: 1, redeemed: 0, lost: 0 }
+    raw.state.winsTowardWrapUp = 0
+    raw.state.games = { played: 3, won: 3, redeemed: 0, lost: 0 }
     localStorage.setItem('cluecab-srs-v1', JSON.stringify(raw))
   })
   await page.reload()
   await page.waitForSelector('.city-card')
   await page.click('.cluey-button')
   await page.waitForSelector('.suitcase-screen')
-  check('one banked win opens the button', await page.locator('.case-actions .btn-primary').isEnabled())
-  check('and the hint is gone', (await page.locator('.case-hint').count()) === 0)
+  check(
+    'a token opens the button on ten collected words, where the old rule refused',
+    await page.locator('.case-actions .btn-primary').isEnabled(),
+  )
+  const advice = await page.locator('.case-hint').textContent()
+  check(
+    'and the hint states what this board would pack, and what a wrap-up can',
+    /10 collected in Sønderborg/.test(advice ?? '') &&
+      /pack at most 10/.test(advice ?? '') &&
+      /up to 13/.test(advice ?? ''),
+    advice ?? '',
+  )
+  // The hint is the screen's longest line and since W1 it stands in the LIVE
+  // state too, so this is the tallest this screen gets: two sentences under an
+  // enabled button. Two things are measured here rather than reasoned about.
+  // The document must not scroll — the standing rule for every screen. And the
+  // case must still be the screen: the always-present hint costs it 38px
+  // (measured, 330 -> 292 of 640 at ?collected=30), so the 45% floor asserted
+  // at the top of this file is now met with 1% to spare rather than 6, and the
+  // thin-pool state below is the one that would break it first.
+  const box = await page.evaluate(() => ({
+    sh: document.scrollingElement.scrollHeight,
+    ih: window.innerHeight,
+    caseH: Math.round(document.querySelector('.case-open').getBoundingClientRect().height),
+  }))
+  check('and the advice still does not scroll the page', box.sh <= box.ih + 1, `${box.sh} vs ${box.ih}`)
+  check(
+    'and the case is still the screen under the longest hint',
+    box.caseH >= box.ih * 0.4,
+    `${box.caseH} of ${box.ih} (${Math.round((100 * box.caseH) / box.ih)}%)`,
+  )
+  await page.screenshot({ path: `${SHOT_DIR}/s6-honest-count.png` })
+
+  // 5. A full pool: the sentence stops promising more than the board holds.
+  await openCase('?mock=1&howto=0&city=0&collected=40&wraps=1')
+  const fullAdvice = await page.locator('.case-hint').textContent()
+  check(
+    'with plenty collected the board packs the full thirteen, not forty',
+    /40 collected/.test(fullAdvice ?? '') && /packs the full 13/.test(fullAdvice ?? ''),
+    fullAdvice ?? '',
+  )
+  check(
+    'and it stops saying the same number twice',
+    !/at most/.test(fullAdvice ?? ''),
+    fullAdvice ?? '',
+  )
+  check('and the button is live', await page.locator('.case-actions .btn-primary').isEnabled())
+
+  // 6. A hint that names the city keeps naming it under a filter, because the
+  //    board it is talking about does not move when the view does.
+  //
+  // Driven from the SECOND stop, so the filter can be moved to a city that is
+  // not home. It used to move it at the first stop, where the only chips are
+  // All and the stop you are in — and now that the case opens on that stop
+  // rather than on All, clicking it there is clicking the chip already lit,
+  // which asserts nothing.
+  await openCase('?mock=1&howto=0&city=1&collected=10&wraps=1')
+  check(
+    'the case opens on the second stop once you have reached it',
+    (await page.locator('.chip-on').first().textContent()) === 'Ribe',
+  )
+  await page.locator('.case-filter .chip', { hasText: 'Sønderborg' }).click()
+  await page.waitForTimeout(150)
+  check(
+    'the hint is about home even when the filter is another city',
+    /10 collected in Ribe/.test((await page.locator('.case-hint').textContent()) ?? ''),
+  )
 
   // ---- The table pages through the unmet, at the size the default keeps it. -
   // Every word not yet in the case is in the strip, eight to a page. It used

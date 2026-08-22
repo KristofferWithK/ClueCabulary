@@ -197,7 +197,7 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
     <div class="panel go">
       <span class="panel-k">next up</span>
       <h3 id="next-title">Wave 4 — content and audio</h3>
-      <p id="next-body">Waves 1–3 are done and the engine lane has reached its measurement: <strong>E3</strong> landed — the practice seam now plays real clues from the book, offline — and <strong>E4</strong> is open to measure it and write the go / stop. Beside it the content chain — <strong>T2</strong> (the grammar frame) → <strong>T3</strong> (787 sentences to the chapters) → <strong>S2</strong> (the bake, once, last) — plus <strong>W1</strong>, whose arithmetic N2 just changed, and <strong>L1</strong>, <strong>S3</strong>, <strong>U1</strong>, <strong>S1</strong>.</p>
+      <p id="next-body">Waves 1–3 are done, and so is <strong>W1</strong> — one gate, three wins, and a city re-measured at 56–86 rounds. Next is the content chain — <strong>T2</strong> (the grammar frame) → <strong>T3</strong> (787 sentences to the chapters) → <strong>S2</strong> (the bake, once, last) — plus <strong>P1</strong> and <strong>I1</strong>, which W1 has just unblocked, and <strong>L1</strong>, <strong>S3</strong>, <strong>U1</strong>, <strong>S1</strong>. In the engine lane <strong>E3</strong> is open.</p>
     </div>
     <div class="panel">
       <span class="panel-k">in progress</span>
@@ -254,7 +254,7 @@ code { font-family:var(--mono); font-size:.86em; background:var(--paper-2); padd
     <div class="arow"><span class="sev sev-misleading">misleading</span><span><code>README.md:216</code> and <code>src/lang/types.ts:131</code> say nothing in the 900 is closed-class; 69 are.</span><span class="who">WS1</span></div>
     <div class="arow"><span class="sev sev-misleading">misleading</span><span>“16 MB of audio” is 11.4 MB by bytes — NTFS rounding over 1,893 files. DECISIONS still says WORD_MS is unmeasured (it is 1500, measured). PLAN.md still says ranks 901–1000 are dropped.</span><span class="who">X1 · WS1</span></div>
     <div class="arow"><span class="sev sev-misleading">misleading</span><span>X1’s <code>audition/</code> deletion must wait for S2’s en-US audition, which A/Bs against those clips. L1’s “read with H3 open” is stale — nothing is shared.</span><span class="who">X1 · L1</span></div>
-    <div class="arow"><span class="sev sev-cosmetic">cosmetic</span><span><code>docs/store/listing.md:42</code> “he”; <code>bake-audio.yml:67</code> “all three sources” (five, six after S2); drive literals W1/N2/S3 will invalidate (suitcase-drive:210/:234, journey-drive:148).</span><span class="who">D4 · S2 · W1 · S3</span></div>
+    <div class="arow"><span class="sev sev-cosmetic">cosmetic</span><span><code>docs/store/listing.md:42</code> “he”; <code>bake-audio.yml:67</code> “all three sources” (five, six after S2); drive literals S3 will invalidate (journey-drive:148) — W1 rewrote suitcase-drive's gate section, so those two are settled.</span><span class="who">D4 · S2 · S3</span></div>
     <div class="arow"><span class="sev sev-clean">clean</span><span>Tutorial’s fixed board and its six off-board clue words all survive WS1 (city 1 untouched; none on the removal list). No drive hardcodes a word id. 0 orphan clips, 0 words without one. Drive counts, N1’s “27 URLs”, every documented script: exact.</span><span class="who">—</span></div>
   </div>
 </section>
@@ -385,15 +385,15 @@ var CARDS = [
   { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. No longer shares anything with the engine.', size:'1–2', st:'ready', m:'opus', lane:'content' },
   { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'Engine selfplay with the authoring halves kept apart, the opt-in probe, the clue ledger. Ends in a written go / stop.', size:'1–2', st:'ready', dep:'E3', m:'opus', lane:'engine' },
 
-  { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from discovered words; only pre-collected words wrap.', size:'1–2', st:'ready', m:'opus', lane:'ui' },
-  { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'blocked', dep:'W1 · K2', m:'opus', lane:'ui' },
+  { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from the city; only pre-collected words wrap. Pacing re-measured: a city is 56–86 rounds.', size:'1–2', st:'done', m:'opus', lane:'ui' },
+  { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'ready', m:'opus', lane:'ui' },
   { w:5, id:'P2', t:'The sentence review',                   sub:'Danish → English → Danish, the highlight tracking the reading.', size:'1', st:'blocked', dep:'S2 · P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P3', t:'Retire the live story call',            sub:'Deleted end to end. One fewer proxy request per round.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P4', t:'The turn log behind a sheet',           sub:'Zero height on the summary; the ⚑ flags survive.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
   { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'~530 judging agents across two models; one PR per city. Needs the final ids (WS1) and E4’s yes.', size:'2–3', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
   { w:5, id:'E5', t:'The hybrid',                            sub:'Evaluator as validator (turns H7 on), the candidates prompt, rank fusion, then the alias flip once the ledger says so.', size:'1–2', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
 
-  { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'blocked', dep:'D4 · W1', m:'opus', lane:'ui' },
+  { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'ready', m:'opus', lane:'ui' },
   { w:6, id:'I2', t:'The practice round the player plays',   sub:'Reactive commentary instead of a linear script, pinned exhaustively. The biggest card on the board.', size:'2', st:'blocked', dep:'I1 · K2 · U3', m:'fable', lane:'ui' },
   { w:6, id:'I3', t:'The post-match Casey',                  sub:'Tap her to open the case. No button — the tap is the lesson.', size:'½', st:'blocked', dep:'I2 · P1', m:'sonnet', lane:'ui' },
   { w:6, id:'I4', t:'The tour retold, and the map act',      sub:'The real map under a spotlight replaces the arrival.', size:'1', st:'blocked', dep:'I3 · W1', m:'opus', lane:'ui' },

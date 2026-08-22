@@ -20,13 +20,18 @@ export function createGame(opts: {
   firstGiver?: Side
   /** Steers which words become the player's recall practice. */
   bias?: KeyBias
+  /**
+   * Words that must take the green slots before any other word does — a rule,
+   * not a lean. See `generateKeys`; the wrap-up deal is the only caller.
+   */
+  greenPool?: ReadonlySet<string>
 }): GameState {
   // The player opens. Casey opened for one build, on the reasoning that a
   // round beginning with a guess lets the player meet the words before having
   // to compose a Danish clue about them. Played, it was worse: the round
   // starts with waiting, and the study phase already does the meeting. Back to
   // the player, who now decides when the round begins.
-  const { config, words, seed, firstGiver = 'player', bias } = opts
+  const { config, words, seed, firstGiver = 'player', bias, greenPool } = opts
   if (words.length !== config.totalWords) {
     throw new Error(`board needs ${config.totalWords} words, got ${words.length}`)
   }
@@ -35,6 +40,7 @@ export function createGame(opts: {
     words.map((w) => w.wordId),
     mulberry32(seed),
     bias,
+    greenPool,
   )
   return {
     config,
