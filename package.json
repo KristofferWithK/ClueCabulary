@@ -14,8 +14,9 @@
     "validate:grammar": "node scripts/validate-grammar.mjs",
     "validate:audio": "node scripts/validate-audio.mjs",
     "validate:matrix": "node scripts/validate-matrix.mjs",
+    "validate:book": "node scripts/validate-book.mjs",
     "drives": "node scripts/run-drives.mjs",
-    "verify": "npm run typecheck && npm run test && npm run validate:words && npm run validate:grammar && npm run validate:audio && npm run validate:board && npm run validate:matrix && npm run drives",
+    "verify": "npm run typecheck && npm run test && npm run validate:words && npm run validate:grammar && npm run validate:audio && npm run validate:board && npm run validate:matrix && npm run validate:book && npm run drives",
     "validate:board": "node scripts/validate-board.mjs"
   },
   "dependencies": {

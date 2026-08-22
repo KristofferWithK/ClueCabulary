@@ -492,7 +492,7 @@ pass to flip.
 - **S1** — Casey's guesses are spoken
 - **W1** — One gate: a wrap-up is earned by wins alone *(decisions 3 and 4 settled — ready)*
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
-- **E2** — The book, city 1 *(beside E1)*
+- **E3** — The evaluator, the search and the engine companion *(E1 and E2 both landed — ready)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
@@ -500,7 +500,6 @@ pass to flip.
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
 - **S2** — Bake the 900 example sentences *(T3 — last of the three; push-gated, the bake runs in Actions)*
-- **E3** — The evaluator, the search and the engine companion *(E1 · E2)*
 - **E4** — Measure the engine, and decide *(E3)*
 - **E6** — Matrix and book for cities 2–9 *(E4's decision)*
 - **E5** — The hybrid *(E4's decision)*
@@ -523,6 +522,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **E2** — The book, city 1 — 2026-08-22 (PR #110). 3,490 associations over city 1's 100 headwords (33-35 a word) and 2,314 pair clues over the 849 within-city pairs E1's matrix scores M >= 1, each written twice — Opus and Fable subagents, 8 batches of 25 words and 4 of ~213 pairs a model — and merged by `scripts/merge-book.mjs` as a **union** on the normalised Danish side, `v` recording the 1,898 entries both models reached for and the cap of 35 spending its places on those first; `s` is `ceil(mean)` where both authored a clue, the same function `merge-matrix.mjs` uses, so the direct and the two-hop paths in `sim()` share one rounding rule. `src/data/book.da.json` is 865,877 B raw / **104,664 B gzipped** — 50x the matrix, which is the number E6 has to plan around. `scripts/validate-book.mjs` is in `npm run verify`, mutation-checked three ways, and its real check is that every entry is a LEGAL clue for its own word in BOTH languages through the real `checkClueLegality` (E1's Vite-loading precedent) — an illegal entry is a dead entry, not a weak one. Two corrections to §6 are written into `docs/clue-engine.md`: the `why` floor is **2 words, not 3** (56 entries were dropped on the count alone and every one was «its opposite» / «its young» / «its colour», from both models, on the strongest links in the book), and the pair gate is the matrix's `M >= 1` and never a shared `concepts` tag, as E1 asked.
 - **N2** — The wrap-up round is the same board — 2026-08-22 (PR #109).
   `WRAPUP_CONFIG` (4×5, 10/4/10) deleted as a shape of its own; `newWrapUpGame`
   deals `BOARD` (3×6, 8/3/8) itself, `wrapUpBias` layered on top.

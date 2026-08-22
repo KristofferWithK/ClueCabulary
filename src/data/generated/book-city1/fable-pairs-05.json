@@ -1,0 +1,423 @@
+{
+  "model": "fable", "city": 1, "kind": "pairs", "batch": 5,
+  "pairs": {
+    "da:rød|da:hår": [
+      { "da": "farve", "en": "color", "why": "a hair color", "s": 1 },
+      { "da": "gulerod", "en": "ginger", "why": "a nickname for red hair", "s": 1 }
+    ],
+    "da:rød|da:hjerte": [
+      { "da": "blod", "en": "blood", "why": "red blood pumped by the heart", "s": 3 },
+      { "da": "kærlighed", "en": "romance", "why": "the color and symbol of love", "s": 2 }
+    ],
+    "da:rød|da:elske": [
+      { "da": "rose", "en": "rose", "why": "a red flower for a loved one", "s": 2 },
+      { "da": "hjerte", "en": "heart", "why": "the red symbol of love", "s": 2 }
+    ],
+    "da:rød|da:grøntsag": [
+      { "da": "tomat", "en": "tomato", "why": "a red one from the garden", "s": 3 },
+      { "da": "peber", "en": "pepper", "why": "a red one in the salad", "s": 2 }
+    ],
+    "da:rød|da:himmel": [
+      { "da": "solnedgang", "en": "sunset", "why": "the sky glows red at sunset", "s": 2 },
+      { "da": "aften", "en": "evening", "why": "the evening sky turns red", "s": 1 }
+    ],
+    "da:rød|da:hospital": [
+      { "da": "kors", "en": "cross", "why": "the red cross emblem", "s": 2 },
+      { "da": "ambulance", "en": "ambulance", "why": "the red-striped ride to emergency", "s": 2 }
+    ],
+    "da:hvid|da:sort": [
+      { "da": "zebra", "en": "zebra", "why": "striped in both colors", "s": 3 },
+      { "da": "farve", "en": "color", "why": "the two opposite colors", "s": 3 },
+      { "da": "skak", "en": "chess", "why": "the two sides of the board", "s": 2 }
+    ],
+    "da:hvid|da:ost": [
+      { "da": "mælk", "en": "milk", "why": "white milk becomes cheese", "s": 3 },
+      { "da": "fløde", "en": "cream", "why": "white and made into cheese", "s": 2 }
+    ],
+    "da:hvid|da:æg": [
+      { "da": "skal", "en": "shell", "why": "the white shell around it", "s": 2 },
+      { "da": "høne", "en": "hen", "why": "a hen lays white ones", "s": 1 }
+    ],
+    "da:hvid|da:kød": [
+      { "da": "kylling", "en": "chicken", "why": "chicken is the white kind", "s": 2 }
+    ],
+    "da:hvid|da:sol": [
+      { "da": "lys", "en": "light", "why": "bright white light from above", "s": 2 },
+      { "da": "skinne", "en": "shine", "why": "shining bright and pale", "s": 1 }
+    ],
+    "da:hvid|da:blomst": [
+      { "da": "bryllup", "en": "wedding", "why": "white dress and a bouquet", "s": 2 },
+      { "da": "lilje", "en": "lily", "why": "a famously white one", "s": 2 }
+    ],
+    "da:hvid|da:fugl": [
+      { "da": "svane", "en": "swan", "why": "a famously white one", "s": 3 },
+      { "da": "due", "en": "dove", "why": "the white one of peace", "s": 3 }
+    ],
+    "da:hvid|da:hest": [
+      { "da": "prins", "en": "prince", "why": "the prince rides a white one", "s": 2 },
+      { "da": "ridder", "en": "knight", "why": "a knight on a white one", "s": 2 }
+    ],
+    "da:hvid|da:ben": [
+      { "da": "skelet", "en": "skeleton", "why": "white bones of a skeleton", "s": 2 },
+      { "da": "kridt", "en": "chalk", "why": "chalk white like bone", "s": 1 }
+    ],
+    "da:hvid|da:tand": [
+      { "da": "smil", "en": "smile", "why": "a smile of white teeth", "s": 3 },
+      { "da": "perle", "en": "pearl", "why": "white as a pearl", "s": 2 }
+    ],
+    "da:hvid|da:hår": [
+      { "da": "gammel", "en": "old", "why": "hair turns white with age", "s": 2 },
+      { "da": "bedstemor", "en": "grandmother", "why": "her hair has gone white", "s": 2 }
+    ],
+    "da:hvid|da:salt": [
+      { "da": "sukker", "en": "sugar", "why": "white grains just like it", "s": 3 },
+      { "da": "korn", "en": "grain", "why": "small white grains", "s": 2 }
+    ],
+    "da:hvid|da:sukker": [
+      { "da": "salt", "en": "salt", "why": "white grains just like it", "s": 3 },
+      { "da": "mel", "en": "flour", "why": "white powder for baking", "s": 2 }
+    ],
+    "da:hvid|da:kartoffel": [
+      { "da": "ris", "en": "rice", "why": "a white side dish", "s": 2 },
+      { "da": "mos", "en": "mash", "why": "the white mashed dish", "s": 1 }
+    ],
+    "da:hvid|da:himmel": [
+      { "da": "vinter", "en": "winter", "why": "a pale winter sky", "s": 1 },
+      { "da": "lys", "en": "bright", "why": "a bright pale sky", "s": 1 }
+    ],
+    "da:hvid|da:sne": [
+      { "da": "vinter", "en": "winter", "why": "the white season", "s": 3 },
+      { "da": "jul", "en": "christmas", "why": "dreaming of a white one", "s": 2 }
+    ],
+    "da:hvid|da:måne": [
+      { "da": "lys", "en": "light", "why": "its pale white light", "s": 2 },
+      { "da": "nat", "en": "night", "why": "a pale disc at night", "s": 1 }
+    ],
+    "da:hvid|da:kirke": [
+      { "da": "bryllup", "en": "wedding", "why": "a white dress at the altar", "s": 2 },
+      { "da": "brud", "en": "bride", "why": "the bride in white inside", "s": 2 }
+    ],
+    "da:hvid|da:hospital": [
+      { "da": "læge", "en": "doctor", "why": "the doctor's white coat", "s": 2 },
+      { "da": "ren", "en": "clean", "why": "clean white walls and coats", "s": 1 }
+    ],
+    "da:hvid|da:penge": [
+      { "da": "lovlig", "en": "legal", "why": "legally declared earnings", "s": 1 }
+    ],
+    "da:sort|da:drikke": [
+      { "da": "kaffe", "en": "coffee", "why": "drunk black in the morning", "s": 3 },
+      { "da": "te", "en": "tea", "why": "drunk black without milk", "s": 1 }
+    ],
+    "da:sort|da:fugl": [
+      { "da": "ravn", "en": "raven", "why": "a famously black one", "s": 2 },
+      { "da": "krage", "en": "crow", "why": "a big black one", "s": 2 }
+    ],
+    "da:sort|da:hest": [
+      { "da": "mørk", "en": "dark", "why": "a dark black one", "s": 1 }
+    ],
+    "da:sort|da:hår": [
+      { "da": "mørk", "en": "dark", "why": "dark black hair", "s": 2 },
+      { "da": "farve", "en": "color", "why": "a hair color", "s": 2 }
+    ],
+    "da:sort|da:nat": [
+      { "da": "mørk", "en": "dark", "why": "the dark of night", "s": 3 },
+      { "da": "himmel", "en": "sky", "why": "the black sky after dark", "s": 2 }
+    ],
+    "da:sort|da:aften": [
+      { "da": "mørk", "en": "dark", "why": "it gets dark then", "s": 2 },
+      { "da": "nat", "en": "night", "why": "the black hours that follow", "s": 2 }
+    ],
+    "da:sort|da:himmel": [
+      { "da": "nat", "en": "night", "why": "it turns black at night", "s": 3 },
+      { "da": "mørk", "en": "dark", "why": "dark from horizon to horizon", "s": 2 }
+    ],
+    "da:sort|da:penge": [
+      { "da": "ulovlig", "en": "illegal", "why": "undeclared under the table", "s": 1 },
+      { "da": "skat", "en": "tax", "why": "hidden from the tax office", "s": 1 }
+    ],
+    "da:sort|da:arbejde": [
+      { "da": "ulovlig", "en": "illegal", "why": "paid under the table untaxed", "s": 1 }
+    ],
+    "da:ost|da:æg": [
+      { "da": "morgenmad", "en": "breakfast", "why": "both on the breakfast table", "s": 2 },
+      { "da": "brød", "en": "bread", "why": "both go on bread", "s": 2 }
+    ],
+    "da:ost|da:kød": [
+      { "da": "burger", "en": "burger", "why": "both stacked in the bun", "s": 2 },
+      { "da": "pizza", "en": "pizza", "why": "toppings on a pizza", "s": 2 }
+    ],
+    "da:ost|da:fisk": [
+      { "da": "mad", "en": "food", "why": "things you eat", "s": 2 },
+      { "da": "middag", "en": "dinner", "why": "on the dinner table", "s": 1 }
+    ],
+    "da:ost|da:spise": [
+      { "da": "mad", "en": "food", "why": "food on your plate", "s": 3 },
+      { "da": "brød", "en": "bread", "why": "a slice with a topping", "s": 2 }
+    ],
+    "da:ost|da:gammel": [
+      { "da": "moden", "en": "ripe", "why": "it ripens as it ages", "s": 2 },
+      { "da": "lugt", "en": "smell", "why": "the older it gets the stronger", "s": 1 }
+    ],
+    "da:ost|da:kage": [
+      { "da": "dessert", "en": "dessert", "why": "served after the meal", "s": 1 }
+    ],
+    "da:ost|da:smør": [
+      { "da": "brød", "en": "bread", "why": "both spread on bread", "s": 3 },
+      { "da": "mælk", "en": "milk", "why": "both made from milk", "s": 3 }
+    ],
+    "da:ost|da:salt": [
+      { "da": "smag", "en": "taste", "why": "a salty taste in it", "s": 2 },
+      { "da": "mad", "en": "food", "why": "in the kitchen cupboard", "s": 2 }
+    ],
+    "da:ost|da:sukker": [
+      { "da": "køkken", "en": "kitchen", "why": "both kept in the kitchen", "s": 2 },
+      { "da": "mad", "en": "food", "why": "things in your food", "s": 2 }
+    ],
+    "da:ost|da:kartoffel": [
+      { "da": "middag", "en": "dinner", "why": "on the dinner plate", "s": 2 },
+      { "da": "mad", "en": "food", "why": "everyday food", "s": 2 }
+    ],
+    "da:ost|da:grøntsag": [
+      { "da": "salat", "en": "salad", "why": "both tossed in a salad", "s": 2 },
+      { "da": "pizza", "en": "pizza", "why": "toppings on a pizza", "s": 2 }
+    ],
+    "da:ost|da:måne": [
+      { "da": "gul", "en": "yellow", "why": "both look yellow", "s": 2 },
+      { "da": "rund", "en": "round", "why": "both are round", "s": 2 }
+    ],
+    "da:ost|da:butik": [
+      { "da": "købmand", "en": "grocer", "why": "sold at the grocer", "s": 2 },
+      { "da": "sælge", "en": "sell", "why": "where it is sold", "s": 2 }
+    ],
+    "da:ost|da:købe": [
+      { "da": "butik", "en": "shop", "why": "where you get it", "s": 2 },
+      { "da": "marked", "en": "market", "why": "picked up at the market", "s": 2 }
+    ],
+    "da:æg|da:kød": [
+      { "da": "mad", "en": "food", "why": "food from animals", "s": 2 },
+      { "da": "dyr", "en": "animal", "why": "both come from animals", "s": 2 }
+    ],
+    "da:æg|da:fisk": [
+      { "da": "mad", "en": "food", "why": "from the sea and the hen", "s": 2 }
+    ],
+    "da:æg|da:spise": [
+      { "da": "morgenmad", "en": "breakfast", "why": "a boiled one at breakfast", "s": 3 },
+      { "da": "mad", "en": "food", "why": "food on your plate", "s": 2 }
+    ],
+    "da:æg|da:sol": [
+      { "da": "gul", "en": "yellow", "why": "the yolk and the sun", "s": 3 },
+      { "da": "morgen", "en": "morning", "why": "sunrise and a breakfast plate", "s": 2 }
+    ],
+    "da:æg|da:fugl": [
+      { "da": "rede", "en": "nest", "why": "laid in the nest", "s": 3 },
+      { "da": "unge", "en": "chick", "why": "what hatches from it", "s": 2 }
+    ],
+    "da:æg|da:kage": [
+      { "da": "bage", "en": "bake", "why": "cracked into the batter", "s": 3 },
+      { "da": "mel", "en": "flour", "why": "mixed together in baking", "s": 2 }
+    ],
+    "da:æg|da:smør": [
+      { "da": "bage", "en": "bake", "why": "both go into baking", "s": 3 },
+      { "da": "morgenmad", "en": "breakfast", "why": "both on the breakfast table", "s": 2 }
+    ],
+    "da:æg|da:salt": [
+      { "da": "morgenmad", "en": "breakfast", "why": "a salted breakfast egg", "s": 2 },
+      { "da": "koge", "en": "boil", "why": "boiled in salted water", "s": 2 }
+    ],
+    "da:æg|da:sukker": [
+      { "da": "bage", "en": "bake", "why": "whisked together for baking", "s": 3 },
+      { "da": "kage", "en": "cake", "why": "both go into the batter", "s": 3 }
+    ],
+    "da:æg|da:kartoffel": [
+      { "da": "koge", "en": "boil", "why": "both are boiled", "s": 3 },
+      { "da": "mad", "en": "food", "why": "everyday food", "s": 2 }
+    ],
+    "da:æg|da:grøntsag": [
+      { "da": "omelet", "en": "omelette", "why": "vegetables folded into one", "s": 2 },
+      { "da": "salat", "en": "salad", "why": "both chopped into a salad", "s": 2 }
+    ],
+    "da:æg|da:butik": [
+      { "da": "købmand", "en": "grocer", "why": "a carton from the grocer", "s": 2 },
+      { "da": "købe", "en": "buy", "why": "where you buy them", "s": 2 }
+    ],
+    "da:æg|da:købe": [
+      { "da": "butik", "en": "shop", "why": "picked up at the shop", "s": 2 },
+      { "da": "marked", "en": "market", "why": "fresh from the market", "s": 1 }
+    ],
+    "da:kød|da:fisk": [
+      { "da": "middag", "en": "dinner", "why": "the main course", "s": 3 },
+      { "da": "mad", "en": "food", "why": "food on the plate", "s": 3 }
+    ],
+    "da:kød|da:spise": [
+      { "da": "mad", "en": "food", "why": "food on your plate", "s": 3 },
+      { "da": "middag", "en": "dinner", "why": "the main evening meal", "s": 3 }
+    ],
+    "da:kød|da:øl": [
+      { "da": "grill", "en": "barbecue", "why": "sizzling and sipping outdoors", "s": 3 },
+      { "da": "fest", "en": "party", "why": "on the party table", "s": 2 }
+    ],
+    "da:kød|da:fugl": [
+      { "da": "kylling", "en": "chicken", "why": "a bird you eat", "s": 3 },
+      { "da": "and", "en": "duck", "why": "a roasted bird", "s": 2 }
+    ],
+    "da:kød|da:hest": [
+      { "da": "dyr", "en": "animal", "why": "it comes from animals", "s": 2 }
+    ],
+    "da:kød|da:ben": [
+      { "da": "hund", "en": "dog", "why": "chews a meaty bone", "s": 2 },
+      { "da": "slagter", "en": "butcher", "why": "bones and cuts at the butcher", "s": 2 }
+    ],
+    "da:kød|da:hjerte": [
+      { "da": "muskel", "en": "muscle", "why": "the heart is muscle flesh", "s": 2 },
+      { "da": "krop", "en": "body", "why": "flesh and organs of the body", "s": 2 }
+    ],
+    "da:kød|da:kage": [
+      { "da": "mad", "en": "food", "why": "things you eat", "s": 2 }
+    ],
+    "da:kød|da:smør": [
+      { "da": "stege", "en": "fry", "why": "fried in butter", "s": 2 },
+      { "da": "pande", "en": "pan", "why": "both hit the hot pan", "s": 2 }
+    ],
+    "da:kød|da:salt": [
+      { "da": "smag", "en": "taste", "why": "seasoned to taste", "s": 2 },
+      { "da": "mad", "en": "food", "why": "seasoning on your food", "s": 2 }
+    ],
+    "da:kød|da:sukker": [
+      { "da": "mad", "en": "food", "why": "things in the kitchen", "s": 1 }
+    ],
+    "da:kød|da:kartoffel": [
+      { "da": "sovs", "en": "gravy", "why": "the classic plate with gravy", "s": 3 },
+      { "da": "middag", "en": "dinner", "why": "the classic dinner plate", "s": 3 }
+    ],
+    "da:kød|da:grøntsag": [
+      { "da": "middag", "en": "dinner", "why": "both on the dinner plate", "s": 3 },
+      { "da": "suppe", "en": "soup", "why": "simmered together in soup", "s": 2 }
+    ],
+    "da:kød|da:butik": [
+      { "da": "slagter", "en": "butcher", "why": "the shop that sells it", "s": 3 },
+      { "da": "købe", "en": "buy", "why": "bought over the counter", "s": 2 }
+    ],
+    "da:kød|da:købe": [
+      { "da": "slagter", "en": "butcher", "why": "bought at the butcher", "s": 2 },
+      { "da": "butik", "en": "shop", "why": "picked up at the shop", "s": 2 }
+    ],
+    "da:fisk|da:spise": [
+      { "da": "mad", "en": "food", "why": "food on your plate", "s": 3 },
+      { "da": "middag", "en": "dinner", "why": "a dinner dish", "s": 2 }
+    ],
+    "da:fisk|da:fugl": [
+      { "da": "dyr", "en": "animal", "why": "both are animals", "s": 3 },
+      { "da": "hav", "en": "sea", "why": "gulls and fish at sea", "s": 1 }
+    ],
+    "da:fisk|da:hest": [
+      { "da": "dyr", "en": "animal", "why": "both are animals", "s": 3 },
+      { "da": "hale", "en": "tail", "why": "both have a tail", "s": 2 }
+    ],
+    "da:fisk|da:ben": [
+      { "da": "skelet", "en": "skeleton", "why": "the bones left on the plate", "s": 2 }
+    ],
+    "da:fisk|da:finger": [
+      { "da": "hånd", "en": "hand", "why": "caught by hand", "s": 1 }
+    ],
+    "da:fisk|da:kage": [
+      { "da": "mad", "en": "food", "why": "things you eat", "s": 1 }
+    ],
+    "da:fisk|da:smør": [
+      { "da": "stege", "en": "fry", "why": "fried in butter", "s": 2 },
+      { "da": "pande", "en": "pan", "why": "sizzling on the pan", "s": 2 }
+    ],
+    "da:fisk|da:salt": [
+      { "da": "hav", "en": "sea", "why": "salty water full of them", "s": 3 },
+      { "da": "sild", "en": "herring", "why": "the salted one in the jar", "s": 2 }
+    ],
+    "da:fisk|da:kartoffel": [
+      { "da": "middag", "en": "dinner", "why": "served together at dinner", "s": 2 },
+      { "da": "mad", "en": "food", "why": "everyday food", "s": 2 }
+    ],
+    "da:fisk|da:grøntsag": [
+      { "da": "sund", "en": "healthy", "why": "the healthy plate", "s": 2 },
+      { "da": "middag", "en": "dinner", "why": "a healthy dinner", "s": 2 }
+    ],
+    "da:fisk|da:hav": [
+      { "da": "vand", "en": "water", "why": "where they swim", "s": 3 },
+      { "da": "svømme", "en": "swim", "why": "swimming in the deep", "s": 3 }
+    ],
+    "da:fisk|da:strand": [
+      { "da": "hav", "en": "sea", "why": "the water at the shore", "s": 3 },
+      { "da": "vand", "en": "water", "why": "in the water by the sand", "s": 2 }
+    ],
+    "da:fisk|da:butik": [
+      { "da": "marked", "en": "market", "why": "fresh at the market stall", "s": 2 },
+      { "da": "købe", "en": "buy", "why": "bought fresh over the counter", "s": 2 }
+    ],
+    "da:spise|da:drikke": [
+      { "da": "mad", "en": "food", "why": "food and something with it", "s": 3 },
+      { "da": "restaurant", "en": "restaurant", "why": "ordering both at a table", "s": 3 }
+    ],
+    "da:spise|da:øl": [
+      { "da": "restaurant", "en": "restaurant", "why": "a meal and a cold one", "s": 2 },
+      { "da": "fest", "en": "party", "why": "the party table", "s": 2 }
+    ],
+    "da:spise|da:finger": [
+      { "da": "hånd", "en": "hand", "why": "eating with your hands", "s": 2 },
+      { "da": "gaffel", "en": "fork", "why": "what you use instead", "s": 1 }
+    ],
+    "da:spise|da:tand": [
+      { "da": "tygge", "en": "chew", "why": "chewing every bite", "s": 3 },
+      { "da": "bide", "en": "bite", "why": "biting into the food", "s": 3 }
+    ],
+    "da:spise|da:aften": [
+      { "da": "middag", "en": "dinner", "why": "the evening meal", "s": 3 },
+      { "da": "restaurant", "en": "restaurant", "why": "an evening out at a table", "s": 2 }
+    ],
+    "da:spise|da:kage": [
+      { "da": "dessert", "en": "dessert", "why": "the sweet course", "s": 2 },
+      { "da": "fødselsdag", "en": "birthday", "why": "a slice at the party", "s": 2 }
+    ],
+    "da:spise|da:smør": [
+      { "da": "brød", "en": "bread", "why": "a buttered slice", "s": 3 },
+      { "da": "frokost", "en": "lunch", "why": "buttered bread at lunch", "s": 2 }
+    ],
+    "da:spise|da:salt": [
+      { "da": "mad", "en": "food", "why": "sprinkled on your food", "s": 2 },
+      { "da": "smag", "en": "taste", "why": "tasting the seasoning", "s": 2 }
+    ],
+    "da:spise|da:sukker": [
+      { "da": "slik", "en": "candy", "why": "sweet things you enjoy", "s": 2 },
+      { "da": "kage", "en": "cake", "why": "a sweet slice", "s": 2 }
+    ],
+    "da:spise|da:kartoffel": [
+      { "da": "middag", "en": "dinner", "why": "on the dinner plate", "s": 3 },
+      { "da": "mad", "en": "food", "why": "everyday food", "s": 2 }
+    ],
+    "da:spise|da:grøntsag": [
+      { "da": "mad", "en": "food", "why": "food on your plate", "s": 2 },
+      { "da": "sund", "en": "healthy", "why": "eating your greens", "s": 2 }
+    ],
+    "da:spise|da:butik": [
+      { "da": "mad", "en": "food", "why": "food from the shop", "s": 2 },
+      { "da": "bager", "en": "bakery", "why": "a shop full of treats", "s": 2 }
+    ],
+    "da:spise|da:købe": [
+      { "da": "mad", "en": "food", "why": "buying food for dinner", "s": 2 },
+      { "da": "marked", "en": "market", "why": "picking up something tasty", "s": 1 }
+    ],
+    "da:spise|da:sove": [
+      { "da": "baby", "en": "baby", "why": "all a baby does", "s": 2 },
+      { "da": "aften", "en": "evening", "why": "dinner and then bed", "s": 1 }
+    ],
+    "da:spise|da:løbe": [
+      { "da": "energi", "en": "energy", "why": "fuel for the run", "s": 2 },
+      { "da": "sund", "en": "healthy", "why": "a healthy lifestyle", "s": 2 }
+    ],
+    "da:drikke|da:øl": [
+      { "da": "bar", "en": "bar", "why": "a cold one at the bar", "s": 3 },
+      { "da": "fest", "en": "party", "why": "glasses raised at the party", "s": 3 },
+      { "da": "flaske", "en": "bottle", "why": "from the bottle", "s": 2 }
+    ],
+    "da:drikke|da:kage": [
+      { "da": "kaffe", "en": "coffee", "why": "coffee with a slice", "s": 3 },
+      { "da": "fødselsdag", "en": "birthday", "why": "served at the party table", "s": 2 }
+    ]
+  }
+}
