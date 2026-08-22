@@ -82,6 +82,12 @@ try {
         if (await confirm.isVisible().catch(() => false)) await confirm.click()
       }
     }
+    // Casey thinks aloud before each guess now (U3), which is two beats per
+    // guess rather than one interval. A tap on her panel skips to the next
+    // beat, so this loop's forty iterations still reach a summary — and the
+    // rationale it goes on to read is written on the way past either way.
+    const casey = page.locator('.dock.ai-panel[data-hurry]')
+    if (await casey.isVisible().catch(() => false)) await casey.click().catch(() => {})
     await page.waitForTimeout(400)
   }
   check('the round reaches its summary', (await page.locator('.round-summary').count()) > 0)

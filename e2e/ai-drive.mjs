@@ -86,12 +86,37 @@ async function freshRound(seed = 5) {
   const study = page.locator('.study-dock .btn-primary')
   if (await study.isVisible().catch(() => false)) await study.click()
   const game = await gameState()
+  const green = (key) =>
+    Object.entries(key)
+      .filter(([, role]) => role === 'green')
+      .map(([id]) => id)
   return {
     ids: game.words.map((w) => w.wordId),
-    aiGreens: Object.entries(game.aiKey)
-      .filter(([, role]) => role === 'green')
-      .map(([id]) => id),
+    aiGreens: green(game.aiKey),
+    // U3's section needs guesses that KEEP the turn alive, and under the
+    // player's clue that means green on the PLAYER's key — the guess is judged
+    // against the clue-giver's key and nothing else. A bystander would end the
+    // turn on the first reveal and there would be no second one to compare.
+    playerGreens: green(game.playerKey),
+    da: Object.fromEntries(game.words.map((w) => [w.wordId, w.da])),
   }
+}
+
+/**
+ * Skip whatever is left of Casey's current beat (U3), the way a thumb does.
+ *
+ * Her turn is two beats per guess now — her reasoning, then the guess it
+ * explains — and a tap on the panel hurries to the next one. Used where a
+ * section is waiting for the turn to be OVER rather than watching it happen.
+ */
+const hurryCasey = async (taps = 10) => {
+  const panel = page.locator('.dock.ai-panel[data-hurry]')
+  for (let i = 0; i < taps; i++) {
+    if (!(await panel.isVisible().catch(() => false))) return i
+    await panel.click({ timeout: 1000 }).catch(() => {})
+    await sleep(70)
+  }
+  return taps
 }
 
 const submitClue = async (text = 'huskeliste') => {
@@ -111,6 +136,11 @@ try {
   fake.queue(guessReply([round.ids[0]]), clueReply(round.aiGreens.slice(0, 2)))
   await submitClue()
   await page.waitForSelector('.ai-guess-line, .guess-bar', { timeout: 20000 })
+  // Hurried rather than waited out: since U3 the first card does not flip
+  // until the think beat has had its two seconds, and a fixed 2.5s sleep would
+  // be measuring the beat clock rather than the client. The taps put the turn
+  // where this section wants it — finished — in about a fifth of the time.
+  await hurryCasey()
   await sleep(2500)
   check('clean JSON drives a real round', fake.received.length >= 1, `${fake.received.length} calls`)
   check(
@@ -160,6 +190,161 @@ try {
     !!bodyB && bodyA === bodyB,
     bodyB ? `${bodyA.length} vs ${bodyB.length} bytes` : 'no request captured',
   )
+
+  // ---- U3: she says why, and THEN she guesses --------------------------------
+  // The claim is an order, not a presence: the sentence in the bubble is up
+  // BEFORE the card it explains flips, and it is that card's sentence and not
+  // the next one's. Driven through the real client so the reasoning travels the
+  // whole way — model reply, schema, plan, store, panel — and read off the DOM
+  // rather than off the store, because a reasoning that reaches the state and
+  // not the screen is exactly the failure this is here to catch.
+  //
+  // Two guesses, both green on the PLAYER's key so the turn survives the first
+  // one, each with its own word named in its own sentence.
+  await page.addInitScript(() => {
+    // Clip requests, counted in the page: S1 speaks each guess as it lands, and
+    // the two beats must not turn one guess into two clips.
+    window.__clips = []
+    const fetch0 = window.fetch.bind(window)
+    window.fetch = (...args) => {
+      const raw = typeof args[0] === 'string' ? args[0] : (args[0]?.url ?? '')
+      const m = String(raw).match(/\/audio\/[^/]+\/([^/?]+)\.mp3/)
+      if (m) window.__clips.push(m[1])
+      return fetch0(...args)
+    }
+  })
+  round = await freshRound()
+  const spoken = round.playerGreens.slice(0, 2)
+  fake.reset()
+  fake.queue(
+    {
+      json: {
+        guesses: spoken.map((wordId, i) => ({
+          wordId,
+          confidence: 0.9 - i * 0.05,
+          reasoning: `I am naming ${round.da[wordId]} here, and nothing else on the board.`,
+        })),
+      },
+    },
+    clueReply(round.aiGreens.slice(0, 2)),
+  )
+  // Sampled rather than polled with locators: a beat is about a second long and
+  // a round-trip per read would miss the edges. Only CHANGES are recorded, so
+  // the transcript is the sequence of states the panel actually passed through.
+  await page.evaluate(() => {
+    window.__u3 = []
+    window.__u3timer = setInterval(() => {
+      const panel = document.querySelector('.dock.ai-panel[data-beat]')
+      if (!panel) return
+      const face = panel.querySelector('.cluey-figure')
+      if (face) (window.__anim ??= new Set()).add(getComputedStyle(face).animationName)
+      const at = {
+        beat: panel.dataset.beat,
+        bubble: (document.querySelector('.ai-bubble')?.textContent ?? '').trim(),
+        line: (document.querySelector('.ai-guess-line')?.textContent ?? '').trim(),
+        t: Date.now(),
+      }
+      const last = window.__u3[window.__u3.length - 1]
+      if (!last || last.beat !== at.beat || last.bubble !== at.bubble || last.line !== at.line) {
+        window.__u3.push(at)
+      }
+    }, 40)
+  })
+  await submitClue()
+  await sleep(9000)
+  const transcript = await page.evaluate(() => {
+    clearInterval(window.__u3timer)
+    return { beats: window.__u3, clips: window.__clips, anim: [...(window.__anim ?? [])] }
+  })
+  // Walk the transcript into one entry per card that flipped, carrying the
+  // think beat that stood immediately before it.
+  const flips = []
+  let pending = null
+  for (const b of transcript.beats) {
+    if (b.beat === 'think') {
+      if (!pending) pending = b
+      continue
+    }
+    const named = b.line.match(/«([^»]+)»/)
+    if (named) {
+      flips.push({ da: named[1], thought: pending?.bubble ?? '', waited: pending ? b.t - pending.t : 0 })
+      pending = null
+    }
+  }
+  check(
+    'Casey reveals a guess per planned word, in order',
+    flips.length === spoken.length &&
+      flips.every((f, i) => f.da === round.da[spoken[i]]),
+    flips.map((f) => f.da).join(' → ') || 'no card flipped',
+  )
+  check(
+    'and the bubble before each reveal is that guess’s own reasoning',
+    flips.length > 0 && flips.every((f) => f.thought.includes(f.da)),
+    flips.map((f) => `${f.da} ← "${f.thought.slice(0, 46)}…"`).join(' | ') || 'nothing to read',
+  )
+  check(
+    'and it stood there long enough to read',
+    flips.length > 0 && flips.every((f) => f.waited >= 1500),
+    flips.map((f) => `${f.waited}ms`).join(', '),
+  )
+  check(
+    'and S1 still speaks each guess exactly once',
+    transcript.clips.length === flips.length,
+    `${transcript.clips.length} clips for ${flips.length} guesses: ${transcript.clips.join(', ')}`,
+  )
+
+  // ---- and the same beats for someone who asked for stillness ---------------
+  // The beats are a clock, not an animation, so reduced motion must not skip
+  // any of them — while Casey's face, which IS animated, holds still. The
+  // allowlist that stops it is in index.css under "reduced motion"; this is the
+  // check that it covers the face this panel renders.
+  //
+  // Not vacuous, and this is what says so: her face on the ORDINARY path,
+  // sampled in the section above, is running a named keyframe rather than
+  // sitting at `none`, so the reading below has something to have turned off.
+  check(
+    'her face is animated at all when nobody asked for stillness',
+    transcript.anim.length > 0 && transcript.anim.some((a) => a !== 'none'),
+    transcript.anim.join('/') || 'unread',
+  )
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  round = await freshRound()
+  fake.reset()
+  fake.queue(
+    {
+      json: {
+        guesses: round.playerGreens.slice(0, 2).map((wordId, i) => ({
+          wordId,
+          confidence: 0.9 - i * 0.05,
+          reasoning: `Still ${round.da[wordId]}, and still for the same reason.`,
+        })),
+      },
+    },
+    clueReply(round.aiGreens.slice(0, 2)),
+  )
+  await page.evaluate(() => {
+    window.__still = new Set()
+    window.__stillAnim = new Set()
+    window.__stillTimer = setInterval(() => {
+      const panel = document.querySelector('.dock.ai-panel[data-beat]')
+      if (!panel) return
+      window.__still.add(panel.dataset.beat)
+      const face = panel.querySelector('.cluey-figure')
+      if (face) window.__stillAnim.add(getComputedStyle(face).animationName)
+    }, 40)
+  })
+  await submitClue()
+  await sleep(7000)
+  const still = await page.evaluate(() => {
+    clearInterval(window.__stillTimer)
+    return { beats: [...window.__still].sort(), anim: [...window.__stillAnim] }
+  })
+  check(
+    'reduced motion gets both beats, without the face animation',
+    still.beats.join(',') === 'reveal,think' && still.anim.every((a) => a === 'none'),
+    `beats ${still.beats.join('+') || 'none'}; face animation ${still.anim.join('/') || 'unread'}`,
+  )
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
 
   // ---- messy but recoverable replies -----------------------------------------
   const shapes = [
