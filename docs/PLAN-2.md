@@ -298,12 +298,16 @@ The engine (from `clue-engine.md` §5–6; H3a/H3b as that document asked):
 - **E3** — Evaluator + search + `EngineCompanion` behind the practice seam,
   lazily loaded. 2.
 - **E4** — Measurement: engine selfplay with the authoring halves kept
-  apart, `engine-probe.mjs` (opt-in), the clue ledger. 1–2. **Ends in a
-  decision** — the table says whether E5/E6 are worth it.
-- **E6** — Matrix and book for cities 2–9. After WS1 and the E4 decision.
-  2–3 sessions of orchestration; ~530 judging agents across two models.
-- **E5** — The hybrid: evaluator as validator (turns H7 on), the candidates
-  prompt, rank fusion, the alias flip. 1–2.
+  apart, `engine-probe.mjs` (opt-in), the clue ledger. 1–2. **Ended in a
+  decision, 2026-08-22: GO** — cross-model 0.62–0.70 greens per word asked
+  against a 0.23 floor. E6 first, E5 in halves; engine-vs-engine self-play is
+  retired as evidence (a shared djb2 hash scores 100% on it).
+- **E6** — Matrix and book for cities 2–9. After WS1 and the E4 decision
+  (given). 2–3 sessions of orchestration; ~530 judging agents across two
+  models. Keep the per-model split; measure the first city before the rest.
+- **E5** — The hybrid, and E4 cut it in two: the evaluator as validator
+  (turns H7 on) is a go now; the candidates prompt, rank fusion and the alias
+  flip wait for the ledger to give `r` a value. 1–2.
 
 ### Model ranking — who runs which card
 
@@ -491,7 +495,8 @@ pass to flip.
 - **U1** — A tap says the word; ⓘ opens the dictionary
 - **S1** — Casey's guesses are spoken
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
-- **E4** — Measure the engine, and decide *(E3 landed — ready)*
+- **E6** — Matrix and book for cities 2–9 *(E4 said go; WS1 landed, so the ids are final. One city per PR, and re-measure the first before authoring the rest)*
+- **E5** — The hybrid *(E4 said go for its FIRST half only — the evaluator as a validator inside `OllamaCompanion.getClue`. The candidates prompt, rank fusion and the `MODEL_ALIASES` flip wait until the clue ledger has given `r` a value)*
 - **S3** — The ride as one performance *(after decision 7b; H9's eight cities are the other half)*
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
@@ -501,8 +506,6 @@ pass to flip.
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
 - **S2** — Bake the 900 example sentences *(T3 — last of the three; push-gated, the bake runs in Actions)*
-- **E6** — Matrix and book for cities 2–9 *(E4's decision)*
-- **E5** — The hybrid *(E4's decision)*
 - **U3** — Casey thinks aloud before each guess *(K2; S1 for the spoken reveal)*
 - **P2** — The sentence review *(S2, P1)*
 - **P3** — Retire the live story call *(P1 — the section it removes is redrawn there)*
@@ -520,6 +523,12 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **E4** — Measure the engine, and decide — 2026-08-22 (PR #113). **The verdict is GO: E6 before E5, and E5 in halves** (written into `docs/clue-engine.md` "The verdict (E4, 2026-08-22)" and `docs/DECISIONS.md`, each with its reversal).
+  **The finding that reshaped the card.** The djb2 mutation this card was asked to run does NOT fail the pins — it scores **100%**, above every honest row, because both seats share one `sim` and a shared arbitrary function is a private code the search encodes into and the guesser decodes. Salt the two seats differently and the same engine falls to **0.5%**, the floor. So engine-vs-engine self-play measures agreement, not association; E3's 99.0% is retired as evidence, θ = 0.5 was chosen under it, and `engine-selfplay.test.ts` now runs the mutation twice — shared (the finding) and independent (the check).
+  **The honest number** comes from splitting the authoring back apart. `matrix-city1/<model>-NN.json` and `book-city1/<model>-*.json` divide cleanly, so the test rebuilds an Opus-only and a Fable-only evaluator **from the committed votes** — no duplicated data, and nothing read off the merged artifact but its `ids`. The halves are complete (4,950 pairs, 100 headwords each) and genuinely differ: 1,947 associations one proposed and the other did not against 1,901 both reached for. **200 seeded city-1 boards, same deals down every row:** floor 0.5% win / 0.234 hits per word asked · p=0.6 73.5% / 0.586 · p=0.7 90.5% / 0.678 · p=0.8 98.0% / 0.786 · engine↔engine 99.0% / 0.934 (the void row) · **Opus clues→Fable 53.5% / 0.623 · Fable clues→Opus 61.5% / 0.701** · shared hash 100% / 1.000 · independent hashes 0.5% / 0.187.
+  **Read hits/number, not win rate.** The engine's win rate is depressed by its sudden-death policy — it ranks the open cards against the last clue heard, whose targets are already found — and **in the app the engine never plays sudden death at all**. Undistorted: "cleared inside the tokens" 51.5% and 59.5%, against p=0.6's 48.5% and p=0.7's 75.5%. Unpredicted: **Fable's clues read better than Opus's** (0.701 v 0.623), the more generous judge being the one an independent reader follows less well — E6 should keep the split and re-measure.
+  **`e2e/engine-probe.mjs`** (opt-in, in `run-drives.mjs`'s OPT_IN with `live`) loads the app's own modules through Vite's SSR loader rather than driving a screen, because the configuration it needs — the engine cluing while a model guesses — is one the app does not have. It **refuses to start without `OLLAMA_API_KEY`**. No key this session, so it was run against `e2e/fake-ollama.mjs` only: 15 calls, 0.5 s, **nothing paid**; its free engine↔engine reference row (0.929) reproduces the test's 0.934, which is the cross-check between the two harnesses.
+  **The clue ledger** (`src/stores/ledgerStore.ts`, new store at version 1) counts `{clues, asked, hits, refused}` per arm, written by `gameStore` when a turn under Casey's clue ends and shown in Settings under "Casey's clues". `arm` is the alias, or `engine`, or `mock`; `refused` is **`r`** — `askValidated` always knew it (a retry IS a refusal, and the retry is what asks for the better model) and nothing wrote it down, so it now reports its attempt count through `CallReport`. Four integers and a name, **no clue text and no word id**, pinned — the owner declined a ledger designed as training data.
 - **W1** — One gate: a wrap-up is earned by three wins, never by a word count — 2026-08-22 (PR #112). The structural gate is gone: `wrapUpWords` TOPS THE BOARD UP (collected words first, then the city's discovered, then its undiscovered) and returns `{ words, wrappable }`, so the rule becomes **only a word collected before the deal can be wrapped**. Top-up cards play and count toward the win, start Danish-side up, wear a quiet dotted mark, and go nowhere. `wrapUpUnlocked` is the FLOOR now — one word to pack — and the suitcase advises rather than refusing: «10 collected in Sønderborg — this board can pack at most 10. A wrap-up packs up to 13.» `WINS_PER_WRAP_UP = 3`, cap still 3, `bankAfterRound` takes and returns `{ banked, wins }`.
   **The structural half** is `generateKeys`'s new `greenPool` — a RULE where `bias` is only a lean. `weightedOrder` is a weighted shuffle, so the pool is applied AFTER the draw as a stable partition; `TIER_ORDER` fills every green slot before the first filler, so the greens are pool members for as long as the pool lasts. Mutation-checked by making keygen ignore it with the bias left in: **123 of 200 seeds wrong at thirteen collected, 60 at twelve, 5 at eight** — and every single-seed store test still passes under that mutation, which is why it is pinned over two hundred seeds instead.
   **Two persisted changes, one bump.** `srsStore` 3 → 4 for `winsTowardWrapUp`; the bump is not point 3's trap (no save carries the field) but the POLICY it carries is the point — the counter seeds at 0 and the BANK IS KEPT, so tokens earned under the one-win rule are not taken back (R1's precedent; `won % 3` was rejected and is pinned against). `gameStore`'s `wrappable` needs **no** bump — the `earnedWrapUp` precedent — because its initial value is `undefined` and `undefined` MEANS "every word", which is exactly the rule a wrap-up dealt before this build was played under.

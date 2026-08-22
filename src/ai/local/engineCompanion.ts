@@ -1,4 +1,4 @@
-import type { Companion } from '../companion'
+import type { CallReport, Companion } from '../companion'
 import { MockCompanion } from '../mock/mockCompanion'
 import {
   aiGuessableIds,
@@ -74,10 +74,23 @@ function rationaleFor(
 export class EngineCompanion implements Companion {
   private fallback = new MockCompanion()
 
+  /**
+   * Which arm answered, for the clue ledger. `mock` rather than `engine`
+   * whenever the search came back empty and the hash answered instead — the
+   * ledger's whole point is that the arms are told apart, and a board the book
+   * does not cover is exactly the case worth seeing separately. Neither arm can
+   * be `refused`: there is no validator loop offline.
+   */
+  lastCall: CallReport | null = null
+
   async getClue(view: AiClueView): Promise<ClueResponse> {
     const ev = await loadEvaluator()
     const plan = searchClue(ev, view)
-    if (!plan) return this.fallback.getClue(view)
+    if (!plan) {
+      this.lastCall = { arm: 'mock', refused: false }
+      return this.fallback.getClue(view)
+    }
+    this.lastCall = { arm: 'engine', refused: false }
     return {
       clue: plan.text,
       number: plan.targets.length,

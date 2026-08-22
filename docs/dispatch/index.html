@@ -383,15 +383,15 @@ var CARDS = [
   { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready', m:'opus', lane:'content' },
   { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1', m:'opus', lane:'ui' },
   { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. No longer shares anything with the engine.', size:'1–2', st:'ready', m:'opus', lane:'content' },
-  { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'Engine selfplay with the authoring halves kept apart, the opt-in probe, the clue ledger. Ends in a written go / stop.', size:'1–2', st:'ready', dep:'E3', m:'opus', lane:'engine' },
+  { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'VERDICT: GO. Cross-model 0.62–0.70 greens per word asked against a 0.23 floor. Engine-vs-engine retired as evidence — a shared djb2 hash scores 100% on it. Probe built (opt-in, unpaid); the clue ledger gives r somewhere to land.', size:'1–2', st:'done', dep:'E3', m:'opus', lane:'engine' },
 
   { w:5, id:'W1', t:'Three wins earn a wrap-up; no floor',   sub:'The board tops up from the city; only pre-collected words wrap. Pacing re-measured: a city is 56–86 rounds.', size:'1–2', st:'done', m:'opus', lane:'ui' },
   { w:5, id:'P1', t:'The summary as one pencil screen',      sub:'Emoji out, confetti redrawn, Casey on it, nothing scrolls.', size:'1–2', st:'ready', m:'opus', lane:'ui' },
   { w:5, id:'P2', t:'The sentence review',                   sub:'Danish → English → Danish, the highlight tracking the reading.', size:'1', st:'blocked', dep:'S2 · P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P3', t:'Retire the live story call',            sub:'Deleted end to end. One fewer proxy request per round.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
   { w:5, id:'P4', t:'The turn log behind a sheet',           sub:'Zero height on the summary; the ⚑ flags survive.', size:'½', st:'blocked', dep:'P1', m:'sonnet', lane:'ui' },
-  { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'~530 judging agents across two models; one PR per city. Needs the final ids (WS1) and E4’s yes.', size:'2–3', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
-  { w:5, id:'E5', t:'The hybrid',                            sub:'Evaluator as validator (turns H7 on), the candidates prompt, rank fusion, then the alias flip once the ledger says so.', size:'1–2', st:'blocked', dep:'E4', m:'opus', lane:'engine' },
+  { w:5, id:'E6', t:'Matrix and book, cities 2–9',           sub:'E4 said go. ~530 judging agents across two models; one PR per city, and re-measure the first city cross-model before authoring the rest. Keep the per-model split. One data file per city (E2’s size note).', size:'2–3', st:'ready', dep:'E4', m:'opus', lane:'engine' },
+  { w:5, id:'E5', t:'The hybrid',                            sub:'E4 said go for the FIRST half only: the evaluator as a validator inside OllamaCompanion.getClue, which turns H7 on with a checked trigger. The candidates prompt, rank fusion and the alias flip wait until the clue ledger has given r a value.', size:'1–2', st:'ready', dep:'E4', m:'opus', lane:'engine' },
 
   { w:6, id:'I1', t:'The station, the ticket, the train',    sub:'Acts renamed, resume markers migrated.', size:'1', st:'ready', m:'opus', lane:'ui' },
   { w:6, id:'I2', t:'The practice round the player plays',   sub:'Reactive commentary instead of a linear script, pinned exhaustively. The biggest card on the board.', size:'2', st:'blocked', dep:'I1 · K2 · U3', m:'fable', lane:'ui' },

@@ -11,13 +11,16 @@ do not know it.
 report on making a cheap model clue and guess like a frontier one, the four
 owner decisions of 2026-08-21 — including that journey boards become
 **city-only** — and the staged plan another session picks up from, carded as
-**E0–E6**. **E0, E1 and E2 are built**: journey boards are city-only,
-`src/data/matrix.da.json` is city 1's judged association matrix and
-`src/data/book.da.json` is its opening book. E3 onward is not. Read the
+**E0–E6**. **E0–E4 are built**: journey boards are city-only,
+`src/data/matrix.da.json` is city 1's judged association matrix,
+`src/data/book.da.json` is its opening book, `src/ai/local/` is the engine, and
+E4 measured it. **E4's verdict is in that document and is the answer to "is the
+engine worth continuing" — GO, E6 before E5, and E5 in halves.** Read the
 document before touching `src/ai/`, the board pool, or the E-cards — and note
 that each landed stage has an "as built" subsection under §6 which **overrides
 the spec paragraph above it** (E1 corrected the `conflicts` rule, E2 the `why`
-word band and the agent batch size).
+word band and the agent batch size, E4 the whole idea that engine-vs-engine
+self-play measures anything).
 
 ## Where the work is planned
 
@@ -49,7 +52,7 @@ npm run typecheck     tsc -b
 npm test              vitest run
 npm run drives        build, then run all 17 browser drives
 npm run drives repeat layout      just those two
-npm run drives --list             names (23; six are opt-in, not run by default)
+npm run drives --list             names (25; seven are opt-in, not run by default)
 npm run validate:words            the Danish dataset's own rules
 node scripts/validate-words.mjs --lang de    once a second dataset exists
 node scripts/make-audio.mjs --source words --dry-run   what a bake would cost
@@ -232,6 +235,29 @@ independent of the sample size: change `SELFPLAY_GAMES` and every figure moves a
 little, which is why the pins are bands. And the file must not name `process` —
 `src/` compiles with DOM libs and no node types, so `process.env` passes vitest
 and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
+
+**And a third trap, which cost the clue engine a headline number: SELF-PLAY
+WHERE BOTH SEATS SHARE ONE EVALUATOR MEASURES NOTHING.** E4 replaced the
+engine's `sim` with a djb2 hash, gave both seats the same hash, and the row
+scored **100%** — better than every honest row in the table — because the search
+picks whatever the shared function ranks high on its targets and low on its
+traps, and a guesser reading the same function reads it straight back. A shared
+arbitrary function is a private code between the seats. Salt the two seats
+differently and the same engine falls to the floor. E3's 99.0% engine-vs-engine
+figure is retired as evidence because of this, and `θ = 0.5` was chosen under
+it. The honest measurement is `src/ai/local/engine-selfplay.test.ts`, which
+rebuilds the book and the matrix as the two halves their authors wrote — Opus
+alone, Fable alone, from the committed vote files — and plays one against the
+other. Print it with
+
+```
+ENGINE_SELFPLAY_GAMES=200 ENGINE_SELFPLAY_REPORT=1 \
+  npx vitest run --reporter=verbose src/ai/local/engine-selfplay.test.ts
+```
+
+and note the `--reporter=verbose`: vitest 4's default reporter swallows a
+PASSING test's console output, so a report knob without it prints only when
+something has already gone wrong.
 
 ## Layout of the code
 

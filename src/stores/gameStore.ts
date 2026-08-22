@@ -1,7 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { AiError } from '../ai/client'
-import { OllamaCompanion, planGuessExecution, type Companion } from '../ai/companion'
+import {
+  OllamaCompanion,
+  planGuessExecution,
+  type CallReport,
+  type Companion,
+} from '../ai/companion'
 import { EngineCompanion } from '../ai/local/engineCompanion'
 import { TutorialCompanion } from '../ai/tutorialCompanion'
 import { buildAiClueView, buildAiGuessView, buildStoryView } from '../ai/projections'
@@ -23,6 +28,7 @@ import { isCollected, studyPhaseEnabled, wordsForCity } from '../journey/progres
 import { pickStoryTargets, useCoverage } from './coverageStore'
 import { wrapUpBias, wrapUpWords, type RoundMode } from '../journey/wrapup'
 import { flagsFor, useFeedback } from './feedbackStore'
+import { useLedger } from './ledgerStore'
 import { useJourney } from './journeyStore'
 import { practiceNeed } from '../srs/scheduler'
 import { useSettings } from './settingsStore'
@@ -150,6 +156,16 @@ interface GameStore {
   aiGuessQueue: PlannedGuess[]
   /** clueHistory.length the current guess plan was made for — distinguishes "plan consumed" from "no plan yet". */
   planForClueIndex: number | null
+  /**
+   * Who gave the clue the player is guessing under, held from `runAiClue`
+   * until that turn ends and the ledger can be written with its hits.
+   *
+   * Transient on purpose — this store has a `partialize` and this is not in it.
+   * A round put down mid-turn and resumed loses one ledger row rather than
+   * resuming with a stale arm attached to a clue somebody else may now be
+   * answering; one row is nothing against a rate, and a wrong row is a lie.
+   */
+  pendingClueArm: CallReport | null
   /** The guess currently being dramatized in the UI, just applied. */
   lastAiGuess: PlannedGuess | null
   error: string | null
@@ -266,6 +282,35 @@ export function onPracticeCompanion(practiceFallback: boolean): boolean {
   return useSettings.getState().useMock || practiceFallback
 }
 
+/**
+ * Write the clue ledger's row for a turn under CASEY's clue that has just
+ * ended, and say whether one was written.
+ *
+ * Here rather than in the engine because the engine has no opinion about who
+ * was asked: `arm` and `refused` are facts about the call, and the call happens
+ * in `runAiClue`. A row is one clue's worth of evidence — the number announced,
+ * the greens the player actually found under it on Casey's key, and which arm
+ * gave it — and `readLedger` turns a few hundred of them into the hit rate and
+ * the refusal rate `docs/clue-engine.md` §6 Stage 4 asks for.
+ *
+ * Only Casey's clues, and only the ones whose turn is over. The player's own
+ * clues are not a measurement of anything the ledger can act on, and sudden
+ * death has no clue-giver at all.
+ */
+function closeClueLedger(before: GameState, after: GameState, arm: CallReport | null): boolean {
+  if (!arm) return false
+  if (before.phase !== 'playerGuessing' || after.phase === 'playerGuessing') return false
+  const clue = after.clueHistory[after.clueHistory.length - 1]
+  if (!clue || clue.by !== 'ai') return false
+  useLedger.getState().record({
+    number: clue.number,
+    hits: clue.guesses.filter((g) => g.result === 'green').length,
+    arm: arm.arm,
+    refused: arm.refused,
+  })
+  return true
+}
+
 const aiMessage = (e: unknown): string =>
   e instanceof AiError ? e.message : 'Something went wrong talking to the AI companion.'
 
@@ -368,6 +413,7 @@ const freshRound = () => ({
   practiceFallback: false,
   aiGuessQueue: [] as PlannedGuess[],
   planForClueIndex: null,
+  pendingClueArm: null as CallReport | null,
   lastAiGuess: null,
   error: null,
   selectedWordId: null,
@@ -539,6 +585,7 @@ export const useGame = create<GameStore>()(
       aiBusy: false,
       aiGuessQueue: [],
       planForClueIndex: null,
+      pendingClueArm: null,
       lastAiGuess: null,
       error: null,
       selectedWordId: null,
@@ -826,7 +873,8 @@ export const useGame = create<GameStore>()(
           const clue = currentClue(next)
           buzz(clue!.guesses[clue!.guesses.length - 1]!.result)
         }
-        set({ game: next, selectedWordId: null })
+        const closed = closeClueLedger(game, next, get().pendingClueArm)
+        set({ game: next, selectedWordId: null, ...(closed ? { pendingClueArm: null } : {}) })
         if (next.phase === 'finished') get().finishRound()
       },
 
@@ -834,7 +882,8 @@ export const useGame = create<GameStore>()(
         const { game } = get()
         if (!game || (game.phase !== 'playerGuessing' && game.phase !== 'suddenDeath')) return
         const next = applyEvent(game, { type: 'STOP_GUESSING' })
-        set({ game: next, selectedWordId: null })
+        const closed = closeClueLedger(game, next, get().pendingClueArm)
+        set({ game: next, selectedWordId: null, ...(closed ? { pendingClueArm: null } : {}) })
         if (next.phase === 'finished') get().finishRound()
       },
 
@@ -970,7 +1019,10 @@ export const useGame = create<GameStore>()(
             useSettings.getState().clueLanguage,
             flagsFor(useFeedback.getState().flags, ACTIVE.code),
           )
-          const res = await companion(get().practiceFallback, get().mode).getClue(view)
+          // Held rather than called inline: the ledger reads `lastCall` off
+          // this exact instance the moment the await returns.
+          const who = companion(get().practiceFallback, get().mode)
+          const res = await who.getClue(view)
           // Reference check: never apply a clue composed for a previous game.
           const current = get().game
           if (current !== game || current.phase !== 'aiClueInput') return
@@ -983,7 +1035,7 @@ export const useGame = create<GameStore>()(
             rationale: res.rationale,
           })
           useSettings.getState().markClueyVerified(Date.now())
-          set({ aiBusy: false, game: after })
+          set({ aiBusy: false, game: after, pendingClueArm: who.lastCall ?? null })
         } catch (e) {
           if (get().game === game) set({ aiBusy: false, error: aiMessage(e) })
         }

@@ -12,6 +12,7 @@ import { useSrs } from '../../stores/srsStore'
 import { useUi } from '../../stores/uiStore'
 import { BackupPanel } from '../components/BackupPanel'
 import { BuildFooter } from '../components/BuildFooter'
+import { ClueLedgerPanel } from '../components/ClueLedgerPanel'
 import { ConnectCluey } from '../components/ConnectCluey'
 
 /**
@@ -295,6 +296,11 @@ export function SettingsScreen() {
       <section className="settings-section">
         <h3>Your collection</h3>
         <BackupPanel />
+      </section>
+
+      <section className="settings-section">
+        <h3>Casey’s clues</h3>
+        <ClueLedgerPanel />
       </section>
 
       <section className="settings-section">
