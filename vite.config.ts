@@ -10,6 +10,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 const BUILD_STAMP =
   process.env.GITHUB_SHA?.slice(0, 7) ?? new Date().toISOString().slice(0, 16).replace('T', ' ')
 
+// The GitHub Pages project path — that is the repo name, and the repo rename
+// is held for the owner (D3, docs/DECISIONS.md). It appears in `base`,
+// `start_url`, `scope` and `navigateFallback` below; moving one without the
+// others breaks the deploy, so it is one constant rather than four literals
+// for the owner's eventual rename to change in a single place. The value
+// itself is NOT part of that rename yet — do not edit it here.
+const PAGES_BASE_PATH = '/ClueCabulary/'
+
 // CAP_BUILD=1 builds for the native shell instead of GitHub Pages: assets are
 // served from the app bundle, so the base is relative rather than the Pages
 // project path, and the service worker stays out — updates ride TestFlight
@@ -23,7 +31,7 @@ const CAP = process.env.CAP_BUILD === '1'
 const TF_BUILD = process.env.TF_BUILD ?? ''
 
 export default defineConfig({
-  base: CAP ? './' : '/ClueCabulary/',
+  base: CAP ? './' : PAGES_BASE_PATH,
   define: {
     __BUILD_STAMP__: JSON.stringify(BUILD_STAMP),
     __TF_BUILD__: JSON.stringify(TF_BUILD),
@@ -38,16 +46,15 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png'],
       manifest: {
-        // Display name only. `start_url`/`scope` below stay on the
-        // /ClueCabulary/ path — that is the repo name, and the rename is held
-        // for the owner (docs/DECISIONS.md). Moving one without the other
+        // Display name only. `start_url`/`scope` below stay on
+        // PAGES_BASE_PATH, defined above — moving one without the other
         // breaks the deploy.
         name: '900words',
         short_name: '900words',
         description:
           'Learn Danish vocabulary through a cooperative word-association game with an AI companion.',
-        start_url: '/ClueCabulary/',
-        scope: '/ClueCabulary/',
+        start_url: PAGES_BASE_PATH,
+        scope: PAGES_BASE_PATH,
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -137,7 +144,7 @@ export default defineConfig({
             },
           },
         ],
-        navigateFallback: '/ClueCabulary/index.html',
+        navigateFallback: `${PAGES_BASE_PATH}index.html`,
         // Prompt mode turns both of these off. skipWaiting must stay off — that
         // is what lets the player choose the moment. clientsClaim has to come
         // back on: without it the very first visit is uncontrolled, so a player
