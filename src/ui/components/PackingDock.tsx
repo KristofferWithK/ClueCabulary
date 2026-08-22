@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { GameState } from '../../engine/types'
-import { useGame } from '../../stores/gameStore'
+import { useGame, wrappableIds } from '../../stores/gameStore'
 import { playWord } from '../speak'
 import { ACTIVE } from '../../lang/active'
 
@@ -13,13 +13,19 @@ import { ACTIVE } from '../../lang/active'
  */
 export function PackingDock({ game }: { game: GameState }) {
   const packed = useGame((s) => s.packed)
+  const wrappable = useGame((s) => s.wrappable)
   const selectedWordId = useGame((s) => s.selectedWordId)
   const [text, setText] = useState('')
   const [missed, setMissed] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const selected = selectedWordId ? game.words.find((w) => w.wordId === selectedWordId) : null
-  const remaining = game.words.length - packed.length
+  // Every count in this dock is over the WRAPPABLE cards, not the board (W1).
+  // A topped-up board holds cards with nothing to pack, and «3 of 18» on a
+  // board where only nine can ever be packed is a progress bar that cannot
+  // fill — the dock would be counting toward a number the round cannot reach.
+  const packable = wrappableIds(game, wrappable)
+  const remaining = packable.length - packed.length
 
   // A fresh card gets a fresh field — and focus, so packing flows tap, type,
   // enter, tap.
@@ -69,7 +75,7 @@ export function PackingDock({ game }: { game: GameState }) {
           ) : (
             'Pack the board'
           )}{' '}
-          — {packed.length} of {game.words.length}
+          — {packed.length} of {packable.length}
         </p>
         {remaining > 0 && (
           // A link, not a .btn: the sentence it used to carry ("they stay

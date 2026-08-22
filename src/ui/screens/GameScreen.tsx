@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { currentClue } from '../../engine/game'
 import type { GameState } from '../../engine/types'
-import { onPracticeCompanion, useGame } from '../../stores/gameStore'
+import { onPracticeCompanion, useGame, wrappableIds } from '../../stores/gameStore'
 import { useUi } from '../../stores/uiStore'
 import { AiTurnPanel } from '../components/AiTurnPanel'
 import { BoardGrid } from '../components/BoardGrid'
@@ -30,6 +30,7 @@ export function GameScreen() {
   const studying = useGame((s) => s.studying)
   const mode = useGame((s) => s.mode)
   const packed = useGame((s) => s.packed)
+  const wrappable = useGame((s) => s.wrappable)
   const packingDone = useGame((s) => s.packingDone)
   const { error, aiBusy, planForClueIndex, selectedWordId, clearError } = useGame()
   const practiceFallback = useGame((s) => s.practiceFallback)
@@ -48,7 +49,18 @@ export function GameScreen() {
   const tutorial = mode === 'tutorial'
   // Skipped cards keep their English face for the WHOLE round — the visible
   // mark of "cannot wrap this time".
-  const englishFace = mode === 'wrapup' ? (id: string) => !packed.includes(id) : undefined
+  //
+  // Only the WRAPPABLE cards ever wear an English face (W1): a wrap-up board
+  // is topped up from the rest of the city when the collected pool is thin,
+  // and a top-up card has nothing to pack, so it opens Danish-side up like the
+  // ordinary card it is and wears the quiet mark below instead.
+  const packable = wrappableIds(game, wrappable)
+  const englishFace =
+    mode === 'wrapup'
+      ? (id: string) => packable.includes(id) && !packed.includes(id)
+      : undefined
+  const notWrappable =
+    mode === 'wrapup' ? (id: string) => !packable.includes(id) : undefined
 
   // Drive the AI side of the loop off the game phase. Guards inside the store
   // actions make this safe under StrictMode double-invocation and reloads.
@@ -252,6 +264,7 @@ export function GameScreen() {
             onInfoTap={openDictionary}
             dictionaryLocked={packing}
             englishFace={englishFace}
+            notWrappable={notWrappable}
             packingSelectable={packing}
           />
         </div>

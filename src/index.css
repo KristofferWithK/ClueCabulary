@@ -1545,6 +1545,26 @@ select:focus {
   color: var(--text);
 }
 
+/* W1's top-up: a card that was not collected when the board was dealt. It
+   plays and it counts, it just cannot be wrapped — so the mark is QUIET. A
+   single dotted underline drawn inside the card's own padding, no colour of
+   its own, no second border: the card is not wrong and the player is not being
+   refused anything, and anything louder would make a thin-pool board read as a
+   board full of mistakes. The accessible name says it in words
+   (BoardGrid.tsx), which is where the meaning actually lives; this is the
+   glance version. `inset` rather than a border so it cannot change the card's
+   box and move the board between phases. */
+.card-no-wrap::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 4px;
+  border-bottom: 1px dotted var(--text-dim);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 .packing-dock {
   border: 1px solid var(--text);
   background: var(--bg);

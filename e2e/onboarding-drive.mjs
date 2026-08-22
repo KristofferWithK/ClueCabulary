@@ -207,10 +207,15 @@ check(
   'and the lid is empty — the near-empty case is the point',
   (await page.locator('.case-panel-lid .case-empty').count()) === 1,
 )
+// The tutorial collects nothing, so at this exact moment the FLOOR is what is
+// missing rather than the token — one word to pack, which the lid's empty line
+// above has just explained. (Under the old two-gate rule the hint asked for
+// eighteen collected words AND a win; W1 left one gate and this state is below
+// even its floor.)
 check(
   'the wrap-up button is asleep, with its reason on screen',
   (await page.locator('.case-actions .btn-primary').isDisabled()) &&
-    /win a round/i.test(await page.locator('.case-hint').innerText()),
+    /collect a word/i.test(await page.locator('.case-hint').innerText()),
 )
 
 /** Where the tour's light is: the step, its anchor, and whether the spotlight

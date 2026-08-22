@@ -29,14 +29,15 @@ Object.defineProperty(globalThis, 'window', {
 Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: storage })
 
 const { BOARD } = await import('../engine/config')
-const { migrateGame, useGame } = await import('./gameStore')
+const { migrateGame, useGame, wrappableIds } = await import('./gameStore')
+const { migrateSrs } = await import('./srsStore')
 const { useJourney } = await import('./journeyStore')
 const { useSettings } = await import('./settingsStore')
 const { useSrs } = await import('./srsStore')
 const { WORDS } = await import('../data/words')
 const { newStats } = await import('../srs/scheduler')
 const { wordsForCity } = await import('../journey/progress')
-const { WRAP_UP_BANK_CAP } = await import('../journey/wrapup')
+const { WINS_PER_WRAP_UP, WRAP_UP_BANK_CAP } = await import('../journey/wrapup')
 const { TUTORIAL_SEED, TUTORIAL_WORD_IDS } = await import('../onboarding/tutorial')
 
 describe('gameStore: finishing a round without Casey', () => {
@@ -397,8 +398,10 @@ describe('gameStore: the v4 -> v5 migration', () => {
  * suitcase for good.
  *
  * Mutation-checked: dropping the `packed.includes` conjunct in finishRound's
- * wrap step fails "a skipped card ... does NOT wrap"; letting the deal write
- * recentBoards fails its test; loosening the reroll guard fails that one.
+ * wrap step fails "a skipped card ... does NOT wrap"; dropping the
+ * `packable.includes` guard from submitPacking fails "a top-up card cannot be
+ * packed"; letting the deal write recentBoards fails its test; loosening the
+ * reroll guard fails that one.
  */
 describe('gameStore: wrap-up rounds', () => {
   const city = wordsForCity(WORDS, 0)
@@ -426,6 +429,25 @@ describe('gameStore: wrap-up rounds', () => {
     useSrs.setState({ wrapUpsBanked: WRAP_UP_BANK_CAP })
   })
 
+  const finishWrapUp = (
+    reveal: (wordId: string, i: number) => 'green' | 'hidden',
+  ) => {
+    const game = useGame.getState().game!
+    const reveals = Object.fromEntries(
+      game.words.map((w, i) => [w.wordId, { kind: reveal(w.wordId, i) }]),
+    )
+    useGame.setState({
+      game: {
+        ...game,
+        phase: 'finished',
+        reveals,
+        outcome: { result: 'lost', reason: 'timeout' },
+      } as never,
+      roundRecorded: false,
+    })
+    useGame.getState().finishRound()
+  }
+
   it('deals a full board of collected words, English-side up, packing open', () => {
     useGame.getState().newWrapUpGame({ seed: 5 })
     const s = useGame.getState()
@@ -436,13 +458,102 @@ describe('gameStore: wrap-up rounds', () => {
     expect(s.packed).toEqual([])
     const collected = new Set(city.slice(0, 40).map((w) => w.id))
     for (const w of s.game!.words) expect(collected.has(w.wordId)).toBe(true)
+    // 40 collected against an 18-card board: every card is wrappable.
+    expect(s.wrappable).toHaveLength(BOARD.totalWords)
   })
 
-  it('refuses to deal below a full board of collected words', () => {
+  /**
+   * W1's deal at four pool sizes, two of them below a board and two above.
+   * What each has to hold is the same three things: the board is full, only
+   * the pre-collected words are wrappable, and the greens are the wrappable
+   * ones for as long as there are wrappable ones to be green.
+   *
+   * Mutation-checked: dropping `wrappable` from newWrapUpGame's `set` fails
+   * all four of these plus three more, because `undefined` reads as "every
+   * word". The green-ordering half is checked over two hundred seeds rather
+   * than here — one seed is exactly what a probability gets right by accident,
+   * and it does: making `generateKeys` ignore `greenPool` leaves every case
+   * below passing and fails wrapup.test.ts's sweep.
+   */
+  it.each([8, 12, 16, 25])('deals a full board from %i collected words', (n) => {
     useSrs.getState().reset()
-    collectCity(10)
+    collectCity(n)
+    useSrs.setState({ wrapUpsBanked: WRAP_UP_BANK_CAP })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const s = useGame.getState()
+    expect(s.game!.words).toHaveLength(BOARD.totalWords)
+    const collected = new Set(city.slice(0, n).map((w) => w.id))
+    for (const id of s.wrappable!) expect(collected.has(id)).toBe(true)
+    // Every collected word the board could seat IS seated: the collected pool
+    // is drawn first, and only a gloss conflict can cost it a seat (the first
+    // sixteen city words hold one such pair, which is why this is a band).
+    expect(s.wrappable!.length).toBeLessThanOrEqual(Math.min(n, BOARD.totalWords))
+    expect(s.wrappable!.length).toBeGreaterThanOrEqual(Math.min(n, BOARD.totalWords) - 2)
+    // The greens go to the wrappable cards first — the structural half.
+    const greens = s
+      .game!.words.map((w) => w.wordId)
+      .filter((id) => s.game!.playerKey[id] === 'green' || s.game!.aiKey[id] === 'green')
+    const pool = new Set(s.wrappable!)
+    const fillerGreens = greens.filter((id) => !pool.has(id))
+    expect(fillerGreens.length).toBe(Math.max(0, greens.length - pool.size))
+  })
+
+  it('a top-up card cannot be packed, and cannot be wrapped even when green', () => {
+    useSrs.getState().reset()
+    collectCity(8)
+    useSrs.setState({ wrapUpsBanked: WRAP_UP_BANK_CAP })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const s = useGame.getState()
+    const filler = s.game!.words.filter((w) => !s.wrappable!.includes(w.wordId))
+    expect(filler.length).toBe(BOARD.totalWords - s.wrappable!.length)
+    // Typing the right Danish on one does nothing: there is nothing to pack.
+    for (const w of filler) {
+      expect(useGame.getState().submitPacking(w.wordId, w.da)).toBe(false)
+    }
+    expect(useGame.getState().packed).toEqual([])
+    // Packing every wrappable card opens the round by itself, even though the
+    // board still has cards face-up in Danish.
+    for (const id of s.wrappable!) {
+      const w = s.game!.words.find((x) => x.wordId === id)!
+      useGame.getState().submitPacking(id, w.da)
+    }
+    expect(useGame.getState().packingDone).toBe(true)
+    // Everything green: only the pre-collected words are wrapped.
+    finishWrapUp(() => 'green')
+    const wrapped = useJourney.getState().wrapped
+    expect(Object.keys(wrapped).sort()).toEqual([...s.wrappable!].sort())
+    for (const w of filler) expect(wrapped).not.toHaveProperty(w.wordId)
+  })
+
+  it('a wrap-up saved before W1 rehydrates under the old rule: every word wrappable', () => {
+    // `wrappable` is a new persisted field with NO version bump, which is the
+    // earnedWrapUp precedent rather than the CLAUDE.md trap: no save carries
+    // it, so zustand's `{...initial, ...persisted}` leaves it `undefined`, and
+    // `undefined` MEANS "every word on the board" — which is exactly the rule
+    // a wrap-up dealt before this build was played under. A `[]` initial would
+    // have turned an in-flight wrap-up into a board with nothing to pack.
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    const game = useGame.getState().game!
+    useGame.setState({ wrappable: undefined })
+    expect(wrappableIds(game, undefined)).toEqual(game.words.map((w) => w.wordId))
+    const w = game.words[3]!
+    expect(useGame.getState().submitPacking(w.wordId, w.da)).toBe(true)
+  })
+
+  it('refuses to deal a city with nothing collected — nothing to pack', () => {
+    useSrs.getState().reset()
+    useSrs.setState({ wrapUpsBanked: WRAP_UP_BANK_CAP })
     useGame.getState().newWrapUpGame({ seed: 5 })
     expect(useGame.getState().game).toBeNull()
+  })
+
+  it('deals on ten collected words, where the old two-gate rule refused', () => {
+    useSrs.getState().reset()
+    collectCity(10)
+    useSrs.setState({ wrapUpsBanked: WRAP_UP_BANK_CAP })
+    useGame.getState().newWrapUpGame({ seed: 5 })
+    expect(useGame.getState().game).not.toBeNull()
+    expect(useGame.getState().wrappable).toHaveLength(10)
   })
 
   it('neither reads nor writes recentBoards — wrap-ups live outside the carry-over rule', () => {
@@ -512,25 +623,6 @@ describe('gameStore: wrap-up rounds', () => {
     useGame.getState().rerollBoard()
     expect(useGame.getState().game!.words.map((x) => x.wordId)).toEqual(dealt)
   })
-
-  const finishWrapUp = (
-    reveal: (wordId: string, i: number) => 'green' | 'hidden',
-  ) => {
-    const game = useGame.getState().game!
-    const reveals = Object.fromEntries(
-      game.words.map((w, i) => [w.wordId, { kind: reveal(w.wordId, i) }]),
-    )
-    useGame.setState({
-      game: {
-        ...game,
-        phase: 'finished',
-        reveals,
-        outcome: { result: 'lost', reason: 'timeout' },
-      } as never,
-      roundRecorded: false,
-    })
-    useGame.getState().finishRound()
-  }
 
   it('a packed word found green is wrapped — win or lose', () => {
     useGame.getState().newWrapUpGame({ seed: 5 })
@@ -616,8 +708,19 @@ describe('gameStore: wins earn wrap-up rounds', () => {
     useGame.getState().finishRound()
   }
 
-  it('a won round banks one, and says so on the summary', () => {
-    useGame.getState().newGame({ seed: 5 })
+  /** Win `n` ordinary rounds, each on its own board. */
+  const winRounds = (n: number) => {
+    for (let i = 0; i < n; i++) {
+      useGame.getState().newGame({ seed: 5 + i })
+      finishAs('won')
+    }
+  }
+
+  it(`banks one after ${WINS_PER_WRAP_UP} wins, and says so on the summary`, () => {
+    winRounds(WINS_PER_WRAP_UP - 1)
+    expect(useSrs.getState().wrapUpsBanked).toBe(0)
+    expect(useGame.getState().earnedWrapUp).toBe(false)
+    useGame.getState().newGame({ seed: 99 })
     finishAs('won')
     expect(useSrs.getState().wrapUpsBanked).toBe(1)
     expect(useGame.getState().earnedWrapUp).toBe(true)
@@ -630,7 +733,8 @@ describe('gameStore: wins earn wrap-up rounds', () => {
     expect(useGame.getState().earnedWrapUp).toBe(false)
   })
 
-  it('a won daily challenge earns one like any other round', () => {
+  it('a won daily challenge counts like any other round', () => {
+    useSrs.setState({ winsTowardWrapUp: WINS_PER_WRAP_UP - 1 })
     useGame.getState().newGame({ seed: 20260820, dailyKey: '2026-08-20' })
     finishAs('won')
     expect(useSrs.getState().wrapUpsBanked).toBe(1)
@@ -650,7 +754,9 @@ describe('gameStore: wins earn wrap-up rounds', () => {
     expect(useSrs.getState().wrapUpsBanked).toBe(0)
   })
 
-  it('a board that cannot be dealt costs nothing — the token is not burned', () => {
+  it('a city with nothing collected costs nothing — the token is not burned', () => {
+    // Since W1 a board can always be FILLED; what it cannot always do is have
+    // something to pack, and that is what refuses the deal now.
     useSrs.setState({ stats: {}, wrapUpsBanked: 1 })
     useGame.getState().newWrapUpGame({ seed: 5 })
     expect(useGame.getState().game).toBeNull()
@@ -663,6 +769,27 @@ describe('gameStore: wins earn wrap-up rounds', () => {
     useGame.getState().rerollBoard()
     expect(useGame.getState().mode).toBe('wrapup')
     expect(useSrs.getState().wrapUpsBanked).toBe(0)
+  })
+
+  it('a reload mid-count keeps the counter — two wins do not become zero', () => {
+    // The counter is persisted state, and the trap it has to clear is the one
+    // CLAUDE.md's point 3 records: a device that stored a bank under the old
+    // rule must not be reset by the new one. Rehydration is exercised through
+    // the migration, which is the only thing that runs on a stored blob.
+    winRounds(2)
+    expect(useSrs.getState().winsTowardWrapUp).toBe(2)
+    const stored = {
+      stats: useSrs.getState().stats,
+      games: useSrs.getState().games,
+      wrapUpsBanked: useSrs.getState().wrapUpsBanked,
+      winsTowardWrapUp: useSrs.getState().winsTowardWrapUp,
+    }
+    // Version 4 is what this build writes, so a reload passes it straight back.
+    expect(migrateSrs(stored, 4)).toBe(stored)
+    useSrs.setState(stored)
+    useGame.getState().newGame({ seed: 77 })
+    finishAs('won')
+    expect(useSrs.getState().wrapUpsBanked).toBe(1)
   })
 
   it('a won wrap-up earns no second wrap-up — they would chain forever', () => {
