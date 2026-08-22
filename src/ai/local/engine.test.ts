@@ -264,9 +264,11 @@ describe('the engine on real city-1 boards', () => {
       const g = await playEngineGame(seed, { assertClues: true })
       if (g.won) wins++
     }
-    // The honest floor is the mock's 0–1.6%; the sweep behind THETA measured
-    // 64.5% at 400 games. Pinned as a loose band — E4 owns the real number —
-    // but far enough above the floor that a hash in sim's place fails it.
+    // A loose band, and deliberately NOT a quality claim: both seats share one
+    // evaluator here, and E4 measured that a shared djb2 hash passes this line
+    // at 100%. What it defends is that the engine plays legal, terminating
+    // rounds on real boards — `engine-selfplay.test.ts` owns whether it plays
+    // WELL, cross-model, where a hash fails.
     expect(wins / GAMES).toBeGreaterThan(0.3)
   }, 120_000)
 
@@ -296,7 +298,16 @@ describe('the engine on real city-1 boards', () => {
     expect(totals.illegal).toBeLessThan(totals.candidates)
   }, 60_000)
 
-  it('sweeps θ when asked — the measurement THETA quotes', async () => {
+  /**
+   * THE RETIRED SWEEP. This is no longer the measurement `THETA` quotes, and
+   * its output must not be used to choose θ again — E4 showed that with one
+   * evaluator in both seats a shared djb2 hash scores 100% here, so this ranks
+   * θ on how well the search encodes into a code the guesser already shares.
+   * `src/ai/local/engine-selfplay.test.ts`'s `ENGINE_THETA_CROSS` sweep is the
+   * live one. Kept runnable because the comparison between the two instruments
+   * is itself the finding, and a reader should be able to reproduce both.
+   */
+  it('sweeps θ when asked — the RETIRED instrument, kept for comparison', async () => {
     if (!envVar('ENGINE_THETA_SWEEP')) return
     const games = Number(envVar('ENGINE_GAMES') ?? 400)
     for (const theta of [0, 0.5, 1, 1.5, 2]) {

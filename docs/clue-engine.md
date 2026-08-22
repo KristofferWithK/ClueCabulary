@@ -15,8 +15,8 @@ Status as of 2026-08-22: **E0, E1, E2, E3 and E4 are built** —
 journey boards are city-only, `src/data/matrix.da.json` holds city 1's 4,950
 judged pairs, `src/data/book.da.json` holds its 3,490 associations and
 2,314 pair clues, and `src/ai/local/` is the engine itself, playing the
-practice seam, and it is measured. E5 and E6 are not built. Four owner
-decisions were taken
+practice seam, and E4 has measured it and re-measured θ under the cross-model
+split. E5 and E6 are not built. Four owner decisions were taken
 (listed under "Decisions"). Each stage that has landed carries an "as built"
 subsection under §6 with the corrections it found; **those corrections
 override the paragraph they sit under**, which is left in place so the change
@@ -454,10 +454,11 @@ agreement rather than association. Salt the two seats differently and the same
 engine collapses to **0.5%**, at the floor. So the mutation is run twice in
 `engine-selfplay.test.ts` — one shared hash (the finding) and two independent
 ones (the check) — and **no pin in this repo may rest on engine-vs-engine
-again**. θ = 0.5 was chosen on that row; it is not thereby wrong (the sweep's
-neighbours fail for legible reasons that survive the objection), but it is now a
-number chosen under a measurement that cannot tell a code from knowledge, and a
-human-facing measurement may still move it.
+again**. θ = 0.5 was chosen on that row, so **E4 re-ran the whole θ sweep
+cross-model** rather than leaving the shipped bar resting on a retired
+instrument; see "θ, re-measured" below. `engine.test.ts`'s sweep is kept
+runnable and relabelled as the retired instrument, because the comparison
+between the two is itself the finding.
 
 **2. The honest number is the cross-model row**, and it is the reason the votes
 were kept per model. `src/data/generated/matrix-city1/<model>-NN.json` and
@@ -520,7 +521,62 @@ the one whose clues an independent reader follows LESS well. One city and one
 run is not enough to act on, but E6 should keep the per-model split rather than
 merging blind, and should re-measure this on the first new city.
 
-**5. The probe is built, opt-in, and has not been run for money.**
+**5. θ, re-measured — it stays at 0.5, and the reasoning behind it changes.**
+The bar the shipped engine gives every clue under was chosen on the row point 1
+just retired, so it was re-swept on the cross-model split. `ENGINE_THETA_CROSS=1`
+on `engine-selfplay.test.ts`; 200 seeded city-1 boards a cell, **board cleared
+inside the tokens %** with hits/number beside it:
+
+| θ | 0.0 | 0.5 | 1.0 | 1.5 | 2.0 |
+|---|---|---|---|---|---|
+| Opus→Fable, cleared | 28.0 | **51.5** | 42.0 | 11.0 | 0.0 |
+| Opus→Fable, hits/number | 0.408 | 0.623 | 0.731 | 0.912 | 0.966 |
+| Fable→Opus, cleared | 36.5 | **59.5** | 41.0 | 9.5 | 0.5 |
+| Fable→Opus, hits/number | 0.444 | 0.701 | 0.786 | 0.866 | 0.855 |
+| coverage/clue | 3.3 | 2.4 | 2.0 | 1.5 | 1.2 |
+
+Three things in that table are worth more than the answer.
+
+- **The objective had to change with the instrument.** hits/number rises
+  *monotonically* with θ, to 0.966 at θ = 2.0 — a bar so high the clues are
+  nearly always read correctly and **no board is ever finished**. A clue engine
+  tuned on hit rate alone picks the setting that never wins. Win rate is no good
+  either (point 3). What is left, and what is right, is how often the board is
+  cleared while the tokens last.
+- **Two of E3's three reasons were wrong.** E3 said θ = 0 loses eight points
+  because the guesser "takes the trap half the time"; cross-model it loses
+  **23**, because a guesser who does not share the clue-giver's priors is far
+  likelier to take a trap the clue merely ties. And E3 said that above 0.5 the
+  search "pays coverage for safety the guesser never redeems" — cross-model the
+  guesser *does* redeem some of it (0.623 → 0.731 from θ 0.5 to 1.0). It simply
+  does not redeem enough: the clue narrows from 2.4 words to 2.0 and the board
+  stops getting finished.
+- **The grid is exhaustive, not a sample.** `sim` returns multiples of 0.5, so
+  every margin is one too, and a bar of 0.75 admits exactly what 1.0 admits.
+
+**And one comparison needed a bigger sample than the sweep could afford.** At
+200 games θ = 0.5 beats θ = 1.0 by 9.5 and 18.5 points — but at the suite's
+40-game default one direction **flips** (55.0 against 57.5). That is CLAUDE.md's
+trap exactly: fixed seeds are reproducible, not independent of *n*. Settled at
+**400 games a cell**, both directions agreeing — Opus→Fable 48.5 v 39.8,
+Fable→Opus 53.8 v 38.5. So the committed pin defends only what survives every
+sample size (0.5 over 0 and over 1.5, both directions) and leaves 0.5-over-1.0
+to the record in `search.ts`.
+
+**`LAST_CLUE_THETA` got the same treatment and a more honest answer.** At
+θ = 0.5, 400 games a cell, last-clue bars of 0 / 0.5 / 1.0 clear 47.8 / 48.5 /
+47.0 and 53.5 / 53.8 / 52.0. The whole spread is under two points and 0.5 wins
+by less than one: **the sweep cannot tell the three bars apart.** The constant is
+therefore set equal to θ because there is no evidence to set it anywhere else —
+not because it was chosen — and the comment now says so instead of claiming a
+peak. The branch stays because it mirrors what `prompts.ts` tells the model, and
+it needs re-running before the two constants are ever allowed to drift apart.
+
+**What would move θ:** a probe or a ledger measuring a *human* reading these
+clues. Every figure above is still one model reading another model's book, and a
+person is confusable in ways neither of them is.
+
+**6. The probe is built, opt-in, and has not been run for money.**
 `e2e/engine-probe.mjs` plays engine-clues/model-guesses, model-clues/
 engine-guesses and a free engine/engine reference row, printing hits/number for
 each with the call count and the wall time. It is **not** a browser drive: the
@@ -540,7 +596,7 @@ and the test's agree. The first real "as well as a frontier model" number costs
 about 16 calls a round and is the single measurement that would most change what
 follows.
 
-**6. The clue ledger ships, and `r` now has somewhere to land.**
+**7. The clue ledger ships, and `r` now has somewhere to land.**
 `src/stores/ledgerStore.ts` is a counter per arm — `{clues, asked, hits,
 refused}` — written by `gameStore` when a turn under Casey's clue ends, and
 shown in Settings under "Casey's clues". `arm` is the model alias, or `engine`,

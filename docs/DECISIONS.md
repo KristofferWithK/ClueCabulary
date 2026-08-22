@@ -65,8 +65,22 @@ evidence. Replace `sim` with a djb2 hash and give both seats the SAME hash and
 the row scores **100%** — better than every honest row — because a shared
 arbitrary function is a private code the search encodes into and the guesser
 decodes. Give the seats different salts and it falls to **0.5%**, the floor.
-E3's 99.0% therefore measured agreement, not association, and θ = 0.5 was chosen
-under it. No pin in this repo may rest on that row again.
+E3's 99.0% therefore measured agreement, not association. No pin in this repo
+may rest on that row again.
+
+**θ was chosen on that row, so it was re-chosen.** The whole sweep was re-run
+cross-model. **θ stays at 0.5** — board cleared inside the tokens 51.5% and
+59.5%, against 28.0/36.5 at θ = 0 and 42.0/41.0 at θ = 1.0 — but the objective
+had to change with the instrument: hits/number rises *monotonically* with θ, to
+0.966 at θ = 2.0, a bar at which **no board is ever finished**. A clue engine
+tuned on hit rate alone picks the setting that never wins. Two of E3's three
+stated reasons turned out wrong (θ = 0 loses 23 points cross-model, not eight;
+and above 0.5 the guesser *does* redeem some of the coverage it loses, just not
+enough). The 0.5-vs-1.0 comparison flips at the suite's 40-game default, so it
+was settled at 400 games a cell and the committed pin defends only what survives
+every sample size. `LAST_CLUE_THETA`'s sweep cannot distinguish its three
+candidate bars at all, so it is set equal to θ for want of evidence rather than
+by choice, and its comment now says so.
 
 **Decided.** (a) **E6 — cities 2–9: go.** The data works, and eight of nine
 cities have none of it, so every player past city 1 gets `mok`. One city per PR.

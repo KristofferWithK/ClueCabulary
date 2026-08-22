@@ -26,7 +26,7 @@ import {
   type Evaluator,
   type MatrixFile,
 } from './evaluator'
-import { searchClue } from './search'
+import { searchClue, THETA } from './search'
 
 /**
  * STAGE 4 — the measurement the whole clue engine is built to survive
@@ -322,6 +322,9 @@ interface Row {
   /** null = nonsense clues, the floor's and the p-curve's giver. */
   clueEv: Evaluator | null
   guesser: Guesser
+  /** Override the search's bars. Only the theta sweep below sets these. */
+  theta?: number
+  lastClueTheta?: number
 }
 
 interface Played {
@@ -332,6 +335,9 @@ interface Played {
   /** Sum of the numbers announced, and the greens actually found under them. */
   asked: number
   hits: number
+  /** Sum of every clue's coverage, and the clues that cleared no bar at all. */
+  coverage: number
+  belowTheta: number
 }
 
 async function playGame(seed: number, row: Row): Promise<Played> {
@@ -340,6 +346,8 @@ async function playGame(seed: number, row: Row): Promise<Played> {
   let clues = 0
   let asked = 0
   let hits = 0
+  let coverage = 0
+  let belowTheta = 0
   let reachedSuddenDeath = false
   let greensLeftAtTokenEnd = 0
   let safety = 400
@@ -350,9 +358,14 @@ async function playGame(seed: number, row: Row): Promise<Played> {
     const view = buildAiClueView(by === 'ai' ? state : mirror(state), 'target')
     clues++
     if (row.clueEv) {
-      const plan = searchClue(row.clueEv, view)
+      const plan = searchClue(row.clueEv, view, {
+        theta: row.theta,
+        lastClueTheta: row.lastClueTheta,
+      })
       expect(plan).not.toBeNull()
       asked += plan!.coverage
+      coverage += plan!.coverage
+      if (plan!.belowTheta) belowTheta++
       return applyEvent(state, {
         type: 'SUBMIT_CLUE',
         by,
@@ -472,6 +485,8 @@ async function playGame(seed: number, row: Row): Promise<Played> {
     greensLeftAtTokenEnd,
     asked,
     hits,
+    coverage,
+    belowTheta,
   }
 }
 
@@ -482,6 +497,11 @@ interface Summary {
   meanGreensLeftAtTokenEnd: number
   /** Greens found per word the clue-giver asked for — the probe's own metric. */
   hitsPerNumber: number
+  /** 100 - suddenDeathRate: the board cleared while the tokens lasted. */
+  clearedInTokens: number
+  /** Words a clue points at, on average, and how often nothing cleared the bar. */
+  coveragePerClue: number
+  belowTheta: number
 }
 
 const pct = (x: number) => +(100 * x).toFixed(1)
@@ -499,6 +519,9 @@ async function measure(row: Row, games: number): Promise<Summary> {
       sd.reduce((a, r) => a + r.greensLeftAtTokenEnd, 0) / Math.max(sd.length, 1)
     ).toFixed(2),
     hitsPerNumber: +(sum((r) => r.hits) / Math.max(1, sum((r) => r.asked))).toFixed(3),
+    clearedInTokens: pct((games - sd.length) / games),
+    coveragePerClue: +(sum((r) => r.coverage) / Math.max(1, sum((r) => r.clues))).toFixed(2),
+    belowTheta: sum((r) => r.belowTheta),
   }
 }
 
@@ -621,6 +644,38 @@ describe('the engine measured against the floor and the p-curve', () => {
       expect(sharedHash.winRate).toBeGreaterThan(p70.winRate) // the finding
       expect(splitHash.winRate).toBeLessThan(30) // fails band 3's floor
       expect(splitHash.hitsPerNumber).toBeLessThan(0.5)
+
+      /**
+       * 5. θ IS DEFENDED HERE, CROSS-MODEL, because the sweep that first chose
+       *    it was run on the row band 4 just retired.
+       *
+       *    The objective is "cleared inside the tokens", NOT hits/number.
+       *    hits/number rises monotonically with θ all the way to 0.966 at
+       *    θ = 2.0 — a bar that high gives clues so safe they are almost always
+       *    read correctly and so narrow that **0% of boards are finished**. A
+       *    clue engine optimised on hit rate alone would pick the setting that
+       *    never wins. So the dial is read off the boards it clears.
+       *
+       *    WHAT IS PINNED IS WHAT SURVIVES THE SAMPLE SIZE. θ = 0.5 clears more
+       *    than θ = 0 (which lets a clue TIE its strongest trap) and far more
+       *    than θ = 1.5 (which runs the tokens out with greens still up), in
+       *    both directions, at 40 games and at 200 and at 400. The neighbour
+       *    that is NOT pinned is θ = 1.0: it loses by 8.7 and 15.3 points at
+       *    400 games and by 9.5 and 18.5 at 200, but at this file's 40-game
+       *    default one direction flips (55.0 against 57.5). That is exactly the
+       *    trap CLAUDE.md names — fixed seeds are reproducible, not independent
+       *    of n — so the shipped choice between 0.5 and 1.0 rests on the 400-
+       *    game run recorded in `search.ts`, and this suite does not pretend to
+       *    re-decide it in twenty seconds.
+       */
+      const halves = await loadHalves()
+      const cleared = async (clueEv: Evaluator, guessEv: Evaluator, theta: number) =>
+        (await sweepCell(clueEv, guessEv, theta, theta, GAMES)).clearedInTokens
+      for (const [, a, b] of directions(halves)) {
+        const atTheta = await cleared(a, b, THETA)
+        expect(atTheta).toBeGreaterThan(await cleared(a, b, 0))
+        expect(atTheta).toBeGreaterThan(await cleared(a, b, 1.5))
+      }
     },
     1_800_000,
   )
@@ -656,4 +711,81 @@ describe('the authoring halves are really halves', () => {
       )
     }
   }, 120_000)
+})
+
+// ---------------------------------------------------------------------------
+// THE θ SWEEP, RE-RUN ON AN INSTRUMENT THAT SURVIVES THIS FILE'S OWN CRITIQUE.
+//
+// θ was first chosen (E3) on an engine-vs-engine sweep. The mutation above
+// retires that instrument: with one evaluator in both seats a shared djb2 hash
+// scores 100%, so the sweep was ranking θ on how well the search encodes into a
+// code the guesser already shares — not on clue quality. θ governs every clue
+// the shipped engine gives, so it must not rest on that.
+//
+// This sweeps the cross-model split instead: Opus-authored clues read by a
+// Fable-authored guesser and the reverse, reporting hits/number and "cleared
+// inside the tokens" rather than win rate, for the sudden-death reason band 3
+// gives. Report-only — the committed pin is the band below it.
+// ---------------------------------------------------------------------------
+
+/**
+ * The whole grid, and it is EXHAUSTIVE rather than a sample. `sim` returns
+ * multiples of 0.5 and nothing else, so every margin is a multiple of 0.5 and a
+ * bar of 0.75 admits exactly the clues a bar of 1.0 admits. There is no finer θ
+ * to try. `ENGINE_THETA_LIST=0.5,1` narrows it when one comparison needs a
+ * bigger sample than the whole sweep can afford.
+ */
+const THETAS: readonly number[] =
+  envVar('ENGINE_THETA_LIST')?.split(',').map(Number) ?? [0, 0.5, 1, 1.5, 2]
+
+const sweepCell = (
+  clueEv: Evaluator,
+  guessEv: Evaluator,
+  theta: number,
+  lastClueTheta: number,
+  games: number,
+): Promise<Summary> =>
+  measure(
+    { label: '', clueEv, guesser: { kind: 'engine', ev: guessEv }, theta, lastClueTheta },
+    games,
+  )
+
+const directions = (halves: Record<Model, Evaluator>): Array<[string, Evaluator, Evaluator]> => [
+  ['Opus clues  / Fable guesses', halves.opus, halves.fable],
+  ['Fable clues / Opus guesses ', halves.fable, halves.opus],
+]
+
+describe('θ, measured cross-model', () => {
+  it(
+    'sweeps when asked — the measurement THETA quotes',
+    async () => {
+      if (!envVar('ENGINE_THETA_CROSS')) return
+      const games = Number(envVar('ENGINE_SELFPLAY_GAMES') ?? 200)
+      const dirs = directions(await loadHalves())
+      const head =
+        'direction                      dial  hits/number  cleared-in-tokens  win%  cov/clue  below'
+      const line = (label: string, dial: number, r: Summary) =>
+        `${label} ${dial.toFixed(1).padStart(6)} ${r.hitsPerNumber.toFixed(3).padStart(12)} ` +
+        `${r.clearedInTokens.toFixed(1).padStart(18)} ${r.winRate.toFixed(1).padStart(5)} ` +
+        `${r.coveragePerClue.toFixed(2).padStart(9)} ${String(r.belowTheta).padStart(7)}`
+
+      // One bar throughout, so this isolates θ rather than mixing it with the
+      // last-clue branch. That branch gets its own sweep after.
+      console.log(`\ncross-model θ sweep, ${games} seeded city-1 boards a cell\n${head}`)
+      for (const [label, a, b] of dirs) {
+        for (const theta of THETAS) {
+          console.log(line(label, theta, await sweepCell(a, b, theta, theta, games)))
+        }
+      }
+
+      const at = Number(envVar('ENGINE_LAST_CLUE_AT') ?? 0.5)
+      console.log(`\nthe last-clue bar on its own, at θ = ${at.toFixed(1)}\n${head}`)
+      for (const [label, a, b] of dirs) {
+        for (const bar of [0, 0.5, 1]) {
+          console.log(line(label, bar, await sweepCell(a, b, at, bar, games)))
+        }
+      }
+    },
+    3_600_000,
+  )
 })
