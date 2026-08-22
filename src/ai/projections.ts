@@ -160,7 +160,17 @@ export function aiGuessableIds(view: AiGuessView): string[] {
   return view.words.filter((w) => isOpenFor(w.reveal, 'player')).map((w) => w.id)
 }
 
-function isOpenFor(reveal: Reveal, giver: Side): boolean {
+/**
+ * Could this card still be named under a clue GIVEN BY `giver`? The
+ * directional heart of both id lists above, exported for the local engine's
+ * trap set (`src/ai/local/evaluator.ts`), which must ask exactly this question
+ * and not a lookalike: a bystander reveal burns the card only for the side
+ * whose clue it was named under (`Reveal.against`), so a card the player has
+ * already seen turn grey under their own clue is still live — and still a
+ * trap — under Casey's. Takes only public reveal state, so exporting it moves
+ * nothing across the firewall.
+ */
+export function isOpenFor(reveal: Reveal, giver: Side): boolean {
   if (reveal.kind === 'hidden') return true
   if (reveal.kind === 'bystander') return !reveal.against.includes(giver)
   return false
