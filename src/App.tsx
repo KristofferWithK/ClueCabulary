@@ -116,12 +116,11 @@ export default function App() {
     // need and a moved default cannot silently reorder their turns.
     const first = params.get('first')
     if (first === 'player' || first === 'ai') useUi.setState({ pendingFirstGiver: first })
-    // ?grid= picks the board Play deals. The picker left Home for
-    // Settings, and a drive cannot type into a select mid-run.
-    const grid = params.get('grid')
-    if (grid === 'beginner' || grid === 'middle' || grid === 'standard') {
-      useSettings.getState().set({ gridSize: grid })
-    }
+    // ?grid= WAS HERE. It picked the board Play deals, because the size was a
+    // stored setting and a drive cannot type into a select mid-run. There is
+    // one board now (N1), so a drive that wants a big board or a short one is
+    // asking for something the app cannot do; the twenty-seven URLs that
+    // carried the parameter dropped it.
     // ?fresh=1 abandons any round in flight so Play deals anew — but keeps
     // recentBoards, which is the point: the carry-over drive deals board
     // after board and must not have its window wiped between them.

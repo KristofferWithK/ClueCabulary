@@ -4,7 +4,6 @@ import { ACTIVE, setActiveLanguage } from '../../lang/active'
 import { availableLanguages, hasLanguageChoice } from '../../lang/index'
 import type { LanguageCode } from '../../lang/types'
 import { PROVIDERS, providerFor, type Provider } from '../../ai/providers'
-import type { GridSize } from '../../engine/config'
 import { useGame } from '../../stores/gameStore'
 import { useJourney } from '../../stores/journeyStore'
 import type { StudyMode } from '../../journey/progress'
@@ -238,19 +237,9 @@ export function SettingsScreen() {
 
       <section className="settings-section">
         <h3>Game</h3>
-        <label className="field">
-          <span>Board size</span>
-          <select
-            value={settings.gridSize}
-            onChange={(e) => settings.set({ gridSize: e.target.value as GridSize })}
-          >
-            <option value="beginner">3×4 — Beginner, 5 clues</option>
-            <option value="middle">3×5 — Middle, 6 clues</option>
-            <option value="standard">4×5 — Standard, 8 clues</option>
-          </select>
-          <small>What Play deals. Wrap-up rounds bring their own board.</small>
-        </label>
-
+        {/* The Board size picker was here. One board now (N1), so there is
+            nothing to choose — and the label that said "4×5 — Standard, 8
+            clues" of a board with seven tokens retires with it. */}
         <LanguagePicker />
 
         <label className="field">

@@ -15,7 +15,6 @@ import { startPreview } from './preview-server.mjs'
 
 const PORT = 4198
 const preview = await startPreview(PORT)
-const SIZES = ['beginner', 'middle', 'standard']
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium',
@@ -37,8 +36,8 @@ const persisted = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}'))
 
 /** Deal a board and return its word ids, in board order. */
-async function deal(gridIndex) {
-  await page.goto(`${preview.base}?mock=1&howto=0&fresh=1&grid=${SIZES[gridIndex]}`)
+async function deal() {
+  await page.goto(`${preview.base}?mock=1&howto=0&fresh=1`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
@@ -56,14 +55,15 @@ try {
   await page.evaluate(() => localStorage.clear())
 
   // ---- the first board has nothing to repeat -------------------------------
-  const boards = [await deal(0)]
-  check('the first board deals', boards[0].length === 12, `${boards[0].length} words`)
+  const boards = [await deal()]
+  // 18 since N1; it was 12 while this drive asked for the beginner size.
+  check('the first board deals', boards[0].length === 18, `${boards[0].length} words`)
 
   // ---- and every board after it repeats exactly three ----------------------
   // Six rounds: enough that the pool is no longer "everything the player has
   // ever seen", which is the state where the quota is trivially satisfiable.
   for (let r = 1; r < 6; r++) {
-    const next = await deal(0)
+    const next = await deal()
     const carried = shared(next, boards[r - 1])
     check(
       `board ${r + 1} shares exactly ${CARRY_OVER} words with board ${r}`,
@@ -83,17 +83,23 @@ try {
   // ---- across a reload, because the app is a PWA the player closes ---------
   await page.reload()
   await page.waitForSelector('.city-card')
-  const afterReload = await deal(0)
+  const afterReload = await deal()
   check(
     'the rule survives closing the app',
     shared(afterReload, boards[boards.length - 1]).length === CARRY_OVER,
     `${shared(afterReload, boards[boards.length - 1]).length}`,
   )
 
-  // ---- and on a board of a different size ---------------------------------
-  const bigger = await deal(1)
+  // ---- and across a fresh navigation, which is where recentBoards lives ----
+  // This block used to deal the NEXT board at a different SIZE, because the
+  // carry-over window is two boards deep and had to hold across a change of
+  // shape. There is one board (N1), so what is left to check is that the rule
+  // holds across the reload above and into the deal after it — the window is
+  // persisted, and a persisted key changing shape between versions has already
+  // been a real hazard here.
+  const bigger = await deal()
   check(
-    'and holds when the next board is a different size',
+    'and holds on the board after that',
     shared(bigger, afterReload).length === CARRY_OVER,
     `${shared(bigger, afterReload).length} of ${bigger.length}`,
   )
@@ -116,7 +122,7 @@ try {
   // window and the reroll comes back holding three words of the very board the
   // player just said they could not read. Unit tests hold that in the store;
   // this is the same claim through the button.
-  const beforeReroll = await deal(0)
+  const beforeReroll = await deal()
   const played = (await persisted()).state.recentBoards[1]
   // In the header now, as a symbol: in the composer it cost a whole line of a
   // block that has to fit above the keyboard. Same conditions, same job.
@@ -194,8 +200,15 @@ try {
     },
     [legacy],
   )
-  const afterMigration = await deal(0)
-  check('a v1 save still deals a full board', afterMigration.length === 12)
+  const afterMigration = await deal()
+  // Compared against a board this run actually dealt rather than a literal:
+  // this said 12 while the drive asked for the beginner size by name, and N1
+  // made every board 18 without the number here knowing.
+  check(
+    'a v1 save still deals a full board',
+    afterMigration.length === legacy.length,
+    `${afterMigration.length} of ${legacy.length}`,
+  )
   check(
     'and its one remembered board is honoured',
     shared(afterMigration, legacy).length === CARRY_OVER,

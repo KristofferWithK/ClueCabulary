@@ -465,7 +465,7 @@ check('and the replay was transient — the done flag never moved', (await marke
 // (C1 reserved every dock's height, so neither moves the board), speaks once,
 // and its flag keeps it from ever speaking again.
 await page.evaluate(() => localStorage.clear())
-await open('?mock=1&howto=0&seed=5&grid=beginner&city=0')
+await open('?mock=1&howto=0&seed=5&city=0')
 await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 check('the first clue turn carries its line, exactly once', (await page.locator('.first-hint').count()) === 1)

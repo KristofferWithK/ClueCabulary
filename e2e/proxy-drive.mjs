@@ -85,7 +85,6 @@ const settingsFor = (baseUrl, apiKey = KEY, model = 'fake-model') => ({
     apiKey,
     baseUrl,
     model,
-    gridSize: 'beginner',
     clueLanguage: 'en',
     studyPhase: 'never',
     useMock: false,
@@ -189,7 +188,7 @@ try {
   fake.reset()
   await useBaseUrl(`${worker.base}/v1`)
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?howto=0&seed=5&grid=beginner`)
+  await page.goto(`${preview.base}?howto=0&seed=5`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
@@ -461,7 +460,7 @@ try {
   fake.reset()
   await useBaseUrl(`${capped.base}/v1`, '')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?howto=0&seed=5&grid=beginner`)
+  await page.goto(`${preview.base}?howto=0&seed=5`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
@@ -675,7 +674,7 @@ try {
   fake.queue({ body: 'Hmm, let me think about this one out loud instead.' })
   await useBaseUrl(`${cascade.base}/v1`, '', 'cluey')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?howto=0&seed=5&grid=beginner`)
+  await page.goto(`${preview.base}?howto=0&seed=5`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')

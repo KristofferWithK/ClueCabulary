@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { DEFAULT_BASE_URL, DEFAULT_MODEL } from '../ai/client'
-import type { GridSize } from '../engine/config'
 import type { StudyMode } from '../journey/progress'
 import type { ClueLanguageSetting } from '../lang/types'
 
@@ -9,7 +8,6 @@ interface SettingsState {
   apiKey: string
   baseUrl: string
   model: string
-  gridSize: GridSize
   clueLanguage: ClueLanguageSetting
   /** Show the whole board translated before a round starts. */
   studyPhase: StudyMode
@@ -63,7 +61,6 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
     ...((persisted ?? {}) as {
       studyPhase?: StudyMode
       clueLanguage?: ClueLanguageSetting | 'da'
-      gridSize?: GridSize
       apiKey?: string
       baseUrl?: string
       model?: string
@@ -77,21 +74,19 @@ export function migrateSettings(persisted: unknown, from: number): unknown {
   // stored one, and this one had every existing player still getting English
   // clues. It wrote the literal 'da'; v9 below is what that cost.
   if (from < 3 && s.clueLanguage === 'en') s.clueLanguage = 'da'
-  // v3 -> v4: 3x5 is the board Play deals.
+  // v3 -> v4 WAS HERE and is gone with the field it moved: it rewrote a stored
+  // `gridSize` of 'beginner' to 'middle' when 3x5 became the board Play deals.
+  // N1 deleted board sizes entirely — there is one board — and with them the
+  // setting, so there is nothing left to rewrite.
   //
-  // This one is not clean, and the dishonest thing would be to pretend it is.
-  // 'always' could be left alone in the study-phase migration because it was
-  // never a default, so holding it proved somebody chose it. 'beginner' was the
-  // default AND is a real choice, and the persisted blob cannot tell them
-  // apart: this store has no partialize, so every save ever written carries a
-  // gridSize whether the player ever touched the picker or not.
-  //
-  // So it moves everyone, and the cost is asymmetric on purpose. Someone who
-  // wanted 3x4 is one tap from it — the picker is on Home, above the fold, and
-  // tapping it stores the choice for good. Someone who is not moved never gets
-  // the board that was asked for, which is exactly the trap this app has fallen
-  // into three times now.
-  if (from < 4 && s.gridSize === 'beginner') s.gridSize = 'middle'
+  // NO MIGRATION REPLACES IT, and that is deliberate rather than the trap
+  // CLAUDE.md records three times. That trap is about CHANGING a default: this
+  // store has no partialize, so every save ever written carries every field,
+  // and a moved default is invisible to a device that already stored the old
+  // one. REMOVING a field is the opposite case. persist merges
+  // `{...initial, ...persisted}`, so an orphaned `gridSize` in an old save is
+  // spread into state, read by nothing, and written back out untouched. There
+  // is no version bump here because there is no value to fix.
   // v4 -> v5: the proxy is the default, so Casey answers with no key at all.
   //
   // The fourth outing of the same trap, but the first one where the old value
@@ -169,11 +164,8 @@ export const useSettings = create<SettingsState>()(
       apiKey: '',
       baseUrl: DEFAULT_BASE_URL,
       model: DEFAULT_MODEL,
-      // 3x5. Fifteen words, six clues — the board the game is actually tuned
-      // around, and the one Play deals. (It carried one forbidden
-      // word a side when that was chosen; no board does now.)
-      // 3x4 is still a tap away in the picker for a first sitting.
-      gridSize: 'middle',
+      // There is no board size here any more. One board — `BOARD` in
+      // engine/config.ts, 3x6 — so nothing to store and nothing to pick.
       // The target language, both ways. The player has always been asked for
       // one word in it by the clue dock; this setting governs only CLUEY's
       // clues, and its old default had him answering in English on a Danish

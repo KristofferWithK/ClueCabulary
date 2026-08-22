@@ -37,7 +37,6 @@ describe('settingsStore: has Casey ever answered?', () => {
   })
 
   it.each([
-    ['gridSize', { gridSize: 'standard' as const }],
     ['studyPhase', { studyPhase: 'never' as const }],
     ['clueLanguage', { clueLanguage: 'target' as const }],
   ])('changing the %s does not', (_field, patch) => {
@@ -84,14 +83,15 @@ describe('the study phase, which the board should no longer open with', () => {
   })
 
   it('and is turned off on a v1 save that still holds the old default', () => {
-    const upgraded = migrate({ studyPhase: 'auto', gridSize: 'standard' }, 1) as Record<
-      string,
-      unknown
-    >
+    const upgraded = migrate(
+      { studyPhase: 'auto', baseUrl: 'https://example.test/v1' },
+      1,
+    ) as Record<string, unknown>
     expect(upgraded.studyPhase).toBe('never')
     // Everything else survives: this is one field, not a reset. (The API key
-    // is the exception, and only because v7 retires it outright.)
-    expect(upgraded.gridSize).toBe('standard')
+    // is the exception, and only because v7 retires it outright; `sound` is
+    // the other, written in explicitly by v8.)
+    expect(upgraded.baseUrl).toBe('https://example.test/v1')
   })
 
   it('but a deliberate "always" is left alone — it was never a default', () => {
@@ -168,56 +168,53 @@ describe('which language Casey clues in', () => {
 })
 
 /**
- * "3x5 grid is now the default."
+ * WHICH BOARD PLAY DEALS: there is one, so nothing stores it any more.
  *
- * Third time this exact trap has been laid: settings persist, so the default is
- * only what a device that has never stored one gets, and this store has no
- * partialize — every save ever written carries a gridSize whether the player
- * touched the picker or not. Moving the default alone would have left every
- * existing device dealing 3x4 from Play forever.
+ * This describe used to defend a persisted default. "3x5 grid is now the
+ * default" was the third outing of the trap CLAUDE.md records — settings
+ * persist, this store has no partialize, so every save ever written carried a
+ * `gridSize` whether the player touched the picker or not, and moving the
+ * default alone would have left every existing device dealing 3x4 forever. The
+ * migration moved everyone because the old value could not be told apart from
+ * a deliberate choice of it.
  *
- * Unlike the study phase, the old value cannot be told apart from a deliberate
- * choice of it, so this migration moves everyone. That is a decision, recorded
- * here rather than discovered later: 3x4 is one tap away on Home and the tap
- * sticks, whereas not moving means the board that was asked for never arrives.
+ * N1 removed the field. What is pinned here now is the OPPOSITE case, and it
+ * is worth pinning precisely because it looks like the same trap and is not:
+ * REMOVING a persisted field needs no version bump and no migrate step.
+ * `persist` merges `{...initial, ...persisted}`, so an orphaned key is spread
+ * into state, read by nothing, and written back out untouched. There is no
+ * wrong value to fix — there is no reader.
  */
-describe('which board Play deals', () => {
+describe('the retired board size', () => {
   const migrate = migrateSettings
 
-  it('is 3x5 for anyone who has never stored a setting', () => {
-    expect(useSettings.getInitialState().gridSize).toBe('middle')
+  it('is not a setting any more', () => {
+    expect(useSettings.getInitialState()).not.toHaveProperty('gridSize')
   })
 
-  it.each([1, 2, 3])('and a v%i save holding the old default is moved to it', (from) => {
-    expect((migrate({ gridSize: 'beginner' }, from) as Record<string, unknown>).gridSize).toBe(
-      'middle',
-    )
+  it('is left exactly as an old save wrote it, at every version', () => {
+    for (const from of [1, 2, 3, 4, 8]) {
+      const up = migrate({ gridSize: 'beginner' }, from) as Record<string, unknown>
+      // Not rewritten to 'middle' the way v3 -> v4 used to, and not deleted:
+      // untouched, which is what "no migration needed" means in practice.
+      expect(up.gridSize, `at v${from}`).toBe('beginner')
+    }
   })
 
-  it('a deliberate 4x5 survives — it was never a default', () => {
-    expect((migrate({ gridSize: 'standard' }, 3) as Record<string, unknown>).gridSize).toBe(
-      'standard',
-    )
+  it('survives a save that never had one, which is the same non-event', () => {
+    expect((migrate({ apiKey: 'k' }, 1) as Record<string, unknown>).gridSize).toBeUndefined()
   })
 
-  it('a v4 save is left alone entirely', () => {
-    expect((migrate({ gridSize: 'beginner' }, 4) as Record<string, unknown>).gridSize).toBe(
-      'beginner',
-    )
-  })
-
-  it('and every other field survives the trip', () => {
-    // Not the model: a save with no Base URL is one the v5 rule moves to the
-    // proxy, and the model comes along with the server it belongs to.
-    const up = migrate({ gridSize: 'beginner', clueLanguage: 'da', studyPhase: 'never' }, 3) as Record<
+  it('does not stop the other migrations happening around it', () => {
+    const up = migrate({ gridSize: 'standard', clueLanguage: 'da', studyPhase: 'auto' }, 1) as Record<
       string,
       unknown
     >
-    expect(up).toMatchObject({ gridSize: 'middle', clueLanguage: 'target', studyPhase: 'never' })
-  })
-
-  it('survives a save with no gridSize at all', () => {
-    expect((migrate({ apiKey: 'k' }, 1) as Record<string, unknown>).gridSize).toBeUndefined()
+    expect(up).toMatchObject({
+      studyPhase: 'never',
+      clueLanguage: 'target',
+      gridSize: 'standard',
+    })
   })
 })
 
@@ -335,8 +332,10 @@ describe('which server a device talks to', () => {
       // compose on the way past rather than one undoing the other. That is the
       // whole reason this case is here.
       clueLanguage: 'target',
-      gridSize: 'middle',
       baseUrl: DEFAULT_BASE_URL,
+      // And the retired board size is carried through untouched rather than
+      // rewritten, because v3 -> v4 went with the field (N1).
+      gridSize: 'beginner',
     })
   })
 })

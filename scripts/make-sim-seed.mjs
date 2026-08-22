@@ -30,7 +30,7 @@ const OUT = new URL('../ios/sim-seed.json', import.meta.url)
 // The same switches layout-drive uses to reach a clue box: the mock companion
 // (no network on a runner), a fixed board, and the player opening the round so
 // the first thing on screen is the composer rather than Casey's turn.
-const START = '?mock=1&howto=0&seed=7&grid=standard&first=player'
+const START = '?mock=1&howto=0&seed=7&first=player'
 
 const preview = await startPreview(PORT)
 const browser = await chromium.launch({

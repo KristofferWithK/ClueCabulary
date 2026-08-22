@@ -44,7 +44,6 @@ await page.addInitScript(
           apiKey,
           baseUrl,
           model,
-          gridSize: 'beginner',
           clueLanguage: 'en',
           studyPhase: 'never',
           useMock: false,
@@ -67,7 +66,7 @@ try {
   console.log(`model:    ${MODEL}`)
   console.log('key:      (from OLLAMA_API_KEY, not shown)\n')
 
-  await page.goto(`${BASE}?howto=0&grid=beginner`)
+  await page.goto(`${BASE}?howto=0`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { TutorialCompanion } from '../ai/tutorialCompanion'
 import { planGuessExecution } from '../ai/companion'
 import { buildAiClueView, buildAiGuessView } from '../ai/projections'
-import { GRID_CONFIGS } from '../engine/config'
+import { TUTORIAL_CONFIG } from '../engine/config'
 import { applyEvent as applyEventIn, createGame, isGuessable } from '../engine/game'
 import { checkClueLegality } from '../engine/legality'
 import type { GameState } from '../engine/types'
@@ -41,7 +41,7 @@ const applyEvent = (s: GameState, e: Parameters<typeof applyEventIn>[1]) =>
 
 const deal = (): GameState =>
   createGame({
-    config: GRID_CONFIGS.beginner,
+    config: TUTORIAL_CONFIG,
     words: TUTORIAL_WORD_IDS.map((id) => {
       const w = wordById(id)!
       return {

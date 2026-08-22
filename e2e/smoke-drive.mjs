@@ -43,7 +43,7 @@ page.on('console', (m) => m.type() === 'error' && console.log('PAGE ERROR:', m.t
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
 try {
-  await page.goto(preview.base + '?mock=1&seed=5&grid=beginner')
+  await page.goto(preview.base + '?mock=1&seed=5')
 
   // A first visit opens inside the train now (O1) — ride it like a new
   // player would: Casey's three lines, then the ticket, and since O2 the
@@ -62,7 +62,7 @@ try {
   await page.waitForSelector('h1:has-text("900words")')
   await page.screenshot({ path: `${SHOT_DIR}/01-home.png` })
 
-  await page.locator('.home-play').click() // beginner 3x4, via ?grid=
+  await page.locator('.home-play').click() // the board, 3x6 — there is only one
   await page.waitForSelector('.board-grid')
   await page.screenshot({ path: `${SHOT_DIR}/02-board.png` })
   const cards = await page.locator('.word-card .card-word').allTextContents()
@@ -230,7 +230,13 @@ try {
   // cadence — the pace HearBoard measured off the clips — and the third is
   // allowed for slack rather than required, since the run is flattened above.
   if (heard.length < 2) throw new Error(`hear-the-board said ${heard.length} words in 3.4s`)
-  const wanted = cards.slice(0, heard.length).map(audioSlug)
+  // NOT `.map(audioSlug)`: map passes the INDEX as the second argument, which
+  // audioSlug reads as the language, so `FOLDS[1]` is undefined and the fold
+  // never runs. Latent since the helper grew a lang parameter and invisible
+  // while the board asked for here was the 3x4, whose first three words happen
+  // to be plain ASCII. The 3x6 deals «køkken» second and it came out `k-kken`
+  // against the app's `koekken`, reported as the tour saying words out of order.
+  const wanted = cards.slice(0, heard.length).map((w) => audioSlug(w))
   if (heard.join('|') !== wanted.join('|')) {
     throw new Error(`hear-the-board went out of order: ${heard.join(', ')} vs ${wanted.join(', ')}`)
   }
@@ -382,7 +388,6 @@ try {
       apiKey: '',
       baseUrl: 'https://example.invalid/v1',
       model: 'm',
-      gridSize: 'beginner',
       clueLanguage: 'en',
       studyPhase: 'auto',
       useMock: false,
@@ -393,7 +398,7 @@ try {
     localStorage.clear()
     localStorage.setItem('cluecab-settings-v1', blob)
   }, V1_SETTINGS)
-  await page.goto(preview.base + '?mock=1&seed=5&howto=0&grid=beginner')
+  await page.goto(preview.base + '?mock=1&seed=5&howto=0')
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
@@ -430,7 +435,7 @@ try {
   // away. Played out here rather than asserted on a fixture, because the value
   // only exists if the reasoning survives the engine and the store.
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(preview.base + '?mock=1&seed=11&howto=0&grid=beginner')
+  await page.goto(preview.base + '?mock=1&seed=11&howto=0')
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')

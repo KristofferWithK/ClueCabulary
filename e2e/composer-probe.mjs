@@ -35,10 +35,10 @@ const auto = () =>
   })
 
 try {
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=7&city=0&grid=standard&first=player`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=7&city=0&first=player`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=7&city=0&grid=standard&first=player`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=7&city=0&first=player`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')

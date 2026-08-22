@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS, curriculumRank } from '../data/words'
-import { GRID_CONFIGS } from '../engine/config'
+import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from '../engine/config'
 import { mulberry32 } from '../engine/rng'
 import { levenshtein, normalize } from '../engine/text'
 import { danish } from '../lang/da'
@@ -16,7 +16,14 @@ const NOW = 1_700_000_000_000
 
 /** The sampler must fill a full board from the smallest possible pool. */
 describe('board sampling from a journey-restricted pool', () => {
-  it.each(Object.entries(GRID_CONFIGS))(
+  // Every config the app deals, not every board SIZE — there are none (N1).
+  const CONFIGS: Array<[string, GridConfig]> = [
+    ['board', BOARD],
+    ['tutorial', TUTORIAL_CONFIG],
+    ['wrapup', WRAPUP_CONFIG],
+  ]
+
+  it.each(CONFIGS)(
     'fills a %s board from the 100-word first city across 200 seeds',
     (_name, config) => {
       const pool = unlockedWords(WORDS, 0)
@@ -42,7 +49,7 @@ describe('board sampling from a journey-restricted pool', () => {
   // `unlockedWords` (which is cumulative and would let city 0's words through
   // once the player is in city 1+) — checked by hand before this landed.
   it('never returns a word from another city', () => {
-    const config = GRID_CONFIGS.standard
+    const config = BOARD
     for (let city = 0; city < CITIES.length; city++) {
       const pool = wordsForCity(WORDS, city)
       const allowed = new Set(pool.map((w) => w.id))
@@ -67,7 +74,7 @@ describe('board sampling from a journey-restricted pool', () => {
   it('keeps boards unambiguous: the relaxation fallback almost never fires', () => {
     // Exclusions (shared stem, distance-1, shared gloss) can in principle
     // starve a small pool; measure how often a conflicting pair slips through.
-    const config = GRID_CONFIGS.standard
+    const config = BOARD
     const pool = unlockedWords(WORDS, 0)
     let conflicted = 0
     const rounds = 200
@@ -97,7 +104,7 @@ describe('board sampling from a journey-restricted pool', () => {
     // Late in a city nothing is unseen. Reserved new-word slots would then fall
     // through to the relaxed fill, which ignores the exclusion rules and picks
     // in dataset order — the same filler words on every board.
-    const config = GRID_CONFIGS.standard
+    const config = BOARD
     const pool = unlockedWords(WORDS, 0)
     const srs: SrsMap = {}
     for (const w of pool) srs[w.id] = { ...newStats(NOW - 2 * 864e5), seen: 3 }
@@ -136,7 +143,7 @@ describe('board sampling from a journey-restricted pool', () => {
   })
 
   it('still respects the new-word cap once the player has history', () => {
-    const config = GRID_CONFIGS.standard
+    const config = BOARD
     const pool = wordsForCity(WORDS, 1) // 100 words: city 1 alone, not city 0 too
     const srs: SrsMap = {}
     for (const w of pool.slice(0, 60)) srs[w.id] = { ...newStats(NOW - 3 * 864e5), seen: 2 }

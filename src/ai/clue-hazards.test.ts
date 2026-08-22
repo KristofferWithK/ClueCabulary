@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS } from '../engine/config'
+import { BOARD } from '../engine/config'
 import { applyEvent as applyEventIn, createGame } from '../engine/game'
 import type { BoardWord, GameState } from '../engine/types'
 import { aiTargetableIds, buildAiClueView, buildAiGuessView } from './projections'
@@ -32,8 +32,8 @@ const words = (n: number): BoardWord[] =>
 
 const start = (): GameState =>
   createGame({
-    config: GRID_CONFIGS.beginner,
-    words: words(GRID_CONFIGS.beginner.totalWords),
+    config: BOARD,
+    words: words(BOARD.totalWords),
     seed: 7,
     firstGiver: 'ai',
   })
@@ -193,8 +193,8 @@ describe('the prompts say nothing about forbidden words', () => {
     // The guesser is the player under an AI clue, so build the view the other
     // way: a player clue, with Casey guessing.
     const fresh = createGame({
-      config: GRID_CONFIGS.beginner,
-      words: words(GRID_CONFIGS.beginner.totalWords),
+      config: BOARD,
+      words: words(BOARD.totalWords),
       seed: 7,
       firstGiver: 'player',
     })

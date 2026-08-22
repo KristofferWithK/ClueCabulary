@@ -75,11 +75,20 @@ const JourneyV1Schema = z.object({
   arrivedAt: z.record(z.string(), z.number()),
 })
 
-/** Preferences worth carrying across. Never the API key. */
+/**
+ * Preferences worth carrying across. Never the API key.
+ *
+ * `gridSize` was here, enumerated because it was cast straight into settings
+ * and a bad one made every new game throw when it looked up its config. N1
+ * deleted board sizes, and the field goes with them — but every backup file
+ * ever written still carries one, and every one of those files still restores:
+ * `z.object` STRIPS unknown keys rather than rejecting them, so the old value
+ * is read past and dropped. That is exactly what the enum's hard rejection was
+ * a warning about, so it is pinned in backup.test.ts rather than reasoned
+ * about here.
+ */
 const PrefsSchema = z.object({
-  // Enumerated, not free strings: these are cast straight into settings, and a
-  // bad gridSize makes every new game throw when it looks up its config.
-  gridSize: z.enum(['beginner', 'middle', 'standard']),
+  // Enumerated, not free strings: these are cast straight into settings.
   // 'da' is what every file written before settings v9 carries, and it meant
   // "the language being learned". Read and rewritten rather than rejected: a
   // backup is the one artefact a player keeps for years.

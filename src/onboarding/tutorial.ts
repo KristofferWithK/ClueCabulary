@@ -8,7 +8,9 @@ import type { GameState } from '../engine/types'
  *
  * A scripted fake board could teach a rule the game does not have — and the
  * clue-giver's-key rule has been written backwards in copy six times in this
- * repo. So the board is `GRID_CONFIGS.beginner` dealt by `createGame` with a
+ * repo. So the board is `TUTORIAL_CONFIG` — the 3x4 that used to be the
+ * beginner SIZE and is now a board you only ever enter — dealt by `createGame`
+ * with a
  * FIXED word list and a FIXED seed: the keys are deterministic, which is what
  * makes a hand-written script pinnable. `tutorial.test.ts` plays every beat
  * below through `applyEvent` and fails if any claim Casey makes stops being

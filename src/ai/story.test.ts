@@ -6,7 +6,7 @@ import { buildStoryView, type StoryView } from './projections'
 import { buildStoryPrompt } from './prompts'
 import { StoryResponseSchema, type StoryResponse } from './schemas'
 import type { ChatMessage } from './prompts'
-import { GRID_CONFIGS } from '../engine/config'
+import { BOARD } from '../engine/config'
 import { createGame } from '../engine/game'
 import type { BoardWord, CardRole } from '../engine/types'
 import { danish } from '../lang/da'
@@ -130,13 +130,13 @@ describe('getStory', () => {
 
 describe('buildStoryView — the firewall holds after the round too', () => {
   it('is byte-identical under a permutation of both keys', () => {
-    const words: BoardWord[] = Array.from({ length: 20 }, (_, i) => ({
+    const words: BoardWord[] = Array.from({ length: BOARD.totalWords }, (_, i) => ({
       wordId: `w${i}`,
       da: `ord${i}`,
       en: [`gloss${i}`],
       pos: 'noun',
     }))
-    const state = createGame({ config: GRID_CONFIGS.standard, words, seed: 7, firstGiver: 'player' })
+    const state = createGame({ config: BOARD, words, seed: 7, firstGiver: 'player' })
     const swap = (key: Record<string, CardRole>): Record<string, CardRole> => {
       const ids = Object.keys(key)
       const out = { ...key }

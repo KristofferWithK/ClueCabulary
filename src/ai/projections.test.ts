@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS } from '../engine/config'
+import { BOARD } from '../engine/config'
 import { applyEvent as applyEventIn, createGame } from '../engine/game'
 import type { BoardWord, CardRole, GameState } from '../engine/types'
 import {
@@ -37,7 +37,7 @@ const words = (n: number): BoardWord[] =>
 
 const game = (seed: number): GameState =>
   // firstGiver pinned so these fixtures do not move if the default does.
-  createGame({ config: GRID_CONFIGS.standard, words: words(20), seed, firstGiver: 'player' })
+  createGame({ config: BOARD, words: words(BOARD.totalWords), seed, firstGiver: 'player' })
 
 /** Cyclically reassign the roles among words — same counts, different key. */
 function permuteKey(key: Record<string, CardRole>): Record<string, CardRole> {

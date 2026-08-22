@@ -103,16 +103,18 @@ describe('gameStore: rerolling the board before the first clue', () => {
     useGame.setState({ recentBoards: [] })
   })
 
-  it('deals a different board of the same size', () => {
-    useGame.getState().newGame({ seed: 11, gridSize: 'standard' })
+  it('deals a different board of the same shape', () => {
+    useGame.getState().newGame({ seed: 11 })
     const before = ids()
     const { seed: seedBefore, config: configBefore } = useGame.getState().game!
     useGame.getState().rerollBoard()
     const after = ids()
     expect(after).not.toEqual(before)
     expect(seedBefore).not.toBe(useGame.getState().game!.seed)
-    // A reroll is a new deal, not a new difficulty: the board it came from
-    // chooses the size, which is why rerollBoard never reads settings.gridSize.
+    // A reroll is a new deal, not a new board: it re-uses the config the round
+    // was created with. There is only one config a normal round can have (N1),
+    // but a wrap-up round rerolls through the same path and must not come back
+    // as an ordinary board.
     expect(useGame.getState().game!.config).toEqual(configBefore)
     expect(after).toHaveLength(before.length)
   })

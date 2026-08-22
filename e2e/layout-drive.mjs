@@ -305,7 +305,7 @@ await page.waitForTimeout(250)
 
 // The ⓘ must not be drawn over the word it belongs to, or it steals taps meant
 // for a guess.
-await open('?mock=1&howto=0&seed=7&city=0&grid=beginner')
+await open('?mock=1&howto=0&seed=7&city=0')
 await page.locator('.home-play').click()
 await page.waitForTimeout(700)
 const info = await page.locator('.card-info').first().boundingBox()
@@ -317,7 +317,7 @@ check(
 
 // Turning a word green is the loop's whole reward and used to happen silently.
 // Play a mock round to the end with every word one handling short of green.
-await open('?mock=1&howto=0&seed=5&city=0&almost=100&grid=beginner')
+await open('?mock=1&howto=0&seed=5&city=0&almost=100')
 await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const study = page.locator('.study-dock .btn-primary')
@@ -424,7 +424,7 @@ const greens = await page.locator('.word-card.mykey-green').count()
 
 // Casey's whole turn used to happen in silence: no live region existed
 // anywhere in the game loop.
-await open('?mock=1&howto=0&seed=7&city=0&grid=beginner')
+await open('?mock=1&howto=0&seed=7&city=0')
 await page.locator('.home-play').click()
 await page.waitForSelector('.board-grid')
 const studyBtn = page.locator('.study-dock .btn-primary')
@@ -757,9 +757,9 @@ for (const vp of [
 
   // The game, in the phase measured tallest (the opening clue dock), on the
   // widest board.
-  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await open('?mock=1&howto=0&seed=7&first=player')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await open('?mock=1&howto=0&seed=7&first=player')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const studyBtn2 = page.locator('.study-dock .btn-primary')
@@ -813,9 +813,9 @@ await page.setViewportSize(PHONE)
 // character-for-character what Keyboard.m's resizeElement does.
 {
   const KB = 336
-  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await open('?mock=1&howto=0&seed=7&first=player')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+  await open('?mock=1&howto=0&seed=7&first=player')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
   const study = page.locator('.study-dock .btn-primary')
@@ -946,9 +946,9 @@ await page.setViewportSize(PHONE)
   const arm = async (mode) => {
     // A round to be in the middle of, saved, and then resumed by the reload —
     // cluecab-kbsim and the flag are both read once, at mount.
-    await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+    await open('?mock=1&howto=0&seed=7&first=player')
     await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-    await open('?mock=1&howto=0&seed=7&grid=standard&first=player')
+    await open('?mock=1&howto=0&seed=7&first=player')
     await page.locator('.home-play').click()
     await page.waitForSelector('.board-grid')
     const study = page.locator('.study-dock .btn-primary')
@@ -1056,6 +1056,80 @@ await page.setViewportSize(PHONE)
   )
 }
 
+// ---- A grid row may never be shorter than the card's 44px floor. -----------
+//
+// N1 put a sixth row on the board, and this is the check that says the row fits
+// rather than the card being squeezed out of it.
+//
+// The mechanism is worth stating because the failure is INVISIBLE. `.word-card`
+// declares `min-height: 44px` (one 16px line inside its padding box with a 3px
+// key border on both edges still clears) and a grid row shorter than that does
+// not shrink the card: the card refuses, overflows its track, and a flex column
+// overflows by PAINTING OVER what is below it rather than lengthening the
+// document. So `scrollHeight <= innerHeight` stays perfectly honest while cards
+// are drawn through the dock. Every other check in this file would pass.
+//
+// Measured on the shipped board, seed 7, in the opening clue phase:
+//
+//   360x640   6 rows of 46.42px, cards 46.42-47.34   (2.42 over the floor)
+//   390x844   6 rows of 80.42px, cards 80.42-81.43
+//
+// Read off `.word-card-wrap`, which IS the grid item. Reading the card would
+// measure the thing that refuses to shrink and report 44 whatever the row did.
+{
+  const FLOOR = 44
+  for (const VP of [
+    { width: 360, height: 640 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(VP)
+    await open('?mock=1&howto=0&seed=7&city=0&first=player')
+    await page.locator('.home-play').click()
+    await page.waitForSelector('.board-grid')
+    const studyNow = page.locator('.study-dock .btn-primary')
+    if (await studyNow.isVisible().catch(() => false)) await studyNow.click()
+    await page.waitForTimeout(250)
+    const m = await page.evaluate(() => {
+      const wraps = [...document.querySelectorAll('.word-card-wrap')]
+      const cards = [...document.querySelectorAll('.word-card')]
+      const grid = document.querySelector('.board-grid')
+      const rows = new Set(wraps.map((w) => Math.round(w.getBoundingClientRect().y)))
+      const h = (e) => +e.getBoundingClientRect().height.toFixed(2)
+      return {
+        rows: rows.size,
+        cards: cards.length,
+        minRow: Math.min(...wraps.map(h)),
+        maxRow: Math.max(...wraps.map(h)),
+        minCard: Math.min(...cards.map(h)),
+        // The bottom of the lowest card against the top of the dock: a row that
+        // overflowed its track shows up here as a negative number, and nothing
+        // else in this file would notice.
+        clearance: +(
+          document.querySelector('.game-screen .dock').getBoundingClientRect().y -
+          Math.max(...cards.map((c) => c.getBoundingClientRect().bottom))
+        ).toFixed(2),
+        board: h(grid),
+      }
+    })
+    const at = `${VP.width}x${VP.height}`
+    check(
+      `the board is six rows of three at ${at}`,
+      m.rows === 6 && m.cards === 18,
+      JSON.stringify(m),
+    )
+    check(
+      `no grid row is under the card 44px floor at ${at}`,
+      m.minRow >= FLOOR,
+      `shortest row ${m.minRow} (floor ${FLOOR}, board ${m.board})`,
+    )
+    check(
+      `and no card is overflowing its row into the dock at ${at}`,
+      m.minCard >= FLOOR && m.clearance >= 0,
+      `shortest card ${m.minCard}, clearance ${m.clearance}`,
+    )
+  }
+}
+
 // ---- The board never moves. ------------------------------------------------
 //
 // "When guessing it's a giant text block that adjusts the sizing of the grid.
@@ -1077,12 +1151,17 @@ await page.setViewportSize(PHONE)
 {
   const VP = { width: 360, height: 640 }
   await page.setViewportSize(VP)
-  // Standard: the widest board, so the tightest layout, and eight clue tokens
-  // rather than five — long enough for the round to reach both sudden death
-  // and the fullest the guess dock ever gets (a card selected, the stop button
-  // showing and a lookup answer up, all at once), which the beginner board
-  // finishes before it can produce.
-  const Q = '?mock=1&howto=0&seed=7&city=0&grid=standard&first=player'
+  // The board — there is one since N1, 3x6 with eight clue tokens. This block
+  // used to ask for `grid=standard` by name, "the widest board, so the tightest
+  // layout", and for its eight tokens: long enough for the round to reach both
+  // the last chance and the fullest the guess dock ever gets (a card selected,
+  // the stop button showing and a lookup answer up, all at once), which the
+  // five-token beginner board finished before it could produce. The one board
+  // has the eight tokens, so the round still gets there; it is three across
+  // rather than four, so the tightest CARD is no longer the tightest thing on
+  // screen — the sixth ROW is, which is what the grid-row floor check below
+  // measures.
+  const Q = '?mock=1&howto=0&seed=7&city=0&first=player'
   await open(Q)
   await page.evaluate(() => {
     localStorage.removeItem('cluecab-game-v1')
@@ -1665,7 +1744,7 @@ const oneRect = (states, prefix) => {
   // A fresh profile, so the first-clue-ever line (O4) is one of the states.
   // ?howto=0 keeps the intro out of the way — a fresh device otherwise opens
   // in the train, not on Home.
-  const Q = '?mock=1&howto=0&seed=11&city=0&grid=standard&first=player'
+  const Q = '?mock=1&howto=0&seed=11&city=0&first=player'
   await open(Q)
   await page.evaluate(() => localStorage.clear())
   await open(Q)
