@@ -25,6 +25,15 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
 const page = await ctx.newPage()
 page.on('pageerror', (e) => console.log('PAGE CRASH:', e.message))
 
+// S1: Casey's guesses are spoken. This is the drive that puts a real guess
+// through the whole AI pipeline in a real browser, so it is where a clip
+// request for that guess is observable — not on the network response's
+// status (this build may have no bake at all), just that `playWord` asked.
+const audioHits = []
+page.on('response', (r) => {
+  if (r.url().includes('/audio/')) audioHits.push(r.url())
+})
+
 const fail = []
 const check = (name, ok, detail = '') => {
   console.log(`${ok ? 'OK  ' : 'FAIL'} ${name}${detail ? ` — ${detail}` : ''}`)
@@ -107,6 +116,11 @@ try {
   check(
     'the request carried the Authorization header',
     fake.received[0].auth === 'Bearer fake-key-for-tests',
+  )
+  check(
+    "Casey's guess is spoken (S1): a clip was requested for it",
+    audioHits.some((u) => u.includes('/audio/da/')),
+    audioHits.length ? audioHits.map((u) => u.split('/').pop()).join(', ') : 'no audio requested',
   )
 
   // ---- the firewall, on the bytes that left the browser ----------------------

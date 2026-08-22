@@ -7,6 +7,7 @@ import type { GameState } from '../../engine/types'
 import { useDictionary } from './TranslateBox'
 import { ACTIVE } from '../../lang/active'
 import { HINT_KEYS, useFirstTimeHint } from '../hints'
+import { primeWordAudio } from '../speak'
 
 interface Props {
   game: GameState
@@ -209,7 +210,20 @@ export function ClueInput({ game, onSubmit }: Props) {
             +
           </button>
         </div>
-        <button className="btn btn-primary" disabled={!canSubmit} onClick={() => void submit()}>
+        <button
+          className="btn btn-primary"
+          disabled={!canSubmit}
+          onClick={() => {
+            // Synchronous, before `submit()`'s async body — the last real
+            // gesture before Casey's first guess, which arrives from a
+            // `setInterval` in AiTurnPanel with no gesture of its own behind
+            // it. See `primeWordAudio` in speak.ts (S1) for why that guess
+            // needs the element unlocked ahead of time rather than at the tap
+            // that plays it.
+            primeWordAudio()
+            void submit()
+          }}
+        >
           {/* "Give clue anyway" wrapped to a second line beside the stepper at
               360px, and a wrapped button is 18px of the dock's reserve — which
               is 18px off the board, in every phase, for a state most turns

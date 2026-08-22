@@ -424,10 +424,13 @@ export function createWordPlayer(ports: WordAudioPorts) {
  * ever after. Playing this inside the tap, before the fetch, spends the gesture
  * on unlocking the element while it is still ours to spend.
  *
- * NOT VERIFIED ON A DEVICE — there was no iPhone in the session that wrote it.
- * It is a precaution with a known failure mode (the fallback), not a
- * measurement. If baked audio turns out to work on iPhone without it, delete
- * `prime`.
+ * STILL NOT VERIFIED ON A DEVICE — there was no iPhone in the session that
+ * wrote it, and none in the session (S1) that gave it a second call site
+ * (`primeWordAudio`, exported below `audioElement`) for Casey's guesses to
+ * unlock ahead of. It remains a precaution with a known failure mode (the
+ * fallback), not a measurement, until a TestFlight build is actually heard —
+ * that listen is the owner's, not a session's. If baked audio turns out to
+ * work on iPhone without it, delete `prime` and `primeWordAudio` together.
  */
 const UNLOCK_WAV =
   'data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YaAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA'
@@ -442,6 +445,36 @@ function audioElement(): HTMLAudioElement {
     element.preload = 'auto'
   }
   return element
+}
+
+/**
+ * Unlock the audio element inside a real user gesture, ahead of the sound
+ * that will need it. `playWord` already primes on its own first call (the
+ * `prime` port below, idempotent on `primed`), which covers every sound that
+ * follows directly from a tap. It does NOT cover Casey's guesses (S1):
+ * `stepAiGuess` runs on a `setInterval`, so by the time it calls `playWord`
+ * the gesture that started the AI turn is long over, and on iOS priming from
+ * inside that callback is priming too late — the same failure `prime`'s own
+ * comment describes, just reached from a different call site.
+ *
+ * So the composer's Give-clue tap — the gesture that starts the chain ending
+ * in Casey's first guess — calls this directly, synchronously, before the
+ * async `submit()` it also triggers. `docs/DECISIONS.md`'s amendment to "every
+ * sound follows a tap" is this: a sound follows a tap, or follows FROM one.
+ *
+ * Exported standalone (rather than only reachable through `playWord`) so a
+ * call site can prime without also asking for a word to be spoken — the
+ * Give-clue button has no word in hand at all, only the gesture.
+ */
+export function primeWordAudio(): void {
+  if (primed || typeof Audio === 'undefined') return
+  primed = true
+  const el = audioElement()
+  el.src = UNLOCK_WAV
+  // No matching pause: the clip is 20 ms long and ends by itself. Pausing it
+  // later would risk pausing the real clip that replaced it. When `play`
+  // below swaps the src, this promise rejects with an abort — expected.
+  void el.play().catch(() => {})
 }
 
 /**
@@ -509,16 +542,9 @@ const browserPorts: WordAudioPorts = {
     return el.play()
   },
   stop: stopWordAudio,
-  prime() {
-    if (primed || typeof Audio === 'undefined') return
-    primed = true
-    const el = audioElement()
-    el.src = UNLOCK_WAV
-    // No matching pause: the clip is 20 ms long and ends by itself. Pausing it
-    // later would risk pausing the real clip that replaced it. When `play`
-    // below swaps the src, this promise rejects with an abort — expected.
-    void el.play().catch(() => {})
-  },
+  // `primeWordAudio` above — a standalone export so S1's Give-clue call site
+  // can reach it without going through a word at all.
+  prime: primeWordAudio,
   speak: speakText,
   wanted: () => useSettings.getState().sound,
   headwordFor: (wordId) => wordById(wordId)?.da,

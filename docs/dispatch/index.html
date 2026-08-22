@@ -364,8 +364,8 @@ var CARDS = [
   { w:1, id:'D4', t:'Casey is she',                          sub:'Five strings in src, fourteen README lines, the store drafts (listing.md:42). Identifiers untouched.', size:'½', st:'done', m:'sonnet', lane:'ui' },
   { w:1, id:'D5', t:'Sudden death becomes the last chance',  sub:'Copy only; the phase id and outcome reason are persisted and stay. Rewords the prompts.ts collision.', size:'½', st:'done', m:'sonnet', lane:'ui' },
   { w:1, id:'X1', t:'The stale-copy sweep',                  sub:'8-clues label already gone (N1); D3 shrunk to one constant; WORD_MS and H5/H9 corrected. audition/ deletion still waits for S2.', size:'½', st:'done', m:'sonnet', lane:'ui' },
-  { w:1, id:'U1', t:'A tap speaks; ⓘ opens the dictionary',  sub:'Hearing a word becomes free; reading its meaning is what costs the lookup.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
-  { w:1, id:'S1', t:'Casey’s guesses are spoken',            sub:'Needs the audio element primed inside the Give-clue tap. One TestFlight check.', size:'½', st:'ready', m:'sonnet', lane:'ui' },
+  { w:1, id:'U1', t:'A tap speaks; ⓘ opens the dictionary',  sub:'Hearing a word becomes free; reading its meaning is what costs the lookup.', size:'½', st:'done', m:'sonnet', lane:'ui' },
+  { w:1, id:'S1', t:'Casey’s guesses are spoken',            sub:'Needs the audio element primed inside the Give-clue tap. One TestFlight check.', size:'½', st:'done', m:'sonnet', lane:'ui' },
   { w:1, id:'T2', t:'The ride teaches the grammar',           sub:'Decided — the nine chapters are written and machine-checked. Build the frame; the Danish read gates shipping, not starting.', size:'1', st:'ready', m:'opus', lane:'content' },
   { w:1, id:'WS2', t:'Bake the new headwords',                sub:'Nonce bump, push, the workflow commits back. Orphaned clips and manifest rows out in the same PR.', size:'½ + bake', st:'done', m:'sonnet', lane:'content' },
 
@@ -381,7 +381,7 @@ var CARDS = [
   { w:4, id:'T3', t:'The next city’s sentences reinforce the chapter', sub:'787 sentences rewritten to the chapter AND the scenery floor, measured as a share. After WS1 — or they are written for words about to leave.', size:'writing', st:'blocked', dep:'T2', m:'fable', lane:'content' },
   { w:4, id:'S2', t:'Bake the 900 example sentences',        sub:'Danish only. Last of the three or the bake is paid for twice. Raise the SW maxEntries (2,000 → clips would evict).', size:'1 + bake', st:'blocked', dep:'T3', m:'opus', lane:'content' },
   { w:4, id:'S3', t:'The ride as one performance',           sub:'Chapter-level bake, sentence offsets found by silence detection and validated.', size:'1–2', st:'ready', m:'opus', lane:'content' },
-  { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'blocked', dep:'K2 · S1', m:'opus', lane:'ui' },
+  { w:4, id:'U3', t:'Casey thinks aloud before each guess',  sub:'Her reasoning already exists in the guess plan; it is just shown too late.', size:'1', st:'ready', dep:'K2 · S1', m:'opus', lane:'ui' },
   { w:4, id:'L1', t:'A dictionary that never needs the network', sub:'Licensing is the blocker, not size. No longer shares anything with the engine.', size:'1–2', st:'ready', m:'opus', lane:'content' },
   { w:4, id:'E4', t:'Measure the engine, and decide',        sub:'VERDICT: GO. Cross-model 0.62–0.70 greens per word asked against a 0.23 floor. Engine-vs-engine retired as evidence — a shared djb2 hash scores 100% on it — so θ was re-swept cross-model and stays 0.5, on boards-cleared rather than hit rate. Probe built (opt-in, unpaid); the clue ledger gives r somewhere to land.', size:'1–2', st:'done', dep:'E3', m:'opus', lane:'engine' },
 

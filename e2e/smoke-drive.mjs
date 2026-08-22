@@ -127,10 +127,13 @@ try {
     console.log(`tap spoke: ${tapWord} -> ${wantSlug} ${hit.status} ${hit.type}`)
   }
 
-  // The tap may have opened the dictionary (a card that is not guessable looks
-  // up instead); put it away so the rest of the drive starts where it expects.
-  const opened = page.locator('.sheet .btn')
-  if (await opened.isVisible().catch(() => false)) await opened.click()
+  // The tap must NOT have opened the dictionary (U1): "the translation and
+  // definition of the word should only appear if you click on the i symbol
+  // and not just the word. The audio should still play though." ⓘ alone opens
+  // the sheet now, and this used to be a tolerance ("the tap may have opened
+  // it") rather than an assertion — that tolerance is the bug U1 closes.
+  const opened = await page.locator('.sheet').isVisible().catch(() => false)
+  if (opened) throw new Error('tapping the card opened the dictionary — that is ⓘ\'s job now (U1)')
 
   // ---- and 🐢 says the same word again, out of the other bake ---------------
   // Two assertions in one gesture. That the button is wired at all, and that

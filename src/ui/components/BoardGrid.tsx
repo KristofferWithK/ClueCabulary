@@ -91,9 +91,11 @@ export function BoardGrid({
         const faceDown = englishFace?.(w.wordId) ?? false
         const noWrap = notWrappable?.(w.wordId) ?? false
         const packable = (packingSelectable ?? false) && faceDown
-        // Outside your guessing turn a tap has nothing else to do, so let the
-        // whole card open the dictionary rather than hiding that behind ⓘ.
-        const tapLooksUp = !guessable && !packable && !dictionaryLocked
+        // Outside a guessing turn (and outside packing) a tap's only job left
+        // is to say the word — looking it up is ⓘ's alone now (U1). Kept as
+        // its own flag rather than folded into `disabled` because it also
+        // drives the aria hint below.
+        const tapPlaysWord = !guessable && !packable && !dictionaryLocked
 
         return (
           <div key={w.wordId} className={`word-card-wrap wrap-${kind}`}>
@@ -116,22 +118,29 @@ export function BoardGrid({
                 faceDown ? 'card-face-en' : '',
                 noWrap ? 'card-no-wrap' : '',
               ].join(' ')}
-              disabled={!guessable && !tapLooksUp && !packable}
+              disabled={!guessable && !tapPlaysWord && !packable}
               aria-label={
                 faceDown
                   ? `${w.en[0]}${packable ? `, not yet packed. Tap to type the ${ACTIVE.name}` : ', unpacked'}${stateText(reveal)}`
                   : `${genderLabel(w) ? `${genderLabel(w)} ` : ''}${w.da}${showKey ? keyText[myRole] : ''}${stateText(reveal)}${
                       noWrap ? ', not yours to wrap yet' : ''
-                    }${tapLooksUp ? '. Tap to look up' : ''}`
+                    }${tapPlaysWord ? '. Tap to hear' : ''}`
               }
               aria-pressed={selectedWordId === w.wordId}
               onClick={() => {
                 /**
-                 * Tapping a word says it. The board is where nearly every tap
-                 * in the app lands, and it was the one surface that stayed
-                 * silent — the guess-confirm button and the packing hit spoke,
-                 * so a word was only ever heard at the moment it was being
-                 * committed to, never while it was being read.
+                 * Tapping a word says it — the whole card, every time it is a
+                 * live button, and nothing else. That used to be shared with a
+                 * second job: outside a guessing turn, the same tap also opened
+                 * the dictionary. The owner split them apart (U1) — "the
+                 * translation and definition of the word should only appear if
+                 * you click on the i symbol and not just the word. The audio
+                 * should still play though" — because a card that plays sound
+                 * AND opens a sheet on the same gesture cannot be told apart
+                 * from a lookup, and the SRS was crediting `recordLookup` on a
+                 * tap that only ever meant "say that again". Now ⓘ (`card-info`
+                 * below) is the only door to the sheet, and hearing a word is
+                 * free while reading its meaning is what costs a lookup.
                  *
                  * Not on a face-down card. There the English is showing and
                  * the Danish is what the player has to produce from memory, so
@@ -145,7 +154,6 @@ export function BoardGrid({
                  */
                 if (!faceDown) void playWord(w.wordId, w.da)
                 if (guessable || packable) onCardTap(w.wordId)
-                else if (tapLooksUp) onInfoTap(w.wordId)
               }}
             >
               {/* No dot: the card's own border carries your key — solid green

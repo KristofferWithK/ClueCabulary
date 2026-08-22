@@ -492,8 +492,6 @@ pass to flip.
 ## Board
 
 ### Ready
-- **U1** — A tap says the word; ⓘ opens the dictionary
-- **S1** — Casey's guesses are spoken
 - **T2** — The ride teaches the grammar *(decided; the nine chapters are written and machine-checked)*
 - **E6** — Matrix and book for cities 2–9 *(E4 said go; WS1 landed, so the ids are final. One city per PR, and re-measure the first before authoring the rest)*
 - **E5** — The hybrid *(E4 said go for its FIRST half only — the evaluator as a validator inside `OllamaCompanion.getClue`. The candidates prompt, rank fusion and the `MODEL_ALIASES` flip wait until the clue ledger has given `r` a value)*
@@ -502,11 +500,11 @@ pass to flip.
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
 - **P1** — The round summary as one fixed screen, in pencil, with Casey *(W1 and K2 both landed — ready)*
 - **I1** — The station, the ticket, the train *(D4 and W1 both landed — ready)*
+- **U3** — Casey thinks aloud before each guess *(K2 and S1 both landed — ready)*
 
 ### Blocked
 - **T3** — The next city's sentences reinforce the chapter *(T2 — WS1 landed, so the 787 that stay are known)*
 - **S2** — Bake the 900 example sentences *(T3 — last of the three; push-gated, the bake runs in Actions)*
-- **U3** — Casey thinks aloud before each guess *(K2; S1 for the spoken reveal)*
 - **P2** — The sentence review *(S2, P1)*
 - **P3** — Retire the live story call *(P1 — the section it removes is redrawn there)*
 - **P4** — The turn log and its flags behind a sheet *(P1)*
@@ -523,6 +521,36 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 *(empty)*
 
 ### Done
+- **U1 · S1** — A tap says the word, ⓘ opens the dictionary; and Casey's guesses
+  are spoken — 2026-08-22 (PR #TBD). Shipped together: half-session
+  audio/tap cards that touch adjacent code (`BoardGrid.tsx`, `AiTurnPanel.tsx`,
+  `speak.ts`).
+  **U1**: `tapLooksUp` is gone from `BoardGrid.tsx`. Outside a guessing turn a
+  card is still a button and its tap does exactly one thing — `playWord` — never
+  `onInfoTap`; ⓘ (`card-info`) is the sheet's only door now. Side effect worth
+  the name: hearing a word is free and reading its meaning is what costs a
+  lookup, so the SRS's lookup signal gets cleaner rather than noisier. aria
+  "Tap to look up" → "Tap to hear". smoke-drive's old tolerance ("the tap may
+  have opened the dictionary") is now an assertion that it did not;
+  key-visible-drive's dictionary check moved from a card tap to ⓘ, which was
+  always its real door once U1 landed.
+  **S1**: `AiTurnPanel` speaks `lastAiGuess` via a new `useEffect` calling
+  `playWord(word.wordId, word.da)`; the sound setting already gates `playWord`
+  at the source. The one real risk was priming: iOS unlocks an `<audio>`
+  element only inside a real gesture, and Casey's guesses are the first sound
+  in the app that does not follow one directly — they arrive off
+  `AiTurnPanel`'s `setInterval`, beats after the player's last tap. `speak.ts`
+  exports `primeWordAudio()` (the existing `prime` port, pulled out to a
+  standalone function), called synchronously in `ClueInput`'s Give-clue
+  `onClick`, ahead of the async `submit()` it also triggers. **Not verified on
+  a device** — `prime`'s own comment already said so, and a second call site
+  does not change that; the check needs one TestFlight build and the owner's
+  ears, which is the state this PR ships it in. `docs/DECISIONS.md` carries a
+  dated amendment to "every sound follows a tap": a sound follows a tap, or
+  follows FROM one — the ride's Listen button was already this shape.
+  `ai-drive.mjs` gained a check that a clip is requested for Casey's guess.
+  **U3** (deps K2, S1) is unblocked and promoted Ready — its other dependency,
+  K2, already landed.
 - **E4** — Measure the engine, and decide — 2026-08-22 (PR #113). **The verdict is GO: E6 before E5, and E5 in halves** (written into `docs/clue-engine.md` "The verdict (E4, 2026-08-22)" and `docs/DECISIONS.md`, each with its reversal).
   **The finding that reshaped the card.** The djb2 mutation this card was asked to run does NOT fail the pins — it scores **100%**, above every honest row, because both seats share one `sim` and a shared arbitrary function is a private code the search encodes into and the guesser decodes. Salt the two seats differently and the same engine falls to **0.5%**, the floor. So engine-vs-engine self-play measures agreement, not association; E3's 99.0% is retired as evidence, θ = 0.5 was chosen under it, and `engine-selfplay.test.ts` now runs the mutation twice — shared (the finding) and independent (the check).
   **The honest number** comes from splitting the authoring back apart. `matrix-city1/<model>-NN.json` and `book-city1/<model>-*.json` divide cleanly, so the test rebuilds an Opus-only and a Fable-only evaluator **from the committed votes** — no duplicated data, and nothing read off the merged artifact but its `ids`. The halves are complete (4,950 pairs, 100 headwords each) and genuinely differ: 1,947 associations one proposed and the other did not against 1,901 both reached for. **200 seeded city-1 boards, same deals down every row:** floor 0.5% win / 0.234 hits per word asked · p=0.6 73.5% / 0.586 · p=0.7 90.5% / 0.678 · p=0.8 98.0% / 0.786 · engine↔engine 99.0% / 0.934 (the void row) · **Opus clues→Fable 53.5% / 0.623 · Fable clues→Opus 61.5% / 0.701** · shared hash 100% / 1.000 · independent hashes 0.5% / 0.187.
