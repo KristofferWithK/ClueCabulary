@@ -499,7 +499,6 @@ pass to flip.
 - **L1** — A dictionary that never needs the network *(after decision 12)*
 - **M1** — The 900 Pass: recommendation written 2026-08-21, awaiting a veto rather than a decision
 - **I1** — The station, the ticket, the train *(D4 and W1 both landed — ready)*
-- **U3** — Casey thinks aloud before each guess *(K2 and S1 both landed — ready)*
 - **P3** — Retire the live story call *(P1 landed — ready, and it is the card that removes the last unbounded thing left on the fixed summary)*
 - **P4** — The turn log and its flags behind a sheet *(P1 landed — ready; the panel P1 opens over the summary is the sheet's rough draft)*
 
@@ -521,7 +520,7 @@ owned by `docs/clue-engine.md` (PR #95), and it is carded here as **E0–E6**.)*
 
 ### Done
 - **P1** — The round summary as one fixed screen, in pencil, with Casey —
-  2026-08-22 (PR #PR1). One screen with **no scroller, inner or outer**:
+  2026-08-22 (PR #117). One screen with **no scroller, inner or outer**:
   `.summary-scroll` is gone and every band on it is bounded. `OUTCOME_COPY`
   lost the 🎉 and gained Casey — `ClueyFace` with the outcome's mood, in the
   outcome band. `RoundStats` is two tiles rather than four (the city and the
@@ -2020,7 +2019,7 @@ One more win for a wrap-up round                                    ← W1's one
 structure; no scroll at 360×640 and 390×844 in a normal, a wrap-up and a
 sudden-death ending.
 
-**AS BUILT, 2026-08-22 (PR #PR1) — this overrides the sketch above where they
+**AS BUILT, 2026-08-22 (PR #117) — this overrides the sketch above where they
 differ.** The card was written before W1, N2, K2 and D4/D5 landed, and it did
 not know the screen would not fit.
 
