@@ -25,7 +25,7 @@ const snapshot = (patch: Partial<Snapshot> = {}): Snapshot => ({
   stats: {},
   games: { played: 0, won: 0, redeemed: 0, lost: 0 },
   journey: { cityIndex: 0, wrapped: {}, arrivedAt: {} },
-  prefs: { gridSize: 'beginner', clueLanguage: 'en', studyPhase: 'auto' },
+  prefs: { clueLanguage: 'en', studyPhase: 'auto' },
   language: 'da',
   ...patch,
 })
@@ -97,10 +97,12 @@ describe('export and parse', () => {
   })
 
   it('rejects preferences it would otherwise cast into settings', () => {
-    // A gridSize that is not a real one makes every new game throw when it
-    // looks up its config.
+    // These are cast straight into settings, so a value outside the enum is a
+    // broken device rather than a bad file. (`gridSize` was the third of these
+    // and the loudest — a size that was not a real one made every new game
+    // throw when it looked up its config. There are no sizes now; what happens
+    // to the field an old file still carries is pinned below.)
     const cases: [keyof ReturnType<typeof snapshot>['prefs'], string][] = [
-      ['gridSize', 'enormous'],
       ['clueLanguage', 'fr'],
       ['studyPhase', 'sometimes'],
     ]
@@ -116,6 +118,48 @@ describe('export and parse', () => {
     // @ts-expect-error deliberately corrupting the record
     bad.srs.stats.hus.box = 9
     expect(parseBackup(JSON.stringify(bad)).ok).toBe(false)
+  })
+
+  /**
+   * EVERY BACKUP FILE EVER WRITTEN CARRIES A `gridSize`, AND EVERY ONE OF THEM
+   * STILL RESTORES.
+   *
+   * N1 deleted board sizes and dropped the field from `PrefsSchema`. The
+   * schema comment used to warn that these prefs are ENUMERATED because they
+   * are cast straight into settings — and a zod enum rejects hard, which is
+   * exactly the failure mode this test exists to rule out. `z.object` STRIPS
+   * unknown keys rather than rejecting them, so the retired field is read past
+   * and dropped, and a file a player has kept for a year opens on a build that
+   * has never heard of it.
+   *
+   * Checked with a whole file rather than a patched one: this is a
+   * pre-N1 backup, format and all, exactly as `buildBackup` would have written
+   * it while board sizes existed.
+   */
+  it('restores a backup written before N1, gridSize and all', () => {
+    const preN1 = {
+      app: 'cluecabulary',
+      format: 2,
+      exportedAt: NOW - DAY,
+      language: 'da',
+      srs: { stats: { hus: stats(COLLECTED) }, games: { played: 9, won: 5, redeemed: 1, lost: 3 } },
+      journey: { cityIndex: 3, wrapped: { hus: NOW - DAY }, arrivedAt: { 3: NOW - DAY } },
+      prefs: { gridSize: 'standard', clueLanguage: 'target', studyPhase: 'never' },
+    }
+    const parsed = parseBackup(JSON.stringify(preN1))
+    expect(parsed.ok, parsed.ok ? '' : parsed.error).toBe(true)
+    if (!parsed.ok) return
+    // The file opens, the progress is all there...
+    expect(parsed.backup.journey.cityIndex).toBe(3)
+    expect(parsed.backup.journey.wrapped).toEqual({ hus: NOW - DAY })
+    expect(parsed.backup.srs.stats.hus).toMatchObject({ greenByClue: 1, greenByGuess: 1 })
+    // ...the prefs that still exist survive...
+    expect(parsed.backup.prefs).toEqual({ clueLanguage: 'target', studyPhase: 'never' })
+    // ...and the retired one is gone rather than fatal.
+    expect(parsed.backup.prefs).not.toHaveProperty('gridSize')
+    // It also survives a replace, which is where prefs are written into the
+    // stores — the step the enum was protecting.
+    expect(replaceSnapshot(parsed.backup).prefs.studyPhase).toBe('never')
   })
 
   /**
@@ -159,7 +203,9 @@ describe('export and parse', () => {
       expect(parsed.backup.journey).not.toHaveProperty('stamps')
       // The legacy learned record restores collected, per the seeding rule.
       expect(parsed.backup.srs.stats.learned).toMatchObject({ greenByClue: 1, greenByGuess: 1 })
-      expect(parsed.backup.prefs.gridSize).toBe('middle')
+      // The board size this file chose is not a field any more. Stripped
+      // rather than rejected — see 'a backup written before N1' below.
+      expect(parsed.backup.prefs).not.toHaveProperty('gridSize')
     }
   })
 
@@ -280,10 +326,10 @@ describe('merge', () => {
 
   it('leaves this device its own preferences', () => {
     const merged = mergeSnapshot(
-      snapshot({ prefs: { gridSize: 'standard', clueLanguage: 'target', studyPhase: 'never' } }),
+      snapshot({ prefs: { clueLanguage: 'target', studyPhase: 'never' } }),
       roundTrip(snapshot()),
     )
-    expect(merged.prefs).toEqual({ gridSize: 'standard', clueLanguage: 'target', studyPhase: 'never' })
+    expect(merged.prefs).toEqual({ clueLanguage: 'target', studyPhase: 'never' })
   })
 
   it('is idempotent: merging the same file twice changes nothing', () => {
@@ -310,7 +356,7 @@ describe('replace', () => {
     const file = roundTrip(
       snapshot({
         stats: { hus: stats({ correctGuesses: 3 }) },
-        prefs: { gridSize: 'standard', clueLanguage: 'target', studyPhase: 'never' },
+        prefs: { clueLanguage: 'target', studyPhase: 'never' },
         journey: { cityIndex: 4, wrapped: { hus: NOW }, arrivedAt: {} },
       }),
     )

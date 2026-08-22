@@ -73,6 +73,16 @@ phone kept the old value, and the change was invisible to the only player.
 field. A default change needs a `version` bump and a `migrate` step in the same
 commit. `settingsStore.test.ts` documents all three.
 
+**The mirror image is NOT the same trap, and it costs a session to relearn:
+REMOVING a persisted field needs no version bump and no migrate step.** N1
+deleted `gridSize` and deliberately added nothing — `persist` merges
+`{...initial, ...persisted}`, so an orphaned key is spread into state, read by
+nothing, and written straight back out. There is no wrong value to fix because
+there is no reader. Same for the backup file: `z.object` STRIPS unknown keys
+rather than rejecting them, so every backup a player has ever kept still
+restores. Both are pinned (`settingsStore.test.ts` "the retired board size",
+`backup.test.ts` "restores a backup written before N1").
+
 And one thing the seam adds to it: word ids carry their language (`da:mor`),
 so anything keyed by a word id is ALREADY partitioned and must not be
 namespaced again. `srsStore.stats` and `journeyStore.wrapped` hold every
@@ -179,11 +189,22 @@ translate-everything ending, it is stale — the removal is commit `a4517bf`
 
 ## Board numbers are measured, and there is a harness for it
 
+**There is ONE board: 3x6, eighteen words, eight greens a side, three shared,
+eight clue tokens (`BOARD` in `src/engine/config.ts`).** The three sizes, the
+`GridSize` union, the Settings picker, the persisted `gridSize` and the `?grid=`
+dev switch are all gone (N1). Two other configs exist and neither is a
+difficulty: `TUTORIAL_CONFIG` (3x4, the scripted first round) and
+`WRAPUP_CONFIG` (4x5, the packing ritual) — modes you enter, not sizes you pick.
+If you find a drive URL carrying `?grid=`, or a test walking
+`['beginner','middle','standard']`, it is stale.
+
 `src/engine/config.ts` states a number for every board choice and the
 measurement behind it. Those come from `src/ai/selfplay.test.ts`, which is two
 harnesses: a know-nothing floor, and a sweep that walks one dial — the chance a
-guess finds a word the clue-giver meant — from that floor to perfect play. Print
-the whole table with
+guess finds a word the clue-giver meant — from that floor to perfect play. It
+also prints the neighbours the shipped board was chosen over, which are not
+asserted: the ordering test that used to defend the ladder went with the ladder.
+Print the whole table with
 
 ```
 SELFPLAY_GAMES=2000 SELFPLAY_REPORT=1 npx vitest run src/ai/selfplay.test.ts
@@ -197,9 +218,9 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
 
 ## Layout of the code
 
-- `src/engine/` — pure game rules, no React, no data. `config.ts` holds the
-  three boards plus `WRAPUP_CONFIG` and the tuning constants, each with the
-  measurement behind it. `packing.ts` grades the wrap-up round's typed
+- `src/engine/` — pure game rules, no React, no data. `config.ts` holds
+  `BOARD` plus `TUTORIAL_CONFIG` and `WRAPUP_CONFIG` and the tuning constants,
+  each with the measurement behind it. `packing.ts` grades the wrap-up round's typed
   answers, with the dataset injected rather than imported. Since the language
   seam it takes a **language pack** the same way: `checkClueLegality`,
   `matchesAnswer` and `applyEvent` all have one as a parameter, and nothing
@@ -254,7 +275,15 @@ and fails `npm run typecheck`; there is an `envVar` helper at the top for this.
   prints, asserts nothing) rather than reasoning about it — the study dock came
   in 0.2px TALLER than the composer on the first draft and nothing on screen
   said so. Measured at 360×640 after K2: board 318.56px, card row 57.31, dock
-  150 at y=478, document 640 of 640.
+  150 at y=478, document 640 of 640. N1 then spent that row height on a sixth
+  ROW: the same 318.56px board, six rows of 46.42, cards 46.42-47.34, document
+  still 640 of 640. **A grid row may never be shorter than `.word-card`'s 44px
+  `min-height` floor** - under it the card refuses to shrink, overflows its
+  track and paints over the dock while `scrollHeight` stays honest, so
+  layout-drive asserts the floor directly at 360x640 and 390x844. And
+  `.word-card`'s `@container (max-height: 46px)` queries the card's CONTENT
+  box, not its height: a 46.42px card is a 27-30px query, which is why that
+  threshold is nowhere near the boundary it looks like it is on.
   That rule does NOT catch a Home band that grew too tall: a flex column
   overflows by painting OVER what is below rather than lengthening the
   document, so `scrollHeight` stays honest while Casey's name is drawn sliced

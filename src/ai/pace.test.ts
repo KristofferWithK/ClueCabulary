@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS } from '../engine/config'
+import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from '../engine/config'
 import { applyEvent as applyEventIn, createGame, isGuessable } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { aiTargetableIds, buildAiClueView } from './projections'
@@ -39,10 +39,17 @@ const words = (n: number): BoardWord[] =>
     pos: 'noun',
   }))
 
-const cluePrompt = (grid: 'beginner' | 'middle' | 'standard', spend = 0) => {
+/** The three boards that exist since N1 — one you play, two you enter. */
+const CONFIGS: Record<'board' | 'tutorial' | 'wrapup', GridConfig> = {
+  board: BOARD,
+  tutorial: TUTORIAL_CONFIG,
+  wrapup: WRAPUP_CONFIG,
+}
+
+const cluePrompt = (grid: keyof typeof CONFIGS, spend = 0) => {
   let s = createGame({
-    config: GRID_CONFIGS[grid],
-    words: words(GRID_CONFIGS[grid].totalWords),
+    config: CONFIGS[grid],
+    words: words(CONFIGS[grid].totalWords),
     seed: 7,
     firstGiver: 'ai',
   })
@@ -61,15 +68,15 @@ const cluePrompt = (grid: 'beginner' | 'middle' | 'standard', spend = 0) => {
 }
 
 /**
- * Casey was giving clues of 1 on a board where that cannot win — beginner is
- * four clues for eight greens — and the prompt was the reason: it told him
+ * Casey was giving clues of 1 on a board where that cannot win — the tutorial
+ * board was four clues for eight greens — and the prompt was the reason: it told him
  * "caution beats greed" and "one word your partner will certainly find beats
  * two where the second is a coin flip", with nothing anywhere about the clock.
  * He had the numbers to work it out and no instruction to.
  */
 describe('the clue prompt tells Casey the pace he has to keep', () => {
   it('states how many of his greens are left and how many clues remain', () => {
-    const { text, view } = cluePrompt('beginner')
+    const { text, view } = cluePrompt('board')
     const mine = aiTargetableIds(view).length
     expect(text).toContain(`${mine} of your greens are still hidden`)
     expect(text).toContain(`${view.turnsLeft} clues remain`)
@@ -81,7 +88,7 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
    * hardcoded "2 or 3" did the first time beginner moved from four clues to
    * five.
    */
-  it.each(['beginner', 'middle', 'standard'] as const)('does the division correctly on %s', (grid) => {
+  it.each(['board', 'tutorial', 'wrapup'] as const)('does the division correctly on %s', (grid) => {
     const { text, view } = cluePrompt(grid)
     const mine = aiTargetableIds(view).length
     // Half the shared pool is his, rounded up.
@@ -105,7 +112,7 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
     // The clause is conditional on purpose: on a board where 1 now still
     // leaves a normal clue later, saying "and then you will need N" would be
     // a scold with no arithmetic behind it.
-    for (const grid of ['beginner', 'middle', 'standard'] as const) {
+    for (const grid of ['board', 'tutorial', 'wrapup'] as const) {
       const { text } = cluePrompt(grid)
       if (!text.includes('A clue of 1 now leaves')) continue
       expect(text).toMatch(/A clue of 1 now leaves \d+ for \d+ turns? — \d+ a clue/)
@@ -113,8 +120,8 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
   })
 
   it('escalates when the clues are nearly gone', () => {
-    // Beginner has four; spend three and one is left.
-    const { text, state } = cluePrompt('beginner', 3)
+    // The tutorial board has five; spend three and two are left.
+    const { text, state } = cluePrompt('tutorial', 3)
     expect(state.turnsLeft).toBeLessThanOrEqual(2)
     expect(text).toContain('THE CLOCK')
     expect(text).toContain('the last clue you are likely to get')
@@ -128,7 +135,7 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
    * it costs the round.
    */
   it('tells him the last clue has to cover everything he has left', () => {
-    const { text, view } = cluePrompt('beginner', 3)
+    const { text, view } = cluePrompt('tutorial', 3)
     const mine = aiTargetableIds(view).length
     expect(text).toContain('goes to last chance')
     expect(text).toContain('Anything you do not point at now, they cannot find later')
@@ -145,18 +152,18 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
    * so "last chance" names only the phase.
    */
   it('does not reuse "last chance" for the final-clue urgency, only for the phase', () => {
-    const { text } = cluePrompt('beginner', 3)
+    const { text } = cluePrompt('tutorial', 3)
     expect(text).not.toContain('your last chance')
   })
 
   it('asks for two or three as the normal shape, not one', () => {
-    const { text } = cluePrompt('standard')
+    const { text } = cluePrompt('board')
     expect(text).toContain('Two or three targets is the normal shape')
     expect(text).toContain('Never split a clue you could give whole')
   })
 
   it('no longer tells him caution beats greed, which was the whole problem', () => {
-    const { text } = cluePrompt('standard')
+    const { text } = cluePrompt('board')
     expect(text).not.toContain('caution beats greed')
     expect(text).not.toContain('coin flip')
     expect(text).not.toContain('Balance ambition with safety')
@@ -171,7 +178,7 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
    * it is a job for the tuning pass, not a string check.
    */
   it('still weighs a wrong guess against the clue it spends', () => {
-    const { text } = cluePrompt('standard')
+    const { text } = cluePrompt('board')
     expect(text).toContain('turns are what this board is short of')
   })
 
@@ -183,8 +190,8 @@ describe('the clue prompt tells Casey the pace he has to keep', () => {
    */
   it('says nothing that depends on the player’s key', () => {
     const base = createGame({
-      config: GRID_CONFIGS.standard,
-      words: words(20),
+      config: BOARD,
+      words: words(BOARD.totalWords),
       seed: 7,
       firstGiver: 'ai',
     })

@@ -61,9 +61,9 @@ The map keeps that button, and its train now boards as well. Under
 
 ## How a round works
 
-1. The board is 3×4 (beginner), 3×5 (middle) or 4×5 (standard) Danish words —
-   **3×5 by default**, chosen under Settings → Board size —
-   from the 900 most common, each noun with its gender in front of it —
+1. The board is **3×6** — eighteen Danish words, three across and six down.
+   There is one board and nothing to choose: the three sizes and the Settings
+   picker that offered them are gone. From the 900 most common, each noun with its gender in front of it —
    **et hus**, the way the pair is learned — and where a noun has no ordinary
    indefinite singular, the card says the gender instead: **(com)** or
    **(neut)**. Gender decides the definite ending and every agreeing adjective,
@@ -101,7 +101,7 @@ The map keeps that button, and its train now boards as well. Under
    last clue, for everything she has left, since a green she never points at is
    one you cannot find in last chance.
 3. Find every green word before the shared clue tokens run out and you both
-   win. Beginner is five clues, middle six, standard seven.
+   win. The board gives eight, shared between you — four clue-givings each.
    Running out is not the end: the clues stop but the board does not, and
    **last chance** lets you keep naming words with nothing left to go on. Name
    a green and you are still alive; name anything else and the round is over.
@@ -135,45 +135,54 @@ The map keeps that button, and its train now boards as well. Under
 
    | board | p=0 | 0.6 | 0.7 | 0.8 | perfect | clues a perfect pair spends |
    |---|---|---|---|---|---|---|
-   | 3×4, 5 clues | 1.6% | 76.1% | 89.0% | 96.9% | 100% | 3.51 |
-   | 3×5, 6 clues | 0.7% | 67.1% | 85.4% | 94.7% | 100% | 4.18 |
-   | 4×5, 7 clues | 0.0% | 58.1% | 80.7% | 95.5% | 100% | 4.44 |
+   | **3×6, 8 clues** | 0.3% | 74.7% | 90.0% | 98.2% | 100% | 5.00 |
    | wrap-up 4×5, 10 clues | 1.2% | 84.8% | 95.2% | 99.2% | 100% | 6.00 |
+
+   One row where there were four, because there is one board. (The scripted
+   tutorial round is dealt on a 3×4 of its own — 76.1% at p=0.6 — and is a
+   thing you enter once, not a difficulty you keep.)
 
    Those are a floor and a ceiling with a made-up dial between them, not a
    forecast: a biased coin is not Danish word association, and a real round sits
    somewhere inside. What the brackets are good for is the shape, and the shape
-   says three things. A guesser that knows nothing spends every token on every
-   board — last chance on 99.7% to 100% of seeds, and the tokens go with 5.1 of
-   the 3×4's 8 greens and 8.8 of the 4×5's 12 still hidden — and wins at most
-   1.6% of the time, so the floor did not rise when the hazards went, it moved
-   *later*: every loss now happens in last chance, from a board barely touched.
-   A perfect pair wins every seed with
-   clues to spare, which is what a fair budget looks like. And in between, each
-   board still has a real losing side, and still comes down to the wire often
-   enough to be worth playing — at p=0.7 the clues run out on 30.8% of 3×4
-   rounds, 38.8% of 3×5 and 42.0% of 4×5, and 54% to 64% of those are still won
-   from there. Last chance is a second act, not a formality.
+   says three things. A guesser that knows nothing spends every token —
+   last chance on 100% of seeds, the tokens going with 8.5 of the board's 13
+   greens still hidden — and wins 0.3% of the time, so the floor did not rise
+   when the hazards went, it moved *later*: every loss now happens in last
+   chance, from a board barely touched. A perfect pair wins every seed with
+   three clues to spare, which is what a fair budget looks like. And in between
+   the board still has a real losing side, and still comes down to the wire
+   often enough to be worth playing — at p=0.7 the clues run out on 24.6% of
+   rounds, and most of those are still won from there. Last chance is a second
+   act, not a formality.
 
-   **The 4×5 was re-tuned, and it was the only one.** It was the one board dealt
-   three forbidden words a side — five distinct cards, three of them pure
-   hazards — so its difficulty lived in the danger rather than the clue economy,
-   and it could afford the loosest budget in the game. With the danger gone it
-   measured 71.3% at p=0.6 against the 3×5's 67.1%: the big board had become
-   easier than the one it is supposed to escalate from. Taking one token off it
-   puts the three boards back in order and costs nothing at the top, since a
-   perfect pair only ever needed 4.44 of them.
+   **The 3×6 replaced a 3×5, and the bigger board is the kinder one.** The
+   default was fifteen words, seven greens a side and six tokens: 1.83 distinct
+   greens per clue, the tightest budget the game has ever had, 67.1% at p=0.6
+   and the clock running out on 38.8% of rounds at p=0.7. Eighteen words with
+   eight greens a side, three shared and eight tokens is 1.63 per clue — 74.7%
+   and 24.6%. Losing to the clock roughly halves, and there are thirteen
+   distinct greens a round rather than eleven, which is about 18% more green
+   events feeding the collection.
 
-   Giving it more greens instead — the obvious answer to a board where eight of
-   twenty cards are on nobody's key, and where 76.2% of missed guesses land on
-   one — was measured and does the opposite of what it promises. Dealing those
-   slots as greens makes the board *harder and longer* (64.3% at p=0.7, a
-   perfect pair spending 6.00 clues of the 7), because a dead card is a card
-   nobody ever has to point at. The padding made that board easier, not slower.
-   What the twenty cards should be is a design question with the deal behind it;
-   it is not a tuning fix, and nothing measured here asked for one.
+   The neighbours were measured too, and two of them are counter-intuitive
+   enough to record. **More green on the board plays harder**: 8/2/8 is fourteen
+   distinct greens and only four dead cards, and it wins 69.8% at p=0.6 against
+   8/3/8's 74.7%, because a card on nobody's key is a card nobody ever has to
+   point at — padding makes a board easier, not slower. And the token count is
+   the sharpest dial in the game: seven tokens is 59.7%, nine is 84.9%. Eight is
+   where the round still has a losing side without the clock being the thing you
+   play against. `src/engine/config.ts` carries the full table.
+
+   None of this could have been done a week earlier. A sixth row needs 46px of
+   board that did not exist until the composer work (K1) and the dock work (K2)
+   handed 79.26px back: before them a sixth row measured 33.22px, under the 44px
+   floor a card cannot go below, and the board would have overflowed the phone
+   *invisibly* — a flex column paints over what is under it rather than
+   lengthening the document. Measured after: six rows of 46.42px at 360×640, and
+   layout-drive asserts that floor directly.
 4. **Reroll before you start.** If nothing on the board connects, **↻**
-   in the header deals a different board of the same size. Only before the
+   in the header deals a different board. Only before the
    first clue — once one is on the table the round has a history, and re-dealing
    under it would be a way to unsee a bad guess — and never on the daily
    challenge, which is one shared board per date.
@@ -183,8 +192,8 @@ The map keeps that button, and its train now boards as well. Under
    rejected board is precisely the one whose words must *not* come back. So the
    reroll replaces the head of the two-board window rather than pushing onto it,
    and passes the rejected board to the sampler's `avoid` set. Before that
-   second half existed a 3×4 reroll came back measuring **7 of the same 12
-   words**; it is 0 now, carry-over included, because the rejected board took
+   second half existed a reroll came back measuring **7 of the same 12
+   words** (on the 3×4 that was then the small board); it is 0 now, carry-over included, because the rejected board took
    only three words off the played one and the quota can be drawn from the other
    nine.
 5. **Clue in Danish.** Tap ⓘ on any board word for the built-in dictionary
@@ -344,7 +353,7 @@ There isn't one. Open the deployed page on your phone, "Add to Home Screen",
 press play. No account, no API key, no model to choose. A first open starts
 inside the train — Casey introduces herself in three lines and punches your
 ticket (the language pick, one confirm card while Danish is the only pack) —
-and then plays you through one real round: the gentlest board (3×4), dealt on
+and then plays you through one real round: a 3×4 board of its own, dealt on
 the real engine from Sønderborg's first twelve words with a fixed seed, Casey
 scripted beside it. She clues first in Danish and points at the dictionary
 rather than glossing; one miss is staged on purpose so the game's central rule
@@ -461,7 +470,7 @@ node e2e/translate-drive.mjs  # look up a word mid-round, both directions,
                               # and the two rules that stop it reading the board
 node e2e/article-drive.mjs    # en/et on every card, across all nine cities, on
                               # a 360px phone — and costing the word no line
-node e2e/endgame-drive.mjs    # Casey opens; the 3x5 board; and last chance
+node e2e/endgame-drive.mjs    # Casey opens; the 3x6 board; and last chance
                               # won, lost and walked away from
 node e2e/repeat-drive.mjs     # every board shares exactly three words with the
                               # one before it — across a reload and a v1 save
@@ -514,8 +523,7 @@ board, `?first=player` / `?first=ai` pins who opens the round (the engine's
 default is the player; only the tutorial deals Casey in first),
 `?howto=0` suppresses first-run chrome (the onboarding train, and historically
 the rules overlay — the overlay no longer opens itself), `?onboard=1` forces a
-transient run of the onboarding flow, `?grid=middle` picks the board *Spil
-videre* deals, and `?city=N&collected=K&almost=K&wrapped=W` jumps the journey
+transient run of the onboarding flow, and `?city=N&collected=K&almost=K&wrapped=W` jumps the journey
 to a given stop with K words collected (or one interaction short of it) and W
 already wrapped into the suitcase.
 

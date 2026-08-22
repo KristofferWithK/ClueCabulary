@@ -1427,12 +1427,39 @@ select:focus {
   color: var(--text-dim);
 }
 
-/* A card riding its height floor: drop the word to the size where two lines
-   fit inside it, and spend no line on the gloss. Height-queried off the card
-   itself, which is why the container tracks size, not inline-size. */
+/* A SHORT card: drop the word to the size where two lines fit inside it, and
+   spend no line on the gloss. Height-queried off the card itself, which is why
+   the container tracks size, not inline-size.
+
+   N1 asked which side of this threshold the 3x6 board sits on, expecting it to
+   be a near thing: a sixth row measures 46.42px against a query that says 46,
+   which reads as missing it by 0.42. IT IS NOT A NEAR THING, and the reason is
+   worth writing down because the arithmetic is easy to get wrong twice. A size
+   container query resolves against the container's CONTENT box, not the border
+   box a card's height is. This card pays 2px of border on each edge (3px once
+   a key mark is showing) plus 11px + 2px of padding, so a 46.42px card is a
+   27-30px query.
+
+   MEASURED on the built app, every card of a real 3x6 board, seed 7:
+
+     360x640   card 46.42-47.34px   ->   content box 27.42-30.34   COMPACT
+     390x844   card 80.42-81.43px   ->   content box 61.42-64.43   full size
+
+   So the threshold has to sit above 30.34 and below 61.42, and 46 is within a
+   quarter-pixel of the middle of that band: 15.7px of clearance below it, 15.4
+   above. Nothing rides it, and it is left exactly where it was. The number
+   that would have needed re-choosing is the one the border box suggested, and
+   that number was never the one being compared.
+
+   Which side the 3x6 is on, at the phone that matters: the compact one, and it
+   has to be. A 360-wide card gives the content box 29px; the word at its full
+   16px is 18.4px of line, and a gloss under it wants about 16 more with the
+   gap. The board that fits six rows is the board whose cards cannot also carry
+   the English, which is what the Aa toggle and the card's info button are for.
+   */
 @container (max-height: 46px) {
   .card-da {
-    /* Two lines of the dataset's longest noun inside a floored card that is
+    /* Two lines of the dataset's longest noun inside a short card that is
        also paying a 3px key border on both edges â€” measured, not estimated. */
     font-size: clamp(0.62rem, 16cqw, 0.72rem);
     line-height: 1;
@@ -1700,20 +1727,26 @@ select:focus {
  *
  * ---- what the board got ---------------------------------------------------
  *
- * Measured the same way, at 360x640, seed 7, the standard board, in the
- * opening clue phase — and it is the same rectangle in all fifteen states
- * above, which it was not before:
+ * Measured the same way, at 360x640, seed 7, in the opening clue phase, and
+ * it is the same rectangle in all fifteen states above, which it was not
+ * before. The 3x5 in the first two rows is the board K2 measured; N1 landed
+ * the 3x6 on the space it freed, and the third row is that board:
  *
- *              board top   height   5 rows of   card    a 6th row
- *   before        147.44    239.30       41.46   44.00      33.22
- *   after         147.44    318.56       57.31   57.31      46.43
+ *              board top   height   rows            card    a 6th row
+ *   before K2     147.44    239.30   5 of 41.46     44.00       33.22
+ *   after  K2     147.44    318.56   5 of 57.31     57.31       46.43
+ *   N1, the 3x6   147.44    318.56   6 of 46.42     46.42          --
  *
  * 79.26px, of which 50 is the reserve coming down from 200 and the rest is
- * the key legend and the column's gap. The card row grows by 13.31px — the
+ * the key legend and the column's gap. K2's card row grew by 13.31px -- the
  * cards were riding their own 44px min-height floor INSIDE a 41.46px row, and
- * now they are not. And the sixth row N1 is waiting for measures 46.43, clear
- * of the 44px floor by 2.43 — N1 predicted 46.1 from this card and K1's
- * together, and that is what it turned out to be.
+ * they are not any more. N1 then spent that on a sixth row: 46.42px measured
+ * against a predicted 46.43, clear of the 44px floor by 2.42, and still 5px
+ * taller than the 41.46px rows of the five-row board it replaced. The board
+ * rectangle itself did not move at all, which is the whole point of K2 holding
+ * still underneath it. layout-drive asserts the floor directly now -- a grid
+ * row may never be shorter than 44px -- so the next thing that reaches for
+ * this space fails loudly rather than painting over the dock.
  *
  * The tutorial keeps its own number, and that is deliberate rather than a
  * leftover — see .dock.tutorial-dock below.

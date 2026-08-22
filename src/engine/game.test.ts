@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS, type GridSize } from './config'
+import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from './config'
 import {
   IllegalClueError,
   IllegalEventError,
@@ -32,10 +32,20 @@ const makeWords = (n: number): BoardWord[] =>
 // Pins the opener explicitly, so these tests keep reading the same way if the
 // default ever moves again. The default itself is asserted against createGame
 // directly, in 'who opens the round'.
-const newGame = (grid: GridSize = 'beginner', seed = 7, firstGiver: Side = 'player') =>
+//
+// "Every board" here means every CONFIG the app can deal, not every size:
+// there are no sizes since N1. The board, plus the two modes you enter.
+const CONFIGS: Record<'board' | 'tutorial' | 'wrapup', GridConfig> = {
+  board: BOARD,
+  tutorial: TUTORIAL_CONFIG,
+  wrapup: WRAPUP_CONFIG,
+}
+type Grid = keyof typeof CONFIGS
+
+const newGame = (grid: Grid = 'board', seed = 7, firstGiver: Side = 'player') =>
   createGame({
-    config: GRID_CONFIGS[grid],
-    words: makeWords(GRID_CONFIGS[grid].totalWords),
+    config: CONFIGS[grid],
+    words: makeWords(CONFIGS[grid].totalWords),
     seed,
     firstGiver,
   })
@@ -113,7 +123,7 @@ describe('full game flows', () => {
    */
   it('never ends a round on a guess that is merely wrong', () => {
     let checked = 0
-    for (const grid of ['beginner', 'middle', 'standard'] as GridSize[]) {
+    for (const grid of ['board', 'tutorial', 'wrapup'] as Grid[]) {
       for (let seed = 1; seed <= 25; seed++) {
         let s = newGame(grid, seed)
         while (s.phase === 'playerClueInput' || s.phase === 'aiClueInput') {
@@ -134,8 +144,9 @@ describe('full game flows', () => {
   })
 
   it('bystander reveals are directional: blocked for one giver, guessable for the other', () => {
-    // standard grid guarantees words that are bystander on the player key but green on the AI key
-    let s = newGame('standard')
+    // The board guarantees words that are bystander on the player key but green
+    // on the AI key: eight greens a side with three shared leaves five each way.
+    let s = newGame('board')
     const target = Object.keys(s.playerKey).find(
       (w) => s.playerKey[w] === 'bystander' && s.aiKey[w] === 'green',
     )!
@@ -185,7 +196,7 @@ describe('full game flows', () => {
       Object.keys(s.aiKey).find((w) => s.aiKey[w] === 'green' && s.playerKey[w] === 'bystander')!
 
     it('the player scores a word their OWN key calls neutral, under Casey clue', () => {
-      let s = newGame('standard', 7, 'ai')
+      let s = newGame('board', 7, 'ai')
       const card = onlyHis(s)
       expect(card).toBeDefined()
       s = clue(s, 'ai', 2)
@@ -195,7 +206,7 @@ describe('full game flows', () => {
     })
 
     it('and the same card scores nothing when Casey names it under the PLAYER clue', () => {
-      let s = newGame('standard', 7, 'player')
+      let s = newGame('board', 7, 'player')
       const card = onlyHis(s)
       s = clue(s, 'player', 2)
       s = applyEvent(s, { type: 'GUESS', wordId: card })
@@ -215,7 +226,7 @@ describe('full game flows', () => {
      * so a green on EITHER key counts and anything else ends it.
      */
     it('except in sudden death, which has no giver and reads both keys', () => {
-      const s = burnClues(newGame(), GRID_CONFIGS.beginner.turnTokens)
+      const s = burnClues(newGame(), BOARD.turnTokens)
       expect(s.phase).toBe('suddenDeath')
       const mineOnly = Object.keys(s.playerKey).find(
         (w) => s.playerKey[w] === 'green' && s.aiKey[w] !== 'green' && isGuessable(s, w),
@@ -239,12 +250,12 @@ describe('full game flows', () => {
      */
     it('holds across every board, both openers and forty deals', () => {
       let checked = 0
-      for (const grid of ['beginner', 'middle', 'standard'] as const) {
+      for (const grid of ['board', 'tutorial', 'wrapup'] as const) {
         for (const firstGiver of ['player', 'ai'] as const) {
           for (let seed = 1; seed <= 40; seed++) {
             let s = createGame({
-              config: GRID_CONFIGS[grid],
-              words: makeWords(GRID_CONFIGS[grid].totalWords),
+              config: CONFIGS[grid],
+              words: makeWords(CONFIGS[grid].totalWords),
               seed,
               firstGiver,
             })
@@ -273,15 +284,15 @@ describe('full game flows', () => {
   })
 
   it('keeps the same giver when the other side has nothing left to clue', () => {
-    // standard, because emptying one side's key now takes two clues rather than
-    // one: MAX_CLUE_NUMBER is 4 and there is no bonus guess to stretch it, and
-    // beginner does not have the tokens to spare for the setup.
-    let s = newGame('standard')
+    // Emptying one side's key takes two clues rather than one: MAX_CLUE_NUMBER
+    // is 4, there is no bonus guess to stretch it, and the board's eight greens
+    // a side is exactly two full clues — which the eight tokens have room for.
+    let s = newGame('board')
     // Turn 1: player clue, AI hits a bystander → normal rotation to the AI.
     s = clue(s, 'player', 1)
     s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'bystander') })
     expect(s.phase).toBe('aiClueInput')
-    // Turns 2 and 4: under the AI's clues the player finds all 7 AI-key greens.
+    // Turns 2 and 4: under the AI's clues the player finds all 8 AI-key greens.
     const takeAiGreens = (n: number) => {
       s = clue(s, 'ai', n)
       for (let i = 0; i < n; i++) {
@@ -292,7 +303,7 @@ describe('full game flows', () => {
     // Turn 3: a spacer, so the AI gets the clue again.
     s = clue(s, 'player', 1)
     s = applyEvent(s, { type: 'GUESS', wordId: findGuessable(s, 'player', 'bystander') })
-    takeAiGreens(3)
+    takeAiGreens(4)
     expect(targetableGreenIds(s, 'ai')).toEqual([])
     expect(s.phase).toBe('playerClueInput')
     // Turn 5: player clues, AI banks one green and stops. The AI side has
@@ -387,7 +398,7 @@ describe('illegal events', () => {
  */
 describe('sudden death', () => {
   /** Burn every clue token without finding anything. */
-  const exhaust = (grid: 'beginner' | 'standard' = 'beginner') => {
+  const exhaust = (grid: Grid = 'board') => {
     let s = newGame(grid)
     while (s.phase !== 'suddenDeath' && s.phase !== 'finished') {
       const giver = giverOf(s.phase)
@@ -456,8 +467,8 @@ describe('sudden death', () => {
 describe('who opens the round', () => {
   const bare = () =>
     createGame({
-      config: GRID_CONFIGS.beginner,
-      words: makeWords(GRID_CONFIGS.beginner.totalWords),
+      config: BOARD,
+      words: makeWords(BOARD.totalWords),
       seed: 7,
     })
 
@@ -466,7 +477,7 @@ describe('who opens the round', () => {
   })
 
   it('but the caller can still say otherwise', () => {
-    expect(newGame('beginner', 7, 'ai').phase).toBe('aiClueInput')
+    expect(newGame('board', 7, 'ai').phase).toBe('aiClueInput')
   })
 })
 

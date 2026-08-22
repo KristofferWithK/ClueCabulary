@@ -6,7 +6,7 @@ import { MockCompanion } from '../ai/mock/mockCompanion'
 import { TutorialCompanion } from '../ai/tutorialCompanion'
 import { buildAiClueView, buildAiGuessView, buildStoryView } from '../ai/projections'
 import type { GuessResponse, StoryResponse, TranslationResponse } from '../ai/schemas'
-import { GRID_CONFIGS, WRAPUP_CONFIG, type GridConfig, type GridSize } from '../engine/config'
+import { BOARD, TUTORIAL_CONFIG, WRAPUP_CONFIG, type GridConfig } from '../engine/config'
 import { applyEvent as applyEventIn, createGame, currentClue } from '../engine/game'
 import { matchesAnswer } from '../engine/packing'
 import { mulberry32 } from '../engine/rng'
@@ -43,7 +43,9 @@ type PlannedGuess = GuessResponse['guesses'][number]
 
 export interface NewGameOptions {
   seed?: number
-  gridSize?: GridSize
+  // There was a `gridSize` here, so a caller could deal a board other than the
+  // stored one. There is one board (N1), so seed and dailyKey are all that is
+  // left to say about a deal.
   /** Set for the shared daily challenge (local date, e.g. "2026-08-12"). */
   dailyKey?: string
 }
@@ -499,11 +501,10 @@ export const useGame = create<GameStore>()(
 
       newGame: (opts) => {
         const settings = useSettings.getState()
-        const config = GRID_CONFIGS[opts?.gridSize ?? settings.gridSize]
         const actualSeed = opts?.seed ?? (Date.now() % 0xffffffff)
         const dailyKey = opts?.dailyKey ?? null
         const prior = get().recentBoards
-        const { game, wordIds } = dealBoard(config, actualSeed, dailyKey, prior)
+        const { game, wordIds } = dealBoard(BOARD, actualSeed, dailyKey, prior)
         // A translation overlay left on would show answers from second one
         // without ever counting as lookups — every round starts covered.
         useUi.getState().resetTranslations()
@@ -576,7 +577,7 @@ export const useGame = create<GameStore>()(
         // src/onboarding/tutorial.ts; tutorial.test.ts pins both to the engine.
         const entries = TUTORIAL_WORD_IDS.map((id) => wordById(id)!)
         const game = createGame({
-          config: GRID_CONFIGS.beginner,
+          config: TUTORIAL_CONFIG,
           words: entries.map((w) => ({
             wordId: w.id,
             da: w.da,

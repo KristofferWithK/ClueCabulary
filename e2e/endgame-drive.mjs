@@ -13,7 +13,6 @@ import { startPreview } from './preview-server.mjs'
 
 const PORT = 4195
 const preview = await startPreview(PORT)
-const SIZES = ['beginner', 'middle', 'standard']
 
 // Read off disk rather than out of the page: the sentences the summary shows
 // have to be checkable against the dataset they claim to come from, and the app
@@ -61,12 +60,13 @@ const check = (name, ok, detail = '') => {
 const game = () =>
   page.evaluate(() => JSON.parse(localStorage.getItem('cluecab-game-v1') ?? '{}').state?.game)
 
-/** Start a round on the given board, past the study phase. */
-async function start(gridIndex, seed = 5) {
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}&grid=${SIZES[gridIndex]}`)
+/** Start a round, past the study phase. (There is one board since N1, so the
+ *  gridIndex this took is gone rather than defaulted.) */
+async function start(seed = 5) {
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.evaluate(() => localStorage.removeItem('cluecab-game-v1'))
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}&grid=${SIZES[gridIndex]}`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=${seed}`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')
@@ -97,7 +97,7 @@ async function name(da) {
 
 try {
   // ---- the player opens -------------------------------------------------------
-  await start(0)
+  await start()
   const opened = await game()
   check('the round opens on the player', opened.phase === 'playerClueInput', opened.phase)
   check(
@@ -107,17 +107,16 @@ try {
   )
   check('and Casey has not clued yet', opened.clueHistory.length === 0, `${opened.clueHistory.length} clues`)
 
-  // ---- the 3x5 board ----------------------------------------------------------
-  await start(1)
-  const mid = await game()
-  check('the middle board is 3 across and 5 down', mid.config.cols === 3 && mid.config.rows === 5)
-  check('with fifteen words', mid.words.length === 15, `${mid.words.length}`)
-  check('and six clues', mid.config.turnTokens === 6, `${mid.config.turnTokens}`)
+  // ---- the board, and there is one of it (N1) ---------------------------------
+  const mid = opened
+  check('the board is 3 across and 6 down', mid.config.cols === 3 && mid.config.rows === 6)
+  check('with eighteen words', mid.words.length === 18, `${mid.words.length}`)
+  check('and eight clues', mid.config.turnTokens === 8, `${mid.config.turnTokens}`)
   const perSide = Object.values(mid.playerKey).filter((r) => r === 'green').length
-  check('seven greens a side, which is two, two and three', perSide === 7, `${perSide}`)
+  check('eight greens a side, three of them shared', perSide === 8, `${perSide}`)
   check(
-    'all fifteen cards render',
-    (await page.locator('.word-card').count()) === 15,
+    'all eighteen cards render',
+    (await page.locator('.word-card').count()) === 18,
     `${await page.locator('.word-card').count()}`,
   )
 
@@ -131,7 +130,7 @@ try {
   // Driven from a forced state rather than by playing on: reaching a Casey clue
   // of a known number, with that many of his greens still on the board, is a
   // matter of luck with the mock companion.
-  await start(0)
+  await start()
   await page.evaluate(() => {
     const raw = JSON.parse(localStorage.getItem('cluecab-game-v1'))
     const g = raw.state.game
@@ -176,7 +175,7 @@ try {
   )
 
   // ---- sudden death: the winning end -----------------------------------------
-  await start(0)
+  await start()
   await forceSuddenDeath()
   const sd = await game()
   check('running out of clues opens sudden death rather than ending the round', !sd.outcome)
@@ -303,7 +302,7 @@ try {
   check('and shuts again', (await page.locator('.turn-log').count()) === 0)
 
   // ---- sudden death: the losing end ------------------------------------------
-  await start(0)
+  await start()
   await forceSuddenDeath()
   const sd2 = await game()
   const dud = sd2.words.find(
@@ -340,7 +339,7 @@ try {
   check('and the summary names the card that ended it', culprit.includes(dud.da), culprit.trim())
 
   // ---- sudden death: walking away --------------------------------------------
-  await start(0)
+  await start()
   await forceSuddenDeath()
   await page.locator('.sudden-death-bar .btn-ghost').click()
   const gaveUp = await game()

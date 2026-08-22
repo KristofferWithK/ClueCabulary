@@ -100,7 +100,7 @@ const say = async (label) => {
     )
 }
 
-const Q = '?mock=1&howto=0&seed=7&city=0&grid=standard&first=player'
+const Q = '?mock=1&howto=0&seed=7&city=0&first=player'
 
 try {
   // ---- a normal round, every phase --------------------------------------

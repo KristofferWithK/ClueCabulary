@@ -2,7 +2,6 @@ import { ACTIVE } from '../lang/active'
 import { useJourney } from '../stores/journeyStore'
 import { useSettings } from '../stores/settingsStore'
 import { useSrs } from '../stores/srsStore'
-import type { GridSize } from '../engine/config'
 import type { StudyMode } from '../journey/progress'
 import {
   BACKUP_FILENAME,
@@ -26,7 +25,7 @@ export function readSnapshot(): Snapshot {
       wrapped: j.wrapped,
       arrivedAt: j.arrivedAt,
     },
-    prefs: { gridSize: s.gridSize, clueLanguage: s.clueLanguage, studyPhase: s.studyPhase },
+    prefs: { clueLanguage: s.clueLanguage, studyPhase: s.studyPhase },
     language: ACTIVE.code,
   }
 }
@@ -59,7 +58,6 @@ function writeSnapshot(next: Snapshot, restorePrefs: boolean) {
   )
   if (restorePrefs) {
     useSettings.getState().set({
-      gridSize: next.prefs.gridSize as GridSize,
       clueLanguage: next.prefs.clueLanguage,
       studyPhase: next.prefs.studyPhase as StudyMode,
     })

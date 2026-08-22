@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS } from '../engine/config'
+import { BOARD } from '../engine/config'
 import { applyEvent as applyEventIn, createGame } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { buildAiClueView, buildAiGuessView, type FlaggedCall } from './projections'
@@ -31,7 +31,7 @@ const words = (n: number): BoardWord[] =>
   }))
 
 const start = (firstGiver: 'player' | 'ai' = 'ai') =>
-  createGame({ config: GRID_CONFIGS.beginner, words: words(12), seed: 7, firstGiver })
+  createGame({ config: BOARD, words: words(BOARD.totalWords), seed: 7, firstGiver })
 
 const cluePrompt = (flagged: FlaggedCall[] = []) =>
   buildCluePrompt(buildAiClueView(start('ai'), 'target', flagged))

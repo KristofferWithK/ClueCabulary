@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS, assertConfigConsistent, type GridConfig } from './config'
+import {
+  BOARD,
+  TUTORIAL_CONFIG,
+  WRAPUP_CONFIG,
+  assertConfigConsistent,
+  type GridConfig,
+} from './config'
 import { distinctGreenIds, generateKeys } from './keygen'
 import { mulberry32 } from './rng'
 import type { CardRole } from './types'
@@ -12,7 +18,18 @@ function countRoles(key: Record<string, CardRole>) {
   return counts
 }
 
-describe.each(Object.entries(GRID_CONFIGS))('keygen %s', (_name, config: GridConfig) => {
+/**
+ * Every config the app can deal, not every board SIZE — there are no sizes
+ * (N1). The two beside the board are modes you enter: the scripted tutorial
+ * and the wrap-up ritual.
+ */
+const CONFIGS: Array<[string, GridConfig]> = [
+  ['board', BOARD],
+  ['tutorial', TUTORIAL_CONFIG],
+  ['wrapup', WRAPUP_CONFIG],
+]
+
+describe.each(CONFIGS)('keygen %s', (_name, config: GridConfig) => {
   it('config is internally consistent', () => {
     expect(() => assertConfigConsistent(config)).not.toThrow()
   })
@@ -67,11 +84,11 @@ describe.each(Object.entries(GRID_CONFIGS))('keygen %s', (_name, config: GridCon
 })
 
 it('rejects wrong word count', () => {
-  expect(() => generateKeys(GRID_CONFIGS.beginner, wordIds(11), mulberry32(1))).toThrow()
+  expect(() => generateKeys(BOARD, wordIds(BOARD.totalWords - 1), mulberry32(1))).toThrow()
 })
 
 describe('SRS-biased dealing', () => {
-  const config = GRID_CONFIGS.standard
+  const config = BOARD
   const ids = wordIds(config.totalWords)
   /** The first five words are ones the player keeps forgetting. */
   const WEAK = ids.slice(0, 5)
@@ -173,7 +190,10 @@ describe('SRS-biased dealing', () => {
       for (const id of ids) if (keys.aiKey[id] === 'green') recallCounts.set(id, recallCounts.get(id)! + 1)
     }
     const rates = [...recallCounts.values()].map((n) => n / rounds)
-    // Expected 7/20 = 0.35 for every word; allow sampling noise.
-    for (const rate of rates) expect(Math.abs(rate - 0.35)).toBeLessThan(0.08)
+    // Every word is equally likely to be green: greensPerSide of totalWords,
+    // which is 8/18 on the board. Read off the config rather than written out,
+    // so the tolerance stays honest if the board's shape ever moves again.
+    const expected = config.greensPerSide / config.totalWords
+    for (const rate of rates) expect(Math.abs(rate - expected)).toBeLessThan(0.08)
   })
 })

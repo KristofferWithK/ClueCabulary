@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
-  GRID_CONFIGS,
+  BOARD,
   MAX_CLUE_NUMBER,
+  TUTORIAL_CONFIG,
   WRAPUP_CONFIG,
   assertConfigConsistent,
   distinctGreens,
@@ -18,92 +19,88 @@ import { danish } from '../lang/da'
 const applyEvent = (s: Parameters<typeof applyEventIn>[0], e: Parameters<typeof applyEventIn>[1]) =>
   applyEventIn(s, e, danish)
 
+const CONFIGS: Array<[string, GridConfig]> = [
+  ['board', BOARD],
+  ['tutorial', TUTORIAL_CONFIG],
+  ['wrapup', WRAPUP_CONFIG],
+]
+
 describe('the shipped boards', () => {
   it('are internally consistent', () => {
-    for (const c of Object.values(GRID_CONFIGS)) assertConfigConsistent(c)
-    assertConfigConsistent(WRAPUP_CONFIG)
+    for (const [, c] of CONFIGS) assertConfigConsistent(c)
   })
 
   /**
-   * The wrap-up board's shape, pinned like the others: five clue-givings a
-   * side, sixteen distinct greens over ten shared tokens = the beginner ratio.
-   * The packing phase is the round's added difficulty, so the clue economy is
-   * deliberately the forgiving one.
+   * THE board — there is one, since N1 — pinned by its shape rather than by
+   * the win rate it produces. 3x6: eighteen cards, eight greens a side, three
+   * of them shared, eight shared clue tokens.
    *
-   * The know-nothing forbidden floor that used to be quoted here as the second
-   * half of the argument — 6.4% of guesses against standard 4x5's 16.0% — no
-   * longer describes anything: no board has forbidden words. What replaces it
-   * is a plain measurement of the same claim. This is now the softest board in
-   * the game, 84.8% at p=0.6 against the 3x5's 67.1% (2000 seeded games), and
-   * that is the forgiving clue economy doing exactly what it says.
+   * Pinned because every one of these numbers is a play-feel decision with a
+   * measurement behind it in `config.ts`, and if one changes it should change
+   * because someone meant it to.
    */
-  it('give the wrap-up board the beginner ratio on the big grid', () => {
-    expect(WRAPUP_CONFIG.turnTokens).toBe(10)
-    expect(distinctGreens(WRAPUP_CONFIG)).toBe(16)
-    expect(+(distinctGreens(WRAPUP_CONFIG) / WRAPUP_CONFIG.turnTokens).toFixed(2)).toBe(1.6)
-    // Nothing on a wrap-up board is ever new — the pool is collected words.
-    expect(WRAPUP_CONFIG.maxNewWordsPerBoard).toBe(0)
+  it('are one board of eighteen cards, three across', () => {
+    expect([BOARD.cols, BOARD.rows]).toEqual([3, 6])
+    expect(BOARD.totalWords).toBe(18)
+    expect(BOARD.greensPerSide).toBe(8)
+    expect(BOARD.greenOverlap).toBe(3)
+    expect(BOARD.turnTokens).toBe(8)
+    // Thirteen distinct greens: three on both keys, five only-player, five
+    // only-Casey. A shared green counts once, since finding it once is all the
+    // game asks.
+    expect(distinctGreens(BOARD)).toBe(13)
+    // Five cards on nobody's key.
+    expect(BOARD.totalWords - distinctGreens(BOARD)).toBe(5)
+    // One never-seen word in three, the ratio every board has carried.
+    expect(BOARD.maxNewWordsPerBoard).toBe(6)
   })
 
   /**
-   * Pinned because it is a play-feel decision, not an implementation detail —
-   * if it changes, it should change because someone meant it to. It was four
-   * for a build, which reads tidier (two clues each) and quietly forbids a
-   * whole play style: eight greens cannot be cleared by clues of 2 in four
-   * turns, so the board insisted on ambition.
-   */
-  it('give the beginner board five clues', () => {
-    expect(GRID_CONFIGS.beginner.turnTokens).toBe(5)
-  })
-
-  /**
-   * How much each clue has to carry. Beginner is the gentlest board on
-   * purpose; this records what that costs so a later tuning is an argument
-   * with a number in it rather than a shrug.
+   * How much each clue has to carry: distinct greens over the shared token
+   * pool. Codenames Duet, the game this is scaled from, sits at 15/9 = 1.67,
+   * and the 3x5 this board replaces sat at 1.83 — the tightest budget the game
+   * has ever had. 1.63 is a little kinder than either.
    */
   it('ask each clue to carry a known number of greens', () => {
     const load = (c: GridConfig) => +(distinctGreens(c) / c.turnTokens).toFixed(2)
-    expect({
-      beginner: load(GRID_CONFIGS.beginner),
-      middle: load(GRID_CONFIGS.middle),
-      standard: load(GRID_CONFIGS.standard),
-    }).toEqual({ beginner: 1.6, middle: 1.83, standard: 1.71 })
-    // Codenames Duet, the game this is scaled from, sits at 15/9 = 1.67. The
-    // first board a player meets should not be the hardest of the three.
-    expect(load(GRID_CONFIGS.beginner)).toBeLessThan(15 / 9)
+    expect(load(BOARD)).toBe(1.63)
+    expect(load(BOARD)).toBeLessThan(15 / 9)
+    // The two modes are both at the beginner ratio on purpose; see config.ts.
+    expect(load(TUTORIAL_CONFIG)).toBe(1.6)
+    expect(load(WRAPUP_CONFIG)).toBe(1.6)
   })
 
   /**
-   * Standard's seven, pinned like beginner's five, because it is the one
-   * number the forbidden-word removal actually forced.
-   *
-   * It was eight, which was Duet's ratio and the loosest budget in the game —
-   * affordable only because standard was the one board dealt three forbidden
-   * words a side, so its difficulty sat in the hazards instead. With them gone
-   * it measured EASIER than the middle board it escalates from (71.3% against
-   * 67.1% at p=0.6, 2000 seeded games). Seven puts it back behind middle at
-   * 58.1% without touching a single card on the board; `selfplay.test.ts`
-   * asserts that ordering directly, and config.ts carries the full table.
+   * The tutorial board's shape. It was `GRID_CONFIGS.beginner` and it is not a
+   * size any more — it is the board the scripted first round is dealt on, and
+   * `tutorial.test.ts` plays every scripted beat through the engine, so this is
+   * really a second lock on the same door.
    */
-  it('give the standard board seven clues, one fewer than Duet would', () => {
-    expect(GRID_CONFIGS.standard.turnTokens).toBe(7)
-    // Still slack enough for a perfect pair, which spends 4.44 of them.
-    expect(GRID_CONFIGS.standard.turnTokens).toBeGreaterThan(5)
+  it('keep the 3x4 as a mode you enter rather than a difficulty you keep', () => {
+    expect([TUTORIAL_CONFIG.cols, TUTORIAL_CONFIG.rows]).toEqual([3, 4])
+    expect(distinctGreens(TUTORIAL_CONFIG)).toBe(8)
+    expect(TUTORIAL_CONFIG.turnTokens).toBe(5)
+    expect(TUTORIAL_CONFIG.totalWords - distinctGreens(TUTORIAL_CONFIG)).toBe(4)
   })
 
-  it('count a shared green once, since finding it once is all the game asks', () => {
-    // beginner: 2 on both keys + 3 only-player + 3 only-Casey
-    expect(distinctGreens(GRID_CONFIGS.beginner)).toBe(8)
-    expect(distinctGreens(GRID_CONFIGS.standard)).toBe(12)
+  /**
+   * The wrap-up board's shape, pinned the same way: five clue-givings a side,
+   * sixteen distinct greens over ten shared tokens. The packing phase is the
+   * round's added difficulty, so the clue economy is deliberately forgiving.
+   */
+  it('give the wrap-up board the forgiving ratio on the big grid', () => {
+    expect(WRAPUP_CONFIG.turnTokens).toBe(10)
+    expect(distinctGreens(WRAPUP_CONFIG)).toBe(16)
+    expect(WRAPUP_CONFIG.totalWords - distinctGreens(WRAPUP_CONFIG)).toBe(4)
+    // Nothing on a wrap-up board is ever new — the pool is collected words.
+    expect(WRAPUP_CONFIG.maxNewWordsPerBoard).toBe(0)
   })
 })
 
 describe('the guard against a board that cannot be cleared', () => {
-  const beginner = GRID_CONFIGS.beginner
-
   it('refuses a token count no perfect player could survive', () => {
-    // 8 greens, 5 guesses per clue at most: one clue can never be enough.
-    expect(() => assertConfigConsistent({ ...beginner, turnTokens: 1 })).toThrow(/cannot clear/)
+    // 13 greens, at most 4 taken per clue: three clues can never be enough.
+    expect(() => assertConfigConsistent({ ...BOARD, turnTokens: 3 })).toThrow(/cannot clear/)
   })
 
   // Both of these assert what the CLEARING guard does, so they are written as
@@ -114,76 +111,47 @@ describe('the guard against a board that cannot be cleared', () => {
   // narrow assertion is kept, because the next guard added here will do it
   // again.
   it('allows the arithmetic floor, tight as it is', () => {
-    const floor = Math.ceil(distinctGreens(beginner) / (MAX_CLUE_NUMBER + 1))
-    expect(floor).toBe(2)
-    expect(() => assertConfigConsistent({ ...beginner, turnTokens: floor })).not.toThrow(
+    const floor = Math.ceil(distinctGreens(BOARD) / MAX_CLUE_NUMBER)
+    expect(floor).toBe(4)
+    expect(() => assertConfigConsistent({ ...BOARD, turnTokens: floor })).not.toThrow(
       /cannot clear/,
     )
   })
 
   it('is a bound on the impossible, not on the merely hard', () => {
-    // Deliberately not an opinion about difficulty: 2 tokens for 8 greens is a
-    // brutal game and a legal one. Only unwinnable configurations are refused.
-    expect(() => assertConfigConsistent({ ...beginner, turnTokens: 4 })).not.toThrow(/cannot clear/)
+    // Deliberately not an opinion about difficulty: 5 tokens for 13 greens is
+    // a brutal game and a legal one. Only unwinnable configurations are
+    // refused.
+    expect(() => assertConfigConsistent({ ...BOARD, turnTokens: 5 })).not.toThrow(/cannot clear/)
+  })
+
+  it('refuses a key that does not fit the board', () => {
+    // 18 cards cannot hold 9 + 9 distinct greens with nothing shared.
+    expect(() =>
+      assertConfigConsistent({ ...BOARD, greensPerSide: 10, greenOverlap: 0 }),
+    ).toThrow(/key slots/)
+  })
+
+  it('refuses a grid whose rows and columns do not make its word count', () => {
+    expect(() => assertConfigConsistent({ ...BOARD, rows: 5 })).toThrow(/!= totalWords/)
   })
 })
 
 /**
- * How much of each board does nothing.
- *
- * Removing forbidden words freed a card or three on every board and they became
- * bystanders, because leaving the green counts alone was the cautious move —
- * the ratios above are the ones that were played and measured. The cost is
- * here: 3x4 and 3x5 went from two dead cards to four, and 4x5 from five to
- * eight.
- *
- * The re-tune measured that cost and left it standing. Of every guess that
- * misses, the share landing on a card that is on nobody's key is 72.5% on the
- * 3x4, 67.9% on the 3x5 and 76.2% on the 4x5 (p=0.7, 2000 seeded games). The
- * obvious fix — deal those slots as greens — was measured too and does the
- * opposite of what it promises: it makes a board harder and longer, because a
- * dead card is a card nobody ever has to point at. config.ts's `standard`
- * comment carries that table.
- *
- * Pinned so a redistribution is a deliberate edit with an argument attached
- * rather than something that drifts. If these numbers change, the greens
- * changed.
- */
-describe('the cards that are on nobody key', () => {
-  const neutrals = (c: GridConfig) => c.totalWords - distinctGreens(c)
-
-  it.each([
-    ['beginner', 12, 8, 4],
-    ['middle', 15, 11, 4],
-    ['standard', 20, 12, 8],
-  ] as const)('%s: %i cards, %i greens, %i neutral', (grid, total, greens, dead) => {
-    const c = GRID_CONFIGS[grid]
-    expect(c.totalWords).toBe(total)
-    expect(distinctGreens(c)).toBe(greens)
-    expect(neutrals(c)).toBe(dead)
-  })
-
-  it('and the wrap-up board, four of twenty', () => {
-    expect(neutrals(WRAPUP_CONFIG)).toBe(4)
-  })
-})
-
-/**
- * Is the token count actually enough? Play the boards and find out.
+ * Is the token count actually enough? Play the board and find out.
  *
  * The first answer to this was measured with fixed-ambition strategies —
  * "always clue 2", "always clue 3" — and reported that cluing pairs loses
  * every board, which was true and was the wrong emphasis: nobody clues 2
- * while five of their greens are still hidden. A person clues for what is
- * left, up to about three at a time. Both are worth playing, though, and at
- * four tokens the pair-by-pair line really was impossible rather than merely
- * slow — which is what the fifth token is for.
+ * while eight of their greens are still hidden. A person clues for what is
+ * left, up to about three at a time. Both are worth playing, though, and it is
+ * the pair-by-pair line that decides whether a token count is generous or
+ * merely survivable.
  */
 const makeWords = (n: number): BoardWord[] =>
   Array.from({ length: n }, (_, i) => ({ wordId: `w${i}`, da: `xq${i}`, en: [`zz${i}`], pos: 'noun' }))
 
-function playClueingForWhatIsLeft(seed: number, cap: number) {
-  const config = GRID_CONFIGS.beginner
+function playClueingForWhatIsLeft(seed: number, cap: number, config: GridConfig = BOARD) {
   let s = createGame({ config, words: makeWords(config.totalWords), seed })
   const numbers: number[] = []
   for (let guard = 0; s.phase !== 'finished' && guard < 30; guard++) {
@@ -206,7 +174,7 @@ function playClueingForWhatIsLeft(seed: number, cap: number) {
   return { won: s.outcome?.result === 'won', clues: s.clueHistory.length, numbers }
 }
 
-describe('the beginner board, played the way a person plays', () => {
+describe('the board, played the way a person plays', () => {
   const seeds = Array.from({ length: 60 }, (_, i) => i * 7 + 1)
 
   it('clears every board, cluing at most three at a time', () => {
@@ -215,29 +183,44 @@ describe('the beginner board, played the way a person plays', () => {
   })
 
   /**
-   * Three-then-three-then-two, on all sixty. Five greens a side and two of
-   * them shared, so whoever clues first spends the overlap and leaves the
-   * other side three. The perfect line is three clues and the budget is five,
-   * so two are spare — room for a wrong guess and a wasted clue, rather than
-   * the one mistake four allowed.
+   * Three, three, three, two, two — five clues, on all sixty seeds. Eight
+   * greens a side with three shared is thirteen distinct, and whoever clues
+   * first spends the overlap, so the tail comes out as two twos rather than a
+   * three and a one. Five of the eight tokens, which leaves three spare: room
+   * for two wrong guesses and a wasted clue.
+   *
+   * The 3x5 this replaced took three of its six and left two spare. The board
+   * is a little longer AND a little more forgiving, which is the trade the
+   * table in config.ts argues for — checked here rather than asserted in prose.
    */
-  it('takes three of its five clues when clued ambitiously', () => {
+  it('takes five of its eight clues when clued ambitiously', () => {
     const runs = seeds.map((s) => playClueingForWhatIsLeft(s, 3))
     const shapes = new Set(runs.map((r) => r.numbers.join('+')))
-    expect([...shapes]).toEqual(['3+3+2'])
-    expect(runs.every((r) => r.clues <= GRID_CONFIGS.beginner.turnTokens - 2)).toBe(true)
+    expect([...shapes]).toEqual(['3+3+3+2+2'])
+    expect(runs.every((r) => r.clues <= BOARD.turnTokens - 3)).toBe(true)
   })
 
   /**
-   * The reason for the fifth token. Eight greens need five clues of 2, and at
-   * four this line could not be played at all — a whole way of playing the
-   * game was arithmetically forbidden on the first board a learner meets.
+   * And the pair-by-pair line, which is the one an arithmetic floor forbids
+   * first: thirteen greens cluing nothing but 2s takes seven clues, and the
+   * board gives eight. This is the check that once caught the 3x4 at four
+   * tokens, where cluing in pairs was arithmetically impossible on the first
+   * board a learner met — a whole way of playing forbidden by the budget
+   * rather than by the board.
+   *
+   * Seven of eight, exactly: the eighth token is what makes pairs a play style
+   * with a margin rather than a tightrope.
    */
-  it('and clears it cluing nothing but pairs, which four clues could not', () => {
+  it('and clears it cluing nothing but pairs, which seven tokens would not', () => {
     const runs = seeds.map((s) => playClueingForWhatIsLeft(s, 2))
     expect(runs.every((r) => r.won)).toBe(true)
-    expect(runs.every((r) => r.clues <= GRID_CONFIGS.beginner.turnTokens)).toBe(true)
-    // Four would have run out one clue short of the board.
-    expect(Math.max(...runs.map((r) => r.clues))).toBeGreaterThan(4)
+    expect(new Set(runs.map((r) => r.clues))).toEqual(new Set([7]))
+    expect(BOARD.turnTokens).toBeGreaterThan(7)
+  })
+
+  /** The tutorial board still clears, since a scripted round is dealt on it. */
+  it('and the tutorial board clears too', () => {
+    const runs = seeds.map((s) => playClueingForWhatIsLeft(s, 3, TUTORIAL_CONFIG))
+    expect(runs.every((r) => r.won)).toBe(true)
   })
 })

@@ -24,7 +24,6 @@ import { readFileSync } from 'node:fs'
 import { startPreview } from './preview-server.mjs'
 
 const PORT = 4199
-const SIZES = ['beginner', 'middle', 'standard']
 const preview = await startPreview(PORT)
 
 // The dataset decides the worst case, so read it rather than hard-coding one.
@@ -82,10 +81,17 @@ const measure = () =>
     }),
   )
 
-/** Deal a board and read it. `learned` pushes the sampler deeper into a city. */
-const boardAt = async ({ city, learned, grid, translations }) => {
+/** Deal a board and read it. `learned` pushes the sampler deeper into a city.
+ *
+ * There used to be a `grid` here, walked over the 3-wide and 4-wide boards
+ * because the word is sized in cqw off the CARD and a four-wide card is a
+ * quarter narrower. One board now (N1) and it is three across, so the widest
+ * card in the game is the only card in the game — but the check itself is
+ * unchanged, and it is the one that matters: the article must cost the word no
+ * line it did not already need. */
+const boardAt = async ({ city, learned, translations }) => {
   await page.goto(
-    `${preview.base}?mock=1&howto=0&seed=7&city=${city}&learned=${learned}&grid=${SIZES[grid]}`,
+    `${preview.base}?mock=1&howto=0&seed=7&city=${city}&learned=${learned}`,
   )
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
@@ -135,12 +141,11 @@ try {
     // Fresh arrival, then most of the way through: the second reaches the far
     // end of the city, which is where the long words are.
     for (const learned of [0, 62]) {
-      for (const grid of [0, 1]) {
+      {
         // The deeper pass carries the English gloss, the tightest case there is.
         const { withArticle: on, without: off } = await boardAt({
           city,
           learned,
-          grid,
           translations: learned > 0,
         })
         const bare = new Map(off.map((m) => [m.word, m.lines]))
@@ -198,7 +203,7 @@ try {
 
   // --- The article must not be mistakable for part of the word. That is the
   // one way this could mislead: a clue containing a board word is illegal.
-  await page.goto(`${preview.base}?mock=1&howto=0&seed=5&grid=beginner`)
+  await page.goto(`${preview.base}?mock=1&howto=0&seed=5`)
   await page.waitForSelector('.city-card')
   await page.locator('.home-play').click()
   await page.waitForSelector('.board-grid')

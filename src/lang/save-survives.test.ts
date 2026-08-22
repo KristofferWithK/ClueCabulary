@@ -64,7 +64,8 @@ function realisticSave() {
       games: { played: 61, won: 33, redeemed: 2, lost: 26 },
       wrapUpsBanked: 2,
     },
-    // settings at v8: a player who chose the big board and turned sound off
+    // settings at v8: a player who chose the big board (a setting that no
+    // longer exists — see below) and turned sound off
     settings: {
       apiKey: '',
       baseUrl: 'https://cluecabulary-proxy.kristoffer-kai.workers.dev/v1',
@@ -155,9 +156,23 @@ describe('a save written before the language seam', () => {
     expect((srs as unknown as { wrapUpsBanked: number }).wrapUpsBanked).toBe(2)
   })
 
+  /**
+   * The board size this save chose is GONE — one board since N1 — and the
+   * field is not migrated away, on purpose. persist merges
+   * `{...initial, ...persisted}`, so an orphaned key is spread into state,
+   * read by nothing, and written back out untouched. That is the OPPOSITE of
+   * the trap CLAUDE.md records three times, which is about changing a default
+   * every save already carries; removing a field needs no version bump because
+   * there is no value left to fix.
+   */
+  it('carries the retired board size through untouched, harming nothing', () => {
+    const { settings } = loaded()
+    expect(settings.gridSize).toBe('standard')
+    expect(settings.studyPhase).toBe('always')
+  })
+
   it('keeps every setting the player chose', () => {
     const { settings, before } = loaded()
-    expect(settings.gridSize).toBe('standard')
     expect(settings.studyPhase).toBe('always')
     expect(settings.sound).toBe(false)
     expect(settings.model).toBe('cluey')

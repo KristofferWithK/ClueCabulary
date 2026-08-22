@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRID_CONFIGS } from '../engine/config'
+import { BOARD } from '../engine/config'
 import { applyEvent as applyEventIn, createGame } from '../engine/game'
 import type { BoardWord } from '../engine/types'
 import { buildAiGuessView } from './projections'
@@ -31,8 +31,8 @@ const words = (n: number): BoardWord[] =>
 /** A game sitting in aiGuessing, under a player clue of the given number. */
 const promptText = (number = 2, clue = 'klods') => {
   let s = createGame({
-    config: GRID_CONFIGS.beginner,
-    words: words(12),
+    config: BOARD,
+    words: words(BOARD.totalWords),
     seed: 7,
     firstGiver: 'player',
   })
