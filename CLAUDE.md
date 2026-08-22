@@ -11,9 +11,13 @@ do not know it.
 report on making a cheap model clue and guess like a frontier one, the four
 owner decisions of 2026-08-21 — including that journey boards become
 **city-only** — and the staged plan another session picks up from, carded as
-**E0–E6**. Only **E0** is built (journey boards are city-only); the rest of the
-plan is not — read the document before touching `src/ai/`, the board pool, or
-the E-cards.
+**E0–E6**. **E0, E1 and E2 are built**: journey boards are city-only,
+`src/data/matrix.da.json` is city 1's judged association matrix and
+`src/data/book.da.json` is its opening book. E3 onward is not. Read the
+document before touching `src/ai/`, the board pool, or the E-cards — and note
+that each landed stage has an "as built" subsection under §6 which **overrides
+the spec paragraph above it** (E1 corrected the `conflicts` rule, E2 the `why`
+word band and the agent batch size).
 
 ## Where the work is planned
 
